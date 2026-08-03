@@ -70,12 +70,13 @@ class QueryRewriterManager {
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
      * @property {'READ'|'WRITE'} operation
+     * @property {FhirRequestInfo} requestInfo
      *
      * @param {rewriteArgsAsyncParams}
      * @return {Promise<ParsedArgs>}
      */
 
-    async rewriteArgsAsync ({ base_version, parsedArgs, resourceType, operation }) {
+    async rewriteArgsAsync ({ base_version, parsedArgs, resourceType, operation, requestInfo }) {
         /**
          * @typedef {import('./rewriters/queryRewriter').QueryRewriter[]}
          */
@@ -84,7 +85,7 @@ class QueryRewriterManager {
             ...(this.operationSpecificQueryRewriters[`${operation}`] || [])
         ];
         for (const queryRewriter of queryRewriters) {
-            parsedArgs = await queryRewriter.rewriteArgsAsync({ base_version, parsedArgs, resourceType });
+            parsedArgs = await queryRewriter.rewriteArgsAsync({ base_version, parsedArgs, resourceType, requestInfo });
         }
         return parsedArgs;
     }

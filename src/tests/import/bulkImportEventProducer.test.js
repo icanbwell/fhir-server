@@ -1,21 +1,21 @@
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { BulkImportEventProducer } = require('../../operations/import/bulkImportEventProducer');
-const { MockKafkaClient } = require('../mocks/mockKafkaClient');
+const { MockKafkaClientV2 } = require('../mocks/mockKafkaClientV2');
 const { ConfigManager } = require('../../utils/configManager');
 
 describe('BulkImportEventProducer', () => {
     let producer;
-    let kafkaClient;
+    let kafkaClientV2;
 
     beforeEach(() => {
-        process.env.ENABLE_EVENTS_KAFKA = '1';
+        process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
         const configManager = new ConfigManager();
-        kafkaClient = new MockKafkaClient({ configManager });
-        producer = new BulkImportEventProducer({ kafkaClient, configManager });
+        kafkaClientV2 = new MockKafkaClientV2({ configManager });
+        producer = new BulkImportEventProducer({ kafkaClientV2, configManager });
     });
 
     afterEach(() => {
-        delete process.env.ENABLE_EVENTS_KAFKA;
+        delete process.env.ENABLE_EVENTS_KAFKA_V2;
     });
 
     test('calculateByteRanges splits a file into correct ranges', () => {
@@ -56,7 +56,7 @@ describe('BulkImportEventProducer', () => {
         });
 
         expect(count).toBe(3);
-        const messages = kafkaClient.getCloudEventMessages();
+        const messages = kafkaClientV2.getCloudEventMessages();
         expect(messages).toHaveLength(3);
 
         const event0 = JSON.parse(messages[0].value);
@@ -89,7 +89,7 @@ describe('BulkImportEventProducer', () => {
 
         // 1 range for 100MB file + 2 ranges for 200MB file = 3
         expect(count).toBe(3);
-        const messages = kafkaClient.getCloudEventMessages();
+        const messages = kafkaClientV2.getCloudEventMessages();
         expect(messages).toHaveLength(3);
 
         const event0 = JSON.parse(messages[0].value);
@@ -111,7 +111,7 @@ describe('BulkImportEventProducer', () => {
         });
 
         expect(count).toBe(0);
-        expect(kafkaClient.getCloudEventMessages()).toHaveLength(0);
+        expect(kafkaClientV2.getCloudEventMessages()).toHaveLength(0);
     });
 
     test('message keys include task ID and range index', async () => {
@@ -125,7 +125,7 @@ describe('BulkImportEventProducer', () => {
             user: 'test-user'
         });
 
-        const messages = kafkaClient.getCloudEventMessages();
+        const messages = kafkaClientV2.getCloudEventMessages();
         expect(messages[0].key).toBe('task-004-0-0');
         expect(messages[1].key).toBe('task-004-0-1');
         expect(messages[2].key).toBe('task-004-0-2');
@@ -142,7 +142,7 @@ describe('BulkImportEventProducer', () => {
             user: 'test-user'
         });
 
-        const event = JSON.parse(kafkaClient.getCloudEventMessages()[0].value);
+        const event = JSON.parse(kafkaClientV2.getCloudEventMessages()[0].value);
         expect(event.specversion).toBe('1.0');
         expect(event.id).toBeDefined();
         expect(event.source).toBe('https://www.icanbwell.com/fhir-server');
@@ -150,11 +150,11 @@ describe('BulkImportEventProducer', () => {
         expect(event.datacontenttype).toBe('application/json');
     });
 
-    test('publishImportEventsAsync skips sending when Kafka events are disabled', async () => {
-        delete process.env.ENABLE_EVENTS_KAFKA;
+    test('publishImportEventsAsync skips sending when Kafka v2 events are disabled', async () => {
+        delete process.env.ENABLE_EVENTS_KAFKA_V2;
         const configManager = new ConfigManager();
-        const disabledKafka = new MockKafkaClient({ configManager });
-        const disabledProducer = new BulkImportEventProducer({ kafkaClient: disabledKafka, configManager });
+        const disabledKafka = new MockKafkaClientV2({ configManager });
+        const disabledProducer = new BulkImportEventProducer({ kafkaClientV2: disabledKafka, configManager });
 
         const count = await disabledProducer.publishImportEventsAsync({
             taskId: 'task-disabled',

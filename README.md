@@ -98,20 +98,19 @@ This project has continuous integration set up so GitHub will automatically run 
 
 To deploy this code:
 
-1. Create a new release in GitHub and choose the next available version number as the release name. This builds the docker image and pushes it to two locations: DockerHub (public) and AWS ECR(private for b.well). https://hub.docker.com/repository/docker/imranq2/node-fhir-server-mongo
+1. Create a new release in GitHub and choose the next available version number as the release name. This builds the docker image and pushes it to DockerHub (public): https://hub.docker.com/repository/docker/imranq2/node-fhir-server-mongo. The b.well-internal image build and environment deploys are handled separately — see _Deploying inside b.well_ below.
 2. Once step 1 finishes, you can pull this docker image to wherever you're running the fhir server.
 
 ## Deploying inside b.well
 
-b.well has automated deployment set up. After the docker image is built and pushed:
-
-1. Run the GitHub Action for the appropriate environment: https://github.com/icanbwell/helm.helix-service/actions and input the version number to deploy
-
-To set environment variables for desired environment update the *environment-name*-ue1.values.yaml in https://github.com/icanbwell/helm.helix-service/tree/main/.helm/
+Deployment to b.well environments is handled by internal b.well infrastructure, not by
+this repository's GitHub Actions. Creating a release here builds and publishes the public
+DockerHub image (above); the b.well-internal image build and environment deploys run
+separately. (b.well engineers: see the internal deployment runbook.)
 
 ## Checking version of deployed fhir server
 
-Go to `/version` to see what version you're running.
+Go to `/version` to see the version and image you're running.
 
 ## Health check
 

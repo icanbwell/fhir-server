@@ -75,6 +75,7 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
     const { RedisInstrumentation } = require('@opentelemetry/instrumentation-redis');
     const { RuntimeNodeInstrumentation } = require('@opentelemetry/instrumentation-runtime-node');
     const { KafkaJsInstrumentation } = require('@opentelemetry/instrumentation-kafkajs');
+    const { AwsInstrumentation } = require('@opentelemetry/instrumentation-aws-sdk');
 
     const { W3CTraceContextPropagator, W3CBaggagePropagator, CompositePropagator } = require('@opentelemetry/core');
 
@@ -105,7 +106,8 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
             // Kafka producer/consumer spans and W3C traceparent propagation across the Kafka hop (EA-2263).
             // The auto-instrumentation path already includes kafkajs via getNodeAutoInstrumentations;
             // this adds it to the manual SDK path so trace context propagates in both paths.
-            new KafkaJsInstrumentation()
+            new KafkaJsInstrumentation(),
+            new AwsInstrumentation()
         ],
         // Config needed for Sentry integration
         // https://docs.sentry.io/platforms/javascript/guides/node/opentelemetry/custom-setup/

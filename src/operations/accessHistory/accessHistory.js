@@ -8,6 +8,7 @@ const { NotFoundError, BadRequestError, ForbiddenError } = require('../../utils/
 const { PERSON_PROXY_PREFIX } = require('../../constants');
 const { sliceIntoChunks } = require('../../utils/list.util');
 const { logInfo } = require('../common/logging');
+const { ACCESS_HISTORY_WINDOW_DAYS } = require('../../constants/clickHouseConstants');
 
 class AccessHistoryOperation {
     /**
@@ -125,7 +126,7 @@ class AccessHistoryOperation {
         }
 
         if (allRows.length === 0) {
-            return { resourceType: 'Parameters', parameter: [] };
+            return { resourceType: 'Parameters', parameter: [this._buildSummaryParameter()] };
         }
 
         // 4. Group by accessor (preserving per-resource-type counts)
@@ -238,7 +239,7 @@ class AccessHistoryOperation {
      * @param {Object} params
      * @param {string[]} params.accessorRefs
      * @param {string} params.base_version
-     * @returns {Promise<Object<string, {display: string, organizations: Array<{reference: string, display: string}>}>>}
+     * @returns {Promise<Object<string, {display: string, organizations: Array<{reference: string, display: string, name: string, sourceId: string}>}>>}
      */
     async _resolveAccessorDetails({ accessorRefs, base_version }) {
         const details = {};
@@ -330,9 +331,12 @@ class AccessHistoryOperation {
                     projection: { _uuid: 1, name: 1 }
                 });
                 for (const org of orgs) {
+                    const orgName = typeof org.name === 'string' ? org.name : '';
                     orgDetails[org._uuid] = {
                         reference: `Organization/${org._uuid}`,
-                        display: typeof org.name === 'string' ? org.name : ''
+                        display: orgName,
+                        name: orgName,
+                        sourceId: org._uuid
                     };
                 }
             }
@@ -431,6 +435,27 @@ class AccessHistoryOperation {
     }
 
     /**
+     * Builds the top-level `summary` parameter containing response-level metadata.
+     * Emitted on every response path (including the empty/no-results case) per RFC §4.1.2.
+     * @returns {Object}
+     */
+    _buildSummaryParameter() {
+        return {
+            name: 'summary',
+            part: [
+                {
+                    name: 'generatedAt',
+                    valueDateTime: new Date().toISOString()
+                },
+                {
+                    name: 'windowDays',
+                    valueInteger: ACCESS_HISTORY_WINDOW_DAYS
+                }
+            ]
+        };
+    }
+
+    /**
      * Builds the FHIR Parameters response per the FDR spec.
      * @param {Object} params
      * @param {Object} params.accessorMap
@@ -438,7 +463,7 @@ class AccessHistoryOperation {
      * @returns {Object}
      */
     _buildParametersResponse({ accessorMap, accessorDetails }) {
-        const parameter = [];
+        const parameter = [this._buildSummaryParameter()];
 
         for (const [accessorRef, data] of Object.entries(accessorMap)) {
             const detail = accessorDetails[accessorRef] || { display: accessorRef, organizations: [] };
@@ -461,15 +486,30 @@ class AccessHistoryOperation {
                 }
             ];
 
-            // Organization parts (for proxy patient accessors)
+            // Organization parts (for proxy patient accessors).
+            // Per FDR, each `organization` is a `part` container with `reference`,
+            // `name`, and `sourceId` sub-parts.
             if (detail.organizations) {
                 for (const org of detail.organizations) {
                     parts.push({
                         name: 'organization',
-                        valueReference: {
-                            reference: org.reference,
-                            display: org.display
-                        }
+                        part: [
+                            {
+                                name: 'reference',
+                                valueReference: {
+                                    reference: org.reference,
+                                    display: org.display
+                                }
+                            },
+                            {
+                                name: 'name',
+                                valueString: org.name
+                            },
+                            {
+                                name: 'sourceId',
+                                valueString: org.sourceId
+                            }
+                        ]
                     });
                 }
             }

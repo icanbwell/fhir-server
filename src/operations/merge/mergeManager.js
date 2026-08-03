@@ -3,8 +3,10 @@ const moment = require('moment-timezone');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { BadRequestError } = require('../../utils/httpErrors');
+const { BLOB_OP } = require('../../constants');
 const { ConfigManager } = require('../../utils/configManager');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { DatabaseBulkLoader } = require('../../dataLayer/databaseBulkLoader');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
@@ -46,6 +48,7 @@ class MergeManager {
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor (
@@ -61,6 +64,7 @@ class MergeManager {
             preSaveManager,
             configManager,
             databaseAttachmentManager,
+            base64DataManager,
             postRequestProcessor
         }
     ) {
@@ -126,6 +130,12 @@ class MergeManager {
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
+
+        /**
          * @type {PostRequestProcessor}
          */
         this.postRequestProcessor = postRequestProcessor;
@@ -174,7 +184,8 @@ class MergeManager {
             resourceToMerge,
             smartMerge,
             limitToPaths: undefined,
-            databaseAttachmentManager: this.databaseAttachmentManager
+            databaseAttachmentManager: this.databaseAttachmentManager,
+            base64DataManager: this.base64DataManager
         });
         if (patched_resource_incoming) {
             /**
@@ -614,6 +625,7 @@ class MergeManager {
 
             // Update attachments after all validations
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
+            resourceToMerge = await this.base64DataManager.transformAsync(resourceToMerge, BLOB_OP.INSERT, requestInfo);
 
             // Build contextData with merged members (for ClickHouse event processing)
             const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo, { smartMerge });
@@ -673,6 +685,7 @@ class MergeManager {
             });
             // Update attachments after all validations
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
+            resourceToMerge = await this.base64DataManager.transformAsync(resourceToMerge, BLOB_OP.INSERT, requestInfo);
 
             // Insert/update our resource record
             const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo);
@@ -837,9 +850,33 @@ class MergeManager {
                 );
                 if (mergeResult) {
                     mergePreCheckErrors.push(mergeResult);
-                } else {
-                    validResources.push(r);
+                    continue;
                 }
+
+                // Reject oversized resources (currently only AuditEvent) as a per-resource merge
+                // error, after all other pre-checks have passed. This runs post-dedup -- so a
+                // resource formed by combining several same-id entries is measured at its true
+                // persisted size -- but before enrichment (_uuid / _sourceAssigningAuthority /
+                // reference rewriting), keeping parity with create.
+                const sizeOperationOutcome = this.resourceValidator.validateResourceSizeSync({
+                    resource: r,
+                    resourceType: r.resourceType
+                });
+                if (sizeOperationOutcome) {
+                    mergePreCheckErrors.push(new MergeResultEntry({
+                        id: r.id,
+                        uuid: r._uuid,
+                        sourceAssigningAuthority: r._sourceAssigningAuthority,
+                        created: false,
+                        updated: false,
+                        issue: sizeOperationOutcome.issue?.[0] || null,
+                        operationOutcome: sizeOperationOutcome,
+                        resourceType: r.resourceType
+                    }));
+                    continue;
+                }
+
+                validResources.push(r);
             }
             return { mergePreCheckErrors, validResources };
         } catch (e) {
@@ -884,8 +921,14 @@ class MergeManager {
                     for (const [resourceType, mergeResultsForResourceType] of Object.entries(
                         groupByResourceType
                     )) {
+                        /**
+                         * @type {MergeResultEntry[]}
+                         */
+                        const failedItems = mergeResultsForResourceType.filter(
+                            (r) => r.issue
+                        );
                         if (resourceType !== 'AuditEvent') {
-                            // we don't log queries on AuditEvent itself
+                            // we don't log success (create/update) audits on AuditEvent itself
                             /**
                              * @type {MergeResultEntry[]}
                              */
@@ -897,12 +940,6 @@ class MergeManager {
                              */
                             const updatedItems = mergeResultsForResourceType.filter(
                                 (r) => r.updated === true
-                            );
-                            /**
-                             * @type {MergeResultEntry[]}
-                             */
-                            const failedItems = mergeResultsForResourceType.filter(
-                                (r) => r.issue
                             );
                             if (createdItems && createdItems.length > 0) {
                                 await this.auditLogger.logAuditEntryAsync({
@@ -924,15 +961,18 @@ class MergeManager {
                                     ids: updatedItems.map((r) => r._uuid)
                                 });
                             }
-                            if (failedItems && failedItems.length > 0) {
-                                for (const entry of failedItems) {
-                                    await this.auditLogger.logErrorAuditEntryAsync({
-                                        requestInfo,
-                                        resourceType,
-                                        errorCode: 400,
-                                        errorMessage: `${resourceType}/${entry.id}: Bad Request`
-                                    });
-                                }
+                        }
+                        // error audits are logged for all resource types, including
+                        // AuditEvent, to match the create path (logErrorAuditEntryAsync
+                        // does not skip AuditEvent).
+                        if (failedItems && failedItems.length > 0) {
+                            for (const entry of failedItems) {
+                                await this.auditLogger.logErrorAuditEntryAsync({
+                                    requestInfo,
+                                    resourceType,
+                                    errorCode: entry.issue?.code === 'too-long' ? 413 : 400,
+                                    errorMessage: `${resourceType}/${entry.id}: Bad Request`
+                                });
                             }
                         }
                     }

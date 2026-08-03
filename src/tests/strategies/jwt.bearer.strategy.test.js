@@ -1592,6 +1592,34 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
         });
     });
 
+    test('sets purposeOfUse for a delegated user based on entitlements claimCheck', (done) => {
+        const authService = makeAuthService();
+
+        // Override configManager for enabling delegated access detection.
+        authService.configManager = new (class extends ConfigManager {
+            get enableDelegatedAccessDetection() { return true; }
+        });
+        const jwt_payload = {
+            ...basePayload(),
+            entitlements: ['FAMRQT'],
+            act: {
+                reference: 'RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013',
+                sub: 'patient-1'
+            }
+        };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(info.context.purposeOfUse).toEqual(['FAMRQT']);
+                done();
+            }
+        })
+
+    })
+
     test('leaves purposeOfUse unset when claim is absent', (done) => {
         const authService = makeAuthService();
         const jwt_payload = { ...basePayload(), user_type: 'cms-partner' };

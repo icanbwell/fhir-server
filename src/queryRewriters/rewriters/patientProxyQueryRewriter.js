@@ -4,6 +4,7 @@ const { PersonToPatientIdsExpander } = require('../../utils/personToPatientIdsEx
 const { QueryParameterValue } = require('../../operations/query/queryParameterValue');
 const { isTrueWithFallback } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 
 const patientReferencePrefix = 'Patient/';
 const personProxyPrefix = 'person.';
@@ -44,9 +45,10 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * @param {string} base_version
      * @param {boolean} includePatientPrefix
      * @param {boolean} cachePatientToPersonMap
+     * @param {FhirRequestInfo} requestInfo
      * @returns {ParsedArgsItem}
      */
-    async rewriteQueryParametersAsync ({ parsedArg, base_version, includePatientPrefix, cachePatientToPersonMap }) {
+    async rewriteQueryParametersAsync ({ parsedArg, base_version, includePatientPrefix, cachePatientToPersonMap, requestInfo }) {
         const queryParameterValues = parsedArg.queryParameterValue.values;
         if (queryParameterValues && queryParameterValues.length > 0) {
             /**
@@ -78,7 +80,8 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                         base_version,
                         ids: queryParametersWithProxyPatientIds,
                         includePatientPrefix,
-                        toMap: true
+                        toMap: true,
+                        requestInfo
                     }
                 );
 
@@ -116,10 +119,11 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * @param {string} base_version
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
+     * @param {FhirRequestInfo} requestInfo
      * @return {Promise<ParsedArgs>}
      */
 
-    async rewriteArgsAsync ({ base_version, parsedArgs, resourceType }) {
+    async rewriteArgsAsync ({ base_version, parsedArgs, resourceType, requestInfo }) {
         assertIsValid(resourceType);
         assertIsValid(base_version);
         // const foo = undefined[1];
@@ -133,7 +137,8 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                                 parsedArg,
                                 base_version,
                                 includePatientPrefix: false,
-                                cachePatientToPersonMap
+                                cachePatientToPersonMap,
+                                requestInfo
                             });
                         }
                     } else { // resourceType other than Patient
@@ -141,7 +146,8 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                             parsedArg,
                             base_version,
                             includePatientPrefix: true,
-                            cachePatientToPersonMap
+                            cachePatientToPersonMap,
+                            requestInfo
                         });
                     }
                     return parsedArg;

@@ -27,6 +27,7 @@ class Binary extends Resource {
      * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
+     * @param {BlobMeta|undefined} [_blobMeta]
     */
     constructor (
         {
@@ -40,7 +41,8 @@ class Binary extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId
+            _sourceId,
+            _blobMeta
         }
     ) {
         super({});
@@ -244,6 +246,25 @@ class Binary extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
+        /**
+         * @description _blobMeta
+         * @property {BlobMeta|undefined}
+         */
+        Object.defineProperty(this, '_blobMeta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data._blobMeta,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null) {
+                    this.__data._blobMeta = undefined;
+                    return;
+                }
+                const BlobMeta = require('../custom_resources/blobMeta.js');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
+                this.__data._blobMeta = FhirResourceCreator.create(valueProvided, BlobMeta);
+            }
+        });
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -257,7 +278,8 @@ class Binary extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId
+            _sourceId,
+            _blobMeta
         });
 
         /**
@@ -293,6 +315,7 @@ class Binary extends Resource {
      * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
+     * @param {BlobMeta|undefined} [_blobMeta]
      * @returns {Binary}
     */
     create (
@@ -307,7 +330,8 @@ class Binary extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId
+            _sourceId,
+            _blobMeta
         }
     ) {
         return new Binary({
@@ -321,7 +345,8 @@ class Binary extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId
+            _sourceId,
+            _blobMeta
         });
     }
 
@@ -386,6 +411,9 @@ class Binary extends Resource {
         }
         if (this._sourceId) {
             json._sourceId = this._sourceId;
+        }
+        if (this._blobMeta) {
+            json._blobMeta = this._blobMeta.toJSONInternal();
         }
 
         return removeNull(json);

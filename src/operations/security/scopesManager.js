@@ -61,7 +61,7 @@ class ScopesManager {
          * @type {string}
          */
         for (const scope1 of scopes) {
-            if (scope1.startsWith('access')) {
+            if (scope1.startsWith('access/')) {
                 // ex: access/client.*
                 /**
                  * @type {string}

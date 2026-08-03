@@ -1,7 +1,6 @@
 const { StorageProvider } = require('./storageProvider');
 const { logDebug, logInfo, logError, logWarn } = require('../../operations/common/logging');
 const { RethrownError } = require('../../utils/rethrownError');
-const { ForbiddenError } = require('../../utils/httpErrors');
 const { TABLES, EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
@@ -50,56 +49,16 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
     }
 
     /**
-     * Coerces a caller-supplied security context into a safe shape.
-     * Malformed input (bare-string tags, non-boolean hasFullAccess) normalizes
-     * to []/false so it fails closed at the guard rather than leaking to ClickHouse.
-     *
-     * @param {Object} [securityContext] - Caller tenant scope
-     * @returns {{accessTags: string[], ownerTags: string[], hasFullAccess: boolean}}
-     * @private
-     */
-    _normalizeTenantContext(securityContext = {}) {
-        return {
-            accessTags: Array.isArray(securityContext.accessTags) ? securityContext.accessTags : [],
-            ownerTags: Array.isArray(securityContext.ownerTags) ? securityContext.ownerTags : [],
-            hasFullAccess: securityContext.hasFullAccess === true
-        };
-    }
-
-    /**
-     * Fail-closed tenant guard for the Group member roster
-     * Denies callers that carry no tenant scope unless explicitly granted full access.
-     * Mirrors QueryFragments.whereAccessTags but raises a proper 403.
-     *
-     * @param {Object} params
-     * @param {string[]} params.accessTags - Access security tags
-     * @param {string[]} params.ownerTags - Owner security tags
-     * @param {boolean} params.hasFullAccess - True for admin/full-access callers
-     * @throws {ForbiddenError} When no tags and no full access
-     * @private
-     */
-    _assertTenantScope({ accessTags = [], ownerTags = [], hasFullAccess = false }) {
-        if (!hasFullAccess && accessTags.length === 0 && ownerTags.length === 0) {
-            throw new ForbiddenError(
-                'Cross-tenant access denied: security tags are required to read the Group member roster.'
-            );
-        }
-    }
-
-    /**
      * Builds count query for active members of a Group
      * Uses HAVING pattern (canonical for ID-only queries on AggregatingMergeTree)
      * Active-by-default: Counts only event_type=MEMBER_ADDED AND inactive=0 members
      *
      * @param {string} groupId - Group ID
-     * @param {Object} [options]
-     * @param {string[]} [options.accessTags] - Access security tags for tenant filtering
-     * @param {string[]} [options.ownerTags] - Owner security tags for tenant filtering
      * @returns {{query: string, query_params: Object}}
      * @private
      */
-    _buildCountQuery(groupId, { accessTags = [], ownerTags = [] } = {}) {
-        return QueryBuilder.buildActiveMemberCount({ groupId, accessTags, ownerTags });
+    _buildCountQuery(groupId) {
+        return QueryBuilder.buildActiveMemberCount({ groupId });
     }
 
     /**
@@ -111,13 +70,11 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      * @param {Object} options
      * @param {number} options.limit - Page size
      * @param {string|null} options.afterReference - Seek cursor (entity_reference to start after)
-     * @param {string[]} [options.accessTags] - Access security tags for tenant filtering
-     * @param {string[]} [options.ownerTags] - Owner security tags for tenant filtering
      * @returns {{query: string, query_params: Object}}
      * @private
      */
-    _buildRosterQuery(groupId, { limit, afterReference = null, accessTags = [], ownerTags = [] }) {
-        return QueryBuilder.buildActiveMembers({ groupId, limit, afterReference, accessTags, ownerTags });
+    _buildRosterQuery(groupId, { limit, afterReference = null }) {
+        return QueryBuilder.buildActiveMembers({ groupId, limit, afterReference });
     }
 
     /**
@@ -129,19 +86,12 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      * @param {Object} options - Query options
      * @param {number} options.limit - Page size (default 100)
      * @param {string|null} options.afterReference - Seek cursor (entity_reference to start after)
-     * @param {Object} securityContext - Caller tenant scope
-     * @param {string[]} securityContext.accessTags - Access security tags
-     * @param {string[]} securityContext.ownerTags - Owner security tags
-     * @param {boolean} securityContext.hasFullAccess - True for admin/full-access callers
      * @returns {Promise<{members: Array<Object>, totalCount: number}>}
      */
-    async getCurrentMembersWithCountAsync(groupId, { limit = 100, afterReference = null } = {}, securityContext = {}) {
-        const { accessTags, ownerTags, hasFullAccess } = this._normalizeTenantContext(securityContext);
-        // Fail closed before touching ClickHouse.
-        this._assertTenantScope({ accessTags, ownerTags, hasFullAccess });
+    async getCurrentMembersWithCountAsync(groupId, { limit = 100, afterReference = null } = {}) {
         try {
-            const countQuery = this._buildCountQuery(groupId, { accessTags, ownerTags });
-            const rosterQuery = this._buildRosterQuery(groupId, { limit, afterReference, accessTags, ownerTags });
+            const countQuery = this._buildCountQuery(groupId);
+            const rosterQuery = this._buildRosterQuery(groupId, { limit, afterReference });
 
             // Run queries in parallel for performance
             const [countResult, members] = await Promise.all([
@@ -172,64 +122,30 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
     }
 
     /**
-     * Get a single page of active members WITHOUT the total count.
-     * For seek-paginated consumers (e.g. bulk export) where re-running the count
-     * query on every page is wasteful at scale. Same fail-closed tenant guard.
-     *
-     * @param {string} groupId - Group ID to query
-     * @param {Object} options - Query options
-     * @param {number} options.limit - Page size (default 100)
-     * @param {string|null} options.afterReference - Seek cursor (entity_reference to start after)
-     * @param {Object} securityContext - Caller tenant scope
-     * @param {string[]} securityContext.accessTags - Access security tags
-     * @param {string[]} securityContext.ownerTags - Owner security tags
-     * @param {boolean} securityContext.hasFullAccess - True for admin/full-access callers
-     * @returns {Promise<Array<Object>>} Active, non-inactive members for this page
-     */
-    async getActiveMembersPageAsync(groupId, { limit = 100, afterReference = null } = {}, securityContext = {}) {
-        const { accessTags, ownerTags, hasFullAccess } = this._normalizeTenantContext(securityContext);
-        // Fail closed before touching ClickHouse.
-        this._assertTenantScope({ accessTags, ownerTags, hasFullAccess });
-        try {
-            return await this.clickHouseClientManager.queryAsync(
-                this._buildRosterQuery(groupId, { limit, afterReference, accessTags, ownerTags })
-            );
-        } catch (error) {
-            logError('Error querying active members page from ClickHouse current state table', {
-                error: error.message,
-                groupId,
-                limit,
-                afterReference
-            });
-
-            throw new RethrownError({
-                message: 'Error getting active members page from ClickHouse',
-                error,
-                args: { groupId, limit, afterReference }
-            });
-        }
-    }
-
-    /**
      * Get member count only (for metadata-only GET / Group.quantity)
      * Uses argMaxMerge on pre-aggregated current state table
      * Counts members where event_type=MEMBER_ADDED AND inactive=0
      *
      * @param {string} groupId - Group ID to query
-     * @param {Object} securityContext - Caller tenant scope
-     * @param {string[]} securityContext.accessTags - Access security tags
-     * @param {string[]} securityContext.ownerTags - Owner security tags
-     * @param {boolean} securityContext.hasFullAccess - True for admin/full-access callers
      * @returns {Promise<number>} Count of active, non-inactive members
      */
-    async getActiveMemberCountAsync(groupId, securityContext = {}) {
-        const { accessTags, ownerTags, hasFullAccess } = this._normalizeTenantContext(securityContext);
-        // Fail closed before touching ClickHouse.
-        this._assertTenantScope({ accessTags, ownerTags, hasFullAccess });
+    async getActiveMemberCountAsync(groupId) {
         try {
-            const result = await this.clickHouseClientManager.queryAsync(
-                this._buildCountQuery(groupId, { accessTags, ownerTags })
-            );
+            const query = `
+                SELECT count() as count
+                FROM (
+                    SELECT entity_reference
+                    FROM ${TABLES.GROUP_MEMBER_CURRENT} FINAL  -- need to force sync with MVs
+                    WHERE group_id = {groupId:String}
+                    GROUP BY entity_reference
+                    HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}' AND argMaxMerge(inactive) = 0
+                )
+            `;
+
+            const result = await this.clickHouseClientManager.queryAsync({
+                query,
+                query_params: { groupId }
+            });
 
             return parseInt(result[0]?.count || 0);
         } catch (error) {
@@ -408,6 +324,11 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
             const securityTags = QueryParser.extractSecurityTags(query);
             const validation = QueryParser.validateMemberCriteria(memberCriteria);
 
+            // Mirror findAsync: honor any requested `_id` so Bundle.total matches
+            // the id-filtered Bundle.entry rather than counting every group that
+            // contains the member.
+            const requestedIds = QueryParser.extractRequestedIds(query);
+
             if (!validation.valid) {
                 // Fall back to MongoDB if no valid member criteria
                 logWarn(`Cannot count by member: ${validation.reason}`, { memberCriteria });
@@ -419,7 +340,8 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 memberReferenceUuid: validation.entityReferenceUuid,
                 memberReferenceSourceId: validation.entityReferenceSourceId,
                 accessTags: securityTags.accessTags,
-                ownerTags: securityTags.ownerTags
+                ownerTags: securityTags.ownerTags,
+                requestedIds
             });
 
             try {
@@ -517,6 +439,12 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
             const memberCriteria = QueryParser.extractMemberCriteria(cleanQuery);
             const securityTags = QueryParser.extractSecurityTags(query);
 
+            // Extract any requested `_id` constraint so we can intersect it with
+            // the group ids returned by ClickHouse (ClickHouse filters by member,
+            // not by group id). Read from the original query; the extractor only
+            // collects equality/$in id values and ignores the $gt pagination cursor.
+            const requestedIds = QueryParser.extractRequestedIds(query);
+
             // Validate criteria
             const validation = QueryParser.validateMemberCriteria(memberCriteria);
             if (!validation.valid) {
@@ -524,7 +452,9 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 return await this.mongoStorageProvider.findAsync({ query, options, extraInfo });
             }
 
-            // Build ClickHouse query
+            // Build ClickHouse query. The requested `_id` constraint is pushed
+            // into the SQL WHERE clause so LIMIT and ordering apply to the
+            // id-filtered set (no JS post-filter after the page is truncated).
             const queryDef = QueryBuilder.buildFindGroupsByMemberQuery({
                 memberReferenceUuid: validation.entityReferenceUuid,
                 memberReferenceSourceId: validation.entityReferenceSourceId,
@@ -532,7 +462,8 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 ownerTags: securityTags.ownerTags,
                 limit,
                 afterGroupId,
-                skip
+                skip,
+                requestedIds
             });
 
             // Execute and return

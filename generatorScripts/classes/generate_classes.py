@@ -1,6 +1,7 @@
 # This file implements the code generator for generating schema and resolvers for FHIR
 # It reads the FHIR XML schema and generates resolvers in the resolvers folder and schema in the schema folder
 
+import json
 import os
 import shutil
 from os import path
@@ -15,6 +16,53 @@ sys.path.insert(0, str(project_root))
 from generatorScripts.fhir_xml_schema_parser import FhirXmlSchemaParser
 from generatorScripts.search_parameters import search_parameter_queries
 from generatorScripts.fhir_xml_schema_parser import FhirEntity
+
+
+# Import path for BlobMeta from a generated resource/complex_type/backbone class.
+# All three live two directories deep under src/fhir/classes/4_0_0/, so the
+# relative import is identical from each.
+_BLOB_META_EXTRA_PROPERTY: Dict[str, Any] = {
+    "name": "_blobMeta",
+    "type": "BlobMeta",
+    "is_complex": True,
+    "import_path": "../custom_resources/blobMeta.js"
+}
+
+
+def _load_blob_meta_targets() -> Dict[str, List[Dict[str, Any]]]:
+    """
+    Read src/dataLayer/base64DataResources.json and derive, for each entry, the
+    FHIR class on which a `_blobMeta` field should be defined. Root-level paths
+    target the resource itself; nested paths through an Attachment target the
+    Attachment complex type. Returns a dict keyed by FHIR entity cleaned_name.
+    """
+    config_path = Path("src/dataLayer/base64DataResources.json")
+    if not config_path.exists():
+        return {}
+    with open(config_path, "r") as f:
+        config: Dict[str, List[Dict[str, str]]] = json.load(f)
+
+    targets: Dict[str, List[Dict[str, Any]]] = {}
+    for resource_type, entries in config.items():
+        for entry in entries:
+            blob_meta_path: str = entry["blobMetaPath"]
+            # Resolve the target entity from the blobMetaPath:
+            #   "/_blobMeta"                          -> the resource itself
+            #   "/content/[]/attachment/_blobMeta"    -> the Attachment complex type
+            segments = [s for s in blob_meta_path.split("/") if s and s != "[]"]
+            if segments == ["_blobMeta"]:
+                target_entity = resource_type
+            elif segments[-2:] == ["attachment", "_blobMeta"]:
+                target_entity = "Attachment"
+            else:
+                # Unknown sidecar location — fall back to the resource itself so
+                # we don't silently drop the entry. Add explicit handling here
+                # when new sidecar locations are needed.
+                target_entity = resource_type
+            targets.setdefault(target_entity, [])
+            if _BLOB_META_EXTRA_PROPERTY not in targets[target_entity]:
+                targets[target_entity].append(_BLOB_META_EXTRA_PROPERTY)
+    return targets
 
 
 def my_copytree(
@@ -58,6 +106,8 @@ def main() -> int:
 
     fhir_entities: List[FhirEntity] = FhirXmlSchemaParser.generate_classes()
 
+    blob_meta_targets: Dict[str, List[Dict[str, Any]]] = _load_blob_meta_targets()
+
     # now print the result
     for fhir_entity in fhir_entities:
         # use template to generate new code files
@@ -83,28 +133,30 @@ def main() -> int:
                 template = Template(
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
+                resource_extra_properties: List[Dict[str, Any]] = [
+                    {
+                        "name": "_access",
+                        "type": "Object"
+                    },
+                    {
+                        "name": "_sourceAssigningAuthority",
+                        "type": "string"
+                    },
+                    {
+                        "name": "_uuid",
+                        "type": "string"
+                    },
+                    {
+                        "name": "_sourceId",
+                        "type": "string"
+                    }
+                ]
+                resource_extra_properties.extend(blob_meta_targets.get(resource_name, []))
                 result = template.render(
                     fhir_entity=fhir_entity,
                     search_parameters_for_all_resources=search_parameters_for_all_resources,
                     search_parameters_for_current_resource=search_parameters_for_current_resource,
-                    extra_properties=[
-                        {
-                            "name": "_access",
-                            "type": "Object"
-                        },
-                        {
-                            "name": "_sourceAssigningAuthority",
-                            "type": "string"
-                        },
-                        {
-                            "name": "_uuid",
-                            "type": "string"
-                        },
-                        {
-                            "name": "_sourceId",
-                            "type": "string"
-                        }
-                    ]
+                    extra_properties=resource_extra_properties
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -159,6 +211,7 @@ def main() -> int:
                         "type": "string"
                     }
                 ] if entity_file_name == "attachment" else []
+                extra_properties.extend(blob_meta_targets.get(resource_name, []))
                 result = template.render(
                     fhir_entity=fhir_entity,
                     extra_properties_for_reference=[

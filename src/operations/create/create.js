@@ -2,7 +2,7 @@ const httpContext = require('express-http-context');
 const { logDebug } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
-const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
+const { NotValidatedError, BadRequestError, PayloadTooLargeError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -15,7 +15,8 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
+const { ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
@@ -31,6 +32,7 @@ class CreateOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
@@ -43,6 +45,7 @@ class CreateOperation {
             databaseBulkInserter,
             configManager,
             databaseAttachmentManager,
+            base64DataManager,
             identifierEnrichmentProvider
         }
     ) {
@@ -89,6 +92,12 @@ class CreateOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {IdentifierEnrichmentProvider}
@@ -169,14 +178,19 @@ class CreateOperation {
                 resourceObj: resource
             });
         }
-        if (validationOperationOutcome) {
+        // Oversized AuditEvents are rejected with 413 (payload too large) once
+        // schema validation passes, rather than a generic 400 validation error.
+        const sizeOperationOutcome = validationOperationOutcome
+            ? null
+            : this.resourceValidator.validateResourceSizeSync({ resource: resource_incoming, resourceType });
+        if (validationOperationOutcome || sizeOperationOutcome) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 operationResult: [{
                     id: resource.id,
                     uuid: resource.id,
                     sourceAssigningAuthority: resource._sourceAssigningAuthority,
                     resourceType: resource.resourceType,
-                    operationOutcome: validationOperationOutcome,
+                    operationOutcome: validationOperationOutcome || sizeOperationOutcome,
                     created: false,
                     updated: false
                 }]
@@ -185,19 +199,22 @@ class CreateOperation {
             /**
              * @type {Error}
              */
-            const notValidatedError = new NotValidatedError(validationOperationOutcome);
+            const validationError = sizeOperationOutcome
+                ? new PayloadTooLargeError(new Error('Payload size too large.'))
+                : new NotValidatedError(validationOperationOutcome);
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
                 action: currentOperationName,
-                error: notValidatedError
+                error: validationError
             });
-            throw notValidatedError;
+            throw validationError;
         }
 
         resource = await this.databaseAttachmentManager.transformAttachments(resource);
+        resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.INSERT, requestInfo);
 
         try {
             resource.meta.versionId = '1';
@@ -276,6 +293,10 @@ class CreateOperation {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 operationResult: mergeResults
             });
+
+            // Inline any externalized base64 payload so the response body matches the
+            // client's request shape
+            doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.RETRIEVE, requestInfo);
 
             // enrich resource
             this.identifierEnrichmentProvider.enrichIdentifierList(doc);

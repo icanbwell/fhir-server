@@ -12,6 +12,7 @@ const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { ConfigManager } = require('../utils/configManager');
+const { Base64DataManager } = require('./base64DataManager');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
@@ -37,6 +38,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {Base64DataManager} base64DataManager
      * @param {BulkWriteExecutor[]} bulkWriteExecutors
      * @param {CustomTracer} customTracer
      */
@@ -50,6 +52,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
         resourceMerger,
         configManager,
         postSaveProcessor,
+        base64DataManager,
         bulkWriteExecutors,
         customTracer
     }) {
@@ -109,6 +112,12 @@ class FastDatabaseBulkInserter extends EventEmitter {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {BulkWriteExecutor[]}
@@ -471,6 +480,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
             }
 
             FhirResourceWriteSerializer.serialize({obj: historyResource, SerializerClass: BundleEntryWriteSerializer});
+
+            await this.base64DataManager.transformHistoryAsync(historyResource, requestInfo);
 
             this.addHistoryOperationForResourceType({
                 requestId,

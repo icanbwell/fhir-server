@@ -194,6 +194,23 @@ module.exports = {
         RETRIEVE: 'RETRIEVE',
         DELETE: 'DELETE'
     },
+    BLOB_OP: {
+        INSERT: 'INSERT',
+        RETRIEVE: 'RETRIEVE',
+        DELETE: 'DELETE'
+    },
+    BINARY_DATA_VALUE_PLACEHOLDER: '<data_value>',
+    // Content-addressed hashing of externalized base64 payloads. The digest (base64url) is stored
+    // in `_blobMeta.hash` and used verbatim as the S3 key segment `{ResourceType}_4_0_0/{uuid}/{hash}`.
+    // SHA-256 is collision-resistant (no accidental or adversarial collisions). Payloads larger than
+    // SYNC_THRESHOLD_BYTES are hashed in CHUNK_BYTES slices, yielding between slices, so a large
+    // payload never blocks the event loop for long.
+    BASE64_DATA_HASH: {
+        ALGORITHM: 'sha256',
+        ENCODING: 'base64url',
+        SYNC_THRESHOLD_BYTES: 256 * 1024,
+        CHUNK_BYTES: 1024 * 1024
+    },
     PATIENT_INITIATED_CONNECTION: [
         'proa'
     ],
@@ -241,6 +258,7 @@ module.exports = {
         'in-progress': 'ExportStatusUpdated',
         'entered-in-error': 'ExportCompleted'
     },
+    SUBSCRIPTION_RESOURCE_TYPES: ['Subscription', 'SubscriptionStatus', 'SubscriptionTopic'],
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS: ['extension', 'identifier'],
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM: {
         patient: 'https://icanbwell.com/codes/source_patient_id',

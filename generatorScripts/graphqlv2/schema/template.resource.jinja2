@@ -108,6 +108,7 @@ type {{ fhir_entity.graphqlv2_type }} @key(fields: "id") {
     {{ property.documentation[0] | wordwrap(78) | replace('\n', '\n    ') | replace('\r', '\n    ') }}
     """
     {{ property.name -}}
+{%- if fhir_entity.fhir_name == "Composition" and property.name == "section" -%}(_offset: Int, _count: Int){%- endif -%}
 {{- ': ' -}}
         {% if property.is_list -%}
             {{ '[' -}}

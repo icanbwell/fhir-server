@@ -101,10 +101,12 @@ class DataSharingManager {
     /**
      * Returns data sharing manager.
      * @param {string} requestId
-     * @returns {Map<string, Resource[]>}
+     * @param {number|undefined} everythingChunkIndex
+     * @returns {Map<string, *>}
      */
-    getDataSharingManagerCache ({ requestId }) {
-        return this.requestSpecificCache.getMap({ requestId, name: 'dataSharingManager' });
+    getDataSharingManagerCache ({ requestId, everythingChunkIndex }) {
+        const name = everythingChunkIndex !== undefined ? `dataSharingManager_${everythingChunkIndex}` : 'dataSharingManager';
+        return this.requestSpecificCache.getMap({ requestId, name });
     }
 
     /**
@@ -119,6 +121,7 @@ class DataSharingManager {
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @property {boolean} isUser whether request is with patient scope
      * @property {boolean} allowConsentedProaDataAccess whether to allow consented PROA data access
+     * @property {number|undefined} everythingChunkIndex
      * @param {RewriteDataSharingQuery} param
      */
     async updateQueryConsideringDataSharing({
@@ -130,12 +133,13 @@ class DataSharingManager {
         useHistoryTable,
         requestId,
         isUser,
-        allowConsentedProaDataAccess
+        allowConsentedProaDataAccess,
+        everythingChunkIndex
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         let everythingCacheMap;
         if (requestId) {
-            everythingCacheMap = this.getDataSharingManagerCache({ requestId });
+            everythingCacheMap = this.getDataSharingManagerCache({ requestId, everythingChunkIndex });
         }
         let patientIdToImmediatePersonUuid;
         let patientsList;
@@ -405,6 +409,12 @@ class DataSharingManager {
          * */
         const updatedParsedArgs = parsedArgs.clone();
 
+        // Becomes true if a patient-reference filter had values originally but none of them
+        // survived the allowedPatientIds restriction. Dropping such a filter (rather than
+        // rebuilding it as an unsatisfiable one) would leave this resourceType's query with
+        // no patient scoping at all, so the whole connection-type branch must be discarded.
+        let patientFilterEmptied = false;
+
         updatedParsedArgs
             .parsedArgItems
             .forEach((/** @type {import('../query/parsedArgsItem').ParsedArgsItem} */item) => {
@@ -415,20 +425,37 @@ class DataSharingManager {
                     /** @type {string[]} */
                     const newQueryParameterValues = [];
 
+                    // Mixed-target params (e.g. Observation.performer, which also targets
+                    // Practitioner/Organization/...) can carry non-Patient references; only
+                    // Patient-typed (or typeless) ones are ever rebuilt below, so only these
+                    // should count toward "was the patient scoping genuinely emptied".
+                    const patientTypedReferences = item.references.filter(
+                        (ref) => !ref.resourceType || ref.resourceType === 'Patient'
+                    );
+
                     // update the query-param values
-                    item.references.forEach((ref) => {
-                        if (!ref.resourceType || ref.resourceType === 'Patient') {
-                            // Check if ref.id is uuid or sourceId.
-                            if (isUuid(ref.id) && allowedPatientIds.has(ref.id)) {
-                                newQueryParameterValues.push(`Patient/${ref.id}`);
-                            } else if (!isUuid(ref.id) && !ref.id.includes(PERSON_PROXY_PREFIX)) {
-                                const refUUID = patientsList.find(patient => patient.id === ref.id)?._uuid;
-                                if (refUUID && allowedPatientIds.has(refUUID)) {
-                                    newQueryParameterValues.push(`Patient/${refUUID}`);
-                                }
+                    patientTypedReferences.forEach((ref) => {
+                        // Check if ref.id is uuid or sourceId.
+                        if (isUuid(ref.id) && allowedPatientIds.has(ref.id)) {
+                            newQueryParameterValues.push(`Patient/${ref.id}`);
+                        } else if (!isUuid(ref.id) && !ref.id.includes(PERSON_PROXY_PREFIX)) {
+                            const refUUID = patientsList.find(patient => patient.id === ref.id)?._uuid;
+                            if (refUUID && allowedPatientIds.has(refUUID)) {
+                                newQueryParameterValues.push(`Patient/${refUUID}`);
                             }
                         }
                     });
+
+                    // A 'not'-modified filter rebuilds into an exclusion ($nor) clause, where an
+                    // empty result just excludes nothing extra (a safe no-op) rather than making
+                    // the branch unsatisfiable, so it must not trip this check.
+                    if (
+                        !item.modifiers.includes('not') &&
+                        patientTypedReferences.length > 0 &&
+                        newQueryParameterValues.length === 0
+                    ) {
+                        patientFilterEmptied = true;
+                    }
 
                     // rebuild the query value
                     const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
@@ -452,6 +479,14 @@ class DataSharingManager {
                         }
                     });
 
+                    if (
+                        !item.modifiers.includes('not') &&
+                        item.queryParameterValue.values.length > 0 &&
+                        newQueryParameterValues.length === 0
+                    ) {
+                        patientFilterEmptied = true;
+                    }
+
                     const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
                     item.queryParameterValue = new QueryParameterValue({
                         value: newValue,
@@ -459,6 +494,13 @@ class DataSharingManager {
                     });
                 }
             });
+
+        // None of the referenced patients survived the connection-type restriction for at
+        // least one patient-scoped filter — this branch would otherwise match this resourceType
+        // with no patient scoping at all (see getConnectionTypeFilteredQuery caller), so skip it.
+        if (patientFilterEmptied) {
+            return null;
+        }
 
         /**
          * Reconstructed query.

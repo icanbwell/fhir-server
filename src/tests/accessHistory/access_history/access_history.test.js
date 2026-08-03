@@ -3,6 +3,8 @@ const person1Resource = require('./fixtures/Person/person1.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const activeConsentResource = require('./fixtures/Consent/activeConsent.json');
+const org1Resource = require('./fixtures/Organization/org1.json');
+const accessorPersonWithOrgResource = require('./fixtures/Person/accessorPersonWithOrg.json');
 
 const expectedEmptyParameters = require('./fixtures/expected/expected_empty_parameters.json');
 const expectedSingleAccessor = require('./fixtures/expected/expected_single_accessor.json');
@@ -61,6 +63,26 @@ function daysAgo(days) {
     const d = new Date();
     d.setDate(d.getDate() - days);
     return toClickHouseDateTime(d);
+}
+
+/**
+ * Returns only the `accessor` parameters, skipping the top-level `summary` block.
+ */
+function getAccessors(body) {
+    return body.parameter.filter((p) => p.name === 'accessor');
+}
+
+/**
+ * Copies the dynamic `generatedAt` timestamp from the actual response into the
+ * expected fixture so the summary block can be asserted with an exact match.
+ */
+function syncGeneratedAt(expected, respBody) {
+    const expectedSummary = expected.parameter.find((p) => p.name === 'summary');
+    const respSummary = respBody.parameter.find((p) => p.name === 'summary');
+    if (expectedSummary && respSummary) {
+        expectedSummary.part.find((p) => p.name === 'generatedAt').valueDateTime =
+            respSummary.part.find((p) => p.name === 'generatedAt').valueDateTime;
+    }
 }
 
 describe('Person $access-history Tests', () => {
@@ -124,7 +146,34 @@ describe('Person $access-history Tests', () => {
             .get(`/4_0_0/Person/${personUuid}/$access-history`)
             .set(getHeaders());
 
-        expect(resp).toHaveResponse(expectedEmptyParameters);
+        const expected = deepcopy(expectedEmptyParameters);
+        syncGeneratedAt(expected, resp.body);
+        expect(resp).toHaveResponse(expected);
+    });
+
+    test('$access-history includes a summary block with generatedAt and windowDays', async () => {
+        const request = sharedRequest;
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const personUuid = resp.body.uuid;
+
+        resp = await request
+            .get(`/4_0_0/Person/${personUuid}/$access-history`)
+            .set(getHeaders());
+
+        const summary = resp.body.parameter.find((p) => p.name === 'summary');
+        expect(summary).toBeDefined();
+
+        const generatedAt = summary.part.find((p) => p.name === 'generatedAt').valueDateTime;
+        const windowDays = summary.part.find((p) => p.name === 'windowDays').valueInteger;
+
+        expect(windowDays).toBe(90);
+        // generatedAt must be a valid ISO-8601 timestamp
+        expect(Number.isNaN(Date.parse(generatedAt))).toBe(false);
     });
 
     test('$access-history returns empty parameters when no access records exist', async () => {
@@ -147,7 +196,9 @@ describe('Person $access-history Tests', () => {
             .get(`/4_0_0/Person/${personUuid}/$access-history`)
             .set(getHeaders());
 
-        expect(resp).toHaveResponse(expectedEmptyParameters);
+        const expected = deepcopy(expectedEmptyParameters);
+        syncGeneratedAt(expected, resp.body);
+        expect(resp).toHaveResponse(expected);
     });
 
     test('$access-history returns accessor details after a resource is read', async () => {
@@ -185,8 +236,9 @@ describe('Person $access-history Tests', () => {
             .set(getHeaders());
 
         const expected = deepcopy(expectedSingleAccessor);
-        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
-            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        getAccessors(expected)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            getAccessors(resp.body)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        syncGeneratedAt(expected, resp.body);
         expect(resp).toHaveResponse(expected);
     });
 
@@ -238,11 +290,12 @@ describe('Person $access-history Tests', () => {
 
         const expected = deepcopy(expectedE2ePatientRead);
         const accessorRefValue = `Patient/person.${personUuid}`;
-        const respRefPart = resp.body.parameter[0].part.find((p) => p.name === 'reference');
-        expected.parameter[0].part.find((p) => p.name === 'reference').valueReference.reference = accessorRefValue;
-        expected.parameter[0].part.find((p) => p.name === 'reference').valueReference.display = respRefPart.valueReference.display;
-        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
-            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        const respRefPart = getAccessors(resp.body)[0].part.find((p) => p.name === 'reference');
+        getAccessors(expected)[0].part.find((p) => p.name === 'reference').valueReference.reference = accessorRefValue;
+        getAccessors(expected)[0].part.find((p) => p.name === 'reference').valueReference.display = respRefPart.valueReference.display;
+        getAccessors(expected)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            getAccessors(resp.body)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        syncGeneratedAt(expected, resp.body);
         expect(resp).toHaveResponse(expected);
     });
 
@@ -309,11 +362,12 @@ describe('Person $access-history Tests', () => {
             .set(getHeaders());
 
         const expected = deepcopy(expectedDelegatedUserAccess);
-        const respRefPart = resp.body.parameter[0].part.find((p) => p.name === 'reference');
-        expected.parameter[0].part.find((p) => p.name === 'reference').valueReference.reference = respRefPart.valueReference.reference;
-        expected.parameter[0].part.find((p) => p.name === 'reference').valueReference.display = respRefPart.valueReference.display;
-        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
-            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        const respRefPart = getAccessors(resp.body)[0].part.find((p) => p.name === 'reference');
+        getAccessors(expected)[0].part.find((p) => p.name === 'reference').valueReference.reference = respRefPart.valueReference.reference;
+        getAccessors(expected)[0].part.find((p) => p.name === 'reference').valueReference.display = respRefPart.valueReference.display;
+        getAccessors(expected)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            getAccessors(resp.body)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        syncGeneratedAt(expected, resp.body);
         expect(resp).toHaveResponse(expected);
     });
 
@@ -372,14 +426,15 @@ describe('Person $access-history Tests', () => {
             .set(getHeaders());
 
         const expected = deepcopy(expectedResourceTypeBreakdown);
-        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
-            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
-        const respRtParts = resp.body.parameter[0].part.filter((p) => p.name === 'resourceType');
-        const expectedRtParts = expected.parameter[0].part.filter((p) => p.name === 'resourceType');
+        getAccessors(expected)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            getAccessors(resp.body)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        const respRtParts = getAccessors(resp.body)[0].part.filter((p) => p.name === 'resourceType');
+        const expectedRtParts = getAccessors(expected)[0].part.filter((p) => p.name === 'resourceType');
         expectedRtParts[0].part.find((p) => p.name === 'type').valueCode =
             respRtParts[0].part.find((p) => p.name === 'type').valueCode;
         expectedRtParts[1].part.find((p) => p.name === 'type').valueCode =
             respRtParts[1].part.find((p) => p.name === 'type').valueCode;
+        syncGeneratedAt(expected, resp.body);
         expect(resp).toHaveResponse(expected);
     });
 
@@ -536,17 +591,20 @@ describe('Person $access-history Tests', () => {
             .set(getHeaders());
 
         const expected = deepcopy(expectedMultipleAccessors);
+        const respAccessors = getAccessors(resp.body);
+        const expectedAccessors = getAccessors(expected);
         // Match expected parameter order to actual response order
-        const respParam0Ref = resp.body.parameter[0].part.find((p) => p.name === 'reference').valueReference.reference;
-        const respParam1Ref = resp.body.parameter[1].part.find((p) => p.name === 'reference').valueReference.reference;
-        expected.parameter[0].part.find((p) => p.name === 'reference').valueReference.reference = respParam0Ref;
-        expected.parameter[0].part.find((p) => p.name === 'reference').valueReference.display = respParam0Ref;
-        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
-            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
-        expected.parameter[1].part.find((p) => p.name === 'reference').valueReference.reference = respParam1Ref;
-        expected.parameter[1].part.find((p) => p.name === 'reference').valueReference.display = respParam1Ref;
-        expected.parameter[1].part.find((p) => p.name === 'lastAccessed').valueDateTime =
-            resp.body.parameter[1].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        const respParam0Ref = respAccessors[0].part.find((p) => p.name === 'reference').valueReference.reference;
+        const respParam1Ref = respAccessors[1].part.find((p) => p.name === 'reference').valueReference.reference;
+        expectedAccessors[0].part.find((p) => p.name === 'reference').valueReference.reference = respParam0Ref;
+        expectedAccessors[0].part.find((p) => p.name === 'reference').valueReference.display = respParam0Ref;
+        expectedAccessors[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            respAccessors[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        expectedAccessors[1].part.find((p) => p.name === 'reference').valueReference.reference = respParam1Ref;
+        expectedAccessors[1].part.find((p) => p.name === 'reference').valueReference.display = respParam1Ref;
+        expectedAccessors[1].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            respAccessors[1].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        syncGeneratedAt(expected, resp.body);
         expect(resp).toHaveResponse(expected);
     });
 
@@ -612,8 +670,9 @@ describe('Person $access-history Tests', () => {
             .set(getHeaders());
 
         const expected = deepcopy(expectedAggregatedCounts);
-        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
-            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        getAccessors(expected)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            getAccessors(resp.body)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        syncGeneratedAt(expected, resp.body);
         expect(resp).toHaveResponse(expected);
     });
 
@@ -656,9 +715,80 @@ describe('Person $access-history Tests', () => {
             .set(getHeaders());
 
         const expected = deepcopy(expectedPurposeOfEvent);
-        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
-            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        getAccessors(expected)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            getAccessors(resp.body)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        syncGeneratedAt(expected, resp.body);
         expect(resp).toHaveResponse(expected);
+    });
+
+    test('$access-history returns organization block per FDR for a proxy patient accessor', async () => {
+        const request = sharedRequest;
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const personUuid = resp.body.uuid;
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const patientUuid = resp.body.uuid;
+
+        resp = await request
+            .post('/4_0_0/Organization/1/$merge?validate=true')
+            .send(org1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const orgUuid = resp.body.uuid;
+
+        // The accessor is a proxy patient whose Person has a managingOrganization,
+        // which is the only path that surfaces an `organization` block.
+        resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(accessorPersonWithOrgResource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const accessorPersonUuid = resp.body.uuid;
+
+        const accessorRef = `Patient/person.${accessorPersonUuid}`;
+        await insertAuditEvents([{
+            id: 'ae-org',
+            _uuid: 'ae-uuid-org',
+            recorded: daysAgo(1),
+            action: 'R',
+            agent_who: [accessorRef],
+            agent_altid: [],
+            entity_what: [`Patient/${patientUuid}`],
+            agent_requestor_who: accessorRef
+        }]);
+
+        resp = await request
+            .get(`/4_0_0/Person/${personUuid}/$access-history`)
+            .set(getHeaders());
+
+        const accessor = getAccessors(resp.body)
+            .find((a) => a.part.find((p) => p.name === 'reference').valueReference.reference === accessorRef);
+        expect(accessor).toBeDefined();
+
+        const orgPart = accessor.part.find((p) => p.name === 'organization');
+        expect(orgPart).toBeDefined();
+        // Per FDR the organization is a `part` container, not a flat valueReference.
+        expect(orgPart.valueReference).toBeUndefined();
+        expect(Array.isArray(orgPart.part)).toBe(true);
+
+        const orgReference = orgPart.part.find((p) => p.name === 'reference').valueReference;
+        const orgName = orgPart.part.find((p) => p.name === 'name').valueString;
+        const orgSourceId = orgPart.part.find((p) => p.name === 'sourceId').valueString;
+
+        expect(orgReference.reference).toBe(`Organization/${orgUuid}`);
+        expect(orgReference.display).toBe('HealthSystem One');
+        expect(orgName).toBe('HealthSystem One');
+        // Per FDR, sourceId is the bwell Organization id — same value as in the reference.
+        expect(orgSourceId).toBe(orgUuid);
     });
 
     test('$access-history returns 404 when ClickHouse is not enabled', async () => {

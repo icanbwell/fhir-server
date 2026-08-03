@@ -19,6 +19,7 @@ const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleReq
 const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { ConfigManager } = require('../utils/configManager');
+const { Base64DataManager } = require('./base64DataManager');
 const { getCircularReplacer } = require('../utils/getCircularReplacer');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const BundleResponse = require('../fhir/classes/4_0_0/backbone_elements/bundleResponse');
@@ -44,6 +45,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {import('./base64DataManager').Base64DataManager} base64DataManager
      * @param {BulkWriteExecutor[]} bulkWriteExecutors
      */
     constructor ({
@@ -56,6 +58,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     resourceMerger,
                     configManager,
                     postSaveProcessor,
+                    base64DataManager,
                     bulkWriteExecutors
                 }) {
         super();
@@ -114,6 +117,12 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {BulkWriteExecutor[]}
@@ -444,6 +453,33 @@ class DatabaseBulkInserter extends EventEmitter {
         const userRequestId = requestInfo.userRequestId;
         const method = requestInfo.method;
         try {
+            const historyDocument = new BundleEntry({
+                id: doc._uuid,
+                resource: doc,
+                request: new BundleRequest({
+                    id: userRequestId,
+                    method,
+                    url: `/${base_version}/${resourceType}/${doc.id}`
+                }),
+                response: patches
+                    ? new BundleResponse({
+                          status: '200',
+                          outcome: new OperationOutcome({
+                              issue: patches.map(
+                                  (p) =>
+                                      new OperationOutcomeIssue({
+                                          severity: 'information',
+                                          code: 'informational',
+                                          diagnostics: JSON.stringify(p, getCircularReplacer())
+                                      })
+                              )
+                          })
+                      })
+                    : null
+            }).toJSONInternal();
+
+            await this.base64DataManager.transformHistoryAsync(historyDocument, requestInfo);
+
             this.addHistoryOperationForResourceType({
                 requestId,
                 resourceType,
@@ -451,30 +487,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 operationType: 'insert', // history operations are blind merges without checking id
                 operation: {
                     insertOne: {
-                        document: new BundleEntry({
-                            id: doc._uuid,
-                            resource: doc,
-                            request: new BundleRequest({
-                                id: userRequestId,
-                                method,
-                                url: `/${base_version}/${resourceType}/${doc.id}`
-                            }),
-                            response: patches
-                                ? new BundleResponse({
-                                      status: '200',
-                                      outcome: new OperationOutcome({
-                                          issue: patches.map(
-                                              (p) =>
-                                                  new OperationOutcomeIssue({
-                                                      severity: 'information',
-                                                      code: 'informational',
-                                                      diagnostics: JSON.stringify(p, getCircularReplacer())
-                                                  })
-                                          )
-                                      })
-                                  })
-                                : null
-                        }).toJSONInternal()
+                        document: historyDocument
                     }
                 },
                 patches,

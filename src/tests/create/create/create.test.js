@@ -9,6 +9,7 @@ const practitioner7Resource = require('./fixtures/Practitioner/practitioner7.jso
 const practitioner8Resource = require('./fixtures/Practitioner/practitioner8.json');
 
 const auditEvent1Resource = require('./fixtures/AuditEvent/auditEvent1.json');
+const expectedAuditEventTooLarge = require('./fixtures/expected/expected_auditevent_too_large.json');
 
 // expected
 const expectedPractitionerInitialResources = require('./fixtures/expected/expected_Practitioner_initial.json');
@@ -240,6 +241,32 @@ describe('Practitioner Tests', () => {
 
             expect(resp).toHaveResourceCount(1);
             process.env.REQUIRED_AUDIT_EVENT_FILTERS = envValue;
+        });
+        test('rejects AuditEvent exceeding max allowed size with 413', async () => {
+            const filtersEnvValue = process.env.REQUIRED_AUDIT_EVENT_FILTERS;
+            const sizeEnvValue = process.env.AUDIT_EVENT_MAX_SIZE_BYTES;
+            process.env.REQUIRED_AUDIT_EVENT_FILTERS = '';
+            // small cap so an ordinary AuditEvent trips it (keeps the payload/test fast)
+            process.env.AUDIT_EVENT_MAX_SIZE_BYTES = '200';
+
+            const request = await createTestRequest();
+            const resp = await request
+                .post('/4_0_0/AuditEvent/')
+                .send(auditEvent1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(413);
+            expect(resp.body).toStrictEqual(expectedAuditEventTooLarge);
+
+            process.env.REQUIRED_AUDIT_EVENT_FILTERS = filtersEnvValue;
+            // restore carefully: assigning undefined would coerce to the string
+            // "undefined" and break the cap (parseInt("undefined") === NaN) for
+            // subsequent --runInBand tests.
+            if (sizeEnvValue === undefined) {
+                delete process.env.AUDIT_EVENT_MAX_SIZE_BYTES;
+            } else {
+                process.env.AUDIT_EVENT_MAX_SIZE_BYTES = sizeEnvValue;
+            }
         });
     });
 });

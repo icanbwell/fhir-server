@@ -6,6 +6,7 @@ const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { DatabaseQueryFactory } = require('./databaseQueryFactory');
 const { ConfigManager } = require('../utils/configManager');
+const { Base64DataManager } = require('./base64DataManager');
 
 class DatabaseUpdateFactory {
     /**
@@ -15,6 +16,7 @@ class DatabaseUpdateFactory {
      * @param {PreSaveManager} preSaveManager
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ConfigManager} configManager
+     * @param {import('./base64DataManager').Base64DataManager} base64DataManager
      */
     constructor (
         {
@@ -22,7 +24,8 @@ class DatabaseUpdateFactory {
             resourceMerger,
             preSaveManager,
             databaseQueryFactory,
-            configManager
+            configManager,
+            base64DataManager
         }
     ) {
         /**
@@ -54,6 +57,12 @@ class DatabaseUpdateFactory {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
     }
 
     /**
@@ -70,6 +79,7 @@ class DatabaseUpdateFactory {
                 preSaveManager: this.preSaveManager,
                 databaseQueryFactory: this.databaseQueryFactory,
                 configManager: this.configManager,
+                base64DataManager: this.base64DataManager,
                 resourceType,
                 base_version
             }
@@ -90,6 +100,7 @@ class DatabaseUpdateFactory {
                 preSaveManager: this.preSaveManager,
                 databaseQueryFactory: this.databaseQueryFactory,
                 configManager: this.configManager,
+                base64DataManager: this.base64DataManager,
                 resourceType,
                 base_version
             }

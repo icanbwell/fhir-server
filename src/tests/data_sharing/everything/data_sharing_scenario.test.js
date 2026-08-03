@@ -39,6 +39,29 @@ const expectedResponse9Resource = require('./fixtures/expected/expected_response
 const expectedResponse10Resource = require('./fixtures/expected/expected_response_10.json');
 const expectedResponse11Resource = require('./fixtures/expected/expected_response_11.json');
 
+const proaDedupClientPersonResource = require('./fixtures/person/proa_dedup_client_person.json');
+const proaDedupClient2PersonResource = require('./fixtures/person/proa_dedup_client2_person.json');
+const proaDedupClientPatientResource = require('./fixtures/patient/proa_dedup_client_patient.json');
+const proaDedupClient2PatientResource = require('./fixtures/patient/proa_dedup_client2_patient.json');
+const proaDedupCommonProaPatientClientResource = require('./fixtures/patient/proa_dedup_common_proa_patient_client.json');
+const proaDedupCommonProaPatientClient2Resource = require('./fixtures/patient/proa_dedup_common_proa_patient_client2.json');
+const proaDedupClient2ConsentResource = require('./fixtures/consent/proa_dedup_client2_consent.json');
+const proaDedupSubscriptionClientResource = require('./fixtures/subscription/proa_dedup_subscription_client.json');
+const proaDedupSubscriptionClient2Resource = require('./fixtures/subscription/proa_dedup_subscription_client2.json');
+const proaDedupSubscriptionStatusClientResource = require('./fixtures/subscriptionStatus/proa_dedup_subscription_status_client.json');
+const proaDedupSubscriptionStatusClient2Resource = require('./fixtures/subscriptionStatus/proa_dedup_subscription_status_client2.json');
+const proaDedupSubscriptionTopicClientResource = require('./fixtures/subscriptionTopic/proa_dedup_subscription_topic_client.json');
+const proaDedupSubscriptionTopicClient2Resource = require('./fixtures/subscriptionTopic/proa_dedup_subscription_topic_client2.json');
+const expectedProaDedupEverythingResponse = require('./fixtures/expected/expected_proa_dedup_subscription_everything.json');
+
+// Two client persons of the SAME client, each independently linked (via their own sibling Person)
+// to the SAME common PROA-connected patient. Each has its own Subscription/SubscriptionStatus/
+// SubscriptionTopic (client_person_id pointing back to its own sibling Person).
+const sameClientPersonAPayload = require('./fixtures/same_client_person_a_payload.json');
+const sameClientPersonBPayload = require('./fixtures/same_client_person_b_payload.json');
+const expectedSameClientPersonAEverything = require('./fixtures/expected/expected_same_client_person_a_everything.json');
+const expectedSameClientPersonBEverything = require('./fixtures/expected/expected_same_client_person_b_everything.json');
+
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -47,6 +70,7 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/globals');
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
+const deepcopy = require('deepcopy');
 
 const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client-1.*');
@@ -151,7 +175,15 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedResponse3Resource);
         });
 
-        test('Everything operation on client person: Get data only for proa patient when access token of proa patient provided & no consent provided', async () => {
+        test('Everything operation on client person: Get no data when access token does not match the client person & no consent provided', async () => {
+            // The proxy-person-to-patient expansion (personToPatientIdsExpander) applies the
+            // caller's access-scope security tag to the Person lookup itself before resolving its
+            // linked patients (enableProxyPersonScopeCheckForEverything). Since health-service's
+            // scope does not match client person c12345's own access tag ('client'), the Person
+            // lookup returns nothing and the whole $everything call yields no data - even though
+            // c12345 links to a patient (proaPatient1Resource) that health-service does own. This
+            // is by design: resolving a person's linked patients requires read access to the
+            // person record itself.
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -397,5 +429,354 @@ describe('Data sharing test cases for different scenarios', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse11Resource);
         });
+
+        describe('PROA data sharing flow with connectionType-based consent', () => {
+            let originalConsentConnectionTypesList;
+
+            beforeEach(() => {
+                originalConsentConnectionTypesList = process.env.CONSENT_CONNECTION_TYPES_LIST;
+                process.env.CONSENT_CONNECTION_TYPES_LIST = 'proa,ias';
+            });
+
+            afterEach(() => {
+                if (originalConsentConnectionTypesList === undefined) {
+                    delete process.env.CONSENT_CONNECTION_TYPES_LIST;
+                } else {
+                    process.env.CONSENT_CONNECTION_TYPES_LIST = originalConsentConnectionTypesList;
+                }
+            });
+
+            test('PROA data sharing flow: Person with 16 linked patients (15 health-service + 1 client with consent), should return 16 Patients after adding 5 unlinked PROA and 5 unlinked IAS patients', async () => {
+            const request = await createTestRequest((c) => c);
+
+            // UUIDs for all resources in this test
+            const PERSON_ID = '67d19544-8fc0-48b6-ac85-be2b93601d89';
+            const PERSON_UUID = '5b2a5863-f72c-56dd-b69d-e6ab595d9208';
+            const CLIENT_PATIENT_ID = '88f5637f-76a3-49ee-87d1-6c94992d98d3';
+            const CONSENT_ID = '2c5fe296-8455-42ba-b480-0060b8822e2b';
+            const HS_PATIENT_IDS = [
+                '57d9ffb0-9e56-45ae-920d-3207ca68662f',
+                '8bd79f0d-9424-4541-87c6-6a2aef8780c6',
+                '551fbc8e-9b8b-46f6-9b72-317791cd8f13',
+                '8be6cf0b-d80f-4794-a2ed-a5cb25426f1f',
+                '69fb4066-0ad3-4886-b3ba-d9d425a14e56',
+                'ce2c9180-7533-4b07-88f5-90453bfb5a12',
+                'db5ae1ac-c551-47ac-9fb1-c00dccfc7fdb',
+                '04ac4f1d-a52c-4f89-b039-111137a8cb36',
+                'deaaf9d6-30a2-416c-9f5e-f8b7d00a1703',
+                '520a7a62-cdf9-4965-be03-a8118243556c',
+                'c9228c22-5251-46d2-85df-6e7202c8840c',
+                '3641e21e-6d86-4b6f-97f3-030457d0403d',
+                '8ab14d3b-fee4-46ab-95a3-5005b82cba25',
+                '68449a3b-275d-4fe1-b8a4-6cc7bc70577c',
+                'f7a4bd42-05cb-4dc4-b168-328dbfd73bc7'
+            ];
+            const UNLINKED_PROA_IDS = [
+                'd6a2775d-51e7-41a7-9ed9-e32a2bdeaa95',
+                'f8601543-bb78-4b2c-a79d-981f9657eba3',
+                '8dfcd1a1-42e3-4ddc-96e7-ef079d8a9faa',
+                'd82bf42b-faf3-4e5f-8374-f989bb5ada83',
+                '0becb0e8-fbba-4a02-90d5-93e67a981946'
+            ];
+            const UNLINKED_IAS_IDS = [
+                '5fc6dedc-1b45-4afc-8dce-2b26e66266a2',
+                '79c4b3d7-3d65-43a8-8c74-9b128012045b',
+                '121a3502-7adf-4253-a1bf-e8a7cd856670',
+                '3e79cac4-0309-45e4-8d33-8d6382554222',
+                '4e522cba-71ec-4f10-86c8-5e5cdf02ce26'
+            ];
+
+            const proaBulkPerson = {
+                resourceType: 'Person',
+                id: PERSON_ID,
+                meta: {
+                    source: 'client',
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'client' },
+                        { system: 'https://www.icanbwell.com/owner', code: 'client' }
+                    ]
+                },
+                name: [{ use: 'official', family: 'Irving', given: ['Lloyd'] }],
+                gender: 'male',
+                birthDate: '1996-03-03',
+                link: [
+                    // 15 health-service patients
+                    ...HS_PATIENT_IDS.map((id) => ({
+                        target: { reference: `Patient/${id}`, type: 'Patient' },
+                        assurance: 'level4'
+                    })),
+                    // 1 client patient with consent
+                    {
+                        target: { reference: `Patient/${CLIENT_PATIENT_ID}`, type: 'Patient' },
+                        assurance: 'level4'
+                    }
+                ]
+            };
+
+            // 15 health-service patients linked to the Person (connectionType=proa)
+            const healthServicePatients = HS_PATIENT_IDS.map((id, i) => ({
+                resourceType: 'Patient',
+                id,
+                meta: {
+                    source: 'health-service',
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'health-service' },
+                        { system: 'https://www.icanbwell.com/owner', code: 'health-service' },
+                        { system: 'https://www.icanbwell.com/connectionType', code: 'proa' }
+                    ]
+                },
+                name: [{ use: 'usual', family: `HS-PATIENT-${i + 1}`, given: ['HEALTH'] }],
+                gender: 'female',
+                birthDate: '1990-01-01'
+            }));
+
+            // 1 client patient with data-sharing consent linked to the Person
+            const proaBulkClientPatient = {
+                resourceType: 'Patient',
+                id: CLIENT_PATIENT_ID,
+                meta: {
+                    source: 'client',
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'client' },
+                        { system: 'https://www.icanbwell.com/owner', code: 'client' }
+                    ]
+                },
+                name: [{ use: 'usual', family: 'BULK-CLIENT', given: ['PATIENT'] }],
+                gender: 'female',
+                birthDate: '1990-01-01'
+            };
+
+            // Data-sharing consent for the client patient
+            const proaBulkConsent = {
+                resourceType: 'Consent',
+                id: CONSENT_ID,
+                meta: {
+                    source: 'client',
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'client' },
+                        { system: 'https://www.icanbwell.com/owner', code: 'client' }
+                    ]
+                },
+                status: 'active',
+                category: [
+                    {
+                        coding: [
+                            { system: 'http://www.icanbwell.com/consent-category', code: 'dataSharing' }
+                        ]
+                    }
+                ],
+                scope: {
+                    coding: [
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/consentscope',
+                            code: 'patient-privacy'
+                        }
+                    ]
+                },
+                patient: { reference: `Patient/${CLIENT_PATIENT_ID}` },
+                dateTime: '2022-09-08T14:05:07.350Z',
+                provision: {
+                    type: 'permit',
+                    actor: [
+                        {
+                            role: {
+                                coding: [
+                                    {
+                                        system: 'http://terminology.hl7.org/CodeSystem/v3-ParticipationType',
+                                        code: 'CST'
+                                    }
+                                ]
+                            },
+                            reference: { reference: `Patient/${CLIENT_PATIENT_ID}` }
+                        },
+                        {
+                            role: {
+                                coding: [
+                                    {
+                                        system: 'http://terminology.hl7.org/3.1.0/CodeSystem-v3-RoleCode.html',
+                                        code: 'AUT'
+                                    }
+                                ]
+                            },
+                            reference: { reference: `Patient/person.${PERSON_UUID}` }
+                        }
+                    ]
+                }
+            };
+
+            // --- Phase 1: Insert Person + 16 linked patients + consent ---
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([proaBulkPerson, ...healthServicePatients, proaBulkClientPatient, proaBulkConsent])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .get(`/4_0_0/Person/${PERSON_ID}/$everything?_type=Patient`)
+                .set({ ...headers, prefer: 'global_id=false' });
+
+            // Expect exactly 16 patients: 15 health-service + 1 client
+            const phase1PatientCount = resp.body.entry?.filter(
+                (e) => e.resource?.resourceType === 'Patient'
+            ).length;
+            expect(phase1PatientCount).toEqual(16);
+
+            // --- Phase 2: Add 5 unlinked PROA patients + 5 unlinked IAS patients ---
+
+            // 5 PROA patients NOT linked via Person.link
+            const unlinkedProaPatients = UNLINKED_PROA_IDS.map((id, i) => ({
+                resourceType: 'Patient',
+                id,
+                meta: {
+                    source: 'health-service',
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'health-service' },
+                        { system: 'https://www.icanbwell.com/owner', code: 'health-service' },
+                        { system: 'https://www.icanbwell.com/connectionType', code: 'proa' }
+                    ]
+                },
+                name: [{ use: 'usual', family: `UNLINKED-PROA-${i + 1}`, given: ['PATIENT'] }],
+                gender: 'female',
+                birthDate: '1990-01-01'
+            }));
+
+            // 5 IAS patients NOT linked via Person.link
+            const unlinkedIasPatients = UNLINKED_IAS_IDS.map((id, i) => ({
+                resourceType: 'Patient',
+                id,
+                meta: {
+                    source: 'health-service',
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'health-service' },
+                        { system: 'https://www.icanbwell.com/owner', code: 'health-service' },
+                        { system: 'https://www.icanbwell.com/connectionType', code: 'ias' }
+                    ]
+                },
+                name: [{ use: 'usual', family: `UNLINKED-IAS-${i + 1}`, given: ['PATIENT'] }],
+                gender: 'female',
+                birthDate: '1990-01-01'
+            }));
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([...unlinkedProaPatients, ...unlinkedIasPatients])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .get(`/4_0_0/Person/${PERSON_ID}/$everything?_type=Patient`)
+                .set({ ...headers, prefer: 'global_id=false' });
+
+            // Expect 16 total patient excluding 5 unlinked IAS and PROA
+            const phase2PatientCount = resp.body.entry?.filter(
+                (e) => e.resource?.resourceType === 'Patient'
+            ).length;
+            expect(phase2PatientCount).toEqual(16);
+            });
+
+            test('PROA data sharing flow: same source PROA patient owned by two different clients should only return one Subscription in Person $everything', async () => {
+            const request = await createTestRequest((c) => c);
+
+            const PERSON_CLIENT_ID = 'acd0945a-3eab-4372-823c-6e4c896582e2';
+            const PERSON_CLIENT2_ID = '76e37ad9-128b-495f-aa79-3634e4d5b0a7';
+
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([
+                    proaDedupClientPersonResource,
+                    proaDedupClient2PersonResource,
+                    proaDedupClientPatientResource,
+                    proaDedupClient2PatientResource,
+                    proaDedupClient2ConsentResource,
+                    proaDedupCommonProaPatientClientResource,
+                    proaDedupCommonProaPatientClient2Resource,
+                    proaDedupSubscriptionClientResource,
+                    proaDedupSubscriptionClient2Resource,
+                    proaDedupSubscriptionStatusClientResource,
+                    proaDedupSubscriptionStatusClient2Resource,
+                    proaDedupSubscriptionTopicClientResource,
+                    proaDedupSubscriptionTopicClient2Resource
+                ])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const combinedHeaders = getHeaders('user/*.read access/client2.*');
+
+            resp = await request
+                .get(`/4_0_0/Person/${PERSON_CLIENT2_ID}/$everything?_type=Subscription,SubscriptionStatus,SubscriptionTopic&_debug=1`)
+                .set({ ...combinedHeaders, prefer: 'global_id=false' });
+
+            const expectedResp = deepcopy(expectedProaDedupEverythingResponse);
+
+            // client2 has consented, so its own copy of the shared PROA patient (and Subscription)
+            // is reachable. client's copy has no consent and is a separate Person entirely, so its
+            // Subscription must never appear here - only client2's own Subscription should come back.
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResp);
+
+            // client2's own consent must not grant it access to a completely different Person
+            // (personClient) that it has no link to at all - calling $everything on personClient
+            // using client2's own access scope should return no data.
+            resp = await request
+                .get(`/4_0_0/Person/${PERSON_CLIENT_ID}/$everything?_type=Patient&_debug=1`)
+                .set({ ...combinedHeaders, prefer: 'global_id=false' });
+
+            expect(resp.body.entry ?? []).toHaveLength(0);
+            });
+        });
     });
+
+    test('Two client person of same client having common connection should ', async () => {
+        const request = await createTestRequest((c) => c);
+
+        // Two DIFFERENT client persons of the SAME client (same owner/access = 'client2'), each
+        // linked (via their own sibling Person) to the SAME common PROA-connected patient. Each has
+        // its own Subscription/SubscriptionStatus/SubscriptionTopic pointing back to its own sibling
+        // Person via client_person_id. The client person id targeted below is the sibling Person's
+        // id (the one holding both the own-patient link and the common-patient link) - i.e. the
+        // resource ending in "3" within each payload.
+        const PERSON_A_CLIENT_ID = '3e89b5be-a773-4aa7-af74-a23e6abedb653';
+        const PERSON_B_CLIENT_ID = '624fa318-ffa8-4c5d-8a27-3c216bc280323';
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send(sameClientPersonAPayload)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send(sameClientPersonBPayload)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        const client2Headers = getHeaders('user/*.read access/client2.*');
+
+        // client2's own Subscription for person A must come back, and person B's Subscription
+        // (a different, sibling client person under the same client) must never leak in - even
+        // though both share the exact same underlying common-connection PROA patient.
+        resp = await request
+            .get(`/4_0_0/Person/${PERSON_A_CLIENT_ID}/$everything?_debug=1`)
+            .set({ ...client2Headers, prefer: 'global_id=false' });
+
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedSameClientPersonAEverything);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedSameClientPersonAEverything);
+
+        // Symmetric check: person B's own Subscription must come back, person A's must not.
+        resp = await request
+            .get(`/4_0_0/Person/${PERSON_B_CLIENT_ID}/$everything?_debug=1`)
+            .set({ ...client2Headers, prefer: 'global_id=false' });
+
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedSameClientPersonBEverything);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedSameClientPersonBEverything);
+    })
 });

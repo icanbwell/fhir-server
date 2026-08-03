@@ -10,6 +10,7 @@ const { ResourceLocatorFactory } = require('../../../operations/common/resourceL
 const { ConfigManager } = require('../../../utils/configManager');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
+const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
 const { MONGO_ERROR } = require('../../../constants');
 const { RethrownError } = require('../../../utils/rethrownError');
 
@@ -131,13 +132,19 @@ function makeExecutor (overrides = {}) {
     const mockPostRequestProcessor = Object.create(PostRequestProcessor.prototype);
     mockPostRequestProcessor.add = jest.fn();
 
+    // base64DataManager is a required, type-asserted dep; the executor only calls
+    // cleanupPreviousLiveObjectAsync on it (post-commit, non-skipped, no bulk-write errors).
+    const mockBase64DataManager = Object.create(Base64DataManager.prototype);
+    mockBase64DataManager.cleanupPreviousLiveObjectAsync = jest.fn().mockResolvedValue(undefined);
+
     const executor = new MongoBulkWriteExecutor({
         resourceLocatorFactory: overrides.resourceLocatorFactory || mockResourceLocatorFactory,
         configManager: overrides.configManager || mockConfigManager,
         postSaveProcessor: overrides.postSaveProcessor || mockPostSaveProcessor,
         postRequestProcessor: overrides.postRequestProcessor || mockPostRequestProcessor,
         cloneResource: overrides.cloneResource || (r => ({ ...r })),
-        createUpdateManager: overrides.createUpdateManager || jest.fn()
+        createUpdateManager: overrides.createUpdateManager || jest.fn(),
+        base64DataManager: overrides.base64DataManager || mockBase64DataManager
     });
 
     return {
@@ -146,7 +153,8 @@ function makeExecutor (overrides = {}) {
         configManager: overrides.configManager || mockConfigManager,
         postSaveProcessor: overrides.postSaveProcessor || mockPostSaveProcessor,
         postRequestProcessor: overrides.postRequestProcessor || mockPostRequestProcessor,
-        resourceLocatorFactory: overrides.resourceLocatorFactory || mockResourceLocatorFactory
+        resourceLocatorFactory: overrides.resourceLocatorFactory || mockResourceLocatorFactory,
+        base64DataManager: overrides.base64DataManager || mockBase64DataManager
     };
 }
 

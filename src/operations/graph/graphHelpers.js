@@ -28,9 +28,11 @@ const {logError, logInfo, logWarn} = require('../common/logging');
 const {sliceIntoChunks} = require('../../utils/list.util');
 const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const {
     GRIDFS: {RETRIEVE},
     OPERATIONS: {READ},
+    BLOB_OP,
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS,
     SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP,
     PATIENT_REFERENCE_PREFIX,
@@ -58,6 +60,7 @@ class GraphHelper {
      * @param {EnrichmentManager} enrichmentManager
      * @param {R4ArgsParser} r4ArgsParser
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {SearchParametersManager} searchParametersManager
      * @param {RemoveHelper} removeHelper
      * @param {AuditLogger} auditLogger
@@ -72,6 +75,7 @@ class GraphHelper {
                     enrichmentManager,
                     r4ArgsParser,
                     databaseAttachmentManager,
+                    base64DataManager,
                     searchParametersManager,
                     removeHelper,
                     auditLogger,
@@ -124,6 +128,12 @@ class GraphHelper {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {SearchParametersManager}
@@ -388,6 +398,9 @@ class GraphHelper {
                      */
                     relatedResource = await this.databaseAttachmentManager.transformAttachments(
                         relatedResource, RETRIEVE
+                    );
+                    relatedResource = await this.base64DataManager.transformAsync(
+                        relatedResource, BLOB_OP.RETRIEVE
                     );
                     const relatedEntityAndContained = new ResourceEntityAndContained({
                         entityId: relatedResource.id,
@@ -682,6 +695,9 @@ class GraphHelper {
                 if (relatedResourcePropertyCurrent) {
                     relatedResourcePropertyCurrent = await this.databaseAttachmentManager.transformAttachments(
                         relatedResourcePropertyCurrent, RETRIEVE
+                    );
+                    relatedResourcePropertyCurrent = await this.base64DataManager.transformAsync(
+                        relatedResourcePropertyCurrent, BLOB_OP.RETRIEVE
                     );
                     if (filterProperty !== null) {
                         if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
@@ -1486,6 +1502,9 @@ class GraphHelper {
 
                     startResource = await this.databaseAttachmentManager.transformAttachments(
                         startResource, RETRIEVE
+                    );
+                    startResource = await this.base64DataManager.transformAsync(
+                        startResource, BLOB_OP.RETRIEVE
                     );
                     const current_entity = {
                         id: startResource.id,

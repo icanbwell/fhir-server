@@ -166,6 +166,13 @@ class ClickHouseSchemaRegistry {
             errors.push(`writeStrategy must be one of: ${validStrategies.join(', ')}`);
         }
 
+        // kafkaTopic: mandatory (non-empty string) for the KAFKA_CLICKPIPE strategy,
+        // since the executor produces to schema.kafkaTopic. Ignored for other strategies.
+        if (schema.writeStrategy === WRITE_STRATEGIES.KAFKA_CLICKPIPE &&
+            (typeof schema.kafkaTopic !== 'string' || schema.kafkaTopic.length === 0)) {
+            errors.push('kafkaTopic must be a non-empty string when writeStrategy is kafka-clickpipe');
+        }
+
         // fieldExtractor: must have extract method
         if (!schema.fieldExtractor || typeof schema.fieldExtractor.extract !== 'function') {
             errors.push('fieldExtractor must have an extract(resource) method');

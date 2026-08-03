@@ -105,6 +105,9 @@ class MergeResourceValidator extends BaseValidator {
             return resource;
         });
 
+        // preMergeChecksMultipleAsync bounds resource size (post-dedup, pre-enrichment) among its
+        // other per-resource checks, so an oversized resource -- including one formed by combining
+        // several same-id entries -- is rejected here as a merge error rather than persisted.
         let { /** @type {MergeResultEntry[]} */ mergePreCheckErrors, /** @type {Resource[]} */ validResources } =
             await this.customTracer.trace({
                 name: 'MergeResourceValidator.preMergeChecksMultipleAsync',
