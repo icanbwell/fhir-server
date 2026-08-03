@@ -1264,6 +1264,9 @@ module.exports = {
          * @return {Promise<Resource>}
          */
         subscriptions: async (parent, args, context, info) => {
+            if (!parent._sourceAssigningAuthority) {
+                return [];
+            }
             const resources = await context.dataApi.getResources(
                 parent,
                 {
@@ -1291,6 +1294,9 @@ module.exports = {
          * @return {Promise<Resource>}
          */
         subscriptionStatuses: async (parent, args, context, info) => {
+            if (!parent._sourceAssigningAuthority) {
+                return [];
+            }
             const resources = await context.dataApi.getResources(
                 parent,
                 {
@@ -1318,6 +1324,9 @@ module.exports = {
          * @return {Promise<Resource>}
          */
         subscriptionTopics: async (parent, args, context, info) => {
+            if (!parent._sourceAssigningAuthority) {
+                return [];
+            }
             const resources = await context.dataApi.getResources(
                 parent,
                 {

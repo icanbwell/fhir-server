@@ -155,7 +155,7 @@ describe('graphqlv2/resolvers/custom/patient', () => {
 
     describe('Patient.subscriptionTopics resolver', () => {
         test('calls dataApi.getResources with identifier for SubscriptionTopic', async () => {
-            const parent = { id: 'p-st' };
+            const parent = { id: 'p-st', _sourceAssigningAuthority: 'client' };
             await patientResolvers.Patient.subscriptionTopics(parent, {}, mockContext, mockInfo);
             expect(mockContext.dataApi.getResources).toHaveBeenCalledWith(
                 parent,
@@ -195,11 +195,20 @@ describe('graphqlv2/resolvers/custom/patient', () => {
 
             expect(result).toHaveLength(0);
         });
+
+        test('SEC-1585: skips the fetch entirely when parent has no _sourceAssigningAuthority', async () => {
+            const parent = { id: 'p-st' };
+
+            const result = await patientResolvers.Patient.subscriptionTopics(parent, {}, mockContext, mockInfo);
+
+            expect(result).toEqual([]);
+            expect(mockContext.dataApi.getResources).not.toHaveBeenCalled();
+        });
     });
 
     describe('Patient.subscriptions resolver', () => {
         test('calls dataApi.getResources with extension for Subscription', async () => {
-            const parent = { id: 'p-sub' };
+            const parent = { id: 'p-sub', _sourceAssigningAuthority: 'client' };
             await patientResolvers.Patient.subscriptions(parent, {}, mockContext, mockInfo);
             expect(mockContext.dataApi.getResources).toHaveBeenCalledWith(
                 parent,
@@ -247,7 +256,7 @@ describe('graphqlv2/resolvers/custom/patient', () => {
 
     describe('Patient.subscriptionStatuses resolver', () => {
         test('calls dataApi.getResources with extension for SubscriptionStatus', async () => {
-            const parent = { id: 'p-sub-status' };
+            const parent = { id: 'p-sub-status', _sourceAssigningAuthority: 'client' };
             await patientResolvers.Patient.subscriptionStatuses(parent, {}, mockContext, mockInfo);
             expect(mockContext.dataApi.getResources).toHaveBeenCalledWith(
                 parent,

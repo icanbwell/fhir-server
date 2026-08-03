@@ -15,6 +15,11 @@ module.exports = {
          */
         {{ lower_case_first_letter(fhir_entity.plural_name) }}: async (parent, args, context, info) => {
             {% set search_param = patient_resources_search_param_dict[fhir_entity.cleaned_name] %}
+            {% if search_param in ["extension", "identifier"] %}
+            if (!parent._sourceAssigningAuthority) {
+                return [];
+            }
+            {% endif %}
             const resources = await context.dataApi.getResources(
                 parent,
                 {
