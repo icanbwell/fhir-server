@@ -20,6 +20,7 @@ const { ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 
 class CreateOperation {
     /**
@@ -158,6 +159,14 @@ class CreateOperation {
 
         // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
         resource_incoming.id = generateUUID();
+
+        // Internal fields (_uuid, _sourceAssigningAuthority, _file_id, etc.) are never
+        // legitimate client input on create -- they're always (re)computed server-side
+        // (pre-save handlers, DatabaseAttachmentManager after a real GridFS upload). Strip
+        // them from the raw payload before constructing the Resource so a client-supplied
+        // value (e.g. an arbitrary `_file_id` claiming another resource's GridFS content)
+        // can never reach validation or attachment handling.
+        removeUnderscoreFieldsRecursive(resource_incoming);
 
         /**
          * @type {Resource}
