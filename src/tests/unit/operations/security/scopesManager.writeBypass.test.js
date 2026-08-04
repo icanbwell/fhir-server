@@ -1,16 +1,11 @@
 /**
- * Tests for ScopesManager write operation bypass vulnerability (INC-331)
+ * Tests for ScopesManager write operation cross-tenant checks (INC-331 / DCON-4806).
  *
- * KEY VULNERABILITY (scopesManager.js line 128-134):
- * When a patient scope is detected, isAccessToResourceAllowedBySecurityTags
- * returns true immediately without verifying that the resource actually belongs
- * to the requesting patient. This applies to WRITE operations as well, allowing:
- *   1. Writing/updating resources belonging to OTHER patients
- *   2. Writing resources to OTHER tenants (no security tag validation)
- *   3. Deleting resources from other patients with patient/*.write scope
- *   4. No security tag validation on write path at all
- *
- * All tests assert CORRECT behavior and FAIL on the current buggy code.
+ * isAccessToResourceAllowedBySecurityTags previously returned true immediately once it
+ * detected a valid patient scope, without verifying the resource's own owner/access tags.
+ * Fixed to fall through to the same tag-matching check other callers use whenever the
+ * resource carries security tags -- a patient scope alone can no longer grant write access
+ * to a resource tagged for a different tenant.
  */
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 
@@ -54,9 +49,6 @@ describe('ScopesManager — Write Operation Bypass (INC-331)', () => {
             }
         };
 
-        // BUG: The code at line 132-133 sees a patient/ scope, confirms the resource
-        // type is patient-filterable, and immediately returns true without checking
-        // whether the resource actually belongs to this patient or their tenant.
         const result = scopesManager.isAccessToResourceAllowedBySecurityTags({
             resource: resourceBelongingToOtherPatient,
             user: 'patient-123@tenant_mine',
@@ -83,9 +75,6 @@ describe('ScopesManager — Write Operation Bypass (INC-331)', () => {
             }
         };
 
-        // BUG: isAccessToResourceAllowedBySecurityTags short-circuits at line 132
-        // because it sees patient/Condition.write scope and Condition is patient-filterable.
-        // It never checks the access/owner security tags against the user's access codes.
         const result = scopesManager.isAccessToResourceAllowedBySecurityTags({
             resource: resourceFromTenantB,
             user: 'user@tenant_a',
@@ -113,11 +102,6 @@ describe('ScopesManager — Write Operation Bypass (INC-331)', () => {
             }
         };
 
-        // BUG: Because patient/Observation.write is present in the scope string,
-        // isAccessAllowedByPatientScopes returns true and the function short-circuits
-        // at line 132-133. It never checks the access codes (tenant_a) against the
-        // resource's security tags (tenant_b). Simply having a patient/ scope in your
-        // token should not grant cross-tenant write access.
         const result = scopesManager.isAccessToResourceAllowedBySecurityTags({
             resource: resourceFromTenantB,
             user: 'user@tenant_a',
@@ -146,10 +130,6 @@ describe('ScopesManager — Write Operation Bypass (INC-331)', () => {
             }
         };
 
-        // BUG: The patient scope check at line 129-133 returns true immediately,
-        // completely bypassing the security tag validation that would have caught
-        // this cross-tenant write. The access codes ['my_clinic'] should be checked
-        // against the resource's owner/access tags ['other_clinic'], which would fail.
         const result = scopesManager.isAccessToResourceAllowedBySecurityTags({
             resource: resourceOwnedByAnotherClinic,
             user: 'doctor@my_clinic',

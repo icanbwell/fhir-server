@@ -162,14 +162,26 @@ class ScopesManager {
         const accessViaPatientScopes = this.isAccessAllowedByPatientScopes({
             scope, resourceType: resource.resourceType
         });
-        if (accessViaPatientScopes) {
-            return true; // TODO: should double check here that the resources belong to this patient
+        if (accessViaPatientScopes && !this.doesResourceHaveAccessTags(resource)) {
+            // Patient scope is valid for this resource type, and the resource carries no
+            // owner/access security tags to check against, so there's nothing for the
+            // tenant-tag model to contradict -- patient identity is the only applicable
+            // signal here.
+            return true;
         }
         // add any access codes from scopes
         /**
          * @type {string[]}
          */
         const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
+        if (accessViaPatientScopes) {
+            // The resource DOES carry owner/access tags. A patient scope must never
+            // override those -- fall through to the same tag check every other caller
+            // goes through. A patient-scoped caller legitimately won't carry any access/
+            // scope of their own, so an empty accessCodes list here just means deny
+            // (no matching tenant tag), not "malformed request".
+            return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, resource);
+        }
         if (!accessCodes || accessCodes.length === 0) {
             const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
             throw new ForbiddenError(errorMessage);
