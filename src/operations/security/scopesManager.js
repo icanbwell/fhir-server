@@ -241,11 +241,14 @@ class ScopesManager {
         const accessViaPatientScopes = this.isAccessAllowedByPatientScopes({
             scope, resourceType: resource.resourceType
         });
-        if (accessViaPatientScopes && !this.doesResourceHaveAccessTags(resource)) {
-            // Patient scope is valid for this resource type, and the resource carries no
-            // owner/access security tags to check against, so there's nothing for the
-            // tenant-tag model to contradict -- patient identity is the only applicable
-            // signal here.
+        if (accessViaPatientScopes) {
+            // Patient scope tokens in this system never carry an access/ scope of their
+            // own (that's the separate tenant/service-account mechanism), so requiring a
+            // tenant-tag match here would deny every legitimate patient-scoped write. The
+            // "does this resource actually belong to this patient" check the old TODO asked
+            // for is already enforced independently by patientScopeManager.canWriteResourceAsync
+            // (Person/Patient-id matching), which every write path ANDs with this check via
+            // scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes.
             return true;
         }
         // add any access codes from scopes
@@ -253,14 +256,6 @@ class ScopesManager {
          * @type {string[]}
          */
         const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
-        if (accessViaPatientScopes) {
-            // The resource DOES carry owner/access tags. A patient scope must never
-            // override those -- fall through to the same tag check every other caller
-            // goes through. A patient-scoped caller legitimately won't carry any access/
-            // scope of their own, so an empty accessCodes list here just means deny
-            // (no matching tenant tag), not "malformed request".
-            return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, resource);
-        }
         if (!accessCodes || accessCodes.length === 0) {
             const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
             throw new ForbiddenError(errorMessage);

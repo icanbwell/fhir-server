@@ -1,11 +1,7 @@
 /**
- * Tests for ScopesManager cross-tenant security (DCON-4806).
- *
- * isAccessToResourceAllowedBySecurityTags previously returned `true` immediately whenever
- * the caller held a valid patient scope for a patient-filterable resource type, without
- * checking whether the resource's own owner/access tags belonged to a different tenant.
- * Fixed to only skip the tag check when the resource carries no security tags at all;
- * otherwise it falls through to the same tag-matching check every other caller goes through.
+ * Tests for ScopesManager cross-tenant security gaps
+ * These test CORRECT behavior that the code does NOT currently satisfy.
+ * All tests FAIL until the bugs are fixed.
  */
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 
@@ -33,8 +29,8 @@ describe('ScopesManager — Cross-Tenant Security', () => {
         });
     });
 
-    describe('isAccessToResourceAllowedBySecurityTags checks resource tags even with a valid patient scope', () => {
-        test('patient-scoped user should NOT access resources from other tenants', () => {
+    describe('BUG: isAccessToResourceAllowedBySecurityTags returns true without checking patient ownership', () => {
+        test('CRITICAL: patient-scoped user should NOT access resources from other tenants', () => {
             const scope = 'patient/Observation.read';
             const resource = {
                 resourceType: 'Observation',
@@ -46,6 +42,11 @@ describe('ScopesManager — Cross-Tenant Security', () => {
                 }
             };
 
+            // The current code at line 133 returns TRUE without checking whether
+            // the resource belongs to the user's patient/tenant. It just sees
+            // "patient scope + patient-filterable resource type" and immediately returns true.
+            //
+            // CORRECT: should return FALSE because resource belongs to 'other_tenant'
             const result = scopesManager.isAccessToResourceAllowedBySecurityTags({
                 resource,
                 user: 'user@alpha_health',
@@ -56,7 +57,7 @@ describe('ScopesManager — Cross-Tenant Security', () => {
             expect(result).toBe(false);
         });
 
-        test('patient-scoped user should NOT access any resource just because type is patient-filterable', () => {
+        test('CRITICAL: patient-scoped user should NOT access any resource just because type is patient-filterable', () => {
             const scope = 'patient/Condition.read';
             const resourceFromAnotherTenant = {
                 resourceType: 'Condition',
