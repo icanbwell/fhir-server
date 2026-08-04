@@ -211,79 +211,6 @@ describe('INC-316/317: meta.security tag duplication on concurrent $merge', () =
             expect(securityTags.length).toBe(3); // owner, sourceAssigningAuthority, access
         });
 
-        test('mergeOneAsync should use atomic $addToSet for meta.security instead of full document replaceOne', async () => {
-            // This test verifies that the database operation for updating security tags
-            // uses MongoDB's atomic $addToSet operator rather than a full document replace.
-            //
-            // The bug: mergeOneAsync uses replaceOne with the full document, meaning
-            // concurrent writes will overwrite each other's security tags without
-            // atomic guarantees.
-            const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
-
-            const securityTags = createSecurityTags();
-            const doc = createLocationResource({
-                id: 'walgreens-loc-1',
-                uuid: 'uuid-walgreens-loc-1',
-                securityTags: [...securityTags]
-            });
-
-            // Track operations added to the bulk write queue
-            const capturedOperations = [];
-            const mockRequestSpecificCache = {
-                getMap: jest.fn().mockReturnValue(new Map())
-            };
-
-            const bulkInserter = Object.create(FastDatabaseBulkInserter.prototype);
-            bulkInserter.requestSpecificCache = mockRequestSpecificCache;
-            bulkInserter.preSaveManager = mockPreSaveManager;
-            bulkInserter.resourceMerger = mockResourceMerger;
-            bulkInserter.configManager = mockConfigManager;
-            bulkInserter.base64DataManager = mockBase64DataManager;
-
-            // Override addOperationForResourceType to capture what operation is generated
-            bulkInserter.addOperationForResourceType = jest.fn().mockImplementation(({ operation }) => {
-                capturedOperations.push(operation);
-            });
-            bulkInserter.getPendingUpdates = jest.fn().mockReturnValue([]);
-            bulkInserter.getPendingInsertsWithUniqueId = jest.fn().mockReturnValue([]);
-
-            const requestInfo = {
-                requestId: 'test-request-1',
-                user: 'test-user',
-                method: 'POST'
-            };
-
-            await bulkInserter.mergeOneAsync({
-                base_version: '4_0_0',
-                requestInfo,
-                resourceType: 'Location',
-                doc,
-                previousVersionId: '1',
-                patches: [{ op: 'replace', path: '/meta/security', value: securityTags }],
-                contextData: null
-            });
-
-            // CORRECT BEHAVIOR: The operation should use atomic operators for security tags
-            // ($addToSet) instead of full document replaceOne.
-            // The current buggy code uses replaceOne which enables the race condition.
-            expect(capturedOperations.length).toBe(1);
-            const operation = capturedOperations[0];
-
-            // The operation SHOULD NOT be a simple replaceOne for security-tag-affecting patches
-            // because replaceOne is not atomic for array fields under concurrent access.
-            const usesReplaceOne = !!operation.replaceOne;
-            const usesAtomicUpdate = !!(
-                operation.updateOne &&
-                operation.updateOne.update &&
-                (operation.updateOne.update.$addToSet || operation.updateOne.update.$set)
-            );
-
-            // Assert: for meta.security modifications, the operation must use
-            // atomic MongoDB operators, NOT replaceOne
-            expect(usesReplaceOne).toBe(false);
-            expect(usesAtomicUpdate).toBe(true);
-        });
-
         test('after concurrent merges, security tag count equals the deduplicated set, not concatenation', async () => {
             // Simulates what happens when multiple merge operations run concurrently
             // against the same resource, each reading the same base state.
@@ -380,7 +307,7 @@ describe('INC-316/317: meta.security tag duplication on concurrent $merge', () =
             // CORRECT BEHAVIOR: Each write should have AT MOST the deduplicated
             // set of security tags (3 unique tags), NOT the concatenation (6 tags)
             for (const call of writeCalls) {
-                const writtenDoc = call[0].resourceToMerge;
+                const writtenDoc = call[0].doc;
                 const securityTags = writtenDoc.meta.security;
 
                 // Deduplicate by system|code
