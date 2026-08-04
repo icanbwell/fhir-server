@@ -82,7 +82,7 @@ class ClickHouseClientManager {
                     response: true   // Enable gzip compression for queries
                 },
                 keep_alive: {
-                    enabled: this.configManager.clickHouseKeepAliveEnabled
+                    enabled: true
                 }
             });
 
