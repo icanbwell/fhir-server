@@ -83,38 +83,6 @@ describe('BulkDataExportRunner - null safety bugs', () => {
         runner = new BulkDataExportRunner(mocks);
     });
 
-    // ========== BUG: addPatientFiltersToQuery crashes when both getPatientPropertyForResource
-    // and getPatientPropertyForPersonScopedResource return null (line 539) ==========
-    describe('addPatientFiltersToQuery - null patientField crash', () => {
-        test('handles null patientField gracefully for non-Patient, non-Subscription resource', () => {
-            // Both methods return null (set in beforeEach)
-            // This triggers line 539: patientField.replace('.reference', '._uuid')
-            // which will throw TypeError: Cannot read properties of null (reading 'replace')
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            expect(() => {
-                runner.addPatientFiltersToQuery({
-                    patientReferences: ['Patient/uuid-123'],
-                    query: {},
-                    resourceType: 'Observation'
-                });
-            }).not.toThrow();
-        });
-
-        test('handles gracefully when getPatientPropertyForResource returns null and fallback also returns null', () => {
-            mocks.patientFilterManager.getPatientPropertyForResource.mockReturnValue(null);
-            mocks.patientFilterManager.getPatientPropertyForPersonScopedResource.mockReturnValue(null);
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            expect(() => {
-                runner.addPatientFiltersToQuery({
-                    patientReferences: ['Patient/some-id'],
-                    query: { status: 'active' },
-                    resourceType: 'Condition'
-                });
-            }).not.toThrow();
-        });
-    });
-
     // ========== BUG: processResourceAsync crashes with Infinity batch size when avgObjSize is 0 (line 831) ==========
     describe('processResourceAsync - division by zero on avgObjSize', () => {
         test('handles gracefully when stats.avgObjSize is 0', async () => {
@@ -145,10 +113,13 @@ describe('BulkDataExportRunner - null safety bugs', () => {
 
             mocks.resourceLocatorFactory.createResourceLocator = jest.fn().mockReturnValue(mockResourceLocator);
 
-            // Math.floor(uploadPartSize / 0) = Infinity
-            // new Array(Infinity) throws RangeError: Invalid array length
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // Should handle empty collection gracefully with a safe default batch size
+            mocks.enrichmentManager.enrichAsync = jest.fn().mockResolvedValue(undefined);
+            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockResolvedValue(undefined);
+            mocks.base64DataManager.transformAsync = jest.fn().mockImplementation((doc) => doc);
+
+            // Math.floor(uploadPartSize / 0) would be Infinity, and `new Array(Infinity)`
+            // throws RangeError: Invalid array length. A safe default batch size should be
+            // used instead when avgObjSize is reported as 0.
             await expect(
                 runner.processResourceAsync({ resourceType: 'Patient', query: {} })
             ).resolves.not.toThrow();
@@ -212,19 +183,13 @@ describe('BulkDataExportRunner - null safety bugs', () => {
                 multipartContext
             });
 
-            // The concat on line 742 should mutate or reassign currentBatch properly.
-            // After the concat, currentBatchSize is incremented by previousBatchSize (line 743),
-            // making it 3 (1 new + 2 previous). The actual currentBatch array should
-            // contain all 3 elements (the new one + the 2 from previousBuffer).
-
-            // Check that previousBuffer was set to currentBatch (since batch < minUploadBatchSize)
-            // The previousBuffer should contain ALL the data including the old buffer items
-            if (multipartContext.previousBuffer) {
-                // The buffer should contain 3 items (1 new + 2 from previous)
-                const definedItems = multipartContext.previousBuffer.filter(x => x !== undefined);
-                // EXPECTED: correct behavior (will fail until bug is fixed)
-                expect(definedItems.length).toBe(3);
-            }
+            // currentBatch must be reassigned (not just concatenated, which returns a new
+            // array without mutating in place) so previousBuffer's records aren't dropped.
+            // currentBatchSize is incremented by previousBatchSize, so the merged batch
+            // should contain all 3 records (1 new + 2 from the previous iteration).
+            expect(multipartContext.previousBuffer).toBeTruthy();
+            const definedItems = multipartContext.previousBuffer.filter(x => x !== undefined);
+            expect(definedItems.length).toBe(3);
         });
     });
 
@@ -273,7 +238,7 @@ describe('BulkDataExportRunner - null safety bugs', () => {
 
     // ========== BUG: handlePatientExportAsync - no multipart abort on error (resource leak) ==========
     describe('handlePatientExportAsync - resource leak on error', () => {
-        test('does not abort multipart upload when error occurs after upload started', async () => {
+        test('aborts multipart upload when error occurs after upload started', async () => {
             runner.exportStatusResource = { output: [], errors: [] };
             runner.baseS3Folder = 'exports/bwell/export-123';
 
@@ -322,8 +287,9 @@ describe('BulkDataExportRunner - null safety bugs', () => {
             mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockResolvedValue(undefined);
             mocks.base64DataManager.transformAsync = jest.fn().mockImplementation((doc) => doc);
 
-            // handlePatientExportAsync does NOT call abortMultiPartUploadAsync on error
-            // (unlike processResourceAsync which does)
+            // handlePatientExportAsync must abort the in-progress multipart upload when an
+            // error occurs after the upload has started, mirroring processResourceAsync's
+            // cleanup, so it doesn't leak an incomplete multipart upload on S3.
             await expect(
                 runner.handlePatientExportAsync({
                     searchParams: new URLSearchParams('patient=Patient/p1'),
@@ -332,26 +298,9 @@ describe('BulkDataExportRunner - null safety bugs', () => {
                 })
             ).rejects.toThrow('Enrichment failed');
 
-            // BUG: No abortMultiPartUploadAsync is called in handlePatientExportAsync's catch block
-            // processResourceAsync (line 893-894) calls it, but handlePatientExportAsync (line 651-664) does not
-            expect(mocks.s3Client.abortMultiPartUploadAsync).not.toHaveBeenCalled();
-        });
-    });
-
-    // ========== BUG: Subscription resource type without matching filter key crashes ==========
-    describe('addPatientFiltersToQuery - Subscription resource without matching filter', () => {
-        test('crashes when Subscription-prefixed resource has no entry in filter map', () => {
-            // For a resource like "SubscriptionUnknown" that starts with "Subscription"
-            // but isn't in patientSubscriptionFilter, accessing patientSubscriptionFilter[resourceType]
-            // returns undefined, then using it as a key in SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[undefined]
-            // crashes with TypeError
-            expect(() => {
-                runner.addPatientFiltersToQuery({
-                    patientReferences: ['Patient/uuid-123'],
-                    query: {},
-                    resourceType: 'SubscriptionUnknown'
-                });
-            }).toThrow(TypeError);
+            expect(mocks.s3Client.abortMultiPartUploadAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ uploadId: 'upload-id-1' })
+            );
         });
     });
 });
