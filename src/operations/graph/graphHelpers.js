@@ -367,8 +367,18 @@ class GraphHelper {
                 everythingChunkIndex: graphChunkIndex
             });
 
+            // filterProperty/filterValue come from the caller-supplied GraphDefinition link.path
+            // (parsed by getFilterFromPropertyPath) with no allowlist of legal field names, so a
+            // path like 'generalPractitioner:$and=1' must not be applied as a raw top-level Mongo
+            // operator key onto the already tenant/access-tag-scoped query object built above.
             if (filterProperty) {
-                query[`${filterProperty}`] = filterValue;
+                if (filterProperty.startsWith('$')) {
+                    logWarn(`Ignoring GraphDefinition filterProperty '${filterProperty}': Mongo operator keys are not allowed here`, {
+                        resourceType
+                    });
+                } else {
+                    query[`${filterProperty}`] = filterValue;
+                }
             }
             /**
              * @type {number}
