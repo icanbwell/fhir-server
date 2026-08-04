@@ -553,4 +553,18 @@ describe('ScopesValidator', () => {
             })).rejects.toThrow('has no write access');
         });
     });
+
+    // DCON-4808: gates _debug/_explain/_setIndexHint in history.js/searchBundle.js/
+    // searchStreaming.js
+    describe('isAdminScope', () => {
+        test('returns true when scope contains an admin/ scope', () => {
+            mockScopesManager.getAdminScopes = jest.fn().mockReturnValue(['admin/*.*']);
+            expect(scopesValidator.isAdminScope({ scope: 'admin/*.* user/Patient.read' })).toBe(true);
+        });
+
+        test('returns false when scope contains no admin/ scope', () => {
+            mockScopesManager.getAdminScopes = jest.fn().mockReturnValue([]);
+            expect(scopesValidator.isAdminScope({ scope: 'user/Patient.read' })).toBe(false);
+        });
+    });
 });

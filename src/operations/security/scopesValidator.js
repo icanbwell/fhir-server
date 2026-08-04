@@ -317,6 +317,15 @@ class ScopesValidator {
             throw e;
         }
     }
+
+    /**
+     * Returns whether the given scope string carries an admin/ scope.
+     * @param {string|null} scope
+     * @return {boolean}
+     */
+    isAdminScope({scope}) {
+        return this.scopesManager.getAdminScopes({scope}).length > 0;
+    }
 }
 
 module.exports = {

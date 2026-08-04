@@ -181,6 +181,13 @@ class BaseHistoryOperationProcessor {
             userType
         } = requestInfo;
 
+        // _explain/_debug expose Mongo query plans and collection internals; only an
+        // admin-scoped caller may request them.
+        if ((parsedArgs._explain || parsedArgs._debug) && !this.scopesValidator.isAdminScope({ scope })) {
+            parsedArgs._explain = undefined;
+            parsedArgs._debug = undefined;
+        }
+
         if (this.scopesManager.hasPatientScope({ scope })) {
             const forbiddenError =  new ForbiddenError(
                 `user ${user} with scopes [${scope}] failed access check to ${resourceType}'s ` +
