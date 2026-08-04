@@ -1,8 +1,9 @@
 // Enable $export routes before the app is constructed on first createTestRequest()
 process.env.ENABLE_BULK_EXPORT = '1';
 
-const {describe, test, expect} = require('@jest/globals');
+const {describe, test, expect, afterEach, jest} = require('@jest/globals');
 const {createTestRequest, getUnAuthenticatedGraphQLHeaders} = require('../common');
+const {getLogger} = require('../../winstonInit');
 
 const expectFhirOperationOutcome = (resp) => {
     expect(resp.status).toBe(401);
@@ -26,6 +27,34 @@ const expectGraphqlError = (resp, code = 'UNAUTHENTICATED', statusCode = 401) =>
 };
 
 describe('Authentication failure responses', () => {
+    describe('Request-completion logging must not leak the raw Authorization header', () => {
+        const previousLogLevel = process.env.LOGLEVEL;
+
+        afterEach(() => {
+            process.env.LOGLEVEL = previousLogLevel;
+        });
+
+        test('does not pass the raw bearer token to logDebug on a 401, even with debug logging enabled', async () => {
+            const request = await createTestRequest();
+            const logger = getLogger();
+            const debugSpy = jest.spyOn(logger, 'debug');
+            // Debug logging is SILENT in tests by default; force it on so that any
+            // logDebug() call in the request-completion handler actually reaches winston.
+            process.env.LOGLEVEL = 'DEBUG';
+
+            const rawToken = 'super-secret-raw-jwt-token-value';
+            const resp = await request
+                .get('/4_0_0/Patient/123')
+                .set({Authorization: `Bearer ${rawToken}`});
+
+            expect(resp.status).toBe(401);
+            for (const call of debugSpy.mock.calls) {
+                expect(JSON.stringify(call)).not.toContain(rawToken);
+            }
+            debugSpy.mockRestore();
+        });
+    });
+
     describe('REST/FHIR routes return OperationOutcome with HTTP 401', () => {
         test('REST (CRUD) returns JSON OperationOutcome on missing auth', async () => {
             const request = await createTestRequest();
