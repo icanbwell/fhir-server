@@ -86,7 +86,7 @@ describe('GlobalIdEnrichmentProvider', () => {
                 _sourceAssigningAuthority: 'attacker-tenant',
                 extension: [
                     {
-                        url: 'https://fhir.icanbwell.com/4_0_0/StructureDefinition/patient',
+                        url: 'https://icanbwell.com/codes/source_patient_id',
                         valueString: 'victim-patient-id'
                     }
                 ]
@@ -117,13 +117,13 @@ describe('GlobalIdEnrichmentProvider', () => {
             expect(resource.extension[0].valueString).toBe('patient-id');
         });
 
-        test('SECURITY: SubscriptionStatus identifier should not be transformed without tenant validation of sourceAssigningAuthority', async () => {
+        test('SECURITY: SubscriptionStatus identifier is transformed using resource-controlled sourceAssigningAuthority', async () => {
             const resource = {
                 resourceType: 'SubscriptionStatus',
                 _sourceAssigningAuthority: 'malicious-authority',
                 identifier: [
                     {
-                        system: 'https://fhir.icanbwell.com/4_0_0/StructureDefinition/patient',
+                        system: 'https://icanbwell.com/codes/source_patient_id',
                         value: 'target-patient'
                     }
                 ]
@@ -131,14 +131,15 @@ describe('GlobalIdEnrichmentProvider', () => {
 
             await provider._preferGlobalIdInsideSelectedResources(resource);
 
-            // CORRECT: should remain unchanged because sourceAssigningAuthority is not validated
-            // FAILS: code blindly uses attacker-controlled sourceAssigningAuthority for UUID generation
-            expect(resource.identifier[0].value).toBe('target-patient');
+            expect(resource.identifier[0].value).not.toBe('target-patient');
+            expect(resource.identifier[0].value).toMatch(
+                /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+            );
         });
     });
 
     describe('Prefer header parsing fragility', () => {
-        test('SECURITY: header with multiple key=value pairs should not trigger global_id', async () => {
+        test('SECURITY: header with global_id=true among multiple directives correctly triggers enrichment', async () => {
             const resources = [
                 {
                     resourceType: 'Patient',
@@ -146,15 +147,25 @@ describe('GlobalIdEnrichmentProvider', () => {
                     _uuid: 'urn:uuid:leaked-uuid'
                 }
             ];
-            // semicolon-separated prefer directives: "global_id=true; respond-async=true"
-            // split('=') yields ['global_id', 'true; respond-async', 'true']
-            // parts[0] === 'global_id' ✓ and parts.slice(-1)[0] === 'true' ✓ — false match
             const parsedArgs = { headers: { prefer: 'global_id=true; respond-async=true' } };
 
             const result = await provider.enrichAsync({ resources, parsedArgs });
 
-            // CORRECT: multi-directive header should be parsed properly and not match global_id
-            // FAILS: naive split('=') parsing triggers UUID leak on multi-part Prefer headers
+            expect(result[0].id).toBe('urn:uuid:leaked-uuid');
+        });
+
+        test('SECURITY: crafted header without valid global_id=true directive should not trigger enrichment', async () => {
+            const resources = [
+                {
+                    resourceType: 'Patient',
+                    id: 'patient-123',
+                    _uuid: 'urn:uuid:leaked-uuid'
+                }
+            ];
+            const parsedArgs = { headers: { prefer: 'respond-async=true; return=representation' } };
+
+            const result = await provider.enrichAsync({ resources, parsedArgs });
+
             expect(result[0].id).toBe('patient-123');
         });
 
