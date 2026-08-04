@@ -350,12 +350,11 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
 
         await mutex.runExclusive(async () => {
             try {
-                // Move current data to processing buffers
+                // Move current data to processing buffers. The source maps are only cleared
+                // after each stage succeeds, so a failure leaves the unsent data in place for retry
+                // instead of silently dropping it.
                 const patientDataChangeMapBuffer = new Map(this.patientDataChangeMap);
-                this.patientDataChangeMap.clear();
-
                 const personDataChangeMapBuffer = new Map(this.personDataChangeMap);
-                this.personDataChangeMap.clear();
 
                 if (this.enablePatientDataChangeEvents) {
                     // Process patient data change events
@@ -365,6 +364,7 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
                         resourceType: 'Patient'
                     });
                 }
+                this.patientDataChangeMap.clear();
 
                 if (this.enablePersonDataChangeEvents) {
                     // Populate person data change map from patient data change map
@@ -377,6 +377,7 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
                         resourceType: 'Person'
                     });
                 }
+                this.personDataChangeMap.clear();
 
                 // Clear processing buffers
                 patientDataChangeMapBuffer.clear();
