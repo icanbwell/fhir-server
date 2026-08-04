@@ -4,7 +4,7 @@ const noOpMiddleware = require('./noop.middleware.js');
 
 const {
     INTERACTIONS
-} = require('../../constants');
+} = require('./utils/constants');
 
 const errors = require('./utils/error.utils');
 
