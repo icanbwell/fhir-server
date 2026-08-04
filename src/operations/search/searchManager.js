@@ -284,7 +284,8 @@ class SearchManager {
                             patientIds: allPatientIdsFromJwtToken,
                             resourceType,
                             query,
-                            actor
+                            actor,
+                            securityTags
                         });
                     }
                 }

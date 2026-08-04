@@ -74,7 +74,7 @@ class AuditLogger {
             : undefined;
 
         if (requestInfo?.userType === AUTH_USER_TYPES.delegatedUser) {
-            const consentPolicy = requestInfo.actor.consentPolicy;
+            const consentPolicy = requestInfo.actor?.consentPolicy;
             return [
                 {
                     who: whoReference,

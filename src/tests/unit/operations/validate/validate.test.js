@@ -297,4 +297,49 @@ describe('ValidateOperation - null safety bugs', () => {
             expect(result.resourceType).toBe('OperationOutcome');
         });
     });
+
+    // DCON-4806: constructQueryAsync must receive userType/actor so delegated-access
+    // sensitive-data filtering (gated on userType === AUTH_USER_TYPES.delegatedUser in
+    // searchManager.js) actually applies to id-based $validate lookups.
+    describe('validateAsync - passes userType/actor through to constructQueryAsync', () => {
+        test('forwards userType and actor from requestInfo', async () => {
+            const mockCursor = {
+                hasNext: jest.fn().mockResolvedValue(false),
+                nextObject: jest.fn()
+            };
+            const mockDatabaseQueryManager = {
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const parsedArgs = createMockInstance(ParsedArgs);
+            parsedArgs.id = 'some-id';
+            parsedArgs.resource = undefined;
+            parsedArgs.base_version = '4_0_0';
+            parsedArgs._useAccessIndex = false;
+            parsedArgs.profile = undefined;
+            parsedArgs.getRawArgs = jest.fn().mockReturnValue({});
+
+            const actor = { sub: 'delegate-actor-1' };
+            const requestInfo = {
+                isUser: true,
+                personIdFromJwtToken: 'person-1',
+                user: 'delegate-user',
+                scope: 'user/*.*',
+                path: '/4_0_0/Patient/$validate',
+                userType: 'delegatedUser',
+                actor
+            };
+
+            await validateOp.validateAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType: 'Patient'
+            });
+
+            expect(mocks.searchManager.constructQueryAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ userType: 'delegatedUser', actor })
+            );
+        });
+    });
 });

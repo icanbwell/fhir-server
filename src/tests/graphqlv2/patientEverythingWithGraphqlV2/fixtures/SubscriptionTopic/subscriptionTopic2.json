@@ -3,7 +3,12 @@
     "id": "2",
     "meta": {
         "source": "test",
-        "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            }
+        ]
     },
     "identifier": [
         {
@@ -30,6 +35,11 @@
             "id": "c67138f7dd75adf162cdc5a987e44b1543ad7ea2b0b573f7f65c4adc45199d2a",
             "system": "https://icanbwell.com/codes/connection_name",
             "value": "Emory Healthcare"
+        },
+        {
+            "id": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+            "system": "https://icanbwell.com/codes/service_slug",
+            "value": "client"
         }
     ],
     "status": "active",

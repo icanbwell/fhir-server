@@ -41,12 +41,16 @@ describe('sofScopeCheckMiddleware', () => {
         expect(next).toHaveBeenCalledWith();
     });
 
-    describe('with smart auth enabled (BUG: INTERACTIONS imported from wrong module)', () => {
+    // DCON-4806: INTERACTIONS was imported from '../../constants' (src/constants.js), which
+    // exports no INTERACTIONS key -- the destructure silently resolved to `undefined`, so
+    // every `case INTERACTIONS.SEARCH` etc. threw a TypeError at request time. Fixed by
+    // importing from './utils/constants', the module that actually defines INTERACTIONS.
+    describe('with smart auth enabled', () => {
         beforeEach(() => {
             process.env.NODE_ENV = 'production';
         });
 
-        test('BUG: deriveActionFromInteraction crashes because INTERACTIONS is undefined', () => {
+        test('does not throw and correctly derives a read action for a search interaction', () => {
             scopeChecker.mockReturnValue({});
             const middleware = sofScopeCheckMiddleware({
                 route: { interaction: 'search' },
@@ -55,7 +59,50 @@ describe('sofScopeCheckMiddleware', () => {
             });
             const req = { user: { scope: 'patient/Patient.read' }, params: {} };
             const next = jestObj.fn();
-            expect(() => middleware(req, {}, next)).toThrow(TypeError);
+            expect(() => middleware(req, {}, next)).not.toThrow();
+            expect(scopeChecker).toHaveBeenCalledWith('Patient', 'read', ['patient/Patient.read']);
+            expect(next).toHaveBeenCalledWith();
+        });
+
+        test('correctly derives a write action for a create interaction', () => {
+            scopeChecker.mockReturnValue({});
+            const middleware = sofScopeCheckMiddleware({
+                route: { interaction: 'create' },
+                name: 'patient',
+                auth: { type: 'smart', strategy: {} }
+            });
+            const req = { user: { scope: 'patient/Patient.write' }, params: {} };
+            const next = jestObj.fn();
+            middleware(req, {}, next);
+            expect(scopeChecker).toHaveBeenCalledWith('Patient', 'write', ['patient/Patient.write']);
+        });
+
+        test('correctly derives a write action for a patch interaction', () => {
+            scopeChecker.mockReturnValue({});
+            const middleware = sofScopeCheckMiddleware({
+                route: { interaction: 'patch' },
+                name: 'patient',
+                auth: { type: 'smart', strategy: {} }
+            });
+            const req = { user: { scope: 'patient/Patient.write' }, params: {} };
+            const next = jestObj.fn();
+            middleware(req, {}, next);
+            expect(scopeChecker).toHaveBeenCalledWith('Patient', 'write', ['patient/Patient.write']);
+        });
+
+        test('rejects when scopeChecker reports an authorization error', () => {
+            const errors = require('../../../../middleware/fhir/utils/error.utils');
+            scopeChecker.mockReturnValue({ error: { message: 'insufficient scope' } });
+            const middleware = sofScopeCheckMiddleware({
+                route: { interaction: 'search' },
+                name: 'patient',
+                auth: { type: 'smart', strategy: {} }
+            });
+            const req = { user: { scope: '' }, params: {} };
+            const next = jestObj.fn();
+            middleware(req, {}, next);
+            expect(errors.unauthorized).toHaveBeenCalledWith('insufficient scope', undefined);
+            expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 403 }));
         });
     });
 });

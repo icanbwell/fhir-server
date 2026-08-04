@@ -282,7 +282,8 @@ class GraphHelper {
                                         explain,
                                         debug,
                                         supportLegacyId = true,
-                                        params = {}
+                                        params = {},
+                                        graphChunkIndex
                                     }) {
         try {
             if (!parentEntities || parentEntities.length === 0 || !isValidResource(resourceType)) {
@@ -366,7 +367,8 @@ class GraphHelper {
                 actor: requestInfo.actor,
                 requestId: requestInfo.requestId,
                 parsedArgs: childParseArgs,
-                operation: READ
+                operation: READ,
+                everythingChunkIndex: graphChunkIndex
             });
 
             if (filterProperty) {
@@ -556,7 +558,8 @@ class GraphHelper {
                                         supportLegacyId = true,
                                         proxyPatientIds = [],
                                         proxyPatientResources = [],
-                                        params = {}
+                                        params = {},
+                                        graphChunkIndex
                                     }) {
         try {
             if (!(reverse_filter)) {
@@ -656,7 +659,8 @@ class GraphHelper {
                     actor: requestInfo.actor,
                     requestId: requestInfo.requestId,
                     parsedArgs: relatedResourceParsedArgs,
-                    operation: READ
+                    operation: READ,
+                    everythingChunkIndex: graphChunkIndex
                 }
             );
 
@@ -961,7 +965,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            graphChunkIndex
         }
     ) {
         try {
@@ -1027,7 +1032,8 @@ class GraphHelper {
                                 debug,
                                 supportLegacyId,
                                 parsedArgs,
-                                params: targetParams
+                                params: targetParams,
+                                graphChunkIndex
 
                             }
                         );
@@ -1098,7 +1104,8 @@ class GraphHelper {
                                 proxyPatientIds,
                                 proxyPatientResources,
                                 parsedArgs,
-                                params: targetParams
+                                params: targetParams,
+                                graphChunkIndex
                             }
                         );
                         if (queryItem) {
@@ -1143,7 +1150,8 @@ class GraphHelper {
                                 parsedArgs,
                                 supportLegacyId,
                                 proxyPatientIds,
-                                proxyPatientResources
+                                proxyPatientResources,
+                                graphChunkIndex
                             }
                         )
                     );
@@ -1221,7 +1229,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            graphChunkIndex
         }
     ) {
         try {
@@ -1247,7 +1256,8 @@ class GraphHelper {
                         parsedArgs,
                         supportLegacyId,
                         proxyPatientIds,
-                        proxyPatientResources
+                        proxyPatientResources,
+                        graphChunkIndex
                     }
                 )
             );
@@ -1303,7 +1313,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            graphChunkIndex
         }
     ) {
         try {
@@ -1335,7 +1346,8 @@ class GraphHelper {
                         parsedArgs,
                         supportLegacyId,
                         proxyPatientIds,
-                        proxyPatientResources
+                        proxyPatientResources,
+                        graphChunkIndex
                     }
                 )
             );
@@ -1417,7 +1429,8 @@ class GraphHelper {
             idsAlreadyProcessed,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            graphChunkIndex
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1445,7 +1458,8 @@ class GraphHelper {
                 requestId: requestInfo.requestId,
                 parsedArgs,
                 operation: READ,
-                accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read')
+                accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
+                everythingChunkIndex: graphChunkIndex
             });
 
             /**
@@ -1550,7 +1564,8 @@ class GraphHelper {
                     parsedArgs,
                     supportLegacyId,
                     proxyPatientIds,
-                    proxyPatientResources
+                    proxyPatientResources,
+                    graphChunkIndex
                 }
             );
 
@@ -1766,6 +1781,7 @@ class GraphHelper {
              */
             let bundleEntryIdsProcessed = [];
 
+            let graphChunkIndex = 0;
             for (const /** @type {string[]} */ idChunk of idChunks) {
                 const parsedArgsForChunk = parsedArgs.clone();
                 parsedArgsForChunk.id = idChunk;
@@ -1809,7 +1825,8 @@ class GraphHelper {
                         idsAlreadyProcessed: bundleEntryIdsProcessed,
                         supportLegacyId,
                         proxyPatientIds,
-                        proxyPatientResources
+                        proxyPatientResources,
+                        graphChunkIndex: graphChunkIndex++
                     }
                 );
                 entries = entries.concat(entries1);

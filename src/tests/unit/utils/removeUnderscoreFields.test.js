@@ -59,4 +59,21 @@ describe('removeUnderscoreFieldsRecursive', () => {
         expect(obj._remove).toBeUndefined();
         expect(obj.keep).toBe(true);
     });
+
+    // DCON-4806: _file_id must never be accepted directly from a client -- only
+    // DatabaseAttachmentManager may set it, after actually uploading `data` to GridFS.
+    // create.js/update.js rely on this general-purpose strip (applied to the raw
+    // incoming payload before Resource construction) to remove it, rather than a
+    // dedicated _file_id-only helper.
+    test('removes a nested _file_id field along with other underscore fields', () => {
+        const obj = {
+            resourceType: 'DocumentReference',
+            content: [{ attachment: { _file_id: 'attacker-chosen-id', contentType: 'application/pdf' } }],
+            _uuid: 'client-supplied-uuid'
+        };
+        removeUnderscoreFieldsRecursive(obj);
+        expect(obj.content[0].attachment._file_id).toBeUndefined();
+        expect(obj.content[0].attachment.contentType).toBe('application/pdf');
+        expect(obj._uuid).toBeUndefined();
+    });
 });

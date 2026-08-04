@@ -96,13 +96,19 @@ class GraphOperation {
             method
         } = requestInfo;
 
+        // DELETE dispatches to deleteGraphAsync below and must be scope-checked as a write,
+        // not a read -- otherwise a read-only-scoped caller could delete the resource graph.
+        // Guard defensively rather than calling method.toLowerCase() unconditionally: an
+        // undefined/malformed method should surface at the dispatch check below (inside the
+        // try block, where it's caught and logged), not crash this pre-flight scope check.
+        const accessRequested = (method && method.toLowerCase() === 'delete') ? 'write' : 'read';
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
-            accessRequested: 'read'
+            accessRequested
         });
 
         try {

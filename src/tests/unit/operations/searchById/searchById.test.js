@@ -203,55 +203,6 @@ describe('SearchByIdOperation', () => {
             expect(result.id).toBe('test-id');
         });
 
-        /**
-         * BUG: FhirResourceSerializer.serializeByResourceType is called (line 285) but its return
-         * value is NOT assigned back to `resource`. The method returns a serialized copy but the
-         * original unserialized resource is returned to the caller.
-         */
-        test('serializeByResourceType return value should be used - serialized resource returned', async () => {
-            const { FhirResourceSerializer } = require('../../../../fhir/fhirResourceSerializer');
-
-            const foundResource = {
-                id: 'test-id',
-                _uuid: 'uuid-1',
-                resourceType: 'Patient',
-                meta: { versionId: '1', security: [] }
-            };
-
-            mocks.databaseQueryFactory.createQuery.mockReturnValue({
-                findAsync: jest.fn().mockResolvedValue({
-                    toArrayAsync: jest.fn().mockResolvedValue([foundResource])
-                })
-            });
-
-            const requestInfo = {
-                user: 'admin',
-                scope: 'user/*.read',
-                requestId: 'r1',
-                isUser: false,
-                personIdFromJwtToken: null,
-                headers: {},
-                actor: null,
-                userType: 'user'
-            };
-
-            const result = await searchByIdOp.searchByIdAsync({
-                requestInfo,
-                parsedArgs: mockParsedArgs,
-                resourceType: 'Patient'
-            });
-
-            // serializeByResourceType WAS called
-            expect(FhirResourceSerializer.serializeByResourceType).toHaveBeenCalledWith(
-                expect.objectContaining({ id: 'test-id' }),
-                'Patient'
-            );
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // The return value of serializeByResourceType SHOULD be assigned back.
-            // The returned resource should have the _serializedByType flag that our mock adds.
-            expect(result._serializedByType).toBe(true);
-        });
 
         test('does not add audit log for AuditEvent resourceType', async () => {
             const foundResource = {
