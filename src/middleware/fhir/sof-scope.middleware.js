@@ -4,7 +4,7 @@ const noOpMiddleware = require('./noop.middleware.js');
 
 const {
     INTERACTIONS
-} = require('../../constants');
+} = require('./utils/constants');
 
 const errors = require('./utils/error.utils');
 
@@ -30,6 +30,7 @@ function deriveActionFromInteraction (interaction) {
         case INTERACTIONS.CREATE:
         case INTERACTIONS.UPDATE:
         case INTERACTIONS.DELETE:
+        case INTERACTIONS.PATCH:
         case INTERACTIONS.OPERATIONS_POST:
             return 'write';
 

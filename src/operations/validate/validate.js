@@ -99,7 +99,11 @@ class ValidateOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            path
+            path,
+            /** @type {string | null} */
+            userType,
+            /** @type {import('../../utils/fhirRequestInfo').JwtActor|null} */
+            actor
         } = requestInfo;
         // Note: no auth check needed to call validate
 
@@ -134,11 +138,13 @@ class ValidateOperation {
                         user,
                         scope,
                         isUser,
+                        userType,
                         resourceType,
                         useAccessIndex,
                         personIdFromJwtToken,
                         parsedArgs,
-                        operation: READ
+                        operation: READ,
+                        actor
                     }
                 );
 
@@ -172,6 +178,22 @@ class ValidateOperation {
                     } else {
                         operationOutcome = operationOutcomeForResource;
                     }
+                }
+                if (!operationOutcome) {
+                    // no resource was found in the database for the provided id
+                    return new OperationOutcome({
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'not-found',
+                                details: new CodeableConcept({
+                                    text: `Resource ${resourceType} with id ${id} not found`
+                                })
+                            })
+                        ]
+                    });
                 }
                 return operationOutcome;
             }

@@ -270,6 +270,25 @@ The FHIR server looks for the patient scopes that start with "patient/”. Patie
 
 If someone has scopes like `patient/Observation.read` then that person has read access to Observation resources of the patients related to master person.
 
+#### 5.3.1 `_uuid`/`id` are not secrets
+
+The internal `_uuid` assigned to a resource is a deterministic UUIDv5 hash of
+`<sourceId>|<sourceAssigningAuthority>`, computed with a fixed, public namespace constant (see
+`generateUUIDv5` in `src/utils/uid.util.js`). Anyone who knows or can guess a resource's source-system
+id and owning tenant can compute its exact `_uuid` offline, without any prior access to the data.
+
+This means `_uuid` and `id` must **never** be treated as secret or unguessable, and must never be the
+sole factor in an authorization decision (e.g., "the caller supplied the exact id, so they must be
+allowed to see/modify it"). Every lookup by `_uuid`/`id` must still be filtered by the caller's
+`access`/`owner` security-tag scopes, the same way search/read/patch/remove already do — an id-based
+query should never be run unscoped and checked for access only after the fact, since even a
+correctly-withheld response body can leak existence/authorization information through the response
+code alone (see Section 5.2 above for how access tags are checked).
+
+#### 5.3.2 `PUT`/`$merge` return `403` (not `404`) when a resource exists but isn't accessible to the caller
+
+If a `PUT` or `$merge` request targets a resource `_uuid` that already exists in the database, but the caller's scopes don't grant access to it, the server returns `403 Forbidden` rather than falling back to a create. This is expected, by-design behavior: the FHIR R4B spec's `update` interaction only creates an initial version "if no resource already exists for the given id," and a resource does already exist here, so a create/not-found response would misrepresent that. As covered in Section 5.3.1, `_uuid`/`id` are not secrets, so this response does not expose anything about the resource beyond what a non-secret identifier already implies.
+
 #### 5.4 Access
 
 Note that the final access for a user is a combination of both present in 5.1[Control access by resource] & 5.2[Control access by security tags] or only by using 5.3[Control access by patient data graph] only
