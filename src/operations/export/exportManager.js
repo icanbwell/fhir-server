@@ -5,7 +5,7 @@ const { SecurityTagManager } = require('../common/securityTagManager');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { K8sClient } = require('../../utils/k8sClient');
-const { logInfo } = require('../../operations/common/logging');
+const { logInfo, logWarn } = require('../../operations/common/logging');
 const { ConfigManager } = require('../../utils/configManager');
 const { generateUUID } = require('../../utils/uid.util');
 const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
@@ -136,10 +136,23 @@ class ExportManager {
             `--requestId ${requestId} ` +
             `--awsRegion ${this.configManager.awsRegion}`;
 
+        // These are batch-size tuning knobs and must be plain positive integers. `context[param]`
+        // originates from a request-supplied query param (persisted onto the ExportStatus
+        // resource as an extension). scriptCommand is later split on spaces into the container's
+        // argv array (see K8sClient.createJobBody), so an unvalidated value containing a space
+        // could inject additional/overriding CLI flags into the spawned job. Silently drop any
+        // value that isn't a bare non-negative integer rather than passing it through.
         const possibleScriptParams = ['patientReferenceBatchSize', 'fetchResourceBatchSize', 'uploadPartSize'];
+        const INTEGER_PARAM_RE = /^[0-9]+$/;
         possibleScriptParams.forEach(param => {
-            if (context[param]) {
-                scriptCommand += ` --${param} ${context[param]}`;
+            const value = context[param];
+            if (value === undefined || value === null || value === '') {
+                return;
+            }
+            if (INTEGER_PARAM_RE.test(String(value))) {
+                scriptCommand += ` --${param} ${value}`;
+            } else {
+                logWarn(`Ignoring non-integer value for export job param '${param}'`, { exportStatusId: exportStatusResource._uuid });
             }
         });
 

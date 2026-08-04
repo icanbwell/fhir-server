@@ -450,9 +450,39 @@ describe('PatientPersonDataChangeEventProducer', () => {
         test('should clear maps after flush', async () => {
             producer.patientDataChangeMap.set('patient-1', ['Observation']);
 
+            const mockCursor = { toArrayAsync: jest.fn().mockResolvedValue([]) };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            });
+
             await producer.flushAsync();
 
             expect(producer.patientDataChangeMap.size).toBe(0);
+        });
+
+        test('should preserve an entry added concurrently while a Kafka send is in-flight', async () => {
+            // addResourceToChangeEventMap() mutates the live maps outside flushAsync's mutex, so a
+            // concurrent request can add a new id while flushAsync is suspended awaiting Kafka.
+            producer.patientDataChangeMap.set('patient-1', ['Observation']);
+
+            const mockCursor = { toArrayAsync: jest.fn().mockResolvedValue([]) };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            });
+
+            mockKafkaClient.sendCloudEventMessageAsync.mockImplementation(async () => {
+                producer.addResourceToChangeEventMap({
+                    id: 'patient-2',
+                    resourceType: 'Patient',
+                    changedResourceType: 'Encounter'
+                });
+            });
+
+            await producer.flushAsync();
+
+            // patient-1 was sent and removed; patient-2 was never sent, so it must survive
+            expect(producer.patientDataChangeMap.size).toBe(1);
+            expect(producer.patientDataChangeMap.get('patient-2')).toEqual(['Encounter']);
         });
 
         test('should populate person data change map from patient data before sending person events', async () => {
@@ -485,7 +515,6 @@ describe('PatientPersonDataChangeEventProducer', () => {
             expect(logError).toHaveBeenCalled();
         });
 
-        // EXPECTED: correct behavior (will fail until bug is fixed)
         test('should NOT clear maps when error occurs - data should be preserved for retry', async () => {
             producer.patientDataChangeMap.set('patient-1', ['Observation']);
             mockKafkaClient.sendCloudEventMessageAsync.mockRejectedValue(new Error('Kafka error'));
@@ -500,16 +529,14 @@ describe('PatientPersonDataChangeEventProducer', () => {
             expect(mockKafkaClient.sendCloudEventMessageAsync).toHaveBeenCalled();
         });
 
-        // EXPECTED: correct behavior (will fail until bug is fixed)
-        test('should preserve person events when patient events succeed but person population fails', async () => {
-            // Scenario: Patient events are sent successfully, but DB query for person lookup fails
+        test('should preserve both patient and person entries when person population fails', async () => {
+            // Scenario: Patient events are sent successfully, but the DB query that derives
+            // Person notifications from the patient buffer fails.
             producer.patientDataChangeMap.set('patient-1', ['Observation']);
             producer.personDataChangeMap.set('person-1', ['Patient']);
 
             // Patient send succeeds
-            mockKafkaClient.sendCloudEventMessageAsync
-                .mockResolvedValueOnce(undefined) // patient events succeed
-                .mockResolvedValueOnce(undefined); // person events succeed
+            mockKafkaClient.sendCloudEventMessageAsync.mockResolvedValueOnce(undefined);
 
             // But the DB query to populate person data map throws
             mockDatabaseQueryFactory.createQuery.mockReturnValue({
@@ -518,9 +545,13 @@ describe('PatientPersonDataChangeEventProducer', () => {
 
             await producer.flushAsync();
 
-            // Patient map can be cleared (events sent successfully), but person map
-            // should be preserved since the person events were never sent
-            expect(producer.patientDataChangeMap.size).toBe(0);
+            // The patient entries aren't removed even though the Patient Kafka send succeeded,
+            // because Person notifications are derived from them — deferring their removal
+            // until the Person stage also succeeds lets the next flush retry the derivation
+            // instead of permanently losing it. The person entries were never sent either, so
+            // they're preserved too.
+            expect(producer.patientDataChangeMap.size).toBe(1);
+            expect(producer.patientDataChangeMap.get('patient-1')).toEqual(['Observation']);
             expect(producer.personDataChangeMap.size).toBe(1);
             expect(producer.personDataChangeMap.get('person-1')).toEqual(['Patient']);
             expect(logError).toHaveBeenCalled();

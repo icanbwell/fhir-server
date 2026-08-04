@@ -84,6 +84,7 @@ describe('UpdateOperation', () => {
         // Setup mocks
         mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
         mocks.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes = jest.fn().mockResolvedValue(undefined);
+        mocks.scopesValidator.isAccessTagChangeAllowedByAccessScopes = jest.fn();
         mocks.resourceValidator.validateResourceAsync = jest.fn().mockResolvedValue(null);
         mocks.resourceValidator.validateResourceMetaSync = jest.fn().mockReturnValue(null);
         mocks.searchManager.constructQueryAsync = jest.fn().mockResolvedValue({ query: { _sourceId: 'test-id' } });
@@ -163,6 +164,53 @@ describe('UpdateOperation', () => {
 
             expect(result.created).toBe(true);
             expect(mocks.databaseBulkInserter.insertOneAsync).toHaveBeenCalled();
+        });
+
+        // DCON-4806: a client-supplied _file_id (or any other internal underscore field,
+        // e.g. _uuid) must be stripped from the raw incoming payload before it's even used
+        // to construct the Resource / merged with the stored resource -- otherwise a caller
+        // could claim an arbitrary GridFS file id (e.g. belonging to another resource/tenant)
+        // with no actual upload, and have it served back as this resource's attachment data
+        // on a later read, or spoof an internal id used elsewhere in the pipeline.
+        test('strips a client-supplied _file_id and _uuid before Resource construction and transformAttachments', async () => {
+            const { FhirResourceCreator } = require('../../../../fhir/fhirResourceCreator');
+
+            const requestInfo = {
+                user: 'admin',
+                scope: 'user/*.write',
+                path: '/Patient/test-id',
+                body: {
+                    id: 'test-id',
+                    resourceType: 'Patient',
+                    meta: { source: 'urn:test' },
+                    _uuid: 'attacker-supplied-uuid',
+                    photo: [{ _file_id: 'attacker-chosen-gridfs-id', contentType: 'image/png' }]
+                },
+                requestId: 'req-1',
+                isUser: false,
+                personIdFromJwtToken: null,
+                headers: {}
+            };
+
+            // createByResourceType is a module-level mock shared across all tests in this
+            // file (jest.unit.config.js has no clearMocks) -- clear its call history so
+            // mock.calls[0] below reflects only this test's invocation.
+            FhirResourceCreator.createByResourceType.mockClear();
+
+            await updateOp.updateAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            // the raw payload handed to FhirResourceCreator must already be stripped
+            const jsonPassedToResourceCreator = FhirResourceCreator.createByResourceType.mock.calls[0][0];
+            expect(jsonPassedToResourceCreator._uuid).toBeUndefined();
+            expect(jsonPassedToResourceCreator.photo[0]._file_id).toBeUndefined();
+
+            const resourcePassedToAttachmentManager = mocks.databaseAttachmentManager.transformAttachments.mock.calls[0][0];
+            expect(resourcePassedToAttachmentManager.photo[0]._file_id).toBeUndefined();
+            expect(resourcePassedToAttachmentManager._uuid).not.toBe('attacker-supplied-uuid');
         });
 
         test('updates existing resource when found', async () => {

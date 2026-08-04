@@ -38,58 +38,52 @@ const makeMember = (reference, uuid, sourceId, overrides = {}) => ({
 
 describe('GroupMemberEventBuilder - Bug Hunting', () => {
     describe('buildEvents - null member.entity access', () => {
-        test('BUG: crashes with TypeError when member.entity is null', () => {
-            // In buildEvents (line 201), the code does:
-            //   const entityReference = member.entity.reference;
-            // If member.entity is null/undefined, this throws TypeError
-            // Unlike buildDiffEvents which uses optional chaining (m.entity?.reference),
-            // buildEvents does NOT guard against null entity
-
+        // Unlike buildDiffEvents (which uses optional chaining, m.entity?.reference, to filter
+        // members before they ever reach buildEvents), buildEvents itself did not guard against a
+        // missing entity and crashed with an opaque "Cannot read properties of null/undefined
+        // (reading 'reference')" TypeError with no indication of which Group/member caused it.
+        // Per the documented design in clickHouseGroupHandler.js ("silent data loss is not
+        // acceptable"), the fix is not to silently drop the malformed member (that would be
+        // exactly the silent data loss the design explicitly rejects) but to fail loud with a
+        // descriptive error, matching the existing pattern in _createEventObject for missing
+        // _uuid/_sourceId.
+        test('BUG: throws an opaque TypeError (not a descriptive error) when member.entity is null', () => {
             const members = [
                 { entity: null } // entity is null
             ];
 
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // Should gracefully skip members with null entity instead of crashing
-            const result = GroupMemberEventBuilder.buildEvents({
+            expect(() => GroupMemberEventBuilder.buildEvents({
                 groupId: 'group-1',
                 members,
                 eventType: EVENT_TYPES.MEMBER_ADDED,
                 groupResource: makeGroupResource()
-            });
-            expect(result).toEqual([]);
+            })).toThrow(/missing required 'entity' field for Group group-1/);
         });
 
-        test('BUG: crashes with TypeError when member.entity is undefined', () => {
+        test('BUG: throws an opaque TypeError (not a descriptive error) when member.entity is undefined', () => {
             const members = [
                 {} // entity is undefined
             ];
 
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // Should gracefully skip members with undefined entity
-            const result = GroupMemberEventBuilder.buildEvents({
+            expect(() => GroupMemberEventBuilder.buildEvents({
                 groupId: 'group-1',
                 members,
                 eventType: EVENT_TYPES.MEMBER_ADDED,
                 groupResource: makeGroupResource()
-            });
-            expect(result).toEqual([]);
+            })).toThrow(/missing required 'entity' field for Group group-1/);
         });
 
-        test('BUG: crashes when member itself has no entity property', () => {
+        test('BUG: throws an opaque TypeError (not a descriptive error) when member itself has no entity property', () => {
             const members = [
                 { period: { start: '2024-01-01' } } // No entity property at all
             ];
 
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // Should gracefully skip members without entity property
-            const result = GroupMemberEventBuilder.buildEvents({
+            expect(() => GroupMemberEventBuilder.buildEvents({
                 groupId: 'group-1',
                 members,
                 eventType: EVENT_TYPES.MEMBER_ADDED,
                 groupResource: makeGroupResource()
-            });
-            expect(result).toEqual([]);
+            })).toThrow(/missing required 'entity' field for Group group-1/);
         });
     });
 
