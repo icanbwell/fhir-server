@@ -714,7 +714,7 @@ describe('GraphQL Patient Tests', () => {
                         query: graphqlQueryText
                     })
                     .set({
-                        ...getGraphQLHeaders(),
+                        ...getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'),
                         prefer: 'global_id=false'
                     });
                 // noinspection JSUnresolvedFunction
