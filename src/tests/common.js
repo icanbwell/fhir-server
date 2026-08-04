@@ -142,7 +142,10 @@ const getToken = (module.exports.getToken = (scope) => {
 });
 
 const getFullAccessToken = (module.exports.getFullAccessToken = () => {
-    return getToken('user/*.read user/*.write access/*.*');
+    // admin/*.read is included so the "full access" test token can also exercise
+    // _explain/_debug/_setIndexHint (DCON-4808), which most callers of this token
+    // use purely to assert on query construction, not to test the admin gate itself.
+    return getToken('user/*.read user/*.write access/*.* admin/*.read');
 });
 
 const getTokenWithCustomClaims = (module.exports.getTokenWithCustomClaims = (scope) => {
