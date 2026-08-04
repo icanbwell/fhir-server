@@ -35,7 +35,7 @@ Suppose `PersonA` and `PersonB` are both linked to the same `Patient/X` (e.g. tw
 
 ### Notes
 
-- This scoping only applies when the request is made against the `Person` resource type (path or `id`/`_id` on `/4_0_0/Person/$everything`). Calling `/4_0_0/Patient/person.<person_id>/$everything` directly (i.e. using the proxy patient id form against the Patient endpoint) is treated as a Patient request and does **not** apply this scoping — it returns all linked persons and their subscriptions, same as any other Patient $everything call.
+- This scoping applies both when the request is made against the `Person` resource type (path or `id`/`_id` on `/4_0_0/Person/$everything`) and when the same operation is requested via the equivalent proxy patient id form directly against the Patient endpoint (`/4_0_0/Patient/person.<person_id>/$everything`) — both forms of the same conceptual request are scoped identically.
 - This scoping does not affect any other resource type — clinical and non-clinical resources linked to the resolved patient(s) are returned the same way as for Patient $everything.
 - All other parameters (`_type`, `_since`, `_debug`, `_explain`, `_includePatientLinkedOnly`, etc.) and response headers work the same as documented in [Patient $everything](patientEverything.md).
 
