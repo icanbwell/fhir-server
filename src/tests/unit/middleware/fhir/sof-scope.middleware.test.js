@@ -77,6 +77,19 @@ describe('sofScopeCheckMiddleware', () => {
             expect(scopeChecker).toHaveBeenCalledWith('Patient', 'write', ['patient/Patient.write']);
         });
 
+        test('correctly derives a write action for a patch interaction', () => {
+            scopeChecker.mockReturnValue({});
+            const middleware = sofScopeCheckMiddleware({
+                route: { interaction: 'patch' },
+                name: 'patient',
+                auth: { type: 'smart', strategy: {} }
+            });
+            const req = { user: { scope: 'patient/Patient.write' }, params: {} };
+            const next = jestObj.fn();
+            middleware(req, {}, next);
+            expect(scopeChecker).toHaveBeenCalledWith('Patient', 'write', ['patient/Patient.write']);
+        });
+
         test('rejects when scopeChecker reports an authorization error', () => {
             const errors = require('../../../../middleware/fhir/utils/error.utils');
             scopeChecker.mockReturnValue({ error: { message: 'insufficient scope' } });
