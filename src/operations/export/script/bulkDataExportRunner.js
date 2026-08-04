@@ -18,7 +18,7 @@ const { R4SearchQueryCreator } = require('../../query/r4');
 const { S3Client } = require('../../../utils/s3Client');
 const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
 const { isUuid } = require('../../../utils/uid.util');
-const { logInfo, logError, logDebug } = require('../../common/logging');
+const { logInfo, logError, logDebug, logWarn } = require('../../common/logging');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const {
     BLOB_OP,
@@ -35,6 +35,32 @@ const { S3MultiPartContext } = require('./s3MultiPartContext');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
+
+// Access-tag security codes are used verbatim as a path segment of the S3 export key
+// (`exports/<tags>/<exportStatusId>/...`). They come from the JWT scope string via
+// SecurityTagManager, which imposes no character restriction, so any tag that isn't a plain
+// identifier is dropped here rather than passed into the S3 key unsanitized.
+const SAFE_ACCESS_TAG_RE = /^[A-Za-z0-9_-]+$/;
+
+/**
+ * Extracts the access-tag security codes from a resource's meta.security array, dropping any
+ * whose value contains characters unsafe for use as an S3 key path segment.
+ * @param {Array<{system: string, code: string}>} metaSecurity
+ * @param {string} exportStatusId - used only for the warning log line
+ * @return {string[]}
+ */
+function computeSafeAccessTags(metaSecurity, exportStatusId) {
+    return (metaSecurity || [])
+        .filter(s => s.system === SecurityTagSystem.access)
+        .map(s => s.code)
+        .filter(code => {
+            const isSafe = SAFE_ACCESS_TAG_RE.test(code);
+            if (!isSafe) {
+                logWarn(`Ignoring access tag with unsafe characters for S3 key: ${code}`, { exportStatusId });
+            }
+            return isSafe;
+        });
+}
 
 class BulkDataExportRunner {
     /**
@@ -234,9 +260,7 @@ class BulkDataExportRunner {
             );
 
             // compute base folder where data will be upload in s3
-            const accessTags = this.exportStatusResource.meta.security
-                .filter(s => s.system === SecurityTagSystem.access)
-                .map(s => s.code);
+            const accessTags = computeSafeAccessTags(this.exportStatusResource.meta.security, this.exportStatusId);
             if (accessTags.length === 0) {
                 accessTags.push('bwell');
             }
@@ -911,4 +935,4 @@ class BulkDataExportRunner {
     }
 }
 
-module.exports = { BulkDataExportRunner };
+module.exports = { BulkDataExportRunner, computeSafeAccessTags };
