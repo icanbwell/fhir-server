@@ -371,8 +371,14 @@ function createApp({fnGetContainer}) {
     app.get('/fhir', (req, res) => {
         const resourceUrl = req.query.resource;
         const redirectUrl = `${process.env.HOST_SERVER}/authcallback`;
+        // base64-encoded here to match the base64 decode in the /authcallback handler above.
+        // Base64 rewrites '&'/'?' away (they're outside its alphabet), but its own alphabet
+        // still includes '+'/'/'/'=' -- encodeURIComponent below escapes those, so nothing in
+        // the final state value can act as live query syntax and inject/duplicate sibling
+        // params (e.g. redirect_uri). No information is lost either way; it round-trips exactly.
+        const state = resourceUrl ? encodeURIComponent(Buffer.from(resourceUrl, 'ascii').toString('base64')) : '';
         res.redirect(`${process.env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${process.env.AUTH_CODE_FLOW_CLIENT_ID}` +
-            `&redirect_uri=${redirectUrl}&state=${resourceUrl}`);
+            `&redirect_uri=${redirectUrl}&state=${state}`);
     });
 
     app.get('/health', (req, res) => handleHealthCheck(
