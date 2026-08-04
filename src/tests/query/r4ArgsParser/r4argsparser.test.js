@@ -70,6 +70,47 @@ args: {
             expect(parsedArgs.parsedArgItems[1].queryParameterValue.value).toStrictEqual('true');
             expect(parsedArgs.parsedArgItems[1].modifiers).toStrictEqual(['missing']);
         });
+        test('r4ArgsParser does not leak the missing modifier onto a GraphQL notEquals item', async () => {
+            await createTestRequest();
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type  {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+            // GraphQL-shaped arg combining notEquals with missing on a reference search type.
+            // convertGraphQLParameters() returns both notQueryParameterValue (the notEquals value)
+            // and newModifiers (['missing']) from the same call; newModifiers must only apply to the
+            // missing-derived item below, not to the notEquals-derived ('not') item.
+            const parsedArgs = r4ArgsParser.parseArgs({
+                resourceType: 'Patient',
+                args: {
+                    base_version: VERSIONS['4_0_0'],
+                    'general-practitioner': {
+                        searchType: 'reference',
+                        notEquals: { target: 'Practitioner', value: '123' },
+                        missing: false
+                    }
+                }
+            });
+
+            const generalPractitionerItems = parsedArgs.parsedArgItems.filter(
+                (item) => item.queryParameter === 'general-practitioner'
+            );
+            expect(generalPractitionerItems.length).toStrictEqual(2);
+
+            const missingItem = generalPractitionerItems.find((item) => item.modifiers.includes('missing'));
+            expect(missingItem.queryParameterValue.value).toStrictEqual(false);
+            expect(missingItem.modifiers).toStrictEqual(['missing']);
+
+            const notItem = generalPractitionerItems.find((item) => item.modifiers.includes('not'));
+            expect(notItem.queryParameterValue.value).toStrictEqual('Practitioner/123');
+            expect(notItem.modifiers).toStrictEqual(['not']);
+        });
         test('r4ArgsParser works for gt', async () => {
             await createTestRequest();
             /**
