@@ -226,7 +226,7 @@ class R4SearchQueryCreator {
                 case fhirFilterTypes.uri:
                     andSegments = new FilterByUri(filterParameters).filter();
                     break;
-                case fhirFilterTypes.dateTime:
+                case fhirFilterTypes.datetime:
                 case fhirFilterTypes.date:
                 case fhirFilterTypes.period:
                 case fhirFilterTypes.instant:

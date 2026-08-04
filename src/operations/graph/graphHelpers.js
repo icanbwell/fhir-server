@@ -334,17 +334,20 @@ class GraphHelper {
              */
             const useAccessIndex = this.configManager.useAccessIndex;
 
-            // Start with base args and add the id parameter
-            const args = Object.assign({
-                base_version,
-                _includeHidden: parsedArgs._includeHidden,
-                id: relatedReferenceIds.join(',')
-            });
-
-            // Apply additional params if provided
-            if (params && Object.keys(params).length > 0) {
-                Object.assign(args, params);
-            }
+            // Apply additional params first (if provided) so they can only ADD filter criteria.
+            // The id (and other security-relevant fields below) must be applied last so that a
+            // GraphDefinition's target.params can never override which resources are actually
+            // fetched - target.params is documented as an additional AND filter on top of the
+            // reference relationship, not a replacement for it.
+            const args = Object.assign(
+                {},
+                (params && Object.keys(params).length > 0) ? params : undefined,
+                {
+                    base_version,
+                    _includeHidden: parsedArgs._includeHidden,
+                    id: relatedReferenceIds.join(',')
+                }
+            );
 
             const childParseArgs = this.r4ArgsParser.parseArgs(
                 {
@@ -371,6 +374,10 @@ class GraphHelper {
                 everythingChunkIndex: graphChunkIndex
             });
 
+            // filterProperty/filterValue come from the caller-supplied GraphDefinition link.path
+            // (parsed by getFilterFromPropertyPath) with no allowlist of legal field names, so a
+            // path like 'generalPractitioner:$and=1' must not be applied as a raw top-level Mongo
+            // operator key onto the already tenant/access-tag-scoped query object built above.
             if (filterProperty) {
                 if (SAFE_FILTER_PROPERTY_RE.test(filterProperty)) {
                     query[`${filterProperty}`] = filterValue;
