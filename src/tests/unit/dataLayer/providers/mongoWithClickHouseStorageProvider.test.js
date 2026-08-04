@@ -407,6 +407,16 @@ describe('MongoWithClickHouseStorageProvider', () => {
             expect(err.statusCode).toBe(403);
             expect(mockClickHouseClientManager.queryAsync).not.toHaveBeenCalled();
         });
+
+        test('rejects with 403 when securityContext is null (malformed input fails closed)', async () => {
+            const err = await provider
+                .getCurrentMembersWithCountAsync('group-1', {}, null)
+                .catch(e => e);
+
+            expect(err.statusCode).toBe(403);
+            expect(err.message).toContain('Cross-tenant access denied');
+            expect(mockClickHouseClientManager.queryAsync).not.toHaveBeenCalled();
+        });
     });
 
     describe('getActiveMembersPageAsync tenant scope', () => {

@@ -59,10 +59,11 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      * @private
      */
     _normalizeTenantContext(securityContext = {}) {
+        const ctx = securityContext ?? {};
         return {
-            accessTags: Array.isArray(securityContext.accessTags) ? securityContext.accessTags : [],
-            ownerTags: Array.isArray(securityContext.ownerTags) ? securityContext.ownerTags : [],
-            hasFullAccess: securityContext.hasFullAccess === true
+            accessTags: Array.isArray(ctx.accessTags) ? ctx.accessTags : [],
+            ownerTags: Array.isArray(ctx.ownerTags) ? ctx.ownerTags : [],
+            hasFullAccess: ctx.hasFullAccess === true
         };
     }
 
