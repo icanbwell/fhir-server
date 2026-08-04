@@ -99,7 +99,11 @@ class ValidateOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            path
+            path,
+            /** @type {string | null} */
+            userType,
+            /** @type {import('../../utils/fhirRequestInfo').JwtActor|null} */
+            actor
         } = requestInfo;
         // Note: no auth check needed to call validate
 
@@ -134,11 +138,13 @@ class ValidateOperation {
                         user,
                         scope,
                         isUser,
+                        userType,
                         resourceType,
                         useAccessIndex,
                         personIdFromJwtToken,
                         parsedArgs,
-                        operation: READ
+                        operation: READ,
+                        actor
                     }
                 );
 
