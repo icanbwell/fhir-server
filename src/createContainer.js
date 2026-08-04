@@ -119,6 +119,7 @@ const {BulkExportEventProducer} = require('./utils/bulkExportEventProducer');
 const {ImportOperation} = require('./operations/import/import');
 const {BulkImportEventProducer} = require('./operations/import/bulkImportEventProducer');
 const {BulkImportConsumerRunner} = require('./operations/import/bulkImportConsumerRunner');
+const {KafkaEventDispatcher} = require('./operations/common/kafkaEventDispatcher');
 const {BulkImportOrchestratorRunner} = require('./operations/import/bulkImportOrchestratorRunner');
 const {S3NdjsonReader} = require('./operations/import/s3NdjsonReader');
 const {KafkaClientV2} = require('./utils/kafkaClientV2');
@@ -1240,6 +1241,16 @@ const createContainer = function () {
         s3NdjsonReader: c.s3NdjsonReader,
         postRequestProcessor: c.postRequestProcessor,
         requestSpecificCache: c.requestSpecificCache
+    }));
+
+    // Routes messages on kafkaBulkImportEventTopic to their handler by CloudEvent "type".
+    // ImportRangeRequested is the only registered handler today; new event types on this
+    // topic (e.g. a future patient-level bulk export event) are added here as another
+    // entry rather than a new topic+entrypoint+runner.
+    container.register('bulkImportEventDispatcher', (c) => new KafkaEventDispatcher({
+        handlersByEventType: {
+            ImportRangeRequested: c.bulkImportConsumerRunner
+        }
     }));
 
     container.register('bulkImportOrchestratorRunner', (c) => new BulkImportOrchestratorRunner({

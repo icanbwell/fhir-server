@@ -8,7 +8,7 @@ async function main() {
         initialize();
         const container = createContainer();
 
-        const { kafkaClientV2, configManager, bulkImportConsumerRunner } = container;
+        const { kafkaClientV2, configManager, bulkImportEventDispatcher } = container;
         const topic = configManager.kafkaBulkImportEventTopic;
         const groupId = configManager.bulkImportConsumerGroupId;
 
@@ -39,7 +39,7 @@ async function main() {
             topic,
             fromBeginning: false,
             onMessageAsync: async (message) => {
-                await bulkImportConsumerRunner.handleMessageAsync(message);
+                await bulkImportEventDispatcher.handleMessageAsync(message);
             }
         });
 
