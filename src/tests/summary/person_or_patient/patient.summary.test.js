@@ -58,6 +58,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest,
     getTestContainer,
     getHeadersWithCustomPayload
@@ -520,7 +521,7 @@ describe('Patient $summary Tests', () => {
         // get proxy patient $summary
         resp = await request
             .get('/4_0_0/Patient/person.person2/$summary?_debug=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
 
         // Basic response checks
         expect(resp.status).toBe(200);
@@ -660,7 +661,7 @@ describe('Patient $summary Tests', () => {
         // get proxy patient $summary
         resp = await request
             .get('/4_0_0/Patient/person.person2/$summary?_debug=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
 
         // Basic response checks
         expect(resp.status).toBe(200);
@@ -675,7 +676,7 @@ describe('Patient $summary Tests', () => {
         // get person $summary returns same as proxy patient summary
         resp = await request
             .get('/4_0_0/Person/person2/$summary?_debug=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
 
         // Basic response checks
         expect(resp.status).toBe(200);
@@ -719,15 +720,15 @@ describe('Patient $summary Tests', () => {
         expect(resp.status).toBe(400);
         expect(JSON.parse(resp.text)).toEqual(multipleIdsError);
 
-        resp = await request.get('/4_0_0/Patient/patient1,patient2/$summary?_debug=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Patient/patient1,patient2/$summary?_debug=1').set(getHeadersWithAdmin());
         expect(resp.status).toBe(400);
         expect(JSON.parse(resp.text)).toEqual(multipleIdsError);
 
-        resp = await request.get('/4_0_0/Patient/patient1,person.person1/$summary?_debug=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Patient/patient1,person.person1/$summary?_debug=1').set(getHeadersWithAdmin());
         expect(resp.status).toBe(400);
         expect(JSON.parse(resp.text)).toEqual(multipleIdsError);
 
-        resp = await request.get('/4_0_0/Person/person1,person2/$summary?_debug=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Person/person1,person2/$summary?_debug=1').set(getHeadersWithAdmin());
         expect(resp.status).toBe(400);
         expect(JSON.parse(resp.text)).toEqual(multipleIdsError);
     });
@@ -1108,7 +1109,7 @@ describe('Patient $summary Tests', () => {
         // get person $summary returns same as proxy patient summary
         resp = await request
             .get('/4_0_0/Patient/patient1/$summary?_debug=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
 
         // Basic response checks
         expect(resp.status).toBe(200);
@@ -1242,7 +1243,7 @@ describe('Patient $summary Tests', () => {
         // get proxy patient $summary
         resp = await request
             .get('/4_0_0/Patient/person.person2/$summary?_includeSummaryCompositionOnly=1&_debug=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
 
         // Basic response checks
         expect(resp.status).toBe(200);
@@ -1287,7 +1288,7 @@ describe('Patient $summary Tests', () => {
         // Test 1: Request with _profile filter - should only return Compositions with matching profile
         resp = await request
             .get('/4_0_0/Patient/patient1/$summary?_profile=http://hl7.org/fhir/uv/ips/StructureDefinition/basic-ips&_debug=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
 
         expect(resp.status).toBe(200);
         // Should have a Composition in the summary bundle
@@ -1331,7 +1332,7 @@ describe('Patient $summary Tests', () => {
         // Request without _profile filter - should return all matching Compositions
         resp = await request
             .get('/4_0_0/Patient/patient1/$summary?_debug=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
 
         expect(resp.status).toBe(200);
         expect(resp.body.resourceType).toBe('Bundle');
@@ -1402,7 +1403,7 @@ describe('Patient $summary Tests', () => {
         // Request with _includeSummaryCompositionOnly and _profile filter
         resp = await request
             .get('/4_0_0/Patient/person.person2/$summary?_includeSummaryCompositionOnly=1&_profile=http://hl7.org/fhir/uv/ips/StructureDefinition/basic-ips&_debug=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
 
         expect(resp.status).toBe(200);
         expect(resp.body.resourceType).toBe('Bundle');
@@ -1447,7 +1448,7 @@ describe('Patient $summary Tests', () => {
         // Request with _profile filter
         resp = await request
             .get('/4_0_0/Patient/patient1/$summary?_profile=http://hl7.org/fhir/uv/ips/StructureDefinition/basic-ips&_debug=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
 
         expect(resp.status).toBe(200);
         expect(resp.body.resourceType).toBe('Bundle');

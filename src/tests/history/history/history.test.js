@@ -8,7 +8,7 @@ const expectedObservationResourceCount1 = require('./fixtures/expected/expected_
 const expectedObservationResourceWithNextUrl = require('./fixtures/expected/expected_observation_next.json');
 const expectedObservationResourceSameLastUpdated = require('./fixtures/expected/expected_observation_same_lastUpdated.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest, getTestContainer } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Observation Tests', () => {
@@ -53,7 +53,7 @@ describe('Observation Tests', () => {
             // Both observation's history is returned even second one has hidden tag
             const resp = await request
                 .get('/4_0_0/Observation/_history?_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             expect(resp.body.link).toEqual([
                 {
@@ -100,7 +100,7 @@ describe('Observation Tests', () => {
 
             let resp = await request
                 .get('/4_0_0/Observation/_history?_debug=1&_count=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             expect(resp.body.link).toEqual([
                 {
@@ -117,7 +117,7 @@ describe('Observation Tests', () => {
 
             resp = await request
                 .get('/4_0_0/Observation/_history?_debug=1&_count=1&_lastUpdated=lt2023-03-16T01%3A12%3A00.000Z')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             expect(resp.body.link).toEqual([
                 {
@@ -166,7 +166,7 @@ describe('Observation Tests', () => {
 
             let resp = await request
                 .get('/4_0_0/Observation/_history?_debug=1&_count=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             expect(resp.body.link).toEqual([
                 {
