@@ -26,7 +26,7 @@ const { isUuid } = require('../../utils/uid.util');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
-const { removeFileIdFieldRecursive } = require('../../utils/removeUnderscoreFields');
+const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 
 /**
  * Update Operation
@@ -210,16 +210,20 @@ class UpdateOperation {
         // Used later to force UPDATE even if MongoDB sees no changes (member array stripped before save)
         const hasMemberField = resourceType === 'Group' && resource_incoming_json.member !== undefined;
 
+        // Internal fields (_uuid, _sourceAssigningAuthority, _file_id, etc.) are never
+        // legitimate client input -- they're always (re)computed server-side (pre-save
+        // handlers overwrite them from the stored resource's own meta.security tags before
+        // persist, and DatabaseAttachmentManager only ever sets _file_id after a real GridFS
+        // upload). Strip them from the raw incoming payload before it's merged with the
+        // stored resource, so a caller can't claim an arbitrary GridFS file id (belonging to
+        // another resource/tenant) and have it read back later.
+        removeUnderscoreFieldsRecursive(resource_incoming_json);
+
         // create a resource with incoming data
         /**
          * @type {Resource}
          */
         const resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
-        // _file_id must only ever be set by DatabaseAttachmentManager itself after it uploads
-        // `data` to GridFS -- strip any client-supplied `_file_id` from the incoming payload
-        // before it's merged with the stored resource, so a caller can't claim an arbitrary
-        // GridFS file id (belonging to another resource/tenant) and have it read back later.
-        removeFileIdFieldRecursive(resource_incoming);
 
         try {
             /**

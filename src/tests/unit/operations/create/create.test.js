@@ -259,11 +259,13 @@ describe('CreateOperation', () => {
             expect(mocks.databaseBulkInserter.executeAsync).toHaveBeenCalled();
         });
 
-        // DCON-4806: a client-supplied _file_id must be stripped before it ever reaches
-        // DatabaseAttachmentManager.transformAttachments, which would otherwise persist it
-        // verbatim (no data was actually uploaded) and later serve back whatever GridFS
-        // content that id happens to point to.
-        test('strips a client-supplied _file_id before transformAttachments is called', async () => {
+        // DCON-4806: a client-supplied _file_id (or any other internal underscore field,
+        // e.g. _uuid) must be stripped from the raw payload before the Resource is even
+        // constructed, so it never reaches DatabaseAttachmentManager.transformAttachments --
+        // which would otherwise persist a client-supplied _file_id verbatim (no data was
+        // actually uploaded) and later serve back whatever GridFS content that id happens
+        // to point to.
+        test('strips a client-supplied _file_id before Resource construction and transformAttachments', async () => {
             const { FhirResourceCreator } = require('../../../../fhir/fhirResourceCreator');
             FhirResourceCreator.createByResourceType.mockImplementation((json, resourceType) => ({
                 ...json,
@@ -281,10 +283,16 @@ describe('CreateOperation', () => {
                 body: {
                     resourceType: 'Patient',
                     meta: { security: [] },
+                    _uuid: 'client-supplied-uuid',
                     photo: [{ _file_id: 'attacker-chosen-gridfs-id', contentType: 'image/png' }]
                 },
                 requestId: 'r1'
             };
+
+            // createByResourceType is a module-level mock shared across all tests in this
+            // file (jest.unit.config.js has no clearMocks) -- clear its call history so
+            // mock.calls[0] below reflects only this test's invocation.
+            FhirResourceCreator.createByResourceType.mockClear();
 
             await createOp.createAsync({
                 requestInfo,
@@ -292,6 +300,11 @@ describe('CreateOperation', () => {
                 path: '/Patient',
                 resourceType: 'Patient'
             });
+
+            // the raw payload handed to FhirResourceCreator must already be stripped
+            const jsonPassedToResourceCreator = FhirResourceCreator.createByResourceType.mock.calls[0][0];
+            expect(jsonPassedToResourceCreator._uuid).toBeUndefined();
+            expect(jsonPassedToResourceCreator.photo[0]._file_id).toBeUndefined();
 
             const resourcePassedToAttachmentManager = mocks.databaseAttachmentManager.transformAttachments.mock.calls[0][0];
             expect(resourcePassedToAttachmentManager.photo[0]._file_id).toBeUndefined();

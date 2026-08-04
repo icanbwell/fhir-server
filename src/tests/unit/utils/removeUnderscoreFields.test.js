@@ -1,7 +1,7 @@
 'use strict';
 
 const { describe, test, expect } = require('@jest/globals');
-const { removeUnderscoreFieldsRecursive, removeFileIdFieldRecursive } = require('../../../utils/removeUnderscoreFields');
+const { removeUnderscoreFieldsRecursive } = require('../../../utils/removeUnderscoreFields');
 
 describe('removeUnderscoreFieldsRecursive', () => {
     test('removes top-level underscore fields', () => {
@@ -59,44 +59,21 @@ describe('removeUnderscoreFieldsRecursive', () => {
         expect(obj._remove).toBeUndefined();
         expect(obj.keep).toBe(true);
     });
-});
 
-// DCON-4806: _file_id must never be accepted directly from a client -- only
-// DatabaseAttachmentManager may set it, after actually uploading `data` to GridFS.
-describe('removeFileIdFieldRecursive', () => {
-    test('removes a top-level _file_id field', () => {
-        const obj = { _file_id: 'abc123', data: 'somedata' };
-        removeFileIdFieldRecursive(obj);
-        expect(obj).toEqual({ data: 'somedata' });
-    });
-
-    test('removes a nested _file_id field but leaves other underscore fields alone', () => {
+    // DCON-4806: _file_id must never be accepted directly from a client -- only
+    // DatabaseAttachmentManager may set it, after actually uploading `data` to GridFS.
+    // create.js/update.js rely on this general-purpose strip (applied to the raw
+    // incoming payload before Resource construction) to remove it, rather than a
+    // dedicated _file_id-only helper.
+    test('removes a nested _file_id field along with other underscore fields', () => {
         const obj = {
             resourceType: 'DocumentReference',
             content: [{ attachment: { _file_id: 'attacker-chosen-id', contentType: 'application/pdf' } }],
-            _uuid: 'keep-me'
+            _uuid: 'client-supplied-uuid'
         };
-        removeFileIdFieldRecursive(obj);
+        removeUnderscoreFieldsRecursive(obj);
         expect(obj.content[0].attachment._file_id).toBeUndefined();
         expect(obj.content[0].attachment.contentType).toBe('application/pdf');
-        expect(obj._uuid).toBe('keep-me');
-    });
-
-    test('processes arrays recursively', () => {
-        const obj = { items: [{ _file_id: 'a' }, { _file_id: 'b', keep: true }] };
-        removeFileIdFieldRecursive(obj);
-        expect(obj).toEqual({ items: [{}, { keep: true }] });
-    });
-
-    test('handles null/undefined/primitive input without throwing', () => {
-        expect(() => removeFileIdFieldRecursive(null)).not.toThrow();
-        expect(() => removeFileIdFieldRecursive(undefined)).not.toThrow();
-        expect(() => removeFileIdFieldRecursive('string')).not.toThrow();
-    });
-
-    test('leaves an object with no _file_id field unchanged', () => {
-        const obj = { resourceType: 'Patient', id: '123' };
-        removeFileIdFieldRecursive(obj);
-        expect(obj).toEqual({ resourceType: 'Patient', id: '123' });
+        expect(obj._uuid).toBeUndefined();
     });
 });
