@@ -120,4 +120,16 @@ describe('base.service batch - SSRF protection (SEC-1580-adjacent Gecko finding)
         await expect(svc.batch(req, makeRes())).rejects.toThrow(/Disallowed or unsafe URL/);
         expect(mockSuperagent.get).not.toHaveBeenCalled();
     });
+
+    test('allows a legitimate conditional search/update url with query-string characters', () => {
+        const expectedPort = process.env.PORT || process.env.SERVER_PORT;
+
+        svc.batch(makeReq({ url: 'Patient?identifier=http://example.org|123' }), makeRes()).catch(() => {});
+
+        expect(mockSuperagent.get).toHaveBeenCalledTimes(1);
+        const destinationUrl = mockSuperagent.get.mock.calls[0][0];
+        expect(destinationUrl).toBe(
+            `http://127.0.0.1:${expectedPort}/4_0_0/Patient?identifier=http://example.org|123`
+        );
+    });
 });

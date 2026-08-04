@@ -40,8 +40,12 @@ const makeResultBundle = (results, res, baseVersion, type) => {
 };
 
 const ALLOWED_METHODS = new Set(['get', 'post', 'put', 'delete', 'patch']);
-// Only allow relative FHIR resource paths: no protocol, no host, no .. traversal
-const RELATIVE_PATH_RE = /^[A-Za-z0-9$_-][A-Za-z0-9$_./-]*$/;
+// Only allow relative FHIR resource paths: no protocol, no host, no .. traversal. The leading
+// character class has no '/' or ':', which is what actually blocks a protocol-relative
+// ("//host/evil") or absolute-URL bypass - everything after that is safe to allow more broadly
+// (query-string characters included) because the destination host/scheme are always fixed before
+// this value is appended (see serverHost below), so nothing in here can redirect the request.
+const RELATIVE_PATH_RE = /^[A-Za-z0-9$_-][A-Za-z0-9$_./?=&|:,%+-]*$/;
 
 const createRequestPromises = (entries, req, baseVersion) => {
     const {
@@ -71,7 +75,13 @@ const createRequestPromises = (entries, req, baseVersion) => {
         if (!url || !RELATIVE_PATH_RE.test(url) || url.includes('..')) {
             throw new Error(`Disallowed or unsafe URL in bundle entry: ${url}`);
         }
-        const destinationUrl = `http://${path.join(serverHost, baseUrl, baseVersion, url)}`;
+        // Split off the query string before path.join(): it collapses '//' to '/', which would
+        // corrupt a token-search value containing a system URI (e.g. '?identifier=http://x|123'
+        // becomes '?identifier=http:/x|123' if the whole url is passed through path.join()).
+        const queryIndex = url.indexOf('?');
+        const urlPath = queryIndex === -1 ? url : url.slice(0, queryIndex);
+        const urlQuery = queryIndex === -1 ? '' : url.slice(queryIndex);
+        const destinationUrl = `http://${path.join(serverHost, baseUrl, baseVersion, urlPath)}${urlQuery}`;
         results.push({
             method,
             url: destinationUrl
