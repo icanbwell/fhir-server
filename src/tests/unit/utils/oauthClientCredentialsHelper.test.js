@@ -1,4 +1,4 @@
-const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
+const { describe, test, expect, beforeEach, afterAll, jest: jestGlobal } = require('@jest/globals');
 const nock = require('nock');
 const { OAuthClientCredentialsHelper } = require('../../../utils/oauthClientCredentialsHelper');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -33,6 +33,10 @@ const TOKEN_PATH = '/oauth/token';
 
 describe('OAuthClientCredentialsHelper', () => {
     beforeEach(() => {
+        nock.cleanAll();
+    });
+
+    afterAll(() => {
         nock.cleanAll();
     });
 

@@ -5,6 +5,7 @@
 | 400         | Post request with invalid data is sent. Response body contains issues present in the request data. |
 | 401         | Unauthorized Access.                                   |
 | 403         | Your token does not have access to this FHIR resource. |
+| 412         | Version conflict on update. The `If-Match` header does not match the current resource's `versionId`. |
 | 413         | Request body size is larger than the limit defined by env variable PAYLOAD_LIMIT (default 50mb) |
 | 404         | The URL you are trying to access doesn't exist.           |
 | 409         | You are not allowed to perform the following operation.              |

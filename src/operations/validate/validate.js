@@ -14,6 +14,7 @@ const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const deepcopy = require('deepcopy');
 const { READ } = require('../../constants').OPERATIONS;
+const { PATH, VALIDATION_STAGE, recordValidationFailure } = require('../../utils/metrics');
 
 class ValidateOperation {
     /**
@@ -98,7 +99,11 @@ class ValidateOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            path
+            path,
+            /** @type {string | null} */
+            userType,
+            /** @type {import('../../utils/fhirRequestInfo').JwtActor|null} */
+            actor
         } = requestInfo;
         // Note: no auth check needed to call validate
 
@@ -133,11 +138,13 @@ class ValidateOperation {
                         user,
                         scope,
                         isUser,
+                        userType,
                         resourceType,
                         useAccessIndex,
                         personIdFromJwtToken,
                         parsedArgs,
-                        operation: READ
+                        operation: READ,
+                        actor
                     }
                 );
 
@@ -171,6 +178,22 @@ class ValidateOperation {
                     } else {
                         operationOutcome = operationOutcomeForResource;
                     }
+                }
+                if (!operationOutcome) {
+                    // no resource was found in the database for the provided id
+                    return new OperationOutcome({
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'not-found',
+                                details: new CodeableConcept({
+                                    text: `Resource ${resourceType} with id ${id} not found`
+                                })
+                            })
+                        ]
+                    });
                 }
                 return operationOutcome;
             }
@@ -327,7 +350,8 @@ class ValidateOperation {
                 path,
                 resourceObj: resource_incoming,
                 useRemoteFhirValidatorIfAvailable: true,
-                profile: specifiedProfile
+                profile: specifiedProfile,
+                validationContext: PATH.VALIDATE
             });
         if (validationOperationOutcome) {
             await this.fhirLoggingManager.logOperationSuccessAsync({
@@ -340,7 +364,7 @@ class ValidateOperation {
             return validationOperationOutcome;
         }
         if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
-            return new OperationOutcome({
+            const ownerTagOutcome = new OperationOutcome({
                 resourceType: 'OperationOutcome',
                 issue: [
                     new OperationOutcomeIssue({
@@ -357,6 +381,22 @@ class ValidateOperation {
                     })
                 ]
             });
+            // Emit fhir_validation_failure_total before returning so $validate
+            // owner-tag failures aren't silently invisible. Coverage on the
+            // path=validate side: SCHEMA + REFERENCE come from
+            // resourceValidator.validateResourceAsync above; here we add the
+            // owner-tag META subset. The other three meta checks in
+            // validateResourceMetaSync (requireMetaSourceTags,
+            // doesResourceHaveMultipleOwnerTags, doesResourceHaveInvalidMetaSecurity)
+            // are NOT currently run on $validate — that's behavior-preserving
+            // and out of scope for the metric fix.
+            recordValidationFailure(
+                ownerTagOutcome,
+                resourceType,
+                VALIDATION_STAGE.META,
+                PATH.VALIDATE
+            );
+            return ownerTagOutcome;
         }
 
         await this.fhirLoggingManager.logOperationSuccessAsync({

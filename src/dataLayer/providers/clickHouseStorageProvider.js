@@ -103,6 +103,17 @@ class ClickHouseStorageProvider extends StorageProvider {
     }
 
     /**
+     * Finds one resource matching a MongoDB-style query.
+     * @param {Object} params
+     * @param {Object} params.query
+     * @param {Object} [params.options]
+     * @returns {Promise<Object|null>}
+     */
+    async fastFindOneAsync({ query, options }) {
+        return await this.findOneAsync({query, options})
+    }
+
+    /**
      * Counts resources matching a MongoDB-style query.
      * @param {Object} params
      * @param {Object} params.query

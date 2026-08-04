@@ -1,6 +1,6 @@
 const nock = require('nock');
 const {LRUCache} = require('lru-cache');
-const {beforeEach, describe, test, expect} = require("@jest/globals");
+const {beforeEach, afterAll, describe, test, expect} = require("@jest/globals");
 const {WellKnownConfigurationManager} = require("../../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const {ConfigManager} = require("../../../utils/configManager");
 
@@ -11,6 +11,11 @@ describe('WellKnownConfigurationManager', () => {
     beforeEach(() => {
         nock.cleanAll();
         WellKnownConfigurationManager.cache = undefined; // Reset static cache
+    });
+
+    afterAll(() => {
+        nock.cleanAll();
+        WellKnownConfigurationManager.cache = undefined;
     });
 
     test('should initialize with URLs and cache', () => {

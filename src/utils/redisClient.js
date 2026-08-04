@@ -16,7 +16,8 @@ class RedisClient {
                 port: parseInt(env.REDIS_PORT) || 6379,
                 tls: isTrueWithFallback(env.REDIS_ENABLE_TLS, true),
                 reconnectStrategy: false,
-                rejectUnauthorized: isTrueWithFallback(env.REDIS_REJECT_UNAUTHORIZED_FLAG, false)
+                ca: env.REDIS_CA_CERT || undefined,
+                rejectUnauthorized: isTrueWithFallback(env.REDIS_REJECT_UNAUTHORIZED_FLAG, true)
             }
         };
         if (env.REDIS_USERNAME !== undefined) {
@@ -185,4 +186,3 @@ class RedisClient {
 module.exports = {
     RedisClient
 };
-

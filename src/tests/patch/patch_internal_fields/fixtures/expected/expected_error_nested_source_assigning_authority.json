@@ -1,0 +1,12 @@
+{
+    "resourceType": "OperationOutcome",
+    "issue": [
+        {
+            "severity": "error",
+            "code": "invalid",
+            "details": {
+                "text": "Patch operation targeting internal field '_sourceAssigningAuthority' is not allowed. Internal fields prefixed with _ cannot be modified via PATCH."
+            }
+        }
+    ]
+}

@@ -8,7 +8,7 @@ const {
     USER_INFO_CACHE_EXPIRY_TIME,
     AUTH_USER_TYPES
 } = require('../constants');
-const {logDebug, logError, logInfo} = require('../operations/common/logging');
+const {logDebug, logError, logInfo, logWarn} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
@@ -29,11 +29,20 @@ class AuthService {
      */
     static jwksCache;
 
+
     /**
      * Cache for user info data.
      * @type {LRUCache<{}, {}, any>}
      */
     static userInfoCache;
+
+    /**
+     * In-flight JWKS fetches, keyed by URL, used to coalesce concurrent cache-miss
+     * requests for the same URL into a single outbound fetch (avoids a thundering
+     * herd of duplicate external calls when the cache entry expires under load).
+     * @type {Map<string, Promise<{keys: Object[]}>>}
+     */
+    static jwksFetchInFlight = new Map();
 
     /**
      * Constructor for the AuthService
@@ -119,22 +128,34 @@ class AuthService {
         if (AuthService.jwksCache.has(jwksUrl)) {
             return AuthService.jwksCache.get(jwksUrl);
         }
-        try {
-            const res = await superagent
-                .get(jwksUrl)
-                .set({Accept: 'application/json'})
-                .retry(EXTERNAL_REQUEST_RETRY_COUNT)
-                .timeout(this.requestTimeout);
-            const jsonResponse = JSON.parse(res.text);
-            AuthService.jwksCache.set(jwksUrl, jsonResponse);
-            return jsonResponse;
-        } catch (error) {
-            logError(`Error while fetching keys from external jwk url: ${jwksUrl}: ${error.message}`, {
-                error: error,
-                args: {jwksUrl: jwksUrl}
-            });
-            return {keys: []};
+        // Coalesce concurrent cache-miss requests for the same URL into a single fetch
+        // instead of each caller independently hitting the external JWKS endpoint.
+        const inFlightFetch = AuthService.jwksFetchInFlight.get(jwksUrl);
+        if (inFlightFetch) {
+            return inFlightFetch;
         }
+        const fetchPromise = (async () => {
+            try {
+                const res = await superagent
+                    .get(jwksUrl)
+                    .set({Accept: 'application/json'})
+                    .retry(EXTERNAL_REQUEST_RETRY_COUNT)
+                    .timeout(this.requestTimeout);
+                const jsonResponse = JSON.parse(res.text);
+                AuthService.jwksCache.set(jwksUrl, jsonResponse);
+                return jsonResponse;
+            } catch (error) {
+                logError(`Error fetching JWKS from ${jwksUrl}: ${error.message}`, {
+                    error: error,
+                    args: {jwksUrl}
+                });
+                return {keys: []};
+            } finally {
+                AuthService.jwksFetchInFlight.delete(jwksUrl);
+            }
+        })();
+        AuthService.jwksFetchInFlight.set(jwksUrl, fetchPromise);
+        return fetchPromise;
     }
 
     /**
@@ -204,15 +225,17 @@ class AuthService {
         }
         if (isUser) {
             context.isUser = isUser;
-            let validInput = true;
-            Object.values(this.requiredJWTFields).forEach((field) => {
-                if (!jwt_payload[field]) {
-                    logDebug(`Error: ${field} field is missing`, {user: ''});
-                    validInput = false;
-                }
-            });
-            if (!validInput) {
-                done(null, false);
+            const missingRequiredFields = Object.values(this.requiredJWTFields).filter(
+                (field) => !jwt_payload[field]
+            );
+            if (missingRequiredFields.length > 0) {
+                logWarn('Auth rejected', {
+                    reason: 'missing_required_jwt_field',
+                    missingRequiredFields,
+                    username,
+                    subject
+                });
+                done(null, false, { reason: 'missing_required_jwt_field' });
                 return;
             }
             context.personIdFromJwtToken = jwt_payload[this.requiredJWTFields.clientFhirPersonId];
@@ -224,26 +247,36 @@ class AuthService {
             if (this.configManager.enableDelegatedAccessDetection && jwt_payload.act) {
                 const result = this.processForDelegatedActor({ jwt_payload });
                 if (result.failure) {
-                    done(null, false);
+                    done(null, false, { reason: 'delegated_actor_failure' });
                     return;
                 } else if (result.actor) {
                     context.actor = result.actor;
                     context.userType = AUTH_USER_TYPES.delegatedUser;
+
+                    if (Array.isArray(jwt_payload.entitlements)) {
+                        context.purposeOfUse = jwt_payload.entitlements;
+                    }
                 }
             }
             // if userType is not already set through delegated access detection,
             // accept user_type claim only when it is one of the allowed values
             if (!context.userType && this.allowedJWTUserTypes.includes(jwt_payload.user_type)) {
                 context.userType = jwt_payload.user_type;
+                // Initialized empty object to attach the consent policy
+                context.actor = {};
+                if (Array.isArray(jwt_payload.entitlements)) {
+                    context.purposeOfUse = jwt_payload.entitlements;
+                }
             }
         }
         if (context.userType) {
             if (!isUser) {
                 logError(`userType ${context.userType} is not valid for non-patient token`, {
+                    reason: 'invalid_user_type_for_non_patient_token',
                     username: context.username,
                     userType: context.userType
                 });
-                done(null, false);
+                done(null, false, { reason: 'invalid_user_type_for_non_patient_token' });
                 return;
             }
         }
@@ -437,7 +470,10 @@ class AuthService {
         isValidInput &&= typeof act[this.requiredActorFields.sub] === 'string';
 
         if (!isValidInput) {
-            logInfo('Invalid act claim: missing or invalid reference field or sub field', { act });
+            logInfo('Invalid act claim: missing or invalid reference field or sub field', {
+                reason: 'delegated_actor_failure',
+                act
+            });
             response.failure = true;
             return response;
         }
@@ -462,12 +498,14 @@ class AuthService {
      */
     verify({request, jwt_payload, token, done}) {
         if (jwt_payload) {
+            request.jwtPayload = jwt_payload;
             if (this.cidCheckIssuer && jwt_payload.iss === this.cidCheckIssuer) {
                 if (!this.cidCheckClientIds.includes(jwt_payload.cid)) {
                     logInfo(`Client ID ${jwt_payload.cid} is not allowed from issuer ${jwt_payload.iss}`, {
+                        reason: 'client_id_not_allowed_for_issuer',
                         userClaim: jwt_payload.sub
                     });
-                    return done(null, false);
+                    return done(null, false, { reason: 'client_id_not_allowed_for_issuer' });
                 }
             }
 
@@ -508,8 +546,11 @@ class AuthService {
                     }
 
                 }).catch((error) => {
-                    logError(`Error while fetching user info: ${error.message}`, {error: error});
-                    done(null, false);
+                    logError(`Error while fetching user info: ${error.message}`, {
+                        reason: 'userinfo_endpoint_error',
+                        error: error
+                    });
+                    done(null, false, { reason: 'userinfo_endpoint_error' });
                 });
             } else {
                 logDebug(`JWT result`, {
@@ -536,7 +577,8 @@ class AuthService {
                 });
             }
         } else {
-            done(null, false);
+            logWarn('Auth rejected', { reason: 'missing_jwt_payload' });
+            done(null, false, { reason: 'missing_jwt_payload' });
         }
     }
 

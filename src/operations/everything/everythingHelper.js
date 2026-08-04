@@ -20,10 +20,13 @@ const { logError } = require('../common/logging');
 const { sliceIntoChunksGenerator } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { PatientEverythingCacheKeyGenerator } = require('./patientEverythingCachekeyGenerator')
 const {
     GRIDFS: { RETRIEVE },
     OPERATIONS: { READ },
+    BLOB_OP,
+    SUBSCRIPTION_RESOURCE_TYPES,
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS,
     SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP,
     PATIENT_REFERENCE_PREFIX,
@@ -44,6 +47,7 @@ const { ResourceProccessedTracker } = require('../../fhir/resourceProcessedTrack
 const { NonClinicalReferencesExtractor } = require('./nonClinicalResourceExtractor');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
+const { FilterById } = require('../query/filters/id');
 const { EverythingRelatedResourceManager } = require('./everythingRelatedResourceManager');
 const { isUuid } = require('../../utils/uid.util');
 const { isTrue } = require('../../utils/isTrue');
@@ -56,6 +60,7 @@ const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const httpContext = require('express-http-context');
+const { recordOutboundEverything } = require('../../utils/metrics');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -65,6 +70,23 @@ const httpContext = require('express-http-context');
  *
  * @typedef {Record<string, Set<string>> | null} NestedResourceReferences
  */
+
+/**
+ * Escapes a value for safe interpolation into a JSON-template string that will later be
+ * passed to JSON.parse(). The customQuery templates in everythingRelatedResourcesMapper.js
+ * substitute `{placeholder}` markers that always sit inside an existing JSON string literal
+ * (e.g. `"{resourceType}/{_uuid}"`), so this only needs to escape the characters that are
+ * significant inside a JSON string (quotes, backslashes, control characters) -- it does not
+ * add surrounding quotes, since the template already provides them. Without this, a
+ * parent resource field containing `"` or `}` (e.g. an attacker-influenced `_sourceId`
+ * set at an earlier create/merge) could break out of the string literal and inject
+ * arbitrary structure/operators into the resulting MongoDB query.
+ * @param {*} value
+ * @return {string}
+ */
+function escapeForJsonTemplate(value) {
+    return JSON.stringify(String(value)).slice(1, -1);
+}
 
 /**
  * This class is for $everything operation
@@ -80,6 +102,7 @@ class EverythingHelper {
      * @property {EnrichmentManager} enrichmentManager
      * @property {R4ArgsParser} r4ArgsParser
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
+     * @property {Base64DataManager} base64DataManager
      * @property {SearchParametersManager} searchParametersManager
      * @property {CustomTracer} customTracer
      * @property {PatientDataViewControlManager} patientDataViewControlManager
@@ -98,6 +121,7 @@ class EverythingHelper {
         enrichmentManager,
         r4ArgsParser,
         databaseAttachmentManager,
+        base64DataManager,
         searchParametersManager,
         everythingRelatedResourceMapper,
         customTracer,
@@ -153,6 +177,12 @@ class EverythingHelper {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {SearchParametersManager}
@@ -330,6 +360,8 @@ class EverythingHelper {
      * @property {ParsedArgs} parsedArgs
      * @property {boolean} supportLegacyId
      * @property {boolean} includeNonClinicalResources
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
      *
      * @param {retriveEverythingAsyncParams}
      * @return {Promise<Bundle>}
@@ -340,7 +372,8 @@ class EverythingHelper {
         resourceType,
         responseStreamer,
         parsedArgs,
-        includeNonClinicalResources = true
+        includeNonClinicalResources = true,
+        scopedPersonIds
     }) {
         if (!this.supportedResources.includes(resourceType)) {
             throw new Error('$everything is not supported for resource: ' + resourceType);
@@ -434,6 +467,7 @@ class EverythingHelper {
                 }
             }
             if (!readFromCache || fallbackToMongo) {
+                let everythingChunkIndex = 0;
                 for (const idChunk of idChunks) {
                     const parsedArgsForChunk = parsedArgs.clone();
                     parsedArgsForChunk.id = idChunk;
@@ -477,7 +511,9 @@ class EverythingHelper {
                             responseStreamer,
                             includeNonClinicalResources,
                             proxyPatientIds,
-                            cachedStreamer
+                            cachedStreamer,
+                            everythingChunkIndex: everythingChunkIndex++,
+                            scopedPersonIds
                         }
                     );
 
@@ -565,6 +601,18 @@ class EverythingHelper {
             if (responseStreamer) {
                 responseStreamer.setBundle({ bundle });
             }
+            // Outbound bundle size + empty-bundle counter for the
+            // $everything success path. Streaming mode pushes resources
+            // through `streamedResources` and leaves `bundle.entry` empty by
+            // design — count the streamed resources in that case so the
+            // empty-bundle counter doesn't saturate. Non-streaming uses the
+            // bundle's entry array. This is intentionally success-only:
+            // the catch below rethrows, and the empty-bundle metric is a
+            // read-correctness signal for 200 responses.
+            const entryLength = responseStreamer
+                ? streamedResources.length
+                : (bundle.entry ? bundle.entry.length : 0);
+            recordOutboundEverything(resourceType, entryLength);
             return bundle;
         } catch (error) {
             // Deleting cached stream if any error occurs during processing
@@ -600,6 +648,8 @@ class EverythingHelper {
      * @property {boolean} includeNonClinicalResources
      * @property {string[]} proxyPatientIds
      * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
      *
      * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -615,7 +665,9 @@ class EverythingHelper {
         bundleEntryIdsProcessedTracker,
         includeNonClinicalResources = false,
         proxyPatientIds = [],
-        cachedStreamer = null
+        cachedStreamer = null,
+        everythingChunkIndex,
+        scopedPersonIds
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -639,10 +691,41 @@ class EverythingHelper {
 
             const realtedResourcesMap = everythingRelatedResourceManager.getRelatedResourcesMap();
 
+            // Subscription resources are fetched in a dedicated step at the end of the batch
+            // (after all clinical resources) so that Person identifiers are available for their
+            // custom query. Split them out of the main clinical loop here.
+            /**
+             * @type {import('./everythingRelatedResourcesMapper').EverythingRelatedResources[]}
+             */
+            const subscriptionRelatedResources = realtedResourcesMap.filter((r) =>
+                SUBSCRIPTION_RESOURCE_TYPES.includes(r.type)
+            );
+            /**
+             * @type {import('./everythingRelatedResourcesMapper').EverythingRelatedResources[]}
+             */
+            const clinicalRelatedResources = realtedResourcesMap.filter(
+                (r) => !SUBSCRIPTION_RESOURCE_TYPES.includes(r.type)
+            );
+
+            // Subscription custom queries match on Person as well, so Person must be fetched (to
+            // collect its identifiers) even when a _type filter would otherwise exclude it.
+            // allowedToBeSent('Person') still governs whether Person is emitted in the response.
+            if (
+                subscriptionRelatedResources.length > 0 &&
+                !clinicalRelatedResources.some((r) => r.type === 'Person')
+            ) {
+                clinicalRelatedResources.push(
+                    ...this.everythingRelatedResourceMapper.relatedResources(
+                        everythingRelatedResourceManager.topLevelResourceType,
+                        new Set(['Person'])
+                    )
+                );
+            }
+
             /**
              * @type {Generator<import('./everythingRelatedResourcesMapper').EverythingRelatedResources[],void, unknown>}
              */
-            const relatedResourceMapChunks = sliceIntoChunksGenerator(realtedResourcesMap, this.configManager.everythingMaxParallelProcess)
+            const relatedResourceMapChunks = sliceIntoChunksGenerator(clinicalRelatedResources, this.configManager.everythingMaxParallelProcess)
 
             /**
              * @type {BundleEntry[]}
@@ -709,7 +792,8 @@ class EverythingHelper {
                     requestInfo,
                     useUuidProjection,
                     resourceMapper,
-                    cachedStreamer
+                    cachedStreamer,
+                    everythingChunkIndex
                 });
 
                 optionsForQueries = baseResult.options;
@@ -770,6 +854,11 @@ class EverythingHelper {
                 baseResourcesProcessedTracker.add(resourceIdentifier);
             })
 
+            // Tracks Person resources discovered while fetching clinical related resources. Their
+            // _uuids feed the subscription custom query (client_person_id) and their identifiers
+            // seed the subscription send-safety check.
+            const personResourcesProcessedTracker = new ResourceProccessedTracker();
+
             // Fetch related resources
             /**
              * @type {import('mongodb').Document[]}
@@ -793,7 +882,10 @@ class EverythingHelper {
                     useUuidProjection,
                     resourceToExcludeIdsMap,
                     resourceMapper,
-                    cachedStreamer
+                    cachedStreamer,
+                    everythingChunkIndex,
+                    personResourcesProcessedTracker,
+                    scopedPersonIds
                 });
 
                 if (!responseStreamer) {
@@ -817,6 +909,62 @@ class EverythingHelper {
 
                 if (relatedOptions) {
                     optionsForQueries.push(...relatedOptions);
+                }
+            }
+
+            // Dedicated subscription fetch step. Runs after all clinical resources (so every Person
+            // has been discovered) but before non-clinical expansion (so non-clinical resources
+            // referenced by subscriptions are still expanded). Subscriptions match on the patient
+            // identifiers AND on any discovered Person _uuid (client_person_id).
+            if (subscriptionRelatedResources.length > 0) {
+                // Sorted so the generated $in clause is deterministic (stable query across runs).
+                const personUuidsForCustomQuery = Array.from(personResourcesProcessedTracker.uuidSet)
+                    .map((uuidKey) => uuidKey.split('/')[1])
+                    .sort();
+
+                let { entities: subscriptionEntities, queryItems: subscriptionQueryItems, optionsForQueries: subscriptionOptions, streamedResources: subscriptionStreamedRes } = await this.retriveveRelatedResourcesParallelyAsync({
+                    requestInfo,
+                    base_version,
+                    parentResourceType: resourceType,
+                    relatedResources: subscriptionRelatedResources,
+                    parentResourceIdentifiers: baseResourceIdentifiers,
+                    parentResourcesProcessedTracker: baseResourcesProcessedTracker,
+                    explain,
+                    debug,
+                    parsedArgs,
+                    responseStreamer,
+                    bundleEntryIdsProcessedTracker,
+                    proxyPatientIds,
+                    nonClinicalReferencesExtractor,
+                    everythingRelatedResourceManager,
+                    useUuidProjection,
+                    resourceToExcludeIdsMap,
+                    resourceMapper,
+                    cachedStreamer,
+                    everythingChunkIndex,
+                    personUuidsForCustomQuery
+                });
+
+                if (!responseStreamer) {
+                    entries.push(...(subscriptionEntities || []))
+                } else {
+                    streamedResources.push(...(subscriptionStreamedRes || []));
+                }
+
+                for (const q of subscriptionQueryItems) {
+                    if (q) {
+                        queries.push(q);
+                    }
+
+                    if (q?.explanations) {
+                        for (const e of q.explanations) {
+                            explanations.push(e);
+                        }
+                    }
+                }
+
+                if (subscriptionOptions) {
+                    optionsForQueries.push(...subscriptionOptions);
                 }
             }
 
@@ -882,7 +1030,8 @@ class EverythingHelper {
                                 nonClinicalReferencesExtractor: referenceExtractorForNextLevel,
                                 everythingRelatedResourceManager,
                                 resourceMapper,
-                                cachedStreamer
+                                cachedStreamer,
+                                everythingChunkIndex
                             });
 
                             depthParallelProcess.push(result);
@@ -1005,7 +1154,8 @@ class EverythingHelper {
         useUuidProjection = false,
         applyPatientFilter = true,
         resourceMapper = new ResourceMapper(),
-        cachedStreamer = null
+        cachedStreamer = null,
+        everythingChunkIndex
     }) {
 
         /**
@@ -1051,7 +1201,8 @@ class EverythingHelper {
                 accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
                 addPersonOwnerToContext: requestInfo.isUser,
                 applyPatientFilter,
-                allowConsentedProaDataAccess: true
+                allowConsentedProaDataAccess: true,
+                everythingChunkIndex
             });
 
 
@@ -1161,6 +1312,11 @@ class EverythingHelper {
      * @property {{_uuid: string, resourceType: string}[]} streamedResources
      * @property {ResourceMapper} resourceMapper
      * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
+     * @property {number|undefined} [everythingChunkIndex]
+     * @property {ResourceProccessedTracker|null} [personResourcesProcessedTracker] - when provided, Person resources found are added to it
+     * @property {string[]} [personUuidsForCustomQuery] - Person _uuids to include in subscription custom queries (client_person_id match)
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {_uuid: string, resourceType: string}[]}>}
@@ -1181,9 +1337,13 @@ class EverythingHelper {
         everythingRelatedResourceManager,
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
+        everythingChunkIndex,
         resourceToExcludeIdsMap,
         resourceMapper = new ResourceMapper(),
-        cachedStreamer = null
+        cachedStreamer = null,
+        personResourcesProcessedTracker = null,
+        personUuidsForCustomQuery = [],
+        scopedPersonIds
     }
     ) {
 
@@ -1307,7 +1467,8 @@ class EverythingHelper {
                 applyPatientFilter:
                     requestInfo.isUser &&
                     this.relatedResourceNeedingPatientScopeFilter[parentResourceType].includes(relatedResourceType),
-                allowConsentedProaDataAccess: true
+                allowConsentedProaDataAccess: true,
+                everythingChunkIndex
             });
 
             if (filterTemplateCustomQuery) {
@@ -1319,7 +1480,9 @@ class EverythingHelper {
                         if (!parentResourceIdentifier[requiredValue]) {
                             throw new Error(`${requiredValue} is not present in parent resource identifier`);
                         }
-                        patientQuery = patientQuery.replace(`{${requiredValue}}`, parentResourceIdentifier[requiredValue]);
+                        patientQuery = patientQuery.replace(
+                            `{${requiredValue}}`, escapeForJsonTemplate(parentResourceIdentifier[requiredValue])
+                        );
                     })
                     customParentQuery.push(JSON.parse(patientQuery));
                 });
@@ -1341,21 +1504,15 @@ class EverythingHelper {
                             if (!proxyPatientIdentifier[requiredValue]) {
                                 throw new Error(`${requiredValue} is not present in proxy patient resource identifier`);
                             }
-                            patientQuery = patientQuery.replace(`{${requiredValue}}`, proxyPatientIdentifier[requiredValue]);
+                            patientQuery = patientQuery.replace(
+                                `{${requiredValue}}`, escapeForJsonTemplate(proxyPatientIdentifier[requiredValue])
+                            );
                         });
                         customParentQuery.push(JSON.parse(patientQuery));
                     });
                 }
 
-                if (httpContext.get(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED)) {
-                    if (!query.$or?.length > 0 || !query.$or.every(q => q.$and?.length > 0)) {
-                        logError(
-                            `Expected $or operator in query for resource ${relatedResourceType} when consented PROA data is accessed.`,
-                            { query, relatedResourceType }
-                        );
-                        query = { id: '__invalid__' };
-                        continue;
-                    }
+                if (httpContext.get(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED) && query.$or?.length > 0 && query.$or.every(q => q.$and?.length > 0)) {
                     for (const orQuery of query.$or) {
                         if (customParentQuery.length == 1) {
                             orQuery.$and.push(customParentQuery[0]);
@@ -1376,6 +1533,39 @@ class EverythingHelper {
                     }
                 }
 
+                // Subscription resources also link to the member via the Person _uuid stored under
+                // the client_person_id system. Apply this as a top-level $and so the returned
+                // subscriptions are restricted to any discovered Person, in addition to the
+                // patient match above.
+                if (filterTemplateCustomQuery.matchPerson) {
+                    if (personUuidsForCustomQuery.length > 0) {
+                        const keyMap = SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField];
+                        query.$and = query.$and || [];
+                        query.$and.push({
+                            [parentLookupField]: {
+                                $elemMatch: {
+                                    [keyMap.key]: SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person,
+                                    [keyMap.value]: { $in: personUuidsForCustomQuery }
+                                }
+                            }
+                        });
+                    } else {
+                        logError(
+                            `${relatedResourceType} resource needed Person filter but no person resource was found`
+                        );
+                        query = { _uuid: '__invalid__' };
+                    }
+                }
+
+                query = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            }
+
+            // When the original request was Person $everything, restrict the returned Person
+            // resources to only the ids explicitly requested (the reverse `link.target` search
+            // above can otherwise surface other Person resources linked to the same patient(s)).
+            if (relatedResourceType === 'Person' && scopedPersonIds?.length > 0) {
+                query.$and = query.$and || [];
+                query.$and.push(FilterById.getListFilter(scopedPersonIds));
                 query = MongoQuerySimplifier.simplifyFilter({ filter: query });
             }
 
@@ -1458,7 +1648,8 @@ class EverythingHelper {
                 parentResourceType,
                 useUuidProjection,
                 resourceMapper,
-                cachedStreamer
+                cachedStreamer,
+                personResourcesProcessedTracker
             })
 
             parallelProcess.push(promiseResult)
@@ -1507,6 +1698,7 @@ class EverythingHelper {
      *  useUuidProjection: boolean,
      *  resourceMapper?: ResourceMapper,
      *  cachedStreamer?: CachedFhirResponseStreamer|null,
+     *  personResourcesProcessedTracker?: ResourceProccessedTracker|null,
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {_uuid: string, resourceType: string}[]}>}
      */
@@ -1525,7 +1717,8 @@ class EverythingHelper {
         everythingRelatedResourceManager,
         useUuidProjection,
         resourceMapper = new ResourceMapper(),
-        cachedStreamer = null
+        cachedStreamer = null,
+        personResourcesProcessedTracker = null
     }) {
         /**
          * @type {BundleEntry[]}
@@ -1548,6 +1741,9 @@ class EverythingHelper {
 
                 startResource = await this.databaseAttachmentManager.transformAttachments(
                     startResource, RETRIEVE
+                );
+                startResource = await this.base64DataManager.transformAsync(
+                    startResource, BLOB_OP.RETRIEVE
                 );
                 let current_entity = {
                     id: startResource._sourceId,
@@ -1664,6 +1860,16 @@ class EverythingHelper {
                     // find references
                     if (nonClinicalReferencesExtractor) {
                         await nonClinicalReferencesExtractor.processResource(startResource);
+                    }
+
+                    // Collect Person identifiers so the subscription step can match on the Person
+                    // _uuid (client_person_id). This must happen OUTSIDE the bundleEntryIdsProcessedTracker
+                    // guard: that tracker is shared across all id-chunks of the request, while
+                    // personResourcesProcessedTracker is per-chunk. A Person already emitted in an earlier
+                    // chunk would otherwise be skipped here and missing from this chunk's person set, which
+                    // would drop this chunk's subscription results (the matchPerson clause is a mandatory $and).
+                    if (personResourcesProcessedTracker && resourceIdentifier.resourceType === 'Person') {
+                        personResourcesProcessedTracker.add(resourceIdentifier);
                     }
 
                     if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
@@ -1802,5 +2008,6 @@ class EverythingHelper {
 }
 
 module.exports = {
-    EverythingHelper
+    EverythingHelper,
+    escapeForJsonTemplate
 };

@@ -4,9 +4,14 @@
  * @return {function} Express middleware
  */
 module.exports = function forbidForUserTypes(userTypes) {
-    return (req, res, next) => {
+    return function forbidForUserTypesMiddleware(req, res, next) {
         const userType = req.authInfo?.context?.userType;
         if (userType && userTypes.includes(userType)) {
+            if (req.isGraphQLRoute) {
+                const err = new Error(`${userType} does not have access to this endpoint`);
+                err.statusCode = 403;
+                return next(err);
+            }
             return res.status(403).json({
                 resourceType: 'OperationOutcome',
                 issue: [{

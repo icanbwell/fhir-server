@@ -19,6 +19,14 @@
       {
         "detail": [
           {
+            "type": "requestUrl",
+            "valueString": "/4_0_0/Practitioner/1679033641/$merge?validate=true"
+          },
+          {
+            "type": "requestId",
+            "valueString": "12345678"
+          },
+          {
             "type": "base_version",
             "valueString": "4_0_0"
           },
@@ -56,6 +64,14 @@
       "versionId": "1"
     },
     "resourceType": "AuditEvent",
+    "source": {
+      "observer": {
+        "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceAssigningAuthority": "bwell",
+        "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661"
+      }
+    },
     "type": {
       "code": "110112",
       "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf",
@@ -82,6 +98,14 @@
     "entity": [
       {
         "detail": [
+          {
+            "type": "requestUrl",
+            "valueString": "/4_0_0/Practitioner/0/$merge"
+          },
+          {
+            "type": "requestId",
+            "valueString": "12345678"
+          },
           {
             "type": "base_version",
             "valueString": "4_0_0"
@@ -116,6 +140,14 @@
       "versionId": "1"
     },
     "resourceType": "AuditEvent",
+    "source": {
+      "observer": {
+        "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceAssigningAuthority": "bwell",
+        "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661"
+      }
+    },
     "type": {
       "code": "110112",
       "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf",

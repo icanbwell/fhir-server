@@ -92,7 +92,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                 s => s.system === SecurityTagSystem.owner).map(s => s.code);
         }
         if (sourceAssigningAuthorityCodes.length > 0 && !doc._sourceAssigningAuthority) {
-            const sourceAssigningAuthorityColumnHandler = new SourceAssigningAuthorityColumnHandler();
+            const sourceAssigningAuthorityColumnHandler = new SourceAssigningAuthorityColumnHandler({ configManager: this.configManager });
             doc = await sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource: doc });
             setCommand._sourceAssigningAuthority = doc._sourceAssigningAuthority;
             setCommand.meta = doc.meta;

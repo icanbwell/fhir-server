@@ -7,7 +7,6 @@ const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
-const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
 function getHeadersWithExternalStorage() {
     return { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
@@ -25,12 +24,7 @@ function getHeadersWithExternalStorage() {
 describe('Group UPDATE operations', () => {
     let clickHouseManager;
 
-    let clickHouseTestContainer;
     beforeAll(async () => {
-        clickHouseTestContainer = new ClickHouseTestContainer();
-        await clickHouseTestContainer.start();
-        clickHouseTestContainer.applyEnvVars();
-
         await commonBeforeEach();
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
@@ -48,9 +42,6 @@ describe('Group UPDATE operations', () => {
     afterAll(async () => {
         if (clickHouseManager) {
             await clickHouseManager.closeAsync();
-        }
-        if (clickHouseTestContainer) {
-            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
     });
@@ -184,7 +175,7 @@ describe('Group UPDATE operations', () => {
 
     });
 
-    test('PUT empty member array → Remove all current members', async () => {
+    test('PUT empty member array → Preserves existing members (FHIR spec cleans [] to undefined)', async () => {
         const MEMBER_COUNT = 5;
         const initialMembers = Array.from({ length: MEMBER_COUNT }, (_, i) => ({
             entity: { reference: `Patient/update-empty-${i}` }
@@ -202,7 +193,7 @@ describe('Group UPDATE operations', () => {
                     WHERE group_id = '${created.id}'`
         });
 
-        // Update with empty array
+        // Update with empty array - FHIR spec cleans this to undefined, preserving members
         const response = await updateGroup(created.id, {
             ...created,
             member: []
@@ -220,7 +211,10 @@ describe('Group UPDATE operations', () => {
         const addedCount = allEvents.filter(e => e.event_type === EVENT_TYPES.MEMBER_ADDED).length;
         const removedCount = allEvents.filter(e => e.event_type === EVENT_TYPES.MEMBER_REMOVED).length;
 
-        // All members should be removed
+        // Members should be preserved (no removal events)
+        expect(removedCount).toBe(0);
+
+        // Current state should still have all original members
         const currentCount = await clickHouseManager.queryAsync({
             query: `SELECT count() as count FROM (
                         SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
@@ -229,7 +223,7 @@ describe('Group UPDATE operations', () => {
                         HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
                     )`
         });
-        expect(parseInt(currentCount[0].count)).toBe(0);
+        expect(parseInt(currentCount[0].count)).toBe(MEMBER_COUNT);
 
     });
 

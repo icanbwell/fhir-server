@@ -46,8 +46,7 @@ describe('PractitionerReturnIdTests', () => {
             resp = await request
                 .get(
                     '/4_0_0/Practitioner?_lastUpdated=eq' +
-                        today_text +
-                        '&_useTwoStepOptimization=0'
+                        today_text
                 )
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

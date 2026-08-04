@@ -2,7 +2,7 @@ const httpContext = require('express-http-context');
 const { logDebug } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
-const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
+const { NotValidatedError, BadRequestError, PayloadTooLargeError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -15,10 +15,12 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
+const { ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 
 class CreateOperation {
     /**
@@ -31,6 +33,7 @@ class CreateOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
@@ -43,6 +46,7 @@ class CreateOperation {
             databaseBulkInserter,
             configManager,
             databaseAttachmentManager,
+            base64DataManager,
             identifierEnrichmentProvider
         }
     ) {
@@ -89,6 +93,12 @@ class CreateOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {IdentifierEnrichmentProvider}
@@ -150,56 +160,70 @@ class CreateOperation {
         // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
         resource_incoming.id = generateUUID();
 
+        // Internal fields (_uuid, _sourceAssigningAuthority, _file_id, etc.) are never
+        // legitimate client input on create -- they're always (re)computed server-side
+        // (pre-save handlers, DatabaseAttachmentManager after a real GridFS upload). Strip
+        // them from the raw payload before constructing the Resource so a client-supplied
+        // value (e.g. an arbitrary `_file_id` claiming another resource's GridFS content)
+        // can never reach validation or attachment handling.
+        removeUnderscoreFieldsRecursive(resource_incoming);
+
         /**
          * @type {Resource}
          */
         let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
-        if (this.configManager.validateSchema || parsedArgs._validate) {
-            let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
-                resource_incoming
-            );
-            if (!validationOperationOutcome) {
-                validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                    base_version,
-                    requestInfo,
-                    id: resource_incoming.id,
-                    resourceType,
-                    resourceToValidate: body,
-                    path,
-                    resourceObj: resource
-                });
-            }
-            if (validationOperationOutcome) {
-                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    operationResult: [{
-                        id: resource.id,
-                        uuid: resource.id,
-                        sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                        resourceType: resource.resourceType,
-                        operationOutcome: validationOperationOutcome,
-                        created: false,
-                        updated: false
-                    }]
-                });
-                // noinspection JSValidateTypes
-                /**
-                 * @type {Error}
-                 */
-                const notValidatedError = new NotValidatedError(validationOperationOutcome);
-                await this.fhirLoggingManager.logOperationFailureAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: notValidatedError
-                });
-                throw notValidatedError;
-            }
+        let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
+            resource_incoming
+        );
+        if (!validationOperationOutcome) {
+            validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                base_version,
+                requestInfo,
+                id: resource_incoming.id,
+                resourceType,
+                resourceToValidate: body,
+                path,
+                resourceObj: resource
+            });
+        }
+        // Oversized AuditEvents are rejected with 413 (payload too large) once
+        // schema validation passes, rather than a generic 400 validation error.
+        const sizeOperationOutcome = validationOperationOutcome
+            ? null
+            : this.resourceValidator.validateResourceSizeSync({ resource: resource_incoming, resourceType });
+        if (validationOperationOutcome || sizeOperationOutcome) {
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                operationResult: [{
+                    id: resource.id,
+                    uuid: resource.id,
+                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    resourceType: resource.resourceType,
+                    operationOutcome: validationOperationOutcome || sizeOperationOutcome,
+                    created: false,
+                    updated: false
+                }]
+            });
+            // noinspection JSValidateTypes
+            /**
+             * @type {Error}
+             */
+            const validationError = sizeOperationOutcome
+                ? new PayloadTooLargeError(new Error('Payload size too large.'))
+                : new NotValidatedError(validationOperationOutcome);
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: validationError
+            });
+            throw validationError;
         }
 
         resource = await this.databaseAttachmentManager.transformAttachments(resource);
+        resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.INSERT, requestInfo);
 
         try {
             resource.meta.versionId = '1';
@@ -207,6 +231,11 @@ class CreateOperation {
             resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
             await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                 requestInfo, resource, base_version
+            });
+            // SEC-1580 F3: creating with an access tag counts as adding it - the caller must be
+            // authorized for every access tag on the new resource, not just one of them
+            this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                requestInfo, currentResource: null, updatedResource: resource
             });
             /**
              * @type {Resource}
@@ -278,6 +307,10 @@ class CreateOperation {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 operationResult: mergeResults
             });
+
+            // Inline any externalized base64 payload so the response body matches the
+            // client's request shape
+            doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.RETRIEVE, requestInfo);
 
             // enrich resource
             this.identifierEnrichmentProvider.enrichIdentifierList(doc);

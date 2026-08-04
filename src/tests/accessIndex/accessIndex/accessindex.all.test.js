@@ -7,32 +7,31 @@ const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expe
 const expectedPatientResourcesAccessIndex = require('./fixtures/expected/expected_Patient_access_index.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { ConfigManager } = require('../../../utils/configManager');
-const { IndexProvider } = require('../../../indexes/indexProvider');
-
-class MockConfigManagerWithAllAccessIndexResources extends ConfigManager {
-    get resourcesWithAccessIndex () {
-        return ['all'];
-    }
-
-    get useAccessIndex () {
-        return true;
-    }
-}
-
-class MockIndexProvider extends IndexProvider {
-    /**
-     * @param {string[]} accessCodes
-     * @return {boolean}
-     */
-    hasIndexForAccessCodes ({ accessCodes }) {
-        return accessCodes.every(a => a === 'client1');
-    }
-}
+const { describe, beforeAll, afterAll, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('AuditEvent when all is set Tests', () => {
     let requestId;
+    const originalUseAccessIndex = process.env.USE_ACCESS_INDEX;
+    const originalAccessTagsIndexed = process.env.ACCESS_TAGS_INDEXED;
+
+    beforeAll(() => {
+        process.env.USE_ACCESS_INDEX = '1';
+        process.env.ACCESS_TAGS_INDEXED = 'client1';
+    });
+
+    afterAll(() => {
+        if (originalUseAccessIndex === undefined) {
+            delete process.env.USE_ACCESS_INDEX;
+        } else {
+            process.env.USE_ACCESS_INDEX = originalUseAccessIndex;
+        }
+        if (originalAccessTagsIndexed === undefined) {
+            delete process.env.ACCESS_TAGS_INDEXED;
+        } else {
+            process.env.ACCESS_TAGS_INDEXED = originalAccessTagsIndexed;
+        }
+    });
+
     beforeEach(async () => {
         await commonBeforeEach();
         requestId = mockHttpContext();
@@ -44,13 +43,7 @@ describe('AuditEvent when all is set Tests', () => {
 
     describe('AuditEvent accessIndex Tests when all is set', () => {
         test('accessIndex works for audit event when all is set', async () => {
-            const request = await createTestRequest((container) => {
-                container.register('configManager', () => new MockConfigManagerWithAllAccessIndexResources());
-                container.register('indexProvider', (c) => new MockIndexProvider({
-                    configManager: c.configManager
-                }));
-                return container;
-            });
+            const request = await createTestRequest();
             const container = getTestContainer();
 
             // first confirm there are no AuditEvent
@@ -113,10 +106,7 @@ describe('AuditEvent when all is set Tests', () => {
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
         });
         test('accessIndex works for other resources when all is set', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerWithAllAccessIndexResources());
-                return c;
-            });
+            const request = await createTestRequest();
             // first confirm there are no AuditEvent
             let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
             // noinspection JSUnresolvedFunction
@@ -140,8 +130,8 @@ describe('AuditEvent when all is set Tests', () => {
             /**
              * @type {import('../../../utils/auditLogger').AuditLogger}
              */
-                        const auditLogger = container.auditLogger;
-                        await auditLogger.flushAsync();
+            const auditLogger = container.auditLogger;
+            await auditLogger.flushAsync();
             /**
              * @type {MongoDatabaseManager}
              */

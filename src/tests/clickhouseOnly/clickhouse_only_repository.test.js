@@ -16,7 +16,7 @@ const { ConfigManager } = require('../../utils/configManager');
 /**
  * Integration tests for ClickHouse-only scaffolding.
  *
- * Uses real ClickHouse via ClickHouseTestContainer.
+ * Uses the shared real ClickHouse container started by jestGlobalSetup.
  * Exercises the full pipeline: schema registry -> query parser -> query builder ->
  * generic repository -> clickHouseClientManager -> ClickHouse.
  *

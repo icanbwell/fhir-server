@@ -40,7 +40,7 @@ async function main () {
 /**
  * To run this:
  * nvm use
- * npm install
+ * yarn install
  * Create .env file in root directory with these variables
  * AUDIT_EVENT_MONGO_URL=
  * AUDIT_EVENT_MONGO_DB_NAME=

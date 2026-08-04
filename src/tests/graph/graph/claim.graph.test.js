@@ -22,86 +22,66 @@ const { CreateCollectionsRunner } = require('../../../admin/runners/createCollec
 const { AdminLogger } = require('../../../admin/adminLogger');
 
 describe('Claim Graph Contained Tests', () => {
+    /** @type {import('supertest').SuperTest<import('supertest').Test>} */
+    let request;
+
+    // Creating all collections and their indexes via createCollectionsRunner.processAsync()
+    // is slow (tens of seconds) and would exhaust the per-test timeout. Run it here in setup
+    // with an extended hook timeout so it is excluded from each test's measured time. It must
+    // run in beforeEach (not beforeAll) because commonAfterEach drops the database after every test.
     beforeEach(async () => {
         await commonBeforeEach();
-    });
+        request = await createTestRequest((container) => {
+            container.register(
+                'createCollectionsRunner',
+                (c) =>
+                    new CreateCollectionsRunner({
+                        indexManager: c.indexManager,
+                        adminLogger: new AdminLogger(),
+                        mongoDatabaseManager: c.mongoDatabaseManager
+                    })
+            );
+            return container;
+        });
+        // create collections and indexes
+        await getTestContainer().createCollectionsRunner.processAsync();
+    }, 180000);
 
     afterEach(async () => {
         await commonAfterEach();
     });
 
-    describe('Graph Contained Tests', () => {
-        test('Graph contained with multiple targets works properly', async () => {
-            const request = await createTestRequest((container) => {
-                container.register(
-                    'createCollectionsRunner',
-                    (c) =>
-                        new CreateCollectionsRunner({
-                            indexManager: c.indexManager,
-                            adminLogger: new AdminLogger(),
-                            mongoDatabaseManager: c.mongoDatabaseManager
-                        })
-                );
-                return container;
-            });
+    test('Graph contained with multiple targets works properly', async () => {
+        let resp = await request
+            .get('/4_0_0/ExplanationOfBenefit')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResourceCount(0);
 
-            const container = getTestContainer();
-            // create collections and indexes
-            const createCollectionsRunner = container.createCollectionsRunner;
-            await createCollectionsRunner.processAsync();
+        resp = await request
+            .post('/4_0_0/Bundle/$merge')
+            .send([practitionerResource, organizationResource, ...claimResource])
+            .set(getHeaders());
 
-            let resp = await request
-                .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }, { created: true }]);
 
-            resp = await request
-                .post('/4_0_0/Practitioner/1376656959/$merge')
-                .send(practitionerResource)
-                .set(getHeaders());
+        resp = await request
+            .post(
+                '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true'
+            )
+            .set(getHeaders())
+            .send(graphDefinitionResource);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedResource);
 
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Organization/1407857790/$merge')
-                .send(organizationResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613369/$merge')
-                .send(claimResource[0])
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613368/$merge')
-                .send(claimResource[1])
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post(
-                    '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true'
-                )
-                .set(getHeaders())
-                .send(graphDefinitionResource);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResource);
-
-            resp = await request
-                .post(
-                    '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true&_explain=1'
-                )
-                .set(getHeaders())
-                .send(graphDefinitionResource);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedWithExplainResource);
-        });
+        resp = await request
+            .post(
+                '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true&_explain=1'
+            )
+            .set(getHeaders())
+            .send(graphDefinitionResource);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedWithExplainResource);
     });
 });

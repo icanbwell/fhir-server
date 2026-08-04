@@ -3,37 +3,36 @@ const auditevent1Resource = require('./fixtures/AuditEvent/auditevent1.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 
 // expected
-const expectedAuditEventResourcesThedcare = require('./fixtures/expected/expected_AuditEvent_thedcare.json');
+const expectedAuditEventResourcesClientAbc = require('./fixtures/expected/expected_AuditEvent_client_abc.json');
 const expectedAuditEventWithoutAccessIndexResources = require('./fixtures/expected/expected_AuditEvent_without_access_index.json');
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { ConfigManager } = require('../../../utils/configManager');
-const { IndexProvider } = require('../../../indexes/indexProvider');
-
-class MockConfigManager extends ConfigManager {
-    get useAccessIndex () {
-        return true;
-    }
-
-    get resourcesWithAccessIndex () {
-        return ['Account', 'AuditEvent'];
-    }
-}
-
-class MockIndexProvider extends IndexProvider {
-    /**
-     * @param {string[]} accessCodes
-     * @return {boolean}
-     */
-    hasIndexForAccessCodes ({ accessCodes }) {
-        return accessCodes.every(a => a === 'client1');
-    }
-}
+const { describe, beforeAll, afterAll, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('AuditEvent Tests', () => {
     let requestId;
+    const originalUseAccessIndex = process.env.USE_ACCESS_INDEX;
+    const originalAccessTagsIndexed = process.env.ACCESS_TAGS_INDEXED;
+
+    beforeAll(() => {
+        process.env.USE_ACCESS_INDEX = '1';
+        process.env.ACCESS_TAGS_INDEXED = 'client1';
+    });
+
+    afterAll(() => {
+        if (originalUseAccessIndex === undefined) {
+            delete process.env.USE_ACCESS_INDEX;
+        } else {
+            process.env.USE_ACCESS_INDEX = originalUseAccessIndex;
+        }
+        if (originalAccessTagsIndexed === undefined) {
+            delete process.env.ACCESS_TAGS_INDEXED;
+        } else {
+            process.env.ACCESS_TAGS_INDEXED = originalAccessTagsIndexed;
+        }
+    });
+
     beforeEach(async () => {
         await commonBeforeEach();
         requestId = mockHttpContext();
@@ -45,13 +44,7 @@ describe('AuditEvent Tests', () => {
 
     describe('AuditEvent accessIndex Tests', () => {
         test('accessIndex works for access codes that have an index', async () => {
-            const request = await createTestRequest((container) => {
-                container.register('configManager', () => new MockConfigManager());
-                container.register('indexProvider', (c) => new MockIndexProvider({
-                    configManager: c.configManager
-                }));
-                return container;
-            });
+            const request = await createTestRequest();
             const container = getTestContainer();
             // first confirm there are no AuditEvent
             let resp = await request.get('/4_0_0/AuditEvent/?date=gt2021-08-09&date=lt2021-10-09').set(getHeaders());
@@ -112,13 +105,7 @@ describe('AuditEvent Tests', () => {
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
         });
         test('accessIndex is not used for access codes that do not have an index', async () => {
-            const request = await createTestRequest((container) => {
-                container.register('configManager', () => new MockConfigManager());
-                container.register('indexProvider', (c) => new MockIndexProvider({
-                    configManager: c.configManager
-                }));
-                return container;
-            });
+            const request = await createTestRequest();
             const container = getTestContainer();
             // first confirm there are no AuditEvent
             let resp = await request.get('/4_0_0/AuditEvent/?date=gt2021-08-09&date=lt2021-10-09').set(getHeaders());
@@ -173,16 +160,13 @@ describe('AuditEvent Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request
-                .get('/4_0_0/AuditEvent/?_bundle=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cthedcare&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
+                .get('/4_0_0/AuditEvent/?_bundle=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7CclientAbc&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedAuditEventResourcesThedcare);
+            expect(resp).toHaveResponse(expectedAuditEventResourcesClientAbc);
         });
         test('accessIndex works even all resources', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                return c;
-            });
+            const request = await createTestRequest();
             // first confirm there are no AuditEvent
             let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
             // noinspection JSUnresolvedFunction
@@ -232,7 +216,7 @@ describe('AuditEvent Tests', () => {
     });
 
     describe('AuditEvent accessIndex Tests', () => {
-        test('accessIndex is not used if resource not in resourcesWithAccessIndex', async () => {
+        test('accessIndex is not used if not enabled', async () => {
             const request = await createTestRequest();
             // first confirm there are no AuditEvent
             let resp = await request.get('/4_0_0/AuditEvent/?date=gt2021-08-09&date=lt2021-10-09').set(getHeaders());

@@ -40,11 +40,7 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const { ConfigManager } = require('../../../utils/configManager');
 const { cleanMeta } = require('../../customMatchers');
 
-class MockConfigManagerWithTwoStepOptimizationBundle extends ConfigManager {
-    get enableTwoStepOptimization () {
-        return true;
-    }
-
+class MockConfigManagerWithStreaming extends ConfigManager {
     get streamResponse () {
         return false;
     }
@@ -227,7 +223,7 @@ describe('GraphQL Patient Tests', () => {
         });
         test('GraphQL Patient for missing person', async () => {
             const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerWithTwoStepOptimizationBundle());
+                c.register('configManager', () => new MockConfigManagerWithStreaming());
                 return c;
             });
             const graphqlQueryText = patientNonExistentQuery.replace(/\\n/g, '');

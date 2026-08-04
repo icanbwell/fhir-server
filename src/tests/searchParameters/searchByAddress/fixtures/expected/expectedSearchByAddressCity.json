@@ -364,10 +364,6 @@
         "display": "0.077"
       },
       {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
-      },
-      {
         "system": "https://www.icanbwell.com/queryDatabase",
         "code": "fhir"
       },

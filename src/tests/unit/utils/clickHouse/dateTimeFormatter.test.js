@@ -39,6 +39,16 @@ describe('DateTimeFormatter', () => {
             expect(result).toBe('2024-01-01T00:00:00Z');
         });
 
+        test('is idempotent when input is already ISO 8601', () => {
+            expect(DateTimeFormatter.toISODateTime('2024-01-15T10:30:00.000Z'))
+                .toBe('2024-01-15T10:30:00.000Z');
+        });
+
+        test('is idempotent with extended precision ISO 8601', () => {
+            expect(DateTimeFormatter.toISODateTime('2024-01-15T10:30:00.000000000Z'))
+                .toBe('2024-01-15T10:30:00.000000000Z');
+        });
+
         test('returns null for null input', () => {
             expect(DateTimeFormatter.toISODateTime(null)).toBe(null);
         });

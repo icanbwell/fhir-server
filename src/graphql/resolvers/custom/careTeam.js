@@ -99,11 +99,9 @@ module.exports = {
                     careTeam.id = getHash(careTeam);
                 }
 
-                if (container.configManager.enableMergeFastSerializer) {
-                    const dateColumnHandler = new DateColumnHandler();
-                    dateColumnHandler.setFlag(true);
-                    careTeam = await dateColumnHandler.preSaveAsync({ resource: careTeam });
-                }
+                const dateColumnHandler = new DateColumnHandler();
+                dateColumnHandler.setFlag(true);
+                careTeam = await dateColumnHandler.preSaveAsync({ resource: careTeam });
 
                 /**
                  * @type {FhirRequestInfo}

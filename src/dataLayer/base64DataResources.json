@@ -1,0 +1,8 @@
+{
+  "Binary": [
+    {
+      "dataPath": "/data",
+      "blobMetaPath": "/_blobMeta"
+    }
+  ]
+}

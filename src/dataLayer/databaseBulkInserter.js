@@ -3,19 +3,13 @@ const async = require('async');
 const { EventEmitter } = require('events');
 const {
     logVerboseAsync,
-    logInfo,
-    logError
+    logInfo
 } = require('../operations/common/logging');
-const {
-    logSystemErrorAsync,
-    logTraceSystemEventAsync
-} = require('../operations/common/systemEventLogging');
 const { ResourceManager } = require('../operations/common/resourceManager');
 const { PostRequestProcessor } = require('../utils/postRequestProcessor');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const { RethrownError } = require('../utils/rethrownError');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
@@ -25,21 +19,16 @@ const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleReq
 const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { ConfigManager } = require('../utils/configManager');
+const { Base64DataManager } = require('./base64DataManager');
 const { getCircularReplacer } = require('../utils/getCircularReplacer');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const BundleResponse = require('../fhir/classes/4_0_0/backbone_elements/bundleResponse');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
-const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
-const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
-const { CONTEXT_KEYS } = require('../constants/groupConstants');
-
-const { MongoInvalidArgumentError } = require('mongodb');
 const { handleClickHouseGroupPreSave } = require('../utils/clickHouseGroupPreSave');
-const httpContext = require('express-http-context');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -56,6 +45,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {import('./base64DataManager').Base64DataManager} base64DataManager
      * @param {BulkWriteExecutor[]} bulkWriteExecutors
      */
     constructor ({
@@ -68,6 +58,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     resourceMerger,
                     configManager,
                     postSaveProcessor,
+                    base64DataManager,
                     bulkWriteExecutors
                 }) {
         super();
@@ -126,6 +117,12 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {BulkWriteExecutor[]}
@@ -191,8 +188,8 @@ class DatabaseBulkInserter extends EventEmitter {
         assertIsValid(!(operation.insertOne && operation.insertOne.document instanceof Resource));
         assertIsValid(!(operation.updateOne && operation.updateOne.replacement instanceof Resource));
         assertIsValid(!(operation.replaceOne && operation.replaceOne.replacement instanceof Resource));
-        assertIsValid(resource.id, `resource id is not set: ${JSON.stringify(resource)}`);
-        assertIsValid(resource._uuid, `resource _uuid is not set: ${JSON.stringify(resource)}`);
+        assertIsValid(resource.id, `resource id is not set`);
+        assertIsValid(resource._uuid, `resource _uuid is not set`);
         // If there is no entry for this collection then create one
         const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({ requestId });
         if (!(operationsByResourceTypeMap.has(resourceType))) {
@@ -456,6 +453,33 @@ class DatabaseBulkInserter extends EventEmitter {
         const userRequestId = requestInfo.userRequestId;
         const method = requestInfo.method;
         try {
+            const historyDocument = new BundleEntry({
+                id: doc._uuid,
+                resource: doc,
+                request: new BundleRequest({
+                    id: userRequestId,
+                    method,
+                    url: `/${base_version}/${resourceType}/${doc.id}`
+                }),
+                response: patches
+                    ? new BundleResponse({
+                          status: '200',
+                          outcome: new OperationOutcome({
+                              issue: patches.map(
+                                  (p) =>
+                                      new OperationOutcomeIssue({
+                                          severity: 'information',
+                                          code: 'informational',
+                                          diagnostics: JSON.stringify(p, getCircularReplacer())
+                                      })
+                              )
+                          })
+                      })
+                    : null
+            }).toJSONInternal();
+
+            await this.base64DataManager.transformHistoryAsync(historyDocument, requestInfo);
+
             this.addHistoryOperationForResourceType({
                 requestId,
                 resourceType,
@@ -463,30 +487,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 operationType: 'insert', // history operations are blind merges without checking id
                 operation: {
                     insertOne: {
-                        document: new BundleEntry({
-                            id: doc._uuid,
-                            resource: doc,
-                            request: new BundleRequest({
-                                id: userRequestId,
-                                method,
-                                url: `/${base_version}/${resourceType}/${doc.id}`
-                            }),
-                            response: patches
-                                ? new BundleResponse({
-                                      status: '200',
-                                      outcome: new OperationOutcome({
-                                          issue: patches.map(
-                                              (p) =>
-                                                  new OperationOutcomeIssue({
-                                                      severity: 'information',
-                                                      code: 'informational',
-                                                      diagnostics: JSON.stringify(p, getCircularReplacer())
-                                                  })
-                                          )
-                                      })
-                                  })
-                                : null
-                        }).toJSONInternal()
+                        document: historyDocument
                     }
                 },
                 patches,
@@ -668,7 +669,11 @@ class DatabaseBulkInserter extends EventEmitter {
                     doc = updatedResource;
                     previousUpdate.resource = doc;
                     previousUpdate.operation.replaceOne.replacement = doc.toJSONInternal();
-                    previousUpdate.patches = [...previousUpdate.patches, mergePatches];
+                    // previousUpdate.patches can be null (e.g. a prior replaceOneAsync/mergeOneAsync
+                    // call in this same batch that had no patches to record); guard against spreading
+                    // null. Also spread mergePatches (an array) instead of pushing it as a single
+                    // nested-array element, so history diagnostics stay a flat list of patch ops.
+                    previousUpdate.patches = [...(previousUpdate.patches || []), ...mergePatches];
                 } else {
                     // no change so ignore
                 }

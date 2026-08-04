@@ -403,7 +403,10 @@
         "system": "https://www.icanbwell.com/query",
         "display": "db.Observation_4_0_0.find({'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}, {}).sort({'_uuid':1}).limit(100)"
       },
-      { "system": "https://www.icanbwell.com/queryCollection", "code": "Observation_4_0_0" },
+      {
+        "system": "https://www.icanbwell.com/queryCollection",
+        "code": "Observation_4_0_0"
+      },
       {
         "system": "https://www.icanbwell.com/queryOptions",
         "display": "{'limit':100,'sort':{'_uuid':1}}"
@@ -412,12 +415,14 @@
         "system": "https://www.icanbwell.com/queryFields",
         "display": "['meta.tag.system','meta.tag.code','_uuid']"
       },
-      { "system": "https://www.icanbwell.com/queryTime", "display": "0.027" },
       {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
+        "system": "https://www.icanbwell.com/queryTime",
+        "display": "0.027"
       },
-      { "system": "https://www.icanbwell.com/queryDatabase", "code": "fhir" },
+      {
+        "system": "https://www.icanbwell.com/queryDatabase",
+        "code": "fhir"
+      },
       {
         "system": "https://www.icanbwell.com/queryExplain",
         "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Observation_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"queryHash\":\"B3DCC289\",\"planCacheKey\":\"42CF1FDB\",\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":5,\"executionTimeMillis\":0,\"totalKeysExamined\":5,\"totalDocsExamined\":5,\"executionStages\":{\"stage\":\"LIMIT\",\"nReturned\":5,\"executionTimeMillisEstimate\":0,\"works\":6,\"advanced\":5,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"nReturned\":5,\"executionTimeMillisEstimate\":0,\"works\":6,\"advanced\":5,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":5,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":5,\"executionTimeMillisEstimate\":0,\"works\":6,\"advanced\":5,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":5,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[]},\"command\":{\"find\":\"Observation_4_0_0\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":3600000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"ubuntu-Latitude-3420\",\"port\":33300,\"version\":\"6.0.14\",\"gitVersion\":\"25225db95574916fecab3af75b184409f8713aef\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7370697916169584668\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7370697916169584668\"}}]"
@@ -431,7 +436,10 @@
   "type": "searchset",
   "total": 0,
   "link": [
-    { "relation": "self", "url": "http://localhost:3000/4_0_0/Observation?_debug=1" },
+    {
+      "relation": "self",
+      "url": "http://localhost:3000/4_0_0/Observation?_debug=1"
+    },
     {
       "relation": "next",
       "url": "http://localhost:3000/4_0_0/Observation?_debug=1&id%3Aabove=fba542f6-e711-59ca-ba6e-fb04d9958dbb"

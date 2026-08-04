@@ -17,20 +17,12 @@ function getHeadersWithExternalStorage() {
     return { ...getTestHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
 }
 
-let ORIGINAL_ENABLE_MERGE_FAST_SERIALIZER;
-
-describe('Fast Merge Member Preservation (ENABLE_MERGE_FAST_SERIALIZER)', () => {
+describe('Merge Member Preservation', () => {
     let clickHouseManager;
 
     beforeAll(async () => {
-        ORIGINAL_ENABLE_MERGE_FAST_SERIALIZER = process.env.ENABLE_MERGE_FAST_SERIALIZER;
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
         await setupGroupTests();
         clickHouseManager = getClickHouseManager();
-    });
-
-    afterAll(async () => {
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = ORIGINAL_ENABLE_MERGE_FAST_SERIALIZER;
     });
 
     beforeEach(async () => {

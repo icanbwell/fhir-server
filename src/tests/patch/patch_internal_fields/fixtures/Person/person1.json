@@ -1,0 +1,49 @@
+{
+  "resourceType": "Person",
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2024-03-01T10:00:00.000Z",
+    "source": "https://test-source.example.com",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "testowner"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "testowner"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "testowner"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    },
+    {
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    }
+  ],
+  "name": [
+    {
+      "family": "TestPerson",
+      "given": ["Alice"]
+    }
+  ],
+  "gender": "male",
+  "active": true,
+  "link": [
+    {
+      "id": "link-1-id",
+      "target": {
+        "reference": "Patient/patient-shared-1"
+      }
+    }
+  ]
+}

@@ -72,7 +72,7 @@ class BwellPersonFinder {
      */
     async getImmediatePersonIdHelperAsync ({ references, databaseQueryManager, asObject, securityTags }) {
         if (!references || Object.keys(references).length === 0) {
-            return new Map();
+            return { patientReferenceToPersonUuid: {}, personToLinkedPatientsMap: new Map() };
         }
 
         /**

@@ -12,9 +12,8 @@ const { BundleManager } = require('../common/bundleManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const { OPERATIONS: { READ } } = require('../../constants');
 const { ResourceLocator } = require('../common/resourceLocator');
 const { resourceReferenceUpdater } = require('../../utils/resourceUpdater');
 const { enrichReferenceExtension } = require('../../fhir/serializers/4_0_0/custom_utils/referenceEnricher');
@@ -29,7 +28,6 @@ class SearchBundleOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
      * @param {ConfigManager} configManager
-     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor (
@@ -41,7 +39,6 @@ class SearchBundleOperation {
             scopesValidator,
             bundleManager,
             configManager,
-            databaseAttachmentManager,
             postRequestProcessor
         }
     ) {
@@ -85,12 +82,6 @@ class SearchBundleOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {DatabaseAttachmentManager}
-         */
-        this.databaseAttachmentManager = databaseAttachmentManager;
-        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
          * @type {PostRequestProcessor}
@@ -259,10 +250,6 @@ class SearchBundleOperation {
              */
             const originalOptions = __ret.originalOptions;
             /**
-             * @type {boolean}
-             */
-            const useTwoStepSearchOptimization = __ret.useTwoStepSearchOptimization;
-            /**
              * @type {Resource[]}
              */
             let resources = __ret.resources;
@@ -297,7 +284,7 @@ class SearchBundleOperation {
                 cursor.setEmpty();
             }
             // process results
-            if (cursor !== null) { // usually means the two-step optimization found no results
+            if (cursor) {
                 logDebug('', {
                     user,
                     args: {
@@ -349,7 +336,9 @@ class SearchBundleOperation {
                 return reference;
             })));
 
-            resources = await this.databaseAttachmentManager.transformAttachments(resources, RETRIEVE);
+            // NOTE: attachment (GridFS) and base64 (S3) payloads are already rehydrated per
+            // resource inside MongoReadableStream (see readResourcesFromCursorAsync ->
+            // mongoStreamReader), which is the single authoritative RETRIEVE site for this path.
 
             /**
              * @type {number}
@@ -381,7 +370,6 @@ class SearchBundleOperation {
                     columns,
                     stopTime,
                     startTime,
-                    useTwoStepSearchOptimization,
                     indexHint,
                     cursorBatchSize,
                     user,

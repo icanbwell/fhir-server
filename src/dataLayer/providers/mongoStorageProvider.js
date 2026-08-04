@@ -1,6 +1,7 @@
 const { StorageProvider } = require('./storageProvider');
 const { DatabaseCursor } = require('../databaseCursor');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
 
 /**
@@ -57,7 +58,7 @@ class MongoStorageProvider extends StorageProvider {
      * @param {Object} params
      * @param {Object} params.query
      * @param {Object} [params.options]
-     * @returns {Promise<Object|null>}
+     * @returns {Promise<Resource|null>}
      */
     async findOneAsync({ query, options }) {
         const collection = await this.resourceLocator.getCollectionAsync({});
@@ -70,6 +71,28 @@ class MongoStorageProvider extends StorageProvider {
                 resource,
                 this.resourceLocator._resourceType
             );
+        }
+
+        return null;
+    }
+
+    /**
+     * Finds one resource matching query using MongoDB, returned as a plain, write-serialized object
+     * @param {Object} params
+     * @param {Object} params.query
+     * @param {Object} [params.options]
+     * @returns {Promise<Object|null>}
+     */
+    async fastFindOneAsync({ query, options }) {
+        const collection = await this.resourceLocator.getCollectionAsync({});
+
+        const resource = await collection.findOne(query, options);
+
+        if (resource !== null) {
+            return FhirResourceWriteSerializer.serializeByResourceType({
+                obj: resource,
+                resourceType: this.resourceLocator._resourceType
+            });
         }
 
         return null;

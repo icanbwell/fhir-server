@@ -12,22 +12,27 @@ on:
     branches:
       - '*'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     name: lint & graphql sdl check
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 24.14.0
+          node-version-file: '.nvmrc'
+      - name: Enable Corepack
+        run: corepack enable
       - run: | # retry since mongo memory server fails to download sometimes
           yarn install || yarn install
-      - run: npm run build --if-present
       - name: lint
         run: |
-          npm run lint
+          yarn run lint
       - name: Check GraphQL SDL snapshots
         run: |
           node generatorScripts/generateGraphqlSdl.js --check
@@ -36,20 +41,20 @@ jobs:
     name: test (chunk ${{ matrix.chunk }})
     strategy:
       matrix:
-        shard: [ 1, 2, 3, 4, 5, 6, 7, 8 ]
+        shard: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 24.14.0
+          node-version-file: '.nvmrc'
+      - name: Enable Corepack
+        run: corepack enable
       - run: | # retry since mongo memory server fails to download sometimes
           yarn install || yarn install
-      - run: npm run build --if-present
       - name: jest
         run: |
-          export NODE_OPTIONS="--max-old-space-size=8192"
-          NODE_OPTIONS=--max-old-space-size=8192 node --max-old-space-size=8192 ./node_modules/.bin/jest --no-watchman --silent --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          ./node_modules/.bin/jest --no-watchman --silent --runInBand --forceExit --logHeapUsage --shard=${{ matrix.shard }}/${{ strategy.job-total }}
         env:
-          NODE_OPTIONS: "--max-old-space-size=10240"
+          NODE_OPTIONS: "--max-old-space-size=10240 --expose-gc"

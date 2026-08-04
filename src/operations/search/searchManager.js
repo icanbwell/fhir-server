@@ -23,6 +23,7 @@ const { ScopesManager } = require('../security/scopesManager');
 const { GetCursorResult } = require('./getCursorResult');
 const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
 const { DataSharingManager } = require('./dataSharingManager');
@@ -37,6 +38,7 @@ const {
     DB_SEARCH_LIMIT,
     OPERATIONS: { READ },
     GRIDFS: { RETRIEVE },
+    BLOB_OP,
     AUTH_USER_TYPES
 } = require('../../constants');
 
@@ -53,6 +55,7 @@ class SearchManager {
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
@@ -71,6 +74,7 @@ class SearchManager {
             queryRewriterManager,
             scopesManager,
             databaseAttachmentManager,
+            base64DataManager,
             fhirResourceWriterFactory,
             dataSharingManager,
             searchQueryBuilder,
@@ -132,6 +136,12 @@ class SearchManager {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {FhirResourceWriterFactory}
@@ -203,7 +213,8 @@ class SearchManager {
             applyPatientFilter = true,
             addPersonOwnerToContext = false,
             allowConsentedProaDataAccess = false,
-            actor
+            actor,
+            everythingChunkIndex
         }
     ) {
         try {
@@ -254,7 +265,7 @@ class SearchManager {
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
                     allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {
-                    query = { id: '__invalid__' }; // return nothing since no patient ids were passed
+                    query = { _uuid: '__invalid__' }; // return nothing since no patient ids were passed
                 } else {
                     if (applyPatientFilter) {
                         query = this.patientQueryCreator.getQueryWithPatientFilter({
@@ -272,7 +283,9 @@ class SearchManager {
                         query = await this.dataSharingManager.updateQueryConsideringCmsDataSharing({
                             patientIds: allPatientIdsFromJwtToken,
                             resourceType,
-                            query
+                            query,
+                            actor,
+                            securityTags
                         });
                     }
                 }
@@ -298,7 +311,8 @@ class SearchManager {
                         useHistoryTable,
                         requestId,
                         isUser,
-                        allowConsentedProaDataAccess
+                        allowConsentedProaDataAccess,
+                        everythingChunkIndex
                     });
                 }
             }
@@ -426,53 +440,6 @@ class SearchManager {
         let originalOptions = deepcopy(options);
 
         /**
-         * whether to use the two-step optimization
-         * In the two-step optimization we request the ids first and then request the documents for those ids
-         *  This can be faster in large tables as both queries can then be satisfied by indexes
-         * @type {boolean}
-         */
-        const useTwoStepSearchOptimization =
-            !parsedArgs._elements &&
-            !parsedArgs.id &&
-            (this.configManager.enableTwoStepOptimization || parsedArgs._useTwoStepOptimization);
-        if (isTrue(useTwoStepSearchOptimization)) {
-            const __ret = await this.handleTwoStepSearchOptimizationAsync(
-                {
-                    resourceType,
-                    base_version,
-                    options,
-                    query,
-                    maxMongoTimeMS
-                }
-            );
-            options = __ret.options;
-            originalQuery = __ret.originalQuery;
-            query = __ret.query;
-            originalOptions = __ret.originalOptions;
-            if (query === null) {
-                // no ids were found so no need to query
-                return new GetCursorResult({
-                        columns,
-                        options,
-                        query,
-                        originalQuery: new QueryItem({
-                            query: originalQuery,
-                            collectionName: null,
-                            resourceType
-                        }),
-                        originalOptions,
-                        useTwoStepSearchOptimization,
-                        resources: [],
-                        total_count: 0,
-                        indexHint: null,
-                        cursorBatchSize: 0,
-                        cursor: null
-                    }
-                );
-            }
-        }
-
-        /**
          * resources to return
          * @type {Resource[]}
          */
@@ -516,15 +483,6 @@ class SearchManager {
         }
 
         cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
-
-        // avoid double sorting since Mongo gives you different results
-        if (useTwoStepSearchOptimization && !options.sort) {
-            const sortOption =
-                originalOptions && originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : null;
-            if (sortOption !== null) {
-                cursorQuery = cursorQuery.sort({ sortOption });
-            }
-        }
 
         // set batch size if specified
         if (process.env.MONGO_BATCH_SIZE || parsedArgs._cursorBatchSize) {
@@ -583,7 +541,6 @@ class SearchManager {
                     resourceType
                 }),
                 originalOptions,
-                useTwoStepSearchOptimization,
                 resources,
                 total_count,
                 indexHint,
@@ -668,6 +625,28 @@ class SearchManager {
             }
             // always include _uuid for audit logging
             projection._uuid = 1;
+            // Only project _blobMeta sidecars when the corresponding `data` field is also
+            // projected — otherwise Base64DataManager.transformAsync(RETRIEVE) has nothing
+            // to rehydrate, so the sidecar would just be dead weight in the result.
+            const base64Entries = this.base64DataManager.resourcePaths[resourceType];
+            if (base64Entries) {
+                for (const entry of base64Entries) {
+                    const dataProjectionPath = entry.dataPath
+                        .replace(/^\//, '')
+                        .replace(/\/\[\]/g, '')
+                        .replace(/\//g, '.');
+                    // GraphQL/_elements projections request top-level fields (e.g. `content`),
+                    // so check the top-level segment of the dotted path.
+                    const topLevelKey = dataProjectionPath.split('.')[0];
+                    if (projection[dataProjectionPath] || projection[topLevelKey]) {
+                        const blobMetaProjectionPath = entry.blobMetaPath
+                            .replace(/^\//, '')
+                            .replace(/\/\[\]/g, '')
+                            .replace(/\//g, '.');
+                        projection[blobMetaProjectionPath] = 1;
+                    }
+                }
+            }
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
             projection._id = 0;
             if (
@@ -764,68 +743,6 @@ class SearchManager {
         return { columns, options };
     }
 
-    /**
-     * implements a two-step optimization by first retrieving ids and then requesting the data for those ids
-     * @param {string} resourceType
-     * @param {string} base_version
-     * @param {Object} options
-     * @param {Object} query
-     * @param {number} maxMongoTimeMS
-     * @return {Promise<{query: Object, options: Object, actualQuery: (Object|Object[]), actualOptions: Object}>}
-     */
-    async handleTwoStepSearchOptimizationAsync (
-        {
-            resourceType,
-            base_version,
-            options,
-            query,
-            maxMongoTimeMS
-        }
-    ) {
-        try {
-            // first get just the ids
-            const projection = {};
-            projection._id = 0;
-            projection.id = 1;
-            options.projection = projection;
-            const originalQuery = [query];
-            const originalOptions = [options];
-            const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
-            const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                { resourceType, base_version }
-            );
-            /**
-             * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
-             */
-            const cursor = await databaseQueryManager.findAsync({ query, options });
-            /**
-             * @type {import('mongodb').DefaultSchema[]}
-             */
-            const idResults = await cursor
-                .sort({ sortOption })
-                .maxTimeMS({ milliSecs: maxMongoTimeMS })
-                .toArrayAsync();
-            if (idResults.length > 0) {
-                // now get the documents for those ids.  We can clear all the other query parameters
-                query = idResults.length === 1
-                    ? { id: idResults.map((r) => r.id)[0] }
-                    : { id: { $in: idResults.map((r) => r.id) } };
-                options = {}; // reset options since we'll be looking by id
-                originalQuery.push(query);
-                originalOptions.push(options);
-            } else {
-                // no results
-                query = null; // no need to query
-            }
-            return { options, actualQuery: originalQuery, query, actualOptions: originalOptions };
-        } catch (e) {
-            throw new RethrownError({
-                message: `Error in two step optimization for ${resourceType} with query: ${mongoQueryStringify(query)}`,
-                error: e
-            });
-        }
-    }
-
     // noinspection FunctionWithInconsistentReturnsJS
     /**
      * Reads resources from Mongo cursor
@@ -862,6 +779,7 @@ class SearchManager {
                 cursor,
                 signal: ac.signal,
                 databaseAttachmentManager: this.databaseAttachmentManager,
+                base64DataManager: this.base64DataManager,
                 highWaterMark,
                 configManager: this.configManager
             });
@@ -1105,6 +1023,7 @@ class SearchManager {
             cursor,
             signal: ac.signal,
             databaseAttachmentManager: this.databaseAttachmentManager,
+            base64DataManager: this.base64DataManager,
             searchManager: this,
             highWaterMark,
             configManager: this.configManager,
@@ -1368,6 +1287,7 @@ class SearchManager {
                  */
 
                 startResource = await this.databaseAttachmentManager.transformAttachments(startResource, RETRIEVE);
+                startResource = await this.base64DataManager.transformAsync(startResource, BLOB_OP.RETRIEVE);
                 let current_entity = {
                     id: startResource._sourceId,
                     resource: startResource

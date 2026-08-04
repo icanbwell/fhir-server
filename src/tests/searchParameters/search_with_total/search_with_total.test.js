@@ -5,20 +5,30 @@ const person1Resource = require('./fixtures/Person/person1.json');
 const expectedPersonResources = require('./fixtures/expected/expected_person.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { ConfigManager } = require('../../../utils/configManager');
-
-class MockConfigManager extends ConfigManager {
-    get useAccessIndex () {
-        return true;
-    }
-
-    get resourcesWithAccessIndex () {
-        return ['Person'];
-    }
-}
+const { describe, beforeAll, afterAll, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
+    const originalUseAccessIndex = process.env.USE_ACCESS_INDEX;
+    const originalAccessTagsIndexedPerson = process.env.ACCESS_TAGS_INDEXED_PERSON;
+
+    beforeAll(() => {
+        process.env.USE_ACCESS_INDEX = '1';
+        process.env.ACCESS_TAGS_INDEXED_PERSON = 'bwell';
+    });
+
+    afterAll(() => {
+        if (originalUseAccessIndex === undefined) {
+            delete process.env.USE_ACCESS_INDEX;
+        } else {
+            process.env.USE_ACCESS_INDEX = originalUseAccessIndex;
+        }
+        if (originalAccessTagsIndexedPerson === undefined) {
+            delete process.env.ACCESS_TAGS_INDEXED_PERSON;
+        } else {
+            process.env.ACCESS_TAGS_INDEXED_PERSON = originalAccessTagsIndexedPerson;
+        }
+    });
+
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -29,10 +39,7 @@ describe('Person Tests', () => {
 
     describe('Person search_with_total Tests', () => {
         test('search_with_total works', async () => {
-            const request = await createTestRequest((container) => {
-                container.register('configManager', () => new MockConfigManager());
-                return container;
-            });
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request

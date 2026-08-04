@@ -3,8 +3,8 @@ const { isTrue } = require('./isTrue');
 
 /**
  * @typedef {Object} JwtActor
- * @property {string} sub - The subject of the actor
- * @property {string} reference - A reference string that identifies the actor
+ * @property {string} [sub] - The subject of the actor
+ * @property {string} [reference] - A reference string that identifies the actor
  * @property {string|null} [consentPolicy] - Consent policy URI, set after consent validation
  * @property {import('./delegatedAccessRulesManager').DelegatedAccessFilteringRules|null} [_filteringRules] - Cached filtering rules (request-scoped)
  */
@@ -37,6 +37,7 @@ class FhirRequestInfo {
      * @param {string} params.method
      * @param {import('content-type').ContentType|null} params.contentTypeFromHeader
      * @param {JwtActor|null} [params.actor]
+     * @param {string[]|null} [params.purposeOfUse]
      */
     constructor (
         {
@@ -60,7 +61,8 @@ class FhirRequestInfo {
             method,
             contentTypeFromHeader,
             alternateUserId,
-            actor
+            actor,
+            purposeOfUse
         }
     ) {
         assertIsValid(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
@@ -150,6 +152,11 @@ class FhirRequestInfo {
          * @type {JwtActor|null}
          */
         this.actor = actor;
+
+        /**
+         * @type {string[]|null}
+         */
+        this.purposeOfUse = purposeOfUse ?? null;
 
         /**
          * whether the client wants to use global ids

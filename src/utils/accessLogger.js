@@ -1,5 +1,4 @@
 const httpContext = require('express-http-context');
-const moment = require('moment-timezone');
 const { Mutex } = require('async-mutex');
 const os = require('os');
 
@@ -12,10 +11,10 @@ const {
     OPERATIONS: { READ, WRITE }
 } = require('../constants');
 const { ScopesManager } = require('../operations/security/scopesManager');
-const { ConfigManager } = require('./configManager');
 const { logInfo, logError, logDebug } = require('../operations/common/logging');
 const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 const { AccessLogClickHouseWriter } = require('./accessLogClickHouseWriter');
+const { buildBulkWriteRequestContext } = require('../dataLayer/bulkWriteRequestContext');
 const mutex = new Mutex();
 
 class AccessLogger {
@@ -64,10 +63,6 @@ class AccessLogger {
          */
         this.hostname = os.hostname() ? String(os.hostname()) : null;
         /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        /**
          * @type {DatabaseBulkInserter}
          */
         this.databaseBulkInserter = databaseBulkInserter;
@@ -83,6 +78,13 @@ class AccessLogger {
          * @type {object[]}
          */
         this.queue = [];
+
+        this.enableAccessLogs = configManager.enableAccessLogs;
+        this.accessLogResultLimit = configManager.accessLogResultLimit;
+        this.accessLogRequestBodyLimit = configManager.accessLogRequestBodyLimit;
+
+        this.clickHouseEnabled = configManager.enableAccessLogsClickHouse && this.accessLogClickHouseWriter;
+        this.mongoEnabled = configManager.enableAccessLogsMongoDB;
     }
 
     /**
@@ -96,15 +98,28 @@ class AccessLogger {
      * @property {object[]} [operationResult]
      * @property {string|undefined} [streamRequestBody]
      * @property {boolean} [streamingMerge]
+     * @property {string|undefined} [authorizationHeader]
      *
      * @param {logAccessLogAsyncParams}
      */
-    async logAccessLogAsync({ req, statusCode, startTime, stopTime = Date.now(), streamRequestBody, streamingMerge, operationResult }) {
+    async logAccessLogAsync({
+        req,
+        statusCode,
+        startTime,
+        stopTime = Date.now(),
+        streamRequestBody,
+        streamingMerge,
+        operationResult,
+        authorizationHeader
+    }) {
+        if (!this.enableAccessLogs) {
+            return;
+        }
         /**
          * @type {string}
          */
-        const resourceType = req.resourceType ? req.resourceType : (req.url.split('/')[2])?.split('?')[0];
-        if (!resourceType) {
+        const resourceType = req.resourceType ? req.resourceType : req.url.split('/')[2]?.split('?')[0];
+        if (!resourceType && statusCode !== 401) {
             return;
         }
         /**
@@ -113,28 +128,41 @@ class AccessLogger {
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
         const isError = !(statusCode >= 200 && statusCode < 300);
 
-        // Fetching args
-        let combined_args = get_all_args(req, req.sanitized_args);
-        combined_args = this.fhirOperationsManager.parseParametersFromBody({ req, combined_args });
         const operation =
             req.method === 'GET' ? READ : req.method === 'POST' && req.url.includes('$graph') ? READ : WRITE;
-        if (!combined_args.base_version) {
-            combined_args.base_version = '4_0_0';
-        }
-        /**
-         * @type {ParsedArgs}
-         */
-        const args = await this.fhirOperationsManager.getParsedArgsAsync({
-            args: combined_args,
-            resourceType,
-            operation
-        });
 
         // Fetching detail
         const details = {
             version: this.imageVersion,
             host: this.hostname
         };
+
+        // Args parsing requires a resourceType; on a 401 the URL may not carry one (e.g. /$graphql).
+        if (resourceType) {
+            let combined_args = get_all_args(req, req.sanitized_args);
+            combined_args = this.fhirOperationsManager.parseParametersFromBody({ req, combined_args });
+            if (!combined_args.base_version) {
+                combined_args.base_version = '4_0_0';
+            }
+            /**
+             * @type {ParsedArgs}
+             */
+            const args = await this.fhirOperationsManager.getParsedArgsAsync({
+                args: combined_args,
+                resourceType,
+                operation
+            });
+
+            const params = {};
+            Object.entries(args.getRawArgs())
+                .filter(([k, _]) => !['resource', 'base_version'].includes(k))
+                .forEach(([k, v]) => {
+                    params[k] = !v || typeof v === 'string' ? v : JSON.stringify(v, getCircularReplacer());
+                });
+            if (Object.keys(params).length > 0) {
+                details['params'] = params;
+            }
+        }
 
         if (requestInfo.contentTypeFromHeader) {
             details['contentType'] = requestInfo.contentTypeFromHeader.type;
@@ -148,46 +176,58 @@ class AccessLogger {
             details['originService'] = req.headers['origin-service'];
         }
 
-        const params = {};
-        Object.entries(args.getRawArgs())
-            .filter(([k, _]) => !['resource', 'base_version'].includes(k))
-            .forEach(([k, v]) => {
-                params[k] = !v || typeof v === 'string' ? v : JSON.stringify(v, getCircularReplacer());
-            });
-        if (Object.keys(params).length > 0) {
-            details['params'] = params;
+        if (authorizationHeader) {
+            details['authorizationHeader'] = authorizationHeader;
         }
 
         if (operationResult) {
-            let resultBuffer = Buffer.from(JSON.stringify(operationResult));
-            const sizeLimit = this.configManager.accessLogResultLimit;
-
-            if (resultBuffer.byteLength > sizeLimit) {
-                resultBuffer = resultBuffer.subarray(0, sizeLimit);
+            const resultStr = JSON.stringify(operationResult);
+            if (Buffer.byteLength(resultStr) > this.accessLogResultLimit) {
+                details['operationResult'] = Buffer.from(resultStr).subarray(0, this.accessLogResultLimit).toString();
                 details['operationResultTruncated'] = 'true';
                 logInfo(
                     `AccessLogger: operationResult truncated in access log for request id: ${requestInfo.userRequestId}`
                 );
+            } else {
+                details['operationResult'] = resultStr;
             }
-            details['operationResult'] = resultBuffer.toString();
         }
 
         if (requestInfo.body) {
-            let body = streamRequestBody
-                ? streamRequestBody
-                : typeof requestInfo.body === 'string'
-                  ? requestInfo.body
-                  : JSON.stringify(requestInfo.body, getCircularReplacer());
+            // Resolve the body string. Prefer the raw Buffer captured by the
+            // express.json verify hook (avoids re-stringifying a parsed object).
+            // Falls back to streamRequestBody (ndjson) or a JSON.stringify of
+            // requestInfo.body (urlencoded etc.). Track whether truncation
+            // happened at the source so the marker is applied uniformly.
+            let body;
+            let bodyTruncated = false;
+            if (streamRequestBody) {
+                body = streamRequestBody;
+            } else if (Buffer.isBuffer(req.rawBodyBuffer)) {
+                if (req.rawBodyBuffer.length > this.accessLogRequestBodyLimit) {
+                    body = req.rawBodyBuffer.toString('utf-8', 0, this.accessLogRequestBodyLimit);
+                    bodyTruncated = true;
+                } else {
+                    body = req.rawBodyBuffer.toString('utf-8');
+                }
+            } else {
+                body =
+                    typeof requestInfo.body === 'string'
+                        ? requestInfo.body
+                        : JSON.stringify(requestInfo.body, getCircularReplacer());
+            }
 
-            let bodyBuffer = Buffer.from(body);
-            const sizeLimit = this.configManager.accessLogRequestBodyLimit;
+            // streamRequestBody / fallback paths haven't been size-checked yet.
+            if (!bodyTruncated && Buffer.byteLength(body) > this.accessLogRequestBodyLimit) {
+                body = Buffer.from(body).subarray(0, this.accessLogRequestBodyLimit).toString();
+                bodyTruncated = true;
+            }
 
-            if (bodyBuffer.byteLength > sizeLimit) {
-                bodyBuffer = bodyBuffer.subarray(0, sizeLimit);
+            details['body'] = body;
+            if (bodyTruncated) {
                 details['bodyTruncated'] = 'true';
                 logInfo(`AccessLogger: body truncated in access log for request id: ${requestInfo.userRequestId}`);
             }
-            details['body'] = bodyBuffer.toString();
         }
 
         if (streamingMerge) {
@@ -196,7 +236,7 @@ class AccessLogger {
 
         // Creating log entry
         const logEntry = {
-            timestamp: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
+            timestamp: new Date(),
             outcomeDesc: isError ? 'Error' : 'Success',
             agent: {
                 altId:
@@ -222,7 +262,15 @@ class AccessLogger {
             }
         };
 
-        this.queue.push({ doc: logEntry, requestInfo });
+        // requestInfo is only consumed by the Mongo flush path. When ClickHouse is
+        // the only sink we omit it entirely; otherwise we stash a stripped clone
+        // carrying just the four fields the bulk-write chain reads, letting the
+        // rest of FhirRequestInfo (headers/body/scopes/user) be GC'd at request end.
+        this.queue.push(
+            this.mongoEnabled
+                ? { doc: logEntry, requestInfo: buildBulkWriteRequestContext(requestInfo) }
+                : { doc: logEntry }
+        );
     }
 
     /**
@@ -243,22 +291,19 @@ class AccessLogger {
 
         logDebug(`Flushing ${currentQueue.length} access log entries`, {});
 
-        let requestId;
-
         /**
          * @type {Map<string,import('../dataLayer/bulkInsertUpdateEntry').BulkInsertUpdateEntry>}
          */
         const operationsMap = new Map();
         operationsMap.set(ACCESS_LOGS_COLLECTION_NAME, []);
         const clickHouseAccessLogs = [];
-        const clickHouseEnabled = this.configManager.enableAccessLogsClickHouse && this.accessLogClickHouseWriter;
 
-        for (const { doc, requestInfo } of currentQueue) {
-            ({ requestId } = requestInfo);
-            if (this.configManager.enableAccessLogsMongoDB){
+        for (const entry of currentQueue) {
+            const { doc } = entry;
+            if (this.mongoEnabled) {
                 operationsMap.get(ACCESS_LOGS_COLLECTION_NAME).push(
                     this.databaseBulkInserter.getOperationForResourceAsync({
-                        requestId,
+                        requestId: entry.requestInfo.requestId,
                         ACCESS_LOGS_COLLECTION_NAME,
                         doc,
                         operationType: 'insert',
@@ -271,7 +316,7 @@ class AccessLogger {
                     })
                 );
             }
-            if (clickHouseEnabled) {
+            if (this.clickHouseEnabled) {
                 clickHouseAccessLogs.push(doc);
             }
         }
@@ -294,13 +339,12 @@ class AccessLogger {
             /**
              * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
              */
-            const mergeResultErrors = mergeResults.filter((m) => m.issue);
+            const mergeResultErrors = (mergeResults || []).filter((m) => m.issue);
             if (mergeResultErrors.length > 0) {
                 logError('Error creating access-log entries', {
                     error: mergeResultErrors,
                     source: 'flushAsync',
                     args: {
-                        request: { id: requestId },
                         errors: mergeResultErrors
                     }
                 });

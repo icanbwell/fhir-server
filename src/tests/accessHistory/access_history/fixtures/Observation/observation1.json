@@ -1,0 +1,35 @@
+{
+    "resourceType": "Observation",
+    "id": "obs1",
+    "meta": {
+        "source": "http://healthsystem1.org/provider",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "healthsystem1"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "healthsystem1"
+            }
+        ]
+    },
+    "status": "final",
+    "code": {
+        "coding": [
+            {
+                "system": "http://loinc.org",
+                "code": "85354-9",
+                "display": "Blood pressure"
+            }
+        ]
+    },
+    "subject": {
+        "reference": "Patient/patient1"
+    },
+    "effectiveDateTime": "2023-01-15T10:00:00Z",
+    "valueQuantity": {
+        "value": 120,
+        "unit": "mmHg"
+    }
+}

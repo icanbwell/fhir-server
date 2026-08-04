@@ -1,28 +1,10 @@
 const CodeableConcept = require('../../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const Parameters = require('../../../fhir/classes/4_0_0/resources/parameters');
 const { BaseValidator } = require('./baseValidator');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
-const { FhirResourceWriteSerializer } = require('../../../fhir/fhirResourceWriteSerializer');
-const { parametersSerializer } = require('../../../fhir/writeSerializers/4_0_0/resources');
-const { ConfigManager } = require('../../../utils/configManager');
-const { assertTypeEquals } = require('../../../utils/assertType');
 
 class ParametersResourceValidator extends BaseValidator {
-    /**
-     * @param {ConfigManager} configManager
-     */
-    constructor({ configManager }) {
-        super();
-
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
-    }
-
     /**
      * @param {FhirRequestInfo} requestInfo
      * @param {Resource|Resource[]} incomingResources
@@ -37,30 +19,11 @@ class ParametersResourceValidator extends BaseValidator {
         let errors = [];
         // see if the resources were passed as parameters
         if (incomingResources && incomingResources.resourceType === 'Parameters') {
-            // Unfortunately our FHIR schema resource creator does not support Parameters
-            // const ParametersResourceCreator = getResource(base_version, 'Parameters');
-            // const parametersResource = new ParametersResourceCreator(resource_incoming);
             /**
              * @type {Object}
              */
-            const incomingObject = incomingResources;
-            /**
-             * @type {Parameters}
-             */
-            let parametersResource;
+            const parametersResource = incomingResources;
 
-            if (this.configManager.enableMergeFastSerializer) {
-                if (this.configManager.updateMergeValidations) {
-                    parametersResource = incomingObject;
-                } else {
-                    parametersResource = FhirResourceWriteSerializer.serialize({
-                        obj: incomingObject,
-                        SerializerClass: parametersSerializer
-                    });
-                }
-            } else {
-                parametersResource = new Parameters(incomingObject);
-            }
             if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
                 /**
                  * @type {OperationOutcome}

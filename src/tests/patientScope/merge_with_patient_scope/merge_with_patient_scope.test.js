@@ -303,9 +303,6 @@ describe('Patient Scope merge Tests', () => {
             expect(condition1Response.issue.details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing the Condition resource.');
         });
         test('Non patient resources can not be accessed with patient scopes', async () => {
-            const envValue = process.env.VALIDATE_SCHEMA;
-            process.env.VALIDATE_SCHEMA = '0';
-
             const request = await createTestRequest();
             const container = getTestContainer();
             /**
@@ -344,7 +341,6 @@ describe('Patient Scope merge Tests', () => {
                     diagnostics: `Write not allowed using user scopes if patient scope is present: user clientFhirPerson with scopes [] failed access check to [${resourceType}.write]`
                 });
             }
-            process.env.VALIDATE_SCHEMA = envValue;
         });
     });
 

@@ -2,34 +2,26 @@
 const async = require('async');
 const { EventEmitter } = require('events');
 const { logVerboseAsync, logInfo, logError } = require('../operations/common/logging');
-const { logSystemErrorAsync, logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
 const { ResourceManager } = require('../operations/common/resourceManager');
 const { PostRequestProcessor } = require('../utils/postRequestProcessor');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
-const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { RethrownError } = require('../utils/rethrownError');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { ConfigManager } = require('../utils/configManager');
-const { getCircularReplacer } = require('../utils/getCircularReplacer');
-const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
+const { Base64DataManager } = require('./base64DataManager');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
-const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
 const BundleEntryWriteSerializer = require('../fhir/writeSerializers/4_0_0/backboneElements/bundleEntry.js');
 
-const { MongoInvalidArgumentError } = require('mongodb');
 const { handleClickHouseGroupPreSave } = require('../utils/clickHouseGroupPreSave');
-const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
-const { FastDatabaseUpdateManager } = require('./fastDatabaseUpdateManager.js');
-const deepEqual = require('fast-deep-equal');
+const { CustomTracer } = require('../utils/customTracer');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -46,7 +38,9 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {Base64DataManager} base64DataManager
      * @param {BulkWriteExecutor[]} bulkWriteExecutors
+     * @param {CustomTracer} customTracer
      */
     constructor({
         resourceManager,
@@ -58,7 +52,9 @@ class FastDatabaseBulkInserter extends EventEmitter {
         resourceMerger,
         configManager,
         postSaveProcessor,
-        bulkWriteExecutors
+        base64DataManager,
+        bulkWriteExecutors,
+        customTracer
     }) {
         super();
 
@@ -118,6 +114,12 @@ class FastDatabaseBulkInserter extends EventEmitter {
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
 
         /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
+
+        /**
          * @type {BulkWriteExecutor[]}
          */
         this.bulkWriteExecutors = bulkWriteExecutors || [];
@@ -128,6 +130,12 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 'Each bulkWriteExecutor must implement canHandle and executeBulkAsync'
             );
         }
+
+        /**
+         * @type {CustomTracer}
+         */
+        this.customTracer = customTracer;
+        assertTypeEquals(customTracer, CustomTracer);
     }
 
 
@@ -192,8 +200,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
             )
         );
         assertIsValid(!(operation.replaceOne && typeof operation.replaceOne.replacement !== 'object'));
-        assertIsValid(resource.id, `resource id is not set: ${JSON.stringify(resource)}`);
-        assertIsValid(resource._uuid, `resource _uuid is not set: ${JSON.stringify(resource)}`);
+        assertIsValid(resource.id, `resource id is not set`);
+        assertIsValid(resource._uuid, `resource _uuid is not set`);
         // If there is no entry for this collection then create one
         const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({ requestId });
         if (!operationsByResourceTypeMap.has(resourceType)) {
@@ -297,23 +305,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
                         doc
                     }
                 });
-            }
-
-            if (this.configManager.verifyResourceBeforeWrite) {
-                // This check needs to be removed after fast serializer write operation is verified
-                // JSON.stringify to convert date time object to string for comparision
-                let resourceCopy = JSON.parse(JSON.stringify(doc));
-
-                const serializedCopy = FhirResourceWriteSerializer.serialize({ obj: deepcopy(resourceCopy) });
-                if (!deepEqual(serializedCopy, resourceCopy)) {
-                    logError('Serialized doc differ from original while writing resource', {
-                        args: {
-                            source: 'DatabaseBulkInserter.getOperationForResourceAsync',
-                            resourceUuid: resourceCopy._uuid,
-                            resourceType: resourceCopy.resourceType
-                        }
-                    });
-                }
             }
 
             return new BulkInsertUpdateEntry({
@@ -490,6 +481,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
 
             FhirResourceWriteSerializer.serialize({obj: historyResource, SerializerClass: BundleEntryWriteSerializer});
 
+            await this.base64DataManager.transformHistoryAsync(historyResource, requestInfo);
+
             this.addHistoryOperationForResourceType({
                 requestId,
                 resourceType,
@@ -576,7 +569,11 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     doc = updatedResource;
                     previousUpdate.resource = doc;
                     previousUpdate.operation.replaceOne.replacement = doc;
-                    previousUpdate.patches = [...previousUpdate.patches, mergePatches];
+                    // previousUpdate.patches can be null (e.g. a prior replaceOneAsync/mergeOneAsync
+                    // call in this same batch that had no patches to record); guard against spreading
+                    // null. Also spread mergePatches (an array) instead of pushing it as a single
+                    // nested-array element, so history diagnostics stay a flat list of patch ops.
+                    previousUpdate.patches = [...(previousUpdate.patches || []), ...mergePatches];
                 } else {
                     // no change so ignore
                 }
@@ -738,17 +735,22 @@ class FastDatabaseBulkInserter extends EventEmitter {
             this.postRequestProcessor.add({
                 requestId,
                 fnTask: async () => {
-                    await async.map(
-                        historyOperationsByResourceTypeMap.entries(),
-                        async (x) =>
-                            await this.performBulkForResourceTypeWithMapEntryAsync({
-                                requestInfo,
-                                mapEntry: x,
-                                base_version,
-                                useHistoryCollection: true
-                            })
-                    );
-                    historyOperationsByResourceTypeMap.clear();
+                    await this.customTracer.trace({
+                        name: 'FastDatabaseBulkInserter.executeHistoryInPostRequestAsync',
+                        func: async () => {
+                            await async.map(
+                                historyOperationsByResourceTypeMap.entries(),
+                                async (x) =>
+                                    await this.performBulkForResourceTypeWithMapEntryAsync({
+                                        requestInfo,
+                                        mapEntry: x,
+                                        base_version,
+                                        useHistoryCollection: true
+                                    })
+                            );
+                            historyOperationsByResourceTypeMap.clear();
+                        }
+                    });
                 }
             });
         }

@@ -1,0 +1,39 @@
+{
+  "entry": [],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.AuditEvent_4_0_0.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'clientAbc'}}},{'recorded':{'$lt':ISODate('2021-09-22T00:00:00.000Z'),'$gte':ISODate('2021-09-19T00:00:00.000Z')}}]}, {}).sort({'_uuid':1}).limit(2)",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "AuditEvent_4_0_0",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "{'skip':0,'limit':2,'sort':{'_uuid':1}}",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "['meta.security.system','meta.security.code','recorded','_uuid']",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "code": "audit-event",
+        "system": "https://www.icanbwell.com/queryDatabase"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  },
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

@@ -18,11 +18,8 @@ class ConfigManager {
         return (envVar && envVar.split(',').map(item => item.trim())) || defaultValue;
     }
 
-    get resourcesWithAccessIndex() {
-        return (
-            env.COLLECTIONS_ACCESS_INDEX && env.COLLECTIONS_ACCESS_INDEX.split(',')
-                .map((col) => col.trim())
-        ) || [];
+    get customIndexesFilePath() {
+        return env.CUSTOM_INDEXES_FILE_PATH || null;
     }
 
     get useAccessIndex() {
@@ -48,14 +45,6 @@ class ConfigManager {
     }
 
     /**
-     * whether to enable two step optimization
-     * @return {boolean}
-     */
-    get enableTwoStepOptimization() {
-        return isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION);
-    }
-
-    /**
      * whether to stream the response
      * @return {boolean}
      */
@@ -65,6 +54,16 @@ class ConfigManager {
 
     get doNotRequirePersonOrPatientIdForPatientScope() {
         return isTrue(env.DO_NOT_REQUIRE_PERSON_OR_PATIENT_FOR_PATIENT_SCOPE);
+    }
+
+    /**
+     * When enabled, the proxy-person to patient expansion applies the caller's
+     * access-scope security tag filter to the requested Person before resolving
+     * its linked patients. Currently only applied to $everything GET requests.
+     * @return {boolean}
+     */
+    get enableProxyPersonScopeCheckForEverything() {
+        return isTrueWithFallback(env.ENABLE_PROXY_PERSON_SCOPE_CHECK_FOR_EVERYTHING, true);
     }
 
     /**
@@ -402,11 +401,10 @@ class ConfigManager {
      */
     get enabledGridFsResources() {
         const gridFsResources = env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
-        // restrict gridFs resources to DocumentReference when fast serializer in merge
+        // restrict gridFs resources to DocumentReference
         if (
-            this.enableMergeFastSerializer &&
-            (gridFsResources.length > 1 ||
-            (gridFsResources.length === 1 && gridFsResources[0] !== 'DocumentReference'))
+            gridFsResources.length > 1 ||
+            (gridFsResources.length === 1 && gridFsResources[0] !== 'DocumentReference')
         ) {
             throw new Error('Only DocumentReference is supported as a GridFS resource');
         }
@@ -483,14 +481,6 @@ class ConfigManager {
      */
     get batchSizeForRemoteFhir() {
         return Number(env.REMOTE_FHIR_REQUEST_BATCH_SIZE) || 10;
-    }
-
-    /**
-     * whether to validate schemas
-     * @returns {boolean}
-     */
-    get validateSchema() {
-        return isTrue(env.VALIDATE_SCHEMA);
     }
 
     /**
@@ -616,6 +606,27 @@ class ConfigManager {
     }
 
     /**
+     * maximum serialized size (in bytes) allowed for a single inbound AuditEvent.
+     * Oversized AuditEvents are rejected to bound document size and avoid
+     * write-path memory pressure. Defaults to 16 MiB when
+     * AUDIT_EVENT_MAX_SIZE_BYTES is not set.
+     * @returns {number}
+     */
+    get auditEventMaxSizeBytes() {
+        return env.AUDIT_EVENT_MAX_SIZE_BYTES
+            ? parseInt(env.AUDIT_EVENT_MAX_SIZE_BYTES)
+            : 16 * 1024 * 1024;
+    }
+
+    /**
+     * returns the UUID of the organization used for AuditEvent.source.observer
+     * @returns {string}
+     */
+    get auditEventObserverOrganizationId() {
+        return env.AUDIT_EVENT_OBSERVER_ORGANIZATION_ID || "ecce70a8-f5ff-5562-b28f-dbbc0f543661";
+    }
+
+    /**
      * whether to rewrite patient references to proxy-patient reference
      */
     get rewritePatientReference() {
@@ -634,35 +645,11 @@ class ConfigManager {
     }
 
     /**
-     * whether to enable fast serializer in merge operation
-     * @returns {boolean}
-     */
-    get enableMergeFastSerializer() {
-        return isTrue(env.ENABLE_MERGE_FAST_SERIALIZER);
-    }
-
-    /**
-     * whether to verify resource before write in merge operation
-     * @returns {boolean}
-     */
-    get verifyResourceBeforeWrite() {
-        return this.enableMergeFastSerializer && isTrueWithFallback(env.VERIFY_RESOURCE_BEFORE_WRITE, true);
-    }
-
-    /**
-     * whether to enable the new validations in merge operation
-     * @returns {boolean}
-     */
-    get updateMergeValidations() {
-        return this.enableMergeFastSerializer && isTrueWithFallback(env.UPDATE_MERGE_VALIDATIONS, true);
-    }
-
-    /**
-     * whether to enable logging of validation errors in updated merge operation
+     * whether to enable logging of validation errors in merge operation
      * @returns {boolean}
      */
     get logUpdatedMergeValidations() {
-        return this.updateMergeValidations && isTrueWithFallback(env.LOG_UPDATED_MERGE_VALIDATION_ERRORS, true);
+        return isTrueWithFallback(env.LOG_UPDATED_MERGE_VALIDATION_ERRORS, true);
     }
 
     /**
@@ -868,6 +855,48 @@ class ConfigManager {
     }
 
     /**
+     * Whether to offload `Binary.data` (and other base64 fields listed in
+     * src/dataLayer/base64DataResources.json) above the threshold to cloud storage on write.
+     * @returns {boolean}
+     */
+    get enableBase64FieldCloudStorage() {
+        return isTrue(env.BASE64_FIELD_CLOUD_STORAGE_ENABLED);
+    }
+
+    /**
+     * Cloud storage client implementation for live base64 payloads
+     * (e.g. CLOUD_STORAGE_CLIENTS.S3_CLIENT).
+     * The history-side client reuses the existing `historyResourceCloudStorageClient`.
+     * @returns {string|undefined}
+     */
+    get base64FieldCloudStorageClient() {
+        return env.BASE64_FIELD_CLOUD_STORAGE_CLIENT;
+    }
+
+    /**
+     * Bucket holding current (live) FHIR resource payloads externalized to cloud storage.
+     * Keyed by `{ResourceType}_4_0_0/{_uuid}[/<nested-path-with-indices>]`.
+     * The parallel `historyResourceBucketName` holds historical versions; the
+     * `Binary_4_0_0/...` key prefix used here does not collide with the
+     * `Binary_4_0_0_History/...` prefix used by the whole-history migration script.
+     * @returns {string|undefined}
+     */
+    get resourceBucketName() {
+        return env.RESOURCE_BUCKET_NAME;
+    }
+
+    /**
+     * Size threshold (in KB) above which a base64 payload is offloaded to cloud storage.
+     * Sized from the base64 string's byte length — that's the actual MongoDB cost.
+     * @returns {number}
+     */
+    get base64FieldDataThresholdKB() {
+        return env.BASE64_FIELD_DATA_THRESHOLD_KB
+            ? parseInt(env.BASE64_FIELD_DATA_THRESHOLD_KB)
+            : 64;
+    }
+
+    /**
      * Limit for number of History resources to Cloud storage in a cron job
      * @returns {number}
      */
@@ -988,6 +1017,16 @@ class ConfigManager {
      */
     get authCidCheckClientIds() {
         return env.AUTH_CID_CHECK_CLIENT_IDS ? env.AUTH_CID_CHECK_CLIENT_IDS.split(',') : [];
+    }
+
+    /**
+     * Allowlisted purposeOfUse codes parsed from CMS_ALLOWED_PURPOSE_OF_USE env var.
+     * @returns {Set<string>}
+     */
+    get cmsAllowedPurposeOfUse() {
+        return new Set(
+            this._parseCommaSeparatedList(env.CMS_ALLOWED_PURPOSE_OF_USE)
+        );
     }
 
     /**
@@ -1173,6 +1212,27 @@ class ConfigManager {
     }
 
     /**
+     * Whether AuditEvent writes are routed through the KAFKA_CLICKPIPE strategy
+     * (async produce to Kafka -> ClickPipes -> ClickHouse) instead of a
+     * synchronous direct ClickHouse insert.
+     *
+     * Default false. AuditEvent is only routed to the Kafka path when it also has
+     * a ClickHouse schema registered (see clickHouseOnlyResources) and the V2 Kafka
+     * cluster is enabled (ENABLE_EVENTS_KAFKA_V2, i.e. configManager.kafkaV2EnableEvents)
+     * — this is the separate MSK cluster that ClickPipes reads from, NOT the legacy
+     * ENABLE_EVENTS_KAFKA flag. A disabled V2 client (DummyKafkaClientV2) would silently
+     * drop audits. Rollback = set this flag false (reverts to SYNC_DIRECT).
+     *
+     * Configuration:
+     * ENABLE_AUDIT_EVENT_CLICKPIPE=1
+     *
+     * @return {boolean}
+     */
+    get enableAuditEventClickPipe() {
+        return isTrue(env.ENABLE_AUDIT_EVENT_CLICKPIPE);
+    }
+
+    /**
      * Maximum number of members allowed in Group.member array for CREATE/PUT operations
      * Default: 50000 (can be overridden in production based on infrastructure)
      * PATCH operations bypass this limit (they append events, not full arrays)
@@ -1209,6 +1269,14 @@ class ConfigManager {
         return parseInt(env.CLICKHOUSE_MAX_CONNECTIONS || String(DEFAULT_CLICKHOUSE.MAX_CONNECTIONS), 10);
     }
 
+    get accessHistoryBatchSize() {
+        return parseInt(env.ACCESS_HISTORY_BATCH_SIZE || '10000', 10);
+    }
+
+    get accessHistoryMaxParallelProcess() {
+        return parseInt(env.ACCESS_HISTORY_MAX_PARALLEL_PROCESS || '10', 10);
+    }
+
     get enableDelegatedAccessDetection() {
         return isTrue(env.ENABLE_DELEGATED_ACCESS_DETECTION);
     }
@@ -1218,6 +1286,182 @@ class ConfigManager {
             env.DATA_SHARING_ACCESS_CONSENT_CODES,
             [CONSENT_CATEGORY.DATA_SHARING_ACCESS.CODE]
         );
+    }
+
+    /**
+     * Allowed S3 buckets for bulk import
+     * @return {string[]}
+     */
+    get bulkImportAllowedS3Buckets() {
+        return this._parseCommaSeparatedList(env.BULK_IMPORT_ALLOWED_S3_BUCKETS, []);
+    }
+
+    /**
+     * Maximum number of files per bulk import request
+     * @return {number}
+     */
+    get bulkImportMaxFilesPerRequest() {
+        const parsed = parseInt(env.BULK_IMPORT_MAX_FILES_PER_REQUEST, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+    }
+
+    /**
+     * Kafka topic for bulk import byte-range messages
+     * @return {string}
+     */
+    get kafkaBulkImportEventTopic() {
+        return env.KAFKA_BULK_IMPORT_EVENT_TOPIC || 'fhir_server.bulk_import.events';
+    }
+
+    /**
+     * Kafka consumer group ID for bulk import consumers
+     * @return {string}
+     */
+    get bulkImportConsumerGroupId() {
+        return env.BULK_IMPORT_CONSUMER_GROUP_ID || 'fhir-bulk-import-consumer';
+    }
+
+    /**
+     * Byte-range marker size in MB for bulk import file splitting
+     * @return {number}
+     */
+    get bulkImportRangeSizeMb() {
+        const parsed = parseInt(env.BULK_IMPORT_RANGE_SIZE_MB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+    }
+
+    /**
+     * Minimum file size in MB for bulk import
+     * @return {number}
+     */
+    get bulkImportMinFileSizeMb() {
+        const parsed = parseInt(env.BULK_IMPORT_MIN_FILE_SIZE_MB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 50;
+    }
+
+    /**
+     * Maximum file size in GB for bulk import
+     * @return {number}
+     */
+    get bulkImportMaxFileSizeGb() {
+        const parsed = parseInt(env.BULK_IMPORT_MAX_FILE_SIZE_GB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 5;
+    }
+
+    /**
+     * Maximum line size in MB for bulk import NDJSON files
+     * @return {number}
+     */
+    get bulkImportMaxLineSizeMb() {
+        const parsed = parseInt(env.BULK_IMPORT_MAX_LINE_SIZE_MB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 16;
+    }
+
+    /**
+     * Number of resources to buffer before flushing a Mongo bulk write during bulk import
+     * @return {number}
+     */
+    get bulkImportBatchSize() {
+        const parsed = parseInt(env.BULK_IMPORT_BATCH_SIZE, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+    }
+
+    /**
+     * Delay in milliseconds between bulk import batch flushes, to pace MongoDB write load
+     * @return {number}
+     */
+    get bulkImportBatchDelayMs() {
+        const parsed = parseInt(env.BULK_IMPORT_BATCH_DELAY_MS, 10);
+        return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+    }
+
+    /**
+     * Kafka topic for bulk import task-created notifications
+     * @return {string}
+     */
+    get kafkaBulkImportTaskCreatedTopic() {
+        return env.KAFKA_BULK_IMPORT_TASK_CREATED_TOPIC || 'fhir_server.bulk_import.requested';
+    }
+
+    /**
+     * Kafka consumer group ID for the import orchestrator
+     * @return {string}
+     */
+    get bulkImportOrchestratorGroupId() {
+        return env.BULK_IMPORT_ORCHESTRATOR_GROUP_ID || 'fhir-bulk-import-orchestrator';
+    }
+
+    // ── Kafka v2 (new MSK cluster) ──────────────────────────────────────────
+
+    /**
+     * @return {boolean}
+     */
+    get kafkaV2EnableEvents() {
+        return isTrue(env.ENABLE_EVENTS_KAFKA_V2);
+    }
+
+    /**
+     * @return {string}
+     */
+    get kafkaV2ClientId() {
+        return env.KAFKA_V2_CLIENT_ID || 'fhir-server';
+    }
+
+    /**
+     * @return {string[]}
+     */
+    get kafkaV2Brokers() {
+        return env.KAFKA_V2_URLS ? env.KAFKA_V2_URLS.split(',') : [];
+    }
+
+    /**
+     * @return {boolean}
+     */
+    get kafkaV2UseSsl() {
+        return isTrue(env.KAFKA_V2_SSL);
+    }
+
+    /**
+     * @return {boolean}
+     */
+    get kafkaV2UseSasl() {
+        return isTrue(env.KAFKA_V2_SASL);
+    }
+
+    /**
+     * Auth type: 'iam' for MSK IAM, 'scram' for SASL/SCRAM, or empty for no auth
+     * @return {string}
+     */
+    get kafkaV2AuthType() {
+        return env.KAFKA_V2_AUTH_TYPE || '';
+    }
+
+    /**
+     * @return {string}
+     */
+    get kafkaV2AuthMechanism() {
+        return env.KAFKA_V2_SASL_MECHANISM || 'scram-sha-512';
+    }
+
+    /**
+     * @return {string|null}
+     */
+    get kafkaV2UserName() {
+        return env.KAFKA_V2_SASL_USERNAME || null;
+    }
+
+    /**
+     * @return {string|null}
+     */
+    get kafkaV2Password() {
+        return env.KAFKA_V2_SASL_PASSWORD || null;
+    }
+
+    /**
+     * @return {string}
+     */
+    get kafkaV2AwsRegion() {
+        return env.KAFKA_V2_AWS_REGION || 'us-east-1';
     }
 
     /**

@@ -17,14 +17,16 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { isUuid } = require('../../utils/uid.util');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 
 /**
  * Update Operation
@@ -42,6 +44,7 @@ class UpdateOperation {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {SearchManager} searchManager
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
@@ -58,6 +61,7 @@ class UpdateOperation {
             resourceMerger,
             configManager,
             databaseAttachmentManager,
+            base64DataManager,
             searchManager,
             postSaveHandlerFactory,
             identifierEnrichmentProvider
@@ -116,6 +120,12 @@ class UpdateOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {SearchManager}
@@ -200,6 +210,15 @@ class UpdateOperation {
         // Used later to force UPDATE even if MongoDB sees no changes (member array stripped before save)
         const hasMemberField = resourceType === 'Group' && resource_incoming_json.member !== undefined;
 
+        // Internal fields (_uuid, _sourceAssigningAuthority, _file_id, etc.) are never
+        // legitimate client input -- they're always (re)computed server-side (pre-save
+        // handlers overwrite them from the stored resource's own meta.security tags before
+        // persist, and DatabaseAttachmentManager only ever sets _file_id after a real GridFS
+        // upload). Strip them from the raw incoming payload before it's merged with the
+        // stored resource, so a caller can't claim an arbitrary GridFS file id (belonging to
+        // another resource/tenant) and have it read back later.
+        removeUnderscoreFieldsRecursive(resource_incoming_json);
+
         // create a resource with incoming data
         /**
          * @type {Resource}
@@ -268,34 +287,32 @@ class UpdateOperation {
              * @type {Resource | null}
              */
             const data = resources[0];
-            if (this.configManager.validateSchema || parsedArgs._validate) {
-                /**
-                 * @type {OperationOutcome|null}
-                 */
-                const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                    base_version,
-                    requestInfo,
-                    id: resource_incoming_json.id,
-                    resourceType,
-                    resourceToValidate: resource_incoming_json,
-                    path,
-                    resourceObj: resource_incoming,
-                    currentResource: data
+            /**
+             * @type {OperationOutcome|null}
+             */
+            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                base_version,
+                requestInfo,
+                id: resource_incoming_json.id,
+                resourceType,
+                resourceToValidate: resource_incoming_json,
+                path,
+                resourceObj: resource_incoming,
+                currentResource: data
+            });
+            if (validationOperationOutcome) {
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                    operationResult: [{
+                        id: resource_incoming_json.id,
+                        uuid: data ? data._uuid : resource_incoming_json._uuid,
+                        sourceAssigningAuthority: data ? data._sourceAssigningAuthority : resource_incoming_json._sourceAssigningAuthority,
+                        resourceType: resource_incoming_json.resourceType,
+                        operationOutcome: validationOperationOutcome,
+                        created: false,
+                        updated: false
+                    }]
                 });
-                if (validationOperationOutcome) {
-                    httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                        operationResult: [{
-                            id: resource_incoming_json.id,
-                            uuid: data ? data._uuid : resource_incoming_json._uuid,
-                            sourceAssigningAuthority: data ? data._sourceAssigningAuthority : resource_incoming_json._sourceAssigningAuthority,
-                            resourceType: resource_incoming_json.resourceType,
-                            operationOutcome: validationOperationOutcome,
-                            created: false,
-                            updated: false
-                        }]
-                    });
-                    throw new NotValidatedError(validationOperationOutcome);
-                }
+                throw new NotValidatedError(validationOperationOutcome);
             }
             /**
              * @type {Resource|null}
@@ -347,7 +364,12 @@ class UpdateOperation {
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
                     smartMerge: false,
-                    databaseAttachmentManager: this.databaseAttachmentManager
+                    databaseAttachmentManager: this.databaseAttachmentManager,
+                    // Pass the base64 manager so the merge can exclude the externalized `data`
+                    // field from the generic diff and reconcile it directly by hash, without ever
+                    // downloading it — see Base64DataManager.excludeExternalizedLeaves /
+                    // reconcileLeavesAsync and resourceMerger.mergeResourceAsync.
+                    base64DataManager: this.base64DataManager
                 }));
                 doc = updatedResource;
 
@@ -394,8 +416,17 @@ class UpdateOperation {
                 }
                 // Update attachments after all validations
                 doc = await this.databaseAttachmentManager.transformAttachments(doc);
+                // TODO: remove alwaysCreateNew when this operation is updated to be version aware
+                doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo, { alwaysCreateNew: true });
 
                 if (data && data.meta) {
+                    // SEC-1580 F2: the pre-merge check above ran against foundResource as stored, so the
+                    // access tags the merge (smartMerge: false, so a full replace) took from the incoming
+                    // body still need to be validated before the merged doc is persisted
+                    this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                        requestInfo, currentResource: foundResource, updatedResource: doc
+                    });
+
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 
                     await this.databaseBulkInserter.replaceOneAsync(
@@ -415,6 +446,11 @@ class UpdateOperation {
                     doc.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                         resource: doc, requestInfo, base_version
+                    });
+                    // SEC-1580 F3: this is a create-via-PUT, so the "old" access tag set is empty and
+                    // every access tag on doc counts as an addition the caller must be authorized for
+                    this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                        requestInfo, currentResource: null, updatedResource: doc
                     });
 
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
@@ -470,6 +506,7 @@ class UpdateOperation {
 
                 // changing the attachment._file_id to attachment.data for response
                 doc = await this.databaseAttachmentManager.transformAttachments(doc, RETRIEVE);
+                doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.RETRIEVE, requestInfo);
 
                 const result = {
                     id,
@@ -495,6 +532,7 @@ class UpdateOperation {
                 return result;
             } else {
                 await this.databaseAttachmentManager.transformAttachments(foundResource, RETRIEVE);
+                await this.base64DataManager.transformAsync(foundResource, BLOB_OP.RETRIEVE, requestInfo);
 
                 const result = {
                     id,

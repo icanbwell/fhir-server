@@ -19,6 +19,14 @@
       {
         "detail": [
           {
+            "type": "requestUrl",
+            "valueString": "/4_0_0/Practitioner/1679033641/$merge?validate=true"
+          },
+          {
+            "type": "requestId",
+            "valueString": "12345678"
+          },
+          {
             "type": "base_version",
             "valueString": "4_0_0"
           },
@@ -56,6 +64,14 @@
       "versionId": "1"
     },
     "resourceType": "AuditEvent",
+    "source": {
+      "observer": {
+        "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceAssigningAuthority": "bwell",
+        "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661"
+      }
+    },
     "type": {
       "code": "110112",
       "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf",
@@ -83,65 +99,13 @@
       {
         "detail": [
           {
-            "type": "base_version",
-            "valueString": "4_0_0"
-          }
-        ],
-        "what": {
-          "_sourceAssigningAuthority": "bwell",
-          "_sourceId": "Practitioner/182cd655-fccc-5648-b9d4-4c2982f1e209",
-          "_uuid": "Practitioner/182cd655-fccc-5648-b9d4-4c2982f1e209",
-          "reference": "Practitioner/182cd655-fccc-5648-b9d4-4c2982f1e209"
-        }
-      }
-    ],
-    "meta": {
-      "security": [
-        {
-          "code": "bwell",
-          "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
-          "system": "https://www.icanbwell.com/owner"
-        },
-        {
-          "code": "bwell",
-          "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
-          "system": "https://www.icanbwell.com/access"
-        },
-        {
-          "code": "bwell",
-          "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
-          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-        }
-      ],
-      "versionId": "1"
-    },
-    "resourceType": "AuditEvent",
-    "type": {
-      "code": "110112",
-      "display": "Query",
-      "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf",
-      "system": "http://dicom.nema.org/resources/ontology/DCM"
-    }
-  },
-  {
-    "_access": {
-      "bwell": 1
-    },
-    "_sourceAssigningAuthority": "bwell",
-    "action": "R",
-    "agent": [
-      {
-        "altId": "imran",
-        "network": {
-          "type": "2",
-          "address": "::ffff:127.0.0.1"
-        },
-        "requestor": true
-      }
-    ],
-    "entity": [
-      {
-        "detail": [
+            "type": "requestUrl",
+            "valueString": "/4_0_0/Practitioner/0/$merge"
+          },
+          {
+            "type": "requestId",
+            "valueString": "12345678"
+          },
           {
             "type": "base_version",
             "valueString": "4_0_0"
@@ -176,6 +140,90 @@
       "versionId": "1"
     },
     "resourceType": "AuditEvent",
+    "source": {
+      "observer": {
+        "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceAssigningAuthority": "bwell",
+        "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661"
+      }
+    },
+    "type": {
+      "code": "110112",
+      "display": "Query",
+      "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf",
+      "system": "http://dicom.nema.org/resources/ontology/DCM"
+    }
+  },
+  {
+    "_access": {
+      "bwell": 1
+    },
+    "_sourceAssigningAuthority": "bwell",
+    "action": "R",
+    "agent": [
+      {
+        "altId": "imran",
+        "network": {
+          "type": "2",
+          "address": "::ffff:127.0.0.1"
+        },
+        "requestor": true
+      }
+    ],
+    "entity": [
+      {
+        "detail": [
+          {
+            "type": "requestUrl",
+            "valueString": "/4_0_0/Practitioner/0"
+          },
+          {
+            "type": "requestId",
+            "valueString": "12345678"
+          },
+          {
+            "type": "base_version",
+            "valueString": "4_0_0"
+          }
+        ],
+        "what": {
+          "_sourceAssigningAuthority": "bwell",
+          "_sourceId": "Practitioner/182cd655-fccc-5648-b9d4-4c2982f1e209",
+          "_uuid": "Practitioner/182cd655-fccc-5648-b9d4-4c2982f1e209",
+          "reference": "Practitioner/182cd655-fccc-5648-b9d4-4c2982f1e209"
+        }
+      }
+    ],
+    "meta": {
+      "security": [
+        {
+          "code": "bwell",
+          "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "bwell",
+          "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "bwell",
+          "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+        }
+      ],
+      "versionId": "1"
+    },
+    "resourceType": "AuditEvent",
+    "source": {
+      "observer": {
+        "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceAssigningAuthority": "bwell",
+        "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661"
+      }
+    },
     "type": {
       "code": "110112",
       "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf",

@@ -131,9 +131,7 @@ async function migrateMongoDBMembersToClickHouse() {
 
     // Connect to MongoDB
     console.log('Connecting to MongoDB...');
-    const mongoClient = await MongoClient.connect(configManager.mongoUrl, {
-        useUnifiedTopology: true
-    });
+    const mongoClient = await MongoClient.connect(configManager.mongoUrl);
     const db = mongoClient.db(configManager.dbName);
     const groupCollection = db.collection('Group_4_0_0');
     console.log('  ✓ Connected to MongoDB\n');

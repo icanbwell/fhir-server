@@ -22591,6 +22591,12 @@
           }
         },
         {
+          "name": "access-history",
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/security.html"
+          }
+        },
+        {
           "name": "everything",
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"

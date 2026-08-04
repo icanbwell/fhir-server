@@ -721,7 +721,7 @@ describe('Person and Patient $everything Tests', () => {
                 bwellFhirPersonId: 'master-person',
                 bwellFhirPatientId: 'master-patient',
                 token_use: 'access',
-                scope: 'patient/Patient.* patient/Subscription.* patient/SubscriptionTopic.* patient/SubscriptionStatus.write user/Person.* user/Account.* access/*.*'
+                scope: 'patient/Patient.* patient/Subscription.* patient/SubscriptionTopic.* patient/SubscriptionStatus.write patient/Person.read user/Person.* user/Account.* access/*.*'
             };
 
             patientHeader = getHeadersWithCustomPayload(jwtPayload);

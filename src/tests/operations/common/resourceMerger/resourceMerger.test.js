@@ -2,7 +2,7 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const { commonBeforeEach, commonAfterEach, getTestRequestInfo } = require('../../../common');
 
 const { TestMongoDatabaseManager } = require('../../../testMongoDatabaseManager');
-const { TestConfigManager } = require('../../../testConfigManager');
+const { ConfigManager } = require('../../../../utils/configManager');
 const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
 
 const person1Resource = require('./fixtures/Person/person1.json');
@@ -28,7 +28,7 @@ describe('ResourceMerger Tests', () => {
     describe('ResourceMerger Tests', () => {
         const base_version = '4_0_0';
         test('ResourceMerger returns null with identical resources', async () => {
-            const configManager = new TestConfigManager();
+            const configManager = new ConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */

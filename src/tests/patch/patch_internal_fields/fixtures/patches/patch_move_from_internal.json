@@ -1,0 +1,7 @@
+[
+    {
+        "op": "move",
+        "from": "/_sourceAssigningAuthority",
+        "path": "/name/0/family"
+    }
+]

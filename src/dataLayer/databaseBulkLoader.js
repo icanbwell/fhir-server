@@ -124,43 +124,10 @@ class DatabaseBulkLoader {
             /**
              * @type {Resource[]|Object[]}
              */
-            let foundResources = [];
-
-            if (this.configManager.enableMergeFastSerializer) {
-                foundResources = await cursor.toArrayAsync();
-                foundResources = FhirResourceWriteSerializer.serializeArray({obj: foundResources});
-            } else {
-                foundResources = await this.cursorToResourcesAsync({ cursor });
-            }
+            let foundResources = await cursor.toArrayAsync();
+            foundResources = FhirResourceWriteSerializer.serializeArray({obj: foundResources});
 
             return { resourceType, resources: foundResources };
-        } catch (e) {
-            throw new RethrownError({
-                error: e
-            });
-        }
-    }
-
-    /**
-     * Reads resources from cursor
-     * @param {import('../dataLayer/databaseCursor').DatabaseCursor} cursor
-     * @returns {Promise<Resource[]>}
-     */
-    async cursorToResourcesAsync ({ cursor }) {
-        try {
-            /**
-             * @type {Resource[]}
-             */
-            const result = [];
-            while (await cursor.hasNext()) {
-                /**
-                 * element
-                 * @type {Resource|null}
-                 */
-                const resource = await cursor.nextObject();
-                result.push(resource);
-            }
-            return result;
         } catch (e) {
             throw new RethrownError({
                 error: e

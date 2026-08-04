@@ -177,7 +177,10 @@ class ClickHouseClientManager {
                 const resultSet = await client.query({
                     query,
                     query_params,
-                    format
+                    format,
+                    clickhouse_settings: {
+                        date_time_output_format: 'iso'
+                    }
                 });
 
                 const result = await resultSet.json();

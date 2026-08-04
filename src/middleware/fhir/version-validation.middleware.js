@@ -14,7 +14,7 @@ module.exports = function versionValidationMiddleware (profile = {}) {
     } = profile;
 
     if (baseUrls.length) {
-        return (req, res, next) => {
+        return function versionValidationByBaseUrl(req, res, next) {
             const base_version = req.params && req.params.base_version;
             baseUrls.forEach(baseUrl => {
                 if (baseUrl.indexOf(`/${base_version}`) > -1) {
@@ -25,7 +25,7 @@ module.exports = function versionValidationMiddleware (profile = {}) {
         };
     }
 
-    return (req, res, next) => {
+    return function versionValidationByVersionList(req, res, next) {
         const base_version = req.params && req.params.base_version;
 
         if (!base_version || versions.indexOf(base_version) === -1) {

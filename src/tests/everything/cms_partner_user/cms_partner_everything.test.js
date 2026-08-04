@@ -58,7 +58,8 @@ const getCmsHeaders = (personId) => {
         bwellFhirPersonId: personId,
         clientFhirPatientId: `person.${personId}`,
         bwellFhirPatientId: `person.${personId}`,
-        managingOrganization: organization1.id
+        managingOrganization: organization1.id,
+        entitlements: ['TREAT']
     });
     return {
         'Content-Type': 'application/fhir+json',
@@ -74,7 +75,8 @@ const getInvalidCmsHeaders = (personId) => {
         user_type: 'cms-partner',
         username: personId,
         clientFhirPersonId: personId,
-        bwellFhirPersonId: personId
+        bwellFhirPersonId: personId,
+        entitlements: ['TREAT']
     });
     return {
         'Content-Type': 'application/fhir+json',
@@ -111,14 +113,21 @@ const baseResources = [
 
 describe('CMS Partner User - Patient $everything', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
+    const originalAllowedPurposeOfUse = process.env.CMS_ALLOWED_PURPOSE_OF_USE;
 
     beforeEach(async () => {
+        process.env.CMS_ALLOWED_PURPOSE_OF_USE = 'TREAT,HPAYMT';
         cursorSpy.mockReturnThis();
         await commonBeforeEach();
     });
 
     afterEach(async () => {
         await commonAfterEach();
+        if (originalAllowedPurposeOfUse === undefined) {
+            delete process.env.CMS_ALLOWED_PURPOSE_OF_USE;
+        } else {
+            process.env.CMS_ALLOWED_PURPOSE_OF_USE = originalAllowedPurposeOfUse;
+        }
     });
 
     test('With consent: returns only USCDI v3 resources for patient', async () => {

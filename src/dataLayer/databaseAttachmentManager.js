@@ -214,7 +214,11 @@ class DatabaseAttachmentManager {
         }
         if (resource instanceof Object || Array.isArray(resource)) {
             for (const key in resource) {
-                if (Object.getOwnPropertyDescriptor(resource, key).writable !== false) {
+                // getOwnPropertyDescriptor() returns undefined for inherited enumerable
+                // properties (own-property-only lookup), so guard against that instead of
+                // dereferencing .writable on undefined and crashing.
+                const descriptor = Object.getOwnPropertyDescriptor(resource, key);
+                if (!descriptor || descriptor.writable !== false) {
                     resource[String(key)] = await this.changeAttachmentWithGridFS({
                         resource: resource[String(key)],
                         metadata,

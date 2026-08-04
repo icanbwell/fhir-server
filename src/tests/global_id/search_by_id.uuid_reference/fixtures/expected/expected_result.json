@@ -1,177 +1,173 @@
 {
-    "entry": [
-        {
-            "resource": {
-                "class": {
-                    "code": "AMB",
-                    "id": "e95cc1a6-adcd-5d83-a7f6-07a366660ef0",
-                    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+  "entry": [
+    {
+      "resource": {
+        "class": {
+          "code": "AMB",
+          "id": "e95cc1a6-adcd-5d83-a7f6-07a366660ef0",
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+        },
+        "id": "0001968b-9ef1-f875-7686-1a56b879d202",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "0001968b-9ef1-f875-7686-1a56b879d202"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "0001968b-9ef1-f875-7686-1a56b879d202"
+          }
+        ],
+        "location": [
+          {
+            "id": "-1000003632",
+            "location": {
+              "display": "PCP193904",
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Location/-1000003632"
                 },
-                "id": "0001968b-9ef1-f875-7686-1a56b879d202",
-                "identifier": [
-                    {
-                        "id": "sourceId",
-                        "system": "https://www.icanbwell.com/sourceId",
-                        "value": "0001968b-9ef1-f875-7686-1a56b879d202"
-                    },
-                    {
-                        "id": "uuid",
-                        "system": "https://www.icanbwell.com/uuid",
-                        "value": "0001968b-9ef1-f875-7686-1a56b879d202"
-                    }
-                ],
-                "location": [
-                    {
-                        "id": "-1000003632",
-                        "location": {
-                            "display": "PCP193904",
-                            "extension": [
-                                {
-                                    "id": "sourceId",
-                                    "url": "https://www.icanbwell.com/sourceId",
-                                    "valueString": "Location/-1000003632"
-                                },
-                                {
-                                    "id": "uuid",
-                                    "url": "https://www.icanbwell.com/uuid",
-                                    "valueString": "Location/e699f9bc-fa3b-560a-abe8-de0a898b4fee"
-                                },
-                                {
-                                    "id": "sourceAssigningAuthority",
-                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                                    "valueString": "client"
-                                }
-                            ],
-                            "reference": "Location/-1000003632"
-                        }
-                    }
-                ],
-                "meta": {
-                    "profile": [
-                        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
-                    ],
-                    "security": [
-                        {
-                            "code": "mps-api",
-                            "id": "1a4bfc4f-9d3c-5307-8e5f-689394b94919",
-                            "system": "https://www.icanbwell.com/access"
-                        },
-                        {
-                            "code": "client",
-                            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
-                            "system": "https://www.icanbwell.com/owner"
-                        },
-                        {
-                            "code": "client",
-                            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
-                            "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-                        }
-                    ],
-                    "source": "mps",
-                    "versionId": "1"
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Location/e699f9bc-fa3b-560a-abe8-de0a898b4fee"
                 },
-                "period": {
-                    "end": "2014-06-19T01:30:45+00:00",
-                    "start": "2014-06-19T01:15:45+00:00"
-                },
-                "resourceType": "Encounter",
-                "serviceProvider": {
-                    "display": "PCP193904",
-                    "extension": [
-                        {
-                            "id": "sourceId",
-                            "url": "https://www.icanbwell.com/sourceId",
-                            "valueString": "Organization/00ab3fbd-6157-3f4a-a58c-178d16b9e3f1"
-                        },
-                        {
-                            "id": "uuid",
-                            "url": "https://www.icanbwell.com/uuid",
-                            "valueString": "Organization/00ab3fbd-6157-3f4a-a58c-178d16b9e3f1"
-                        },
-                        {
-                            "id": "sourceAssigningAuthority",
-                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                            "valueString": "client"
-                        }
-                    ],
-                    "reference": "Organization/00ab3fbd-6157-3f4a-a58c-178d16b9e3f1"
-                },
-                "status": "finished",
-                "subject": {
-                    "display": "Mr. Max124 Larry532 Gibson10",
-                    "extension": [
-                        {
-                            "id": "sourceId",
-                            "url": "https://www.icanbwell.com/sourceId",
-                            "valueString": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df727"
-                        },
-                        {
-                            "id": "uuid",
-                            "url": "https://www.icanbwell.com/uuid",
-                            "valueString": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df727"
-                        },
-                        {
-                            "id": "sourceAssigningAuthority",
-                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                            "valueString": "client"
-                        }
-                    ],
-                    "reference": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df727"
-                },
-                "type": [
-                    {
-                        "coding": [
-                            {
-                                "id": "5f3f7e1e-4e16-5be3-bf51-8567c7008bb5",
-                                "code": "162673000",
-                                "display": "General examination of patient (procedure)",
-                                "system": "http://snomed.info/sct"
-                            }
-                        ],
-                        "text": "General examination of patient (procedure)"
-                    }
-                ]
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "client"
+                }
+              ],
+              "reference": "Location/-1000003632"
             }
-        }
-    ],
-    "meta": {
-        "tag": [
+          }
+        ],
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+          ],
+          "security": [
             {
-                "display": "db.Encounter_4_0_0.find({'$and':[{'subject._uuid':'Patient/5902c735-072c-5df3-b3b9-8b10bd3df727'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)",
-                "system": "https://www.icanbwell.com/query"
+              "code": "mps-api",
+              "id": "1a4bfc4f-9d3c-5307-8e5f-689394b94919",
+              "system": "https://www.icanbwell.com/access"
             },
             {
-                "code": "Encounter_4_0_0",
-                "system": "https://www.icanbwell.com/queryCollection"
+              "code": "client",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+              "system": "https://www.icanbwell.com/owner"
             },
             {
-                "display": "{'limit':100,'sort':{'_uuid':1}}",
-                "system": "https://www.icanbwell.com/queryOptions"
-            },
-            {
-                "display": "['subject._uuid','meta.tag.system','meta.tag.code','_uuid']",
-                "system": "https://www.icanbwell.com/queryFields"
-            },
-            {
-                "system": "https://www.icanbwell.com/queryTime"
-            },
-            {
-                "display": "{'useTwoStepSearchOptimization':undefined}",
-                "system": "https://www.icanbwell.com/queryOptimization"
-            },
-            {
-                "code": "fhir",
-                "system": "https://www.icanbwell.com/queryDatabase"
-            },
-            {
-                "system": "https://www.icanbwell.com/queryExplain"
-            },
-            {
-                "system": "https://www.icanbwell.com/queryExplainSimple"
+              "code": "client",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
+          ],
+          "source": "mps",
+          "versionId": "1"
+        },
+        "period": {
+          "end": "2014-06-19T01:30:45+00:00",
+          "start": "2014-06-19T01:15:45+00:00"
+        },
+        "resourceType": "Encounter",
+        "serviceProvider": {
+          "display": "PCP193904",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Organization/00ab3fbd-6157-3f4a-a58c-178d16b9e3f1"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Organization/00ab3fbd-6157-3f4a-a58c-178d16b9e3f1"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "client"
+            }
+          ],
+          "reference": "Organization/00ab3fbd-6157-3f4a-a58c-178d16b9e3f1"
+        },
+        "status": "finished",
+        "subject": {
+          "display": "Mr. Max124 Larry532 Gibson10",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df727"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df727"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "client"
+            }
+          ],
+          "reference": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df727"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "id": "5f3f7e1e-4e16-5be3-bf51-8567c7008bb5",
+                "code": "162673000",
+                "display": "General examination of patient (procedure)",
+                "system": "http://snomed.info/sct"
+              }
+            ],
+            "text": "General examination of patient (procedure)"
+          }
         ]
-    },
-    "resourceType": "Bundle",
-    "total": 0,
-    "type": "searchset"
+      }
+    }
+  ],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.Encounter_4_0_0.find({'$and':[{'subject._uuid':'Patient/5902c735-072c-5df3-b3b9-8b10bd3df727'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "Encounter_4_0_0",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "{'limit':100,'sort':{'_uuid':1}}",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "['subject._uuid','meta.tag.system','meta.tag.code','_uuid']",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "code": "fhir",
+        "system": "https://www.icanbwell.com/queryDatabase"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  },
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
 }

@@ -1,0 +1,27 @@
+{
+    "resourceType": "GraphDefinition",
+    "id": "person-to-patient-graph",
+    "name": "person_to_patient",
+    "status": "active",
+    "start": "Person",
+    "link": [
+        {
+            "path": "link.target",
+            "target": [
+                {
+                    "type": "Patient",
+                    "link": [
+                        {
+                            "target": [
+                                {
+                                    "type": "Observation",
+                                    "params": "patient={ref}"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

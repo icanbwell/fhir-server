@@ -49,7 +49,9 @@
         "meta": {
           "versionId": "1",
           "source": "mps",
-          "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"],
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+          ],
           "security": [
             {
               "id": "1a4bfc4f-9d3c-5307-8e5f-689394b94919",
@@ -155,10 +157,6 @@
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
       },
       {
         "system": "https://www.icanbwell.com/queryDatabase",

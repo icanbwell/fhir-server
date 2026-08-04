@@ -64,13 +64,13 @@ class DatabaseQueryManager {
      * @property {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      *
      * @param {FindOneOption} params
-     * @return {Promise<Resource|null>}
+     * @return {Promise<Object|null>}
      */
-    async fastFindOneAsync({ query, options = null }) {
+    async fastFindOneAsync({ query, options = {} }) {
         try {
             // Use storage provider if available
             if (this.storageProvider) {
-                return await this.storageProvider.findOneAsync({ query, options });
+                return await this.storageProvider.fastFindOneAsync({ query, options });
             }
 
             // Fall back to direct MongoDB access
@@ -82,7 +82,7 @@ class DatabaseQueryManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`,
+                message: 'Error in fastFindOneAsync(): ' + `query: ${JSON.stringify(query)}`,
                 error: e,
                 args: { query, options }
             });
@@ -98,7 +98,7 @@ class DatabaseQueryManager {
      * @param {FindOneOption} params
      * @return {Promise<Resource|null>}
      */
-    async findOneAsync({ query, options = null }) {
+    async findOneAsync({ query, options = {} }) {
         try {
             // Use storage provider if available
             if (this.storageProvider) {
@@ -131,7 +131,7 @@ class DatabaseQueryManager {
      * @param {Object} extraInfo
      * @return {Promise<DatabaseCursor>}
      */
-    async findAsync({ query, options = null, extraInfo = {} }) {
+    async findAsync({ query, options = {}, extraInfo = {} }) {
         try {
             // Use storage provider if available
             if (this.storageProvider) {
@@ -166,7 +166,7 @@ class DatabaseQueryManager {
      * @param {Object} extraInfo
      * @return {Promise<DatabaseCursor>}
      */
-    async findUsingAggregationAsync({ query, projection, options = null, extraInfo = {} }) {
+    async findUsingAggregationAsync({ query, projection, options = {}, extraInfo = {} }) {
         try {
             const collection = await this.resourceLocator.getCollectionAsync({ extraInfo });
             let cursor;

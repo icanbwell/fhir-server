@@ -49,7 +49,6 @@ class BundleManager {
      * @param {Set|undefined} [columns]
      * @param {number} stopTime
      * @param {number} startTime
-     * @param {boolean|undefined} [useTwoStepSearchOptimization]
      * @param {string|undefined} [indexHint]
      * @param {number | undefined} [cursorBatchSize]
      * @param {string | null} user
@@ -75,7 +74,6 @@ class BundleManager {
             columns,
             stopTime,
             startTime,
-            useTwoStepSearchOptimization,
             indexHint,
             cursorBatchSize,
             user,
@@ -116,7 +114,6 @@ class BundleManager {
                 columns,
                 stopTime,
                 startTime,
-                useTwoStepSearchOptimization,
                 indexHint,
                 cursorBatchSize,
                 user,
@@ -143,7 +140,6 @@ class BundleManager {
      * @param {Set|undefined} [columns]
      * @param {number} stopTime
      * @param {number} startTime
-     * @param {boolean|undefined} [useTwoStepSearchOptimization]
      * @param {string|undefined} [indexHint]
      * @param {number | undefined} [cursorBatchSize]
      * @param {string | null} user
@@ -169,7 +165,6 @@ class BundleManager {
         columns,
         stopTime,
         startTime,
-        useTwoStepSearchOptimization,
         indexHint,
         cursorBatchSize,
         user,
@@ -206,7 +201,6 @@ class BundleManager {
                 columns,
                 stopTime,
                 startTime,
-                useTwoStepSearchOptimization,
                 indexHint,
                 cursorBatchSize,
                 user,
@@ -234,7 +228,6 @@ class BundleManager {
      * @param {Set|undefined} [columns]
      * @param {number} stopTime
      * @param {number} startTime
-     * @param {boolean|undefined} [useTwoStepSearchOptimization]
      * @param {string|undefined} [indexHint]
      * @param {number | undefined} [cursorBatchSize]
      * @param {string | null} user
@@ -261,7 +254,6 @@ class BundleManager {
             columns,
             stopTime,
             startTime,
-            useTwoStepSearchOptimization,
             indexHint,
             cursorBatchSize,
             user,
@@ -381,10 +373,6 @@ class BundleManager {
                 {
                     system: 'https://www.icanbwell.com/queryTime',
                     display: `${(stopTime - startTime) / 1000}`
-                },
-                {
-                    system: 'https://www.icanbwell.com/queryOptimization',
-                    display: `{'useTwoStepSearchOptimization':${useTwoStepSearchOptimization}}`
                 }
             ];
             if (databaseName) {
@@ -459,7 +447,6 @@ class BundleManager {
      * @param {Set|undefined} [columns]
      * @param {number} stopTime
      * @param {number} startTime
-     * @param {boolean|undefined} [useTwoStepSearchOptimization]
      * @param {string|undefined} [indexHint]
      * @param {number | undefined} [cursorBatchSize]
      * @param {string | null} user
@@ -485,7 +472,6 @@ class BundleManager {
             columns,
             stopTime,
             startTime,
-            useTwoStepSearchOptimization,
             indexHint,
             cursorBatchSize,
             user,
@@ -593,10 +579,6 @@ class BundleManager {
                 {
                     system: 'https://www.icanbwell.com/queryTime',
                     display: `${(stopTime - startTime) / 1000}`
-                },
-                {
-                    system: 'https://www.icanbwell.com/queryOptimization',
-                    display: `{'useTwoStepSearchOptimization':${useTwoStepSearchOptimization}}`
                 }
             ];
             if (databaseName) {

@@ -1,4 +1,4 @@
-const {describe, beforeEach, test, expect, jest} = require('@jest/globals');
+const {describe, beforeEach, afterAll, test, expect, jest} = require('@jest/globals');
 const nock = require('nock');
 const passport = require('passport');
 const {
@@ -17,6 +17,10 @@ const {createJwksKeyAsync} = require("../mocks/jwks");
 
 describe('JWT Bearer Strategy', () => {
     let jwtAccessToken;
+
+    afterAll(() => {
+        nock.cleanAll();
+    });
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -534,7 +538,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
-                    expect(info).toBeFalsy();
+                    expect(info).toEqual({reason: 'delegated_actor_failure'});
                     resolve();
                 } catch (assertionError) {
                     reject(assertionError);
@@ -639,7 +643,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
-                    expect(info).toBeFalsy();
+                    expect(info).toEqual({reason: 'delegated_actor_failure'});
                     resolve();
                 } catch (assertionError) {
                     reject(assertionError);
@@ -812,7 +816,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
-                    expect(info).toBeFalsy();
+                    expect(info).toEqual({reason: 'delegated_actor_failure'});
 
                     resolve();
                 } catch (assertionError) {
@@ -1158,6 +1162,86 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
+    test('should seed empty actor object when user_type claim is cms-partner', async () => {
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync({
+                    pub: publicKey,
+                    kid: '123'
+                })
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const patientScopedPayload = {
+            iss: 'https://example.com',
+            client_id: 'testClientId',
+            scope: 'patient/*.read access/*.read',
+            user_type: 'cms-partner',
+            username: 'testUser',
+            sub: 'jwt-subject',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient',
+            managingOrganization: 'cms-org-uuid'
+        };
+
+        const patientScopedToken = jwt.sign(patientScopedPayload, privateKey, {
+            algorithm: 'RS256',
+            expiresIn: '1h',
+            keyid: '123'
+        });
+
+        const req = {
+            headers: {authorization: `Bearer ${patientScopedToken}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService({
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager({
+                    configManager: configManager
+                })
+            }),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeNull();
+                    expect(user).toBeTruthy();
+                    expect(info.context.userType).toBe('cms-partner');
+                    expect(info.context.actor).toStrictEqual({});
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
+
     test('should leave userType unset when user_type claim is absent', async () => {
         const mockJwks = {
             keys: [
@@ -1228,6 +1312,166 @@ describe('JWT Bearer Strategy', () => {
                     expect(error).toBeNull();
                     expect(user).toBeTruthy();
                     expect(info.context.userType).toBeUndefined();
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
+
+    test('should accept a token expired within clockTolerance window', async () => {
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync({
+                    pub: publicKey,
+                    kid: '123'
+                })
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const nowInSeconds = Math.floor(Date.now() / 1000);
+        const payload = {
+            iss: 'https://example.com',
+            client_id: 'testClientId',
+            scope: 'patient/*.read access/*.read',
+            username: 'testUser',
+            sub: 'jwt-subject',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient',
+            iat: nowInSeconds - 60,
+            exp: nowInSeconds - 5
+        };
+
+        const slightlyExpiredToken = jwt.sign(payload, privateKey, {
+            algorithm: 'RS256',
+            keyid: '123',
+            noTimestamp: true
+        });
+
+        const req = {
+            headers: {authorization: `Bearer ${slightlyExpiredToken}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService({
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager({
+                    configManager: configManager
+                })
+            }),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeNull();
+                    expect(user).toBeTruthy();
+                    expect(user.id).toBe('testClientId');
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
+
+    test('should reject a token expired beyond clockTolerance window', async () => {
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync({
+                    pub: publicKey,
+                    kid: '123'
+                })
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const nowInSeconds = Math.floor(Date.now() / 1000);
+        const payload = {
+            iss: 'https://example.com',
+            client_id: 'testClientId',
+            scope: 'patient/*.read access/*.read',
+            username: 'testUser',
+            sub: 'jwt-subject',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient',
+            iat: nowInSeconds - 120,
+            exp: nowInSeconds - 35
+        };
+
+        const expiredToken = jwt.sign(payload, privateKey, {
+            algorithm: 'RS256',
+            keyid: '123',
+            noTimestamp: true
+        });
+
+        const req = {
+            headers: {authorization: `Bearer ${expiredToken}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService({
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager({
+                    configManager: configManager
+                })
+            }),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeNull();
+                    expect(user).toBeFalsy();
+                    expect(info.name).toBe('TokenExpiredError');
                     resolve();
                 } catch (assertionError) {
                     reject(assertionError);
@@ -1315,4 +1559,79 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
+});
+
+describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
+    const makeAuthService = () => new AuthService({
+        configManager: new ConfigManager(),
+        wellKnownConfigurationManager: new WellKnownConfigurationManager({
+            configManager: new ConfigManager()
+        })
+    });
+
+    const basePayload = () => ({
+        sub: 'user-123',
+        clientFhirPersonId: 'person-1',
+        clientFhirPatientId: 'patient-1',
+        bwellFhirPersonId: 'person-1',
+        bwellFhirPatientId: 'patient-1'
+    });
+
+    test('sets purposeOfUse when claim is an array of strings', (done) => {
+        const authService = makeAuthService();
+        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', entitlements: ['TREAT', 'HPAYMT'] };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(info.context.purposeOfUse).toEqual(['TREAT', 'HPAYMT']);
+                done();
+            }
+        });
+    });
+
+    test('sets purposeOfUse for a delegated user based on entitlements claimCheck', (done) => {
+        const authService = makeAuthService();
+
+        // Override configManager for enabling delegated access detection.
+        authService.configManager = new (class extends ConfigManager {
+            get enableDelegatedAccessDetection() { return true; }
+        });
+        const jwt_payload = {
+            ...basePayload(),
+            entitlements: ['FAMRQT'],
+            act: {
+                reference: 'RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013',
+                sub: 'patient-1'
+            }
+        };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(info.context.purposeOfUse).toEqual(['FAMRQT']);
+                done();
+            }
+        })
+
+    })
+
+    test('leaves purposeOfUse unset when claim is absent', (done) => {
+        const authService = makeAuthService();
+        const jwt_payload = { ...basePayload(), user_type: 'cms-partner' };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(info.context.purposeOfUse).toBeUndefined();
+                done();
+            }
+        });
+    });
 });

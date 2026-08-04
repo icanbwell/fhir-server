@@ -1,0 +1,23 @@
+{
+    "resourceType": "SubscriptionStatus",
+    "id": "8b6c1d2e-3f4a-4b5c-9d6e-7f8a9b0c1d2e",
+    "meta": {
+        "source": "bwell",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/owner", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "client2" },
+            { "system": "https://www.icanbwell.com/connectionType", "code": "proa" }
+        ]
+    },
+    "status": "active",
+    "type": "query-status",
+    "subscription": { "reference": "Subscription/9c25075b-2ac9-4125-a28b-abb2b6787a70" },
+    "topic": "SubscriptionTopic/7e96ddf8-3a67-4152-a66f-2a8caab2d930",
+    "extension": [
+        { "url": "https://icanbwell.com/codes/client_person_id", "valueString": "76e37ad9-128b-495f-aa79-3634e4d5b0a7" },
+        { "url": "https://icanbwell.com/codes/source_patient_id", "valueString": "commonProaPatientClient1" },
+        { "url": "https://icanbwell.com/codes/connection_type", "valueString": "proa" },
+        { "url": "https://icanbwell.com/codes/service_slug", "valueString": "health-service" }
+    ]
+}

@@ -5,16 +5,13 @@ const { MongoMemoryReplSet } = require('mongodb-memory-server-core');
  */
 let mongoRepl;
 
-let myMongoUrl;
-
 async function startTestMongoServerAsync () {
     mongoRepl = await MongoMemoryReplSet.create({
         replSet: { count: 1, storageEngine: 'wiredTiger' },
         binary: { version: '8.0.20' }
     });
     await mongoRepl.waitUntilRunning();
-    myMongoUrl = mongoRepl.getUri();
-    global.__MONGO_URI__ = myMongoUrl;
+    process.env.MONGO_MEMORY_SERVER_URL = mongoRepl.getUri();
 }
 
 async function stopTestMongoServerAsync () {
@@ -22,8 +19,7 @@ async function stopTestMongoServerAsync () {
         await mongoRepl.stop({ doCleanup: true });
         mongoRepl = null;
     }
-    delete global.__MONGO_URI__;
-    myMongoUrl = null;
+    delete process.env.MONGO_MEMORY_SERVER_URL;
 }
 
 async function getMongoUrlAsync () {
@@ -32,10 +28,13 @@ async function getMongoUrlAsync () {
         return process.env.MONGO_URL;
     }
 
-    if (!myMongoUrl) {
-        await startTestMongoServerAsync();
+    // Reuse the shared in-memory server started by globalSetup.
+    if (process.env.MONGO_MEMORY_SERVER_URL) {
+        return process.env.MONGO_MEMORY_SERVER_URL;
     }
-    return myMongoUrl;
+
+    await startTestMongoServerAsync();
+    return process.env.MONGO_MEMORY_SERVER_URL;
 }
 
 module.exports = {

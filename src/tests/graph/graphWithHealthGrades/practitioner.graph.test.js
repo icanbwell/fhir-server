@@ -17,31 +17,30 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { ConfigManager } = require('../../../utils/configManager');
-const { IndexProvider } = require('../../../indexes/indexProvider');
-
-class MockConfigManager extends ConfigManager {
-    get useAccessIndex () {
-        return true;
-    }
-
-    get resourcesWithAccessIndex () {
-        return ['all'];
-    }
-}
-
-class MockIndexProvider extends IndexProvider {
-    /**
-     * @param {string[]} accessCodes
-     * @return {boolean}
-     */
-    hasIndexForAccessCodes ({ accessCodes }) {
-        return accessCodes.every(a => a === 'client');
-    }
-}
+const { describe, beforeAll, afterAll, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Claim Graph Contained Tests', () => {
+    const originalUseAccessIndex = process.env.USE_ACCESS_INDEX;
+    const originalAccessTagsIndexed = process.env.ACCESS_TAGS_INDEXED;
+
+    beforeAll(() => {
+        process.env.USE_ACCESS_INDEX = '1';
+        process.env.ACCESS_TAGS_INDEXED = 'client';
+    });
+
+    afterAll(() => {
+        if (originalUseAccessIndex === undefined) {
+            delete process.env.USE_ACCESS_INDEX;
+        } else {
+            process.env.USE_ACCESS_INDEX = originalUseAccessIndex;
+        }
+        if (originalAccessTagsIndexed === undefined) {
+            delete process.env.ACCESS_TAGS_INDEXED;
+        } else {
+            process.env.ACCESS_TAGS_INDEXED = originalAccessTagsIndexed;
+        }
+    });
+
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -52,13 +51,7 @@ describe('Claim Graph Contained Tests', () => {
 
     describe('Graph Contained Tests', () => {
         test('Graph contained with multiple targets works properly', async () => {
-            const request = await createTestRequest((container) => {
-                container.register('indexProvider', (c) => new MockIndexProvider({
-                    configManager: c.configManager
-                }));
-                container.register('configManager', () => new MockConfigManager());
-                return container;
-            });
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders());

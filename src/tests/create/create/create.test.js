@@ -8,9 +8,8 @@ const practitioner6Resource = require('./fixtures/Practitioner/practitioner6.jso
 const practitioner7Resource = require('./fixtures/Practitioner/practitioner7.json');
 const practitioner8Resource = require('./fixtures/Practitioner/practitioner8.json');
 
-const observation1Resource = require('./fixtures/Observation/observation1.json');
-
 const auditEvent1Resource = require('./fixtures/AuditEvent/auditEvent1.json');
+const expectedAuditEventTooLarge = require('./fixtures/expected/expected_auditevent_too_large.json');
 
 // expected
 const expectedPractitionerInitialResources = require('./fixtures/expected/expected_Practitioner_initial.json');
@@ -243,26 +242,31 @@ describe('Practitioner Tests', () => {
             expect(resp).toHaveResourceCount(1);
             process.env.REQUIRED_AUDIT_EVENT_FILTERS = envValue;
         });
-        test('Resource is not validated without VALIDATE_SCHEMA env and _validate flag', async () => {
-            const envValue = process.env.VALIDATE_SCHEMA;
-            process.env.VALIDATE_SCHEMA = '0';
+        test('rejects AuditEvent exceeding max allowed size with 413', async () => {
+            const filtersEnvValue = process.env.REQUIRED_AUDIT_EVENT_FILTERS;
+            const sizeEnvValue = process.env.AUDIT_EVENT_MAX_SIZE_BYTES;
+            process.env.REQUIRED_AUDIT_EVENT_FILTERS = '';
+            // small cap so an ordinary AuditEvent trips it (keeps the payload/test fast)
+            process.env.AUDIT_EVENT_MAX_SIZE_BYTES = '200';
 
             const request = await createTestRequest();
-            // Create api hit with valid resource
-            await request
-                .post('/4_0_0/Observation/')
-                .send(observation1Resource)
-                .set(getHeaders())
-                .expect(201);
+            const resp = await request
+                .post('/4_0_0/AuditEvent/')
+                .send(auditEvent1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(413);
+            expect(resp.body).toStrictEqual(expectedAuditEventTooLarge);
 
-            process.env.VALIDATE_SCHEMA = '1';
-            await request
-                .post('/4_0_0/Observation/')
-                .send(observation1Resource)
-                .set(getHeaders())
-                .expect(400);
-
-            process.env.VALIDATE_SCHEMA = envValue;
+            process.env.REQUIRED_AUDIT_EVENT_FILTERS = filtersEnvValue;
+            // restore carefully: assigning undefined would coerce to the string
+            // "undefined" and break the cap (parseInt("undefined") === NaN) for
+            // subsequent --runInBand tests.
+            if (sizeEnvValue === undefined) {
+                delete process.env.AUDIT_EVENT_MAX_SIZE_BYTES;
+            } else {
+                process.env.AUDIT_EVENT_MAX_SIZE_BYTES = sizeEnvValue;
+            }
         });
     });
 });

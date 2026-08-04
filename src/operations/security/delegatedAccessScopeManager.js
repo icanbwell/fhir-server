@@ -22,6 +22,9 @@ class DelegatedAccessScopeManager {
      * @returns {Promise<boolean>}
      */
     async isAccessAllowedAsync({actor, personIdFromJwtToken}) {
+        if (!actor || !personIdFromJwtToken) {
+            return false;
+        }
         return await this.delegatedAccessRulesManager.hasValidConsentAsync({
             actor,
             personIdFromJwtToken

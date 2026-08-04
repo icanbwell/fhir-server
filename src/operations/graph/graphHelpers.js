@@ -24,13 +24,15 @@ const {ProcessMultipleIdsAsyncResult} = require('../common/processMultipleIdsAsy
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
 const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
-const {logError, logInfo} = require('../common/logging');
+const {logError, logInfo, logWarn} = require('../common/logging');
 const {sliceIntoChunks} = require('../../utils/list.util');
 const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const {
     GRIDFS: {RETRIEVE},
     OPERATIONS: {READ},
+    BLOB_OP,
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS,
     SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP,
     PATIENT_REFERENCE_PREFIX,
@@ -58,6 +60,7 @@ class GraphHelper {
      * @param {EnrichmentManager} enrichmentManager
      * @param {R4ArgsParser} r4ArgsParser
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {SearchParametersManager} searchParametersManager
      * @param {RemoveHelper} removeHelper
      * @param {AuditLogger} auditLogger
@@ -72,6 +75,7 @@ class GraphHelper {
                     enrichmentManager,
                     r4ArgsParser,
                     databaseAttachmentManager,
+                    base64DataManager,
                     searchParametersManager,
                     removeHelper,
                     auditLogger,
@@ -124,6 +128,12 @@ class GraphHelper {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {SearchParametersManager}
@@ -265,7 +275,8 @@ class GraphHelper {
                                         explain,
                                         debug,
                                         supportLegacyId = true,
-                                        params = {}
+                                        params = {},
+                                        graphChunkIndex
                                     }) {
         try {
             if (!parentEntities || parentEntities.length === 0 || !isValidResource(resourceType)) {
@@ -316,17 +327,20 @@ class GraphHelper {
              */
             const useAccessIndex = this.configManager.useAccessIndex;
 
-            // Start with base args and add the id parameter
-            const args = Object.assign({
-                base_version,
-                _includeHidden: parsedArgs._includeHidden,
-                id: relatedReferenceIds.join(',')
-            });
-
-            // Apply additional params if provided
-            if (params && Object.keys(params).length > 0) {
-                Object.assign(args, params);
-            }
+            // Apply additional params first (if provided) so they can only ADD filter criteria.
+            // The id (and other security-relevant fields below) must be applied last so that a
+            // GraphDefinition's target.params can never override which resources are actually
+            // fetched - target.params is documented as an additional AND filter on top of the
+            // reference relationship, not a replacement for it.
+            const args = Object.assign(
+                {},
+                (params && Object.keys(params).length > 0) ? params : undefined,
+                {
+                    base_version,
+                    _includeHidden: parsedArgs._includeHidden,
+                    id: relatedReferenceIds.join(',')
+                }
+            );
 
             const childParseArgs = this.r4ArgsParser.parseArgs(
                 {
@@ -349,11 +363,22 @@ class GraphHelper {
                 actor: requestInfo.actor,
                 requestId: requestInfo.requestId,
                 parsedArgs: childParseArgs,
-                operation: READ
+                operation: READ,
+                everythingChunkIndex: graphChunkIndex
             });
 
+            // filterProperty/filterValue come from the caller-supplied GraphDefinition link.path
+            // (parsed by getFilterFromPropertyPath) with no allowlist of legal field names, so a
+            // path like 'generalPractitioner:$and=1' must not be applied as a raw top-level Mongo
+            // operator key onto the already tenant/access-tag-scoped query object built above.
             if (filterProperty) {
-                query[`${filterProperty}`] = filterValue;
+                if (filterProperty.startsWith('$')) {
+                    logWarn(`Ignoring GraphDefinition filterProperty '${filterProperty}': Mongo operator keys are not allowed here`, {
+                        resourceType
+                    });
+                } else {
+                    query[`${filterProperty}`] = filterValue;
+                }
             }
             /**
              * @type {number}
@@ -388,6 +413,9 @@ class GraphHelper {
                      */
                     relatedResource = await this.databaseAttachmentManager.transformAttachments(
                         relatedResource, RETRIEVE
+                    );
+                    relatedResource = await this.base64DataManager.transformAsync(
+                        relatedResource, BLOB_OP.RETRIEVE
                     );
                     const relatedEntityAndContained = new ResourceEntityAndContained({
                         entityId: relatedResource.id,
@@ -532,7 +560,8 @@ class GraphHelper {
                                         supportLegacyId = true,
                                         proxyPatientIds = [],
                                         proxyPatientResources = [],
-                                        params = {}
+                                        params = {},
+                                        graphChunkIndex
                                     }) {
         try {
             if (!(reverse_filter)) {
@@ -632,7 +661,8 @@ class GraphHelper {
                     actor: requestInfo.actor,
                     requestId: requestInfo.requestId,
                     parsedArgs: relatedResourceParsedArgs,
-                    operation: READ
+                    operation: READ,
+                    everythingChunkIndex: graphChunkIndex
                 }
             );
 
@@ -682,6 +712,9 @@ class GraphHelper {
                 if (relatedResourcePropertyCurrent) {
                     relatedResourcePropertyCurrent = await this.databaseAttachmentManager.transformAttachments(
                         relatedResourcePropertyCurrent, RETRIEVE
+                    );
+                    relatedResourcePropertyCurrent = await this.base64DataManager.transformAsync(
+                        relatedResourcePropertyCurrent, BLOB_OP.RETRIEVE
                     );
                     if (filterProperty !== null) {
                         if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
@@ -934,7 +967,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            graphChunkIndex
         }
     ) {
         try {
@@ -1000,7 +1034,8 @@ class GraphHelper {
                                 debug,
                                 supportLegacyId,
                                 parsedArgs,
-                                params: targetParams
+                                params: targetParams,
+                                graphChunkIndex
 
                             }
                         );
@@ -1071,7 +1106,8 @@ class GraphHelper {
                                 proxyPatientIds,
                                 proxyPatientResources,
                                 parsedArgs,
-                                params: targetParams
+                                params: targetParams,
+                                graphChunkIndex
                             }
                         );
                         if (queryItem) {
@@ -1116,7 +1152,8 @@ class GraphHelper {
                                 parsedArgs,
                                 supportLegacyId,
                                 proxyPatientIds,
-                                proxyPatientResources
+                                proxyPatientResources,
+                                graphChunkIndex
                             }
                         )
                     );
@@ -1194,7 +1231,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            graphChunkIndex
         }
     ) {
         try {
@@ -1220,7 +1258,8 @@ class GraphHelper {
                         parsedArgs,
                         supportLegacyId,
                         proxyPatientIds,
-                        proxyPatientResources
+                        proxyPatientResources,
+                        graphChunkIndex
                     }
                 )
             );
@@ -1276,7 +1315,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            graphChunkIndex
         }
     ) {
         try {
@@ -1308,7 +1348,8 @@ class GraphHelper {
                         parsedArgs,
                         supportLegacyId,
                         proxyPatientIds,
-                        proxyPatientResources
+                        proxyPatientResources,
+                        graphChunkIndex
                     }
                 )
             );
@@ -1390,7 +1431,8 @@ class GraphHelper {
             idsAlreadyProcessed,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            graphChunkIndex
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1418,7 +1460,8 @@ class GraphHelper {
                 requestId: requestInfo.requestId,
                 parsedArgs,
                 operation: READ,
-                accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read')
+                accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
+                everythingChunkIndex: graphChunkIndex
             });
 
             /**
@@ -1487,6 +1530,9 @@ class GraphHelper {
                     startResource = await this.databaseAttachmentManager.transformAttachments(
                         startResource, RETRIEVE
                     );
+                    startResource = await this.base64DataManager.transformAsync(
+                        startResource, BLOB_OP.RETRIEVE
+                    );
                     const current_entity = {
                         id: startResource.id,
                         resource: startResource
@@ -1520,7 +1566,8 @@ class GraphHelper {
                     parsedArgs,
                     supportLegacyId,
                     proxyPatientIds,
-                    proxyPatientResources
+                    proxyPatientResources,
+                    graphChunkIndex
                 }
             );
 
@@ -1736,6 +1783,7 @@ class GraphHelper {
              */
             let bundleEntryIdsProcessed = [];
 
+            let graphChunkIndex = 0;
             for (const /** @type {string[]} */ idChunk of idChunks) {
                 const parsedArgsForChunk = parsedArgs.clone();
                 parsedArgsForChunk.id = idChunk;
@@ -1779,7 +1827,8 @@ class GraphHelper {
                         idsAlreadyProcessed: bundleEntryIdsProcessed,
                         supportLegacyId,
                         proxyPatientIds,
-                        proxyPatientResources
+                        proxyPatientResources,
+                        graphChunkIndex: graphChunkIndex++
                     }
                 );
                 entries = entries.concat(entries1);
@@ -1920,6 +1969,19 @@ class GraphHelper {
                     accessRequested: 'write',
                     startTime
                 });
+
+                try {
+                    await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                        requestInfo, resource, base_version
+                    });
+                } catch (err) {
+                    logWarn(
+                        `Skipping deletion of ${resultResourceType}/${resource.id} in graph delete: ` +
+                        `user lacks write access to resource security tags`,
+                        {source: 'GraphHelpers.deleteGraphAsync'}
+                    );
+                    continue;
+                }
 
                 await this.removeHelper.deleteManyAsync({
                     requestInfo,

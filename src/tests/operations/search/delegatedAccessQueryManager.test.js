@@ -98,7 +98,7 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
             personIdFromJwtToken
         });
 
-        expect(result).toEqual({ id: '__invalid__' });
+        expect(result).toEqual({ _uuid: '__invalid__' });
     });
 
     test('Adds exclusion filter with denied categories and unclassified', async () => {

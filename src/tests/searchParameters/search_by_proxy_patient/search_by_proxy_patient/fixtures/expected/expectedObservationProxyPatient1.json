@@ -67,7 +67,7 @@
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
-         "source": "/patients",
+          "source": "/patients",
           "versionId": "1"
         },
         "resourceType": "Observation",
@@ -138,12 +138,12 @@
           "security": [
             {
               "system": "https://www.icanbwell.com/owner",
-               "id": "c28d4443-54ca-5990-a470-a306d9c2fb24",
+              "id": "c28d4443-54ca-5990-a470-a306d9c2fb24",
               "code": "healthsystem2"
             },
             {
               "system": "https://www.icanbwell.com/access",
-               "id": "d2ef88ba-b717-5294-bb3f-7213c25fd56f",
+              "id": "d2ef88ba-b717-5294-bb3f-7213c25fd56f",
               "code": "healthsystem2"
             },
             {
@@ -211,10 +211,6 @@
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "display": "{'useTwoStepSearchOptimization':undefined}",
-        "system": "https://www.icanbwell.com/queryOptimization"
       },
       {
         "code": "fhir",

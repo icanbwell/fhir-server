@@ -9888,6 +9888,12 @@ const profiles = {
           route: '/:id/$summary',
           method: 'GET',
           reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
+        },
+        {
+          name: 'access-history',
+          route: '/:id/$access-history',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/security.html'
         }
       ]
     },

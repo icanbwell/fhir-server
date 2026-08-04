@@ -21,7 +21,6 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = req
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
-const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
 function getHeadersWithExternalStorage() {
     return { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
@@ -37,8 +36,6 @@ const ORIGINAL_MAX_GROUP_MEMBERS = process.env.MAX_GROUP_MEMBERS_PER_PUT;
 describe('Hybrid Storage Architecture - Correctness Test', () => {
     let clickHouseManager;
 
-    let clickHouseTestContainer;
-    let savedContainerEnvVars;
     beforeAll(async () => {
         // Set up for tests
         process.env.LOGLEVEL = 'ERROR'; // Suppress noise
@@ -46,11 +43,7 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
         process.env.MAX_GROUP_MEMBERS_PER_PUT = '50000'; // Use default limit (30K is within this)
         process.env.CLICKHOUSE_WRITE_MODE = 'sync';
 
-        clickHouseTestContainer = new ClickHouseTestContainer();
-        await clickHouseTestContainer.start();
-        savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
-
-        // Initialize ClickHouse connection (for cleanup and verification)
+        // Initialize ClickHouse connection (for cleanup and verification).
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
         await clickHouseManager.getClientAsync();
@@ -61,12 +54,6 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
     afterAll(async () => {
         if (clickHouseManager) {
             await clickHouseManager.closeAsync();
-        }
-        if (clickHouseTestContainer) {
-            if (savedContainerEnvVars) {
-                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
-            }
-            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
 

@@ -1,32 +1,13 @@
 /**
  * This file implement calling the FHIR validator
  */
-const JSONValidator = require('@asymmetrik/fhir-json-schema-validator');
+const { fhirSchemaValidator } = require('./fhirSchemaValidator');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { validateReferences, fastValidateReferences } = require('./referenceValidator');
 
-const generatedSchema = require('../fhir/fhir-generated.schema.json');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
-
-/**
- * By default, ajv uses fhir.json.schema but only returns first error it finds.
- * We want it to return all errors to ease user frustration when sending invalid paylaod.
- */
-const validatorConfig = {
-    allErrors: true,
-    logger: {
-        log: function log () {
-            // ok to not specify
-        },
-        warn: function warn () {
-            // ok to not specify
-        },
-        error: console.error.bind(console)
-    }
-};
-const fhirGeneratedValidator = new JSONValidator(generatedSchema, validatorConfig);
 
 /**
  * @function validateResource
@@ -54,7 +35,7 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
         });
     }
 
-    let errors = fhirGeneratedValidator.validate(resourceBody);
+    let errors = fhirSchemaValidator.validate(resourceBody);
 
     let referenceErrors = null;
 

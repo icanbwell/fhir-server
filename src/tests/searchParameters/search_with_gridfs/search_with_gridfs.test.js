@@ -1,4 +1,11 @@
-const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    createTestRequest,
+    getHeaders,
+    getTestContainer,
+    getRequestId
+} = require('../../common');
 const documentReferenceData = require('./fixtures/document_reference/document_reference1.json');
 
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
@@ -93,6 +100,9 @@ describe('GridFS search tests', () => {
 
         test('search searchByVersionId works', async () => {
             const request = await createTestRequest();
+            const container = getTestContainer();
+            const postRequestProcessor = container.postRequestProcessor;
+
             // add the resources to FHIR server
             let resp = await request
                 .post('/4_0_0/DocumentReference/$merge')
@@ -101,6 +111,11 @@ describe('GridFS search tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
+
+            // The version-1 history entry is written by the post-request processor after the
+            // create merge returns. Wait for it to drain before reading _history/1, otherwise
+            // the read can race ahead of the write and 404.
+            await postRequestProcessor.waitTillDoneAsync({ requestId: getRequestId(resp) });
 
             resp = await request
                 .post('/4_0_0/DocumentReference/$merge')

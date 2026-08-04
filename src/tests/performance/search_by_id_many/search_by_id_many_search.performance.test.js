@@ -35,10 +35,6 @@ class MockConfigManagerStreaming extends ConfigManager {
     get logStreamSteps () {
         return false;
     }
-
-    get enableTwoStepOptimization () {
-        return false;
-    }
 }
 
 describe('seach by id many performance', () => {

@@ -160,9 +160,9 @@ module.exports = {
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
     SPECIFIED_QUERY_PARAMS: [
-        '_explain', '_debug', '_validate', 'contained', '_hash_references', 'base_version', '_elements',
+        '_explain', '_debug', 'contained', '_hash_references', 'base_version', '_elements',
         '_useAccessIndex', 'active', '_source', '_id', 'onset-date', '_lastUpdated',
-        'source', 'id', 'onset_date', '_bundle', '_sort', '_count', '_useTwoStepOptimization', 'extension',
+        'source', 'id', 'onset_date', '_bundle', '_sort', '_count', 'extension',
         '_cursorBatchSize', '_setIndexHint', '_total', '_getpagesoffset', 'resource', '_streamResponse', 'remove',
         'streamResponse', 'team', '_text', '_content', '_list', '_has', '_type', '_include', '_revinclude',
         '_summary', '_contained', '_containedType', '_query', '_filter', '_format', '_pretty', 'role', 'member',
@@ -194,6 +194,23 @@ module.exports = {
         RETRIEVE: 'RETRIEVE',
         DELETE: 'DELETE'
     },
+    BLOB_OP: {
+        INSERT: 'INSERT',
+        RETRIEVE: 'RETRIEVE',
+        DELETE: 'DELETE'
+    },
+    BINARY_DATA_VALUE_PLACEHOLDER: '<data_value>',
+    // Content-addressed hashing of externalized base64 payloads. The digest (base64url) is stored
+    // in `_blobMeta.hash` and used verbatim as the S3 key segment `{ResourceType}_4_0_0/{uuid}/{hash}`.
+    // SHA-256 is collision-resistant (no accidental or adversarial collisions). Payloads larger than
+    // SYNC_THRESHOLD_BYTES are hashed in CHUNK_BYTES slices, yielding between slices, so a large
+    // payload never blocks the event loop for long.
+    BASE64_DATA_HASH: {
+        ALGORITHM: 'sha256',
+        ENCODING: 'base64url',
+        SYNC_THRESHOLD_BYTES: 256 * 1024,
+        CHUNK_BYTES: 1024 * 1024
+    },
     PATIENT_INITIATED_CONNECTION: [
         'proa'
     ],
@@ -216,6 +233,7 @@ module.exports = {
         SYSTEM: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
         CODE: 'R'
     },
+    PURPOSE_OF_USE_SYSTEM: 'http://terminology.hl7.org/CodeSystem/v3-ActReason',
     RESOURCE_HIDDEN_TAG: {
         SYSTEM: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
         CODE: 'hidden'
@@ -226,6 +244,8 @@ module.exports = {
     DEFAULT_CACHE_MAX_COUNT: 25,
     DEFAULT_CACHE_EXPIRY_TIME: 24 * 60 * 60 * 1000,
     USER_INFO_CACHE_EXPIRY_TIME: 5 * 60 * 1000, // 5 mins
+    JWKS_REQUESTS_PER_MINUTE: 60,
+    JWT_EXPIRY_CLOCK_TOLERANCE: 30,
     OPERATIONS: {
         READ: 'READ',
         WRITE: 'WRITE',
@@ -238,6 +258,7 @@ module.exports = {
         'in-progress': 'ExportStatusUpdated',
         'entered-in-error': 'ExportCompleted'
     },
+    SUBSCRIPTION_RESOURCE_TYPES: ['Subscription', 'SubscriptionStatus', 'SubscriptionTopic'],
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS: ['extension', 'identifier'],
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM: {
         patient: 'https://icanbwell.com/codes/source_patient_id',

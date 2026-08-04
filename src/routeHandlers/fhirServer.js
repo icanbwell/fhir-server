@@ -19,6 +19,9 @@ const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../constants');
 const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
 const { ConfigManager } = require('../utils/configManager');
+const { FhirRequestInfoBuilder } = require('../utils/fhirRequestInfoBuilder');
+const { logError } = require('../operations/common/logging');
+const { STATUS_CODES } = require('http');
 
 class MyFHIRServer {
     /**
@@ -82,20 +85,29 @@ class MyFHIRServer {
         );
 
         const allowedContentTypes = ['application/fhir+json', 'application/json+fhir', 'application/json-patch+json', 'application/fhir+ndjson'];
+        const payloadLimit = this.configManager.payloadLimit;
 
-        this.app.use((req, res, next) => {
+        this.app.use(function parseFhirJsonBody(req, res, next) {
             const ct = req.headers['content-type'] || '';
             if (ct.includes('application/fhir+ndjson')) {
                 return next(); // skip parsing
             }
-            return express.json({ type: allowedContentTypes,
-                limit: this.configManager.payloadLimit })(req, res, next); // parse JSON
+            return express.json({
+                type: allowedContentTypes,
+                limit: payloadLimit,
+                // Stash the raw Buffer for the access logger. The access logger runs from res.on ('close') and
+                // does the conversion there, off the critical path. This helps prevent expensive operation of
+                // stringifying JSON Payload for saving in access-logs
+                verify: (req2, _res, buf) => {
+                    req2.rawBodyBuffer = buf;
+                }
+            })(req, res, next); // parse JSON
         });
 
 
 
         // reject any requests that don't have correct content type
-        this.app.use((req, res, next) => {
+        this.app.use(function validateFhirContentType(req, res, next) {
             // if methods are for GET or DELETE then no need to check content-type
             if (req.method && (req.method.toLowerCase() === 'get' || req.method.toLowerCase() === 'delete')) {
                 next();
@@ -253,13 +265,14 @@ class MyFHIRServer {
         // Generic catch all error handler
         // Errors should be thrown with next and passed through
         // noinspection JSValidateTypes
+        const self = this;
         this.app.use(
-            (
+            function fhirErrorHandler(
                 /** @type {import('express').ErrorRequestHandler} */ err,
                 /** @type {import('express').Request} */ req,
                 /** @type {import('express').Response} */ res,
                 /** @type {import('express').NextFunction} */ next
-            ) => {
+            ) {
                 // noinspection JSValidateTypes
                 /**
                  * This is needed otherwise PyCharm thinks res is the NextFunction
@@ -296,6 +309,9 @@ class MyFHIRServer {
                             if (status === 500) {
                                 errorToSend = convertErrorToOperationOutcome({ error: err, internalError: true });
                             }
+                            if (status >= 400) {
+                                self.logErrorAuditEvent(req, status, err);
+                            }
                             res1.status(status).json(errorToSend);
                         } else if (err) {
                             const status = err.statusCode || 500;
@@ -306,6 +322,9 @@ class MyFHIRServer {
                                 error: err,
                                 internalError: status === 500
                             });
+                            if (status >= 400) {
+                                self.logErrorAuditEvent(req, status, err);
+                            }
                             res1.status(status).json(operationOutcome);
                         } else {
                             next();
@@ -334,7 +353,7 @@ class MyFHIRServer {
         );
 
         // Nothing has responded by now, respond with 404
-        this.app.use((req, res) => {
+        this.app.use(function fhirNotFoundHandler(req, res) {
             // get base from URL instead of params since it might not be forwarded
             const base = req.url.split('/')[1] || VERSIONS['4_0_1'];
 
@@ -366,6 +385,47 @@ class MyFHIRServer {
 
         // return self for chaining
         return this;
+    }
+
+    /**
+     * Logs an error audit event for 400+ errors
+     * @param {import('express').Request} req
+     * @param {number} status
+     * @param {Error} err
+     */
+    logErrorAuditEvent (req, status, err) {
+        try {
+            if (!this.configManager.enableAccessAuditEvent) {
+                return;
+            }
+            const auditLogger = this.container.auditLogger;
+            const resourceType = req.resourceType || (req.url.split('/')[2])?.split('?')[0];
+            const requestInfo = FhirRequestInfoBuilder.fromRequest(req);
+            let extraParams;
+            let errorMessage;
+            if (status === 403) {
+                errorMessage = err.message
+                    || err.issue?.[0]?.diagnostics
+                    || err.issue?.[0]?.details?.text
+                    || 'Forbidden';
+                if (req.authInfo?.scope) {
+                    extraParams = [{ type: 'scope', valueString: req.authInfo.scope }];
+                }
+            } else {
+                errorMessage = STATUS_CODES[`${status}`] || 'Internal Server Error';
+            }
+            auditLogger.logErrorAuditEntryAsync({
+                requestInfo,
+                resourceType: resourceType || null,
+                errorCode: status,
+                errorMessage,
+                extraParams
+            }).catch((e) => {
+                logError('Error logging error audit event', { error: e.message });
+            });
+        } catch (e) {
+            logError('Error building error audit event', { error: e.message });
+        }
     }
 
     /**

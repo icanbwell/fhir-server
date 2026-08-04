@@ -5,7 +5,12 @@ const {
     UploadPartCommand,
     AbortMultipartUploadCommand,
     CompleteMultipartUploadCommand,
+    DeleteObjectCommand,
+    DeleteObjectsCommand,
     GetObjectCommand,
+    CopyObjectCommand,
+    HeadObjectCommand,
+    ListObjectsV2Command,
     NoSuchKey
 } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
@@ -47,23 +52,34 @@ class S3Client extends CloudStorageClient {
     }
 
     /**
-     * Upload the data passed to s3
+     * Upload the data passed to s3.
      * @typedef {Object} UploadAsyncParams
      * @property {string} filePath
-     * @property {string} data
+     * @property {string|Buffer} data
+     * @property {boolean} [ifNoneMatch] - when truthy, performs a conditional create
+     *          (If-None-Match: '*'); the write succeeds only if the key does not already exist.
      *
      * @param {UploadAsyncParams}
+     * @returns {Promise<import('@aws-sdk/client-s3').PutObjectCommandOutput|null>} the raw
+     *          PutObject response, or null when a conditional `ifNoneMatch` precondition failed
+     *          (the key already existed for a conditional create).
      */
-    async uploadAsync({ filePath, data }) {
+    async uploadAsync({ filePath, data, ifNoneMatch }) {
         try {
-            await this.client.send(
-                new PutObjectCommand({
-                    Bucket: this.bucketName,
-                    Key: filePath,
-                    Body: data
-                })
-            );
+            const params = {
+                Bucket: this.bucketName,
+                Key: filePath,
+                Body: data
+            };
+            if (ifNoneMatch) {
+                params.IfNoneMatch = '*';
+            }
+            return await this.client.send(new PutObjectCommand(params));
         } catch (err) {
+            if (ifNoneMatch && this._isPreconditionFailed(err)) {
+                // The key already exists — caller retries with a different key.
+                return null;
+            }
             throw new RethrownError({
                 message: `Error in uploadAsync: ${err.message}`,
                 error: err,
@@ -71,6 +87,77 @@ class S3Client extends CloudStorageClient {
                 args: {
                     filePath
                 }
+            });
+        }
+    }
+
+    /**
+     * Whether an S3 error is a failed conditional (If-Match/If-None-Match) precondition (HTTP 412).
+     * @param {Error} err
+     * @returns {boolean}
+     * @private
+     */
+    _isPreconditionFailed(err) {
+        return err?.name === 'PreconditionFailed' || err?.$metadata?.httpStatusCode === 412;
+    }
+
+    /**
+     * Whether an object exists at the given path. Cheap existence probe — no body is transferred.
+     * @param {string} filePath
+     * @returns {Promise<boolean>}
+     */
+    async existsAsync(filePath) {
+        try {
+            await this.client.send(
+                new HeadObjectCommand({ Bucket: this.bucketName, Key: filePath })
+            );
+            return true;
+        } catch (err) {
+            if (err?.name === 'NotFound' || err?.$metadata?.httpStatusCode === 404) {
+                return false;
+            }
+            throw new RethrownError({
+                message: `Error in existsAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: { filePath }
+            });
+        }
+    }
+
+    /**
+     * List every object key under a prefix, paginating through `ListObjectsV2` until the provider
+     * reports `IsTruncated: false`.
+     * @typedef {Object} ListObjectsAsyncParams
+     * @property {string} prefix
+     *
+     * @param {ListObjectsAsyncParams}
+     * @returns {Promise<string[]>} every object key under `prefix`, across all pages.
+     */
+    async listObjectsAsync({ prefix }) {
+        const keys = [];
+        let continuationToken;
+        try {
+            do {
+                const response = await this.client.send(
+                    new ListObjectsV2Command({
+                        Bucket: this.bucketName,
+                        Prefix: prefix,
+                        ContinuationToken: continuationToken
+                    })
+                );
+                for (const object of response.Contents ?? []) {
+                    keys.push(object.Key);
+                }
+                continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
+            } while (continuationToken);
+            return keys;
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in listObjectsAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: { prefix }
             });
         }
     }
@@ -98,6 +185,118 @@ class S3Client extends CloudStorageClient {
                 message: `Error in downloadAsync: ${err.message}`,
                 error: err,
                 source: 'S3Client'
+            });
+        }
+    }
+
+    /**
+     * Delete file from s3 at the provided path. Idempotent: deleting a non-existent
+     * key returns a 204 from S3 (no NoSuchKey thrown), so this method completes silently.
+     * @param {string} filePath
+     */
+    async deleteAsync(filePath) {
+        try {
+            await this.client.send(
+                new DeleteObjectCommand({
+                    Bucket: this.bucketName,
+                    Key: filePath
+                })
+            );
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in deleteAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: {
+                    filePath
+                }
+            });
+        }
+    }
+
+    /**
+     * Batch-delete keys via S3's DeleteObjects, chunking at 1000 keys per call (the API's hard
+     * limit). A per-key failure is reported back in `errors` rather than thrown, so one bad key
+     * in a chunk never blocks the rest of that chunk or later chunks.
+     * @typedef {Object} DeleteObjectsAsyncParams
+     * @property {string[]} filePaths
+     *
+     * @param {DeleteObjectsAsyncParams}
+     * @returns {Promise<{deletedKeys: string[], errors: {Key: string, Code?: string, Message?: string}[]}>}
+     */
+    async deleteObjectsAsync({ filePaths }) {
+        if (!filePaths || filePaths.length === 0) {
+            return { deletedKeys: [], errors: [] };
+        }
+        const deletedKeys = [];
+        const errors = [];
+        const maxKeysPerRequest = 1000; // S3 DeleteObjects hard limit
+        try {
+            for (let i = 0; i < filePaths.length; i += maxKeysPerRequest) {
+                const batchKeys = filePaths.slice(i, i + maxKeysPerRequest);
+                const response = await this.client.send(
+                    new DeleteObjectsCommand({
+                        Bucket: this.bucketName,
+                        Delete: {
+                            Objects: batchKeys.map((Key) => ({ Key })),
+                            Quiet: false
+                        }
+                    })
+                );
+                for (const deleted of response.Deleted ?? []) {
+                    deletedKeys.push(deleted.Key);
+                }
+                for (const error of response.Errors ?? []) {
+                    errors.push(error);
+                }
+            }
+            return { deletedKeys, errors };
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in deleteObjectsAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: {
+                    filePaths
+                }
+            });
+        }
+    }
+
+    /**
+     * Copy an object within the bucket. Passing sourcePath === filePath rewrites the
+     * object in place with MetadataDirective REPLACE, which resets its Last-Modified
+     * timestamp and refreshes the lifecycle-TTL age clock.
+     * @typedef {Object} CopyObjectAsyncParams
+     * @property {string} sourcePath
+     * @property {string} filePath
+     *
+     * @param {CopyObjectAsyncParams}
+     * @returns {Promise<boolean>} true if copied, false if the source object was missing.
+     */
+    async copyObjectAsync({ sourcePath, filePath }) {
+        try {
+            await this.client.send(
+                new CopyObjectCommand({
+                    Bucket: this.bucketName,
+                    CopySource: `${this.bucketName}/${sourcePath}`,
+                    Key: filePath,
+                    MetadataDirective: 'REPLACE'
+                })
+            );
+            return true;
+        } catch (err) {
+            if (err instanceof NoSuchKey || err.name === 'NoSuchKey') {
+                return false;
+            }
+            throw new RethrownError({
+                message: `Error in copyObjectAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: {
+                    sourcePath,
+                    filePath
+                }
             });
         }
     }

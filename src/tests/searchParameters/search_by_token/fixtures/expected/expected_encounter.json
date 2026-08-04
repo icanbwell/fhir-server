@@ -63,7 +63,7 @@
             },
             {
               "code": "client_code",
-               "id": "1eb21f0b-05d8-527d-ae5f-ee4f2c47f7d4",
+              "id": "1eb21f0b-05d8-527d-ae5f-ee4f2c47f7d4",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
@@ -193,10 +193,6 @@
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "display": "{'useTwoStepSearchOptimization':undefined}",
-        "system": "https://www.icanbwell.com/queryOptimization"
       },
       {
         "code": "fhir",

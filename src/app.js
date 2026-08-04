@@ -16,9 +16,11 @@ const passport = require('passport');
 const {handleAlert} = require('./routeHandlers/alert');
 const {MyFHIRServer} = require('./routeHandlers/fhirServer');
 const validateContentTypeMiddleware = require('./middleware/contentType-validation.middleware.js')
+const {authenticateWithJsonFailure} = require('./middleware/fhir/authentication.middleware.js');
 const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
 const {AUTH_USER_TYPES} = require('./constants');
 const forbidForUserTypes = require('./middleware/forbidForUserTypes.middleware');
+const {graphqlErrorFormatter} = require('./middleware/graphql/graphqlErrorFormatter');
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
 const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
 const {handleVersion} = require('./routeHandlers/version');
@@ -32,12 +34,13 @@ const {handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut} = req
 const {getImageVersion} = require('./utils/getImageVersion');
 const {ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constants');
 const {generateUUID} = require('./utils/uid.util');
-const {logInfo, logDebug} = require('./operations/common/logging');
+const {logInfo, logError} = require('./operations/common/logging');
 const {generateNonce} = require('./utils/nonce');
 const {handleServerError} = require('./routeHandlers/handleError');
 const {shouldReturnHtml} = require('./utils/requestHelpers.js');
 const {generateLogDetail} = require('./utils/requestCompletionLogData.js');
 const {incrementRequestCount, decrementRequestCount, getRequestCount} = require('./utils/requestCounter');
+const {FhirRequestInfoBuilder} = require('./utils/fhirRequestInfoBuilder');
 
 /**
  * Creates the FHIR app
@@ -108,7 +111,7 @@ function createApp({fnGetContainer}) {
     const ignoredUrls = ['/live', '/health', '/ready'];
 
     // log every incoming request and every outgoing response
-    app.use((req, res, next) => {
+    app.use(function logRequestLifecycle(req, res, next) {
         // Generates a unique uuid and store in req and later used for operations
         const uniqueRequestId = generateUUID();
         req.uniqueRequestId = uniqueRequestId;
@@ -166,24 +169,40 @@ function createApp({fnGetContainer}) {
                     statusCode: res.statusCode,
                     username
                 });
-                // Debug log added for logging authentication token
-                if (req.headers.authorization) {
-                    logDebug(
-                        'Request Completed',
-                        {authenticationToken: req.headers.authorization}
-                    );
+            }
+
+            if (res.statusCode === 401 && configManager.enableAccessAuditEvent) {
+                try {
+                    const auditLogger = container.auditLogger;
+                    const resourceType = (reqPath.split('/')[2])?.split('?')[0];
+                    const requestInfo = new FhirRequestInfoBuilder(req).build({
+                        requestId: req.uniqueRequestId
+                    });
+                    const errorMessage = req.authFailureDetail || 'Authentication Failed';
+                    auditLogger.logErrorAuditEntryAsync({
+                        requestInfo,
+                        resourceType,
+                        errorCode: 401,
+                        errorMessage
+                    }).catch((e) => {
+                        logError('Error logging 401 audit event', { error: e.message });
+                    });
+                } catch (e) {
+                    logError('Error building 401 audit event', { error: e.message });
                 }
             }
 
+            const logAuthContextOn401 = res.statusCode === 401 && isTrue(process.env.LOG_AUTH_CONTEXT_ON_401);
             if (
                 (configManager.enableAccessLogs) &&
-                (httpContext.get(ACCESS_LOGS_ENTRY_DATA) || req.body)
+                (httpContext.get(ACCESS_LOGS_ENTRY_DATA) || req.body || logAuthContextOn401)
             ) {
                 accessLogger.logAccessLogAsync({
                     ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
                     req,
                     statusCode: res.statusCode,
-                    startTime
+                    startTime,
+                    authorizationHeader: logAuthContextOn401 ? req.headers.authorization : undefined
                 });
             }
             logInfo('Request Completed', logData);
@@ -199,8 +218,31 @@ function createApp({fnGetContainer}) {
                     requestUrl: reqPath,
                     method: reqMethod,
                     request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId},
-                    requestCount: getRequestCount()
+                    requestCount: getRequestCount(),
+                    originService: req.headers['origin-service'] || 'unknown',
+                    altId: req.authInfo?.context?.username || req.authInfo?.context?.subject || ((!req.user || typeof req.user === 'string') ? req.user : req.user?.name || req.user?.id),
+                    scope: req.authInfo?.scope
                 });
+
+                if (configManager.enableAccessAuditEvent) {
+                    try {
+                        const resourceType = (reqPath.split('/')[2])?.split('?')[0];
+                        const auditLogger = container.auditLogger;
+                        const requestInfo = new FhirRequestInfoBuilder(req).build({
+                            requestId: req.uniqueRequestId
+                        });
+                        auditLogger.logErrorAuditEntryAsync({
+                            requestInfo,
+                            resourceType,
+                            errorCode: 0,
+                            errorMessage: 'Request Aborted by Client'
+                        }).catch((e) => {
+                            logError('Error logging abort audit event', { error: e.message });
+                        });
+                    } catch (e) {
+                        logError('Error building abort audit event', { error: e.message });
+                    }
+                }
             }
         });
         next();
@@ -210,13 +252,16 @@ function createApp({fnGetContainer}) {
     app.use(cookieParser());
 
     // middleware to parse user agent string
-    app.use(useragent.express());
+    const userAgentParser = useragent.express();
+    app.use(function parseUserAgent(req, res, next) {
+        return userAgentParser(req, res, next);
+    });
 
     // helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
     app.use(helmet());
 
-    // redirect to new fhir-ui if html is requested
-    app.use((req, res, next) => {
+    // redirect to fhir-ui if html is requested
+    app.use(function redirectHtmlToUi(req, res, next) {
         if (shouldReturnHtml(req)) {
             const reqPath = req.originalUrl;
             const isGraphQLUrl = reqPath.startsWith('/$graphql') || reqPath.startsWith('/4_0_0/$graphqlv2');
@@ -225,32 +270,35 @@ function createApp({fnGetContainer}) {
             const isAdminUrl = reqPath.startsWith('/admin');
             // if not graphql url and if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
             if (!isGraphQLUrl && isTrue(process.env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
-                logInfo('Redirecting to new UI', {path: reqPath});
-                if (isAdminUrl || isResourceUrl) {
-                    res.redirect(new URL(reqPath, process.env.FHIR_SERVER_UI_URL).toString());
-                    return;
-                }
+                logInfo('Redirecting to new UI', { path: reqPath });
+                res.redirect(new URL(reqPath, process.env.FHIR_SERVER_UI_URL).toString());
+                return;
             }
         }
         next();
     });
 
     // middleware for oAuth
-    app.use(passport.initialize());
+    const passportInit = passport.initialize();
+    app.use(function passportInitialize(req, res, next) {
+        return passportInit(req, res, next);
+    });
 
     // Used to initialize context for each request
-    app.use(httpContext.middleware);
+    app.use(function httpContextMiddleware(req, res, next) {
+        return httpContext.middleware(req, res, next);
+    });
 
     /**
      * Generate a unique ID for each request at earliest.
      * Use x-request-id in header if sent.
      */
     app.use(
-        (
+        function storeRequestIdsInContext(
             /** @type {import('http').IncomingMessage} **/ req,
             /** @type {import('http').ServerResponse} **/ res,
             next
-        ) => {
+        ) {
             // Stores uniqueRequestId in httpContext and later used for logging
             httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, req.uniqueRequestId);
 
@@ -261,7 +309,7 @@ function createApp({fnGetContainer}) {
     );
 
     // generate nonce, and add to httpContext
-    app.use((req, res, next) => {
+    app.use(function attachCspNonce(req, res, next) {
         const nonce = generateNonce();
         httpContext.set(RESPONSE_NONCE, nonce);
         next();
@@ -270,7 +318,7 @@ function createApp({fnGetContainer}) {
     app.use(handleSecurityPolicy);
 
     // disable browser caching
-    app.use((req, res, next) => {
+    app.use(function disableBrowserCache(req, res, next) {
         res.set('Cache-Control', 'no-store, no-cache');
         res.set('Pragma', 'no-cache');
         next();
@@ -349,7 +397,7 @@ function createApp({fnGetContainer}) {
     const adminRouter = express.Router({mergeParams: true});
     // Add authentication
     adminRouter.use(passport.initialize());
-    adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
+    adminRouter.use(authenticateWithJsonFailure('adminStrategy', {session: false}));
     // Add admin routes with json body parser
     const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
     adminRouter.get('{/:op}{/:id}', (req, res) => handleAdminGet(fnGetContainer, req, res));
@@ -378,14 +426,15 @@ function createApp({fnGetContainer}) {
         const forbidRestrictedUserTypes = forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]);
 
         const router = express.Router();
+        router.use(function markGraphqlRoute(req, res, next) { req.isGraphQLRoute = true; next(); });
         router.use(passport.initialize());
-        router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+        router.use(authenticateWithJsonFailure('graphqlStrategy', {session: false}));
         router.use(forbidRestrictedUserTypes);
         router.use(cors(fhirServerConfig.server.corsOptions));
         router.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
         router.use(handleSecurityPolicyGraphql);
-        router.use(function (req, res, next) {
+        router.use(function graphqlPostRequestCleanup(req, res, next) {
             res.once('finish', async () => {
                 const req1 = req;
                 /**
@@ -412,14 +461,15 @@ function createApp({fnGetContainer}) {
         });
 
         const routerv2 = express.Router();
+        routerv2.use(function markGraphqlV2Route(req, res, next) { req.isGraphQLRoute = true; next(); });
         routerv2.use(passport.initialize());
-        routerv2.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+        routerv2.use(authenticateWithJsonFailure('graphqlStrategy', {session: false}));
         routerv2.use(forbidRestrictedUserTypes);
         routerv2.use(cors(fhirServerConfig.server.corsOptions));
         routerv2.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
         routerv2.use(handleSecurityPolicyGraphql);
-        routerv2.use(function (req, res, next) {
+        routerv2.use(function graphqlV2PostRequestCleanup(req, res, next) {
             res.once('finish', async () => {
                 const req1 = req;
                 /**
@@ -451,10 +501,12 @@ function createApp({fnGetContainer}) {
         ]).then(([graphqlMiddleware, graphqlV2Middleware]) => {
             if (graphqlMiddleware) {
                 router.use(graphqlMiddleware);
+                router.use(graphqlErrorFormatter);
                 app.use('/\\$graphql', router);
             }
             if (graphqlV2Middleware) {
                 routerv2.use(graphqlV2Middleware);
+                routerv2.use(graphqlErrorFormatter);
                 app.use('/4_0_0/\\$graphqlv2', routerv2);
             }
             createFhirApp(fnGetContainer, app);

@@ -133,6 +133,7 @@ class FhirRequestInfoBuilder {
             method: this.req.method,
             contentTypeFromHeader: headers['content-type'] ? contentType.parse(headers['content-type']) : null,
             actor: this.req?.authInfo?.context?.actor,
+            purposeOfUse: this.req?.authInfo?.context?.purposeOfUse,
             ...overrides
         });
     }

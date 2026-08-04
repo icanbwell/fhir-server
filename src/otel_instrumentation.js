@@ -13,8 +13,9 @@ let instrumentationConfigs = {
         applyCustomAttributesOnSpan: (span) => {
             // For graphql urls we are using middlewares to process the graphql request, there is no route
             // attached with any http method so we have to add the route in the 'span' to aggregate data
-            if (span.attributes['http.target'] && span.attributes['http.target'].includes('/$graphql')) {
-                span.attributes['http.route'] = span.attributes['http.target'].replace('4_0_0', ':base_version')
+            const httpTarget = span.attributes?.['http.target'];
+            if (httpTarget && httpTarget.includes('/$graphql')) {
+                span.attributes['http.route'] = httpTarget.replace('4_0_0', ':base_version')
             }
         }
     },
@@ -22,12 +23,22 @@ let instrumentationConfigs = {
         enhancedDatabaseReporting: true,
         responseHook: (span) => {
             if (
-                span.attributes['db.system'] === 'mongodb' &&
+                span.attributes?.['db.system'] === 'mongodb' &&
                 !['find', 'aggregate'].includes(span.attributes['db.operation'])
             ) {
                 delete span.attributes['db.statement'];
             }
         }
+    },
+    // Disabled: produces duplicate spans alongside instrumentation-express
+    '@opentelemetry/instrumentation-router': {
+        enabled: false
+    },
+    // Emits Node.js runtime metrics: V8 heap usage/limit, per-heap-space stats,
+    // GC duration, and event-loop lag/utilization (standard semantic conventions).
+    // Enabled in both the auto-instrumentation and manual SDK paths below.
+    '@opentelemetry/instrumentation-runtime-node': {
+        enabled: true
     }
 }
 
@@ -58,27 +69,45 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
     const { ExpressInstrumentation } = require('@opentelemetry/instrumentation-express');
     const { GraphQLInstrumentation } = require('@opentelemetry/instrumentation-graphql');
     const { LruMemoizerInstrumentation } = require('@opentelemetry/instrumentation-lru-memoizer');
-    const { RouterInstrumentation } = require('@opentelemetry/instrumentation-router');
     const { WinstonInstrumentation } = require('@opentelemetry/instrumentation-winston');
     const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
     const { MongoDBInstrumentation } = require('@opentelemetry/instrumentation-mongodb');
     const { RedisInstrumentation } = require('@opentelemetry/instrumentation-redis');
+    const { RuntimeNodeInstrumentation } = require('@opentelemetry/instrumentation-runtime-node');
+    const { KafkaJsInstrumentation } = require('@opentelemetry/instrumentation-kafkajs');
+    const { AwsInstrumentation } = require('@opentelemetry/instrumentation-aws-sdk');
+
+    const { W3CTraceContextPropagator, W3CBaggagePropagator, CompositePropagator } = require('@opentelemetry/core');
 
     const sdk = new opentelemetry.NodeSDK({
         traceExporter: new OTLPTraceExporter(),
         metricReader: new PeriodicExportingMetricReader({
             exporter: new OTLPMetricExporter()
         }),
+        // Explicitly configure W3C TraceContext as the sole propagator (EA-2307).
+        // B3 is not used; this removes any implicit B3 emission and ensures
+        // Java services (which default to W3C) and this Node service are consistent.
+        textMapPropagator: new CompositePropagator({
+            propagators: [
+                new W3CTraceContextPropagator(),
+                new W3CBaggagePropagator()
+            ]
+        }),
         instrumentations: [
             new HttpInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-http']),
             new ExpressInstrumentation(),
-            new RouterInstrumentation(),
             new DataloaderInstrumentation(),
             new LruMemoizerInstrumentation(),
             new WinstonInstrumentation(),
             new GraphQLInstrumentation(),
             new MongoDBInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-mongodb']),
-            new RedisInstrumentation()
+            new RedisInstrumentation(),
+            new RuntimeNodeInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-runtime-node']),
+            // Kafka producer/consumer spans and W3C traceparent propagation across the Kafka hop (EA-2263).
+            // The auto-instrumentation path already includes kafkajs via getNodeAutoInstrumentations;
+            // this adds it to the manual SDK path so trace context propagates in both paths.
+            new KafkaJsInstrumentation(),
+            new AwsInstrumentation()
         ],
         // Config needed for Sentry integration
         // https://docs.sentry.io/platforms/javascript/guides/node/opentelemetry/custom-setup/

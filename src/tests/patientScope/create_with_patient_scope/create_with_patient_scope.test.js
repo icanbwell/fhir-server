@@ -153,9 +153,6 @@ describe('Condition Tests', () => {
             expect(body.issue[0].details.text).toStrictEqual('None of the provided scopes matched an allowed scope.: user clientFhirPerson with scopes [patient/Observation.*] failed access check to [Condition.write]');
         });
         test('Non patient resources can not be accessed with patient scopes', async () => {
-            const envValue = process.env.VALIDATE_SCHEMA;
-            process.env.VALIDATE_SCHEMA = '0';
-
             const request = await createTestRequest();
             const container = getTestContainer();
             /**
@@ -164,7 +161,7 @@ describe('Condition Tests', () => {
             const patientFilterManager = container.patientFilterManager;
 
             // get list of patient resources from patientFilterManager
-            const patientResources = Object.keys(patientFilterManager.patientFilterMapping);
+            const patientResources = patientFilterManager.getAllPatientOrPersonRelatedResources();
             // calculate non patient resources
             const nonPatientResources = Object.values(COLLECTION)
                 .filter(resource => !patientResources.includes(resource));
@@ -176,7 +173,6 @@ describe('Condition Tests', () => {
 
                 expect(resp).toHaveStatusCode(403);
             }
-            process.env.VALIDATE_SCHEMA = envValue;
         });
     });
 });

@@ -50,7 +50,8 @@ const getCmsHeaders = (personId) => {
         bwellFhirPersonId: personId,
         clientFhirPatientId: `person.${personId}`,
         bwellFhirPatientId: `person.${personId}`,
-        managingOrganization: organizationCms.id
+        managingOrganization: organizationCms.id,
+        entitlements: ['TREAT']
     });
     return {
         'Content-Type': 'application/fhir+json',
@@ -67,7 +68,8 @@ const getInvalidCmsHeaders = (personId) => {
         user_type: 'cms-partner',
         username: personId,
         clientFhirPersonId: personId,
-        bwellFhirPersonId: personId
+        bwellFhirPersonId: personId,
+        entitlements: ['TREAT']
     });
     return {
         'Content-Type': 'application/fhir+json',
@@ -79,14 +81,21 @@ const getInvalidCmsHeaders = (personId) => {
 
 describe('CMS Data Sharing - Patient List with cms-partner', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
+    const originalAllowedPurposeOfUse = process.env.CMS_ALLOWED_PURPOSE_OF_USE;
 
     beforeEach(async () => {
+        process.env.CMS_ALLOWED_PURPOSE_OF_USE = 'TREAT,HPAYMT';
         cursorSpy.mockReturnThis();
         await commonBeforeEach();
     });
 
     afterEach(async () => {
         await commonAfterEach();
+        if (originalAllowedPurposeOfUse === undefined) {
+            delete process.env.CMS_ALLOWED_PURPOSE_OF_USE;
+        } else {
+            process.env.CMS_ALLOWED_PURPOSE_OF_USE = originalAllowedPurposeOfUse;
+        }
     });
 
     test('Without patient scope: treated as regular user, not CMS', async () => {
@@ -142,7 +151,7 @@ describe('CMS Data Sharing - Patient List with cms-partner', () => {
         // Query as person-1 without any consent
         resp = await request.get('/4_0_0/Patient?_bundle=1&_count=100&_debug=1').set(getCmsHeaders(PERSON_ID_1));
 
-        // Should return empty results (CMS returns { id: '__invalid__' } when no consent)
+        // Should return empty results (CMS returns { _uuid: '__invalid__' } when no consent)
         expect(resp).toHaveStatusCode(200);
         expect(resp).toHaveResponse(expectedPatientListNoConsentResponse);
     });

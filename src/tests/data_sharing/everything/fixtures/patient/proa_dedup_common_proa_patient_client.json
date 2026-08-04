@@ -1,0 +1,15 @@
+{
+    "resourceType": "Patient",
+    "id": "commonProaPatientClient1",
+    "meta": {
+        "source": "health-service",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "health-service" },
+            { "system": "https://www.icanbwell.com/owner", "code": "health-service" },
+            { "system": "https://www.icanbwell.com/connectionType", "code": "proa" }
+        ]
+    },
+    "name": [{ "use": "usual", "family": "PATIENT1", "given": ["SHYLA"] }],
+    "gender": "female",
+    "birthDate": "2017-01-01"
+}

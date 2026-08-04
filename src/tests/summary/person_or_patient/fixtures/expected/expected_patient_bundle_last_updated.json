@@ -43,7 +43,9 @@
             "use": "usual",
             "text": "patient1",
             "family": "PATIENT1",
-            "given": ["SHYLA"]
+            "given": [
+              "SHYLA"
+            ]
           }
         ],
         "resourceType": "Patient"
@@ -56,7 +58,6 @@
         "name": "b.well Connected Health"
       }
     },
-
     {
       "resource": {
         "category": [
@@ -310,27 +311,27 @@
             "entry": []
           },
           {
-              "title": "Social History",
-              "code": {
-                  "coding": [
-                      {
-                          "system": "http://loinc.org",
-                          "code": "29762-2",
-                          "display": "Social History"
-                      }
-                  ],
-                  "text": "Social History"
-              },
-              "text": {
-                  "status": "generated",
-                  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes all information about the patient's social history, sorted by effective date (most recent first).</p> <table> <thead> <tr> <th>Name</th> <th>Code (System)</th> <th>Result</th> <th>Unit</th> <th>Comments</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Alcohol Use</td> <td>74013-4 (LOINC)</td> <td>Social drinker</td> <td></td> <td>abc<br/>edf</td> <td>4/5/2024, 5:30 AM EDT - 6/5/2025, 5:30 AM EDT</td> <td>healthsystem1</td> </tr> </tbody> </table></div>"
-              },
-              "entry": [
-                  {
-                      "reference": "Observation/61886699-c643-5e3b-a074-569e4c43bddf",
-                      "display": "Observation"
-                  }
-              ]
+            "title": "Social History",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "29762-2",
+                  "display": "Social History"
+                }
+              ],
+              "text": "Social History"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes all information about the patient's social history, sorted by effective date (most recent first).</p> <table> <thead> <tr> <th>Name</th> <th>Code (System)</th> <th>Result</th> <th>Unit</th> <th>Comments</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Alcohol Use</td> <td>74013-4 (LOINC)</td> <td>Social drinker</td> <td></td> <td>abc<br/>edf</td> <td>4/5/2024, 5:30 AM EDT - 6/5/2025, 5:30 AM EDT</td> <td>healthsystem1</td> </tr> </tbody> </table></div>"
+            },
+            "entry": [
+              {
+                "reference": "Observation/61886699-c643-5e3b-a074-569e4c43bddf",
+                "display": "Observation"
+              }
+            ]
           }
         ],
         "text": {
@@ -366,10 +367,6 @@
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
       },
       {
         "system": "https://www.icanbwell.com/queryExplain"

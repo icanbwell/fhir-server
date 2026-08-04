@@ -11,10 +11,9 @@ const { createApp } = require('../app');
 const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
 const httpContext = require('express-http-context');
 const { fhirContentTypes } = require('../utils/contentTypes');
-const { TestConfigManager } = require('./testConfigManager');
+const { ConfigManager } = require('../utils/configManager');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { BaseSerializer } = require('../fhir/writeSerializers/4_0_0/customSerializers');
-const { BaseFhirResourceSerializer } = require('../fhir/baseFhirResourceSerializer');
 
 /**
  * @type {import('supertest').Test}
@@ -49,8 +48,7 @@ module.exports.createTestApp = (fnUpdateContainer) => {
      */
     testContainer = createTestContainer(fnUpdateContainer);
     BaseSerializer.setConfigManager(testContainer.configManager);
-    BaseFhirResourceSerializer.setConfigManager(testContainer.configManager);
-    return createApp({ fnGetContainer: () => testContainer, trackMetrics: false });
+    return createApp({ fnGetContainer: () => testContainer });
 };
 
 /**
@@ -76,9 +74,6 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
  * @return {Promise<void>}
  */
 module.exports.commonBeforeEach = async () => {
-    // noinspection DynamicallyGeneratedCodeJS
-    jest.setTimeout(30000);
-    process.env.VALIDATE_SCHEMA = true;
     const urlObject = new URL(process.env.AUTH_JWKS_URL);
     jwksEndpoint(urlObject.protocol + '//' + urlObject.host, urlObject.pathname, [
         { pub: publicKey, kid: '123' }
@@ -117,11 +112,10 @@ module.exports.commonAfterEach = async () => {
          */
         const requestSpecificCache = testContainer.requestSpecificCache;
         await requestSpecificCache.clearAllAsync();
-        // testContainer = null;
     }
     nock.cleanAll();
 
-    const configManager = testContainer?.configManager ?? new TestConfigManager();
+    const configManager = testContainer?.configManager ?? new ConfigManager();
     const testMongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
     await testMongoDatabaseManager.dropDatabasesAsync();
     tester = null;

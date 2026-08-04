@@ -20,6 +20,8 @@ const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { REGEX } = require('../../constants');
 const { filterGraphResources } = require('../../utils/filterGraphResources');
 const { CMSManager } = require('../../utils/cmsManager');
+const { trace } = require('@opentelemetry/api');
+const { logInfo } = require('../common/logging');
 
 class EverythingOperation {
     /**
@@ -89,11 +91,13 @@ class EverythingOperation {
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
      * @property {BaseResponseStreamer|undefined} [responseStreamer]
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
      *
      * @param {everythingAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingAsync({requestInfo, parsedArgs, resourceType, responseStreamer}) {
+    async everythingAsync({requestInfo, parsedArgs, resourceType, responseStreamer, scopedPersonIds}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -108,7 +112,8 @@ class EverythingOperation {
                 requestInfo,
                 parsedArgs,
                 resourceType,
-                responseStreamer // disable response streaming if we are answering a question
+                responseStreamer, // disable response streaming if we are answering a question
+                scopedPersonIds
             });
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
@@ -131,11 +136,13 @@ class EverythingOperation {
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
      * @property {BaseResponseStreamer|undefined} [responseStreamer]
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
      *
      * @param {everythingBundleAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingBundleAsync({requestInfo, parsedArgs, resourceType, responseStreamer}) {
+    async everythingBundleAsync({requestInfo, parsedArgs, resourceType, responseStreamer, scopedPersonIds}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -180,6 +187,17 @@ class EverythingOperation {
             action: currentOperationName,
             accessRequested: 'read'
         });
+
+        const masterPersonId = requestInfo.masterPersonIdFromJwtToken;
+
+        const activeSpan = trace.getActiveSpan();
+        if (activeSpan && masterPersonId) {
+            activeSpan.setAttribute('master.person.id', masterPersonId);
+        }
+
+        if (masterPersonId) {
+            logInfo('everything operation', { masterPersonId });
+        }
 
         try {
             const {_type: resourceFilter} = parsedArgs;
@@ -237,7 +255,8 @@ class EverythingOperation {
                     resourceType,
                     responseStreamer,
                     parsedArgs,
-                    includeNonClinicalResources: isFalseWithFallback(parsedArgs._includePatientLinkedOnly, true)
+                    includeNonClinicalResources: isFalseWithFallback(parsedArgs._includePatientLinkedOnly, true),
+                    scopedPersonIds
                 });
             } else {
                 // Grab an instance of our DB and collection
@@ -272,7 +291,7 @@ class EverythingOperation {
                         throw new Error('$everything is not supported for resource: ' + resourceType);
                 }
 
-                if (resourceFilter) {
+                if (resourceFilter && parsedArgs.resource) {
                     parsedArgs.resource = filterGraphResources(
                         deepcopy(parsedArgs.resource),
                         parsedArgs.resourceFilterList

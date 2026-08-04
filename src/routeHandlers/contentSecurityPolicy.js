@@ -5,7 +5,7 @@
 const httpContext = require('express-http-context');
 const { RESPONSE_NONCE } = require('../constants');
 
-module.exports.handleSecurityPolicy = function (req, res, next) {
+module.exports.handleSecurityPolicy = function handleSecurityPolicy(req, res, next) {
     // get the nonce id for current request
     const nonce = httpContext.get(RESPONSE_NONCE);
 
@@ -27,7 +27,7 @@ module.exports.handleSecurityPolicy = function (req, res, next) {
     next();
 };
 
-module.exports.handleSecurityPolicyGraphql = function (req, res, next) {
+module.exports.handleSecurityPolicyGraphql = function handleSecurityPolicyGraphql(req, res, next) {
     if (!res.headersSent) {
         res.setHeader(
             'Content-Security-Policy',

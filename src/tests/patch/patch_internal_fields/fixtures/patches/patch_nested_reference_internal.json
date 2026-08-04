@@ -1,0 +1,12 @@
+[
+  {
+    "op": "replace",
+    "path": "/gender",
+    "value": "female"
+  },
+  {
+    "op": "add",
+    "path": "/link/0/target/_sourceAssigningAuthority",
+    "value": "attacker-tenant"
+  }
+]

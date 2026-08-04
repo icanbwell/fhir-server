@@ -15,7 +15,6 @@ const {ValidateOperation} = require('./validate/validate');
 const {GraphOperation} = require('./graph/graph');
 const {get_all_args} = require('./common/get_all_args');
 const {EXTERNAL_SERVICE_REQUEST_CONFIG} = require('../constants');
-const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 const {FhirRequestInfoBuilder} = require('../utils/fhirRequestInfoBuilder');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
 const {assertTypeEquals} = require('../utils/assertType');
@@ -32,19 +31,19 @@ const {
     hasNdJsonContentType
 } = require('../utils/contentTypes');
 const {ExportByIdOperation} = require('./export/exportById');
+const {ImportOperation} = require('./import/import');
 const {FhirResponseNdJsonStreamer} = require('../utils/fhirResponseNdJsonStreamer');
 const {READ, WRITE} = require('../constants').OPERATIONS;
 const {vulcanIgSearchQueries} = require('./query/customQueries');
-const {ParsedArgs} = require('./query/parsedArgs');
 const {getNestedValueByPath} = require('../utils/object');
 const {ConfigManager} = require('../utils/configManager');
 const {SummaryOperation} = require("./summary/summary");
 const { ResponseStreamerFactory } = require('../utils/responseStreamerFactory');
 const { BadRequestError } = require('../utils/httpErrors');
 const { ResponseHandlerFactory } = require('../utils/responseHandler/responseHandlerFactory');
-const { BaseResponseHandler } = require('../utils/responseHandler/baseResponseHandler');
 const { CMSManager } = require('../utils/cmsManager');
 const { OperationAccessManager } = require('../utils/operationAccessManager');
+const { CustomTracer } = require('../utils/customTracer');
 
 class FhirOperationsManager {
     /**
@@ -67,11 +66,14 @@ class FhirOperationsManager {
      * @param expandOperation
      * @param exportOperation
      * @param exportByIdOperation
+     * @param importOperation
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {ConfigManager} configManager
      * @param {OperationAccessManager} accessManager
      * @param {CMSManager} cmsManager
+     * @param {AccessHistoryOperation} accessHistoryOperation
+     * @param {CustomTracer} customTracer
      */
     constructor(
         {
@@ -93,11 +95,14 @@ class FhirOperationsManager {
             expandOperation,
             exportOperation,
             exportByIdOperation,
+            importOperation,
             r4ArgsParser,
             queryRewriterManager,
             configManager,
             accessManager,
-            cmsManager
+            cmsManager,
+            accessHistoryOperation,
+            customTracer
         }
     ) {
         /**
@@ -192,6 +197,12 @@ class FhirOperationsManager {
         assertTypeEquals(exportByIdOperation, ExportByIdOperation);
 
         /**
+         * @type {ImportOperation}
+         */
+        this.importOperation = importOperation;
+        assertTypeEquals(importOperation, ImportOperation);
+
+        /**
          * @type {R4ArgsParser}
          */
         this.r4ArgsParser = r4ArgsParser;
@@ -220,6 +231,17 @@ class FhirOperationsManager {
          */
         this.cmsManager = cmsManager;
         assertTypeEquals(cmsManager, CMSManager);
+
+        /**
+         * @type {AccessHistoryOperation}
+         */
+        this.accessHistoryOperation = accessHistoryOperation;
+
+        /**
+         * @type {CustomTracer}
+         */
+        this.customTracer = customTracer;
+        assertTypeEquals(customTracer, CustomTracer);
     }
 
     /**
@@ -304,7 +326,7 @@ class FhirOperationsManager {
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
-                base_version, parsedArgs, resourceType, operation
+                base_version, parsedArgs, resourceType, operation, requestInfo
             }
         );
         if (headers) {
@@ -613,17 +635,26 @@ class FhirOperationsManager {
      * @return {Promise<Resource | Resource[] | void>}
      */
     async merge(args, { req, res }, resourceType) {
-        const requestInfo = this.getRequestInfo(req);
-        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'merge' });
-        // Combine args
-        let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({ req, combined_args });
+        const { requestInfo, parsedArgs } = await this.customTracer.trace({
+            name: 'FhirOperationsManager.merge.prepare',
+            func: async () => {
+                const requestInfo = this.getRequestInfo(req);
+                this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'merge' });
+                // Combine args
+                let combined_args = get_all_args(req, args);
+                combined_args = this.parseParametersFromBody({ req, combined_args });
 
-        const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args,
-            resourceType,
-            headers: req.headers,
-            operation: WRITE
+                const parsedArgs = await this.customTracer.trace({
+                    name: 'FhirOperationsManager.merge.prepare.getParsedArgsAsync',
+                    func: async () => await this.getParsedArgsAsync({
+                        args: combined_args,
+                        resourceType,
+                        headers: req.headers,
+                        operation: WRITE
+                    })
+                });
+                return { requestInfo, parsedArgs };
+            }
         });
 
         // Detect if the client wants streaming
@@ -668,18 +699,26 @@ class FhirOperationsManager {
         let combined_args = get_all_args(req, args);
         combined_args = this.parseParametersFromBody({ req, combined_args });
 
+        if (combined_args._id) {
+            combined_args.id = combined_args._id;
+            delete combined_args._id;
+        }
+
         this.cmsManager.verifyNotProxyPatientId({
             requestInfo,
             patientId: combined_args.id || combined_args._id
         });
 
+
+        let scopedPersonIds;
+        // person ids to retrict result to
+        if (resourceType === "Person" && combined_args.id) {
+            scopedPersonIds = combined_args.id.split(',');
+        }
+
         // map Person GET $everything to Patient GET $everything
         if (resourceType === 'Person' && req.method === 'GET') {
             resourceType = 'Patient';
-            if (combined_args._id) {
-                combined_args.id = combined_args._id;
-                delete combined_args._id;
-            }
             if (combined_args.id) {
                 const ids = combined_args.id.split(',').map(id => `${PERSON_PROXY_PREFIX}${id}`);
                 combined_args.id = ids.join(',');
@@ -727,7 +766,8 @@ class FhirOperationsManager {
                         res,
                         parsedArgs,
                         resourceType,
-                        responseStreamer
+                        responseStreamer,
+                        scopedPersonIds
                     });
                 await responseStreamer.endAsync();
                 return undefined;
@@ -757,7 +797,8 @@ class FhirOperationsManager {
                     requestInfo,
                     res,
                     parsedArgs,
-                    resourceType
+                    resourceType,
+                    scopedPersonIds
                 });
             return result;
         }
@@ -1203,6 +1244,56 @@ class FhirOperationsManager {
         combined_args = this.parseParametersFromBody({ req, combined_args });
 
         return await this.exportByIdOperation.exportByIdAsync({ requestInfo, args: combined_args });
+    }
+
+    /**
+     * triggers bulk import from S3
+     * @param {string[]} args
+     * @param {{ req: import('http').IncomingMessage }}
+     * @return {Promise<Resource | Resource[]>}
+     */
+    async import(args, { req }) {
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
+        this.accessManager.verifyAccess({ requestInfo, resourceType: 'import', operation: 'import' });
+        /**
+         * combined args
+         * @type {Object}
+         */
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
+
+        return await this.importOperation.importAsync({ requestInfo, args: combined_args });
+    }
+
+    /**
+     * Returns access history for a Person's linked resources
+     * @param {string[]} args
+     * @param {import('http').IncomingMessage} req
+     * @param {import('express').Response} res
+     * @param {string} resourceType
+     * @returns {Promise<Object>}
+     */
+    async accessHistory(args, { req, res }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'accessHistory' });
+
+        let combined_args = get_all_args(req, args);
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: combined_args,
+            resourceType,
+            headers: req.headers,
+            operation: READ,
+            requestInfo
+        });
+
+        return await this.accessHistoryOperation.accessHistoryAsync({
+            requestInfo,
+            parsedArgs,
+            resourceType
+        });
     }
 }
 

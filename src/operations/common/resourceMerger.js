@@ -153,6 +153,17 @@ class ResourceMerger {
             resourceToMerge
         });
 
+        // deduplicate meta.security by system+code
+        if (resourceToMerge.meta && resourceToMerge.meta.security && Array.isArray(resourceToMerge.meta.security)) {
+            const seen = new Set();
+            resourceToMerge.meta.security = resourceToMerge.meta.security.filter(tag => {
+                const key = `${tag.system}|${tag.code}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
+
         // copy the identifiers over
         // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that
         if (currentResource.identifier &&
@@ -288,24 +299,23 @@ class ResourceMerger {
      * @returns {Object}
      */
     fastUpdateMeta ({ patched_resource_incoming, currentResource, original_source, incrementVersion }) {
-        // update the metadata to increment versionId
-        const meta = deepcopy(currentResource.meta);
-        if (incrementVersion) {
-            meta.versionId = `${parseInt(meta.versionId) + 1}`;
+        const currentMeta = currentResource.meta;
+        // The incoming resource may not carry meta; create it so the assignments below are safe
+        if (!patched_resource_incoming.meta) {
+            patched_resource_incoming.meta = {};
         }
-        meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-        // set the source from the incoming resource
-        meta.source = original_source;
-        // These properties are set automatically
-        patched_resource_incoming.meta.versionId = meta.versionId;
-        patched_resource_incoming.meta.lastUpdated = meta.lastUpdated;
-        // If not source is provided then use the source of the previous entity
+        const currentVersion = parseInt(currentMeta?.versionId, 10);
+        patched_resource_incoming.meta.versionId = incrementVersion
+            ? `${(Number.isNaN(currentVersion) ? 0 : currentVersion) + 1}`
+            : currentMeta?.versionId;
+        patched_resource_incoming.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
+        // If no source is provided then use the source from the incoming resource
         if (!(patched_resource_incoming.meta.source)) {
-            patched_resource_incoming.meta.source = meta.source;
+            patched_resource_incoming.meta.source = original_source;
         }
-        // If no security tags are provided then use the source of the previous entity
+        // If no security tags are provided then use those of the previous entity
         if (!(patched_resource_incoming.meta.security)) {
-            patched_resource_incoming.meta.security = meta.security;
+            patched_resource_incoming.meta.security = deepcopy(currentMeta.security);
         }
 
         return patched_resource_incoming;
@@ -377,6 +387,7 @@ class ResourceMerger {
      * @param {boolean|undefined} [incrementVersion]
      * @param {string[]|undefined} [limitToPaths]
      * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
+     * @param {import('../../dataLayer/base64DataManager').Base64DataManager|null} [base64DataManager]
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
     async mergeResourceAsync (
@@ -388,7 +399,8 @@ class ResourceMerger {
             smartMerge = true,
             incrementVersion = true,
             limitToPaths,
-            databaseAttachmentManager = null
+            databaseAttachmentManager = null,
+            base64DataManager = null
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
@@ -408,8 +420,12 @@ class ResourceMerger {
 
         resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
 
-        // for speed, first check if the incoming resource is exactly the same
-        if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
+        // for speed, first check if the incoming resource is exactly the same. Skipped when a
+        // configured base64 leaf is externalized on currentResource — the naive toJSON comparison
+        // can't correctly see a data-only hash-based change or an omission-as-removal; the full
+        // diff + explicit reconciliation below handles both directly regardless.
+        const hasExternalizedLeaf = !!base64DataManager && base64DataManager.hasExternalizedLeaf(currentResource);
+        if (!hasExternalizedLeaf && deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
             return { updatedResource: null, patches: null };
         }
 
@@ -444,16 +460,17 @@ class ResourceMerger {
         dateColumnHandler.setFlag(true);
         currentResourceWithAttachmentData = await dateColumnHandler.preSaveAsync({ resource: currentResourceWithAttachmentData });
         mergedObject = await dateColumnHandler.preSaveAsync({ resource: mergedObject });
+
+        const currentObjectForDiff = currentResourceWithAttachmentData.toJSON();
+        if (base64DataManager) {
+            base64DataManager.excludeExternalizedLeaves(currentObjectForDiff, currentResource);
+            base64DataManager.excludeExternalizedLeaves(mergedObject, currentResource);
+        }
         const patchContent = this.compareObjects({
-            currentObject: currentResourceWithAttachmentData.toJSON(),
+            currentObject: currentObjectForDiff,
             mergedObject,
             limitToPaths
         });
-
-        // see if there are any changes
-        if (patchContent.length === 0) {
-            return { updatedResource: null, patches: null };
-        }
 
         // now apply the patches to the found resource
         if (databaseAttachmentManager) {
@@ -470,6 +487,18 @@ class ResourceMerger {
          */
         let patched_resource_incoming = this.applyPatch({ currentResource, patchContent });
 
+        let base64Patches = [];
+        if (base64DataManager) {
+            base64Patches = await base64DataManager.reconcileLeavesAsync(
+                patched_resource_incoming, currentResource, resourceToMerge, smartMerge, requestInfo
+            );
+        }
+
+        // see if there are any changes (generic diff, or the base64 leaf reconciled above)
+        if (patchContent.length === 0 && base64Patches.length === 0) {
+            return { updatedResource: null, patches: null };
+        }
+
         patched_resource_incoming = this.updateMeta({
             patched_resource_incoming,
             currentResource,
@@ -479,7 +508,7 @@ class ResourceMerger {
 
         return {
             updatedResource: patched_resource_incoming,
-            patches: patchContent.map(p => {
+            patches: [...patchContent, ...base64Patches].map(p => {
                 return {
                     op: p.op, path: p.path, value: p.value
                 };
@@ -498,6 +527,7 @@ class ResourceMerger {
      * @param {boolean|undefined} [incrementVersion]
      * @param {string[]|undefined} [limitToPaths]
      * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
+     * @param {import('../../dataLayer/base64DataManager').Base64DataManager|null} [base64DataManager]
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
     async fastMergeResourceAsync (
@@ -509,7 +539,8 @@ class ResourceMerger {
             smartMerge = true,
             incrementVersion = true,
             limitToPaths,
-            databaseAttachmentManager = null
+            databaseAttachmentManager = null,
+            base64DataManager = null
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
@@ -529,8 +560,11 @@ class ResourceMerger {
 
         resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
 
-        // for speed, first check if the incoming resource is exactly the same
-        if (deepEqual(currentResource, resourceToMerge) === true) {
+        // for speed, first check if the incoming resource is exactly the same. Skipped when a
+        // configured base64 leaf is externalized on currentResource — see mergeResourceAsync's
+        // identical comment above.
+        const hasExternalizedLeaf = !!base64DataManager && base64DataManager.hasExternalizedLeaf(currentResource);
+        if (!hasExternalizedLeaf && deepEqual(currentResource, resourceToMerge) === true) {
             return { updatedResource: null, patches: null };
         }
 
@@ -570,16 +604,16 @@ class ResourceMerger {
         FhirResourceWriteNormalizeSerializer.serialize({obj: currentResourceWithAttachmentData});
         FhirResourceWriteNormalizeSerializer.serialize({obj: mergedObject});
 
+        if (base64DataManager) {
+            base64DataManager.excludeExternalizedLeaves(currentResourceWithAttachmentData, currentResource);
+            base64DataManager.excludeExternalizedLeaves(mergedObject, currentResource);
+        }
+
         const patchContent = this.compareObjects({
             currentObject: currentResourceWithAttachmentData,
             mergedObject,
             limitToPaths
         });
-
-        // see if there are any changes
-        if (patchContent.length === 0) {
-            return { updatedResource: null, patches: null };
-        }
 
         // now apply the patches to the found resource
         if (databaseAttachmentManager) {
@@ -593,6 +627,18 @@ class ResourceMerger {
 
         let patched_resource_incoming = this.fastApplyPatch({ currentResource: deepcopy(currentResource), patchContent });
 
+        let base64Patches = [];
+        if (base64DataManager) {
+            base64Patches = await base64DataManager.reconcileLeavesAsync(
+                patched_resource_incoming, currentResource, resourceToMerge, smartMerge, requestInfo
+            );
+        }
+
+        // see if there are any changes (generic diff, or the base64 leaf reconciled above)
+        if (patchContent.length === 0 && base64Patches.length === 0) {
+            return { updatedResource: null, patches: null };
+        }
+
         patched_resource_incoming = this.fastUpdateMeta({
             patched_resource_incoming,
             currentResource,
@@ -602,7 +648,7 @@ class ResourceMerger {
 
         return {
             updatedResource: patched_resource_incoming,
-            patches: patchContent.map(p => {
+            patches: [...patchContent, ...base64Patches].map(p => {
                 return {
                     op: p.op, path: p.path, value: p.value
                 };

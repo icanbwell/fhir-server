@@ -1,0 +1,18 @@
+{
+    "resourceType": "Organization",
+    "id": "org1",
+    "meta": {
+        "source": "http://healthsystem1.org/provider",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "healthsystem1"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "healthsystem1"
+            }
+        ]
+    },
+    "name": "HealthSystem One"
+}

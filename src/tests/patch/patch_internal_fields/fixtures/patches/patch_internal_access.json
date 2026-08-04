@@ -1,0 +1,7 @@
+[
+  {
+    "op": "add",
+    "path": "/_access",
+    "value": {"malicious-org": 1}
+  }
+]

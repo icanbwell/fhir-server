@@ -2,15 +2,25 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> `AGENTS.md` at the repo root is the organization-wide baseline maintained by Enterprise Architecture and sets the floor for all repos. This file adds repo-specific context and may tighten those rules but must not weaken or contradict them.
+
 ## Project Overview
 
 R4-compliant FHIR server built with Express.js, MongoDB, and an IoC container pattern. Supports REST and GraphQL APIs, Kafka event streaming, Redis caching, and OAuth 2.0 / SMART on FHIR authentication.
 
+## Security-Sensitive Changes
+
+Before reviewing or approving any PR that touches resource search/read, Person/Patient link
+traversal (`$everything`, `$graph`, proxy-patient), resource writes (create/update/merge/patch/
+remove), OAuth scope/token parsing, request-scoped caching, or any cross-resource join on a
+shared identifier — read `review.md` at the repo root and adversarially review the diff against
+it.
+
 ## Essential Commands
 
 ```bash
-# Install dependencies (uses Yarn)
-nvm use && yarn install
+# Install dependencies (Yarn 4 with node_modules)
+nvm use && corepack enable && yarn install
 
 # Run all tests (lint + jest)
 make tests
@@ -25,10 +35,10 @@ nvm use && node node_modules/.bin/jest path/to/test.js -t "test name"
 make lint
 
 # Fix lint
-npm run fix_lint
+yarn run fix_lint
 
 # Format code
-npm run prettier-fix
+yarn run prettier-fix
 
 # Bring up full local stack (MongoDB, Keycloak, Redis, Kafka, ClickHouse)
 make up
@@ -90,10 +100,12 @@ All dependency wiring is in `src/createContainer.js` (~130+ services registered 
 
 - Prettier: 100 char width, semicolons, single quotes, 4-space indent, ES5 trailing commas
 - Pre-commit hook runs lint
-- Node >= 24.14.0 (see `.nvmrc`)
+- Node >= 24.14 (see `.nvmrc`)
 - CommonJS modules (`require`/`module.exports`)
 - Logging via Winston: use `logInfo`, `logDebug`, `logError`, `logWarn` from `src/operations/common/logging.js`
 
 ## Package Management
+
+Uses Yarn 4 with `nodeLinker: node-modules`. Dependencies are installed into a standard `node_modules/` directory. All `require()`d packages must be explicit in `package.json`.
 
 Edit `package.json` then run `make update` to regenerate `yarn.lock`. Some packages (Sentry, OpenTelemetry) are version-locked due to compatibility issues -- test thoroughly before updating.

@@ -63,7 +63,7 @@
             },
             {
               "code": "A",
-               "id": "004d3e80-9ed1-529b-9c67-637257a0e9e4",
+              "id": "004d3e80-9ed1-529b-9c67-637257a0e9e4",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
@@ -206,15 +206,11 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display":"['meta.tag.system','meta.tag.code','_uuid']",
+        "display": "['meta.tag.system','meta.tag.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "display": "{'useTwoStepSearchOptimization':undefined}",
-        "system": "https://www.icanbwell.com/queryOptimization"
       },
       {
         "code": "fhir",

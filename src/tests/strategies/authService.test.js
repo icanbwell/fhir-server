@@ -1,4 +1,4 @@
-const {describe, beforeEach, test, expect, jest} = require('@jest/globals');
+const {describe, beforeEach, afterAll, test, expect, jest} = require('@jest/globals');
 const nock = require('nock');
 const {WellKnownConfigurationManager} = require("../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const {AuthService} = require("../../strategies/authService");
@@ -6,6 +6,10 @@ const {ConfigManager} = require("../../utils/configManager");
 describe('JWT Bearer Strategy', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        nock.cleanAll();
+    });
+
+    afterAll(() => {
         nock.cleanAll();
     });
 
@@ -46,9 +50,17 @@ describe('JWT Bearer Strategy', () => {
     });
 
     test('should handle JWKS fetch failure gracefully', async () => {
+        // Use .reply(500) instead of .replyWithError(): nock v14's MSW-backed
+        // playback path for replyWithError leaks a stale "Network error" event
+        // listener onto MockHttpSocket that recurses into the next test's
+        // request, crashing it with a deep MockHttpSocket emit chain.
+        // .reply(500) exercises the same production catch branch (returns
+        // {keys: []}) without triggering that code path. .times(4) covers the
+        // initial attempt + 3 superagent retries (EXTERNAL_REQUEST_RETRY_COUNT).
         nock('https://example.com')
             .get('/jwks')
-            .replyWithError('Network error');
+            .times(4)
+            .reply(500, 'Network error');
 
         class MockConfigManager extends ConfigManager {
             /**

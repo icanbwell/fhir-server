@@ -255,7 +255,6 @@
                   "code": "135615"
                 },
                 {
-
                   "id": "ac0558be-374e-5668-8c03-83a02425e99e",
                   "system": "urn:oid:2.16.840.1.113883.6.68",
                   "code": "61100020102020"
@@ -325,10 +324,6 @@
       {
         "system": "https://www.icanbwell.com/queryTime",
         "display": "0.037"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
       },
       {
         "system": "https://www.icanbwell.com/queryDatabase",

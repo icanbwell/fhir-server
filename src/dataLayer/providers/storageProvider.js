@@ -22,10 +22,21 @@ class StorageProvider {
      * @param {Object} params
      * @param {Object} params.query - MongoDB-style query object
      * @param {Object} [params.options] - Query options (projection, etc.)
-     * @returns {Promise<Object|null>}
+     * @returns {Promise<Resource|null>}
      */
     async findOneAsync({ query, options }) {
         throw new Error('Not implemented: findOneAsync must be implemented by subclass');
+    }
+
+    /**
+     * Finds one resource matching query as raw object
+     * @param {Object} params
+     * @param {Object} params.query - MongoDB-style query object
+     * @param {Object} [params.options] - Query options (projection, etc.)
+     * @returns {Promise<Object|null>}
+     */
+    async fastFindOneAsync({ query, options }) {
+        throw new Error('Not implemented: fastFindOneAsync must be implemented by subclass');
     }
 
     /**

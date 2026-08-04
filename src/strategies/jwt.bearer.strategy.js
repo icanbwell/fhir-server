@@ -4,9 +4,10 @@
 const {ExtractJwt, Strategy: JwtStrategy} = require('passport-jwt');
 const jwksRsa = require('jwks-rsa');
 const {AuthService} = require('./authService');
-const {logDebug} = require("../operations/common/logging");
+const {logError} = require("../operations/common/logging");
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
+const { JWKS_REQUESTS_PER_MINUTE, JWT_EXPIRY_CLOCK_TOLERANCE } = require('../constants');
 
 class MyJwtStrategy extends JwtStrategy {
     /**
@@ -25,10 +26,13 @@ class MyJwtStrategy extends JwtStrategy {
         super(
             {
                 ...options,
+                jsonWebTokenOptions: {
+                    clockTolerance: JWT_EXPIRY_CLOCK_TOLERANCE
+                },
                 secretOrKeyProvider: jwksRsa.passportJwtSecret({
                     cache: true,
                     rateLimit: true,
-                    jwksRequestsPerMinute: 5,
+                    jwksRequestsPerMinute: JWKS_REQUESTS_PER_MINUTE,
                     jwksUri: configManager.authJwksUrl,
                     cacheMaxAge: configManager.cacheExpiryTime,
                     fetcher: (jwksUrl) => authService.getJwksByUrlAsync(jwksUrl),
@@ -37,9 +41,16 @@ class MyJwtStrategy extends JwtStrategy {
                     },
                     handleSigningKeyError: (err, cb) => {
                         if (err instanceof jwksRsa.SigningKeyNotFoundError) {
-                            logDebug('No Signing Key found!', {user: ''});
+                            logError('JWKS signing key not found', {
+                                user: '',
+                                args: {error: err.message}
+                            });
                             return cb(new Error('No Signing Key found!'));
                         }
+                        logError('JWKS signing key error', {
+                            user: '',
+                            args: {error: err.message, type: err.name}
+                        });
                         return cb(err);
                     }
                 }),

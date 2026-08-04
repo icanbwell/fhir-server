@@ -1,0 +1,26 @@
+{
+    "resourceType": "Patient",
+    "id": "patient-proa",
+    "meta": {
+        "source": "test",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "PROA"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "PROA"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "PROA"
+            }
+        ]
+    },
+    "name": [
+        {
+            "given": ["PROA"]
+        }
+    ]
+}

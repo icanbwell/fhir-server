@@ -13,9 +13,15 @@ const {
 } = require('./export/export.config');
 
 const {
+    routes: importConfig
+} = require('./import/import.config');
+
+const {
     routeArgs,
     routes
 } = require('./route.config');
+
+const { routes: baseRoutes } = require('./base/base.config');
 
 const hyphenToCamelcase = require('./utils/hyphen-to-camel.utils');
 
@@ -330,6 +336,44 @@ class FhirRouter {
         }
     }
 
+    enableImportRoutes (app, config, corsDefaults) {
+        if (!isTrue(process.env.ENABLE_BULK_IMPORT)) {
+            return;
+        }
+
+        for (const profile of importConfig) {
+            const lowercaseMethod = profile.method.toLowerCase();
+            const operationName = profile.operation;
+
+            const corsOptions = Object.assign({}, corsDefaults, profile.corsOptions);
+
+            let operationsControllerRouteHandler;
+            switch (lowercaseMethod) {
+                case 'post':
+                    operationsControllerRouteHandler = this.customOperationsController.operationsPost({
+                        name: operationName
+                    });
+                    break;
+            }
+
+            app.options(profile.path, cors(corsOptions));
+
+            app[profile.method.toLowerCase()](
+                profile.path,
+                cors(corsOptions),
+                versionValidationMiddleware(profile),
+                getArgsMiddleware(),
+                authenticationMiddleware(config),
+                sofScopeMiddleware({
+                    route: profile.path,
+                    auth: config.auth,
+                    name: operationName
+                }),
+                operationsControllerRouteHandler
+            );
+        }
+    }
+
     /**
      * @function enableProfileRoutes
      * @description Start iterating over potential routes to enable for this profile
@@ -445,11 +489,7 @@ class FhirRouter {
     }
 
     enableBaseRoute (app, config, corsDefaults) {
-        // Determine which versions need a base endpoint, we need to loop through
-        // all the configured profiles and find all the uniquely provided versions
-        const routes1 = require('./base/base.config');
-
-        for (const currentRoute of routes1.routes) {
+        for (const currentRoute of baseRoutes) {
             const versionValidationConfiguration = {
                 versions: this.getAllConfiguredVersions(config.profiles)
             };
@@ -498,6 +538,7 @@ class FhirRouter {
 
         this.enableMetadataRoute(app, config, corsDefaults);
         this.enableExportRoutes(app, config, corsDefaults);
+        this.enableImportRoutes(app, config, corsDefaults);
         this.enableResourceRoutes(app, config, corsDefaults); // Enable all routes, operations base: Batch and Transactions
 
         this.enableBaseRoute(app, config, corsDefaults);
