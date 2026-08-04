@@ -43,7 +43,7 @@ const expectedPatientResourcesWithNonClinicalAndAllUuidOnly = require('./fixture
 const expectedPatientResourcesTypeNoGraph = require('./fixtures/expected/expected_Patient_type_no_graph.json');
 const expectedPatientIncludeHiddenResourcesNoGraph = require('./fixtures/expected/expected_Patient_no_graph_include_hidden.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, getHeadersWithCustomPayload } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest, getTestContainer, getHeadersWithCustomPayload } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 const deepcopy = require('deepcopy');
@@ -179,7 +179,7 @@ describe('Person and Patient $everything Tests', () => {
             // First get patient everything
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includePatientLinkedOnly=true')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             expect(resp).toHaveMongoQuery(expectedPatientResourcesGlobalId);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResourcesGlobalId);
@@ -187,7 +187,7 @@ describe('Person and Patient $everything Tests', () => {
             // with _includePatientLinkedUuidOnly only
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includePatientLinkedUuidOnly=true')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             expect(resp).toHaveMongoQuery(expectedPatientResourcesWithUuidOnly);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResourcesWithUuidOnly);
@@ -195,7 +195,7 @@ describe('Person and Patient $everything Tests', () => {
             // with _includeUuidOnly and _includePatientLinkedOnly as true
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeUuidOnly=true&_includePatientLinkedOnly=true')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             expect(resp).toHaveMongoQuery(expectedPatientResourceWithIncludeAllUuidOnly);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResourceWithIncludeAllUuidOnly);
@@ -203,7 +203,7 @@ describe('Person and Patient $everything Tests', () => {
             // should not use projection when _includePatientLinkedOnly is false
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeUuidOnly=true&_includePatientLinkedOnly=false')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             expect(resp).toHaveMongoQuery(expectedPatientResourcesWithNonClinicalAndAllUuidOnly);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResourcesWithNonClinicalAndAllUuidOnly);
@@ -238,19 +238,19 @@ describe('Person and Patient $everything Tests', () => {
 
             resp = await request
                 .get('/4_0_0/Person/person1,personTopLevel/$everything?_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMultiplePersonResources);
 
             resp = await request
                 .get('/4_0_0/Person/$everything?id=person1,personTopLevel&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMultiplePersonResources);
 
             resp = await request
                 .get('/4_0_0/Person/$everything?_id=person1,personTopLevel&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMultiplePersonResources);
 
@@ -433,7 +433,7 @@ describe('Person and Patient $everything Tests', () => {
 
             // ACT & ASSERT
             // First get patient everything
-            resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true').set(getHeaders());
+            resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true').set(getHeadersWithAdmin());
             // Check that only resources having patient link are fetched.
             expect(resp.body.total).toEqual(7);
             expect(serializerSpy).toHaveBeenCalled();

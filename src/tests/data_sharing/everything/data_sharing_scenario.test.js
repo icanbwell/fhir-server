@@ -72,7 +72,7 @@ const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/g
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 const deepcopy = require('deepcopy');
 
-const headers = getHeaders('user/*.read access/client.*');
+const headers = getHeaders('user/*.read access/client.* admin/*.read');
 const client1Headers = getHeaders('user/*.read access/client-1.*');
 const healthServiceHeader = getHeaders('user/*.read access/health-service.*');
 const healthService1Header = getHeaders('user/*.read access/health-service-1.*');

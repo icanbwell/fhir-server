@@ -28,6 +28,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest,
     getHeadersWithCustomPayload,
     getTestContainer
@@ -183,31 +184,31 @@ describe('Proxy Patient $everything Tests', () => {
 
         resp = await request
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1`)
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedPatientResourcesWithMultipleProxyPatient);
 
         // get proxy patient everything with _includeProxyPatientLinkedOnly
         resp = await request
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_includeProxyPatientLinkedOnly=1`)
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedPatientResourcesWithIncludeProxyOnly);
 
         // get proxy patient everything with _excludeProxyPatientLinked
         resp = await request
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_excludeProxyPatientLinked=1`)
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedPatientResourcesWithExcludeProxy);
 
         // get proxy patient everything with _includeProxyPatientLinkedOnly and _includePatientLinkedUuidOnly
         resp = await request
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_includeProxyPatientLinkedOnly=1&_includePatientLinkedUuidOnly=1`)
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedPatientResourcesWithIncludeProxyUuidOnly);
 
         // get proxy patient everything with _excludeProxyPatientLinked and _includePatientLinkedUuidOnly
         resp = await request
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_excludeProxyPatientLinked=1&_includePatientLinkedUuidOnly=1`)
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedPatientResourcesWithExcludeProxyUuidOnly);
     });
 
