@@ -91,8 +91,10 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds).toEqual([clientObservationResource.id]);
         });
 
-        // FIXME: fails on current main — same missing-PROA-consent-branch regression, see PR #2424.
-        test.skip('Ref of master person: Get Client patient & both proa patient data, as consent provided', async () => {
+        // Plain (non-$everything) search intentionally stopped including PROA-consented data as
+        // of DCON-2773 (#2048, Feb 2026) — allowConsentedProaDataAccess now defaults to false and
+        // is only passed true from everythingHelper.js. See PR #2424 for the full root-cause.
+        test('Ref of master person: Get Client patient & both proa patient data, as consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -112,14 +114,14 @@ describe('Data sharing test cases for different scenarios', () => {
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
-            expect(respIds.length).toEqual(3);
-            expect(respIds).toEqual(expect.arrayContaining([
-                clientObservationResource.id, proaObservation1Resource.id, proaObservation2Resource.id
-            ]));
+            expect(respIds.length).toEqual(1);
+            expect(respIds).toEqual([clientObservationResource.id]);
         });
 
-        // FIXME: fails on current main — same missing-PROA-consent-branch regression, see PR #2424.
-        test.skip('Ref of master person: Get Client patient & proa patient data, consent provided, and later consent revoked.', async () => {
+        // Same DCON-2773 behavior change as above (see PR #2424): plain search no longer varies
+        // with consent state, so both the pre- and post-revoke reads return client-only data.
+        // Revocation itself is meaningfully testable only via $everything.
+        test('Ref of master person: Get Client patient & proa patient data, consent provided, and later consent revoked.', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -139,10 +141,8 @@ describe('Data sharing test cases for different scenarios', () => {
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
-            expect(respIds.length).toEqual(3);
-            expect(respIds).toEqual(expect.arrayContaining([
-                clientObservationResource.id, proaObservation1Resource.id, proaObservation2Resource.id
-            ]));
+            expect(respIds.length).toEqual(1);
+            expect(respIds).toEqual([clientObservationResource.id]);
 
             resp = await request.post('/4_0_0/Person/1/$merge').send([
                 { ...clientConsentGivenResource, status: 'inactive' }, clientConsentDeniedResource
@@ -207,8 +207,8 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds).toEqual([clientObservationResource.id]);
         });
 
-        // FIXME: fails on current main — same missing-PROA-consent-branch regression, see PR #2424.
-        test.skip('Ref of client person: Get client & proa data both, when consent provided', async () => {
+        // Same DCON-2773 behavior change as above (see PR #2424).
+        test('Ref of client person: Get client & proa data both, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -228,10 +228,8 @@ describe('Data sharing test cases for different scenarios', () => {
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
-            expect(respIds.length).toEqual(3);
-            expect(respIds).toEqual(expect.arrayContaining(
-                [clientObservationResource.id, proaObservation1Resource.id, proaObservation2Resource.id]
-            ));
+            expect(respIds.length).toEqual(1);
+            expect(respIds).toEqual([clientObservationResource.id]);
         });
 
         test('Ref of client person: Different access token: No data should be there', async () => {
@@ -327,8 +325,9 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds.length).toEqual(0);
         });
 
-        // FIXME: fails on current main — same missing-PROA-consent-branch regression, see PR #2424.
-        test.skip('Ref of proa patient: Get proa data only, when consent provided', async () => {
+        // Same DCON-2773 behavior change as above (see PR #2424): the proa patient is no longer
+        // resolvable via plain search regardless of consent, matching the "no consent" case above.
+        test('Ref of proa patient: Get proa data only, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -348,8 +347,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
-            expect(respIds.length).toEqual(1);
-            expect(respIds).toEqual([proaObservation1Resource.id]);
+            expect(respIds.length).toEqual(0);
         });
     });
 });
