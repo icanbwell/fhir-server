@@ -710,16 +710,21 @@ class FhirOperationsManager {
         });
 
 
+        // repeated query keys (?id=a&id=b) are parsed into an array by express, so normalize to
+        // a list before anything splits on it
+        const idsList = combined_args.id
+            ? (Array.isArray(combined_args.id) ? combined_args.id : combined_args.id.split(','))
+            : [];
+
         let scopedPersonIds;
         // person ids to retrict result to
-        if (resourceType === "Person" && combined_args.id) {
-            scopedPersonIds = combined_args.id.split(',');
-        } else if (resourceType === 'Patient' && combined_args.id) {
+        if (resourceType === "Person" && idsList) {
+            scopedPersonIds = idsList;
+        } else if (resourceType === 'Patient' && idsList) {
             // the equivalent of Person $everything can also be requested directly against the
             // Patient endpoint using the proxy patient id form (Patient/person.<id>/$everything);
             // apply the same sibling-record scoping in that case too (SEC-1580 F10)
-            const proxyPersonIds = combined_args.id
-                .split(',')
+            const proxyPersonIds = idsList
                 .filter((id) => id.startsWith(PERSON_PROXY_PREFIX))
                 .map((id) => id.replace(PERSON_PROXY_PREFIX, ''));
             if (proxyPersonIds.length > 0) {
@@ -730,8 +735,8 @@ class FhirOperationsManager {
         // map Person GET $everything to Patient GET $everything
         if (resourceType === 'Person' && req.method === 'GET') {
             resourceType = 'Patient';
-            if (combined_args.id) {
-                const ids = combined_args.id.split(',').map(id => `${PERSON_PROXY_PREFIX}${id}`);
+            if (idsList) {
+                const ids = idsList.map(id => `${PERSON_PROXY_PREFIX}${id}`);
                 combined_args.id = ids.join(',');
             }
         }
