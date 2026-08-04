@@ -86,6 +86,7 @@ describe('CreateOperation', () => {
         // Setup default mocks
         mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
         mocks.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes = jest.fn().mockResolvedValue(undefined);
+        mocks.scopesValidator.isAccessTagChangeAllowedByAccessScopes = jest.fn();
         mocks.resourceValidator.validateResourceAsync = jest.fn().mockResolvedValue(null);
         mocks.resourceValidator.validateResourceMetaSync = jest.fn().mockReturnValue(null);
         mocks.resourceValidator.validateResourceSizeSync = jest.fn().mockReturnValue(null);

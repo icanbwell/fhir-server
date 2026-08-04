@@ -233,6 +233,39 @@ class ScopesValidator {
     }
 
     /**
+     * Throws forbidden error when the caller is not allowed to make this change to the resource's access
+     * tags (SEC-1580 F2/F3): a caller with write access to a resource via one access tag must not be able
+     * to add or remove a *different* access tag it isn't itself authorized for, since that silently
+     * changes who else can see/write the resource without that other tenant's authorization ever being
+     * checked.
+     * @typedef {Object} IsAccessTagChangeAllowedByAccessScopesParams
+     * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @property {Resource|null} currentResource resource as currently stored, null/undefined when being created
+     * @property {Resource} updatedResource resource as it will be stored
+     * @property {boolean} [ignoreRemovals] set when the calling write path can only append access tags
+     *
+     * @param {IsAccessTagChangeAllowedByAccessScopesParams}
+     */
+    isAccessTagChangeAllowedByAccessScopes ({ requestInfo, currentResource, updatedResource, ignoreRemovals = false }) {
+        const { user, scope } = requestInfo;
+        if (
+            !this.scopesManager.isAccessTagChangeAllowedByScopes({
+                oldAccessCodes: this.scopesManager.getAccessTagCodes(currentResource),
+                newAccessCodes: this.scopesManager.getAccessTagCodes(updatedResource),
+                resourceType: updatedResource.resourceType,
+                user,
+                scope,
+                ignoreRemovals
+            })
+        ) {
+            throw new ForbiddenError(
+                `user ${user} with scopes [${scope}] can only add or remove access tags it has write access to, ` +
+                `for resource ${updatedResource.resourceType} with id ${updatedResource.id}`
+            );
+        }
+    }
+
+    /**
      * Throws forbidden error when access through patient scope is not allowed
      * @typedef {Object} IsAccessToResourceAllowedByPatientScopesParams
      * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo

@@ -394,6 +394,14 @@ class PatchOperation {
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             resource = await this.preSaveManager.preSaveAsync({ resource, options: preSaveOptions });
 
+            // SEC-1580 F2/F3: the pre-patch check above ran against originalResource as stored, so any
+            // access tag the patch itself added or removed still needs to be validated. JSON patch ops
+            // are explicit adds/removes/replaces (not an append-only smart merge), so a code missing from
+            // the patched resource is a real removal
+            this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                requestInfo, currentResource: originalResource, updatedResource: resource
+            });
+
             /**
              * @type {OperationOutcome|null}
              */
