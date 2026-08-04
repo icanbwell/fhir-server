@@ -22,10 +22,23 @@ pattern.
 
 ## Global Constraints
 
-- `docs/security-model-spec.md`, which the review doc calls the "authoritative reference" for all
-  20 rules, **does not exist in this repo**. The only rule definitions available are the review
-  doc's own Part Z matrix. Flag this to JTG/Kristen before sign-off — the checklist is currently
-  ungrounded against any versioned spec file in-repo.
+- `docs/security-model-spec.md` does not exist as a file in this repo, but the content it's
+  meant to hold does exist and is actively maintained: Confluence space `ENTARCH`, page
+  ["FHIR Server Security & Data Model Specification"](https://icanbwell.atlassian.net/wiki/spaces/ENTARCH/pages/6582730753)
+  (+ plain-language companion at
+  [page 6580764702](https://icanbwell.atlassian.net/wiki/spaces/ENTARCH/pages/6580764702), still
+  marked DRAFT). This is materially more precise and current than the review doc's own Part Z
+  matrix — every rule below is corrected against it, not against the Google Doc, wherever the two
+  disagree. **This plan does not copy that content into the repo** — it's live-maintained
+  Confluence content with per-rule dates; mirroring it risks silent drift. Recommend to
+  JTG/Kristen: either keep Confluence authoritative and fix the review doc's file-path reference,
+  or deliberately mirror it here on a cadence — that's a team call, not one this plan makes
+  unilaterally.
+- The Confluence spec is dated **2026-07-31** and is already stale in places as of today
+  (2026-08-04) — three `SEC-1580` fix commits (`d8d4da940`, `a3b99df35`, and others) landed today,
+  same-day as this plan. Treat every "Known Gap" status below as "known gap as of 3 days ago,
+  verify against `main` before writing a test" — several tasks below already had to do exactly
+  that.
 - Every new adversarial test must have a **positive and a negative case** (E.6 in the review doc)
   — a lone "should see" test cannot catch a missing filter.
 - Use deterministic fixture ids consistent with existing `scenario_*` JSON fixtures; do not invent
@@ -67,6 +80,56 @@ So the plan runs in four phases: **(0)** restore free/dead coverage, **(1)** clo
 write-path exploit, **(2)** close the two doc-headline read-side gaps, **(3)** reconcile every
 other quarantined file against current `main`, **(4)** close the remaining net-new gaps (Part X
 and the smaller Part A/D rows).
+
+## Corrections from the authoritative spec (not just the review doc)
+
+The review doc's Part Z matrix is a summary; the Confluence spec is the primary source and is
+more precise on several rows the review doc flattened or missed entirely. These change scope,
+not just wording:
+
+- **IDG-5 is much broader than `$everything`/`$graph`.** The spec's own note: "the one mitigating
+  exception in place applies only to a single specific operation-and-request-shape combination.
+  Every other read operation that reaches the same expansion logic — ordinary resource search,
+  search-by-id, and at least one metadata-disclosure operation — remains completely unfiltered by
+  this check today." That metadata-disclosure operation is `src/operations/accessHistory/
+  accessHistory.js` — an operation that reveals *who has accessed* a Person's linked data. **This
+  is a sixth egress path the review doc's Part X never lists at all.** Task 2.2 below is expanded
+  to cover ordinary search/search-by-id via traversal, and a new Task 2.3 covers `accessHistory`
+  specifically — leaking *access metadata* cross-tenant is its own category of harm distinct from
+  leaking the underlying clinical data.
+- **IDG-1 and IDG-2 are `Open Question` status, not settled `Known Gap`s** — the spec's working
+  assumption for IDG-2 (same-owner link = dead end) is tracked by ticket `DCON-4691`, not yet
+  merged as of this check. A new adversarial test for D-IDG1/D-IDG2 should assert today's actual
+  (leaky) behavior and be explicitly labeled as testing a *working assumption pending product
+  confirmation*, not a settled contract — don't word the PASS condition as if the rule is final.
+- **IDG-4 (write-path traversal boundary) is broader than the review doc's W3.** W3 as scoped in
+  this plan only covers cross-tenant `Person.link` target forgery
+  (`resourceValidator.js:123`). The spec's IDG-4 also covers a second, distinct mechanism: because
+  IDG-2 (same-owner dead-end) isn't enforced at all yet, "a same-tenant duplicate-identity link
+  can currently grant write access to another patient's record, not just read access." Task 3.3
+  below is split into 3.3a (cross-tenant link forgery, the original W3) and 3.3b (same-owner-link
+  write-access grant, IDG-4's specific addition) — they're different code paths and a fix to one
+  won't close the other.
+- **WPI-1's patch-path gap is confirmed live**, independent of WPI-2: `src/operations/patch/
+  validators/patchInternalFieldsValidator.js`'s `isInternalField` only matches segments starting
+  with `_` — `meta.security` doesn't start with `_`, so a PATCH operation targeting the access tag
+  is not blocked by this validator at all, regardless of whether the merge/update path's WPI-2
+  re-check is fixed. `patchSecurityTagEscalation.test.js` (already quarantined) targets exactly
+  this — added to Phase 3 reconciliation as Task 3.1b.
+- **WPI-2 is likely already fixed** — spec says "Known Gap" as of 2026-07-31, but `SEC-1580 F2/F3`
+  (commit `d8d4da940`) landed today and adds the post-merge re-check the spec describes as
+  missing. This is the stale-spec case flagged in Global Constraints; Task 3.1 already handles
+  verifying this rather than assuming either source.
+- **IDG-6's `$graph` gap may be only half-fixed.** `SEC-1580 F4` (commit `a3b99df35`, landed today)
+  added correct per-chunk cache *keying* to `$graph`. The spec's note describes a *second*,
+  independent mitigation for the `$everything` case: a fail-closed safety net that returns nothing
+  when a per-step cache lookup comes up empty. It explicitly says `$graph` — "a second operation
+  sharing the same underlying consent-evaluation mechanism" — has *not* been given "either" the
+  keying or the fail-closed net, "for one specific query shape (a lookup with no patient-identity
+  parameter)." F4's commit message only claims the keying half. Task 4.5 (X-graph) is expanded to
+  explicitly check whether the fail-closed-on-empty-lookup behavior exists in
+  `dataSharingManager.js` for the no-patient-identity-parameter query shape specifically, not just
+  assume F4 closed the whole IDG-6/$graph gap.
 
 ---
 
@@ -202,6 +265,35 @@ guarantee the other is also closed.
 - [ ] Contrast explicitly with `delete_everything_cross_tag.test.js` — that file proves the
   foreign-tagged nested resource can't be **deleted** via `$everything`; this new test proves it
   isn't **returned** by a `GET`. Do not consider this task done by pointing at that existing file.
+- [ ] **Per the authoritative spec's IDG-5 note, also repeat against ordinary resource search and
+  search-by-id** — the traversal/expansion utility (`src/utils/personToPatientIdsExpander.js`) is
+  shared by all of these, and the spec confirms it's unfiltered outside the one exception. Add a
+  case: `GET /Observation?patient=Patient/person.<uuid>` (ordinary search through the proxy-patient
+  form) and `GET /<ResourceType>/<id>` (direct search-by-id on a resource only reachable via the
+  expansion) with the same foreign-tagged nested resource — assert it's absent from both. Expect
+  these to fail (confirming the broader-than-`$everything` scope); quarantine each failing case
+  distinctly so a partial fix (e.g. `$everything` only) is visible in the test names.
+
+### Task 2.3: IDG-5 on `accessHistory` — the metadata-disclosure operation the review doc never listed
+
+**Files:**
+- Create: `src/tests/unit/operations/accessHistory/accessHistoryCrossTenant.test.js` (quarantined
+  by default)
+- Reference: `src/operations/accessHistory/accessHistory.js`
+
+- [ ] Confirm what `accessHistory` actually returns (read the operation before writing fixtures) —
+  the spec describes it only as "an operation that reveals who has accessed a Person's linked
+  data." Identify its request shape (which id it's queried by, what traversal it performs) from
+  the source file directly, since neither the review doc nor Part X mentions this operation at
+  all — there's no existing fixture pattern to copy for it.
+- [ ] Seed the same cross-tenant nested-resource trap used in Task 2.2, then call `accessHistory`
+  for the Person/Patient whose graph would traverse into it. Assert the foreign-tenant access
+  metadata is absent.
+- [ ] This is a **new finding relative to the review doc**, not a reconciliation of an existing
+  row — call this out explicitly when reporting Phase 2 results back to JTG, since the doc's Part
+  Z completeness matrix doesn't have a row id for it. Suggest it become e.g. `X-accesshistory` in
+  a future revision of the doc's Part X, since it's the same "separate egress door" pattern as
+  `$graph`/`$export`/`$summary`/GraphQL/`_security`.
 
 ---
 
@@ -242,7 +334,26 @@ a "flip the flag" task, not a "write a test" task.
   the line) so whoever fixes it doesn't have to re-derive what Task 2 of this audit already
   found.
 
-### Task 3.3: W3 (IDG-4, Person.link target forgery) — confirm still open, keep quarantined
+### Task 3.1b: WPI-1 patch-path gap (naming-convention blocklist misses the access tag) — confirm still open, keep quarantined
+
+**Files:**
+- Verify: `src/operations/patch/validators/patchInternalFieldsValidator.js` (`isInternalField` —
+  matches only segments starting with `_`)
+- Verify: `src/tests/unit/operations/patch/patchSecurityTagEscalation.test.js` (quarantined)
+
+- [ ] Confirmed already (2026-08-04): `isInternalField` is a pure `startsWith('_')` check;
+  `meta.security` does not start with `_`, so a PATCH operation replacing/adding an access tag is
+  never rejected by this validator. This is independent of whether WPI-2's post-merge re-check
+  (Task 3.1) covers PATCH — a naming-convention miss means the field is never even flagged as
+  internal in the first place, regardless of when re-validation happens.
+- [ ] Run `patchSecurityTagEscalation.test.js` directly and confirm it fails for this reason
+  specifically (not a stale/unrelated assertion) before leaving it quarantined.
+- [ ] File a ticket citing `patchInternalFieldsValidator.js`'s `isInternalField` function
+  specifically — the eventual fix is almost certainly switching it from a naming convention to an
+  explicit protected-field list (matching `review.md` Section C's own general guidance on this
+  exact anti-pattern), which is useful context for whoever picks up the fix.
+
+### Task 3.3a: W3 (Person.link target forgery, cross-tenant) — confirm still open, keep quarantined
 
 **Files:**
 - Verify: `src/operations/common/resourceValidator.js:123` (`if (!isUser) return null`)
@@ -256,6 +367,26 @@ a "flip the flag" task, not a "write a test" task.
   Add a comment to that test noting it would need to change the day W3 is fixed for `Person`
   specifically, so nobody "fixes" `merge.crossTenant.test.js:533` by loosening
   `resourceValidator.test.js:210` instead of tightening the validator.
+
+### Task 3.3b: IDG-4's second mechanism — same-owner link granting write access (distinct from 3.3a)
+
+**Files:**
+- Create: `src/tests/unit/operations/security/sameOwnerLinkWriteAccess.test.js` (quarantined)
+
+- [ ] This is **not** the same bug as 3.3a. Per the authoritative spec, IDG-4 covers two
+  independent traversal-boundary rules applying to writes: IDG-1 (no sibling reach) and IDG-2
+  (same-owner link = dead end). 3.3a is a cross-tenant link-target forgery bug in
+  `resourceValidator.js`. This task is about IDG-2's write-side consequence: because same-owner
+  links aren't treated as a dead end anywhere yet (pending `DCON-4691`), a caller who controls one
+  of two same-owner duplicate-master Persons (the `M_A`/`M2` trap pair from the review doc's E.2)
+  may be able to write to a patient reachable only through the *other* same-owner master's link,
+  not just read it.
+- [ ] Seed the duplicate-master pair fixture (already planned for Task 4.3/D-IDG1). As the caller
+  who controls `M_A`, attempt a write (e.g. `PATCH`/`PUT`) targeting a resource reachable only via
+  `M2`'s link graph. Assert it's rejected.
+- [ ] Expect this to fail today (no enforcement exists). Quarantine with a comment linking to
+  `DCON-4691` so whoever picks up that ticket for the read-side fix knows the write-side test is
+  waiting on the same underlying rule.
 
 ### Task 3.4: W4 (CACHE-2, delegated-actor cache collision) — lock in the incidental mitigation
 
@@ -358,12 +489,20 @@ a "flip the flag" task, not a "write a test" task.
   unit test — use as the model, not a substitute)
 
 - [ ] Seed the `E.2` "trap Person S" — reachable via a shared grouping key but NOT on the queried
-  Person's `link` — plus the queried Person's real link graph.
+  Person's `link` — plus the queried Person's real link graph. Also seed the same-owner duplicate
+  master pair (`M_A` + `M2`) from the same fixture set — this task and Task 3.3b share fixtures.
 - [ ] `GET /Person/<id>/$everything` and the proxy-patient form — assert Person S's data never
-  appears in either.
+  appears in either, and (per IDG-2) that `M2`'s graph never appears when querying via `M_A`.
 - [ ] This closes the gap between "we proved the *expander utility* excludes S in isolation"
   (the existing unit test) and "we proved the *actual endpoint* excludes S" (nothing currently
   does) — a unit-level pass doesn't guarantee every call site wires the exclusion in correctly.
+- [ ] **Label both halves of this test according to their real status, not as settled contracts.**
+  Per the authoritative spec, IDG-1 (sibling reach) and IDG-2 (same-owner dead end) are both
+  `Open Question` — IDG-2's "should be Enforced" is a working assumption pending product
+  confirmation (`DCON-4691`), and IDG-1's precise mechanism is still under investigation. Write
+  the PASS condition as "this is today's intended behavior per the current working assumption,"
+  and flag in the PR description that a product decision could change what "PASS" means here —
+  don't let this test read as proof the rule is final.
 
 ### Task 4.4: D-SAE4 — reframe existing test around the exists-vs-not-found signal specifically
 
@@ -397,6 +536,16 @@ a "flip the flag" task, not a "write a test" task.
   state, not a stale/leaked value from the other chunk's cache entry. This is a regression guard,
   not a bug hunt — expect it to pass; its value is catching a future reintroduction of the
   unkeyed-cache bug.
+- [ ] **Before treating X-graph as closed, verify the second mitigation separately.** The
+  authoritative spec describes two independent protections for the `$everything` case: correct
+  per-step cache keying (F4 added this to `$graph` today) AND a fail-closed safety net that
+  returns nothing when a per-step cache lookup comes up empty — and says `$graph` specifically
+  still lacks this second one "for one specific query shape (a lookup with no patient-identity
+  parameter)." Read `dataSharingManager.js`'s fail-closed logic and construct that exact query
+  shape against `$graph` (a consent-driven lookup where no patient id is available for the
+  fail-closed check to key off of) — if it doesn't fail closed, that's a live, distinct gap from
+  the one F4 fixed, and needs its own quarantined test rather than being folded into this
+  regression guard.
 
 ### Task 4.6: X-summary CACHE-1 — expose the dormant generation counter (code-fix ticket, test documents it)
 
@@ -422,11 +571,19 @@ a "flip the flag" task, not a "write a test" task.
 
 ## Self-review notes
 
-- **Spec coverage:** every row in the review doc's Part Z (IDG-1..7, SAE-1..6, WPI-1..2,
-  CACHE-1..2, CL-1..3) maps to at least one task above via its Part A–D/W/X row id. A1, A2, B4-neg,
-  B5, B6, C7, C8, C9, C10 have no dedicated task because live, verified, non-quarantined coverage
-  already exists (Phase-0's audit) and no gap was found — they're intentionally omitted rather than
-  missed.
+- **Spec coverage:** every rule in the authoritative Confluence spec (IDG-1..7, SAE-1..6, WPI-1..2,
+  CACHE-1..2, CL-1..3) maps to at least one task above. A1, A2, B4-neg, B5, B6, C7, C9, C10 have no
+  dedicated task because live, verified, non-quarantined coverage already exists (Phase-0's audit)
+  and no gap was found — they're intentionally omitted rather than missed. **C8 is not fully closed
+  out** — SAE-3 (patient-scope callers get no independent access-tag check layered on top of
+  link-graph reachability) is a confirmed `Known Gap` the existing C8 tests don't probe, since they
+  only test graph-boundary restriction, not an access-tag mismatch *within* the caller's own graph.
+  Not yet promoted to a numbered task in this revision — flag as a follow-up before calling Part 3
+  (Scope & Access-Tag Enforcement) fully planned.
+- Two rows are broader than the review doc scoped them, per the authoritative spec: **IDG-5**
+  (Task 2.2/2.3, now covers ordinary search/search-by-id and the previously-unlisted
+  `accessHistory` operation) and **IDG-4** (Task 3.3a/3.3b, now two distinct write-path bugs
+  instead of one).
 - **Placeholder scan:** every task names an exact file path and an exact assertion; none defer
   "add appropriate checks" to the implementer.
 - **Type/name consistency:** file paths for new tests follow the existing directory convention
