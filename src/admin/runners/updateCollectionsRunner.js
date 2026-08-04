@@ -212,7 +212,7 @@ class UpdateCollectionsRunner {
                     let updatedCount = 0; // Keeps track of the total updated documents
                     let skippedCount = 0; // Keeps track of documents that are skipped as they don't match the requirements.
                     let lastProcessedId = null; // For each collect help in keeping track of the last id processed.
-                    const sourceMissingLastUpdated = 0; // Keeps tranch of source document that doesn't have lastUpdated.
+                    let sourceMissingLastUpdated = 0; // Keeps tranch of source document that doesn't have lastUpdated.
                     let targetMissingLastUpdated = 0; // Keeps track of target document that doesn't have last updated.
                     let totalProcessedDoc = 0; // Keep tracks of the total processed id.
                     let targetLastUpdatedGreaterThanUpdatedBefore = 0; // Keeps tracks of the documnet that is skipped and target last update is greater than updated before.
@@ -255,6 +255,13 @@ class UpdateCollectionsRunner {
                         // Skip target documents in which lastUpdated is not present.
                         if (targetDocument?.meta?.lastUpdated === undefined) {
                             targetMissingLastUpdated += 1;
+                            continue;
+                        }
+                        // Skip source documents in which lastUpdated is not present, since without it
+                        // we can't determine whether the source is actually fresher than the target
+                        // (moment(undefined) resolves to "now", which would make it look freshest).
+                        if (sourceDocument?.meta?.lastUpdated === undefined) {
+                            sourceMissingLastUpdated += 1;
                             continue;
                         }
 
