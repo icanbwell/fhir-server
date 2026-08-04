@@ -230,7 +230,7 @@ class GetMasterPatientUsageDataRunner extends BaseBulkOperationRunner {
         writeStream.write('Resource| Count| Uuid with min lastUpdated| Min LastUpdated| Uuid with max lastUpdated| Max LastUpdated|\n');
         for (const [resourceType, { count, minUuid, minLastUpdated, maxUuid, maxlastUpdated }] of this.usageData) {
             writeStream.write(
-                `${resourceType}| ${count}| ${minUuid}| ${minLastUpdated.toISOString()}| ${maxUuid}| ${maxlastUpdated.toISOString()}|\n`
+                `${resourceType}| ${count}| ${minUuid}| ${minLastUpdated ? minLastUpdated.toISOString() : ''}| ${maxUuid}| ${maxlastUpdated ? maxlastUpdated.toISOString() : ''}|\n`
             );
         }
         writeStream.end();
