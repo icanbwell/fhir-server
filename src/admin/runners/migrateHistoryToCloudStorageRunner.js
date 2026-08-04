@@ -143,12 +143,20 @@ class MigrateHistoryToCloudStorageRunner extends BaseScriptRunner {
                 return await this.processRecordAsync(hisResource);
             })
         );
-        const bulkResult = await collection.bulkWrite(operations.filter(item => item !== null), {
-            session
-        });
+        operations = operations.filter(item => item !== null);
         this.lastProcessId = this.lastBatchDocId;
-        this.documentsUpdated += bulkResult.modifiedCount;
         this.historyBatch = [];
+
+        if (operations.length === 0) {
+            this.adminLogger.logInfo(
+                `Processed batch ${this.batchCount}, no operations to write, last id: ${this.lastProcessId}`
+            );
+            this.batchCount += 1;
+            return;
+        }
+
+        const bulkResult = await collection.bulkWrite(operations, { session });
+        this.documentsUpdated += bulkResult.modifiedCount;
 
         const message =
             `Processed batch ${this.batchCount}, ` +

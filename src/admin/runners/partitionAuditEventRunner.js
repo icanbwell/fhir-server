@@ -92,7 +92,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      */
     async copyRecordAsync (doc) {
         const operations = [];
-        const accessCodes = doc.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code);
+        const accessCodes = (doc.meta?.security || []).filter(s => s.system === SecurityTagSystem.access).map(s => s.code);
 
         if (accessCodes.length > 0 && !doc._access) {
             const _access = {};
@@ -123,7 +123,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      */
     async setAccessIndexRecordAsync (doc) {
         const operations = [];
-        const accessCodes = doc.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code);
+        const accessCodes = (doc.meta?.security || []).filter(s => s.system === SecurityTagSystem.access).map(s => s.code);
 
         if (accessCodes.length > 0 && !doc._access) {
             const _access = {};

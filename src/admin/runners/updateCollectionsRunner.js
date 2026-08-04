@@ -262,19 +262,16 @@ class UpdateCollectionsRunner {
                         let targetLastUpdated = targetDocument.meta.lastUpdated;
                         let sourceLastUpdated = sourceDocument.meta.lastUpdated;
 
-                        if (!(targetLastUpdated instanceof Date)) {
-                            targetLastUpdated =
-                                moment(targetLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
-                        }
-                        if (!(sourceLastUpdated instanceof Date)) {
-                            sourceLastUpdated =
-                                moment(sourceLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
-                        }
+                        // Normalize both values to moment instances so comparisons below are
+                        // always numeric (Date/string vs moment mixed comparisons can silently
+                        // evaluate to false due to JS coercing an unparsed string to NaN).
+                        targetLastUpdated = moment(targetLastUpdated);
+                        sourceLastUpdated = moment(sourceLastUpdated);
 
-                        if (targetLastUpdated > this.updatedBefore) {
+                        if (targetLastUpdated.isAfter(this.updatedBefore)) {
                             targetLastUpdatedGreaterThanUpdatedBefore += 1;
                             continue;
-                        } else if (targetLastUpdated > sourceLastUpdated) {
+                        } else if (targetLastUpdated.isAfter(sourceLastUpdated)) {
                             targetLastUpdatedGreaterThanSource += 1;
                             continue;
                         }
@@ -282,8 +279,8 @@ class UpdateCollectionsRunner {
                         try {
                             if (
                                 targetDocument &&
-                                targetLastUpdated < this.updatedBefore &&
-                                targetLastUpdated < sourceLastUpdated
+                                targetLastUpdated.isBefore(this.updatedBefore) &&
+                                targetLastUpdated.isBefore(sourceLastUpdated)
                             ) {
                                 // Updating the document in targetDatabase.
                                 result = await targetDatabaseCollection.updateOne(
