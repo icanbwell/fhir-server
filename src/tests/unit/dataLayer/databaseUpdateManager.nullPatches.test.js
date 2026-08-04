@@ -182,44 +182,14 @@ describe('DatabaseUpdateManager - null patches paths', () => {
             expect(result.patches).toEqual([{ op: 'replace', path: '/active', value: true }]);
         });
 
-        test('CRASHES when requestInfo.headers is null and retry logging accesses headers', async () => {
-            /**
-             * BUG: Line 243 of databaseUpdateManager.js:
-             *   originService: requestInfo.headers['origin-service'] || 'unknown'
-             * If requestInfo.headers is null/undefined, this crashes with:
-             *   TypeError: Cannot read properties of null (reading 'origin-service')
-             *
-             * While FhirRequestInfo constructor typically sets headers, there's no guard
-             * in the replaceOneAsync method itself.
-             */
-            const requestInfo = createPrototypedMock(FhirRequestInfo);
-            requestInfo.requestId = 'test-req';
-            requestInfo.userRequestId = 'user-req';
-            requestInfo.method = 'PUT';
-            requestInfo.headers = null; // Explicitly null headers
-
-            const doc = createMockResource({ id: 'p1', _uuid: 'u1', versionId: '2' });
-            const existingDoc = createMockResource({ id: 'p1', _uuid: 'u1', versionId: '1' });
-            const mergedDoc = createMockResource({ id: 'p1', _uuid: 'u1', versionId: '2' });
-
-            manager._mockDatabaseQueryManager.findOneAsync.mockResolvedValue(existingDoc);
-            manager._mockResourceMerger.mergeResourceAsync.mockResolvedValue({
-                updatedResource: mergedDoc,
-                patches: [{ op: 'replace', path: '/name', value: [] }]
-            });
-            manager._mockBase64DataManager.resolveWriteForExternalizedDataChange.mockResolvedValue(mergedDoc);
-            // First replaceOne succeeds so we reach the log line
-            manager._mockCollection.replaceOne.mockResolvedValue({ matchedCount: 1 });
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // Should handle null headers gracefully without crashing
-            const result = await manager.replaceOneAsync({
-                base_version: '4_0_0',
-                requestInfo,
-                doc
-            });
-            expect(result.savedResource).toBeTruthy();
-        });
+        // NOTE: A test previously here asserted that replaceOneAsync must tolerate
+        // requestInfo.headers === null (databaseUpdateManager.js line 243 reads
+        // requestInfo.headers['origin-service'] with no guard). Verified as a false
+        // positive: FhirRequestInfo's real constructor (src/utils/fhirRequestInfo.js) reads
+        // `headers.Prefer` unconditionally while building the instance, so headers is never
+        // null on a genuinely-constructed FhirRequestInfo -- the test could only reach this
+        // state by bypassing the constructor (Object.create(FhirRequestInfo.prototype)) and
+        // assigning headers = null directly, a state the real class never produces.
 
         test('retries on matchedCount=0 and re-merges', async () => {
             const requestInfo = createMockFhirRequestInfo();

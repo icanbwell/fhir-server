@@ -10,7 +10,8 @@ jestObj.mock('../../../../utils/assertType', () => ({
 jestObj.mock('../../../../operations/common/logging', () => ({
     logInfo: jestObj.fn(),
     logError: jestObj.fn(),
-    logDebug: jestObj.fn()
+    logDebug: jestObj.fn(),
+    logWarn: jestObj.fn()
 }));
 
 jestObj.mock('../../../../utils/uid.util', () => ({
@@ -389,6 +390,78 @@ describe('ExportManager', () => {
             });
             const call = mocks.k8sClient.createJob.mock.calls[0][0];
             expect(call.context).toEqual({});
+        });
+
+        // DCON-4805: scriptCommand is later split on spaces into the container's argv array,
+        // so an unvalidated batch-size param containing a space could inject extra CLI flags
+        // into the spawned Kubernetes job (e.g. overriding --bulkExportS3BucketName or
+        // --exportStatusId). These params must be rejected unless they are a bare integer.
+        describe('argument injection prevention', () => {
+            test('drops a patientReferenceBatchSize value containing an injected flag', async () => {
+                const exportStatusResource = {
+                    _uuid: 'export-uuid-123',
+                    extension: [
+                        { id: 'patientReferenceBatchSize', valueString: '100 --bulkExportS3BucketName attacker-bucket' }
+                    ]
+                };
+                await exportManager.triggerExportJob({
+                    exportStatusResource,
+                    requestId: 'req-123'
+                });
+                const call = mocks.k8sClient.createJob.mock.calls[0][0];
+                expect(call.scriptCommand).not.toContain('attacker-bucket');
+                expect(call.scriptCommand).not.toContain('--patientReferenceBatchSize');
+                // the legitimate base bucket name must still be the only one present
+                expect(call.scriptCommand).toContain('--bulkExportS3BucketName test-bucket');
+            });
+
+            test('drops a fetchResourceBatchSize value containing shell metacharacters', async () => {
+                const exportStatusResource = {
+                    _uuid: 'export-uuid-123',
+                    extension: [
+                        { id: 'fetchResourceBatchSize', valueString: '100; rm -rf /' }
+                    ]
+                };
+                await exportManager.triggerExportJob({
+                    exportStatusResource,
+                    requestId: 'req-123'
+                });
+                const call = mocks.k8sClient.createJob.mock.calls[0][0];
+                expect(call.scriptCommand).not.toContain('--fetchResourceBatchSize');
+                expect(call.scriptCommand).not.toContain('rm -rf');
+            });
+
+            test('accepts a plain positive integer value', async () => {
+                const exportStatusResource = {
+                    _uuid: 'export-uuid-123',
+                    extension: [
+                        { id: 'uploadPartSize', valueString: '1024' }
+                    ]
+                };
+                await exportManager.triggerExportJob({
+                    exportStatusResource,
+                    requestId: 'req-123'
+                });
+                const call = mocks.k8sClient.createJob.mock.calls[0][0];
+                expect(call.scriptCommand).toContain('--uploadPartSize 1024');
+            });
+
+            test('rejects a negative number and a decimal value', async () => {
+                const exportStatusResource = {
+                    _uuid: 'export-uuid-123',
+                    extension: [
+                        { id: 'patientReferenceBatchSize', valueString: '-5' },
+                        { id: 'fetchResourceBatchSize', valueString: '5.5' }
+                    ]
+                };
+                await exportManager.triggerExportJob({
+                    exportStatusResource,
+                    requestId: 'req-123'
+                });
+                const call = mocks.k8sClient.createJob.mock.calls[0][0];
+                expect(call.scriptCommand).not.toContain('--patientReferenceBatchSize');
+                expect(call.scriptCommand).not.toContain('--fetchResourceBatchSize');
+            });
         });
     });
 });

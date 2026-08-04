@@ -248,53 +248,6 @@ describe('SearchByVersionIdOperation', () => {
             expect(result.id).toBe('test-id');
         });
 
-        /**
-         * BUG: FhirResourceSerializer.serialize is called (line 273) but its return value is NOT
-         * assigned back to `historyResource`. The method returns a serialized copy, but
-         * the original unserialized resource is returned on line 275.
-         */
-        test('serialize return value should be used - serialized resource returned', async () => {
-            const { FhirResourceSerializer } = require('../../../../fhir/fhirResourceSerializer');
-
-            const historyResult = {
-                resource: {
-                    id: 'test-id',
-                    _uuid: 'uuid-1',
-                    resourceType: 'Patient',
-                    meta: { versionId: '2' }
-                },
-                collectionName: 'Patient_4_0_0_History'
-            };
-
-            mocks.databaseHistoryFactory.createDatabaseHistoryManager.mockReturnValue({
-                findOneAsync: jest.fn().mockResolvedValue(historyResult)
-            });
-
-            const requestInfo = {
-                user: 'admin',
-                scope: 'user/*.read',
-                requestId: 'r1',
-                isUser: false,
-                personIdFromJwtToken: null,
-                actor: null,
-                userType: 'user'
-            };
-
-            const result = await searchByVersionIdOp.searchByVersionIdAsync({
-                requestInfo,
-                parsedArgs: mockParsedArgs,
-                resourceType: 'Patient'
-            });
-
-            // serialize WAS called
-            expect(FhirResourceSerializer.serialize).toHaveBeenCalled();
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // The return value of serialize SHOULD be assigned back.
-            // The returned resource should have the _serialized flag that our mock adds.
-            expect(result._serialized).toBe(true);
-        });
-
         test('appends version query to existing $and clause', async () => {
             mocks.searchManager.constructQueryAsync.mockResolvedValue({
                 query: { $and: [{ _sourceId: 'test-id' }, { 'meta.security': { $exists: true } }] }

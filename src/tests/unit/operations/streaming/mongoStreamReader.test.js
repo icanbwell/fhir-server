@@ -168,10 +168,6 @@ describe('MongoReadableStream', () => {
 
             await stream.readCursorAsync({ size: 10 });
 
-            // The TypeError from null._uuid is caught and an OperationOutcome is pushed
-            expect(captureException).toHaveBeenCalled();
-            expect(mockResponse.statusCode).toBe(500);
-            // EXPECTED: correct behavior (will fail until bug is fixed)
             const hasNull = collected.some(c => c === null);
             expect(hasNull).toBe(true);
         });

@@ -90,7 +90,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             callback();
             return;
         }
-        const chunkId = chunk.id;
+        const chunkId = chunk && chunk.id;
         try {
             if (chunk !== null && chunk !== undefined) {
                 // Depending on DEFAULT_SORT_ID, the last id can be either id or any other field.

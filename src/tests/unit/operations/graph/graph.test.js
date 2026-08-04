@@ -152,6 +152,34 @@ describe('GraphOperation', () => {
             expect(mockGraphHelper.processGraphAsync).not.toHaveBeenCalled();
         });
 
+        // DCON-4806: verifyHasValidScopesAsync must be checked as a write for DELETE,
+        // otherwise a read-only-scoped caller could delete the resource graph.
+        test('should verify write scope (not read) when method is DELETE', async () => {
+            mockRequestInfo.method = 'DELETE';
+
+            await graphOperation.graph({
+                requestInfo: mockRequestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: 'write' })
+            );
+        });
+
+        test('should verify read scope for non-DELETE methods', async () => {
+            await graphOperation.graph({
+                requestInfo: mockRequestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: 'read' })
+            );
+        });
+
         test('should extract graph from Parameters resource', async () => {
             mockRequestInfo.body = {
                 resourceType: 'Parameters',
