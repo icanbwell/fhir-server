@@ -14,6 +14,7 @@ const { DateColumnHandler } = require("../../preSaveHandlers/handlers/dateColumn
 const deepcopy = require('deepcopy');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
+const { ScopesManager } = require('../security/scopesManager');
 
 /**
  * @typedef {object} MergePatchEntry
@@ -70,15 +71,22 @@ class ResourceMerger {
      * constructor
      * @typedef {Object} Params
      * @property {PreSaveManager} preSaveManager
+     * @property {import('../security/scopesManager').ScopesManager} scopesManager
      *
      * @param {Params}
      */
-    constructor ({ preSaveManager }) {
+    constructor ({ preSaveManager, scopesManager }) {
         /**
          * @type {PreSaveManager}
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+
+        /**
+         * @type {import('../security/scopesManager').ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
     }
 
     /**
@@ -127,17 +135,28 @@ class ResourceMerger {
     }
 
     /**
-     * Restores the access tags on resourceToMerge to exactly the set present on currentResource.
+     * Restores the access tags on resourceToMerge to exactly the set present on currentResource,
+     * unless the caller has wildcard ('*') access, in which case tags are left as submitted --
+     * matching the existing "no security check since user has full access to everything"
+     * convention scopesManager already applies everywhere else.
      * Unlike owner/sourceAssigningAuthority (exactly one value, handled by updateSecurityTag),
      * a resource can carry multiple access tags at once, so this replaces the whole set rather
      * than updating a single entry. Access tags govern which tenants may read a resource -- if a
      * write could change them, a caller authorized for only one of a resource's tags could add or
-     * strip a tag belonging to a tenant it has no relationship with (SEC-1583). There is no
-     * supported path for changing access tags through an ordinary create/update/merge/patch; a
-     * dedicated, explicitly-authorized mechanism should be used if that's ever needed.
-     * @param {UpdateSecurityTagProps}
+     * strip a tag belonging to a tenant it has no relationship with (SEC-1583).
+     * @param {UpdateSecurityTagProps} params
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} [params.requestInfo]
      */
-    restoreAccessTags ({ currentResource, resourceToMerge }) {
+    restoreAccessTags ({ currentResource, resourceToMerge, requestInfo }) {
+        if (requestInfo) {
+            const accessCodes = this.scopesManager.getAccessCodesFromScopes(
+                'write', requestInfo.user, requestInfo.scope
+            );
+            if (accessCodes.includes('*')) {
+                return;
+            }
+        }
+
         const currentAccessTags = (currentResource.meta.security || [])
             .filter(s => s.system === SecurityTagSystem.access);
 
@@ -160,10 +179,11 @@ class ResourceMerger {
 
     /**
      * Overwrites resourceToMerge with currentResources fields which should not be updated
-     * @param {OverWriteNonWritableFieldsProp}
+     * @param {OverWriteNonWritableFieldsProp} params
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} [params.requestInfo]
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    overWriteNonWritableFields ({ currentResource, resourceToMerge }) {
+    overWriteNonWritableFields ({ currentResource, resourceToMerge, requestInfo }) {
         // create metadata structure if not present
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
@@ -184,7 +204,7 @@ class ResourceMerger {
             currentResource,
             resourceToMerge
         });
-        this.restoreAccessTags({ currentResource, resourceToMerge });
+        this.restoreAccessTags({ currentResource, resourceToMerge, requestInfo });
 
         // deduplicate meta.security by system+code
         if (resourceToMerge.meta && resourceToMerge.meta.security && Array.isArray(resourceToMerge.meta.security)) {
@@ -449,7 +469,7 @@ class ResourceMerger {
         const original_source = resourceToMerge?.meta?.source;
 
         // overwrite fields that should not be changed once resource is created
-        resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
+        resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge, requestInfo });
 
         resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
 
@@ -589,7 +609,7 @@ class ResourceMerger {
         const original_source = resourceToMerge?.meta?.source;
 
         // overwrite fields that should not be changed once resource is created
-        resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
+        resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge, requestInfo });
 
         resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
 

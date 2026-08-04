@@ -243,7 +243,8 @@ const createContainer = function () {
     container.register('sourceAssigningAuthorityColumnHandler', (c) => new SourceAssigningAuthorityColumnHandler({ configManager: c.configManager }));
     container.register('uuidColumnHandler', (_c) => new UuidColumnHandler());
     container.register('resourceMerger', (c) => new ResourceMerger({
-        preSaveManager: c.preSaveManager
+        preSaveManager: c.preSaveManager,
+        scopesManager: c.scopesManager
     }));
     container.register('delegatedAccessRulesManager', (c) => new DelegatedAccessRulesManager({
         configManager: c.configManager,

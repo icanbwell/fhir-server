@@ -387,7 +387,7 @@ class PatchOperation {
             // source in metadata must exist either in incoming resource or found resource
             if (foundResource?.meta && (foundResource.meta.source || (resource?.meta?.source))) {
                 this.resourceMerger.overWriteNonWritableFields({
-                    currentResource: foundResource, resourceToMerge: resource
+                    currentResource: foundResource, resourceToMerge: resource, requestInfo
                 });
             } else if (foundResource?.meta) {
                 // Access tags must never depend on the meta.source gate above -- a patch that
@@ -395,7 +395,7 @@ class PatchOperation {
                 // has a source set yet, rather than relying on an unrelated validation elsewhere
                 // to coincidentally reject the request.
                 this.resourceMerger.restoreAccessTags({
-                    currentResource: foundResource, resourceToMerge: resource
+                    currentResource: foundResource, resourceToMerge: resource, requestInfo
                 });
             }
 

@@ -14,6 +14,7 @@ const { describe, beforeEach, afterEach, it, expect, jest } = require('@jest/glo
 const { ResourceMerger } = require('../../../../operations/common/resourceMerger');
 const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
 const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
+const { ScopesManager } = require('../../../../operations/security/scopesManager');
 
 jest.mock('../../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -24,6 +25,7 @@ jest.mock('../../../../operations/common/logging', () => ({
 describe('ResourceMerger', () => {
     let resourceMerger;
     let mockPreSaveManager;
+    let mockScopesManager;
 
     beforeEach(() => {
         mockPreSaveManager = Object.create(PreSaveManager.prototype);
@@ -34,7 +36,10 @@ describe('ResourceMerger', () => {
             return resource;
         });
 
-        resourceMerger = new ResourceMerger({ preSaveManager: mockPreSaveManager });
+        mockScopesManager = Object.create(ScopesManager.prototype);
+        mockScopesManager.getAccessCodesFromScopes = jest.fn().mockReturnValue([]);
+
+        resourceMerger = new ResourceMerger({ preSaveManager: mockPreSaveManager, scopesManager: mockScopesManager });
     });
 
     afterEach(() => {
@@ -337,6 +342,62 @@ describe('ResourceMerger', () => {
             expect(resourceToMerge.meta.security).toEqual([
                 { system: 'https://www.icanbwell.com/access', code: 'tenant-a' }
             ]);
+        });
+
+        it('leaves resourceToMerge access tags untouched when the caller has wildcard (*) access', () => {
+            const currentResource = {
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-a' }
+                    ]
+                }
+            };
+            const resourceToMerge = {
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-a' },
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-new' }
+                    ]
+                }
+            };
+            mockScopesManager.getAccessCodesFromScopes.mockReturnValue(['*']);
+
+            resourceMerger.restoreAccessTags({
+                currentResource, resourceToMerge, requestInfo: { user: 'admin', scope: 'user/*.write access/*.write' }
+            });
+
+            const accessCodes = resourceToMerge.meta.security
+                .filter(s => s.system === 'https://www.icanbwell.com/access')
+                .map(s => s.code);
+            expect(accessCodes.sort()).toEqual(['tenant-a', 'tenant-new']);
+        });
+
+        it('still restores access tags for a non-wildcard caller even when requestInfo is provided', () => {
+            const currentResource = {
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-a' }
+                    ]
+                }
+            };
+            const resourceToMerge = {
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-a' },
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-new' }
+                    ]
+                }
+            };
+            mockScopesManager.getAccessCodesFromScopes.mockReturnValue(['tenant-a']);
+
+            resourceMerger.restoreAccessTags({
+                currentResource, resourceToMerge, requestInfo: { user: 'client-user', scope: 'user/*.write access/tenant-a.write' }
+            });
+
+            const accessCodes = resourceToMerge.meta.security
+                .filter(s => s.system === 'https://www.icanbwell.com/access')
+                .map(s => s.code);
+            expect(accessCodes).toEqual(['tenant-a']);
         });
     });
 
