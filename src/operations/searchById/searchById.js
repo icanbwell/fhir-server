@@ -14,8 +14,9 @@ const { getFirstResourceOrNull } = require('../../utils/list.util');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, BLOB_OP } = require('../../constants');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
 class SearchByIdOperation {
@@ -30,6 +31,7 @@ class SearchByIdOperation {
      * @param {EnrichmentManager} enrichmentManager
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor (
@@ -43,6 +45,7 @@ class SearchByIdOperation {
             enrichmentManager,
             configManager,
             databaseAttachmentManager,
+            base64DataManager,
             postRequestProcessor
         }
     ) {
@@ -94,6 +97,12 @@ class SearchByIdOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {PostRequestProcessor}
@@ -272,6 +281,7 @@ class SearchByIdOperation {
                 });
 
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+                resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
                 FhirResourceSerializer.serializeByResourceType(resource, resourceType);
                 return resource;
             } else {

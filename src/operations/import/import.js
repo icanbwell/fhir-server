@@ -4,6 +4,7 @@ const Task = require('../../fhir/classes/4_0_0/resources/task');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
 const { ConfigManager } = require('../../utils/configManager');
+const { KafkaClientV2 } = require('../../utils/kafkaClientV2');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
@@ -14,7 +15,7 @@ const { SecurityTagManager } = require('../common/securityTagManager');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../constants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
-const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
+const { generateUUID, isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { logInfo, logError } = require('../common/logging');
 
 class ImportOperation {
@@ -29,6 +30,7 @@ class ImportOperation {
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {PostSaveProcessor} postSaveProcessor
+     * @property {KafkaClientV2} kafkaClientV2
      *
      * @param {ConstructorParams}
      */
@@ -41,7 +43,8 @@ class ImportOperation {
         securityTagManager,
         databaseUpdateFactory,
         databaseQueryFactory,
-        postSaveProcessor
+        postSaveProcessor,
+        kafkaClientV2
     }) {
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
@@ -69,6 +72,9 @@ class ImportOperation {
 
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        this.kafkaClientV2 = kafkaClientV2;
+        assertTypeEquals(kafkaClientV2, KafkaClientV2);
     }
 
     /**
@@ -251,6 +257,31 @@ class ImportOperation {
     }
 
     /**
+     * @param {string} taskId
+     * @param {string} reason
+     * @returns {Promise<void>}
+     */
+    async markTaskFailedAsync(taskId, reason) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Task',
+            base_version: '4_0_0'
+        });
+        const task = await databaseQueryManager.findOneAsync({ query: { id: taskId } });
+        if (!task) {
+            return;
+        }
+        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+            resourceType: 'Task',
+            base_version: '4_0_0'
+        });
+        const updated = task.clone();
+        updated.status = 'failed';
+        updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
+        updated.statusReason = { text: reason };
+        await databaseUpdateManager.updateOneAsync({ doc: updated });
+    }
+
+    /**
      * @typedef {Object} ImportAsyncParams
      * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @property {Object} args
@@ -284,6 +315,39 @@ class ImportOperation {
                 inputs,
                 requestInfo
             });
+
+            if (this.configManager.kafkaV2EnableEvents) {
+                const taskCreatedEvent = {
+                    specversion: '1.0',
+                    id: generateUUID(),
+                    source: 'https://www.icanbwell.com/fhir-server',
+                    type: 'TaskCreated',
+                    datacontenttype: 'application/json',
+                    data: {
+                        taskId: importJobId,
+                        inputs,
+                        requestId,
+                        scope,
+                        user: requestInfo.user
+                    }
+                };
+
+                try {
+                    await this.kafkaClientV2.sendCloudEventMessageAsync({
+                        topic: this.configManager.kafkaBulkImportTaskCreatedTopic,
+                        messages: [{
+                            key: importJobId,
+                            value: JSON.stringify(taskCreatedEvent)
+                        }]
+                    });
+                } catch (kafkaError) {
+                    logError('Kafka publish failed after Task was committed; marking Task as failed', {
+                        importJobId, requestId, error: kafkaError.message
+                    });
+                    await this.markTaskFailedAsync(importJobId, kafkaError.message);
+                    throw kafkaError;
+                }
+            }
 
             // Task is committed — logging and audit are best-effort so a
             // failure here does not mask the successfully created Task.

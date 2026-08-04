@@ -1,4 +1,3 @@
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirResourceWriteSerializer } = require("../../fhir/fhirResourceWriteSerializer");
 const { ConfigManager } = require("../../utils/configManager");
 const { assertTypeEquals } = require("../../utils/assertType");
@@ -59,19 +58,7 @@ class MergeValidator {
         */
         let incomingResources;
 
-        if (this.configManager.enableMergeFastSerializer) {
-            incomingResources = incomingObjects;
-
-            if (!this.configManager.updateMergeValidations) {
-                incomingResources = Array.isArray(incomingResources)
-                    ? incomingResources.map(o => FhirResourceWriteSerializer.serialize({obj: o}))
-                    : FhirResourceWriteSerializer.serialize({obj: incomingResources});
-            }
-        } else {
-            incomingResources = Array.isArray(incomingObjects)
-            ? incomingObjects.map(o => FhirResourceCreator.create(o))
-            : FhirResourceCreator.create(incomingObjects);
-        }
+        incomingResources = incomingObjects;
 
         for (const validator of this.validators) {
             const {
@@ -95,11 +82,9 @@ class MergeValidator {
             mergePreCheckErrors.push(...preCheckErrors);
         }
 
-        if (this.configManager.updateMergeValidations) {
-            incomingResources = Array.isArray(incomingResources)
-                ? incomingResources.map(o => FhirResourceWriteSerializer.serialize({obj: o}))
-                : FhirResourceWriteSerializer.serialize({obj: incomingResources});
-        }
+        incomingResources = Array.isArray(incomingResources)
+            ? incomingResources.map(o => FhirResourceWriteSerializer.serialize({obj: o}))
+            : FhirResourceWriteSerializer.serialize({obj: incomingResources});
 
         return { mergePreCheckErrors, resourcesIncomingArray: incomingResources, wasIncomingAList };
     }

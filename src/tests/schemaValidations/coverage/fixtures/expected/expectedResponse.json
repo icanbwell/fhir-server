@@ -17,13 +17,6 @@
             "text": "/4_0_0/Coverage/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"active\",\"cancelled\",\"draft\",\"entered-in-error\"]}: at position .status"
           },
           "severity": "error"
-        },
-        {
-          "code": "invalid",
-          "details": {
-            "text": "/4_0_0/Coverage/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
-          },
-          "severity": "error"
         }
       ],
       "resourceType": "OperationOutcome"

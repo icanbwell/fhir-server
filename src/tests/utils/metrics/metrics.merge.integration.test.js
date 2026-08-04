@@ -244,13 +244,9 @@ describe('metrics merge boundary', () => {
         const request = await createTestRequest();
         const container = getTestContainer();
 
-        // MergeOperation picks fastDatabaseBulkInserter when
-        // enableMergeFastSerializer is true (test env default). Spy on the
+        // MergeOperation always uses fastDatabaseBulkInserter. Spy on the
         // one the operation will actually invoke.
-        const bulkInserter = container.configManager.enableMergeFastSerializer
-            ? container.fastDatabaseBulkInserter
-            : container.databaseBulkInserter;
-        const insertSpy = jest.spyOn(bulkInserter, 'executeAsync')
+        const insertSpy = jest.spyOn(container.fastDatabaseBulkInserter, 'executeAsync')
             .mockRejectedValueOnce(new Error('synthetic mid-flight failure'));
 
         // person1 is valid. badPerson has a pipe in id which mergeResourceValidator

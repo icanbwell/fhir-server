@@ -1,0 +1,21 @@
+{
+    "resourceType": "SubscriptionTopic",
+    "id": "7e96ddf8-3a67-4152-a66f-2a8caab2d930",
+    "meta": {
+        "source": "bwell",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/owner", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "client2" },
+            { "system": "https://www.icanbwell.com/connectionType", "code": "proa" }
+        ]
+    },
+    "status": "active",
+    "url": "https://fhir-myrecord.example.com/r4/subscription-topic/proa-dedup-client2",
+    "identifier": [
+        { "system": "https://icanbwell.com/codes/client_person_id", "value": "76e37ad9-128b-495f-aa79-3634e4d5b0a7" },
+        { "system": "https://icanbwell.com/codes/source_patient_id", "value": "commonProaPatientClient1" },
+        { "system": "https://icanbwell.com/codes/connection_type", "value": "proa" },
+        { "system": "https://icanbwell.com/codes/service_slug", "value": "health-service" }
+    ]
+}

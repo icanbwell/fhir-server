@@ -259,6 +259,30 @@ class MethodNotAllowedError extends ServerError {
     }
 }
 
+class PayloadTooLargeError extends ServerError {
+    constructor (error, options = {}) {
+        super(error.message, {
+            statusCode: 413,
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'too-long',
+                    details: { text: error.message }
+                }
+            ]
+        });
+        this.logLevel = 'info';
+
+        for (const [key, value] of Object.entries(options)) {
+            this[`${key}`] = value;
+        }
+    }
+
+    get statusCode () {
+        return 413;
+    }
+}
+
 module.exports = {
     BadRequestError,
     NotFoundError,
@@ -268,5 +292,6 @@ module.exports = {
     ForbiddenError,
     ExternalTimeoutError,
     PreconditionFailedError,
-    MethodNotAllowedError
+    MethodNotAllowedError,
+    PayloadTooLargeError
 };

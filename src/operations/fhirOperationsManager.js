@@ -326,7 +326,7 @@ class FhirOperationsManager {
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
-                base_version, parsedArgs, resourceType, operation
+                base_version, parsedArgs, resourceType, operation, requestInfo
             }
         );
         if (headers) {
@@ -699,18 +699,26 @@ class FhirOperationsManager {
         let combined_args = get_all_args(req, args);
         combined_args = this.parseParametersFromBody({ req, combined_args });
 
+        if (combined_args._id) {
+            combined_args.id = combined_args._id;
+            delete combined_args._id;
+        }
+
         this.cmsManager.verifyNotProxyPatientId({
             requestInfo,
             patientId: combined_args.id || combined_args._id
         });
 
+
+        let scopedPersonIds;
+        // person ids to retrict result to
+        if (resourceType === "Person" && combined_args.id) {
+            scopedPersonIds = combined_args.id.split(',');
+        }
+
         // map Person GET $everything to Patient GET $everything
         if (resourceType === 'Person' && req.method === 'GET') {
             resourceType = 'Patient';
-            if (combined_args._id) {
-                combined_args.id = combined_args._id;
-                delete combined_args._id;
-            }
             if (combined_args.id) {
                 const ids = combined_args.id.split(',').map(id => `${PERSON_PROXY_PREFIX}${id}`);
                 combined_args.id = ids.join(',');
@@ -758,7 +766,8 @@ class FhirOperationsManager {
                         res,
                         parsedArgs,
                         resourceType,
-                        responseStreamer
+                        responseStreamer,
+                        scopedPersonIds
                     });
                 await responseStreamer.endAsync();
                 return undefined;
@@ -788,7 +797,8 @@ class FhirOperationsManager {
                     requestInfo,
                     res,
                     parsedArgs,
-                    resourceType
+                    resourceType,
+                    scopedPersonIds
                 });
             return result;
         }

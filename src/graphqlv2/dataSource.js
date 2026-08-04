@@ -576,6 +576,27 @@ class FhirDataSource {
     }
 
     /**
+     * Builds the baseline Mongo projection field set for a resource type, before any
+     * caller-requested fields are added. Subscription/SubscriptionStatus/SubscriptionTopic
+     * always need extension/identifier projected too: Patient.subscriptions* resolvers join on
+     * source_patient_id, which collides across source systems, so they also check service_slug
+     * (carried in extension/identifier) against the parent Patient's source -- that field must
+     * be present even when the caller's selection set doesn't ask for it directly, or the
+     * security check silently sees no candidates.
+     * @param {string} resourceType
+     * @return {Set<string>}
+     */
+    getBaseProjectionForResourceType (resourceType) {
+        const projection = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType']);
+        if (resourceType === 'Subscription' || resourceType === 'SubscriptionStatus') {
+            projection.add('extension');
+        } else if (resourceType === 'SubscriptionTopic') {
+            projection.add('identifier');
+        }
+        return projection;
+    }
+
+    /**
      * Extracts the list of all top level fields requested for
      * each resource from nested fields data
      * @param {Object} resolvedFieldsInfo
@@ -598,7 +619,7 @@ class FhirDataSource {
                     const resourceFields = Object.getOwnPropertyNames(new resource({}));
 
                     if (!this.resourceProjections[resourceType]) {
-                        this.resourceProjections[resourceType] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType'])
+                        this.resourceProjections[resourceType] = this.getBaseProjectionForResourceType(resourceType)
                     }
                     Object.values(value).forEach(field => {
                         // check if field is valid for resource type as some resources have custom fields

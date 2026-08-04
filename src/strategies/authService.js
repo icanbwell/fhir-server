@@ -37,6 +37,14 @@ class AuthService {
     static userInfoCache;
 
     /**
+     * In-flight JWKS fetches, keyed by URL, used to coalesce concurrent cache-miss
+     * requests for the same URL into a single outbound fetch (avoids a thundering
+     * herd of duplicate external calls when the cache entry expires under load).
+     * @type {Map<string, Promise<{keys: Object[]}>>}
+     */
+    static jwksFetchInFlight = new Map();
+
+    /**
      * Constructor for the AuthService
      * @param {ConfigManager} configManager
      * @param {WellKnownConfigurationManager} wellKnownConfigurationManager
@@ -120,22 +128,34 @@ class AuthService {
         if (AuthService.jwksCache.has(jwksUrl)) {
             return AuthService.jwksCache.get(jwksUrl);
         }
-        try {
-            const res = await superagent
-                .get(jwksUrl)
-                .set({Accept: 'application/json'})
-                .retry(EXTERNAL_REQUEST_RETRY_COUNT)
-                .timeout(this.requestTimeout);
-            const jsonResponse = JSON.parse(res.text);
-            AuthService.jwksCache.set(jwksUrl, jsonResponse);
-            return jsonResponse;
-        } catch (error) {
-            logError(`Error fetching JWKS from ${jwksUrl}: ${error.message}`, {
-                error: error,
-                args: {jwksUrl}
-            });
-            return {keys: []};
+        // Coalesce concurrent cache-miss requests for the same URL into a single fetch
+        // instead of each caller independently hitting the external JWKS endpoint.
+        const inFlightFetch = AuthService.jwksFetchInFlight.get(jwksUrl);
+        if (inFlightFetch) {
+            return inFlightFetch;
         }
+        const fetchPromise = (async () => {
+            try {
+                const res = await superagent
+                    .get(jwksUrl)
+                    .set({Accept: 'application/json'})
+                    .retry(EXTERNAL_REQUEST_RETRY_COUNT)
+                    .timeout(this.requestTimeout);
+                const jsonResponse = JSON.parse(res.text);
+                AuthService.jwksCache.set(jwksUrl, jsonResponse);
+                return jsonResponse;
+            } catch (error) {
+                logError(`Error fetching JWKS from ${jwksUrl}: ${error.message}`, {
+                    error: error,
+                    args: {jwksUrl}
+                });
+                return {keys: []};
+            } finally {
+                AuthService.jwksFetchInFlight.delete(jwksUrl);
+            }
+        })();
+        AuthService.jwksFetchInFlight.set(jwksUrl, fetchPromise);
+        return fetchPromise;
     }
 
     /**
@@ -232,6 +252,10 @@ class AuthService {
                 } else if (result.actor) {
                     context.actor = result.actor;
                     context.userType = AUTH_USER_TYPES.delegatedUser;
+
+                    if (Array.isArray(jwt_payload.entitlements)) {
+                        context.purposeOfUse = jwt_payload.entitlements;
+                    }
                 }
             }
             // if userType is not already set through delegated access detection,

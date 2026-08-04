@@ -259,6 +259,35 @@ class ResourceValidator {
      * @param {Object|Resource} resource
      * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
      */
+    /**
+     * Rejects an AuditEvent whose serialized size exceeds the configured limit.
+     * Other resource types are bounded by MongoDB's BSON limit downstream.
+     * @param {Object} params
+     * @param {Object} params.resource
+     * @param {string} params.resourceType
+     * @returns {OperationOutcome|null} too-long outcome if oversized, else null
+     */
+    validateResourceSizeSync ({ resource, resourceType }) {
+        if (resourceType !== 'AuditEvent') {
+            return null;
+        }
+        const sizeInBytes = Buffer.byteLength(JSON.stringify(resource), 'utf8');
+        if (sizeInBytes <= this.configManager.auditEventMaxSizeBytes) {
+            return null;
+        }
+        return new OperationOutcome({
+            issue: [
+                new OperationOutcomeIssue({
+                    severity: 'error',
+                    code: 'too-long',
+                    details: new CodeableConcept({
+                        text: 'Payload size too large.'
+                    })
+                })
+            ]
+        });
+    }
+
     validateResourceMetaSync (resource) {
         const resourceType = resource && resource.resourceType;
         // Check if meta & meta.source exists in resource

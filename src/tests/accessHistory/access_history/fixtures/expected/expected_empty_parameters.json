@@ -1,4 +1,18 @@
 {
     "resourceType": "Parameters",
-    "parameter": []
+    "parameter": [
+        {
+            "name": "summary",
+            "part": [
+                {
+                    "name": "generatedAt",
+                    "valueDateTime": "${generatedAt}"
+                },
+                {
+                    "name": "windowDays",
+                    "valueInteger": 90
+                }
+            ]
+        }
+    ]
 }

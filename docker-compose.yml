@@ -45,7 +45,6 @@ services:
       ENABLE_EVENTS_KAFKA: '1'
       ENABLE_BULK_EXPORT_KAFKA_EVENTS: '1'
       ENABLE_FHIR_OPERATION_USAGE_KAFKA_EVENTS: 1
-      ENABLE_MERGE_FAST_SERIALIZER: '1'
       ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS: 1
       ENABLE_KAFKA_HEALTHCHECK: '1'
       ENABLE_PATIENT_DATA_CHANGE_EVENTS: '1'
@@ -53,6 +52,10 @@ services:
       KAFKA_CLIENT_ID: 'fhir-server'
       KAFKA_URLS: 'kafka:9092'
       KAFKA_MAX_RETRY: 3
+      # Kafka V2 cluster (the ClickPipes source cluster) — pointed at the local broker
+      ENABLE_EVENTS_KAFKA_V2: '1'
+      KAFKA_V2_URLS: 'kafka:9092'
+      KAFKA_V2_CLIENT_ID: 'fhir-server'
       AUTH_CUSTOM_USERNAME: "cognito:username,preferred_username"
       AUTH_CUSTOM_GROUP: "cognito:groups,groups"
       AUTH_CUSTOM_SCOPE: "custom:scope"
@@ -113,8 +116,10 @@ services:
       MONGO_WITH_CLICKHOUSE_RESOURCES: 'Group'
       ENABLE_ACCESS_AUDIT_EVENT: '1'
       CLICKHOUSE_ONLY_RESOURCES: 'AuditEvent'
+      ENABLE_AUDIT_EVENT_CLICKPIPE: '0'
       ENABLE_ACCESS_LOGS_CLICKHOUSE: '1'
       ENABLE_ACCESS_LOGS_MONGODB: '0'
+      AUDIT_EVENT_MAX_SIZE_BYTES: '1048576'
     ports:
       - '3000:3000'
     volumes:
@@ -190,6 +195,7 @@ services:
       DELEGATED_ACT_REFERENCE: RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425
       DELEGATED_ACT_SUB: 46265db4-0da2-4436-b4e8-85bf7e52a426
       DELEGATED_MANAGING_ORGANIZATION: 8a7cbd9c-5b1e-5c3d-9c4f-0b2e5f1a7c6d
+      DELEGATED_ACCESS_USER_ENTITLEMENT: FAMRQT
       # This is the user and password that will be created in the realm for admin scope token
       MY_ADMIN_USER_NAME: admin
       MY_ADMIN_USER_PASSWORD: password@#$%^&873

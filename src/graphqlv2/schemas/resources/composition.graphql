@@ -359,7 +359,7 @@ type Composition implements DomainResource & Resource @key(fields: "id") {
     """
     The root of the sections that make up the composition.
     """
-    section: [CompositionSection]
+    section(_offset: Int, _count: Int): [CompositionSection]
 }
 
 type CompositionBundleEntry {

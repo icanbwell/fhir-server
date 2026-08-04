@@ -5,6 +5,8 @@ const BaseSerializer = require('../customSerializers/baseSerializer.js');
 let MetaSerializer;
 /** @type {import('../complexTypes/reference.js')} */
 let ReferenceSerializer;
+/** @type {import('../customSerializers/blobMeta.js')} */
+let BlobMetaSerializer;
 
 class BinarySerializer extends BaseSerializer {
     // Private cache for lazy-loaded property configs
@@ -77,7 +79,19 @@ class BinarySerializer extends BaseSerializer {
         _access: null,
         _sourceAssigningAuthority: null,
         _uuid: null,
-        _sourceId: null
+        _sourceId: null,
+        _blobMeta: () => {
+            if (!this.#configCache['_blobMeta']) {
+                if (!BlobMetaSerializer) {
+                    BlobMetaSerializer = require('../customSerializers/blobMeta.js');
+                }
+                this.#configCache['_blobMeta'] = {
+                    serializeFunction: 'serialize',
+                    serializerClass: BlobMetaSerializer
+                };
+            }
+            return this.#configCache['_blobMeta'];
+        }
     };
 }
 

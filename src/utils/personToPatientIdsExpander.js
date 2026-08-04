@@ -1,10 +1,14 @@
 const { FilterById } = require('../operations/query/filters/id');
-const { assertTypeEquals } = require('./assertType');
+const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { logWarn } = require('../operations/common/logging');
 const { PERSON_REFERENCE_PREFIX, HTTP_CONTEXT_KEYS } = require('../constants');
 const { SecurityTagSystem } = require('./securityTagSystem');
 const httpContext = require('express-http-context');
+const { FhirRequestInfo } = require('./fhirRequestInfo');
+const { ScopesManager } = require('../operations/security/scopesManager');
+const { SecurityTagManager } = require('../operations/common/securityTagManager');
+const { ConfigManager } = require('./configManager');
 
 const patientReferencePrefix = 'Patient/';
 const personReferencePrefix = 'Person/';
@@ -16,10 +20,16 @@ class PersonToPatientIdsExpander {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {ScopesManager} scopesManager
+     * @param {SecurityTagManager} securityTagManager
+     * @param {ConfigManager} configManager
      */
     constructor (
         {
-            databaseQueryFactory
+            databaseQueryFactory,
+            scopesManager,
+            securityTagManager,
+            configManager
         }
     ) {
         /**
@@ -27,6 +37,24 @@ class PersonToPatientIdsExpander {
          */
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
+         * @type {SecurityTagManager}
+         */
+        this.securityTagManager = securityTagManager;
+        assertTypeEquals(securityTagManager, SecurityTagManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -35,9 +63,11 @@ class PersonToPatientIdsExpander {
      * @param {string|string[]} ids
      * @param {boolean} includePatientPrefix
      * @param {boolean} toMap If return map of person to patient
+     * @param {FhirRequestInfo} requestInfo
+     * @param {boolean} addTopPersonAccessCheck if true, adds access tag check while finding top level person
      * @return {Promise<string|string[]|{[key: string]: string[]}>}
      */
-    async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap }) {
+    async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap, requestInfo, addTopPersonAccessCheck = false }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version
@@ -59,7 +89,9 @@ class PersonToPatientIdsExpander {
                 databaseQueryManager,
                 level: 1,
                 toMap,
-                returnOriginalPersonId: true // return the passed personId not its uuid
+                returnOriginalPersonId: true, // return the passed personId not its uuid
+                requestInfo,
+                addTopPersonAccessCheck
             }
         );
         if (!toMap) {
@@ -151,17 +183,30 @@ class PersonToPatientIdsExpander {
 
     /**
      * gets patient ids (recursive) from a person
-     * @param {string[]} personIds
-     * @param {Set} totalProcessedPersonIds
-     * @param {DatabaseQueryManager} databaseQueryManager
-     * @param {number} level
-     * @param {boolean} toMap If passed, will return a map of personId -> all related personIds
-     * @param {boolean} returnOriginalPersonId If true then returns original personId passed. By default returns person _uuid
-     * @param {boolean} addPersonOwnerToContext If true then add person owner to context
+     * @typedef getPatientIdsFromPersonAsyncArgs
+     * @property {string[]} personIds
+     * @property {Set} totalProcessedPersonIds
+     * @property {DatabaseQueryManager} databaseQueryManager
+     * @property {number} level
+     * @property {boolean} toMap If passed, will return a map of personId -> all related personIds
+     * @property {boolean} returnOriginalPersonId If true then returns original personId passed. By default returns person _uuid
+     * @property {boolean} addPersonOwnerToContext If true then add person owner to context
+     * @property {boolean} addTopPersonAccessCheck If true then add access tag check when fetching person
+     * @property {FhirRequestInfo} requestInfo
+     *
+     * @param {getPatientIdsFromPersonAsyncArgs}
      * @return {Promise<string[] | Map<string, Set<string>>>} Will return an array if toMap is false else return an map. By default toMap is false
      */
-    async getPatientIdsFromPersonAsync ({
-        personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false, addPersonOwnerToContext = false
+    async getPatientIdsFromPersonAsync({
+        personIds,
+        totalProcessedPersonIds,
+        databaseQueryManager,
+        level,
+        toMap = false,
+        returnOriginalPersonId = false,
+        addPersonOwnerToContext = false,
+        requestInfo,
+        addTopPersonAccessCheck = false
     }) {
         /**
          * Final result to return
@@ -176,6 +221,48 @@ class PersonToPatientIdsExpander {
             projectionsMap.meta = 1
         }
 
+        if(addTopPersonAccessCheck) {
+            assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
+        }
+
+        let query = FilterById.getListFilter(personIds);
+
+        // Apply the caller's access-scope security tag filter to the requested Person so that
+        // linked patients are not resolved for a Person the caller cannot access.
+        if (
+            requestInfo &&
+            (
+                (
+                    this.configManager.enableProxyPersonScopeCheckForEverything &&
+                    requestInfo.originalUrl?.includes('$everything') &&
+                    requestInfo.method === 'GET'
+                ) ||
+                addTopPersonAccessCheck
+            )
+        ) {
+            const { user, scope } = requestInfo;
+            const resourceType = 'Person';
+            const accessViaPatientScopes = this.scopesManager.isAccessAllowedByPatientScopes({ scope, resourceType });
+
+            /**
+             * @type {string[]}
+             */
+            const securityTags = this.securityTagManager.getSecurityTagsFromScope({
+                accessRequested: 'read',
+                user,
+                scope,
+                accessViaPatientScopes
+            });
+
+            query = this.securityTagManager.getQueryWithSecurityTags({
+                resourceType,
+                securityTags,
+                query,
+                useAccessIndex: this.configManager.useAccessIndex,
+                useHistoryTable: false
+            });
+        }
+
         /**
          * Stores linked person to all base person
          * @type {Map<string, Set<string>>}
@@ -183,7 +270,7 @@ class PersonToPatientIdsExpander {
 
         const personResourceCursor = await databaseQueryManager.findAsync(
             {
-                query: FilterById.getListFilter(personIds),
+                query,
                 options: { projection: projectionsMap }
             }
         );
@@ -266,7 +353,8 @@ class PersonToPatientIdsExpander {
                     databaseQueryManager,
                     level: level + 1,
                     toMap,
-                    returnOriginalPersonId: false // always return _uuid map for it
+                    returnOriginalPersonId: false, // always return _uuid map for it
+                    requestInfo
                 });
 
                 // add all patients to current person
@@ -286,7 +374,8 @@ class PersonToPatientIdsExpander {
                 totalProcessedPersonIds: new Set([...totalProcessedPersonIds, ...personIds]),
                 databaseQueryManager,
                 level: level + 1,
-                toMap
+                toMap,
+                requestInfo
             });
             return patientIds.concat(patientIdsFromPersons);
         }

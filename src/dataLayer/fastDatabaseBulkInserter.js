@@ -12,6 +12,7 @@ const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { ConfigManager } = require('../utils/configManager');
+const { Base64DataManager } = require('./base64DataManager');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
@@ -19,9 +20,7 @@ const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
 const BundleEntryWriteSerializer = require('../fhir/writeSerializers/4_0_0/backboneElements/bundleEntry.js');
 
 const { handleClickHouseGroupPreSave } = require('../utils/clickHouseGroupPreSave');
-const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
-const deepEqual = require('fast-deep-equal');
 const { CustomTracer } = require('../utils/customTracer');
 
 /**
@@ -39,6 +38,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {Base64DataManager} base64DataManager
      * @param {BulkWriteExecutor[]} bulkWriteExecutors
      * @param {CustomTracer} customTracer
      */
@@ -52,6 +52,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
         resourceMerger,
         configManager,
         postSaveProcessor,
+        base64DataManager,
         bulkWriteExecutors,
         customTracer
     }) {
@@ -111,6 +112,12 @@ class FastDatabaseBulkInserter extends EventEmitter {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {BulkWriteExecutor[]}
@@ -300,23 +307,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 });
             }
 
-            if (this.configManager.verifyResourceBeforeWrite && !isAccessLogOperation && resourceType !== 'AuditEvent') {
-                // This check needs to be removed after fast serializer write operation is verified
-                // JSON.stringify to convert date time object to string for comparision
-                let resourceCopy = JSON.parse(JSON.stringify(doc));
-
-                const serializedCopy = FhirResourceWriteSerializer.serialize({ obj: deepcopy(resourceCopy) });
-                if (!deepEqual(serializedCopy, resourceCopy)) {
-                    logError('Serialized doc differ from original while writing resource', {
-                        args: {
-                            source: 'DatabaseBulkInserter.getOperationForResourceAsync',
-                            resourceUuid: resourceCopy._uuid,
-                            resourceType: resourceCopy.resourceType
-                        }
-                    });
-                }
-            }
-
             return new BulkInsertUpdateEntry({
                 id: doc.id,
                 uuid: doc._uuid,
@@ -491,6 +481,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
 
             FhirResourceWriteSerializer.serialize({obj: historyResource, SerializerClass: BundleEntryWriteSerializer});
 
+            await this.base64DataManager.transformHistoryAsync(historyResource, requestInfo);
+
             this.addHistoryOperationForResourceType({
                 requestId,
                 resourceType,
@@ -577,7 +569,11 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     doc = updatedResource;
                     previousUpdate.resource = doc;
                     previousUpdate.operation.replaceOne.replacement = doc;
-                    previousUpdate.patches = [...previousUpdate.patches, mergePatches];
+                    // previousUpdate.patches can be null (e.g. a prior replaceOneAsync/mergeOneAsync
+                    // call in this same batch that had no patches to record); guard against spreading
+                    // null. Also spread mergePatches (an array) instead of pushing it as a single
+                    // nested-array element, so history diagnostics stay a flat list of patch ops.
+                    previousUpdate.patches = [...(previousUpdate.patches || []), ...mergePatches];
                 } else {
                     // no change so ignore
                 }

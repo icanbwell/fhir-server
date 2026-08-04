@@ -61,7 +61,7 @@ class ScopesManager {
          * @type {string}
          */
         for (const scope1 of scopes) {
-            if (scope1.startsWith('access')) {
+            if (scope1.startsWith('access/')) {
                 // ex: access/client.*
                 /**
                  * @type {string}
@@ -112,9 +112,121 @@ class ScopesManager {
             .map(s => s.code);
 
         const hasOwnerCode = accessCodes.some(c => accessCodesFromOwnerTag.includes(c));
+
+        // A resource can carry multiple access tags at once, and if access tag matching the scopes
+        // is present in resource, the client gets access to resource irrespective of presence of another
+        // access tag
         const hasAccessCode = accessCodes.some(c => accessCodesFromAccessTag.includes(c));
 
         return hasOwnerCode && hasAccessCode;
+    }
+
+    /**
+     * Returns the codes of all access tags (system=access) present on the resource. Tolerant of a
+     * null/undefined resource or a resource with no meta/security.
+     * @param {Resource|Object|null|undefined} resource
+     * @return {string[]}
+     */
+    getAccessTagCodes (resource) {
+        if (!resource || !resource.meta || !resource.meta.security) {
+            return [];
+        }
+        return resource.meta.security
+            .filter(s => s.system === SecurityTagSystem.access)
+            .map(s => s.code);
+    }
+
+    /**
+     * Returns whether the caller is allowed to change a resource's access tags from oldAccessCodes to
+     * newAccessCodes.
+     *
+     * A resource can legitimately carry access tags for multiple tenants at once, but the write check on
+     * the resource itself (doesNotHaveAnyAccessCodeFromThisList) only requires that *one* access tag
+     * matches the caller's scopes. Without this additional check, a caller authorized to write to a
+     * resource via one access tag could add an access tag for a tenant it has no access to (silently
+     * sharing the resource with that tenant), or remove an access tag for a tenant that was entitled to
+     * it (silently revoking that tenant's access) - neither of which is ever validated against that other
+     * tenant's own authorization. So unless the caller holds the '*' access code, every access code it
+     * adds or removes must be one it is itself authorized for via its own write access codes.
+     *
+     * @typedef {Object} IsAccessTagChangeAllowedByScopesParams
+     * @property {string[]} oldAccessCodes access codes on the resource as currently stored (empty for a create)
+     * @property {string[]} newAccessCodes access codes on the resource as it will be stored
+     * @property {string} resourceType
+     * @property {string} user
+     * @property {string} scope
+     * @property {boolean} [ignoreRemovals] set when the calling write path can only ever append access
+     *   tags (e.g. a smart-merge, which appends to arrays rather than replacing them), so a code missing
+     *   from newAccessCodes reflects it not being repeated in the incoming body rather than an intentional
+     *   removal
+     *
+     * @param {IsAccessTagChangeAllowedByScopesParams}
+     * @return {boolean}
+     */
+    isAccessTagChangeAllowedByScopes ({
+        oldAccessCodes,
+        newAccessCodes,
+        resourceType,
+        user,
+        scope,
+        ignoreRemovals = false
+    }) {
+        // a patient scoped caller is authorized via the patient/person the resource belongs to, not via
+        // access codes - it holds no access scopes to compare against, so defer to the patient scope checks
+        if (this.isAccessAllowedByPatientScopes({ scope, resourceType })) {
+            return true;
+        }
+        /**
+         * @type {string[]}
+         */
+        const accessCodes = this.getAccessCodesFromScopes('write', user, scope);
+        if (accessCodes.includes('*')) {
+            // no security check since user has full write access to everything
+            return true;
+        }
+        const oldCodesSet = new Set(oldAccessCodes || []);
+        const newCodesSet = new Set(newAccessCodes || []);
+        /**
+         * @type {string[]}
+         */
+        const addedCodes = (newAccessCodes || []).filter(c => !oldCodesSet.has(c));
+        /**
+         * @type {string[]}
+         */
+        const removedCodes = ignoreRemovals
+            ? []
+            : (oldAccessCodes || []).filter(c => !newCodesSet.has(c));
+        const changedCodes = [...addedCodes, ...removedCodes];
+        return changedCodes.every(c => accessCodes.includes(c));
+    }
+
+    /**
+     * Checks whether the resource has any access code (ignoring the owner tag) that is in the
+     * passed in accessCodes list. Use for resource types whose owner tag is intentionally fixed
+     * to a platform-level value regardless of tenant (e.g. ExportStatus is always owned by
+     * 'bwell'), where tenant isolation is enforced solely via the access tag.
+     * @param {string[]} accessCodes
+     * @param {Resource} resource
+     * @return {boolean}
+     */
+    doesResourceHaveAnyAccessCodeInAccessTag (accessCodes, resource) {
+        if (!accessCodes || accessCodes.length === 0) {
+            return false;
+        }
+
+        if (accessCodes.includes('*')) {
+            return true;
+        }
+
+        if (!resource.meta || !resource.meta.security) {
+            return false;
+        }
+
+        const accessCodesFromAccessTag = resource.meta.security
+            .filter(s => s.system === SecurityTagSystem.access)
+            .map(s => s.code);
+
+        return accessCodes.some(c => accessCodesFromAccessTag.includes(c));
     }
 
     /**
@@ -142,6 +254,28 @@ class ScopesManager {
             throw new ForbiddenError(errorMessage);
         }
         return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, resource);
+    }
+
+    /**
+     * Returns true if resource can be accessed with scope, checking only the access tag and
+     * ignoring the owner tag. Use for resource types whose owner tag is intentionally fixed to a
+     * platform-level value regardless of tenant (e.g. ExportStatus).
+     * @param {Resource} resource
+     * @param {string} user
+     * @param {string} scope
+     * @param {string} accessRequested
+     * @return {boolean}
+     */
+    isAccessToResourceAllowedByAccessTagOnly ({ resource, user, scope, accessRequested = 'read' }) {
+        /**
+         * @type {string[]}
+         */
+        const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
+        if (!accessCodes || accessCodes.length === 0) {
+            const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+            throw new ForbiddenError(errorMessage);
+        }
+        return this.doesResourceHaveAnyAccessCodeInAccessTag(accessCodes, resource);
     }
 
     /**
