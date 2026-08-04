@@ -243,9 +243,9 @@ module.exports.getGraphQLHeaders = (scope) => {
     };
 };
 
-module.exports.getGraphQLHeadersWithPerson = (personId) => {
+module.exports.getGraphQLHeadersWithPerson = (personId, scope) => {
     const payload = {
-        scope: 'patient/*.read user/*.* access/*.*',
+        scope: scope || 'patient/*.read user/*.* access/*.*',
         username: 'patient-123@example.com',
         clientFhirPersonId: personId,
         clientFhirPatientId: 'clientFhirPatient',
