@@ -10,6 +10,7 @@ const {
 const patientTest = require('./fixtures/Patient/patient.json');
 const activeMaleDoc = require('./fixtures/Practitioner/active-male-doc.json');
 const inactiveFemaleDoc = require('./fixtures/Practitioner/inactive-female-doc.json');
+const attackerTargetDoc = require('./fixtures/Practitioner/attacker-target-doc.json');
 
 // Load encounter fixtures
 const patientWithEncounters = require('./fixtures/Patient/patient-with-encounters.json');
@@ -204,6 +205,54 @@ describe('GraphOperation Forward Link with Params Tests', () => {
 
             expect(resp).toHaveResponse(expectedPatientWithAllReferencedPractitioners);
 
+        });
+
+        test('target params must not be able to override the id filter to fetch an unreferenced resource', async () => {
+            const request = await createTestRequest();
+
+            // A malicious/crafted GraphDefinition that tries to use target.params to replace
+            // the id filter (which is derived from the actual generalPractitioner references on
+            // the patient) with an arbitrary id for a resource that is NOT referenced by the
+            // patient at all.
+            const graphDefinition = {
+                resourceType: 'GraphDefinition',
+                id: 'test-forward-link-id-override',
+                name: 'TestForwardLinkIdOverride',
+                status: 'active',
+                start: 'Patient',
+                link: [
+                    {
+                        path: 'generalPractitioner',
+                        target: [
+                            {
+                                type: 'Practitioner',
+                                params: 'id=attacker-target-doc'
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            // Insert test data - the patient only references active-male-doc and
+            // inactive-female-doc. attacker-target-doc exists but is not referenced.
+            let resp = await request
+                .post('/4_0_0/Patient/5/$merge?validate=true')
+                .send([patientTest, activeMaleDoc, inactiveFemaleDoc, attackerTargetDoc])
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/test-patient/$graph')
+                .send(graphDefinition)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toBeDefined();
+            expect(resp.body.resourceType).toBe('Bundle');
+
+            // The result must be identical to the "no params" case - the unreferenced
+            // attacker-target-doc must never be returned, regardless of target.params.
+            expect(resp).toHaveResponse(expectedPatientWithAllReferencedPractitioners);
         });
     });
 });
