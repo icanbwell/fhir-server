@@ -31,7 +31,6 @@ module.exports = {
         '<rootDir>/.claude/',
         '<rootDir>/src/tests/unit/admin/adminExportManager.test.js',
         '<rootDir>/src/tests/unit/admin/runners/changeSourceAssigningAuthorityRunner.test.js',
-        '<rootDir>/src/tests/unit/admin/runners/fixConsentRunner.test.js',
         '<rootDir>/src/tests/unit/admin/runners/fixDuplicatePractitionerRunner.test.js',
         '<rootDir>/src/tests/unit/admin/runners/fixDuplicateUuidRunner.test.js',
         '<rootDir>/src/tests/unit/admin/runners/fixPersonLinksRunner.test.js',

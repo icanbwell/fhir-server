@@ -232,6 +232,9 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         }
 
         category.forEach((categoryItem) => {
+            if (!Array.isArray(categoryItem.coding)) {
+                return;
+            }
             categoryItem.coding.forEach((coding) => {
                 if (Array.isArray(coding)) {
                     if (coding[0].id === 'bwell-consent-type' &&
@@ -269,6 +272,9 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         }
         if (!questionnaireItem) {
             return null;
+        }
+        if (!Array.isArray(questionnaireItem.code)) {
+            return category;
         }
         const coding = {};
         questionnaireItem.code.forEach((code) => {
@@ -334,6 +340,9 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         }
         if (!questionnaireItem) {
             return null;
+        }
+        if (!Array.isArray(questionnaireItem.code)) {
+            return provisionClass;
         }
         const qClass = {};
         questionnaireItem.code.forEach((code) => {
