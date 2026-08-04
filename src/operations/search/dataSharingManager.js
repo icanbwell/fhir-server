@@ -100,12 +100,20 @@ class DataSharingManager {
 
     /**
      * Returns data sharing manager.
+     *
+     * The cache is keyed by everythingChunkIndex (different $everything chunks can have
+     * different effective scopes) and by securityTags, since two calls in the same request
+     * with different securityTags represent different access scopes and must not share
+     * cached patient-id resolution.
      * @param {string} requestId
      * @param {number|undefined} everythingChunkIndex
+     * @param {string[]|undefined} securityTags
      * @returns {Map<string, *>}
      */
-    getDataSharingManagerCache ({ requestId, everythingChunkIndex }) {
-        const name = everythingChunkIndex !== undefined ? `dataSharingManager_${everythingChunkIndex}` : 'dataSharingManager';
+    getDataSharingManagerCache ({ requestId, everythingChunkIndex, securityTags }) {
+        const chunkSuffix = everythingChunkIndex !== undefined ? `_${everythingChunkIndex}` : '';
+        const securityTagsSuffix = securityTags?.length ? `_${[...securityTags].sort().join(',')}` : '';
+        const name = `dataSharingManager${chunkSuffix}${securityTagsSuffix}`;
         return this.requestSpecificCache.getMap({ requestId, name });
     }
 
@@ -139,7 +147,7 @@ class DataSharingManager {
         assertTypeEquals(parsedArgs, ParsedArgs);
         let everythingCacheMap;
         if (requestId) {
-            everythingCacheMap = this.getDataSharingManagerCache({ requestId, everythingChunkIndex });
+            everythingCacheMap = this.getDataSharingManagerCache({ requestId, everythingChunkIndex, securityTags });
         }
         let patientIdToImmediatePersonUuid;
         let patientsList;

@@ -64,7 +64,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/query/convertGraphQLParameters.test.js',
         '<rootDir>/src/tests/unit/operations/query/r4SearchQueryCreator.test.js',
         '<rootDir>/src/tests/unit/operations/remove/removeHelper.test.js',
-        '<rootDir>/src/tests/unit/operations/search/dataSharingManager.test.js',
         '<rootDir>/src/tests/unit/operations/search/searchBundle.test.js',
         '<rootDir>/src/tests/unit/operations/searchById/searchById.test.js',
         '<rootDir>/src/tests/unit/operations/searchByVersionId/searchByVersionId.test.js',
