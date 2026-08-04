@@ -105,8 +105,6 @@ function createApp({fnGetContainer}) {
 
     const accessLogger = container.accessLogger;
 
-    const httpProtocol = process.env.ENVIRONMENT === 'local' ? 'http' : 'https';
-
     // Urls to be ignored for which access logs are to be created in db.
     const ignoredUrls = ['/live', '/health', '/ready'];
 
@@ -344,6 +342,18 @@ function createApp({fnGetContainer}) {
         app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(configuredSwaggerDocument));
     }
 
+    // Serves the token endpoint + client id the static OAuth callback page should use,
+    // computed entirely server-side from deploy config. The callback page fetches this
+    // instead of trusting a `tokenUrl`/`clientId` query param, so a caller who navigates
+    // directly to /oauth/callback.html can no longer redirect the auth-code exchange to an
+    // arbitrary endpoint.
+    app.get('/oauth/config', (req, res) => {
+        res.json({
+            tokenUrl: `${process.env.AUTH_CODE_FLOW_URL}/oauth2/token`,
+            clientId: process.env.AUTH_CODE_FLOW_CLIENT_ID
+        });
+    });
+
     app.use('/oauth', express.static(path.join(__dirname, 'oauth')));
 
     // handles when the user is redirected by the OpenIDConnect/OAuth provider
@@ -351,17 +361,16 @@ function createApp({fnGetContainer}) {
         const state = req.query.state;
         const resourceUrl = state
             ? encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
-        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
+        const redirectUrl = `${process.env.HOST_SERVER}/authcallback`;
         res.redirect(
-            `/oauth/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
-            `&clientId=${process.env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${redirectUrl}` +
-            `&tokenUrl=${process.env.AUTH_CODE_FLOW_URL}/oauth2/token`
+            `/oauth/callback.html?code=${encodeURIComponent(req.query.code)}&resourceUrl=${resourceUrl}` +
+            `&redirectUri=${encodeURIComponent(redirectUrl)}`
         );
     });
 
     app.get('/fhir', (req, res) => {
         const resourceUrl = req.query.resource;
-        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
+        const redirectUrl = `${process.env.HOST_SERVER}/authcallback`;
         res.redirect(`${process.env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${process.env.AUTH_CODE_FLOW_CLIENT_ID}` +
             `&redirect_uri=${redirectUrl}&state=${resourceUrl}`);
     });
@@ -378,7 +387,7 @@ function createApp({fnGetContainer}) {
 
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {
-        const returnUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/logout');
+        const returnUrl = `${process.env.HOST_SERVER}/logout`;
         const logoutUrl = `${process.env.AUTH_CODE_FLOW_URL}/logout?client_id=${process.env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
         res.redirect(logoutUrl);
     });
