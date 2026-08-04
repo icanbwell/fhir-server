@@ -67,7 +67,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/utils/delegatedAccessRulesManager.test.js',
         '<rootDir>/src/tests/unit/utils/filterGraphResources.test.js',
         '<rootDir>/src/tests/unit/utils/mergeHelper.test.js',
-        '<rootDir>/src/tests/unit/utils/patientPersonDataChangeEventProducer.test.js',
         '<rootDir>/src/tests/unit/utils/personToPatientIdsExpander.test.js',
         '<rootDir>/src/tests/unit/utils/s3Client.test.js',
         '<rootDir>/src/tests/unit/dataLayer/databaseBulkInserter.nullPatches.test.js',

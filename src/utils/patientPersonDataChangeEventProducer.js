@@ -350,12 +350,13 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
 
         await mutex.runExclusive(async () => {
             try {
-                // Move current data to processing buffers
+                // Snapshot current data into processing buffers. addResourceToChangeEventMap()
+                // mutates the live maps outside this mutex, so only the entries actually sent
+                // are removed afterward (via _removeSentEntries) instead of clear()-ing the live
+                // maps — this preserves anything a concurrent request adds during the awaits
+                // below, and leaves unsent data in place for retry on failure.
                 const patientDataChangeMapBuffer = new Map(this.patientDataChangeMap);
-                this.patientDataChangeMap.clear();
-
                 const personDataChangeMapBuffer = new Map(this.personDataChangeMap);
-                this.personDataChangeMap.clear();
 
                 if (this.enablePatientDataChangeEvents) {
                     // Process patient data change events
@@ -376,7 +377,16 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
                         dataChangeMap: personDataChangeMapBuffer,
                         resourceType: 'Person'
                     });
+
+                    // Only remove the sent person entries once the person stage has succeeded
+                    this._removeSentEntries({ liveMap: this.personDataChangeMap, sentMap: personDataChangeMapBuffer });
                 }
+
+                // Patient entries are removed only after every stage that derives from them
+                // (the Person population/send above) has completed successfully. If the Person
+                // stage throws, this is skipped so the next flush can re-derive Person
+                // notifications from the same patient entries.
+                this._removeSentEntries({ liveMap: this.patientDataChangeMap, sentMap: patientDataChangeMapBuffer });
 
                 // Clear processing buffers
                 patientDataChangeMapBuffer.clear();
@@ -385,6 +395,31 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
                 logError('Error in PatientPersonDataChangeEventProducer.flushAsync(): ', { error: e });
             }
         });
+    }
+
+    /**
+     * Removes only the resource types that were actually sent (per sentMap) from liveMap,
+     * so resource types added concurrently to the same id after the snapshot was taken
+     * survive to be sent on the next flush
+     * @param {Map<string, string[]>} liveMap
+     * @param {Map<string, string[]>} sentMap
+     * @private
+     */
+    _removeSentEntries({ liveMap, sentMap }) {
+        for (const [id, sentResourceTypes] of sentMap.entries()) {
+            const currentResourceTypes = liveMap.get(id);
+            if (!currentResourceTypes) {
+                continue;
+            }
+            const remainingResourceTypes = currentResourceTypes.filter(
+                (resourceType) => !sentResourceTypes.includes(resourceType)
+            );
+            if (remainingResourceTypes.length === 0) {
+                liveMap.delete(id);
+            } else {
+                liveMap.set(id, remainingResourceTypes);
+            }
+        }
     }
 
     /**

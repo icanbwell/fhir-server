@@ -125,8 +125,8 @@ describe('S3Client', () => {
                 filePaths: ['path1', 'path2'],
                 batch: 5
             });
-            expect(results[0]).toBe('content1');
-            expect(results[1]).toBeNull();
+            expect(results['path1']).toBe('content1');
+            expect(results['path2']).toBeNull();
         });
     });
 
