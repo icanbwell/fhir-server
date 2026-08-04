@@ -61,7 +61,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/history/history.test.js',
         '<rootDir>/src/tests/unit/operations/merge/merge.nullSafety.test.js',
         '<rootDir>/src/tests/unit/operations/patch/strategies/groupMemberPatchStrategy.bugs.test.js',
-        '<rootDir>/src/tests/unit/operations/query/convertGraphQLParameters.test.js',
         '<rootDir>/src/tests/unit/operations/query/r4SearchQueryCreator.test.js',
         '<rootDir>/src/tests/unit/operations/remove/removeHelper.test.js',
         '<rootDir>/src/tests/unit/operations/search/dataSharingManager.test.js',
