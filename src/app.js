@@ -370,10 +370,6 @@ function createApp({fnGetContainer}) {
         fnGetContainer, req, res
     ));
 
-    app.get('/full-healthcheck', (req, res) => handleFullHealthCheck(
-        fnGetContainer, req, res
-    ));
-
     app.get('/live', (req, res) => handleLivenessCheck(req, res));
 
     app.get('/logout', handleLogout);
@@ -382,12 +378,6 @@ function createApp({fnGetContainer}) {
         const logoutUrl = `${process.env.AUTH_CODE_FLOW_URL}/logout?client_id=${process.env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
         res.redirect(logoutUrl);
     });
-
-    if (configManager.enableStatsEndpoint) {
-        app.get('/stats', (req, res) => handleStats(
-            {fnGetContainer, req, res}
-        ));
-    }
 
     app.get('/.well-known/smart-configuration', handleSmartConfiguration, handleServerError);
 
@@ -400,6 +390,19 @@ function createApp({fnGetContainer}) {
     // Set up admin routes
     // noinspection JSCheckFunctionSignatures
     passport.use('adminStrategy', container.jwt_strategy);
+
+    app.get('/full-healthcheck',
+        passport.initialize(),
+        authenticateWithJsonFailure('adminStrategy', {session: false}),
+        (req, res) => handleFullHealthCheck(fnGetContainer, req, res)
+    );
+    if (configManager.enableStatsEndpoint) {
+        app.get('/stats',
+            passport.initialize(),
+            authenticateWithJsonFailure('adminStrategy', {session: false}),
+            (req, res) => handleStats({fnGetContainer, req, res})
+        );
+    }
 
     const adminRouter = express.Router({mergeParams: true});
     // Add authentication
