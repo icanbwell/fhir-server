@@ -35,7 +35,7 @@ const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client1.*');
 
-describe.skip('Data sharing test cases for different scenarios', () => {
+describe('Data sharing test cases for different scenarios', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {
@@ -92,7 +92,14 @@ describe.skip('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedClientPatientObservation);
         });
 
-        test('Ref of master person: Get Client patient & proa patient data, consent provided', async () => {
+        // FIXME: fails on current main — the executed query no longer includes the PROA-consent
+        // $or branch at all (proa Observation missing from the response, not just re-ordered).
+        // Regression, not a leak: consented data is being under-included, not over-exposed.
+        // Suspect src/operations/search/dataSharingManager.js or a query-flow change (candidate:
+        // DCON-3678 "Remove two step search flow", commit 6fa5899bf) altered how
+        // ProaConsentManager's allowed-patient-id set gets merged into the main search query.
+        // File a ticket before re-enabling. See docs/superpowers/plans/2026-08-04-security-review-test-coverage.md Phase 0.
+        test.skip('Ref of master person: Get Client patient & proa patient data, consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -114,7 +121,9 @@ describe.skip('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedClientProaObservation);
         });
 
-        test('Ref of master person: Get Client patient & proa patient data, consent provided, and later consent revoked.', async () => {
+        // FIXME: fails on current main — same missing-PROA-branch regression as the test above
+        // (received 1 observation instead of expected 2, before the revoke step even runs).
+        test.skip('Ref of master person: Get Client patient & proa patient data, consent provided, and later consent revoked.', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -243,7 +252,9 @@ describe.skip('Data sharing test cases for different scenarios', () => {
             expect(respIds).toEqual([clientObservationResource.id]);
         });
 
-        test('Ref of client person: Get client & proa data both, when consent provided', async () => {
+        // FIXME: fails on current main — same missing-PROA-consent-branch regression, see the
+        // FIXME above on the master-person consent test.
+        test.skip('Ref of client person: Get client & proa data both, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -265,7 +276,9 @@ describe.skip('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedClientProaObservation1);
         });
 
-        test('Ref of client person(uuid): Get client & proa data both, when consent provided', async () => {
+        // FIXME: fails on current main — same missing-PROA-consent-branch regression, see the
+        // FIXME above on the master-person consent test.
+        test.skip('Ref of client person(uuid): Get client & proa data both, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -378,7 +391,9 @@ describe.skip('Data sharing test cases for different scenarios', () => {
             expect(respIds.length).toEqual(0);
         });
 
-        test('Ref of proa patient: Get proa data only, when consent provided', async () => {
+        // FIXME: fails on current main — querying the proa patient directly returns an empty
+        // Bundle even with active consent; same underlying regression as the FIXMEs above.
+        test.skip('Ref of proa patient: Get proa data only, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -400,7 +415,10 @@ describe.skip('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedProaPatientObservation);
         });
 
-        test('Id of proa patient & link ref of incorrect proa patient: Get no data as no such data exists', async () => {
+        // FIXME: fails on current main — expects an empty result (negative case) but the query
+        // shape itself changed (lost the consent $or branch), so this needs re-verification
+        // alongside the other consent-branch FIXMEs above once that regression is root-caused.
+        test.skip('Id of proa patient & link ref of incorrect proa patient: Get no data as no such data exists', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -422,7 +440,9 @@ describe.skip('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedEmptyResponse);
         });
 
-        test('Provide id of proa patient & an incorrect patient id: Get patient whose id exists', async () => {
+        // FIXME: fails on current main — same missing-PROA-consent-branch regression, see the
+        // FIXME above on the master-person consent test.
+        test.skip('Provide id of proa patient & an incorrect patient id: Get patient whose id exists', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
