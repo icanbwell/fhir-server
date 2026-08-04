@@ -419,6 +419,26 @@ describe('DataSharingManager', () => {
             expect(actor.consentPolicy).toBe('Consent/consent-uuid-1?version=3');
         });
 
+        it('SEC-1586: threads securityTags through to cmsConsentManager.getPatientIdsWithConsent', async () => {
+            mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync = jest.fn().mockResolvedValue({
+                patientReferenceToPersonUuid: { 'patient-1': ['person-1'] }
+            });
+            mockCmsConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue(new Map());
+
+            await dataSharingManager.updateQueryConsideringCmsDataSharing({
+                resourceType: 'Patient',
+                patientIds: ['patient-1'],
+                query: {},
+                actor: null,
+                securityTags: ['tenant-a']
+            });
+
+            expect(mockCmsConsentManager.getPatientIdsWithConsent).toHaveBeenCalledWith(
+                { 'patient-1': ['person-1'] },
+                ['tenant-a']
+            );
+        });
+
         it('filters out person.proxy prefix ids', async () => {
             mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync = jest.fn().mockResolvedValue({
                 patientReferenceToPersonUuid: { 'patient-1': ['person-1'] }

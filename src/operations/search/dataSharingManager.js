@@ -283,11 +283,12 @@ class DataSharingManager {
      * @property {string[]} patientIds Set of patient ids from JWT token
      * @property {object} query Query object
      * @property {import('../../utils/fhirRequestInfo').JwtActor | null} [actor] actor token
+     * @property {string[]} securityTags security Tags of the caller
      *
      * @param {UpdateQueryConsideringCmsDataSharing} param
      * @returns {Promise<object>} Updated query object considering CMS data sharing
      */
-    async updateQueryConsideringCmsDataSharing({ resourceType, patientIds, query, actor }) {
+    async updateQueryConsideringCmsDataSharing({ resourceType, patientIds, query, actor, securityTags }) {
         // CMS data sharing is only applicable for Patient resource type as of now.
         if (resourceType !== 'Patient') {
             return query;
@@ -303,7 +304,8 @@ class DataSharingManager {
         });
 
         const patientIdsWithConsent = await this.cmsConsentManager.getPatientIdsWithConsent(
-            patientReferenceToPersonUuid
+            patientReferenceToPersonUuid,
+            securityTags
         );
 
         if (patientIdsWithConsent.size === 0) {
