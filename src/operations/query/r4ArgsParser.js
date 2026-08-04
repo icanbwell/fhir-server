@@ -186,6 +186,13 @@ class R4ArgsParser {
                 queryParameterValue
             ));
 
+            // Keep the pre-concat modifiers (from the colon-suffixed argName) separately: newModifiers
+            // (e.g. 'contains', 'exact', 'missing') describes orQueryParameterValue/andQueryParameterValue,
+            // not notQueryParameterValue, since convertGraphQLParameters returns them from the same call
+            // with no way to tell them apart. Applying newModifiers to the not-item below as well would
+            // route its value through the wrong filter (e.g. 'missing' forcing it through FilterByMissing).
+            const preConvertModifiers = modifiers;
+
             if (newModifiers && Array.isArray(newModifiers) && newModifiers.length) {
                 modifiers = modifiers.concat(newModifiers);
             }
@@ -240,8 +247,8 @@ class R4ArgsParser {
                     notQueryParameterValue.filter(v => v).length > 0
                 )
             ) {
-                const newModifiers = deepcopy(modifiers);
-                newModifiers.push('not');
+                const notModifiers = deepcopy(preConvertModifiers);
+                notModifiers.push('not');
                 parseArgItems.push(
                     new ParsedArgsItem({
                         queryParameter,
@@ -250,7 +257,7 @@ class R4ArgsParser {
                             operator: useOrFilterForArrays ? '$or' : '$and'
                         }),
                         propertyObj,
-                        modifiers: newModifiers
+                        modifiers: notModifiers
                     })
                 );
             }
