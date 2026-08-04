@@ -35,3 +35,8 @@ process.env.RESOURCE_SERVER = "http://localhost:3000";
 process.env.SERVER_PORT = 3000;
 process.env.ENABLE_CLICKHOUSE = '0';
 process.env.CMS_ALLOWED_PURPOSE_OF_USE = 'PATRQT';
+// Real, pooled/reused HTTP sockets to a real ClickHouse container intermittently trip a
+// passthrough bug in @mswjs/interceptors once nock's process-wide socket patch is active
+// (which it is for the lifetime of any Jest worker that has ever called nock(), since
+// nock.cleanAll() never undoes the patch) - see src/utils/configManager.js clickHouseKeepAliveEnabled.
+process.env.CLICKHOUSE_KEEP_ALIVE = 'false';

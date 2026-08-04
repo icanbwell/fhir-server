@@ -1269,6 +1269,18 @@ class ConfigManager {
         return parseInt(env.CLICKHOUSE_MAX_CONNECTIONS || String(DEFAULT_CLICKHOUSE.MAX_CONNECTIONS), 10);
     }
 
+    /**
+     * Whether the ClickHouse client keeps HTTP connections alive/pooled.
+     * Defaults to true (production behavior). Tests disable this because a pooled/reused
+     * socket passed through nock's process-wide @mswjs/interceptors patch (active once any
+     * test calls nock(), and never undone by nock.cleanAll()) intermittently surfaces a
+     * spurious "read EINVAL" from the underlying real socket and crashes the test file.
+     * @returns {boolean}
+     */
+    get clickHouseKeepAliveEnabled() {
+        return isTrueWithFallback(env.CLICKHOUSE_KEEP_ALIVE, true);
+    }
+
     get accessHistoryBatchSize() {
         return parseInt(env.ACCESS_HISTORY_BATCH_SIZE || '10000', 10);
     }
