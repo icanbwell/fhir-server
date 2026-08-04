@@ -208,6 +208,50 @@ describe('MergeOperation', () => {
             expect(result).toBeDefined();
         });
 
+        // DCON-4806: incomingObjects must be a deepcopy of the request body, not a reference
+        // to it -- the validator chain mutates its input in place (e.g.
+        // removeUnderscoreFieldsRecursive strips underscore fields), so passing the raw body
+        // through would mutate requestInfo.body itself.
+        test('passes a deep copy of the request body to mergeValidator, not the original reference', async () => {
+            const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+            const { assertTypeEquals, assertIsValid } = require('../../../../utils/assertType');
+            assertTypeEquals.mockImplementation(() => {});
+            assertIsValid.mockImplementation(() => {});
+
+            const parsedArgs = Object.create(ParsedArgs.prototype);
+            parsedArgs.base_version = '4_0_0';
+            parsedArgs.smartMerge = true;
+            parsedArgs.resource = null;
+            parsedArgs.getRawArgs = jest.fn().mockReturnValue({});
+
+            const originalBody = { id: 'p1', resourceType: 'Patient', _uuid: 'original-uuid' };
+
+            const requestInfo = {
+                user: 'testUser',
+                originalUrl: '/Patient',
+                protocol: 'https',
+                host: 'localhost',
+                requestId: 'req-1',
+                userRequestId: 'ureq-1',
+                headers: {},
+                body: originalBody
+            };
+
+            await mergeOperation.mergeAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType: 'Patient'
+            });
+
+            const incomingObjectsArg = mockMergeValidator.validateAsync.mock.calls[0][0].incomingObjects;
+            expect(incomingObjectsArg).not.toBe(originalBody);
+            expect(incomingObjectsArg).toEqual(originalBody);
+
+            // Mutating what was passed to the validator must not affect the original body
+            incomingObjectsArg._uuid = 'mutated';
+            expect(originalBody._uuid).toBe('original-uuid');
+        });
+
         test('returns array of MergeResultEntry when input is a list', async () => {
             const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
             const { assertTypeEquals, assertIsValid } = require('../../../../utils/assertType');

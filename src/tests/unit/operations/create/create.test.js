@@ -259,6 +259,44 @@ describe('CreateOperation', () => {
             expect(mocks.databaseBulkInserter.executeAsync).toHaveBeenCalled();
         });
 
+        // DCON-4806: a client-supplied _file_id must be stripped before it ever reaches
+        // DatabaseAttachmentManager.transformAttachments, which would otherwise persist it
+        // verbatim (no data was actually uploaded) and later serve back whatever GridFS
+        // content that id happens to point to.
+        test('strips a client-supplied _file_id before transformAttachments is called', async () => {
+            const { FhirResourceCreator } = require('../../../../fhir/fhirResourceCreator');
+            FhirResourceCreator.createByResourceType.mockImplementation((json, resourceType) => ({
+                ...json,
+                resourceType,
+                id: json.id,
+                _uuid: `uuid-${json.id}`,
+                _sourceAssigningAuthority: 'test',
+                meta: json.meta || { security: [] },
+                toJSON: () => json,
+                toJSONInternal: () => json
+            }));
+
+            const requestInfo = {
+                user: 'admin',
+                body: {
+                    resourceType: 'Patient',
+                    meta: { security: [] },
+                    photo: [{ _file_id: 'attacker-chosen-gridfs-id', contentType: 'image/png' }]
+                },
+                requestId: 'r1'
+            };
+
+            await createOp.createAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                path: '/Patient',
+                resourceType: 'Patient'
+            });
+
+            const resourcePassedToAttachmentManager = mocks.databaseAttachmentManager.transformAttachments.mock.calls[0][0];
+            expect(resourcePassedToAttachmentManager.photo[0]._file_id).toBeUndefined();
+        });
+
         test('throws BadRequestError when mergeResults is empty', async () => {
             const { FhirResourceCreator } = require('../../../../fhir/fhirResourceCreator');
             FhirResourceCreator.createByResourceType.mockImplementation((json, resourceType) => ({

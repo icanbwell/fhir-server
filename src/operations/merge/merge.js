@@ -1,5 +1,6 @@
 const httpContext = require('express-http-context');
 require('moment-timezone');
+const deepcopy = require('deepcopy');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { MergeManager } = require('./mergeManager');
 const { NdjsonParser } = require('./ndJsonParser');
@@ -182,10 +183,12 @@ class MergeOperation {
             const effectiveSmartMerge = isTrue(smartMerge ?? true);
 
             // read the incoming resource from request body
+            // deepcopy so the validator chain (which mutates in place, e.g.
+            // removeUnderscoreFieldsRecursive) never modifies the raw request body/parsedArgs.
             /**
              * @type {Object|Object[]|undefined}
              */
-            const incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
+            const incomingObjects = deepcopy(parsedArgs.resource ? parsedArgs.resource : body);
             // Bundle wrapper has to be unwrapped *before* the truthy-fallback
             // ternary, otherwise an N-entry Bundle saturates the histogram at 1.
             // BundleResourceValidator.validate later flattens entry[].resource

@@ -165,6 +165,37 @@ describe('UpdateOperation', () => {
             expect(mocks.databaseBulkInserter.insertOneAsync).toHaveBeenCalled();
         });
 
+        // DCON-4806: a client-supplied _file_id must be stripped from the incoming payload
+        // before it's merged/persisted -- otherwise a caller could claim an arbitrary GridFS
+        // file id (e.g. belonging to another resource/tenant) with no actual upload, and have
+        // it served back as this resource's attachment data on a later read.
+        test('strips a client-supplied _file_id before transformAttachments is called', async () => {
+            const requestInfo = {
+                user: 'admin',
+                scope: 'user/*.write',
+                path: '/Patient/test-id',
+                body: {
+                    id: 'test-id',
+                    resourceType: 'Patient',
+                    meta: { source: 'urn:test' },
+                    photo: [{ _file_id: 'attacker-chosen-gridfs-id', contentType: 'image/png' }]
+                },
+                requestId: 'req-1',
+                isUser: false,
+                personIdFromJwtToken: null,
+                headers: {}
+            };
+
+            await updateOp.updateAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            const resourcePassedToAttachmentManager = mocks.databaseAttachmentManager.transformAttachments.mock.calls[0][0];
+            expect(resourcePassedToAttachmentManager.photo[0]._file_id).toBeUndefined();
+        });
+
         test('updates existing resource when found', async () => {
             const existingResource = {
                 id: 'test-id',
