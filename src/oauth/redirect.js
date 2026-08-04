@@ -35,57 +35,59 @@ function parseJwt (token) {
 
 // Guard the browser-only entrypoint so this file can also be `require()`d in Node (for unit
 // testing isSafeRelativeUrl) without jQuery/axios/window being defined.
-if (typeof $ !== 'undefined') {
-    // noinspection JSUnresolvedFunction
-    $(document).ready(function () {
-        const parameters = getUrlVars();
+if (typeof $ === 'undefined') {
+    return;
+}
 
-        const authCode = parameters.get('code');
+// noinspection JSUnresolvedFunction
+$(document).ready(function () {
+    const parameters = getUrlVars();
 
-        // Fetch the token endpoint + client id from the server rather than trusting a
-        // `tokenUrl`/`clientId` query param: this page is served as a static asset, so
-        // anyone can navigate to it directly with arbitrary query params. Sourcing these
-        // two values from a same-origin, server-computed endpoint means the auth-code
-        // exchange can never be redirected to an attacker-chosen destination.
-        axios
-            .get('/oauth/config')
-            .then(function (configRes) {
-                const tokenUrl = configRes.data.tokenUrl;
+    const authCode = parameters.get('code');
 
-                const data = {
-                    grant_type: 'authorization_code',
-                    client_id: configRes.data.clientId,
-                    code: authCode,
-                    redirect_uri: window.location.origin + '/authcallback'
-                };
+    // Fetch the token endpoint + client id from the server rather than trusting a
+    // `tokenUrl`/`clientId` query param: this page is served as a static asset, so
+    // anyone can navigate to it directly with arbitrary query params. Sourcing these
+    // two values from a same-origin, server-computed endpoint means the auth-code
+    // exchange can never be redirected to an attacker-chosen destination.
+    axios
+        .get('/oauth/config')
+        .then(function (configRes) {
+            const tokenUrl = configRes.data.tokenUrl;
 
-                const querystring = $.param(data);
+            const data = {
+                grant_type: 'authorization_code',
+                client_id: configRes.data.clientId,
+                code: authCode,
+                redirect_uri: window.location.origin + '/authcallback'
+            };
 
-                return axios.request({
-                    url: tokenUrl,
-                    method: 'post',
-                    data: querystring,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
-                });
-            })
-            .then(function (res) {
-                const accessToken = res.data.access_token;
-                const jwt = parseJwt(accessToken);
+            const querystring = $.param(data);
 
-                setCookie('jwt', accessToken, jwt.exp);
-
-                const resourceUrl = decodeURIComponent(parameters.get('resourceUrl'));
-                if (isSafeRelativeUrl(resourceUrl)) {
-                    // URL is relative (and not protocol-relative), so redirect
-                    window.location.assign(resourceUrl);
-                } else {
-                    throw new Error(`Url is not a relative ${resourceUrl}`);
+            return axios.request({
+                url: tokenUrl,
+                method: 'post',
+                data: querystring,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 }
             });
-    });
-}
+        })
+        .then(function (res) {
+            const accessToken = res.data.access_token;
+            const jwt = parseJwt(accessToken);
+
+            setCookie('jwt', accessToken, jwt.exp);
+
+            const resourceUrl = decodeURIComponent(parameters.get('resourceUrl'));
+            if (isSafeRelativeUrl(resourceUrl)) {
+                // URL is relative (and not protocol-relative), so redirect
+                window.location.assign(resourceUrl);
+            } else {
+                throw new Error(`Url is not a relative ${resourceUrl}`);
+            }
+        });
+});
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { isSafeRelativeUrl };
