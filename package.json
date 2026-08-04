@@ -62,7 +62,8 @@
     }
   },
   "resolutions": {
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.0",
+    "yargs": "^18.1.0"
   },
   "dependencies": {
     "@apollo/server": "5.5.1",

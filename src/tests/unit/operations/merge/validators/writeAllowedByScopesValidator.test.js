@@ -16,6 +16,7 @@ const { DatabaseBulkLoader } = require('../../../../../dataLayer/databaseBulkLoa
 function createMockScopesValidator (overrides = {}) {
     const mock = Object.create(ScopesValidator.prototype);
     mock.isAccessToResourceAllowedByAccessAndPatientScopes = jest.fn().mockResolvedValue(undefined);
+    mock.isAccessTagChangeAllowedByAccessScopes = jest.fn();
     Object.assign(mock, overrides);
     return mock;
 }

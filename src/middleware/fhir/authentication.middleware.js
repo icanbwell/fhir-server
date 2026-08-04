@@ -90,7 +90,14 @@ module.exports = function authenticationMiddleware (config) {
         } = config.auth.strategy;
         return authenticateWithJsonFailure(name, {session: useSession});
     } else {
-        return noOpMiddleware;
+        // Fail closed: a missing auth strategy must never fall through to an
+        // unauthenticated pass-through (this previously returned noOpMiddleware, which
+        // let every request through with no credential check at all). If this branch is
+        // ever hit outside tests, auth configuration is broken or missing -- the safe
+        // behavior is to deny every request, not silently allow them.
+        return function missingAuthStrategyMiddleware (req, res) {
+            sendUnauthorizedJson(res);
+        };
     }
 };
 

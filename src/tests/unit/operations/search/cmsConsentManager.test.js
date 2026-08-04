@@ -66,7 +66,7 @@ describe('CmsConsentManager', () => {
                 'Patient/person.uuid-222'
             ];
 
-            await cmsConsentManager.getConsentResources(proxyPatientRefs);
+            await cmsConsentManager.getConsentResources(proxyPatientRefs, ['tenant-a']);
 
             expect(mockDatabaseQueryFactory.createQuery).toHaveBeenCalledWith({
                 resourceType: 'Consent',
@@ -85,12 +85,34 @@ describe('CmsConsentManager', () => {
                         }
                     }
                 },
-                { 'provision.type': 'permit' }
+                { 'provision.type': 'permit' },
+                {
+                    'meta.security': {
+                        $elemMatch: {
+                            system: 'https://www.icanbwell.com/owner',
+                            code: { $in: ['tenant-a'] }
+                        }
+                    }
+                }
             ]);
         });
 
+        test('SEC-1586: filters by the caller-authorized owner tags, not just proxy patient/category/status', async () => {
+            await cmsConsentManager.getConsentResources(['Patient/person.p1'], ['tenant-a']);
+
+            const findCall = mockQueryManager.findAsync.mock.calls[0][0];
+            expect(findCall.query.$and).toContainEqual({
+                'meta.security': {
+                    $elemMatch: {
+                        system: 'https://www.icanbwell.com/owner',
+                        code: { $in: ['tenant-a'] }
+                    }
+                }
+            });
+        });
+
         test('should use correct projection fields', async () => {
-            await cmsConsentManager.getConsentResources(['Patient/person.uuid-111']);
+            await cmsConsentManager.getConsentResources(['Patient/person.uuid-111'], ['tenant-a']);
 
             const findCall = mockQueryManager.findAsync.mock.calls[0][0];
             expect(findCall.options.projection).toEqual({
@@ -102,7 +124,7 @@ describe('CmsConsentManager', () => {
         });
 
         test('should hint with CONSENT_OF_LINKED_PERSON_INDEX', async () => {
-            await cmsConsentManager.getConsentResources(['Patient/person.uuid-111']);
+            await cmsConsentManager.getConsentResources(['Patient/person.uuid-111'], ['tenant-a']);
 
             expect(mockCursor.hint).toHaveBeenCalledWith({
                 indexHint: 'consent_of_linked_person'
@@ -115,13 +137,31 @@ describe('CmsConsentManager', () => {
             ];
             mockCursor.toArrayAsync.mockResolvedValue(mockConsents);
 
-            const result = await cmsConsentManager.getConsentResources(['Patient/person.uuid-111']);
+            const result = await cmsConsentManager.getConsentResources(['Patient/person.uuid-111'], ['tenant-a']);
 
             expect(result).toEqual(mockConsents);
         });
 
+        test('SEC-1586 regression: omits the owner filter (does not use $in: []) when ownerTags is empty, since an empty array means wildcard/full access here -- same convention searchManager uses for securityTags', async () => {
+            await cmsConsentManager.getConsentResources(['Patient/person.p1'], []);
+
+            const findCall = mockQueryManager.findAsync.mock.calls[0][0];
+            expect(findCall.query.$and).not.toContainEqual(
+                expect.objectContaining({ 'meta.security': expect.anything() })
+            );
+        });
+
+        test('SEC-1586 regression: omits the owner filter when ownerTags is undefined', async () => {
+            await cmsConsentManager.getConsentResources(['Patient/person.p1'], undefined);
+
+            const findCall = mockQueryManager.findAsync.mock.calls[0][0];
+            expect(findCall.query.$and).not.toContainEqual(
+                expect.objectContaining({ 'meta.security': expect.anything() })
+            );
+        });
+
         test('should handle empty proxy patient refs array', async () => {
-            await cmsConsentManager.getConsentResources([]);
+            await cmsConsentManager.getConsentResources([], ['tenant-a']);
 
             const findCall = mockQueryManager.findAsync.mock.calls[0][0];
             expect(findCall.query.$and[1]).toEqual({ 'patient._uuid': { $in: [] } });
@@ -137,11 +177,27 @@ describe('CmsConsentManager', () => {
             const getConsentSpy = jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([]);
 
-            await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid);
+            await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ['tenant-a']);
 
-            expect(getConsentSpy).toHaveBeenCalledWith([
-                'Patient/person.person-uuid-aaa'
-            ]);
+            expect(getConsentSpy).toHaveBeenCalledWith(
+                ['Patient/person.person-uuid-aaa'],
+                ['tenant-a']
+            );
+        });
+
+        test('SEC-1586: threads ownerTags through to getConsentResources', async () => {
+            const getConsentSpy = jestObj.spyOn(cmsConsentManager, 'getConsentResources')
+                .mockResolvedValue([]);
+
+            await cmsConsentManager.getPatientIdsWithConsent(
+                { 'patient-1': ['person-1'] },
+                ['tenant-a']
+            );
+
+            expect(getConsentSpy).toHaveBeenCalledWith(
+                expect.any(Array),
+                ['tenant-a']
+            );
         });
 
         test('should build proxy refs for multiple persons', async () => {
@@ -153,7 +209,7 @@ describe('CmsConsentManager', () => {
             const getConsentSpy = jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([]);
 
-            await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid);
+            await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ['tenant-a']);
 
             const refs = getConsentSpy.mock.calls[0][0];
             expect(refs).toContain('Patient/person.person-uuid-aaa');
@@ -184,7 +240,7 @@ describe('CmsConsentManager', () => {
             jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([olderConsent, newerConsent]);
 
-            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid);
+            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ['tenant-a']);
 
             expect(result.get('patient-1')).toEqual({
                 _uuid: 'consent-new',
@@ -217,7 +273,7 @@ describe('CmsConsentManager', () => {
             jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([newerConsent, olderConsent]);
 
-            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid);
+            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ['tenant-a']);
 
             expect(result.get('patient-1')._uuid).toBe('consent-new');
         });
@@ -236,7 +292,7 @@ describe('CmsConsentManager', () => {
             jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([consentMissingPatientUuid]);
 
-            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid);
+            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ['tenant-a']);
 
             expect(result.size).toBe(0);
         });
@@ -254,7 +310,7 @@ describe('CmsConsentManager', () => {
             jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([consentMissingUuid]);
 
-            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid);
+            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ['tenant-a']);
 
             expect(result.size).toBe(0);
         });
@@ -273,7 +329,7 @@ describe('CmsConsentManager', () => {
             jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([consentMissingVersion]);
 
-            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid);
+            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ['tenant-a']);
 
             expect(result.size).toBe(0);
         });
@@ -282,9 +338,9 @@ describe('CmsConsentManager', () => {
             const getConsentSpy = jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([]);
 
-            const result = await cmsConsentManager.getPatientIdsWithConsent({});
+            const result = await cmsConsentManager.getPatientIdsWithConsent({}, ['tenant-a']);
 
-            expect(getConsentSpy).toHaveBeenCalledWith([]);
+            expect(getConsentSpy).toHaveBeenCalledWith([], ['tenant-a']);
             expect(result.size).toBe(0);
         });
 
@@ -312,7 +368,7 @@ describe('CmsConsentManager', () => {
             jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([consentA, consentB]);
 
-            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid);
+            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ['tenant-a']);
 
             // Should keep the latest consent across both persons for patient-1
             expect(result.get('patient-1')._uuid).toBe('consent-b');
@@ -340,7 +396,7 @@ describe('CmsConsentManager', () => {
             jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([consent]);
 
-            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid);
+            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ['tenant-a']);
 
             expect(result.has('patient-1')).toBe(true);
             expect(result.has('patient-2')).toBe(false);
@@ -367,7 +423,7 @@ describe('CmsConsentManager', () => {
             jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([consent]);
 
-            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid);
+            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ['tenant-a']);
 
             expect(result.has('patient-1')).toBe(true);
             expect(result.has('patient-2')).toBe(true);
@@ -395,7 +451,7 @@ describe('CmsConsentManager', () => {
             jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([consent]);
 
-            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid);
+            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ['tenant-a']);
 
             expect(result.size).toBe(0);
         });
@@ -420,7 +476,7 @@ describe('CmsConsentManager', () => {
             jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([consent]);
 
-            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid);
+            const result = await cmsConsentManager.getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ['tenant-a']);
 
             // After parsing 'Patient/person.abc-123-def', id = 'person.abc-123-def'
             // Then stripping 'person.' prefix gives 'abc-123-def' which is our person UUID

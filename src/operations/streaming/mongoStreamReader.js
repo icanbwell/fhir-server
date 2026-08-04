@@ -99,9 +99,9 @@ class MongoReadableStream extends Readable {
                 // Handle any errors that may occur during data retrieval
                 this.emit('error', error);
                 this.push(null); // Signal the end of the stream
-                return;
+            } finally {
+                this.isFetchingData = false;
             }
-            this.isFetchingData = false;
         }
     }
 
@@ -127,6 +127,10 @@ class MongoReadableStream extends Readable {
                      * @type {Resource}
                      */
                     let resource = await this.cursor.next();
+                    if (!resource) {
+                        this.push(null);
+                        return;
+                    }
                     this.lastUUID = resource._uuid;
                     if (this.configManager.logStreamSteps) {
                         logInfo(`mongoStreamReader: read ${resource.id}`, { count, size });
@@ -205,6 +209,7 @@ class MongoReadableStream extends Readable {
                 // this is an unexpected error so set statusCode 500
                 this.response.statusCode = 500;
                 this.push(operationOutcome);
+                this.push(null);
                 return;
             }
         }

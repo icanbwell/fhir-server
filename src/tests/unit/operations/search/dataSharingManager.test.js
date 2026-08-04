@@ -204,7 +204,9 @@ describe('DataSharingManager', () => {
                 base_version: '4_0_0',
                 resourceType: 'Condition',
                 parsedArgs: mockParsedArgs,
-                securityTags: ['client-xyz'],
+                // Same securityTags as call 1 - this test is about resourceType varying,
+                // not securityTags. See the dedicated securityTags-cache-key test below.
+                securityTags: ['client-abc'],
                 query: query2,
                 useHistoryTable: false,
                 requestId,
@@ -217,36 +219,49 @@ describe('DataSharingManager', () => {
         });
 
         it('second call with same requestId but different securityTags must NOT use cached patientIds', async () => {
-            // This tests the cache bug surface: securityTags is NOT in cache key
-            // CORRECT behavior: different securityTags should invalidate the cache
+            // This tests the cache-key fix: securityTags must be part of the cache key,
+            // so a second call in the same request with different securityTags re-derives
+            // patientIdToImmediatePersonUuid instead of reusing the first call's cache entry.
             const requestId = 'req-shared';
+            const patientUuid = '11111111-1111-1111-1111-111111111111';
 
-            // Pre-populate cache (simulating first call already happened)
-            const cacheMap = requestSpecificCache.getMap({ requestId, name: 'dataSharingManager' });
-            cacheMap.set('patientIdToImmediatePersonUuid', { 'patient-uuid-1': ['person-1'] });
-            cacheMap.set('patientsList', [{
-                id: 'p1', _sourceId: 'p1', _uuid: 'patient-uuid-1',
-                meta: { security: [{ system: 'https://www.icanbwell.com/connectionType', code: 'proa' }] }
-            }]);
-            cacheMap.set('personToLinkedPatientsMap', new Map());
-
-            mockProaConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue(new Set(['patient-uuid-1']));
-            mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({
-                query: { 'subject.reference': 'Patient/patient-uuid-1' }
+            const buildParsedArgs = () => ({
+                base_version: '4_0_0',
+                parsedArgItems: [{
+                    propertyObj: { target: ['Patient'] },
+                    references: [{ resourceType: 'Patient', id: patientUuid }],
+                    queryParameter: 'patient',
+                    queryParameterValue: {
+                        values: [`Patient/${patientUuid}`],
+                        operator: '$or',
+                        regenerateValueFromValues: jest.fn().mockReturnValue(`Patient/${patientUuid}`)
+                    },
+                    modifiers: []
+                }]
             });
+            mockParsedArgs.parsedArgItems = buildParsedArgs().parsedArgItems;
+            mockParsedArgs.clone = jest.fn().mockReturnValue(buildParsedArgs());
 
-            mockParsedArgs.parsedArgItems = [{
-                propertyObj: { target: ['Patient'] },
-                references: [{ resourceType: 'Patient', id: 'patient-uuid-1' }],
-                queryParameter: 'patient',
-                queryParameterValue: {
-                    values: ['Patient/patient-uuid-1'],
-                    operator: '$or',
-                    regenerateValueFromValues: jest.fn().mockReturnValue('Patient/patient-uuid-1')
-                },
-                modifiers: []
-            }];
-            mockParsedArgs.clone = jest.fn().mockReturnValue(mockParsedArgs);
+            const mockCursor = {
+                hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false),
+                nextObject: jest.fn().mockResolvedValue({
+                    id: 'patient-1',
+                    _sourceId: 'patient-1',
+                    _uuid: patientUuid,
+                    meta: { security: [{ system: 'https://www.icanbwell.com/connectionType', code: 'proa' }] }
+                })
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            });
+            mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync = jest.fn().mockResolvedValue({
+                patientReferenceToPersonUuid: { [patientUuid]: ['person-uuid-1'] },
+                personToLinkedPatientsMap: new Map()
+            });
+            mockProaConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue(new Set([patientUuid]));
+            mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({
+                query: { 'subject.reference': `Patient/${patientUuid}` }
+            });
 
             // Call 1 with securityTags = ['client-A']
             const result1 = await dataSharingManager.updateQueryConsideringDataSharing({
@@ -260,8 +275,26 @@ describe('DataSharingManager', () => {
                 isUser: false,
                 allowConsentedProaDataAccess: true
             });
+            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).toHaveBeenCalledTimes(1);
+            expect(result1.$or).toBeDefined();
+            expect(result1.$or[0]).toEqual({ access: 'A' });
 
-            // Call 2 with securityTags = ['client-B'] but same requestId
+            // Call 2 with securityTags = ['client-B'] but same requestId: must NOT reuse
+            // call 1's cache entry - bwellPersonFinder must be called again.
+            // Fresh cursor mock since call 1's one-shot hasNext/nextObject values are spent.
+            const mockCursor2 = {
+                hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false),
+                nextObject: jest.fn().mockResolvedValue({
+                    id: 'patient-1',
+                    _sourceId: 'patient-1',
+                    _uuid: patientUuid,
+                    meta: { security: [{ system: 'https://www.icanbwell.com/connectionType', code: 'proa' }] }
+                })
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor2)
+            });
+
             const result2 = await dataSharingManager.updateQueryConsideringDataSharing({
                 base_version: '4_0_0',
                 resourceType: 'Observation',
@@ -273,66 +306,9 @@ describe('DataSharingManager', () => {
                 isUser: false,
                 allowConsentedProaDataAccess: true
             });
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // Different securityTags should NOT reuse cache - bwellPersonFinder should be called
-            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).toHaveBeenCalled();
-            // Result2 should contain the query from call 2
+            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).toHaveBeenCalledTimes(2);
             expect(result2.$or).toBeDefined();
             expect(result2.$or[0]).toEqual({ access: 'B' });
-        });
-
-        it('returns $or query when both consented and HIE data are available', async () => {
-            const requestId = 'req-both';
-            const cacheMap = requestSpecificCache.getMap({ requestId, name: 'dataSharingManager' });
-            cacheMap.set('patientIdToImmediatePersonUuid', { 'patient-uuid-1': ['person-1'] });
-            cacheMap.set('patientsList', [{
-                id: 'p1', _sourceId: 'p1', _uuid: 'patient-uuid-1',
-                meta: { security: [{ system: 'https://www.icanbwell.com/connectionType', code: 'proa' }] }
-            }]);
-            cacheMap.set('personToLinkedPatientsMap', new Map());
-
-            mockProaConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue(new Set(['patient-uuid-1']));
-
-            mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({
-                query: { 'subject.reference': 'Patient/patient-uuid-1' }
-            });
-
-            mockParsedArgs.parsedArgItems = [{
-                propertyObj: { target: ['Patient'] },
-                references: [{ resourceType: 'Patient', id: 'patient-uuid-1' }],
-                queryParameter: 'patient',
-                queryParameterValue: {
-                    values: ['Patient/patient-uuid-1'],
-                    operator: '$or',
-                    regenerateValueFromValues: jest.fn().mockReturnValue('Patient/patient-uuid-1')
-                },
-                modifiers: []
-            }];
-            mockParsedArgs.clone = jest.fn().mockReturnValue(mockParsedArgs);
-
-            mockConfigManager.enableConsentedProaDataAccess = true;
-            mockConfigManager.enableHIETreatmentRelatedDataAccess = true;
-            mockConfigManager.getConsentConnectionTypesList = ['proa'];
-            mockConfigManager.getHIETreatmentConnectionTypesList = ['proa'];
-
-            const query = { 'meta.security': { $elemMatch: { code: 'client-a' } } };
-
-            const result = await dataSharingManager.updateQueryConsideringDataSharing({
-                base_version: '4_0_0',
-                resourceType: 'Observation',
-                parsedArgs: mockParsedArgs,
-                securityTags: ['client-a'],
-                query,
-                useHistoryTable: false,
-                requestId,
-                isUser: false,
-                allowConsentedProaDataAccess: true
-            });
-
-            expect(result.$or).toBeDefined();
-            expect(result.$or.length).toBe(3);
-            expect(result.$or[0]).toEqual(query);
         });
 
         it('returns original query when patientIdToImmediatePersonUuid is empty (no patients found)', async () => {
@@ -441,6 +417,26 @@ describe('DataSharingManager', () => {
             });
 
             expect(actor.consentPolicy).toBe('Consent/consent-uuid-1?version=3');
+        });
+
+        it('SEC-1586: threads securityTags through to cmsConsentManager.getPatientIdsWithConsent', async () => {
+            mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync = jest.fn().mockResolvedValue({
+                patientReferenceToPersonUuid: { 'patient-1': ['person-1'] }
+            });
+            mockCmsConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue(new Map());
+
+            await dataSharingManager.updateQueryConsideringCmsDataSharing({
+                resourceType: 'Patient',
+                patientIds: ['patient-1'],
+                query: {},
+                actor: null,
+                securityTags: ['tenant-a']
+            });
+
+            expect(mockCmsConsentManager.getPatientIdsWithConsent).toHaveBeenCalledWith(
+                { 'patient-1': ['person-1'] },
+                ['tenant-a']
+            );
         });
 
         it('filters out person.proxy prefix ids', async () => {

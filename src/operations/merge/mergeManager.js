@@ -645,6 +645,21 @@ class MergeManager {
                 resourceToMerge.member = currentMembers;
             }
 
+            // Defense-in-depth: deduplicate meta.security by system+code right before the
+            // write, regardless of whether an upstream merge/preSave step already did so -
+            // this is the last point before the document is actually persisted.
+            if (Array.isArray(resourceToMerge.meta?.security)) {
+                const seenSecurityTags = new Set();
+                resourceToMerge.meta.security = resourceToMerge.meta.security.filter((tag) => {
+                    const key = `${tag.system}|${tag.code}`;
+                    if (seenSecurityTags.has(key)) {
+                        return false;
+                    }
+                    seenSecurityTags.add(key);
+                    return true;
+                });
+            }
+
             await this.databaseBulkInserter.mergeOneAsync(
                 {
                     base_version,

@@ -1,5 +1,5 @@
 const { FilterById } = require('../operations/query/filters/id');
-const { assertTypeEquals } = require('./assertType');
+const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { logWarn } = require('../operations/common/logging');
 const { PERSON_REFERENCE_PREFIX, HTTP_CONTEXT_KEYS } = require('../constants');
@@ -64,9 +64,10 @@ class PersonToPatientIdsExpander {
      * @param {boolean} includePatientPrefix
      * @param {boolean} toMap If return map of person to patient
      * @param {FhirRequestInfo} requestInfo
+     * @param {boolean} addTopPersonAccessCheck if true, adds access tag check while finding top level person
      * @return {Promise<string|string[]|{[key: string]: string[]}>}
      */
-    async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap, requestInfo }) {
+    async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap, requestInfo, addTopPersonAccessCheck = false }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version
@@ -89,7 +90,8 @@ class PersonToPatientIdsExpander {
                 level: 1,
                 toMap,
                 returnOriginalPersonId: true, // return the passed personId not its uuid
-                requestInfo
+                requestInfo,
+                addTopPersonAccessCheck
             }
         );
         if (!toMap) {
@@ -189,13 +191,22 @@ class PersonToPatientIdsExpander {
      * @property {boolean} toMap If passed, will return a map of personId -> all related personIds
      * @property {boolean} returnOriginalPersonId If true then returns original personId passed. By default returns person _uuid
      * @property {boolean} addPersonOwnerToContext If true then add person owner to context
+     * @property {boolean} addTopPersonAccessCheck If true then add access tag check when fetching person
      * @property {FhirRequestInfo} requestInfo
      *
      * @param {getPatientIdsFromPersonAsyncArgs}
      * @return {Promise<string[] | Map<string, Set<string>>>} Will return an array if toMap is false else return an map. By default toMap is false
      */
-    async getPatientIdsFromPersonAsync ({
-        personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false, addPersonOwnerToContext = false, requestInfo
+    async getPatientIdsFromPersonAsync({
+        personIds,
+        totalProcessedPersonIds,
+        databaseQueryManager,
+        level,
+        toMap = false,
+        returnOriginalPersonId = false,
+        addPersonOwnerToContext = false,
+        requestInfo,
+        addTopPersonAccessCheck = false
     }) {
         /**
          * Final result to return
@@ -210,15 +221,24 @@ class PersonToPatientIdsExpander {
             projectionsMap.meta = 1
         }
 
+        if(addTopPersonAccessCheck) {
+            assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
+        }
+
         let query = FilterById.getListFilter(personIds);
 
         // Apply the caller's access-scope security tag filter to the requested Person so that
         // linked patients are not resolved for a Person the caller cannot access.
         if (
             requestInfo &&
-            this.configManager.enableProxyPersonScopeCheckForEverything &&
-            requestInfo.originalUrl?.includes('$everything') &&
-            requestInfo.method === 'GET'
+            (
+                (
+                    this.configManager.enableProxyPersonScopeCheckForEverything &&
+                    requestInfo.originalUrl?.includes('$everything') &&
+                    requestInfo.method === 'GET'
+                ) ||
+                addTopPersonAccessCheck
+            )
         ) {
             const { user, scope } = requestInfo;
             const resourceType = 'Person';

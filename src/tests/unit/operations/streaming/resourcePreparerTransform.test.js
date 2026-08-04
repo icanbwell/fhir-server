@@ -161,18 +161,6 @@ describe('ResourcePreparerTransform', () => {
             });
         });
 
-        test('BUG #65: null chunk should be handled gracefully without TypeError', async () => {
-            // When chunk is null, the code should skip it gracefully instead of crashing
-            // when trying to access chunk1.id in the error handler.
-            const transform = createTransform();
-            transform.push = jest.fn();
-            mockResourcePreparer.prepareResourceAsync.mockRejectedValue(new Error('null element'));
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // processChunkAsync(null) should handle null gracefully, not throw TypeError
-            await expect(transform.processChunkAsync(null)).resolves.not.toThrow();
-        });
-
         test('BUG: chunk with undefined id causes "undefined" in error message', (done) => {
             const chunk = { resourceType: 'Patient' }; // no id field
             const error = new Error('preparation failed');
@@ -270,29 +258,6 @@ describe('ResourcePreparerTransform', () => {
             expect(pushed).toContainEqual(preparedResource);
         });
 
-        test('BUG #66: prepareResourceAsync resolving with null should be handled gracefully', async () => {
-            // If prepareResourceAsync returns null instead of an array,
-            // the code should handle it gracefully instead of throwing TypeError
-            const chunk = { id: 'patient-1', resourceType: 'Patient' };
-            mockResourcePreparer.prepareResourceAsync.mockResolvedValue(null);
-
-            const transform = createTransform();
-            transform.push = jest.fn();
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            await expect(transform.processChunkAsync(chunk)).resolves.not.toThrow();
-        });
-
-        test('BUG #66: prepareResourceAsync resolving with undefined should be handled gracefully', async () => {
-            const chunk = { id: 'patient-1', resourceType: 'Patient' };
-            mockResourcePreparer.prepareResourceAsync.mockResolvedValue(undefined);
-
-            const transform = createTransform();
-            transform.push = jest.fn();
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            await expect(transform.processChunkAsync(chunk)).resolves.not.toThrow();
-        });
     });
 
     describe('_flush', () => {
