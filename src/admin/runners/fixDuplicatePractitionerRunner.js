@@ -271,7 +271,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
         if (subs) {
             // do simple fields
             ref._uuid = subs.goodUuid;
-            if (ref.reference.startsWith(subs.goodSourceId)) {
+            if (ref.reference && ref.reference.startsWith(subs.goodSourceId)) {
                 ref.reference = subs.goodReference;
             } else {
                 ref.reference = subs.goodUuid;
@@ -320,8 +320,8 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                     }
                     for (let i = 0; i < f0.length; i++) {
                         const ref = f0[i];
-                        if (this.dupUuids.includes(ref._uuid)) {
-                            const newRef = this.substituteOneReference({ ref });
+                        if (ref && this.dupUuids.includes(ref._uuid)) {
+                            const newRef = await this.substituteOneReference({ ref });
                             resource[fields[0]][i] = newRef;
                          }
                     }
@@ -341,8 +341,8 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                              const subObj = subf[j];
 
                              const ref = subObj[fields[1]];
-                             if (this.dupUuids.includes(ref._uuid)) {
-                                 const newRef = this.substituteOneReference({ ref });
+                             if (ref && this.dupUuids.includes(ref._uuid)) {
+                                 const newRef = await this.substituteOneReference({ ref });
                                  resource[fields[0]][i][fields[1]][j] = newRef;
                              }
                          }
