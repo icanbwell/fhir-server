@@ -84,6 +84,7 @@ describe('UpdateOperation', () => {
         // Setup mocks
         mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
         mocks.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes = jest.fn().mockResolvedValue(undefined);
+        mocks.scopesValidator.isAccessTagChangeAllowedByAccessScopes = jest.fn();
         mocks.resourceValidator.validateResourceAsync = jest.fn().mockResolvedValue(null);
         mocks.resourceValidator.validateResourceMetaSync = jest.fn().mockReturnValue(null);
         mocks.searchManager.constructQueryAsync = jest.fn().mockResolvedValue({ query: { _sourceId: 'test-id' } });
