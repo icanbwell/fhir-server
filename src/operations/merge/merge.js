@@ -368,8 +368,9 @@ class MergeOperation {
                 );
             } else {
                 // mergeResults[0] can be undefined if the incoming payload produced no
-                // resources to merge (e.g. an empty Bundle) — return null (a valid,
-                // defined value) instead of undefined so the response body isn't empty.
+                // resources to merge (e.g. an empty Bundle) — return null (a defined
+                // value, per this method's JSDoc contract) instead of undefined.
+                // fhirResponseWriter.create() maps a falsy resource to a 404 response.
                 return wasIncomingAList ? mergeResults : (mergeResults[0] ?? null);
             }
         } catch (e) {

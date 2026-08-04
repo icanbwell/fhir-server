@@ -42,7 +42,9 @@ function mergeArraysWithSequenceNumbers (oldArray, newArrayItem) {
          */
         const oldArrayItem = oldArray[`${index}`];
         // if item has not already been inserted then insert before the next sequence
-        if (!insertedItem && (oldArrayItem.sequence > newArrayItem.sequence)) {
+        // (skip null/undefined old items - they have no sequence to compare against)
+        if (!insertedItem && oldArrayItem !== null && oldArrayItem !== undefined &&
+            (oldArrayItem.sequence > newArrayItem.sequence)) {
             resultArray.push(newArrayItem); // add the new item before
             resultArray.push(oldArrayItem); // then add the old item
             insertedItem = true;
@@ -66,11 +68,13 @@ function mergeArraysWithSequenceNumbers (oldArray, newArrayItem) {
  * @returns {{foundMatch: boolean, resultArray: Object[] | null}}
  */
 function mergeArraysWithId (oldArray, newArrayItem, resultArray) {
-    // find item in oldArray array that matches this one by id
+    // find item in oldArray array that matches this one by id (skip null/undefined old items)
     /**
      * @type {number}
      */
-    const matchingOldItemIndex = oldArray.findIndex(x => x.id === newArrayItem.id);
+    const matchingOldItemIndex = oldArray.findIndex(
+        x => x !== null && x !== undefined && x.id === newArrayItem.id
+    );
     /**
      * @type {boolean}
      */

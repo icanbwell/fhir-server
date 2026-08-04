@@ -150,6 +150,11 @@ class FhirResponseWriter {
      * @param {{type: string}} options - Any additional options necessary to generate response
      */
     create ({ req, res, resource, options }) {
+        if (!resource) {
+            // e.g. a $merge of an empty Bundle produced no resource to create
+            res.sendStatus(404);
+            return;
+        }
         const fhirVersion = req.params.base_version ? req.params.base_version : '';
         const baseUrl = `${req.protocol}://${req.get('host')}`;
 
