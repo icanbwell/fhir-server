@@ -14,6 +14,10 @@ jestObj.mock('../../../utils/redisClient', () => ({
     RedisClient: class RedisClient {}
 }));
 
+jestObj.mock('../../../operations/common/logging', () => ({
+    logWarn: jestObj.fn()
+}));
+
 const { FhirCacheKeyManager } = require('../../../utils/fhirCacheKeyManager');
 
 describe('FhirCacheKeyManager', () => {
@@ -33,8 +37,12 @@ describe('FhirCacheKeyManager', () => {
     });
 
     describe('invalidateCacheKeys', () => {
-        test('connects to redis and deletes the specified keys', async () => {
-            const cacheKeys = ['key1', 'key2', 'key3'];
+        test('connects to redis and deletes keys within the FHIR cache namespace', async () => {
+            const cacheKeys = [
+                'Patient:123:everything:Scopes:abc',
+                'ClientPerson:456:search:Scopes:def',
+                'Patient:123:read:Generation'
+            ];
 
             await manager.invalidateCacheKeys({ cacheKeys });
 
@@ -47,6 +55,38 @@ describe('FhirCacheKeyManager', () => {
 
             expect(mockRedisClient.connectAsync).toHaveBeenCalled();
             expect(mockRedisClient.bulkDeleteKeys).toHaveBeenCalledWith([]);
+        });
+
+        // DCON-4808: cacheKeys arrives from an admin API endpoint's request body with no
+        // prior validation -- without a namespace check, any admin-scoped caller could
+        // delete arbitrary Redis keys (session data, rate-limit counters, etc.), not just
+        // FHIR cache entries.
+        describe('arbitrary Redis key deletion (DCON-4808)', () => {
+            test('drops keys outside the FHIR cache namespace', async () => {
+                const cacheKeys = ['session:abc123', 'ratelimit:ip:1.2.3.4', 'some-other-app-key'];
+
+                await manager.invalidateCacheKeys({ cacheKeys });
+
+                expect(mockRedisClient.bulkDeleteKeys).toHaveBeenCalledWith([]);
+            });
+
+            test('keeps only the namespaced keys from a mixed list', async () => {
+                const cacheKeys = ['Patient:123:everything:Scopes:abc', 'session:abc123'];
+
+                await manager.invalidateCacheKeys({ cacheKeys });
+
+                expect(mockRedisClient.bulkDeleteKeys).toHaveBeenCalledWith([
+                    'Patient:123:everything:Scopes:abc'
+                ]);
+            });
+
+            test('drops non-string entries', () => {
+                return expect(
+                    manager.invalidateCacheKeys({ cacheKeys: [null, 123, { key: 'Patient:1:x' }] })
+                ).resolves.toBeUndefined().then(() => {
+                    expect(mockRedisClient.bulkDeleteKeys).toHaveBeenCalledWith([]);
+                });
+            });
         });
     });
 
