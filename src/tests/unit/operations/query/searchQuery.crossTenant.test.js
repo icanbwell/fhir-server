@@ -299,32 +299,45 @@ describe('Cross-Tenant Security - Search Query Construction', () => {
     });
 
     describe('VULN-3: Graph traversal params must not override security-critical fields', () => {
+        // These tests mirror the args-construction logic in
+        // GraphHelper.getForwardReferencesAsync() (src/operations/graph/graphHelpers.js).
+        // A GraphDefinition submitted to $graph is caller-controlled, and its
+        // link.target.params (parsed into `params` here) is documented (readme/graph.md,
+        // "Filtering in forward reference linkage") as an ADDITIONAL filter on top of the
+        // resources actually referenced by the parent entity - never a replacement for the
+        // computed `id` list. Full end-to-end coverage (including the security-tag/tenant
+        // scoping that still applies afterward) lives in
+        // src/tests/graph/graph_forward_link_with_params/graph_forward_and_reverse_with_path_and_params.test.js.
+
+        /**
+         * Mirrors the (fixed) args-construction logic in getForwardReferencesAsync():
+         * params are applied first so they can only add filter criteria, then the
+         * computed/protected fields are applied last so they can never be overridden.
+         */
+        function buildForwardReferenceArgs ({ base_version, includeHidden, relatedReferenceIds, params }) {
+            return Object.assign(
+                {},
+                (params && Object.keys(params).length > 0) ? params : undefined,
+                {
+                    base_version,
+                    _includeHidden: includeHidden,
+                    id: relatedReferenceIds.join(',')
+                }
+            );
+        }
+
         test('GraphDefinition target params should not be able to override the id filter in forward references', () => {
-            // VULNERABILITY: In graphHelpers.js getForwardReferencesAsync(),
-            // Object.assign(args, params) can override the 'id' field that was
-            // set to contain only the legitimate related reference IDs.
             // A malicious GraphDefinition with target.params = "id=attacker-controlled-id"
-            // could access arbitrary resources.
-
-            // Simulate the args construction logic from graphHelpers.js line 330-338
-            const base_version = '4_0_0';
+            // must not be able to make the query fetch an arbitrary resource instead of the
+            // legitimate related reference(s).
             const relatedReferenceIds = ['legitimate-uuid-1', 'legitimate-uuid-2'];
-            const parsedArgsIncludeHidden = undefined;
 
-            // Start with base args (as in graphHelpers.js line 330)
-            const args = Object.assign({
-                base_version,
-                _includeHidden: parsedArgsIncludeHidden,
-                id: relatedReferenceIds.join(',')
+            const args = buildForwardReferenceArgs({
+                base_version: '4_0_0',
+                includeHidden: undefined,
+                relatedReferenceIds,
+                params: { id: 'cross-tenant-resource-id' }
             });
-
-            // Simulate malicious params from GraphDefinition target.params
-            const maliciousParams = { id: 'cross-tenant-resource-id' };
-
-            // Apply params (as in graphHelpers.js line 338)
-            if (maliciousParams && Object.keys(maliciousParams).length > 0) {
-                Object.assign(args, maliciousParams);
-            }
 
             // EXPECTED CORRECT BEHAVIOR: The 'id' field should NOT be overrideable
             // by target params. It should retain the legitimate reference IDs.
@@ -332,24 +345,14 @@ describe('Cross-Tenant Security - Search Query Construction', () => {
         });
 
         test('GraphDefinition target params should not be able to set _includeHidden', () => {
-            // VULNERABILITY: params from GraphDefinition target could set _includeHidden=true
-            // to bypass hidden resource filtering on included resources
-
-            const base_version = '4_0_0';
             const relatedReferenceIds = ['uuid-1'];
 
-            const args = Object.assign({
-                base_version,
-                _includeHidden: undefined,
-                id: relatedReferenceIds.join(',')
+            const args = buildForwardReferenceArgs({
+                base_version: '4_0_0',
+                includeHidden: undefined,
+                relatedReferenceIds,
+                params: { _includeHidden: 'true' }
             });
-
-            // Simulate target params setting _includeHidden
-            const maliciousParams = { _includeHidden: 'true' };
-
-            if (maliciousParams && Object.keys(maliciousParams).length > 0) {
-                Object.assign(args, maliciousParams);
-            }
 
             // EXPECTED CORRECT BEHAVIOR: _includeHidden should NOT be overrideable
             // via GraphDefinition target params
