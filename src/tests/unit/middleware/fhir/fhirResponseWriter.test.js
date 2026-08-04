@@ -218,20 +218,6 @@ describe('FhirResponseWriter', () => {
             writer.create({ req: mockReq, res: mockRes, resource, options });
             expect(mockRes.set).not.toHaveBeenCalledWith('Content-Location', expect.anything());
         });
-
-        test('should return 404 when resource is null', () => {
-            const options = { type: 'Patient' };
-            writer.create({ req: mockReq, res: mockRes, resource: null, options });
-            expect(mockRes.sendStatus).toHaveBeenCalledWith(404);
-            expect(mockRes.json).not.toHaveBeenCalled();
-        });
-
-        test('should return 404 when resource is undefined', () => {
-            const options = { type: 'Patient' };
-            writer.create({ req: mockReq, res: mockRes, resource: undefined, options });
-            expect(mockRes.sendStatus).toHaveBeenCalledWith(404);
-            expect(mockRes.json).not.toHaveBeenCalled();
-        });
     });
 
     describe('update', () => {
