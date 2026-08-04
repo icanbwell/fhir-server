@@ -100,6 +100,14 @@ describe('mergeHelper - mergeObject', () => {
             const result = mergeObject(old, newer);
             expect(result.telecom).toHaveLength(2);
         });
+
+        test('null item in old array does not crash when new item has non-matching id', () => {
+            const old = { telecom: [null, { id: 'phone-1', system: 'phone', value: '555-1234' }] };
+            const newer = { telecom: [{ id: 'email-1', system: 'email', value: 'test@example.com' }] };
+            expect(() => mergeObject(old, newer)).not.toThrow();
+            const result = mergeObject(old, newer);
+            expect(result.telecom).toContainEqual({ id: 'email-1', system: 'email', value: 'test@example.com' });
+        });
     });
 
     describe('array merge - delete by id suffix', () => {
@@ -166,6 +174,14 @@ describe('mergeHelper - mergeObject', () => {
             const newer = { items: [{ sequence: 5, val: 'b' }] };
             const result = mergeObject(old, newer);
             expect(result.items[result.items.length - 1].sequence).toBe(5);
+        });
+
+        test('null item in old array does not crash when new item has a sequence', () => {
+            const old = { items: [null, { sequence: 1, val: 'a' }] };
+            const newer = { items: [{ sequence: 2, val: 'b' }] };
+            expect(() => mergeObject(old, newer)).not.toThrow();
+            const result = mergeObject(old, newer);
+            expect(result.items).toContainEqual({ sequence: 2, val: 'b' });
         });
     });
 

@@ -179,6 +179,22 @@ class ValidateOperation {
                         operationOutcome = operationOutcomeForResource;
                     }
                 }
+                if (!operationOutcome) {
+                    // no resource was found in the database for the provided id
+                    return new OperationOutcome({
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'not-found',
+                                details: new CodeableConcept({
+                                    text: `Resource ${resourceType} with id ${id} not found`
+                                })
+                            })
+                        ]
+                    });
+                }
                 return operationOutcome;
             }
             if (resource) {
