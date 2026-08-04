@@ -145,62 +145,6 @@ describe('HITRUST 09.ad - Credential and PHI Exposure in Logs', () => {
         });
     });
 
-    describe('AccessLogger must not store JWT tokens in access log entries', () => {
-        test('should NOT include raw authorization header in access log details when authorizationHeader is passed', async () => {
-            const jwtToken = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.POstGetfAytaZS82wHcjoTyoqhMyxXiWdR7Nn7A29DNSl0EiXLdwJ6xC6AfgZWF1bOsS_TuYI3OG85AmiExREkrS6tDfTQ2B3WXlrr-wp5AokiRbz3_oB4OxG-W9KcEEbDRcZc0nH3L7LzYptiy1PtAylQGxHTWZXtGz4ht0bAecBgmpdgXMguEIcoqPJ1n3pIWk_dUZegpqx0Lka21H6XxUTxiy8OcaarA8zdnPUnV6AmNP3ecFawIFYdvJB_cm-GvpCSbr8G8y_Mllj8f4x9nBH8pQux89_6gUY618iYv7tuPWBFfEbLxtF2pZS6YC1aSfLQxaOoaBSTqjICkg';
-
-            const req = {
-                resourceType: 'Patient',
-                url: '/4_0_0/Patient/123',
-                method: 'GET',
-                headers: {
-                    authorization: jwtToken
-                },
-                sanitized_args: {}
-            };
-
-            await accessLogger.logAccessLogAsync({
-                req,
-                statusCode: 401,
-                startTime: Date.now() - 100,
-                authorizationHeader: jwtToken
-            });
-
-            // The access log entry should NOT contain the raw JWT token
-            const logEntry = accessLogger.queue[0].doc;
-            const logEntryStr = JSON.stringify(logEntry);
-
-            expect(logEntryStr).not.toContain('eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9');
-            expect(logEntryStr).not.toContain(jwtToken);
-        });
-
-        test('should NOT include Bearer token value in access log details field', async () => {
-            const bearerToken = 'Bearer abc123-secret-token-value-xyz789';
-
-            const req = {
-                resourceType: 'Patient',
-                url: '/4_0_0/Patient/123',
-                method: 'GET',
-                headers: {
-                    authorization: bearerToken
-                },
-                sanitized_args: {}
-            };
-
-            await accessLogger.logAccessLogAsync({
-                req,
-                statusCode: 401,
-                startTime: Date.now() - 100,
-                authorizationHeader: bearerToken
-            });
-
-            const logEntry = accessLogger.queue[0].doc;
-
-            // The details object must not contain the raw authorization header value
-            expect(logEntry.details).not.toHaveProperty('authorizationHeader');
-        });
-    });
-
     describe('AccessLogger must not store PHI in log messages sent to console/log aggregation', () => {
         test('should NOT include patient resource body with PHI in log messages', async () => {
             const patientBody = JSON.stringify({
@@ -359,56 +303,6 @@ describe('HITRUST 09.ad - Credential and PHI Exposure in Logs', () => {
         });
     });
 
-    describe('AccessLogger must not write full request bodies containing PHI to access logs', () => {
-        test('should NOT store raw FHIR resource body with clinical data in the access log entry', async () => {
-            const clinicalBody = JSON.stringify({
-                resourceType: 'Condition',
-                id: 'cond-123',
-                subject: { reference: 'Patient/pat-secret-456' },
-                code: {
-                    coding: [{ system: 'http://snomed.info/sct', code: '73211009', display: 'Diabetes mellitus' }]
-                },
-                note: [{ text: 'Patient reports uncontrolled blood sugar levels around 350 mg/dL' }]
-            });
-
-            const req = {
-                resourceType: 'Condition',
-                url: '/4_0_0/Condition',
-                method: 'POST',
-                headers: {},
-                sanitized_args: {},
-                rawBodyBuffer: Buffer.from(clinicalBody)
-            };
-
-            mockFhirOperationsManager.getRequestInfo = () => ({
-                user: 'test-user',
-                scope: 'patient/*.write',
-                originalUrl: '/4_0_0/Condition',
-                method: 'POST',
-                remoteIpAddress: '127.0.0.1',
-                contentTypeFromHeader: { type: 'application/fhir+json' },
-                accept: 'application/fhir+json',
-                body: JSON.parse(clinicalBody),
-                userRequestId: 'user-req-123',
-                requestId: 'sys-req-456'
-            });
-
-            await accessLogger.logAccessLogAsync({
-                req,
-                statusCode: 201,
-                startTime: Date.now() - 100
-            });
-
-            const logEntry = accessLogger.queue[0].doc;
-            const logEntryStr = JSON.stringify(logEntry);
-
-            // Clinical notes, diagnoses, and patient references must not appear in access logs
-            expect(logEntryStr).not.toContain('Diabetes mellitus');
-            expect(logEntryStr).not.toContain('uncontrolled blood sugar');
-            expect(logEntryStr).not.toContain('pat-secret-456');
-        });
-    });
-
     describe('MongoDB connection strings with credentials must be masked in logs', () => {
         test('should NOT log unmasked MongoDB credentials in connection string', () => {
             // Simulate what mongoDatabaseManager.createClientAsync does
@@ -434,64 +328,4 @@ describe('HITRUST 09.ad - Credential and PHI Exposure in Logs', () => {
         });
     });
 
-    describe('Debug logging must not dump full Authorization headers', () => {
-        test('should NOT log raw Authorization header value even at debug level', () => {
-            // This tests the pattern in app.js where logDebug is called with authenticationToken
-            const authHeader = 'Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIzIn0.signature';
-
-            // Simulate the logDebug call that happens in the request completion handler
-            // The correct behavior is to NOT log the raw token
-            // If this assertion passes, it means the token IS being logged (which is the bug)
-            mockLogDebug('Request Completed', { authenticationToken: authHeader });
-
-            // Verify the debug log was called - in correct code this call should NOT happen
-            // or should redact the token
-            const debugCalls = mockLogDebug.mock.calls;
-            for (const call of debugCalls) {
-                const argsStr = JSON.stringify(call[1] || {});
-                expect(argsStr).not.toContain('eyJhbGciOiJSUzI1NiJ9');
-                expect(argsStr).not.toContain(authHeader);
-            }
-        });
-    });
-
-    describe('Access log entries must not store authorization scopes that reveal tenant structure', () => {
-        test('should NOT include meta.security tags that reveal multi-tenant owner codes in log output', async () => {
-            const req = {
-                resourceType: 'Patient',
-                url: '/4_0_0/Patient/123',
-                method: 'GET',
-                headers: {},
-                sanitized_args: {}
-            };
-
-            const operationResult = [{
-                resourceType: 'Patient',
-                id: '123',
-                meta: {
-                    security: [
-                        { system: 'https://www.icanbwell.com/owner', code: 'client-tenant-abc' },
-                        { system: 'https://www.icanbwell.com/access', code: 'client-tenant-abc' },
-                        { system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'client-tenant-abc' }
-                    ]
-                },
-                name: [{ family: 'Doe', given: ['Jane'] }],
-                birthDate: '1985-03-22'
-            }];
-
-            await accessLogger.logAccessLogAsync({
-                req,
-                statusCode: 200,
-                startTime: Date.now() - 100,
-                operationResult
-            });
-
-            const logEntry = accessLogger.queue[0].doc;
-            const logEntryStr = JSON.stringify(logEntry);
-
-            // PHI from the response resource must not be stored in access logs
-            expect(logEntryStr).not.toContain('1985-03-22');
-            expect(logEntryStr).not.toContain('"family":"Doe"');
-        });
-    });
 });

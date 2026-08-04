@@ -295,7 +295,7 @@ class SearchBundleOperation {
                 cursor.setEmpty();
             }
             // process results
-            if (cursor !== null) {
+            if (cursor) {
                 logDebug('', {
                     user,
                     args: {

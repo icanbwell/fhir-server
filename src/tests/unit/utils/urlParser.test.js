@@ -258,6 +258,35 @@ describe('urlParser', () => {
             expect(() => validateUrl('https://0177.0.0.1')).not.toThrow();
         });
     });
+
+    // DCON-4807: the IPv4-only private-range check had no IPv6 equivalent, so any IPv6
+    // literal (loopback, IPv4-mapped, link-local, unique-local) bypassed SSRF protection
+    // entirely. Fixed by rejecting all IPv6 literal addresses outright.
+    describe('validateUrl - IPv6 literals are blocked outright (DCON-4807)', () => {
+        test('blocks IPv6 loopback ::1', () => {
+            expect(() => validateUrl('https://[::1]/admin')).toThrow('IPv6 literal');
+        });
+
+        test('blocks IPv4-mapped IPv6 loopback ::ffff:127.0.0.1', () => {
+            expect(() => validateUrl('https://[::ffff:127.0.0.1]/admin')).toThrow('IPv6 literal');
+        });
+
+        test('blocks IPv6 link-local fe80::1', () => {
+            expect(() => validateUrl('https://[fe80::1]/admin')).toThrow('IPv6 literal');
+        });
+
+        test('blocks IPv6 unique-local fc00::1', () => {
+            expect(() => validateUrl('https://[fc00::1]/admin')).toThrow('IPv6 literal');
+        });
+
+        test('blocks a public-looking IPv6 literal too (no legitimate use case for it here)', () => {
+            expect(() => validateUrl('https://[2001:4860:4860::8888]/')).toThrow('IPv6 literal');
+        });
+
+        test('blocks IPv6 literal with a port', () => {
+            expect(() => validateUrl('https://[::1]:8080/admin')).toThrow('IPv6 literal');
+        });
+    });
 });
 
 describe('isPrivateOrLoopbackIP (tested indirectly via validateUrl)', () => {

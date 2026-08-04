@@ -10,12 +10,14 @@ const request = require('superagent');
 
 const errors = require('../utils/error.utils');
 
+const { fhirServerConfig } = require('../../../config');
+
 const makeResultBundle = (results, res, baseVersion, type) => {
-    const Bundle = require(`../resources/${baseVersion}/schemas/bundle`);
+    const Bundle = require(`../../../fhir/classes/${baseVersion}/resources/bundle`);
 
-    const BundleLink = require(`../resources/${baseVersion}/schemas/bundlelink`);
+    const BundleLink = require(`../../../fhir/classes/${baseVersion}/backbone_elements/bundleLink`);
 
-    const BundleEntry = require(`../resources/${baseVersion}/schemas/bundleentry`);
+    const BundleEntry = require(`../../../fhir/classes/${baseVersion}/backbone_elements/bundleEntry`);
 
     const selfLink = new BundleLink({
         url: `${res.req.protocol}://${path.join(res.req.get('host'), res.req.baseUrl)}`,
@@ -37,11 +39,26 @@ const makeResultBundle = (results, res, baseVersion, type) => {
     return bundle;
 };
 
+const ALLOWED_METHODS = new Set(['get', 'post', 'put', 'delete', 'patch']);
+// Only allow relative FHIR resource paths: no protocol, no host, no .. traversal. The leading
+// character class has no '/' or ':', which is what actually blocks a protocol-relative
+// ("//host/evil") or absolute-URL bypass - everything after that is safe to allow more broadly
+// (query-string characters included) because the destination host/scheme are always fixed before
+// this value is appended (see serverHost below), so nothing in here can redirect the request.
+const RELATIVE_PATH_RE = /^[A-Za-z0-9$_-][A-Za-z0-9$_./?=&|:,%+-]*$/;
+
 const createRequestPromises = (entries, req, baseVersion) => {
     const {
-        protocol,
         baseUrl
     } = req;
+    // This is a same-process loopback call: the batch/transaction handler re-dispatches each
+    // bundle entry back through this server's own single-resource endpoints. The destination
+    // must never be derived from anything caller-controlled - not even req.hostname, which
+    // resolves to an attacker-suppliable value here (this app enables "trust proxy"
+    // unconditionally in src/app.js, so req.hostname/req.host prefer X-Forwarded-Host from any
+    // client, not only from a verified upstream proxy). Always target our own configured
+    // listening port on loopback instead, over plain HTTP (this app never terminates TLS itself).
+    const serverHost = `127.0.0.1:${fhirServerConfig.server.port}`;
     const requestPromises = [];
     const results = [];
 
@@ -51,13 +68,26 @@ const createRequestPromises = (entries, req, baseVersion) => {
             method
         } = entry.request;
         const resource = entry.resource;
-        const destinationUrl = `${protocol}://${path.join(req.headers.host, baseUrl, baseVersion, url)}`;
+        const normalizedMethod = (method || '').toLowerCase();
+        if (!ALLOWED_METHODS.has(normalizedMethod)) {
+            throw new Error(`Disallowed method in bundle entry: ${method}`);
+        }
+        if (!url || !RELATIVE_PATH_RE.test(url) || url.includes('..')) {
+            throw new Error(`Disallowed or unsafe URL in bundle entry: ${url}`);
+        }
+        // Split off the query string before path.join(): it collapses '//' to '/', which would
+        // corrupt a token-search value containing a system URI (e.g. '?identifier=http://x|123'
+        // becomes '?identifier=http:/x|123' if the whole url is passed through path.join()).
+        const queryIndex = url.indexOf('?');
+        const urlPath = queryIndex === -1 ? url : url.slice(0, queryIndex);
+        const urlQuery = queryIndex === -1 ? '' : url.slice(queryIndex);
+        const destinationUrl = `http://${path.join(serverHost, baseUrl, baseVersion, urlPath)}${urlQuery}`;
         results.push({
             method,
             url: destinationUrl
         });
         requestPromises.push(Promise.resolve(
-            request[method.toLowerCase()](destinationUrl).send(resource).set('Content-Type', 'application/json+fhir')
+            request[normalizedMethod](destinationUrl).send(resource).set('Content-Type', 'application/json+fhir')
         ).catch(err => {
             return err;
         }));
@@ -93,7 +123,7 @@ const processRequest = requestType => {
 
             const resultsBundle = makeResultBundle(results, res, baseVersion, requestType);
             resolve(resultsBundle);
-        });
+        }).catch(reject);
     });
 };
 

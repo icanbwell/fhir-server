@@ -285,6 +285,10 @@ query should never be run unscoped and checked for access only after the fact, s
 correctly-withheld response body can leak existence/authorization information through the response
 code alone (see Section 5.2 above for how access tags are checked).
 
+#### 5.3.2 `PUT`/`$merge` return `403` (not `404`) when a resource exists but isn't accessible to the caller
+
+If a `PUT` or `$merge` request targets a resource `_uuid` that already exists in the database, but the caller's scopes don't grant access to it, the server returns `403 Forbidden` rather than falling back to a create. This is expected, by-design behavior: the FHIR R4B spec's `update` interaction only creates an initial version "if no resource already exists for the given id," and a resource does already exist here, so a create/not-found response would misrepresent that. As covered in Section 5.3.1, `_uuid`/`id` are not secrets, so this response does not expose anything about the resource beyond what a non-secret identifier already implies.
+
 #### 5.4 Access
 
 Note that the final access for a user is a combination of both present in 5.1[Control access by resource] & 5.2[Control access by security tags] or only by using 5.3[Control access by patient data graph] only

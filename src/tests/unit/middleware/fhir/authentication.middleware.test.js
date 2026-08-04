@@ -1,6 +1,6 @@
 'use strict';
 
-const { describe, test, expect, beforeEach, jest: jestObj } = require('@jest/globals');
+const { describe, test, expect, beforeEach, afterEach, jest: jestObj } = require('@jest/globals');
 
 jestObj.mock('passport', () => ({
     authenticate: jestObj.fn(),
@@ -10,7 +10,8 @@ jestObj.mock('passport', () => ({
 jestObj.mock('../../noop.middleware.js', () => (req, res, next) => next(), { virtual: true });
 
 const passport = require('passport');
-const { authenticateWithJsonFailure, sendUnauthorizedJson } = require('../../../../middleware/fhir/authentication.middleware');
+const authenticationMiddleware = require('../../../../middleware/fhir/authentication.middleware');
+const { authenticateWithJsonFailure, sendUnauthorizedJson } = authenticationMiddleware;
 
 describe('authentication.middleware', () => {
     let req;
@@ -197,6 +198,64 @@ describe('authentication.middleware', () => {
             const middleware = authenticateWithJsonFailure('bearer');
             middleware(req, res, next);
             expect(next).toHaveBeenCalledWith(loginErr);
+        });
+    });
+
+    // DCON-4806: a missing/falsy auth strategy must fail closed (deny), not fail open
+    // (pass through unauthenticated) -- see authenticationMiddleware's default export.
+    describe('authenticationMiddleware (default export) fail-closed behavior', () => {
+        const savedNodeEnv = process.env.NODE_ENV;
+
+        beforeEach(() => {
+            process.env.NODE_ENV = 'production';
+        });
+
+        afterEach(() => {
+            process.env.NODE_ENV = savedNodeEnv;
+        });
+
+        test('denies with 401 when config.auth.strategy is missing entirely', () => {
+            const middleware = authenticationMiddleware({ auth: {} });
+            middleware(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                resourceType: 'OperationOutcome'
+            }));
+            expect(next).not.toHaveBeenCalled();
+        });
+
+        test('denies with 401 when config.auth is entirely missing', () => {
+            const middleware = authenticationMiddleware({});
+            middleware(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(401);
+        });
+
+        test('does NOT fall through to next() when strategy is missing', () => {
+            const middleware = authenticationMiddleware({ auth: { strategy: null } });
+            middleware(req, res, next);
+            expect(next).not.toHaveBeenCalled();
+        });
+
+        test('uses the real passport-backed middleware when a strategy is configured', () => {
+            passport.authenticate.mockImplementation((strategy, options, callback) => {
+                return (innerReq, innerRes, innerNext) => {
+                    callback(null, { id: 'user-1' }, {});
+                };
+            });
+            passport.transformAuthInfo.mockImplementation((authInfo, innerReq, cb) => cb(null, authInfo));
+
+            const middleware = authenticationMiddleware({ auth: { strategy: { name: 'jwt' } } });
+            middleware(req, res, next);
+            expect(passport.authenticate).toHaveBeenCalledWith('jwt', expect.objectContaining({ session: false }), expect.any(Function));
+            expect(next).toHaveBeenCalledWith();
+        });
+
+        test('returns noOpMiddleware in test env even with no strategy configured', () => {
+            process.env.NODE_ENV = 'test';
+            const middleware = authenticationMiddleware({});
+            middleware(req, res, next);
+            expect(next).toHaveBeenCalledWith();
+            expect(res.status).not.toHaveBeenCalled();
         });
     });
 });

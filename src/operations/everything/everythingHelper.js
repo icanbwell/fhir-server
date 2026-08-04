@@ -72,6 +72,23 @@ const { recordOutboundEverything } = require('../../utils/metrics');
  */
 
 /**
+ * Escapes a value for safe interpolation into a JSON-template string that will later be
+ * passed to JSON.parse(). The customQuery templates in everythingRelatedResourcesMapper.js
+ * substitute `{placeholder}` markers that always sit inside an existing JSON string literal
+ * (e.g. `"{resourceType}/{_uuid}"`), so this only needs to escape the characters that are
+ * significant inside a JSON string (quotes, backslashes, control characters) -- it does not
+ * add surrounding quotes, since the template already provides them. Without this, a
+ * parent resource field containing `"` or `}` (e.g. an attacker-influenced `_sourceId`
+ * set at an earlier create/merge) could break out of the string literal and inject
+ * arbitrary structure/operators into the resulting MongoDB query.
+ * @param {*} value
+ * @return {string}
+ */
+function escapeForJsonTemplate(value) {
+    return JSON.stringify(String(value)).slice(1, -1);
+}
+
+/**
  * This class is for $everything operation
  */
 class EverythingHelper {
@@ -1463,7 +1480,9 @@ class EverythingHelper {
                         if (!parentResourceIdentifier[requiredValue]) {
                             throw new Error(`${requiredValue} is not present in parent resource identifier`);
                         }
-                        patientQuery = patientQuery.replace(`{${requiredValue}}`, parentResourceIdentifier[requiredValue]);
+                        patientQuery = patientQuery.replace(
+                            `{${requiredValue}}`, escapeForJsonTemplate(parentResourceIdentifier[requiredValue])
+                        );
                     })
                     customParentQuery.push(JSON.parse(patientQuery));
                 });
@@ -1485,7 +1504,9 @@ class EverythingHelper {
                             if (!proxyPatientIdentifier[requiredValue]) {
                                 throw new Error(`${requiredValue} is not present in proxy patient resource identifier`);
                             }
-                            patientQuery = patientQuery.replace(`{${requiredValue}}`, proxyPatientIdentifier[requiredValue]);
+                            patientQuery = patientQuery.replace(
+                                `{${requiredValue}}`, escapeForJsonTemplate(proxyPatientIdentifier[requiredValue])
+                            );
                         });
                         customParentQuery.push(JSON.parse(patientQuery));
                     });
@@ -1987,5 +2008,6 @@ class EverythingHelper {
 }
 
 module.exports = {
-    EverythingHelper
+    EverythingHelper,
+    escapeForJsonTemplate
 };

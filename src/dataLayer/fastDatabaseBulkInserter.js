@@ -569,7 +569,11 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     doc = updatedResource;
                     previousUpdate.resource = doc;
                     previousUpdate.operation.replaceOne.replacement = doc;
-                    previousUpdate.patches = [...previousUpdate.patches, mergePatches];
+                    // previousUpdate.patches can be null (e.g. a prior replaceOneAsync/mergeOneAsync
+                    // call in this same batch that had no patches to record); guard against spreading
+                    // null. Also spread mergePatches (an array) instead of pushing it as a single
+                    // nested-array element, so history diagnostics stay a flat list of patch ops.
+                    previousUpdate.patches = [...(previousUpdate.patches || []), ...mergePatches];
                 } else {
                     // no change so ignore
                 }

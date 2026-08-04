@@ -168,7 +168,7 @@ class MongoQuerySimplifier {
      * @return {boolean}
      */
     static isEmpty (value) {
-        if (!value) {
+        if (value === null || value === undefined || value === '') {
             return true;
         }
         if (Array.isArray(value) && value.length === 0) {

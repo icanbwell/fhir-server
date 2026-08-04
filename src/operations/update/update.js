@@ -26,6 +26,7 @@ const { isUuid } = require('../../utils/uid.util');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 
 /**
  * Update Operation
@@ -208,6 +209,15 @@ class UpdateOperation {
         // For resources with mongo-with-clickhouse dual-write storage, track if externally-stored fields present
         // Used later to force UPDATE even if MongoDB sees no changes (member array stripped before save)
         const hasMemberField = resourceType === 'Group' && resource_incoming_json.member !== undefined;
+
+        // Internal fields (_uuid, _sourceAssigningAuthority, _file_id, etc.) are never
+        // legitimate client input -- they're always (re)computed server-side (pre-save
+        // handlers overwrite them from the stored resource's own meta.security tags before
+        // persist, and DatabaseAttachmentManager only ever sets _file_id after a real GridFS
+        // upload). Strip them from the raw incoming payload before it's merged with the
+        // stored resource, so a caller can't claim an arbitrary GridFS file id (belonging to
+        // another resource/tenant) and have it read back later.
+        removeUnderscoreFieldsRecursive(resource_incoming_json);
 
         // create a resource with incoming data
         /**
@@ -410,6 +420,13 @@ class UpdateOperation {
                 doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo, { alwaysCreateNew: true });
 
                 if (data && data.meta) {
+                    // SEC-1580 F2: the pre-merge check above ran against foundResource as stored, so the
+                    // access tags the merge (smartMerge: false, so a full replace) took from the incoming
+                    // body still need to be validated before the merged doc is persisted
+                    this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                        requestInfo, currentResource: foundResource, updatedResource: doc
+                    });
+
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 
                     await this.databaseBulkInserter.replaceOneAsync(
@@ -429,6 +446,11 @@ class UpdateOperation {
                     doc.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                         resource: doc, requestInfo, base_version
+                    });
+                    // SEC-1580 F3: this is a create-via-PUT, so the "old" access tag set is empty and
+                    // every access tag on doc counts as an addition the caller must be authorized for
+                    this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                        requestInfo, currentResource: null, updatedResource: doc
                     });
 
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);

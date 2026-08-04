@@ -5,7 +5,8 @@ jest.mock('../../../../operations/common/logging', () => {
     return {
         logInfo: j.fn(),
         logError: j.fn(),
-        logDebug: j.fn()
+        logDebug: j.fn(),
+        logWarn: j.fn()
     };
 });
 
