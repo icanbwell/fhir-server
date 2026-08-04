@@ -704,17 +704,16 @@ class FhirOperationsManager {
             delete combined_args._id;
         }
 
-        this.cmsManager.verifyNotProxyPatientId({
-            requestInfo,
-            patientId: combined_args.id || combined_args._id
-        });
-
-
         // repeated query keys (?id=a&id=b) are parsed into an array by express, so normalize to
         // a list before anything splits on it
         const idsList = combined_args.id
             ? (Array.isArray(combined_args.id) ? combined_args.id : combined_args.id.split(','))
             : [];
+
+        this.cmsManager.verifyNotProxyPatientId({
+            requestInfo,
+            patientId: idsList.length > 0 ? idsList.join(',') : combined_args._id
+        });
 
         let scopedPersonIds;
         // person ids to retrict result to
@@ -728,6 +727,14 @@ class FhirOperationsManager {
                 .filter((id) => id.startsWith(PERSON_PROXY_PREFIX))
                 .map((id) => id.replace(PERSON_PROXY_PREFIX, ''));
             if (proxyPersonIds.length > 0) {
+                if (proxyPersonIds.length !== idsList.length) {
+                    // scopedPersonIds is applied as a single filter across the whole combined
+                    // Person query for this request, so mixing proxy and non-proxy ids would
+                    // also wrongly restrict the non-proxy id's own unrelated Person siblings
+                    throw new BadRequestError(new Error(
+                        'Cannot mix proxy patient ids (person.<id>) with regular patient ids in the same $everything request'
+                    ));
+                }
                 scopedPersonIds = proxyPersonIds;
             }
         }
