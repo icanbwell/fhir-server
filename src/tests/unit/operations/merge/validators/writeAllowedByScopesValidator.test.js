@@ -9,6 +9,9 @@ const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 const { WriteAllowedByScopesValidator } = require('../../../../../operations/merge/validators/writeAllowedByScopesValidator');
 const { ScopesValidator } = require('../../../../../operations/security/scopesValidator');
 const { DatabaseBulkLoader } = require('../../../../../dataLayer/databaseBulkLoader');
+const { ScopesManager } = require('../../../../../operations/security/scopesManager');
+const { ConfigManager } = require('../../../../../utils/configManager');
+const { PatientFilterManager } = require('../../../../../fhir/patientFilterManager');
 
 /**
  * Create a mock ScopesValidator that passes instanceof check
@@ -566,6 +569,117 @@ describe('WriteAllowedByScopesValidator', () => {
                     requestInfo,
                     base_version: '4_0_0'
                 });
+        });
+    });
+
+    describe('SECURITY REGRESSION GUARD: post-merge access-tag re-check must not be a no-op', () => {
+        // Every other test in this file mocks isAccessTagChangeAllowedByAccessScopes as a
+        // jest.fn() that always succeeds, so none of them would notice if the real call site
+        // (writeAllowedByScopesValidator.js's two calls, tagged SEC-1580 F2/F3) were ever
+        // removed. This test wires in the real ScopesValidator.isAccessTagChangeAllowedByAccessScopes
+        // (backed by a real ScopesManager) instead of a mock, to prove the validator is actually
+        // wired to it end-to-end -- not just that the check's own logic is unit-tested elsewhere
+        // (see src/tests/unit/operations/security/scopesManager.test.js).
+        test('rejects a merge that widens access tags beyond the caller\'s access scope', async () => {
+            const realScopesManager = new ScopesManager({
+                configManager: new ConfigManager(),
+                patientFilterManager: new PatientFilterManager()
+            });
+            const guardedScopesValidator = createMockScopesValidator({
+                isAccessTagChangeAllowedByAccessScopes:
+                    ScopesValidator.prototype.isAccessTagChangeAllowedByAccessScopes
+                        .bind({ scopesManager: realScopesManager })
+            });
+            const guardedValidator = new WriteAllowedByScopesValidator({
+                scopesValidator: guardedScopesValidator,
+                databaseBulkLoader
+            });
+
+            const existingResource = createResource({
+                id: 'patient-1',
+                uuid: 'uuid-patient-1',
+                meta: {
+                    security: [{ system: 'https://www.icanbwell.com/access', code: 'client-a' }]
+                }
+            });
+            const incomingResource = createResource({
+                id: 'patient-1',
+                uuid: 'uuid-patient-1',
+                meta: {
+                    // adds a foreign access tag the caller's scope doesn't grant
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'client-a' },
+                        { system: 'https://www.icanbwell.com/access', code: 'client-b' }
+                    ]
+                }
+            });
+            databaseBulkLoader.getResourceFromExistingList.mockReturnValue(existingResource);
+
+            const scopedRequestInfo = createRequestInfo({
+                user: 'test-user',
+                scope: 'user/*.write access/client-a.*'
+            });
+
+            const result = await guardedValidator.validate({
+                requestInfo: scopedRequestInfo,
+                incomingResources: [incomingResource],
+                base_version: '4_0_0',
+                effectiveSmartMerge: false
+            });
+
+            // The real check throws a 403, which the validator translates into a preCheckError
+            // and excludes the resource from validatedObjects -- if this assertion ever flips to
+            // validatedObjects having length 1, either the real call site was removed or its
+            // result stopped being enforced.
+            expect(result.validatedObjects).toHaveLength(0);
+            expect(result.preCheckErrors).toHaveLength(1);
+        });
+
+        test('allows a merge that only touches access tags the caller already holds', async () => {
+            const realScopesManager = new ScopesManager({
+                configManager: new ConfigManager(),
+                patientFilterManager: new PatientFilterManager()
+            });
+            const guardedScopesValidator = createMockScopesValidator({
+                isAccessTagChangeAllowedByAccessScopes:
+                    ScopesValidator.prototype.isAccessTagChangeAllowedByAccessScopes
+                        .bind({ scopesManager: realScopesManager })
+            });
+            const guardedValidator = new WriteAllowedByScopesValidator({
+                scopesValidator: guardedScopesValidator,
+                databaseBulkLoader
+            });
+
+            const existingResource = createResource({
+                id: 'patient-1',
+                uuid: 'uuid-patient-1',
+                meta: {
+                    security: [{ system: 'https://www.icanbwell.com/access', code: 'client-a' }]
+                }
+            });
+            const incomingResource = createResource({
+                id: 'patient-1',
+                uuid: 'uuid-patient-1',
+                meta: {
+                    security: [{ system: 'https://www.icanbwell.com/access', code: 'client-a' }]
+                }
+            });
+            databaseBulkLoader.getResourceFromExistingList.mockReturnValue(existingResource);
+
+            const scopedRequestInfo = createRequestInfo({
+                user: 'test-user',
+                scope: 'user/*.write access/client-a.*'
+            });
+
+            const result = await guardedValidator.validate({
+                requestInfo: scopedRequestInfo,
+                incomingResources: [incomingResource],
+                base_version: '4_0_0',
+                effectiveSmartMerge: false
+            });
+
+            expect(result.validatedObjects).toHaveLength(1);
+            expect(result.preCheckErrors).toHaveLength(0);
         });
     });
 
