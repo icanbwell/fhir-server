@@ -87,6 +87,18 @@ describe('CmsConsentManager', () => {
                 },
                 { 'provision.type': 'permit' },
                 {
+                    $or: [
+                        { 'provision.period.start': { $exists: false } },
+                        { 'provision.period.start': { $lte: expect.any(String) } }
+                    ]
+                },
+                {
+                    $or: [
+                        { 'provision.period.end': { $exists: false } },
+                        { 'provision.period.end': { $gte: expect.any(String) } }
+                    ]
+                },
+                {
                     'meta.security': {
                         $elemMatch: {
                             system: 'https://www.icanbwell.com/owner',
@@ -95,6 +107,32 @@ describe('CmsConsentManager', () => {
                     }
                 }
             ]);
+        });
+
+        test('should filter out consents whose provision.period.end has already passed', async () => {
+            await cmsConsentManager.getConsentResources(['Patient/person.p1'], ['tenant-a']);
+
+            const findCall = mockQueryManager.findAsync.mock.calls[0][0];
+            const endClause = findCall.query.$and.find(
+                (clause) => clause.$or && clause.$or.some((c) => 'provision.period.end' in c)
+            );
+            expect(endClause).toBeDefined();
+            expect(endClause.$or).toContainEqual({ 'provision.period.end': { $exists: false } });
+            const gteClause = endClause.$or.find((c) => c['provision.period.end']?.$gte);
+            expect(gteClause).toBeDefined();
+        });
+
+        test('should filter out consents whose provision.period.start is in the future', async () => {
+            await cmsConsentManager.getConsentResources(['Patient/person.p1'], ['tenant-a']);
+
+            const findCall = mockQueryManager.findAsync.mock.calls[0][0];
+            const startClause = findCall.query.$and.find(
+                (clause) => clause.$or && clause.$or.some((c) => 'provision.period.start' in c)
+            );
+            expect(startClause).toBeDefined();
+            expect(startClause.$or).toContainEqual({ 'provision.period.start': { $exists: false } });
+            const lteClause = startClause.$or.find((c) => c['provision.period.start']?.$lte);
+            expect(lteClause).toBeDefined();
         });
 
         test('SEC-1586: filters by the caller-authorized owner tags, not just proxy patient/category/status', async () => {
