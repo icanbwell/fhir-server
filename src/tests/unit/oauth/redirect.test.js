@@ -12,6 +12,18 @@ describe('#oauth redirect.js isSafeRelativeUrl (DCON-4804 open-redirect fix)', (
         expect(isSafeRelativeUrl('//evil.com/phish')).toBe(false);
     });
 
+    test('rejects backslash-based protocol-relative bypasses (browsers normalize \\ to /)', () => {
+        expect(isSafeRelativeUrl('/\\evil.com')).toBe(false);
+        expect(isSafeRelativeUrl('\\\\evil.com')).toBe(false);
+        expect(isSafeRelativeUrl('/\\/evil.com')).toBe(false);
+    });
+
+    test('rejects tab/newline/CR-hidden protocol-relative bypasses (browsers strip these before navigating)', () => {
+        expect(isSafeRelativeUrl('/\t/evil.com')).toBe(false);
+        expect(isSafeRelativeUrl('/\n/evil.com')).toBe(false);
+        expect(isSafeRelativeUrl('/\t\\evil.com')).toBe(false);
+    });
+
     test('rejects absolute URLs with a scheme', () => {
         expect(isSafeRelativeUrl('https://evil.com')).toBe(false);
         expect(isSafeRelativeUrl('javascript:alert(1)')).toBe(false);

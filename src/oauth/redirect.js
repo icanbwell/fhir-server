@@ -1,8 +1,19 @@
 // A single leading '/' is a same-origin relative path. '//host/path' is protocol-relative
 // (browsers treat it as an absolute URL to `host`), so it must be rejected explicitly --
 // `startsWith('/')` alone does not exclude it.
+//
+// Before checking, normalize the same way the browser's URL parser does: strip tab/newline/
+// carriage-return characters (the WHATWG URL spec strips these wherever they appear in a
+// URL) and convert backslashes to forward slashes (treated as path separators by http(s)
+// URLs). Without this, a value like '/\evil.com' or '/\t/\evil.com' has only one leading '/'
+// as written and passes a naive check, but resolves to the protocol-relative '//evil.com'
+// once the browser normalizes it during navigation.
 function isSafeRelativeUrl (url) {
-    return typeof url === 'string' && url.startsWith('/') && !url.startsWith('//');
+    if (typeof url !== 'string') {
+        return false;
+    }
+    const normalized = url.replace(/[\t\n\r]/g, '').replace(/\\/g, '/');
+    return normalized.startsWith('/') && !normalized.startsWith('//');
 }
 
 function getUrlVars () {
@@ -33,9 +44,15 @@ function parseJwt (token) {
     return JSON.parse(jsonPayload);
 }
 
-// Guard the browser-only entrypoint so this file can also be `require()`d in Node (for unit
-// testing isSafeRelativeUrl) without jQuery/axios/window being defined.
-if (typeof $ !== 'undefined') {
+// Wrapped in an IIFE (rather than a bare top-level `if`) so the browser-only guard below can
+// use an early return -- this file is loaded both as a plain <script> and `require()`d in
+// Node (for unit testing isSafeRelativeUrl), and a bare top-level `return` outside a function
+// is a syntax error in the former.
+(function () {
+    if (typeof $ === 'undefined') {
+        return;
+    }
+
     // noinspection JSUnresolvedFunction
     $(document).ready(function () {
         const parameters = getUrlVars();
@@ -85,7 +102,7 @@ if (typeof $ !== 'undefined') {
                 }
             });
     });
-}
+})();
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { isSafeRelativeUrl };
