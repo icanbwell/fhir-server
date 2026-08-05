@@ -384,8 +384,14 @@ class PatchOperation {
              */
             let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
-            // source in metadata must exist either in incoming resource or found resource
-            if (foundResource?.meta && (foundResource.meta.source || (resource?.meta?.source))) {
+            // DCON-4841: this must run whenever foundResource has metadata, not just when a
+            // meta.source happens to be present -- overWriteNonWritableFields is what reverts any
+            // attempted change to the owner/sourceAssigningAuthority tags and meta.source/versionId/
+            // lastUpdated, so gating it on meta.source left resources with no meta.source on either
+            // side (e.g. a deployment with REQUIRE_META_SOURCE_TAGS=false) able to have those fields
+            // freely rewritten via PATCH -- a naming-convention-only blocklist elsewhere isn't enough
+            // since none of those fields start with '_'.
+            if (foundResource?.meta) {
                 this.resourceMerger.overWriteNonWritableFields({
                     currentResource: foundResource, resourceToMerge: resource
                 });
