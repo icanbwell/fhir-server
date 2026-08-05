@@ -59,6 +59,10 @@ For example:
 
 [Patient $everything](readme/patientEverything.md)
 
+## Person $everything
+
+[Person $everything](readme/personEverything.md)
+
 ## Patient Data View Control
 
 [Patient Data View Control](readme/patientDataViewControl.md)
