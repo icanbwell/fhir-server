@@ -125,7 +125,7 @@ describe('GraphQL Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(2);
 
-            const graphQLHeaders = getGraphQLHeaders();
+            const graphQLHeaders = getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read');
             graphQLHeaders.Prefer = 'global_id=true';
             resp = await request
                 .post('/$graphql')
@@ -207,7 +207,7 @@ describe('GraphQL Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(2);
 
-            const graphQLHeaders = getGraphQLHeaders();
+            const graphQLHeaders = getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read');
             graphQLHeaders.Prefer = 'global_id=true';
             resp = await request
                 .post('/$graphql')
@@ -235,7 +235,7 @@ describe('GraphQL Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
-            const graphQLHeaders = getGraphQLHeaders();
+            const graphQLHeaders = getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read');
             graphQLHeaders.Prefer = 'global_id=true';
             resp = await request
                 // .get('/$graphql/?query=' + graphqlQueryText)
@@ -386,7 +386,7 @@ describe('GraphQL Patient Tests', () => {
                     variables: {},
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeaders('user/Practitioner.read access/client.*'))
+                .set(getGraphQLHeaders('user/Practitioner.read access/client.* admin/*.read'))
                 .expect(200);
 
             // noinspection JSUnresolvedFunction
@@ -458,7 +458,7 @@ describe('GraphQL Patient Tests', () => {
                     variables: {},
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeaders('user/Patient.read access/fake.*'))
+                .set(getGraphQLHeaders('user/Patient.read access/fake.* admin/*.read'))
                 .expect(200);
 
             // noinspection JSUnresolvedFunction

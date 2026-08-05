@@ -22,7 +22,7 @@ const expectedObservationProxyPatientNested = require('./fixtures/expected/expec
 const expectedObservationProxyPatientWithDirectLink = require('./fixtures/expected/expectedObservationProxyPatientWithDirectLink.json');
 const expectedObservationResponse = require('./fixtures/expected/expected_observation_response.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest } = require('../../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const deepcopy = require('deepcopy');
 const { ConfigManager } = require('../../../../utils/configManager');
@@ -112,7 +112,7 @@ describe('Patient Tests', () => {
             // search by token system and code and make sure we get the right Patient back
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65633&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationProxyPatient1);
         });

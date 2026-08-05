@@ -5,7 +5,7 @@ const encounter1Resource = require('./fixtures/Encounter/encounter1.json');
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 const expectedAuditEventWithoutAccessIndex = require('./fixtures/expected/expected_AuditEvent_without_access_index.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
 const { describe, beforeAll, afterAll, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 const customIndexesFilePath = path.resolve(__dirname, './fixtures/customIndexes.json');
@@ -78,7 +78,7 @@ describe('Custom File Access Index Tests', () => {
 
             resp = await request
                 .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cclient1&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
         });
 
@@ -108,7 +108,7 @@ describe('Custom File Access Index Tests', () => {
 
             resp = await request
                 .get('/4_0_0/Encounter/?_bundle=1&_debug=1&_security=https://www.icanbwell.com/access%7Cclient1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             expect(resp).toHaveStatusCode(200);
             expect(resp).toHaveResourceCount(1);
 
@@ -198,7 +198,7 @@ describe('Custom File Access Index Tests', () => {
 
             resp = await request
                 .get('/4_0_0/AuditEvent/?_bundle=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7CclientAbc&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             expect(resp).toHaveResponse(expectedAuditEventWithoutAccessIndex);
         });
     });

@@ -8,6 +8,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
@@ -39,19 +40,19 @@ describe('Questionnaire Response Tests', () => {
 
             resp = await request
                 .get('/4_0_0/QuestionnaireResponse?_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedQuestionnaireResponseBundle);
 
             resp = await request
                 .get('/4_0_0/QuestionnaireResponse?patient:missing=true&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedQuestionnaireResponseMissingPatientBundle);
 
             resp = await request
                 .get('/4_0_0/QuestionnaireResponse?patient:missing=false&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedQuestionnaireResponseNoMissingPatientBundle2);
         });

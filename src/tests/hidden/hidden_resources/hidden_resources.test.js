@@ -8,7 +8,7 @@ const expectedObservationResources = require('./fixtures/expected/expected_obser
 const expectedObservationByIdResources = require('./fixtures/expected/expected_observation_by_id.json');
 const expectedObservationAllResources = require('./fixtures/expected/expected_observation_all.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Observation Tests', () => {
@@ -50,7 +50,7 @@ describe('Observation Tests', () => {
             // search by token system and code and make sure we get the right Observation back
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_total=accurate&_debug=true')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
             // Number of resources returned in this case is 2 as 1 of them has hidden tag
@@ -110,7 +110,7 @@ describe('Observation Tests', () => {
             // Requested with value of _includeHidden as true
             resp = await request
                 .get('/4_0_0/Observation/?_total=accurate&_includeHidden=true&_debug=true&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationAllResources);
@@ -121,7 +121,7 @@ describe('Observation Tests', () => {
             // Requested with value of _includeHidden as 1
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_total=accurate&_includeHidden=1&_debug=true')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationAllResources);
@@ -131,7 +131,7 @@ describe('Observation Tests', () => {
             // Requested with value of _includeHidden as a non-true value
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_total=accurate&_includeHidden=0&_debug=true')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
