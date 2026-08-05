@@ -113,13 +113,23 @@ class ResourceValidator {
                 continue;
             }
             const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
-            const targetResource = ReferenceParser.isUuidReference(reference)
-                ? await databaseQueryManager.findOneAsync({ query: { _uuid: id } })
-                : await databaseQueryManager.findOneAsync({ query: { id } });
-            if (!targetResource) {
-                continue;
-            }
-            if (!this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, targetResource)) {
+            // A bare id (no explicit |sourceAssigningAuthority suffix) can collide across tenants
+            // -- generateUUIDv5(id|authority) can't help here since the authority is exactly what
+            // we don't know for a foreign-tenant target, and assuming it matches the referencing
+            // resource's own authority (the convention used elsewhere for enrichment, e.g.
+            // referenceGlobalIdHandler) defeats the check by construction. So resolve by bare id,
+            // which can return multiple candidates, and fail closed if ANY of them is inaccessible
+            // -- matching the ambiguity-must-be-explicit convention patch.js already uses for
+            // multi-match id lookups ("Multiple resources found ... specify the owner/
+            // sourceAssigningAuthority tag").
+            const query = ReferenceParser.isUuidReference(reference) ? { _uuid: id } : { id };
+            const targetResources = await (
+                await databaseQueryManager.findAsync({ query })
+            ).toObjectArrayAsync();
+            const inaccessibleTargetResource = targetResources.find(
+                targetResource => !this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, targetResource)
+            );
+            if (inaccessibleTargetResource) {
                 return new OperationOutcome({
                     issue: new OperationOutcomeIssue({
                         code: 'invalid',
@@ -148,6 +158,27 @@ class ResourceValidator {
      * @returns {Promise<OperationOutcome | null>}
      */
     async validatePatientReference ({ currentResource, resourceToValidateJson, isUser, user, scope, base_version }) {
+        if (!currentResource) {
+            // DCON-4844: mergeInsertAsync/create.js never pass a currentResource (there's nothing
+            // to diff a brand-new resource against), so this is the only place a non-user caller
+            // creating a new Person with the cross-tenant link already inlined would otherwise
+            // skip the check entirely. Every link on a newly-inserted resource counts as added.
+            if (isUser || resourceToValidateJson?.resourceType !== 'Person') {
+                return null;
+            }
+            const newLinkValue = this.patientFilterManager.getPatientPropertyForPersonScopedResource({
+                resourceType: resourceToValidateJson.resourceType
+            });
+            if (!newLinkValue) {
+                return null;
+            }
+            const newValue = NestedPropertyReader.getNestedProperty({
+                obj: resourceToValidateJson, path: newLinkValue
+            });
+            return await this.validateNewPersonLinkTargetsBelongToCallersTenant({
+                currentValue: undefined, newValue, user, scope, base_version
+            });
+        }
         // For Patient resource, check for id field is ignored as id field cannot be updated and is ignored later
         if (currentResource.resourceType === "Patient"){
             return null;
@@ -298,7 +329,7 @@ class ResourceValidator {
 
         const { isUser, user, scope } = requestInfo;
 
-        if (!validationOperationOutcome && currentResource) {
+        if (!validationOperationOutcome && (currentResource || resourceType === 'Person')) {
             validationOperationOutcome = await this.validatePatientReference({
                 currentResource,
                 resourceToValidateJson,

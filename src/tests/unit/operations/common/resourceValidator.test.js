@@ -232,16 +232,26 @@ describe('ResourceValidator', () => {
          * @type {ResourceValidator}
          */
         let personResourceValidator;
-        let mockFindOneAsync;
+        let mockFindAsync;
+
+        /**
+         * @param {Object[]} resources
+         */
+        function resolveTargetsAs (resources) {
+            mockFindAsync.mockResolvedValue({
+                toObjectArrayAsync: jest.fn().mockResolvedValue(resources)
+            });
+        }
 
         beforeEach(() => {
             realScopesManager = new ScopesManager({
                 configManager: mockConfigManager,
                 patientFilterManager: new PatientFilterManager()
             });
-            mockFindOneAsync = jest.fn();
+            mockFindAsync = jest.fn();
+            resolveTargetsAs([]);
             mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({
-                findOneAsync: mockFindOneAsync
+                findAsync: mockFindAsync
             });
             mockPatientFilterManager.getPatientPropertyForResource = jest.fn().mockReturnValue(null);
             mockPatientFilterManager.getPatientPropertyForPersonScopedResource = jest.fn().mockReturnValue('link.target.reference');
@@ -265,7 +275,7 @@ describe('ResourceValidator', () => {
         }
 
         it('rejects a non-user caller linking to a Person owned by another tenant', async () => {
-            mockFindOneAsync.mockResolvedValue({
+            resolveTargetsAs([{
                 resourceType: 'Person',
                 id: 'other-tenant-person',
                 meta: {
@@ -274,7 +284,7 @@ describe('ResourceValidator', () => {
                         { system: 'https://www.icanbwell.com/access', code: 'tenant_b' }
                     ]
                 }
-            });
+            }]);
 
             const result = await personResourceValidator.validatePatientReference({
                 currentResource: personWithLinks(['uuid-a']),
@@ -291,7 +301,7 @@ describe('ResourceValidator', () => {
         });
 
         it('allows a non-user caller linking to a Person owned by their own tenant', async () => {
-            mockFindOneAsync.mockResolvedValue({
+            resolveTargetsAs([{
                 resourceType: 'Person',
                 id: 'same-tenant-person',
                 meta: {
@@ -300,7 +310,7 @@ describe('ResourceValidator', () => {
                         { system: 'https://www.icanbwell.com/access', code: 'tenant_a' }
                     ]
                 }
-            });
+            }]);
 
             const result = await personResourceValidator.validatePatientReference({
                 currentResource: personWithLinks(['uuid-a']),
@@ -325,7 +335,7 @@ describe('ResourceValidator', () => {
             });
 
             expect(result).toBeNull();
-            expect(mockFindOneAsync).not.toHaveBeenCalled();
+            expect(mockFindAsync).not.toHaveBeenCalled();
         });
 
         it('does not re-check links that were already present (only additions are validated)', async () => {
@@ -339,15 +349,92 @@ describe('ResourceValidator', () => {
             });
 
             expect(result).toBeNull();
-            expect(mockFindOneAsync).not.toHaveBeenCalled();
+            expect(mockFindAsync).not.toHaveBeenCalled();
         });
 
         it('allows linking to a target that cannot be found (left to other validation)', async () => {
-            mockFindOneAsync.mockResolvedValue(null);
+            resolveTargetsAs([]);
 
             const result = await personResourceValidator.validatePatientReference({
                 currentResource: personWithLinks(['uuid-a']),
                 resourceToValidateJson: personWithLinks(['uuid-a', 'uuid-not-found']),
+                isUser: false,
+                user: 'service@tenant_a',
+                scope: 'access/tenant_a.*',
+                base_version: '4_0_0'
+            });
+
+            expect(result).toBeNull();
+        });
+
+        it('fails closed when a bare-id reference resolves to multiple candidates and any is inaccessible', async () => {
+            // a bare id (no |sourceAssigningAuthority suffix) can collide across tenants; this
+            // must not silently pick one of the candidates -- it has to reject if ANY of them
+            // belongs to a tenant the caller can't access
+            resolveTargetsAs([
+                {
+                    resourceType: 'Person',
+                    id: 'ambiguous-id',
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'tenant_a' },
+                            { system: 'https://www.icanbwell.com/access', code: 'tenant_a' }
+                        ]
+                    }
+                },
+                {
+                    resourceType: 'Person',
+                    id: 'ambiguous-id',
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'tenant_b' },
+                            { system: 'https://www.icanbwell.com/access', code: 'tenant_b' }
+                        ]
+                    }
+                }
+            ]);
+
+            const result = await personResourceValidator.validatePatientReference({
+                currentResource: personWithLinks(['uuid-a']),
+                resourceToValidateJson: personWithLinks(['uuid-a', 'ambiguous-id']),
+                isUser: false,
+                user: 'service@tenant_a',
+                scope: 'access/tenant_a.*',
+                base_version: '4_0_0'
+            });
+
+            expect(result).not.toBeNull();
+            const issue = Array.isArray(result.issue) ? result.issue[0] : result.issue;
+            expect(issue.details.text).toContain('does not have access');
+        });
+
+        it('allows a bare-id reference that resolves to multiple candidates when all are accessible', async () => {
+            resolveTargetsAs([
+                {
+                    resourceType: 'Person',
+                    id: 'shared-id',
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'tenant_a' },
+                            { system: 'https://www.icanbwell.com/access', code: 'tenant_a' }
+                        ]
+                    }
+                },
+                {
+                    resourceType: 'Person',
+                    id: 'shared-id',
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'tenant_a' },
+                            { system: 'https://www.icanbwell.com/access', code: 'tenant_a' }
+                        ]
+                    }
+                }
+            ]);
+
+            const result = await personResourceValidator.validatePatientReference({
+                currentResource: personWithLinks(['uuid-a']),
+                resourceToValidateJson: personWithLinks(['uuid-a', 'shared-id']),
                 isUser: false,
                 user: 'service@tenant_a',
                 scope: 'access/tenant_a.*',

@@ -104,4 +104,34 @@ describe('DCON-4844 - $merge cannot link a Person into another tenant\'s identit
             .expect(200);
         expect(getResp.body.link[0].target.reference).toStrictEqual('Person/person-tenant-a-2');
     });
+
+    test('rejects an access-scoped caller creating a brand-new Person with the cross-tenant link already inlined', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/Person/$merge')
+            .send(personOwnedBy('person-tenant-b-2', 'tenant_b'))
+            .set(getHeaders())
+            .expect(200);
+
+        const insertResp = await request
+            .post('/4_0_0/Person/$merge')
+            .send(personOwnedBy('person-tenant-a-new', 'tenant_a', 'Person/person-tenant-b-2'))
+            .set(getHeaders('access/tenant_a.* user/*.*'))
+            .expect(200);
+
+        expect(insertResp).toHaveMergeResponse({
+            issue: expect.objectContaining({
+                details: expect.objectContaining({
+                    text: expect.stringContaining('does not have access')
+                })
+            })
+        });
+
+        // confirm the rejected insert did not persist at all
+        await request
+            .get('/4_0_0/Person/person-tenant-a-new')
+            .set(getHeaders())
+            .expect(404);
+    });
 });
