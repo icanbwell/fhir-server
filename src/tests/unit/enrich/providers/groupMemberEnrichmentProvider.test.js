@@ -451,35 +451,31 @@ describe('GroupMemberEnrichmentProvider', () => {
         });
 
         test('handles empty securityContext (defense in depth)', async () => {
-            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '0' }]);
-
-            // MongoDB already filtered unauthorized Groups, but if somehow bypassed,
-            // empty securityContext means no tag filters (may return 0 for cross-tenant)
+            // Fail closed: when no security tags and not admin, return 0 without querying
+            // This prevents leaking cross-tenant member counts when securityContext is empty
             const count = await provider._getMemberCount('group-4', {});
 
             expect(count).toBe(0);
-            const callArgs = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
-            // With empty context, no tag filters are applied, so query returns 0 if no members match
-            expect(callArgs.query).not.toContain('hasAny(argMaxMerge(access_tags)');
-            expect(callArgs.query).not.toContain('hasAny(argMaxMerge(owner_tags)');
+            // Should NOT call ClickHouse at all - fail closed before querying
+            expect(mockClickHouseClientManager.queryAsync).not.toHaveBeenCalled();
         });
 
         test('handles null/undefined securityContext gracefully', async () => {
-            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '0' }]);
-
+            // Fail closed: null context is coerced to {}, which triggers fail-closed guard
             const count = await provider._getMemberCount('group-5', null);
 
             expect(count).toBe(0);
-            // Should not crash, should default to no filtering
+            // Should NOT call ClickHouse - fail closed
+            expect(mockClickHouseClientManager.queryAsync).not.toHaveBeenCalled();
         });
 
         test('handles undefined securityContext parameter', async () => {
-            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '0' }]);
-
+            // Fail closed: undefined uses default parameter value {}, which triggers fail-closed guard
             const count = await provider._getMemberCount('group-6');
 
             expect(count).toBe(0);
-            // Should use default parameter value {}
+            // Should NOT call ClickHouse - fail closed
+            expect(mockClickHouseClientManager.queryAsync).not.toHaveBeenCalled();
         });
 
         test('uses GROUP_MEMBER_CURRENT table with FINAL', async () => {

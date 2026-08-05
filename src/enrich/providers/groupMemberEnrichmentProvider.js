@@ -184,6 +184,18 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
         try {
             const { accessTags = [], ownerTags = [], hasFullAccess = false } = securityContext;
 
+            // Fail closed: if no security context and not admin, return 0 instead of unfiltered count
+            // This prevents leaking cross-tenant member counts when securityContext is not provided
+            if (!hasFullAccess && accessTags.length === 0 && ownerTags.length === 0) {
+                logDebug('No security tags provided for non-admin user, returning 0 count (fail closed)', {
+                    groupId,
+                    hasFullAccess,
+                    accessTagsCount: accessTags.length,
+                    ownerTagsCount: ownerTags.length
+                });
+                return 0;
+            }
+
             // Build HAVING clause with tenant filtering (defense in depth)
             // MongoDB already filtered unauthorized Groups, but ClickHouse enforces tenant scope too
             const havingClauses = [
