@@ -10,8 +10,12 @@ const graphqlErrorFormatter = (err, req, res, next) => {
     if (res.headersSent) {
         return next(err);
     }
-    const message = err.message || 'Internal server error';
     const statusCode = err.statusCode || 500;
+    // Redact internal error details for 5xx responses, mirroring
+    // convertErrorToOperationOutcome's `internalError` handling on the REST path,
+    // so implementation details (hostnames, connection strings, stack-derived
+    // strings, etc.) are never leaked to callers. 4xx messages remain descriptive.
+    const message = statusCode >= 500 ? 'Internal server error' : (err.message || 'Internal server error');
     const code = statusCode === 401 ? 'UNAUTHENTICATED'
         : statusCode === 403 ? 'FORBIDDEN'
         : 'INTERNAL_SERVER_ERROR';
