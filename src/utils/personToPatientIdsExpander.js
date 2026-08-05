@@ -193,10 +193,6 @@ class PersonToPatientIdsExpander {
      * @property {boolean} addPersonOwnerToContext If true then add person owner to context
      * @property {boolean} addTopPersonAccessCheck If true then add access tag check when fetching person
      * @property {FhirRequestInfo} requestInfo
-     * @property {Set<string>} [topPersonOwnerCodes] Internal recursion state: the owner tag code(s) of the
-     *   caller's own top-level Person (captured at level 1). Used to enforce a same-tenant check on Persons
-     *   reached deeper via Person.link when the caller has no scope-derived access codes to check against
-     *   (see below). Callers should never need to pass this in explicitly.
      *
      * @param {getPatientIdsFromPersonAsyncArgs}
      * @return {Promise<string[] | Map<string, Set<string>>>} Will return an array if toMap is false else return an map. By default toMap is false
@@ -210,8 +206,7 @@ class PersonToPatientIdsExpander {
         returnOriginalPersonId = false,
         addPersonOwnerToContext = false,
         requestInfo,
-        addTopPersonAccessCheck = false,
-        topPersonOwnerCodes
+        addTopPersonAccessCheck = false
     }) {
         /**
          * Final result to return
@@ -222,26 +217,32 @@ class PersonToPatientIdsExpander {
 
         const projectionsMap = { id: 1, link: 1, _id: 0, _uuid: 1, _sourceId: 1 }
 
+        if(addPersonOwnerToContext) {
+            projectionsMap.meta = 1
+        }
+
         if(addTopPersonAccessCheck) {
             assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         }
 
         let query = FilterById.getListFilter(personIds);
 
-        /**
-         * A pure patient-scope caller never carries an access/ scope of its own by design (see
-         * ScopesManager.isAccessToResourceAllowedBySecurityTags), so getSecurityTagsFromScope() below
-         * legitimately returns [] for them. That makes getQueryWithSecurityTags() a complete no-op (no
-         * filter added at all) rather than a "deny" -- see review.md §D ("no restriction" must not be
-         * indistinguishable from "no matches"). For that caller type specifically, we fall back to an
-         * ownership/identity check further down: only follow a Person.link into a Person that shares an
-         * owner tag with the caller's own top-level Person.
-         * @type {boolean}
-         */
-        let applyOwnerTenantCheck = false;
-
         // Apply the caller's access-scope security tag filter to the requested Person so that
         // linked patients are not resolved for a Person the caller cannot access.
+        //
+        // NOTE: for a pure patient-scope token (no access/ scope at all -- the normal shape for a
+        // plain patient-facing app), getSecurityTagsFromScope() below legitimately returns []
+        // (accessViaPatientScopes short-circuits the "no access codes" error), which makes
+        // getQueryWithSecurityTags() a complete no-op: no filter is added at all (see review.md §D,
+        // "no restriction" must not be indistinguishable from "no matches"). That means this check
+        // does NOT protect a pure patient-scope caller from a cross-tenant Person.link today. An
+        // owner-tag same-tenant check was evaluated as a fallback for that case and rejected: this
+        // data model's Main-Person-to-Client-Person links are *intentionally* cross-tenant by design
+        // (see review.md §1 and e.g. src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid),
+        // so "different owner tag" cannot be used to distinguish a legitimate identity-matched link
+        // from a malicious/corrupted one -- doing so breaks that core feature. This gap is tracked by
+        // the (quarantined) tests in personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js
+        // pending a real fix (see jest.config.js).
         if (
             requestInfo &&
             (
@@ -274,12 +275,6 @@ class PersonToPatientIdsExpander {
                 useAccessIndex: this.configManager.useAccessIndex,
                 useHistoryTable: false
             });
-
-            applyOwnerTenantCheck = accessViaPatientScopes && securityTags.length === 0;
-        }
-
-        if (addPersonOwnerToContext || addTopPersonAccessCheck || applyOwnerTenantCheck) {
-            projectionsMap.meta = 1
         }
 
         /**
@@ -298,36 +293,8 @@ class PersonToPatientIdsExpander {
          */
         let patientIds = [];
         let personIdsToRecurse = [];
-        /**
-         * Owner tag code(s) belonging to the top-level Person(s) fetched at level 1. Threaded down
-         * unchanged to deeper recursion levels so every level can check against the same baseline.
-         * @type {Set<string>}
-         */
-        const ownerCodesFromTopLevel = new Set(topPersonOwnerCodes || []);
         while (await personResourceCursor.hasNext()) {
             const person = await personResourceCursor.nextObject();
-
-            /**
-             * @type {string[]}
-             */
-            const personOwnerCodes = ((person.meta && person.meta.security) || [])
-                .filter((security) => security.system === SecurityTagSystem.owner)
-                .map((security) => security.code);
-
-            if (level > 1 && applyOwnerTenantCheck) {
-                const sharesOwnerWithTopPerson = ownerCodesFromTopLevel.size > 0 &&
-                    personOwnerCodes.some((code) => ownerCodesFromTopLevel.has(code));
-                if (!sharesOwnerWithTopPerson) {
-                    // Cross-tenant Person reached via a Person.link that the caller (a pure
-                    // patient-scope token with no access/ scope) cannot otherwise be gated on.
-                    // Reject this branch entirely: do not include its patients and do not recurse
-                    // into it any further.
-                    continue;
-                }
-            } else if (level === 1) {
-                personOwnerCodes.forEach((code) => ownerCodesFromTopLevel.add(code));
-            }
-
             let personId = person._uuid;
             patientIds.push(`${personProxyPrefix}${personId}`);
             // at first call only, returnOriginalPersonId can be true so that we return the id map for passed personIds not their uuids
@@ -402,8 +369,7 @@ class PersonToPatientIdsExpander {
                     toMap,
                     returnOriginalPersonId: false, // always return _uuid map for it
                     requestInfo,
-                    addTopPersonAccessCheck,
-                    topPersonOwnerCodes: ownerCodesFromTopLevel
+                    addTopPersonAccessCheck
                 });
 
                 // add all patients to current person
@@ -425,8 +391,7 @@ class PersonToPatientIdsExpander {
                 level: level + 1,
                 toMap,
                 requestInfo,
-                addTopPersonAccessCheck,
-                topPersonOwnerCodes: ownerCodesFromTopLevel
+                addTopPersonAccessCheck
             });
             return patientIds.concat(patientIdsFromPersons);
         }
