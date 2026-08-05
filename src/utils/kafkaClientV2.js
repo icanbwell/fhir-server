@@ -197,17 +197,31 @@ class KafkaClientV2 {
      */
     waitForConsumerToJoinGroupAsync(consumer, { maxWait = 10000, label = '' } = {}) {
         return new Promise((resolve, reject) => {
+            // This listener is only meant to guard the initial join wait. Since consumer.on(...)
+            // is never removed, it stays attached for the consumer's whole lifetime — without this
+            // flag it would keep calling disconnect() on every crash for as long as the process
+            // runs, including retriable crashes kafkajs is already restarting in-process, which
+            // could race with and break that self-heal. Once settled, crash handling is the
+            // entrypoint's responsibility (it registers its own CRASH listener after joining).
+            let settled = false;
             const timeoutId = setTimeout(() => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
                 consumer.disconnect().then(() => {
                     reject(new Error(`Timeout ${label}`.trim()));
                 });
             }, maxWait);
             consumer.on(consumer.events.GROUP_JOIN, (event) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
                 clearTimeout(timeoutId);
                 resolve(event);
             });
             consumer.on(consumer.events.CRASH, async (event) => {
-                clearTimeout(timeoutId);
                 // Log unconditionally — a crash after the join promise has already settled would
                 // otherwise vanish silently, since rejecting an already-settled promise is a no-op.
                 await logSystemErrorAsync({
@@ -216,6 +230,11 @@ class KafkaClientV2 {
                     args: {},
                     error: event.payload.error
                 });
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                clearTimeout(timeoutId);
                 consumer.disconnect().then(() => {
                     reject(event.payload.error);
                 });
