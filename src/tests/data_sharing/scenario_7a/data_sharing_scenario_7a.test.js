@@ -29,7 +29,7 @@ const {
 const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/globals');
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
-const headers = getHeaders('user/*.read access/client.*');
+const headers = getHeaders('user/*.read access/client.* admin/*.read');
 const client1Headers = getHeaders('user/*.read access/client1.*');
 
 describe('Data sharing test cases for different scenarios', () => {

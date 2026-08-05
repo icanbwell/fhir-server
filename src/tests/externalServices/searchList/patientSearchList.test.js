@@ -26,7 +26,7 @@ const observation1Id = 'd4f5a6b7-c8d9-4e0f-a1b2-c3d4e5f6a7b8';
 const patientPayload = {
     token_use: 'access',
     client_id: 'test-client-id',
-    scope: 'patient/*.read',
+    scope: 'patient/*.read admin/*.read',
     username: 'patient-user',
     clientFhirPersonId: personId,
     clientFhirPatientId: patient1Id,

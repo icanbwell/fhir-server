@@ -8,6 +8,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest, getTestContainer
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -64,7 +65,7 @@ describe('Measure Tests', () => {
 
             resp = await request
                 .get('/4_0_0/Measure?depends-on=https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMeasure1Resource);
         });
