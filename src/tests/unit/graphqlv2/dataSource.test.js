@@ -18,6 +18,7 @@ const { SearchBundleOperation } = require('../../../operations/search/searchBund
 const { PatientDataViewControlManager } = require('../../../utils/patientDataViewController');
 const { CustomTracer } = require('../../../utils/customTracer');
 const { PatientScopeManager } = require('../../../operations/security/patientScopeManager');
+const { OperationAccessManager } = require('../../../utils/operationAccessManager');
 
 function createDataSource(overrides = {}) {
     const requestInfo = overrides.requestInfo || { requestId: 'req-1', headers: {}, isUser: false };
@@ -37,6 +38,10 @@ function createDataSource(overrides = {}) {
     const customTracer = createPrototypedMock(CustomTracer);
     customTracer.trace = jestGlobal.fn().mockImplementation(async ({ func }) => await func());
     const patientScopeManager = createPrototypedMock(PatientScopeManager);
+    const accessManager = overrides.accessManager || createPrototypedMock(OperationAccessManager);
+    if (!overrides.accessManager) {
+        accessManager.verifyGraphQLReadAccess = jestGlobal.fn();
+    }
 
     return new FhirDataSource({
         requestInfo,
@@ -46,7 +51,8 @@ function createDataSource(overrides = {}) {
         configManager,
         patientDataViewControlManager,
         customTracer,
-        patientScopeManager
+        patientScopeManager,
+        accessManager
     });
 }
 
@@ -182,6 +188,56 @@ describe('FhirDataSource (graphqlv2)', () => {
         test('sets debugMode when _debug is true', () => {
             dataSource.createDataLoader({ _debug: true });
             expect(dataSource.debugMode).toBe(true);
+        });
+    });
+
+    describe('getResources (DCON-4846)', () => {
+        test('checks operation access before executing the search', async () => {
+            const context = { fhirRequestInfo: { user: 'test', scope: 'access/tenant_a.*' } };
+            await dataSource.getResources(null, {}, context, {}, 'Patient');
+
+            expect(dataSource.accessManager.verifyGraphQLReadAccess).toHaveBeenCalledWith({
+                requestInfo: context.fhirRequestInfo,
+                resourceType: 'Patient',
+                operation: 'search'
+            });
+        });
+
+        test('does not execute the search when access is denied', async () => {
+            const forbiddenError = new Error('CMS partner user does not have access to Practitioner search');
+            dataSource.accessManager.verifyGraphQLReadAccess.mockImplementation(() => { throw forbiddenError; });
+            const context = { fhirRequestInfo: { user: 'test', scope: 'access/tenant_a.*' } };
+
+            await expect(
+                dataSource.getResources(null, {}, context, {}, 'Practitioner')
+            ).rejects.toThrow(forbiddenError.message);
+
+            expect(dataSource.searchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('getResourcesBundle (DCON-4846)', () => {
+        test('checks operation access before executing the search', async () => {
+            const context = { fhirRequestInfo: { user: 'test', scope: 'access/tenant_a.*' }, req: {} };
+            await dataSource.getResourcesBundle(null, {}, context, {}, 'Patient');
+
+            expect(dataSource.accessManager.verifyGraphQLReadAccess).toHaveBeenCalledWith({
+                requestInfo: context.fhirRequestInfo,
+                resourceType: 'Patient',
+                operation: 'search'
+            });
+        });
+
+        test('does not execute the search when access is denied', async () => {
+            const forbiddenError = new Error('CMS partner user does not have access to Practitioner search');
+            dataSource.accessManager.verifyGraphQLReadAccess.mockImplementation(() => { throw forbiddenError; });
+            const context = { fhirRequestInfo: { user: 'test', scope: 'access/tenant_a.*' }, req: {} };
+
+            await expect(
+                dataSource.getResourcesBundle(null, {}, context, {}, 'Practitioner')
+            ).rejects.toThrow(forbiddenError.message);
+
+            expect(dataSource.searchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
         });
     });
 

@@ -394,6 +394,13 @@ class FhirDataSource {
      * @return {Promise<Resource[]>}
      */
     async getResources (parent, args, context, info, resourceType) {
+        // DCON-4846: REST search runs this same allowlist check (fhirOperationsManager.search) --
+        // GraphQL reads must too, or a CMS-partner/delegated-user caller could bypass it entirely
+        this.accessManager.verifyGraphQLReadAccess({
+            requestInfo: context.fhirRequestInfo,
+            resourceType,
+            operation: 'search'
+        });
         this.generateResourceProjections(info);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const args1 = {
@@ -486,6 +493,12 @@ class FhirDataSource {
      * @return {Promise<Bundle>}
      */
     async getResourcesBundle (parent, args, context, info, resourceType, useAggregationPipeline = false) {
+        // DCON-4846: see getResources -- same allowlist check REST search already enforces
+        this.accessManager.verifyGraphQLReadAccess({
+            requestInfo: context.fhirRequestInfo,
+            resourceType,
+            operation: 'search'
+        });
         this.createDataLoader(args);
         this.generateResourceProjections(info);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
