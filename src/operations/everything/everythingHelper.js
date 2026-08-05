@@ -1088,10 +1088,14 @@ class EverythingHelper {
                     'read', requestInfo.user, requestInfo.scope
                 );
                 const hasFullAccess = accessCodes.includes('*');
+                const accessViaPatientScopes = this.searchManager.scopesManager.isAccessAllowedByPatientScopes({
+                    scope: requestInfo.scope, resourceType
+                });
                 const accessTags = this.searchManager.securityTagManager.getSecurityTagsFromScope({
                     user: requestInfo.user,
                     scope: requestInfo.scope,
-                    accessRequested: 'read'
+                    accessRequested: 'read',
+                    accessViaPatientScopes
                 });
                 const securityContext = { accessTags, ownerTags: [], hasFullAccess };
 
@@ -1919,10 +1923,14 @@ class EverythingHelper {
                                     'read', requestInfo.user, requestInfo.scope
                                 );
                                 const hasFullAccess = accessCodes.includes('*');
+                                const accessViaPatientScopes = this.searchManager.scopesManager.isAccessAllowedByPatientScopes({
+                                    scope: requestInfo.scope, resourceType: entryResourceType
+                                });
                                 const accessTags = this.searchManager.securityTagManager.getSecurityTagsFromScope({
                                     user: requestInfo.user,
                                     scope: requestInfo.scope,
-                                    accessRequested: 'read'
+                                    accessRequested: 'read',
+                                    accessViaPatientScopes
                                 });
                                 const securityContext = { accessTags, ownerTags: [], hasFullAccess };
 

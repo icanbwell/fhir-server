@@ -246,8 +246,11 @@ class SearchByIdOperation {
                 // Derive security context for enrichment providers that need tenant filtering
                 const accessCodes = this.searchManager.scopesManager.getAccessCodesFromScopes('read', user, scope);
                 const hasFullAccess = accessCodes.includes('*');
+                const accessViaPatientScopes = this.searchManager.scopesManager.isAccessAllowedByPatientScopes({
+                    scope, resourceType
+                });
                 const accessTags = this.securityTagManager.getSecurityTagsFromScope({
-                    user, scope, accessRequested: 'read'
+                    user, scope, accessRequested: 'read', accessViaPatientScopes
                 });
                 const securityContext = { accessTags, ownerTags: [], hasFullAccess };
 
