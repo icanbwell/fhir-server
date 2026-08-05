@@ -23,6 +23,8 @@ class MockConfigManager extends ConfigManager {
 }
 
 const headers = getHeaders();
+// DCON-4808 gates _debug behind admin scope; these assertions rely on the debug meta tags.
+const debugHeaders = getHeaders('user/*.read user/*.write access/*.* admin/*.read');
 describe('Patient Tests', () => {
     let requestId;
     beforeEach(async () => {
@@ -60,7 +62,7 @@ describe('Patient Tests', () => {
             // ACT AND ASSERT
             resp = await request
                 .get('/4_0_0/Patient/?id=6e03683f-003e-4367-9ef9-f9b16313451b,6e03683f-003e-4367-9ef9-f9b163134512&_debug=1')
-                .set(headers);
+                .set(debugHeaders);
 
             expect(resp).toHaveResponse(expectedWithUuidOnly);
         });
@@ -90,7 +92,7 @@ describe('Patient Tests', () => {
           // ACT AND ASSERT
           resp = await request
               .get('/4_0_0/Patient/?id=6e03683f-003e-4367-9ef9-f9b16313451b,6e03683f-003e-4367-9ef9-f9b163134512,patient-1,patient-2,patient-3,patient-4|client,patient-5|client-3&_debug=1')
-              .set(headers);
+              .set(debugHeaders);
 
           expect(resp).toHaveResponse(expectedWithSourceIdAndUuid);
       });

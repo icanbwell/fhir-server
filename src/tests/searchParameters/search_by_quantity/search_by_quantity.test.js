@@ -9,6 +9,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -46,7 +47,7 @@ describe('ObservationReturnIdTests', () => {
             resp = await request
                 .get(
                     '/4_0_0/Observation?value-quantity=75|http://unitsofmeasure.org|mm[Hg]&_setIndexHint=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
         });

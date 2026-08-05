@@ -56,7 +56,7 @@ async function seedBaseFixtures (request) {
 }
 
 const patientPayload = {
-    scope: 'patient/Patient.read patient/Observation.read access/*.read',
+    scope: 'patient/Patient.read patient/Observation.read access/*.read admin/*.read',
     username: 'test',
     client_id: 'client',
     clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',

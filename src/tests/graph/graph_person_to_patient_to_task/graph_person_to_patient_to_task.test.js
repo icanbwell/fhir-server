@@ -28,7 +28,7 @@ const expectedPatientsInDatabase = require('./fixtures/expected/expected_patient
 const expectedPatientsInDatabaseWithoutSourceAssigningAuthority = require('./fixtures/expected/expected_patients_in_database_without_sourceAssigningAuthority.json');
 const expectedProxyPatientResource = require('./fixtures/expected/expected_proxy_patient.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest, getTestContainer } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 
@@ -243,7 +243,7 @@ describe('Person Tests', () => {
                 .post(
                     '/4_0_0/Patient/$graph?id=person.002126287fbd412d8b52115e48edbd4c&contained=true&_debug=1'
                 )
-                .set(getHeaders())
+                .set(getHeadersWithAdmin())
                 .send(graphProxyPatientDefinitionResource);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedProxyPatientResource);
@@ -307,7 +307,7 @@ describe('Person Tests', () => {
         // default includeHidden=false
         resp = await request
             .post('/4_0_0/Person/$graph?id=002126287fbd412d8b52115e48edbd4c&contained=true&_debug=1')
-            .set(getHeaders())
+            .set(getHeadersWithAdmin())
             .send(graphDefinitionResource);
 
         // noinspection JSUnresolvedFunction
@@ -319,7 +319,7 @@ describe('Person Tests', () => {
         // With Include hidden as true
         resp = await request
             .post('/4_0_0/Person/$graph?id=002126287fbd412d8b52115e48edbd4c&contained=true&_includeHidden=1&_debug=1')
-            .set(getHeaders())
+            .set(getHeadersWithAdmin())
             .send(graphDefinitionResource);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedResourceWithIncludeHiddenAndQuery);

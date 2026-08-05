@@ -132,6 +132,9 @@ describe('EverythingOperation', () => {
 
         mockScopesValidator = Object.create(ScopesValidator.prototype);
         mockScopesValidator.verifyHasValidScopesAsync = jestObj.fn().mockResolvedValue(undefined);
+        // Default to admin so pre-existing tests (unrelated to the DCON-4808 admin-scope
+        // gating) keep exercising their original code path.
+        mockScopesValidator.isAdminScope = jestObj.fn().mockReturnValue(true);
 
         mockConfigManager = Object.create(ConfigManager.prototype);
 
@@ -326,6 +329,43 @@ describe('EverythingOperation', () => {
 
             expect(mockEverythingHelper.retriveEverythingAsync).toHaveBeenCalled();
             expect(mockGraphOperation.graph).not.toHaveBeenCalled();
+        });
+
+        // DCON-4808: _explain/_debug/_setIndexHint expose Mongo query plans, collection
+        // internals, and let the caller pick the query's index -- everything.js was not
+        // previously gating these, unlike history.js/searchBundle.js/searchStreaming.js.
+        test('non-admin caller: _explain/_debug/_setIndexHint are cleared before retriveEverythingAsync', async () => {
+            mockScopesValidator.isAdminScope.mockReturnValue(false);
+            const requestInfo = buildRequestInfo({ method: 'GET' });
+            const parsedArgs = buildParsedArgs({ _explain: true, _debug: true, _setIndexHint: 'someIndex' });
+
+            await operation.everythingBundleAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType: 'Patient'
+            });
+
+            const receivedArgs = mockEverythingHelper.retriveEverythingAsync.mock.calls[0][0].parsedArgs;
+            expect(receivedArgs._explain).toBeUndefined();
+            expect(receivedArgs._debug).toBeUndefined();
+            expect(receivedArgs._setIndexHint).toBeUndefined();
+        });
+
+        test('admin caller: _explain/_debug/_setIndexHint are preserved', async () => {
+            mockScopesValidator.isAdminScope.mockReturnValue(true);
+            const requestInfo = buildRequestInfo({ method: 'GET' });
+            const parsedArgs = buildParsedArgs({ _explain: true, _debug: true, _setIndexHint: 'someIndex' });
+
+            await operation.everythingBundleAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType: 'Patient'
+            });
+
+            const receivedArgs = mockEverythingHelper.retriveEverythingAsync.mock.calls[0][0].parsedArgs;
+            expect(receivedArgs._explain).toBe(true);
+            expect(receivedArgs._debug).toBe(true);
+            expect(receivedArgs._setIndexHint).toBe('someIndex');
         });
 
         test('uses graphOperation for Practitioner', async () => {
