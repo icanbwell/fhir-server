@@ -279,13 +279,47 @@ describe('bulkImportOrchestrator', () => {
             }
 
             const [, crashHandler] = mockConsumer.on.mock.calls.find(([event]) => event === 'consumer.crash');
-            crashHandler({ payload: { error: new Error('Consumer crashed') } });
+            await crashHandler({ payload: { error: new Error('Consumer crashed'), restart: false } });
 
             expect(logError).toHaveBeenCalledWith(
                 'Bulk import orchestrator consumer crashed, exiting',
                 { error: 'Consumer crashed' }
             );
             expect(processExitSpy).toHaveBeenCalledWith(1);
+        });
+
+        test('does not exit when kafkajs reports the crash is retriable', async () => {
+            jestObj.isolateModules(() => {
+                require('../../../../operations/import/bulkImportOrchestrator');
+            });
+
+            for (let i = 0; i < 10; i++) {
+                await new Promise(resolve => setImmediate(resolve));
+            }
+
+            const [, crashHandler] = mockConsumer.on.mock.calls.find(([event]) => event === 'consumer.crash');
+            await crashHandler({ payload: { error: new Error('Transient error'), restart: true } });
+
+            expect(logError).not.toHaveBeenCalledWith(
+                'Bulk import orchestrator consumer crashed, exiting',
+                expect.anything()
+            );
+            expect(processExitSpy).not.toHaveBeenCalledWith(1);
+        });
+
+        test('does not throw when V2 Kafka is disabled and consumer is null', async () => {
+            mockKafkaClientV2.createConsumerAsync.mockResolvedValue(null);
+
+            jestObj.isolateModules(() => {
+                require('../../../../operations/import/bulkImportOrchestrator');
+            });
+
+            for (let i = 0; i < 10; i++) {
+                await new Promise(resolve => setImmediate(resolve));
+            }
+
+            expect(mockConsumer.on).not.toHaveBeenCalled();
+            expect(processExitSpy).not.toHaveBeenCalledWith(1);
         });
     });
 

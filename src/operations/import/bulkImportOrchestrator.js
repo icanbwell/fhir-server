@@ -70,12 +70,24 @@ async function main() {
         // crash after startup would otherwise leave this process running (health check still
         // answering isReady=true) with no consumer actually reading messages. Exiting lets
         // Kubernetes detect the failure and restart the pod instead of silently zombie-ing.
-        consumer.on(consumer.events.CRASH, (event) => {
-            logError('Bulk import orchestrator consumer crashed, exiting', {
-                error: event.payload.error?.message
+        // consumer is null when V2 Kafka is disabled (DummyKafkaClientV2) — nothing to listen on.
+        // Only exit when kafkajs itself won't retry (payload.restart === false); a retriable
+        // crash already self-heals in-process and killing the pod would just force an
+        // unnecessary rebalance. Yield a tick before exiting so kafkaClientV2's own CRASH
+        // listener (registered first, above) gets a chance to finish its async log write —
+        // otherwise this handler's process.exit could cut that write off mid-flight.
+        if (consumer) {
+            consumer.on(consumer.events.CRASH, async (event) => {
+                if (event.payload.restart) {
+                    return;
+                }
+                logError('Bulk import orchestrator consumer crashed, exiting', {
+                    error: event.payload.error?.message
+                });
+                await new Promise((resolve) => setImmediate(resolve));
+                process.exit(1);
             });
-            process.exit(1);
-        });
+        }
     } catch (e) {
         console.error(JSON.stringify({
             method: 'bulkImportOrchestrator.main',
