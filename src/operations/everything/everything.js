@@ -150,6 +150,14 @@ class EverythingOperation {
 
         const {user, scope, isUser} = requestInfo;
 
+        // _explain/_debug/_setIndexHint expose Mongo query plans, collection internals, and
+        // let the caller pick the query's index; only an admin-scoped caller may use them.
+        if ((parsedArgs._explain || parsedArgs._debug || parsedArgs._setIndexHint) && !this.scopesValidator.isAdminScope({ scope })) {
+            parsedArgs._explain = undefined;
+            parsedArgs._debug = undefined;
+            parsedArgs._setIndexHint = undefined;
+        }
+
         /**
          * @type {number}
          */

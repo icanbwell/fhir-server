@@ -60,7 +60,7 @@ describe('GraphQL CarePlan Tests', () => {
                     variables: {},
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
 
             // noinspection JSUnresolvedFunction
@@ -89,7 +89,7 @@ describe('GraphQL CarePlan Tests', () => {
                     variables: {},
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             expect(resp).toHaveResponse(expectedCarePlan1);
         });
@@ -119,7 +119,7 @@ describe('GraphQL CarePlan Tests', () => {
                     variables: {},
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
 
             // noinspection JSUnresolvedFunction
@@ -136,7 +136,7 @@ describe('GraphQL CarePlan Tests', () => {
                     variables: {},
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
 
             // noinspection JSUnresolvedFunction

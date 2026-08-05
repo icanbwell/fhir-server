@@ -20,7 +20,7 @@ const { COLLECTION } = require('../../../constants');
 const Bundle = require('../../../../src/fhir/classes/4_0_0/resources/bundle');
 
 const person_payload = {
-    scope: 'patient/*.*',
+    scope: 'patient/*.* admin/*.read',
     username: 'patient-123@example.com',
     clientFhirPersonId: 'person1',
     clientFhirPatientId: 'clientFhirPatient',
@@ -310,7 +310,7 @@ describe('Patient Scope merge Tests', () => {
              */
             const patientFilterManager = container.patientFilterManager;
             const person1_payload = {
-                scope: 'patient/*.*',
+                scope: 'patient/*.* admin/*.read',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',
                 clientFhirPatientId: 'clientFhirPatient',

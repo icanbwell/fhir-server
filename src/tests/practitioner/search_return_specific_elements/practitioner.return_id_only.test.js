@@ -11,6 +11,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -147,7 +148,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .get('/4_0_0/Practitioner?_elements=id,identifier&_bundle=true&_total=accurate&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerMultiElementResourceBundle);
         });
