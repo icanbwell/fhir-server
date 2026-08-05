@@ -8,6 +8,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -40,7 +41,7 @@ describe('AuditEventSearchFilterTests', () => {
             // Query audit event using date query parameters, we expect data is received
             resp = await request
                 .get('/4_0_0/AuditEvent/?date=gt2021-08-02&date=lt2021-10-02&_bundle=1&streamResponse=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResource);

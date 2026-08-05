@@ -23,6 +23,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest,
     getHeadersWithCustomPayload
 } = require('../../common');
@@ -66,12 +67,12 @@ describe('Observation Tests', () => {
             // All observations are returned as currently bwellFhirPersonId is used to filter here
             resp = await request
                 .get('/4_0_0/Observation?_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse1);
 
             let jwt_payload = {
-                scope: 'patient/*.* user/*.* access/*.*',
+                scope: 'patient/*.* user/*.* access/*.* admin/*.read',
                 username: 'test',
                 client_id: 'client-1',
                 clientFhirPersonId: '0893291d-0b0c-55c2-86d5-66bfbb7f34fd',

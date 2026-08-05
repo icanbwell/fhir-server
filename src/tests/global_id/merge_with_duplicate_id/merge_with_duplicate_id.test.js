@@ -14,6 +14,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest,
     getTestContainer,
     mockHttpContext
@@ -100,35 +101,35 @@ describe('Observation Tests', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationAllResources);
 
             // search by owner security tag should only return 1
             resp = await request
                 .get('/4_0_0/Observation/?_debug=1&id=1&_security=https://www.icanbwell.com/owner|C')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByOwnerResources);
 
             // search by sourceAssigningAuthority security tag should only return 1
             resp = await request
                 .get('/4_0_0/Observation/?_debug=1&id=1&_security=https://www.icanbwell.com/sourceAssigningAuthority|C')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationBySourceAssigningAuthorityResources);
 
             // search by id but no security tag should return both
             resp = await request
                 .get('/4_0_0/Observation/?id=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationAllByIdResources);
 
             // search by id but with token limited to one access security tag should return 1
             resp = await request
                 .get('/4_0_0/Observation/?id=1&_debug=1')
-                .set(getHeaders('user/*.read user/*.write access/C.*'));
+                .set(getHeaders('user/*.read user/*.write access/C.* admin/*.read'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByAccessResources);
         });

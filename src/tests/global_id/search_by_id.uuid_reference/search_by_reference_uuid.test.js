@@ -8,7 +8,7 @@ const expectedPatient1Resource = require('./fixtures/expected/expected_patient.j
 const expectedResult = require('./fixtures/expected/expected_result.json');
 const expectedResultWithId = require('./fixtures/expected/expected_result_with_id.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest } = require('../../common');
 
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
@@ -66,7 +66,7 @@ describe('Encounter Tests', () => {
             // search by id and sourceAssigningAuthority works for the encounter
             resp = await request
                 .get('/4_0_0/Encounter?patient=Patient/1|mps-api&_debug=true&_bundle=true')
-                .set(getHeaders())
+                .set(getHeadersWithAdmin())
                 .expect(200);
 
             // noinspection JSUnresolvedFunction
@@ -75,7 +75,7 @@ describe('Encounter Tests', () => {
             // search by id doesn't work
             resp = await request
                 .get('/4_0_0/Encounter?patient=Patient/1&_debug=true&_bundle=true')
-                .set(getHeaders())
+                .set(getHeadersWithAdmin())
                 .expect(200);
 
             // noinspection JSUnresolvedFunction

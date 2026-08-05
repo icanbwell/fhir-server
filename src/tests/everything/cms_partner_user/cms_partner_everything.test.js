@@ -51,7 +51,7 @@ const PATIENT_ID = 'a25d86d2-5d31-4e9c-8a01-a3899426fac0';
 
 const getCmsHeaders = (personId) => {
     const token = getTokenWithCustomPayload({
-        scope: 'patient/*.read user/*.read access/*.read',
+        scope: 'patient/*.read user/*.read access/*.read admin/*.read',
         user_type: 'cms-partner',
         username: personId,
         clientFhirPersonId: personId,
@@ -88,7 +88,7 @@ const getInvalidCmsHeaders = (personId) => {
 
 const getRegularPatientHeaders = (personId) => {
     const token = getTokenWithCustomPayload({
-        scope: 'patient/*.read user/*.read access/*.read',
+        scope: 'patient/*.read user/*.read access/*.read admin/*.read',
         username: personId,
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId,
@@ -545,7 +545,7 @@ describe('CMS Partner User - Patient $everything', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         const tokenWithoutUserType = getTokenWithCustomPayload({
-            scope: 'patient/*.read user/*.read access/*.read',
+            scope: 'patient/*.read user/*.read access/*.read admin/*.read',
             username: CMS_PERSON_ID,
             clientFhirPersonId: CMS_PERSON_ID,
             bwellFhirPersonId: CMS_PERSON_ID,

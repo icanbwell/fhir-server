@@ -20,6 +20,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -119,7 +120,7 @@ describe('Person Tests', () => {
             // search by token system and code and make sure we get the right Medication back
             resp = await request
                 .get('/4_0_0/Person?name:exact=singhal&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
         });
@@ -210,7 +211,7 @@ describe('Person Tests', () => {
             // string by name follows normal string search
             resp = await request
                 .get('/4_0_0/Person?name=sing&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources2);
         });
