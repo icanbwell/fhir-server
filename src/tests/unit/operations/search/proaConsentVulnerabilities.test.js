@@ -231,9 +231,7 @@ describe('VULNERABILITY 3: DataSharingManager caches allowedPatientIds ignoring 
         const mockDatabaseQueryFactory = Object.create(DatabaseQueryFactory.prototype);
         mockConfigManager = Object.create(ConfigManager.prototype);
         Object.defineProperty(mockConfigManager, 'enableConsentedProaDataAccess', { value: true, writable: true, configurable: true });
-        Object.defineProperty(mockConfigManager, 'enableHIETreatmentRelatedDataAccess', { value: false, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'getConsentConnectionTypesList', { value: ['proa'], writable: true, configurable: true });
-        Object.defineProperty(mockConfigManager, 'getHIETreatmentConnectionTypesList', { value: [], writable: true, configurable: true });
 
         const mockPatientFilterManager = Object.create(PatientFilterManager.prototype);
         mockPatientFilterManager.isPatientRelatedResource = jest.fn().mockReturnValue(true);

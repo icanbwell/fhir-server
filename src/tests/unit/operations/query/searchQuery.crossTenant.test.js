@@ -29,7 +29,6 @@ function createMockConfigManager(overrides = {}) {
     const manager = Object.create(ConfigManager.prototype);
     Object.defineProperty(manager, 'useAccessIndex', { get: () => false, configurable: true });
     Object.defineProperty(manager, 'enableConsentedProaDataAccess', { get: () => false, configurable: true });
-    Object.defineProperty(manager, 'enableHIETreatmentRelatedDataAccess', { get: () => false, configurable: true });
     Object.assign(manager, overrides);
     return manager;
 }
@@ -364,16 +363,16 @@ describe('Cross-Tenant Security - Search Query Construction', () => {
         test('data sharing alternate query branch must include security tag constraints', () => {
             // VULNERABILITY: In dataSharingManager.js updateQueryConsideringDataSharing(),
             // when data sharing is enabled, the query becomes:
-            //   { $or: [originalQuery, queryWithConsentedData, queryWithHIETreatmentData] }
+            //   { $or: [originalQuery, queryWithConsentedData] }
             //
             // The originalQuery has security tags applied, but queryWithConsentedData
-            // and queryWithHIETreatmentData only check connectionType.
+            // only checks connectionType.
             // This means resources from ANY tenant that happen to have the right
             // connectionType could be returned.
             //
-            // The alternate branches MUST also include the security tag filter
+            // The alternate branch MUST also include the security tag filter
             // or at least restrict to the specific patients identified through the
-            // consent/HIE process.
+            // consent process.
 
             // Simulate the data sharing query construction
             const originalQuery = {
