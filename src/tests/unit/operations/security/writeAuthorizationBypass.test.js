@@ -293,7 +293,7 @@ describe('Write Operation Authorization Bypass Vulnerabilities', () => {
             });
         });
 
-        test.skip('KNOWN OPEN GAP (distinct from the fixed update-path bug, ticket TBD): a caller holding BOTH a patient/ scope and an access/ scope for a DIFFERENT tenant can still create a resource with an arbitrary owner/access tag', () => {
+        test.skip('KNOWN OPEN GAP (distinct from the fixed update-path bug, see DCON-4854): a caller holding BOTH a patient/ scope and an access/ scope for a DIFFERENT tenant can still create a resource with an arbitrary owner/access tag', () => {
             // This is a narrower, still-open variant of the create-time tag question. On create,
             // isAccessTagChangeAllowedByScopes intentionally still short-circuits to true for any
             // caller whose scope contains a matching patient/ token (see scopesManager.crossTenant.test.js
@@ -364,7 +364,7 @@ describe('Write Operation Authorization Bypass Vulnerabilities', () => {
     });
 
     // =========================================================================
-    // VULNERABILITY 5 (KNOWN OPEN GAP, distinct question, ticket TBD): whether canWriteResourceAsync's
+    // VULNERABILITY 5 (KNOWN OPEN GAP, distinct question, see DCON-4854): whether canWriteResourceAsync's
     // literal-string id matching (patientScopeManager.js's canWriteResourceWithAllowedPatientIdsAsync)
     // can be defeated by a source-system patient id that collides across two tenants (as opposed to a
     // globally-unique _uuid) is a separate, deeper identity-normalization question this file's original
