@@ -1,22 +1,26 @@
 /**
- * Tests for PATCH privilege escalation via meta.security modification.
+ * Tests for PATCH privilege escalation via meta modification (DCON-4841).
  *
- * VULNERABILITY: The patchInternalFieldsValidator only blocks paths with segments
- * starting with '_' (underscore). However, meta.security tags control tenant isolation
- * and access control, and they do NOT start with '_'. Therefore, a user can use PATCH
- * to modify owner/access security tags and escalate privileges or hijack resources.
+ * ORIGINAL REPORT: patchInternalFieldsValidator only blocks paths with segments starting with '_'
+ * (underscore). meta.security, meta.source, meta.versionId, and meta.lastUpdated do NOT start with
+ * '_', so this naming-convention-only check doesn't cover them.
+ *
+ * WHY THAT'S NOT ENOUGH TO CALL IT EXPLOITABLE ON ITS OWN: patch.js separately calls
+ * resourceMerger.overWriteNonWritableFields, which reverts any attempted change to the owner/
+ * sourceAssigningAuthority security tags and to meta.source/versionId/lastUpdated, for every
+ * caller (see src/tests/patch/patch_meta/patch_meta.test.js's "doesn't work" tests, which already
+ * covered this). The actual, narrower gap (fixed here) was that this revert call was only made
+ * when meta.source was present on the stored or incoming resource -- a deployment with
+ * REQUIRE_META_SOURCE_TAGS=false could have (or create) a resource with no meta.source at all,
+ * and PATCHing that resource skipped the revert entirely, leaving those fields genuinely
+ * reachable. See src/tests/patch/patch_owner_tag_change/patch_owner_tag_change.test.js for the
+ * end-to-end regression test of that fix (in src/operations/patch/patch.js).
+ *
+ * meta.security's ACCESS tags are a separate mechanism entirely (not reverted by
+ * overWriteNonWritableFields) and are validated by scopesValidator.isAccessTagChangeAllowedByAccessScopes
+ * (SEC-1580 F2/F3), unaffected by any of this.
  *
  * File: src/operations/patch/validators/patchInternalFieldsValidator.js
- * Lines: 17-25 (findInternalFieldInPath only checks for '_' prefix)
- *
- * Exploitation scenario:
- * 1. User has patient/Observation.write scope for tenant_a
- * 2. User finds an Observation they can access (owned by tenant_a)
- * 3. User PATCHes meta.security to change owner to 'attacker_tenant'
- * 4. The resource is now invisible to tenant_a and visible only to attacker_tenant
- * 5. Alternatively, user adds access tags to make the resource visible to other tenants
- *
- * Severity: CRITICAL — allows tenant data exfiltration and access control takeover
  */
 const { describe, test, expect } = require('@jest/globals');
 
@@ -25,129 +29,31 @@ const {
     findInternalFieldInPath
 } = require('../../../../operations/patch/validators/patchInternalFieldsValidator');
 
-describe('patchInternalFieldsValidator — meta.security escalation', () => {
-    describe('findInternalFieldInPath gap analysis', () => {
-        test('correctly blocks paths starting with _', () => {
-            // These work correctly (confirmed behavior)
+describe('patchInternalFieldsValidator', () => {
+    describe('findInternalFieldInPath', () => {
+        test('blocks paths starting with _', () => {
             expect(findInternalFieldInPath('/_uuid')).toBe('_uuid');
             expect(findInternalFieldInPath('/_sourceAssigningAuthority')).toBe('_sourceAssigningAuthority');
             expect(findInternalFieldInPath('/link/0/_uuid')).toBe('_uuid');
         });
 
-        test('MUST block /meta/security path (currently does NOT)', () => {
-            // BUG: This returns null because 'meta' and 'security' don't start with '_'
-            // CORRECT: Should return a truthy value indicating this path is protected
-            const result = findInternalFieldInPath('/meta/security');
-            expect(result).toBeTruthy();
-        });
-
-        test('MUST block /meta/security/0/code path', () => {
-            const result = findInternalFieldInPath('/meta/security/0/code');
-            expect(result).toBeTruthy();
-        });
-
-        test('MUST block /meta/security/0/system path', () => {
-            const result = findInternalFieldInPath('/meta/security/0/system');
-            expect(result).toBeTruthy();
-        });
-
-        test('MUST block /meta/source path', () => {
-            // meta.source is used for data provenance and should be immutable via PATCH
-            const result = findInternalFieldInPath('/meta/source');
-            expect(result).toBeTruthy();
-        });
-
-        test('MUST block /meta/versionId path', () => {
-            const result = findInternalFieldInPath('/meta/versionId');
-            expect(result).toBeTruthy();
-        });
-
-        test('MUST block /meta/lastUpdated path', () => {
-            const result = findInternalFieldInPath('/meta/lastUpdated');
-            expect(result).toBeTruthy();
+        test('does not treat meta/security, meta/source, meta/versionId, meta/lastUpdated as internal -- ' +
+            'those are protected downstream by overWriteNonWritableFields (DCON-4841) instead', () => {
+            expect(findInternalFieldInPath('/meta/security')).toBeNull();
+            expect(findInternalFieldInPath('/meta/security/0/code')).toBeNull();
+            expect(findInternalFieldInPath('/meta/source')).toBeNull();
+            expect(findInternalFieldInPath('/meta/versionId')).toBeNull();
+            expect(findInternalFieldInPath('/meta/lastUpdated')).toBeNull();
         });
     });
 
-    describe('validatePatchDoesNotTargetInternalFields must reject security tag manipulation', () => {
-        test('reject PATCH that replaces owner security tag code', () => {
-            const patchContent = [
-                { op: 'replace', path: '/meta/security/0/code', value: 'attacker_tenant' }
-            ];
-
-            expect(() => {
-                validatePatchDoesNotTargetInternalFields(patchContent);
-            }).toThrow();
-        });
-
-        test('reject PATCH that adds a new access security tag', () => {
-            const patchContent = [
-                {
-                    op: 'add',
-                    path: '/meta/security/-',
-                    value: {
-                        system: 'https://www.icanbwell.com/access',
-                        code: 'new_attacker_access'
-                    }
-                }
-            ];
-
-            expect(() => {
-                validatePatchDoesNotTargetInternalFields(patchContent);
-            }).toThrow();
-        });
-
-        test('reject PATCH that removes a security tag entry', () => {
-            const patchContent = [
-                { op: 'remove', path: '/meta/security/0' }
-            ];
-
-            expect(() => {
-                validatePatchDoesNotTargetInternalFields(patchContent);
-            }).toThrow();
-        });
-
-        test('reject PATCH that replaces entire meta.security array', () => {
-            const patchContent = [
-                {
-                    op: 'replace',
-                    path: '/meta/security',
-                    value: [
-                        { system: 'https://www.icanbwell.com/owner', code: 'hijacked' },
-                        { system: 'https://www.icanbwell.com/access', code: 'hijacked' }
-                    ]
-                }
-            ];
-
-            expect(() => {
-                validatePatchDoesNotTargetInternalFields(patchContent);
-            }).toThrow();
-        });
-
-        test('reject PATCH that replaces meta.source', () => {
-            const patchContent = [
-                { op: 'replace', path: '/meta/source', value: 'https://evil.com' }
-            ];
-
-            expect(() => {
-                validatePatchDoesNotTargetInternalFields(patchContent);
-            }).toThrow();
-        });
-
-        test('reject PATCH that replaces meta.versionId (version manipulation)', () => {
-            const patchContent = [
-                { op: 'replace', path: '/meta/versionId', value: '999' }
-            ];
-
-            expect(() => {
-                validatePatchDoesNotTargetInternalFields(patchContent);
-            }).toThrow();
-        });
-
-        test('allow PATCH that modifies non-security fields', () => {
-            // Sanity check: legitimate patches should still work
+    describe('validatePatchDoesNotTargetInternalFields', () => {
+        test('allow PATCH that modifies non-internal fields', () => {
             const patchContent = [
                 { op: 'replace', path: '/status', value: 'active' },
-                { op: 'add', path: '/note/-', value: { text: 'updated' } }
+                { op: 'add', path: '/note/-', value: { text: 'updated' } },
+                { op: 'replace', path: '/meta/security/0/code', value: 'attacker_tenant' },
+                { op: 'replace', path: '/meta/source', value: 'https://evil.com' }
             ];
 
             expect(() => {
@@ -155,8 +61,31 @@ describe('patchInternalFieldsValidator — meta.security escalation', () => {
             }).not.toThrow();
         });
 
+        test('reject PATCH that targets a top-level internal field', () => {
+            const patchContent = [
+                { op: 'replace', path: '/_uuid', value: 'attacker-uuid' }
+            ];
+
+            expect(() => {
+                validatePatchDoesNotTargetInternalFields(patchContent);
+            }).toThrow();
+        });
+
+        test('reject PATCH whose value contains an internal field key', () => {
+            const patchContent = [
+                {
+                    op: 'replace',
+                    path: '/link/0/target',
+                    value: { reference: 'Patient/1', _uuid: 'attacker-uuid' }
+                }
+            ];
+
+            expect(() => {
+                validatePatchDoesNotTargetInternalFields(patchContent);
+            }).toThrow();
+        });
+
         test('allow PATCH that modifies meta.tag (non-security tag)', () => {
-            // meta.tag is user-controlled and should be patchable
             const patchContent = [
                 {
                     op: 'add',
