@@ -58,7 +58,7 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
 const headers = getHeaders('user/*.read access/client.*');
-const client1Headers = getHeaders('user/*.read access/client-1.*');
+const client1Headers = getHeaders('user/*.read access/client-1.* admin/*.read');
 const { jest } = require('@jest/globals');
 
 describe.skip('Consent Based Data Access Test', () => {

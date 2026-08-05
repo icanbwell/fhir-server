@@ -53,7 +53,7 @@ class MockConfigManager extends ConfigManager {
 }
 
 const delegatedPayload = {
-    scope: 'patient/Patient.read patient/Observation.read access/*.read',
+    scope: 'patient/Patient.read patient/Observation.read access/*.read admin/*.read',
     username: 'test',
     client_id: 'client',
     clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',
@@ -387,7 +387,7 @@ describe('Delegated Access Operations Tests', () => {
         // Use a payload that includes Practitioner scope
         const delegatedWithPractitionerPayload = {
             ...delegatedPayload,
-            scope: 'patient/Patient.read patient/Observation.read user/Practitioner.read access/*.read'
+            scope: 'patient/Patient.read patient/Observation.read user/Practitioner.read access/*.read admin/*.read'
         };
         const practHeaders = getHeadersWithCustomPayload(delegatedWithPractitionerPayload);
 

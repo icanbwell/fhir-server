@@ -57,6 +57,7 @@ describe('SearchBundleOperation', () => {
 
         mockScopesValidator = Object.create(ScopesValidator.prototype);
         mockScopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
+        mockScopesValidator.isAdminScope = jest.fn().mockReturnValue(true);
 
         mockBundleManager = Object.create(BundleManager.prototype);
         mockBundleManager.createRawBundle = jest.fn();
@@ -108,6 +109,67 @@ describe('SearchBundleOperation', () => {
                 externalReqUrlPrefix: undefined,
                 headers: {}
             };
+        });
+
+        // DCON-4808: _explain/_debug/_setIndexHint expose Mongo query plans, collection
+        // internals, and let the caller pick the query's index. Only an admin-scoped
+        // caller may use them; everyone else has these cleared before the search runs.
+        describe('admin-scope gating of _explain/_debug/_setIndexHint', () => {
+            beforeEach(() => {
+                mockSearchManager.constructQueryAsync.mockResolvedValue({ query: {}, columns: new Set() });
+                mockResourceLocatorFactory.createResourceLocator.mockReturnValue({
+                    getCollectionName: () => 'Patient_4_0_0'
+                });
+                mockSearchManager.getCursorForQueryAsync.mockResolvedValue({
+                    columns: new Set(),
+                    originalQuery: {},
+                    originalOptions: [{}],
+                    resources: [],
+                    total_count: 0,
+                    indexHint: null,
+                    cursorBatchSize: 100,
+                    cursor: null
+                });
+                mockBundleManager.createRawBundle.mockReturnValue({ resourceType: 'Bundle', entry: [] });
+            });
+
+            it('clears _explain/_debug/_setIndexHint for a non-admin caller', async () => {
+                mockScopesValidator.isAdminScope.mockReturnValue(false);
+                mockParsedArgs._explain = true;
+                mockParsedArgs._debug = true;
+                mockParsedArgs._setIndexHint = 'someIndex';
+
+                await searchBundleOp.searchBundleAsync({
+                    requestInfo: mockRequestInfo,
+                    parsedArgs: mockParsedArgs,
+                    resourceType: 'Patient',
+                    useAggregationPipeline: false
+                });
+
+                const cursorCallArgs = mockSearchManager.getCursorForQueryAsync.mock.calls[0][0];
+                expect(cursorCallArgs.parsedArgs._explain).toBeUndefined();
+                expect(cursorCallArgs.parsedArgs._debug).toBeUndefined();
+                expect(cursorCallArgs.parsedArgs._setIndexHint).toBeUndefined();
+            });
+
+            it('preserves _explain/_debug/_setIndexHint for an admin caller', async () => {
+                mockScopesValidator.isAdminScope.mockReturnValue(true);
+                mockParsedArgs._explain = true;
+                mockParsedArgs._debug = true;
+                mockParsedArgs._setIndexHint = 'someIndex';
+
+                await searchBundleOp.searchBundleAsync({
+                    requestInfo: mockRequestInfo,
+                    parsedArgs: mockParsedArgs,
+                    resourceType: 'Patient',
+                    useAggregationPipeline: false
+                });
+
+                const cursorCallArgs = mockSearchManager.getCursorForQueryAsync.mock.calls[0][0];
+                expect(cursorCallArgs.parsedArgs._explain).toBe(true);
+                expect(cursorCallArgs.parsedArgs._debug).toBe(true);
+                expect(cursorCallArgs.parsedArgs._setIndexHint).toBe('someIndex');
+            });
         });
 
         it('should handle cursor returning null from getCursorForQueryAsync', async () => {

@@ -8,7 +8,7 @@ const expectedObservationResources = require('./fixtures/expected/expected_obser
 const expectedObservationByReferenceResources = require('./fixtures/expected/expected_observation_by_reference.json');
 const expectedObservationBothResources = require('./fixtures/expected/expected_observation_both.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { IdentifierSystem } = require('../../../utils/identifierSystem');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
@@ -37,7 +37,7 @@ describe('Observation Tests', () => {
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back
-            const headers = getHeaders();
+            const headers = getHeadersWithAdmin();
             headers.Prefer = 'global_id=true';
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_debug=1')
@@ -71,7 +71,7 @@ describe('Observation Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
-            const headers = getHeaders();
+            const headers = getHeadersWithAdmin();
             headers.Prefer = 'global_id=true';
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_debug=1')
@@ -113,7 +113,7 @@ describe('Observation Tests', () => {
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back
-            const headers = getHeaders();
+            const headers = getHeadersWithAdmin();
             headers.Prefer = 'global_id=true';
 
             const patientId = generateUUIDv5('2354|A');

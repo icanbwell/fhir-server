@@ -29,7 +29,8 @@ class MockConfigManager extends ConfigManager {
 }
 
 const person_payload = {
-    scope: 'patient/Observation.read user/*.* access/*.*',
+    // DCON-4808 gates _debug behind admin scope; these assertions rely on the debug meta tags.
+    scope: 'patient/Observation.read user/*.* access/*.* admin/*.read',
     username: 'patient-123@example.com',
     clientFhirPersonId: 'person1',
     clientFhirPatientId: 'clientFhirPatient',
