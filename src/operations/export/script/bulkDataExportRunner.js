@@ -581,6 +581,11 @@ class BulkDataExportRunner {
      * @param {HandlePatientExportAsyncParams}
      */
     async handlePatientExportAsync({ searchParams, query, resourceType }) {
+        /**
+         * @type {S3MultiPartContext|undefined}
+         */
+        let multipartContext;
+        try {
             logInfo(`Starting export for resource: ${resourceType}`);
             // Create patient query and get cursor to process patients batchwise
             const patientQuery = this.addPatientFiltersToQuery({
