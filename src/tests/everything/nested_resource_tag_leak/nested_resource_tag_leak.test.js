@@ -1,0 +1,173 @@
+/**
+ * D-IDG5: the security review doc's "single most important review action" -- verify that every
+ * resource surfaced through $everything/$graph reference expansion gets the same access-tag check
+ * it would get if fetched directly, not just the resources reached via the direct patient graph.
+ *
+ * Scenario (E.3): Patient/Observation are owned by tenantA. The Observation's `performer`
+ * references a Practitioner owned (and access-tagged) ONLY by tenantB -- no relationship to
+ * tenantA at all. A tenantA-only caller's $everything/$graph on the Patient walks the Observation
+ * (fine, same tenant) and then follows `performer` to fetch the Practitioner (a forward-reference
+ * expansion, not the direct patient graph) -- does that fetch get its own access-tag check, or
+ * does reachability via the Observation's reference substitute for authorization?
+ *
+ * Contrast with src/tests/everything/delete_person_or_patient/delete_everything_cross_tag.test.js:
+ * that file proves a foreign-tagged resource on the DIRECT patient graph can't be deleted via
+ * $everything. This file is about (a) a resource reached via forward-reference expansion, not the
+ * direct graph, and (b) a GET, not a DELETE.
+ */
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest
+} = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+
+const OWNER = 'https://www.icanbwell.com/owner';
+const ACCESS = 'https://www.icanbwell.com/access';
+
+function taggedResource (base, ownerCode, accessCodes = [ownerCode]) {
+    return {
+        ...base,
+        meta: {
+            ...(base.meta || {}),
+            source: ownerCode,
+            security: [
+                { system: OWNER, code: ownerCode },
+                ...accessCodes.map(code => ({ system: ACCESS, code }))
+            ]
+        }
+    };
+}
+
+function patient (id, ownerCode) {
+    return taggedResource({
+        resourceType: 'Patient',
+        id,
+        birthDate: '2017-01-01',
+        gender: 'female',
+        name: [{ use: 'usual', family: 'TEST', given: ['TEST'] }]
+    }, ownerCode);
+}
+
+function practitioner (id, ownerCode, accessCodes) {
+    return taggedResource({
+        resourceType: 'Practitioner',
+        id,
+        name: [{ use: 'usual', family: 'DOC', given: ['DOC'] }]
+    }, ownerCode, accessCodes);
+}
+
+function observationWithPerformer (id, ownerCode, patientId, practitionerId) {
+    return taggedResource({
+        resourceType: 'Observation',
+        id,
+        status: 'final',
+        code: { coding: [{ system: 'http://loinc.org', code: '1234-5' }] },
+        subject: { reference: `Patient/${patientId}` },
+        performer: [{ reference: `Practitioner/${practitionerId}` }]
+    }, ownerCode);
+}
+
+describe('D-IDG5: nested cross-tenant resource must not leak via reference expansion', () => {
+    beforeEach(async () => {
+        await commonBeforeEach();
+    });
+
+    afterEach(async () => {
+        await commonAfterEach();
+    });
+
+    test('$everything on a tenantA patient must not include a tenantB-only Practitioner reached via Observation.performer', async () => {
+        const request = await createTestRequest();
+
+        const patA = patient('patA', 'tenant_a');
+        const obsA = observationWithPerformer('obsA', 'tenant_a', 'patA', 'practB');
+        // owned AND access-tagged only by tenant_b -- no relationship to tenant_a at all
+        const practB = practitioner('practB', 'tenant_b', ['tenant_b']);
+
+        const mergeResp = await request
+            .post('/4_0_0/Patient/1/$merge')
+            .send([patA, obsA, practB])
+            .set(getHeaders());
+        expect(mergeResp).toHaveMergeResponse({ created: true });
+
+        const tenantAHeaders = getHeaders('user/*.read access/tenant_a.*');
+
+        const everythingResp = await request
+            .get('/4_0_0/Patient/patA/$everything')
+            .set(tenantAHeaders);
+
+        const returnedSourceIds = (everythingResp.body.entry || [])
+            .map(e => e.resource?.identifier?.find(i => i.system === 'https://www.icanbwell.com/sourceId')?.value);
+
+        expect(returnedSourceIds).not.toContain('practB');
+    });
+
+    test('control: $everything on a tenantA patient DOES include a Practitioner the caller has access to', async () => {
+        const request = await createTestRequest();
+
+        const patA = patient('patA', 'tenant_a');
+        const obsA = observationWithPerformer('obsA', 'tenant_a', 'patA', 'practA');
+        const practA = practitioner('practA', 'tenant_a', ['tenant_a']);
+
+        const mergeResp = await request
+            .post('/4_0_0/Patient/1/$merge')
+            .send([patA, obsA, practA])
+            .set(getHeaders());
+        expect(mergeResp).toHaveMergeResponse({ created: true });
+
+        const tenantAHeaders = getHeaders('user/*.read access/tenant_a.*');
+
+        const everythingResp = await request
+            .get('/4_0_0/Patient/patA/$everything')
+            .set(tenantAHeaders);
+
+        const returnedSourceIds = (everythingResp.body.entry || [])
+            .map(e => e.resource?.identifier?.find(i => i.system === 'https://www.icanbwell.com/sourceId')?.value);
+
+        expect(returnedSourceIds).toContain('practA');
+    });
+
+    test('$graph on a tenantA patient must not include a tenantB-only Practitioner reached via Observation.performer', async () => {
+        const request = await createTestRequest();
+
+        const patA = patient('patA2', 'tenant_a');
+        const obsA = observationWithPerformer('obsA2', 'tenant_a', 'patA2', 'practB2');
+        const practB = practitioner('practB2', 'tenant_b', ['tenant_b']);
+
+        const mergeResp = await request
+            .post('/4_0_0/Patient/1/$merge')
+            .send([patA, obsA, practB])
+            .set(getHeaders());
+        expect(mergeResp).toHaveMergeResponse({ created: true });
+
+        const tenantAHeaders = getHeaders('user/*.read access/tenant_a.*');
+
+        const graphDefinition = {
+            resourceType: 'GraphDefinition',
+            id: 'test-graph',
+            status: 'active',
+            start: 'Patient',
+            link: [{
+                path: 'Observation',
+                target: [{
+                    type: 'Observation',
+                    params: 'patient={ref}',
+                    link: [{
+                        path: 'performer',
+                        target: [{ type: 'Practitioner' }]
+                    }]
+                }]
+            }]
+        };
+
+        const graphResp = await request
+            .post('/4_0_0/Patient/patA2/$graph')
+            .send(graphDefinition)
+            .set(tenantAHeaders);
+
+        const bodyText = JSON.stringify(graphResp.body);
+        expect(bodyText).not.toContain('practB2');
+    });
+});
