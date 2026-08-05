@@ -42,7 +42,7 @@ drawn out as a decision path rather than a checklist.
 flowchart TD
     Start(["Operation calls constructQueryAsync"]) --> Scope{"§3: scope valid for resourceType + operation?"}
     Scope -- no --> Deny403["403 Forbidden — query never built"]
-    Scope -- yes --> Branch{"§5: caller holds patient/ scope?"}
+    Scope -- yes --> Branch{"§5: patient/ scope AND resourceType is patient-filterable?"}
 
     Branch -- yes --> PatientFilter["§5: filter by Person/Patient identity-graph reachability"]
     PatientFilter --> ConfR["§9: AND exclude confidentiality-R tag (always, for every patient-scoped caller)"]
@@ -55,12 +55,12 @@ flowchart TD
     Wildcard -- yes --> NoTagFilter["No meta.security filter — every tenant's resources visible"]
     Wildcard -- no --> AccessTag["§1: AND filter by caller's authorized access tag(s)"]
     NoTagFilter --> Proa
-    AccessTag --> Proa{"§6a: PROA/HIE data-sharing consent enabled?"}
+    AccessTag --> Proa{"§6a: PROA/IAS data-sharing consent enabled?"}
     Proa -- yes --> ProaOr["OR a consent-driven branch (active, permit-type Consent)"]
     Proa -- no --> Merge
     ProaOr --> Merge
 
-    Merge["§8: AND exclude hidden tag, unless _includeHidden=true"] --> CmsCheck{"§4/§6b: userType == cms-partner?"}
+    Merge["§8: AND exclude hidden tag, unless _includeHidden=true"] --> CmsCheck{"§4/§6b: resourceType == Patient AND userType == cms-partner?"}
     CmsCheck -- yes --> CmsFilter["Restrict to consented patient uuids — fails closed if none"]
     CmsCheck -- no --> RunQuery
     CmsFilter --> RunQuery[("Run MongoDB query")]
@@ -72,7 +72,7 @@ flowchart TD
     PersonCheck -- yes --> PersonNarrow["Narrow result set to only the requested Person id(s)"]
     PersonCheck -- no --> CompCheck
     PersonNarrow --> CompCheck{"§10: delegated actor and resource is a Composition?"}
-    CompCheck -- yes --> SectionStrip["Strip denied-category sections (enrichment-time, not exclusion)"]
+    CompCheck -- yes --> SectionStrip["Strip Consent-denied-category sections, not the hardcoded unclassified code (enrichment-time, not exclusion)"]
     CompCheck -- no --> Returned(["Resource returned"])
     SectionStrip --> Returned
 ```
@@ -212,8 +212,7 @@ There is no single "consent system" — four independent mechanisms use `Consent
 or expand what's returned, each with its own category code and its own code path:
 
 **a. PROA/IAS data-sharing consent** — gated by `ConfigManager.enableConsentedProaDataAccess`
-(env `ENABLE_CONSENTED_PROA_DATA_ACCESS`) and a parallel `enableHIETreatmentRelatedDataAccess`
-flag. `DataSharingManager.updateQueryConsideringDataSharing`
+(env `ENABLE_CONSENTED_PROA_DATA_ACCESS`). `DataSharingManager.updateQueryConsideringDataSharing`
 (`src/operations/search/dataSharingManager.js`) uses `ProaConsentManager.getConsentResources`
 (`src/operations/search/proaConsentManager.js`) to find active, `permit`-type Consents and OR's a
 connection-type-filtered query branch onto the search.
@@ -257,8 +256,8 @@ These apply regardless of scope type, on top of everything above:
   from every search by default (`src/operations/query/r4.js`), unless the caller passes
   `_includeHidden=true`. Does not apply to by-id lookups, history, `DELETE`, or `AuditEvent`.
 - **Connection-type tag** (`.../connectionType`) — used by
-  `DataSharingManager.getConnectionTypeFilteredQuery` to restrict consent/HIE-driven query
-  branches (§6a) to an allow-listed set of connection types.
+  `DataSharingManager.getConnectionTypeFilteredQuery` to restrict the PROA/IAS consent-driven query
+  branch (§6a) to an allow-listed set of connection types.
 
 The other two `meta.security` tags that gate access independent of tenant/consent — the
 confidentiality restriction tag and the `unclassified` sensitivity tag — classify a resource by
@@ -400,6 +399,63 @@ Any code path that reaches the database without going through `SearchManager.con
 — or that fetches by raw id/uuid and defers the access check to after the fetch — is a
 red flag under `review.md`'s checklist, since `_uuid`/`id` are deterministic and not secret
 (`src/utils/uid.util.js`, see `readme/security.md` §5.3.1).
+
+## 12. Known gaps in the current implementation
+
+Findings from an adversarial review of this surface against `review.md`'s checklist, verified
+directly against source (not assumed from the checklist, and not taken on faith from a single
+pass — the two most severe items below were independently re-derived by reading the cited code
+and, for the first, its git history). These are gaps between what the sections above document as
+the *intended* composition and what the code actually enforces today — confirmed defects, not
+speculative concerns.
+
+- **Critical — a patient-scoped write can set an arbitrary access tag (§1, §4).**
+  `ScopesManager.isAccessTagChangeAllowedByScopes` (`src/operations/security/scopesManager.js:166`)
+  and `isAccessToResourceAllowedBySecurityTags` (`scopesManager.js:240`) both return `true`
+  immediately once the caller holds a `patient/` scope for the resource type, without comparing
+  old vs. new `meta.security` access-code values at all. The only other write-path check,
+  `PatientScopeManager.canWriteResourceAsync` (`src/operations/security/patientScopeManager.js:277`),
+  validates that the resource's `patient`/`subject` reference belongs to the caller — it never
+  inspects `meta.security`. A patient-scoped caller can therefore create/update a resource that
+  legitimately belongs to their own patient while stamping it with an arbitrary tenant's access
+  tag, granting (or on update, revoking) that tenant's visibility with no authorization from the
+  tenant itself. This was reintroduced by commit `a5ded4a4a` ("DCON-4806 revert
+  isAccessToResourceAllowedBySecurityTags tag-match requirement"), which reverted an earlier fix
+  on the mistaken premise that `canWriteResourceAsync`'s clinical-ownership check already covers
+  tag-value legitimacy — it doesn't; the two checks validate different things. The reverted unit
+  tests (`scopesManager.crossTenant.test.js`, `scopesManager.writeBypass.test.js`) still encode
+  the correct expected behavior but are excluded from CI (see below).
+- **High — `$access-history` link traversal drops the access-tag check past the first hop (§5).**
+  `PersonToPatientIdsExpander.getPatientIdsFromPersonAsync`
+  (`src/utils/personToPatientIdsExpander.js:200`) applies the caller's access-tag filter only when
+  resolving the top-level Person id (the `addTopPersonAccessCheck` flag); its own recursive calls
+  (`:350`, `:372`) pass `requestInfo` through but omit `addTopPersonAccessCheck`, so it silently
+  defaults back to `false` at every deeper level. A tenant/service-account caller holding a valid
+  access tag on the top-level Person can reach a `Person.link`-connected Patient belonging to a
+  different tenant with no re-check, leaking access-history metadata cross-tenant via
+  `accessHistory.js`.
+- **Medium — link traversal never checks `assurance` (§5).** No code path in
+  `personToPatientIdsExpander.js` reads `Person.link.assurance` (FHIR's match-confidence field for
+  a link); every link is treated as fully authoritative regardless of confidence. Severity depends
+  on whether this system's identity-matching pipeline populates `assurance` meaningfully — not
+  verifiable from this codebase alone.
+- **Low — delegated-actor Composition section filter is narrower than the query-level filter (§9,
+  §10).** `CompositionSectionFilterEnrichmentProvider.getDeniedSensitiveCategorySet`
+  (`src/enrich/providers/compositionSectionFilterEnrichmentProvider.js:27`) strips only
+  Consent-derived denied-category sections; unlike the query-level exclusion in
+  `DataSharingManager.updateQueryForDelegatedAccessSensitiveData`, it does not also fold in the
+  hardcoded `unclassified` code, so an `unclassified`-tagged *section* inside an otherwise-visible
+  Composition is not stripped.
+
+None of this was caught by CI: regression tests that would catch the Critical finding above
+already exist (`src/tests/unit/operations/security/scopesManager.crossTenant.test.js`,
+`scopesManager.writeBypass.test.js`, `patientScopeWriteBypass.test.js`,
+`writeAuthorizationBypass.test.js`) but are excluded from the test run via `jest.config.js`'s
+`testPathIgnorePatterns`, which cites a `BUG_REPORT.md`/`fhir-server-security-bugs.csv` tracker
+that doesn't exist in this repo. That same exclusion list also contains at least one fabricated
+test (`delegatedAccessScopeManager.test.js` asserts against an inline stand-in class, not the real
+`DelegatedAccessScopeManager`) — treat the list as unverified per-entry, not as a trustworthy
+tracker of what's actually broken.
 
 ## Further reading
 
