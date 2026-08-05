@@ -381,4 +381,85 @@ describe('AccessHistoryOperation', () => {
             expect(result.part[1].valueInteger).toBe(90);
         });
     });
+
+    // DCON-4851 (D-IDG5 on $access-history, new finding not in the review doc's Part Z matrix):
+    // accessHistoryAsync resolves the requested Person's FULL linked-patient set via
+    // personToPatientIdsExpander.getPatientProxyIdsAsync -- which (per the separate D-IDG5
+    // investigation on $everything/$graph, DCON-4849) does not filter individual Person.link
+    // targets by owner/access tag, only the top-level Person query. Unlike $everything/$graph,
+    // nothing downstream in accessHistory.js re-applies an access-tag check either:
+    // _getEntityRefsForResourceType queries by a bare _uuid $in match with no security filter,
+    // and the ClickHouse rows are returned as-is with no owner/access check on entity_resource_type
+    // records. So if the resolved Person is (legitimately or not) linked to a foreign-tenant
+    // patient, $access-history discloses METADATA (who accessed that patient's records, how many
+    // times, for what purpose) that the caller has no access grant to see at all -- even though
+    // the caller could never read the underlying clinical resource itself via search/$everything.
+    describe('DCON-4851: cross-tenant metadata disclosure via a foreign-tenant linked patient', () => {
+        const baseParsedArgs = {
+            id: 'p1',
+            base_version: '4_0_0'
+        };
+
+        // Confirmed open on current main: this correctly asserts NO cross-tenant disclosure and
+        // currently fails, since accessHistory.js has no owner/access-tag filtering anywhere in
+        // its entity-collection or ClickHouse-row-processing path. See DCON-4851.
+        test.skip('must not disclose access-history metadata for a resource owned by a tenant the caller has no access to', async () => {
+            // The Person the caller is asking about (tenant_a's own) is linked to both its own
+            // patient AND a foreign patient owned by tenant_b -- exactly the unfiltered
+            // Person.link expansion already confirmed for $everything/$graph.
+            mockPersonToPatientIdsExpander.getPatientProxyIdsAsync.mockResolvedValue([
+                'person.uuid-person-tenant-a',
+                'uuid-patient-tenant-a',
+                'uuid-patient-tenant-b'
+            ]);
+
+            // _getEntityRefsForResourceType finds an Observation referencing the FOREIGN
+            // (tenant_b) patient -- the query itself has no owner/access-tag filter, just a bare
+            // _uuid $in match, so it finds this regardless of which tenant queried for it.
+            operation._getEntityRefsForResourceType = jest.fn().mockImplementation(({ rt, patientRefs }) => {
+                if (rt === 'Observation' && patientRefs.includes('Patient/uuid-patient-tenant-b')) {
+                    return Promise.resolve(['Observation/obs-owned-by-tenant-b']);
+                }
+                return Promise.resolve([]);
+            });
+
+            // ClickHouse has logged that a tenant_b practitioner accessed that tenant_b-owned
+            // Observation -- metadata the caller (tenant_a) has no access grant to see.
+            mockAccessHistoryClickHouseRepository.getAccessHistoryAsync.mockResolvedValue({
+                rows: [{
+                    accessor_uuid: 'Practitioner/tenant-b-practitioner',
+                    access_count: '3',
+                    last_accessed: '2024-06-01T00:00:00Z',
+                    purposes: ['http://example.com|TREAT'],
+                    entity_resource_type: 'Observation'
+                }]
+            });
+            operation._findResourcesByUuids = jest.fn().mockResolvedValue([
+                { _uuid: 'tenant-b-practitioner', name: [{ given: ['Foreign'], family: 'Practitioner' }] }
+            ]);
+
+            // Caller is access-scoped for tenant_a only, not user-scoped, so the isUser-gated
+            // "only your own Person" check (accessHistory.js line ~111) never runs either.
+            const tenantAScopedRequestInfo = {
+                isUser: false,
+                personIdFromJwtToken: null,
+                masterPersonIdFromJwtToken: null,
+                scope: 'access/tenant_a.*',
+                path: '/Patient/p1/$access-history'
+            };
+
+            const result = await operation.accessHistoryAsync({
+                requestInfo: tenantAScopedRequestInfo,
+                parsedArgs: baseParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            const accessorParam = result.parameter.find(
+                p => p.name === 'accessor' &&
+                    p.part.some(part => part.name === 'reference' && part.valueReference.reference === 'Practitioner/tenant-b-practitioner')
+            );
+
+            expect(accessorParam).toBeUndefined();
+        });
+    });
 });
