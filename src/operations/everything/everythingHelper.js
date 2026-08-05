@@ -1081,7 +1081,6 @@ class EverythingHelper {
             }
 
             if (responseStreamer) {
-            if (responseStreamer) {
                 entries = [];
             } else {
                 // Derive security context for enrichment providers that need tenant filtering
