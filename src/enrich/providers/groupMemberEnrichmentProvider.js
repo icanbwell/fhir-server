@@ -1,6 +1,6 @@
 const { EnrichmentProvider } = require('./enrichmentProvider');
 const { logDebug, logError } = require('../../operations/common/logging');
-const { TABLES } = require('../../constants/clickHouseConstants');
+const { TABLES, EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { isTrue } = require('../../utils/isTrue');
@@ -187,7 +187,7 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
             // Build HAVING clause with tenant filtering (defense in depth)
             // MongoDB already filtered unauthorized Groups, but ClickHouse enforces tenant scope too
             const havingClauses = [
-                `argMaxMerge(event_type) = 'MEMBER_ADDED'`,
+                `argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}'`,
                 `argMaxMerge(inactive) = 0`
             ];
 
