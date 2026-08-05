@@ -4,7 +4,7 @@ const personResource = require('./fixtures/person.json');
 // expected
 const expectedPersonResult = require('./fixtures/expectedPersonResult.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest, getTestContainer } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 const { ConfigManager } = require('../../utils/configManager');
@@ -61,7 +61,7 @@ describe('PersonWithIndexHint Test', () => {
                 .get(
                     '/4_0_0/Person?given=Daniel&_debug=true&_format=json&_setIndexHint=name.family_1'
                 )
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResult);

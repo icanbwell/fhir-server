@@ -79,7 +79,7 @@ describe('GraphQL Patient Tests', () => {
                     variables: {},
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeaders());
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
             logInfo('', { resp: resp.body });
 

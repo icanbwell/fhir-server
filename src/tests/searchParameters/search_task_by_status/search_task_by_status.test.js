@@ -47,7 +47,8 @@ describe('TaskReturnIdTests', () => {
                 .get(
                     '/4_0_0/Task/?status=completed&_bundle=1&_debug=1'
                 )
-                .set(getHeaders());
+                // DCON-4808 gates _debug behind admin scope
+                .set(getHeaders('user/*.read user/*.write access/*.* admin/*.read'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedTaskResource);
         });

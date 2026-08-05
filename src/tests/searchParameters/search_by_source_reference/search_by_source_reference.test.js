@@ -5,7 +5,7 @@ const consent2Resource = require('./fixtures/Consent/consent2.json');
 // expected
 const expectedConsentResources = require('./fixtures/expected/expected_Consent.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Consent Tests', () => {
@@ -46,7 +46,7 @@ describe('Consent Tests', () => {
             // search by token system and code and make sure we get the right Consent back
             resp = await request
                 .get('/4_0_0/Consent/?_bundle=1&source-reference=QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedConsentResources);
         });

@@ -87,6 +87,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest,
     getHeadersWithCustomPayload
 } = require('../../common');
@@ -338,7 +339,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
                 '/4_0_0/Patient/patient1/$everything?_debug=true'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
@@ -351,7 +352,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
             .get(
                 '/4_0_0/Patient/patient1/$everything?_debug=true'
             )
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedPatientResourcesWithNonClinicalDepth3GlobalId);
         expect(resp).toHaveResponse(expectedPatientResourcesWithNonClinicalDepth3GlobalId);
@@ -362,7 +363,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
                 '/4_0_0/Patient/patient1/$everything?_debug=true&_includeHidden=1'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
@@ -374,7 +375,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // patient everything ignores params _includeNonClinicalResources & _nonClinicalResourcesDepth
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeNonClinicalResources=false&_nonClinicalResourcesDepth=4')
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
@@ -396,7 +397,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
 
         // patient everything with patient scope
         let jwtPayload = {
-            scope: 'patient/*.* user/*.* access/*.*',
+            scope: 'patient/*.* user/*.* access/*.* admin/*.*',
             username: 'test',
             client_id: 'client',
             clientFhirPersonId: '5f3ca115-8630-5e55-a97d-4d6ee26c0adc',
@@ -423,7 +424,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeAndIncludeHidden);
 
         resp = await request.get('/4_0_0/Patient/$everything?_debug=true&id=patient1,patient2')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedPatientEverythingForTwoPatients);
         expect(resp).toHaveResponse(expectedPatientEverythingForTwoPatients);
@@ -511,7 +512,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
                 '/4_0_0/Patient/patient1/$everything?_debug=true&_since=lt2025-01-02T00:00:00.000Z'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
@@ -524,7 +525,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
                 '/4_0_0/Patient/patient1/$everything?_debug=true&_since=2025-201T00:00:00.000Z'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
@@ -537,7 +538,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
                 '/4_0_0/Patient/patient1/$everything?_debug=true&_since=2025-01-01W10:00.000Z'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
@@ -589,7 +590,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
 
         // patient everything with patient scope
         let jwtPayload = {
-            scope: 'patient/*.* user/*.* access/*.*',
+            scope: 'patient/*.* user/*.* access/*.* admin/*.*',
             username: 'test',
             client_id: 'client',
             clientFhirPersonId: '5f3ca115-8630-5e55-a97d-4d6ee26c0adc',
@@ -609,7 +610,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveResponse(expected);
 
         // exclude using consent works only for patient scope
-        resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true').set(getHeaders());
+        resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true').set(getHeadersWithAdmin());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedPatientResourcesWithNonClinicalDepth3GlobalIdAndExcludeRes);
         expect(resp).toHaveResponse(expectedPatientResourcesWithNonClinicalDepth3GlobalIdAndExcludeRes);
@@ -637,7 +638,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         let jwtPayload2 = {
-            scope: 'patient/*.* user/*.* access/*.*',
+            scope: 'patient/*.* user/*.* access/*.* admin/*.*',
             username: 'test',
             client_id: 'client',
             clientFhirPersonId: '65810a24-e90c-55b6-8b32-44bb9aa18c44',
@@ -718,14 +719,14 @@ describe('everything _includeNonClinicalResources Tests', () => {
         await createResources(request)
 
         let resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=PractitionerRole')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedPractitionerRoles);
         expect(resp).toHaveResponse(expectedPractitionerRoles);
 
         // with _includeUuidOnly only ids are returned
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=PractitionerRole&_includeUuidOnly=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedPractitionerRolesUuidOnly);
         expect(resp).toHaveResponse(expectedPractitionerRolesUuidOnly);
@@ -745,28 +746,28 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Practitioner')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedPractitioners);
         expect(resp).toHaveResponse(expectedPractitioners);
 
         // practitioner uuid only
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Practitioner&_includeUuidOnly=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedPractitionersUuidOnly);
         expect(resp).toHaveResponse(expectedPractitionersUuidOnly);
 
 
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Location')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedLocations);
         expect(resp).toHaveResponse(expectedLocations);
 
         // location uuid only
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Location&_includeUuidOnly=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedLocationsUuidOnly);
         expect(resp).toHaveResponse(expectedLocationsUuidOnly);
@@ -830,14 +831,14 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Practitioner,Specimen')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         // noinspection JSUnresolvedFunction
         // expect(resp).toHaveMongoQuery(expectedPractitionerRoles);
         expect(resp).toHaveResponse(specimenAndLinkedPractitioner);
 
         // should be able to get ids of practitioner and specimen when _includeUuidOnly is set
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Practitioner,Specimen&_includeUuidOnly=1')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(specimenAndLinkedPractitionerUuidOnly);
     })
