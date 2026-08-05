@@ -173,7 +173,9 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
     }
 
     /**
-    /**
+     * Get member count only (for metadata-only GET / Group.quantity)
+     * Uses argMaxMerge on pre-aggregated current state table
+     * Counts members where event_type=MEMBER_ADDED AND inactive=0
      *
      * @param {string} groupId - Group ID to query
      * @param {Object} securityContext - Caller tenant scope
