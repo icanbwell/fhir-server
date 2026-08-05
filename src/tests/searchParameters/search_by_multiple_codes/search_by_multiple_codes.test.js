@@ -54,7 +54,8 @@ describe('Multiple codes for task Ttests', () => {
             // search by token system and code and make sure we get the right task back
             resp = await request
                 .get('/4_0_0/Task/?code=health-activity,care-need&_bundle=1&_debug=1')
-                .set(getHeaders())
+                // DCON-4808 gates _debug behind admin scope
+                .set(getHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedTaskResourcesOr);
@@ -89,7 +90,8 @@ describe('Multiple codes for task Ttests', () => {
             // search by token system and code and make sure we get the right task back
             resp = await request
                 .get('/4_0_0/Task/?code=health-activity&code=education&_bundle=1&_debug=1')
-                .set(getHeaders())
+                // DCON-4808 gates _debug behind admin scope
+                .set(getHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedTaskResourcesAnd);

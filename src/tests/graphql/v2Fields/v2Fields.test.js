@@ -60,7 +60,7 @@ describe('GraphQL v2 field test', () => {
                 },
                 query: graphqlQueryText
             })
-            .set(getGraphQLHeaders());
+            .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedSubscriptionResources);
