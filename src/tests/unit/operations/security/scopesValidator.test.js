@@ -566,5 +566,17 @@ describe('ScopesValidator', () => {
             mockScopesManager.getAdminScopes = jest.fn().mockReturnValue([]);
             expect(scopesValidator.isAdminScope({ scope: 'user/Patient.read' })).toBe(false);
         });
+
+        // A narrow admin grant for one specific capability must not unlock a cross-cutting,
+        // not-resource-scoped one like _explain/_debug/_setIndexHint.
+        test('returns false when the admin scope is resource-specific, not a wildcard', () => {
+            mockScopesManager.getAdminScopes = jest.fn().mockReturnValue(['admin/AuditEvent.write']);
+            expect(scopesValidator.isAdminScope({ scope: 'admin/AuditEvent.write user/Patient.read' })).toBe(false);
+        });
+
+        test('returns true when at least one admin scope is a wildcard, even alongside a resource-specific one', () => {
+            mockScopesManager.getAdminScopes = jest.fn().mockReturnValue(['admin/AuditEvent.write', 'admin/*.read']);
+            expect(scopesValidator.isAdminScope({ scope: 'admin/AuditEvent.write admin/*.read' })).toBe(true);
+        });
     });
 });

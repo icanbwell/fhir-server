@@ -352,12 +352,22 @@ class ScopesValidator {
     }
 
     /**
-     * Returns whether the given scope string carries an admin/ scope.
+     * Returns whether the given scope string carries an admin scope broad enough to unlock
+     * _explain/_debug/_setIndexHint.
+     *
+     * Deliberately stricter than admin.js's own "any admin/ scope" check (a separate,
+     * pre-existing pattern this does not touch): _explain/_debug/_setIndexHint are a
+     * cross-cutting, not-resource-scoped capability (query-plan disclosure and index
+     * selection apply to every resource type), so a caller holding a narrow admin grant for
+     * one specific capability (e.g. admin/AuditEvent.write) should not thereby unlock it. The
+     * scope's resource segment must be a wildcard, e.g. admin/*.read or admin/*.*.
      * @param {string|null} scope
      * @return {boolean}
      */
     isAdminScope({scope}) {
-        return this.scopesManager.getAdminScopes({scope}).length > 0;
+        return this.scopesManager.getAdminScopes({scope}).some(
+            (adminScope) => adminScope.split('/')[1]?.split('.')[0] === '*'
+        );
     }
 }
 
