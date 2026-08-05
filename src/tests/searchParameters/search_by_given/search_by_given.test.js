@@ -13,6 +13,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -82,12 +83,12 @@ describe('Person Tests', () => {
             expect(resp).toHaveResponse(emptyPersonResponse);
 
             // search by given name with exact modifier is case sensitive
-            resp = await request.get('/4_0_0/Person?given:exact=Test&_debug=1&_bundle=1').set(getHeaders());
+            resp = await request.get('/4_0_0/Person?given:exact=Test&_debug=1&_bundle=1').set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonCaseSensitive1);
 
             // search by given name with exact modifier is case sensitive
-            resp = await request.get('/4_0_0/Person?given:exact=test&_debug=1&_bundle=1').set(getHeaders());
+            resp = await request.get('/4_0_0/Person?given:exact=test&_debug=1&_bundle=1').set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonCaseSensitive2);
         });
@@ -113,17 +114,17 @@ describe('Person Tests', () => {
             // search by given name follows normal string search
 
             // Test starting initial charactors
-            resp = await request.get('/4_0_0/Person?given=jo&_debug=1&_bundle=1').set(getHeaders());
+            resp = await request.get('/4_0_0/Person?given=jo&_debug=1&_bundle=1').set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPerson1);
 
             // Test case insensitivity
-            resp = await request.get('/4_0_0/Person?given=TEST&_debug=1&_bundle=1').set(getHeaders());
+            resp = await request.get('/4_0_0/Person?given=TEST&_debug=1&_bundle=1').set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPerson2);
 
             // Test starting charactor doesn't match required string
-            resp = await request.get('/4_0_0/Person?given=ABC&_debug=1&_bundle=1').set(getHeaders());
+            resp = await request.get('/4_0_0/Person?given=ABC&_debug=1&_bundle=1').set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPerson3);

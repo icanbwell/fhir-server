@@ -13,6 +13,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -42,7 +43,7 @@ describe('Practitioner Tests', () => {
             // search by token system and code and make sure we get the right Practitioner back
             resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1&identifier=http://clienthealth.org|4657&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResources);
         });
@@ -61,7 +62,7 @@ describe('Practitioner Tests', () => {
             // search by token system and code and make sure we get the right Practitioner back
             resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1&gender:contains=nk&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerByGenderResources);
         });
@@ -80,7 +81,7 @@ describe('Practitioner Tests', () => {
             // search by token system and code and make sure we get the right Practitioner back
             resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1&identifier:contains=465&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerContainsResources);
         });
@@ -99,7 +100,7 @@ describe('Practitioner Tests', () => {
             // now search by both value and system
             resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1&identifier:contains=clienthealth|465&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerBySystemResources);
         });
@@ -121,7 +122,7 @@ describe('Practitioner Tests', () => {
                 .get(
                     '/4_0_0/Practitioner?_bundle=1&identifier:of-type=http://terminology.hl7.org/CodeSystem/v2-0203|PRN|4657&_debug=1'
                 )
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerByOfTypeResources);
 
@@ -130,7 +131,7 @@ describe('Practitioner Tests', () => {
                 .get(
                     '/4_0_0/Practitioner?_bundle=1&identifier:of-type=http://terminology.hl7.org/CodeSystem/v2-0203||4657&_debug=1'
                 )
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerByOfTypeIncorrectValue);
         });

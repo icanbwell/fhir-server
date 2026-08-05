@@ -8,6 +8,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -43,7 +44,7 @@ describe('Search By Missing Fields', () => {
 
             resp = await request
                 .get('/4_0_0/Patient?birthdate:missing=true&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResponse1);
 
@@ -70,7 +71,7 @@ describe('Search By Missing Fields', () => {
 
             resp = await request
                 .get('/4_0_0/Patient?birthdate:missing=false&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResponse2);
 

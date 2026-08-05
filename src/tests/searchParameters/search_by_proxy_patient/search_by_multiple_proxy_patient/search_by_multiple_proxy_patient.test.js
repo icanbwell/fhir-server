@@ -30,6 +30,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -301,7 +302,7 @@ describe('Patient Tests', () => {
                 .get(
                     '/4_0_0/Observation/?patient=Patient/person.notexist,person.notexist2,person.notexist3&_debug=true'
                 )
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             expect(resp).toHaveResponse(expectedWithWrongProxyPatient);
         });
 
@@ -337,7 +338,7 @@ describe('Patient Tests', () => {
                 .get(
                     '/4_0_0/Observation/?patient=Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2,Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8,Patient/person.notExist3&_debug=true'
                 )
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             expect(resp).toHaveResponse(expectedObservationWithProxyPatientAndSomeWrongProxyPatient);
         });
 
