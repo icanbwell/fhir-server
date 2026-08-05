@@ -23,6 +23,7 @@ const { validateResource } = require('../../utils/validator.util');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
+const { ReferenceParser } = require('../../utils/referenceParser');
 
 class ResourceValidator {
     /**
@@ -82,16 +83,71 @@ class ResourceValidator {
     }
 
     /**
+     * DCON-4844: for a non-user (access-scoped) caller adding to Person.link, verifies every newly
+     * added link target resolves to a resource the caller has access to. Existing link targets and
+     * removals are left alone -- only additions can expand the identity graph into another tenant.
+     * A target that can't be found is left to other validation (e.g. reference existence checks)
+     * rather than blocked here.
+     * @typedef {Object} ValidateNewPersonLinkTargetsParams
+     * @property {string[]|undefined} currentValue
+     * @property {string[]|undefined} newValue
+     * @property {string} user
+     * @property {string} scope
+     * @property {string} base_version
+     *
+     * @param {ValidateNewPersonLinkTargetsParams}
+     * @returns {Promise<OperationOutcome|null>}
+     */
+    async validateNewPersonLinkTargetsBelongToCallersTenant ({ currentValue, newValue, user, scope, base_version }) {
+        const addedReferences = (newValue || []).filter(ref => !(currentValue || []).includes(ref));
+        if (addedReferences.length === 0) {
+            return null;
+        }
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes('write', user, scope);
+        if (accessCodes.includes('*')) {
+            return null;
+        }
+        for (const reference of addedReferences) {
+            const { resourceType, id } = ReferenceParser.parseReference(reference);
+            if (!resourceType || !id) {
+                continue;
+            }
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
+            const targetResource = ReferenceParser.isUuidReference(reference)
+                ? await databaseQueryManager.findOneAsync({ query: { _uuid: id } })
+                : await databaseQueryManager.findOneAsync({ query: { id } });
+            if (!targetResource) {
+                continue;
+            }
+            if (!this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, targetResource)) {
+                return new OperationOutcome({
+                    issue: new OperationOutcomeIssue({
+                        code: 'invalid',
+                        severity: 'error',
+                        details: new CodeableConcept({
+                            text: `Person.link target ${reference} belongs to a tenant the caller does not have access to.`
+                        })
+                    })
+                });
+            }
+        }
+        return null;
+    }
+
+    /**
      * Patient reference should be same in current and new resource
      * @typedef {Object} ValidatePatientReferenceParams
      * @property {Resource} currentResource
      * @property {Object} resourceToValidateJson
      * @property {Boolean} isUser
+     * @property {string} user
+     * @property {string} scope
+     * @property {string} base_version
      *
      * @param {ValidatePatientReferenceParams}
-     * @returns {OperationOutcome | null}
+     * @returns {Promise<OperationOutcome | null>}
      */
-    validatePatientReference ({ currentResource, resourceToValidateJson, isUser }) {
+    async validatePatientReference ({ currentResource, resourceToValidateJson, isUser, user, scope, base_version }) {
         // For Patient resource, check for id field is ignored as id field cannot be updated and is ignored later
         if (currentResource.resourceType === "Patient"){
             return null;
@@ -121,6 +177,16 @@ class ResourceValidator {
             if (Array.isArray(currentValue) || Array.isArray(newValue)) {
                 // If this is an array field, then allow update for non patient scopes
                 if (!isUser) {
+                    // DCON-4844: that trust must not extend to linking a Person into another
+                    // tenant's Person/Patient -- see validateNewPersonLinkTargetsBelongToCallersTenant
+                    if (currentResource.resourceType === 'Person') {
+                        const crossTenantLinkOutcome = await this.validateNewPersonLinkTargetsBelongToCallersTenant({
+                            currentValue, newValue, user, scope, base_version
+                        });
+                        if (crossTenantLinkOutcome) {
+                            return crossTenantLinkOutcome;
+                        }
+                    }
                     return null;
                 }
                 if (Array.isArray(currentValue) && Array.isArray(newValue)) {
@@ -230,13 +296,16 @@ class ResourceValidator {
         // patient-reference outcomes get different validation_stage labels.
         let validationStage = validationOperationOutcome ? VALIDATION_STAGE.SCHEMA : null;
 
-        const { isUser } = requestInfo;
+        const { isUser, user, scope } = requestInfo;
 
         if (!validationOperationOutcome && currentResource) {
-            validationOperationOutcome = this.validatePatientReference({
+            validationOperationOutcome = await this.validatePatientReference({
                 currentResource,
                 resourceToValidateJson,
-                isUser
+                isUser,
+                user,
+                scope,
+                base_version
             });
             if (validationOperationOutcome) {
                 validationStage = VALIDATION_STAGE.REFERENCE;
