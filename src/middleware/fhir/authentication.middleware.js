@@ -18,6 +18,36 @@ const sendUnauthorizedJson = (res) => {
 };
 
 /**
+ * Sends a JSON OperationOutcome 503 body for transient infrastructure failures
+ * encountered while trying to authenticate (e.g. JWKS/userinfo endpoint unreachable).
+ * @param {import('express').Response} res
+ */
+const sendServiceUnavailableJson = (res) => {
+    res.status(503).json({
+        resourceType: 'OperationOutcome',
+        issue: [{
+            severity: 'error',
+            code: 'transient',
+            diagnostics: 'Authentication service temporarily unavailable'
+        }]
+    });
+};
+
+/**
+ * Determines whether a passport failure info/error represents a transient
+ * infrastructure problem (e.g. JWKS or userinfo endpoint unreachable) rather
+ * than a genuine, permanent auth failure (invalid/expired/malformed token).
+ *
+ * INC-322: transient infra failures must never be reported as a hard 401 --
+ * doing so signals downstream systems that the credential itself is bad,
+ * which can permanently revoke a grant for what was only a temporary outage.
+ * @param {*} candidate
+ * @returns {boolean}
+ */
+const isTransientAuthFailure = (candidate) =>
+    candidate instanceof Error && (candidate.isTransient === true || candidate.statusCode === 503);
+
+/**
  * Wraps passport.authenticate with a custom callback so that auth failures
  * return a JSON OperationOutcome instead of Passport's default plain-text body.
  * Also captures failure details on req for audit logging.
@@ -32,6 +62,19 @@ const authenticateWithJsonFailure = (strategy, options = {session: false}) => {
                 return next(err);
             }
             if (!user) {
+                // A transient infrastructure failure (e.g. JWKS/userinfo endpoint
+                // unreachable) is carried here as `info` rather than `err` because
+                // passport-jwt's secretOrKeyProvider errors go through self.fail(),
+                // not self.error(). Surface it as 503, not 401 (INC-322).
+                if (isTransientAuthFailure(info)) {
+                    if (!info.statusCode) {
+                        info.statusCode = 503;
+                    }
+                    if (req.isGraphQLRoute) {
+                        return next(info);
+                    }
+                    return sendServiceUnavailableJson(res);
+                }
                 // Classify the failure for audit logging
                 if (info && info.message === 'No auth token') {
                     req.authFailureDetail = 'No token available';
@@ -103,3 +146,4 @@ module.exports = function authenticationMiddleware (config) {
 
 module.exports.authenticateWithJsonFailure = authenticateWithJsonFailure;
 module.exports.sendUnauthorizedJson = sendUnauthorizedJson;
+module.exports.sendServiceUnavailableJson = sendServiceUnavailableJson;

@@ -54,8 +54,9 @@ describe('JWT Bearer Strategy', () => {
         // playback path for replyWithError leaks a stale "Network error" event
         // listener onto MockHttpSocket that recurses into the next test's
         // request, crashing it with a deep MockHttpSocket emit chain.
-        // .reply(500) exercises the same production catch branch (returns
-        // {keys: []}) without triggering that code path. .times(4) covers the
+        // .reply(500) exercises the same production catch branch (now throws a
+        // transient/503-marked error instead of returning {keys: []} -- see
+        // INC-322) without triggering that code path. .times(4) covers the
         // initial attempt + 3 superagent retries (EXTERNAL_REQUEST_RETRY_COUNT).
         nock('https://example.com')
             .get('/jwks')
@@ -86,8 +87,16 @@ describe('JWT Bearer Strategy', () => {
         );
         authService.clearAuthCache();
 
-        const result = await authService.getJwksByUrlAsync('https://example.com/jwks');
-        expect(result).toEqual({keys: []});
+        // CORRECT behavior (INC-322): a JWKS fetch failure must not be swallowed into
+        // {keys: []} -- that's indistinguishable downstream from "this endpoint
+        // legitimately has no keys" (permanent) vs. "we couldn't reach it" (transient).
+        // It must propagate as a transient/503-marked error instead.
+        await expect(
+            authService.getJwksByUrlAsync('https://example.com/jwks')
+        ).rejects.toMatchObject({
+            isTransient: true,
+            statusCode: 503
+        });
     });
 
     test('should fetch external JWKS from multiple URLs', async () => {
@@ -174,7 +183,12 @@ describe('JWT Bearer Strategy', () => {
              * @returns {string[]}
              */
             get externalAuthJwksUrls() {
-                return ['https://example1.com/jwks,https://example2.com/jwks'];
+                // Intentionally empty: this test exercises the well-known-URL fallback
+                // path in getExternalJwksAsync (below), not direct JWKS URL fetching. A
+                // non-empty value here would need its own nock interceptor now that
+                // JWKS fetch failures propagate as errors instead of being silently
+                // swallowed to {keys: []} (INC-322).
+                return [];
             }
 
             /**
@@ -203,6 +217,8 @@ describe('JWT Bearer Strategy', () => {
                 wellKnownConfigurationManager: wellKnownManager
             }
         );
+        // mockWellKnownConfig has no jwks_uri, so the well-known fallback resolves to
+        // no JWKS URLs at all and no further network calls are made.
         const userInfoResponse = await authService.getExternalJwksAsync();
         expect(userInfoResponse).toEqual([]);
     });

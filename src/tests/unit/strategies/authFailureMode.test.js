@@ -225,12 +225,24 @@ describe('INC-322: Auth failure mode — transient errors must not produce 401',
             fetchError = new Error('Service Unavailable');
             fetchError.status = 503;
 
-            const result = await authService.getJwksByUrlAsync('http://auth.example.com/jwks');
-
             // CORRECT behavior: The result should NOT be {keys: []} because that
-            // falsely signals "there are no valid keys" when the truth is "we don't know"
-            // It should either throw or return a sentinel that indicates uncertainty
-            expect(result).not.toEqual({ keys: [] });
+            // falsely signals "there are no valid keys" when the truth is "we don't know".
+            // It should either throw (fallback/retry decision left to the caller) or
+            // return a sentinel that indicates uncertainty -- either is acceptable, but
+            // silently resolving to {keys: []} is not.
+            let result;
+            let thrownError;
+            try {
+                result = await authService.getJwksByUrlAsync('http://auth.example.com/jwks');
+            } catch (e) {
+                thrownError = e;
+            }
+
+            if (thrownError) {
+                expect(thrownError).toBeDefined();
+            } else {
+                expect(result).not.toEqual({ keys: [] });
+            }
 
             // BUG: Currently returns {keys: []} which downstream interprets as
             // "no valid signing keys exist" -> SigningKeyNotFoundError -> 401
@@ -306,16 +318,10 @@ describe('INC-322: Auth failure mode — transient errors must not produce 401',
             // a) The key truly doesn't exist (legitimate 401), or
             // b) The JWKS endpoint was unreachable so we got empty keys (should be 503)
 
-            const jwksRsa = require('jwks-rsa');
-            const { MyJwtStrategy } = require('../../../strategies/jwt.bearer.strategy');
-            const { ConfigManager: CM } = require('../../../utils/configManager');
-
-            const mockCM = createMockInstance(CM);
-            Object.defineProperty(mockCM, 'authJwksUrl', { get: () => 'http://auth.example.com/jwks', configurable: true });
-            Object.defineProperty(mockCM, 'cacheExpiryTime', { get: () => 600000, configurable: true });
-
-            // Access the handleSigningKeyError that the strategy defines
-            // We need to test that infrastructure errors are NOT treated as auth failures
+            // Import the real handleSigningKeyError from jwt.bearer.strategy.js (exported
+            // specifically so it can be exercised directly here) rather than a local
+            // re-implementation, so this test actually verifies the production code path.
+            const { handleSigningKeyError } = require('../../../strategies/jwt.bearer.strategy');
 
             // Simulate an infrastructure error (not SigningKeyNotFoundError)
             const infrastructureError = new Error('ECONNREFUSED: connect failed');
@@ -326,21 +332,11 @@ describe('INC-322: Auth failure mode — transient errors must not produce 401',
 
             // The custom handleSigningKeyError in jwt.bearer.strategy.js:
             // - For SigningKeyNotFoundError: logs and returns cb(new Error('No Signing Key found!'))
-            // - For other errors: logs and returns cb(err)
+            // - For other errors: logs and returns cb(err) with statusCode=503/isTransient=true
             //
             // When cb is called with an error, passport-jwt calls self.fail(err) -> 401
-            //
-            // CORRECT behavior for infrastructure errors: should call cb with an error
-            // that has statusCode=503 or isTransient=true so the middleware can
-            // distinguish it from a real auth failure
-
-            // Simulate what handleSigningKeyError does with an infrastructure error
-            const handleSigningKeyError = (err, callback) => {
-                if (err instanceof jwksRsa.SigningKeyNotFoundError) {
-                    return callback(new Error('No Signing Key found!'));
-                }
-                return callback(err);
-            };
+            // unless it carries a transient/503 marker, which the auth middleware then
+            // maps to a 503 instead.
 
             handleSigningKeyError(infrastructureError, cb);
 

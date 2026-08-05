@@ -149,7 +149,17 @@ class AuthService {
                     error: error,
                     args: {jwksUrl}
                 });
-                return {keys: []};
+                // Do NOT return {keys: []} here: an empty keyset is indistinguishable
+                // downstream from "this JWKS endpoint legitimately has no keys" (a
+                // permanent condition), when the truth is "we couldn't reach it right
+                // now" (transient infrastructure failure, e.g. Redis eviction/outage).
+                // Mark the error as transient/retriable and rethrow so callers (and
+                // ultimately the auth middleware) surface a 503, not a 401 (INC-322).
+                error.isTransient = true;
+                if (!error.statusCode) {
+                    error.statusCode = 503;
+                }
+                throw error;
             } finally {
                 AuthService.jwksFetchInFlight.delete(jwksUrl);
             }
@@ -182,7 +192,14 @@ class AuthService {
                     error: error,
                     args: {extJwksUrls: extJwksUrls}
                 });
-                return [];
+                // Same reasoning as getJwksByUrlAsync: swallowing this into [] would make
+                // an infrastructure outage look like "no external keys configured", which
+                // downstream turns into a permanent SigningKeyNotFoundError -> 401 (INC-322).
+                error.isTransient = true;
+                if (!error.statusCode) {
+                    error.statusCode = 503;
+                }
+                throw error;
             }
         }
         return [];
@@ -550,7 +567,15 @@ class AuthService {
                         reason: 'userinfo_endpoint_error',
                         error: error
                     });
-                    done(null, false, { reason: 'userinfo_endpoint_error' });
+                    // A failure to reach the userinfo endpoint is an infrastructure
+                    // problem, not proof the token is invalid. Pass it through passport's
+                    // done(err) signature (-> self.error() -> real error, not a fail())
+                    // so it surfaces as a 503, not a 401 (INC-322).
+                    error.isTransient = true;
+                    if (!error.statusCode) {
+                        error.statusCode = 503;
+                    }
+                    done(error);
                 });
             } else {
                 logDebug(`JWT result`, {
