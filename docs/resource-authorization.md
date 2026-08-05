@@ -435,22 +435,38 @@ cited code and, for the first, its git history. These are gaps between what the 
 document as the *intended* composition and what the code actually enforces today — confirmed
 defects, not speculative concerns.
 
-- **Critical — a patient-scoped write can set an arbitrary access tag (§1, §4).**
-  `ScopesManager.isAccessTagChangeAllowedByScopes` (`src/operations/security/scopesManager.js:166`)
-  and `isAccessToResourceAllowedBySecurityTags` (`scopesManager.js:240`) both return `true`
-  immediately once the caller holds a `patient/` scope for the resource type, without comparing
-  old vs. new `meta.security` access-code values at all. The only other write-path check,
-  `PatientScopeManager.canWriteResourceAsync` (`src/operations/security/patientScopeManager.js:277`),
-  validates that the resource's `patient`/`subject` reference belongs to the caller — it never
-  inspects `meta.security`. A patient-scoped caller can therefore create/update a resource that
+- **Critical (update-path; create-path is by-design permissive) — a patient-scoped update can set
+  an arbitrary access tag (§1, §4).** `ScopesManager.isAccessTagChangeAllowedByScopes`
+  (`src/operations/security/scopesManager.js:166`) — the only method whose job is comparing a
+  write's old vs. new `meta.security` access codes — returns `true` immediately once the caller
+  holds a `patient/` scope for the resource type, without doing that comparison at all. The only
+  other write-path check, `PatientScopeManager.canWriteResourceAsync`
+  (`src/operations/security/patientScopeManager.js:277`), validates that the resource's
+  `patient`/`subject` reference belongs to the caller — it never inspects `meta.security`. So for
+  a write to an **existing** resource, a patient-scoped caller can update a resource that
   legitimately belongs to their own patient while stamping it with an arbitrary tenant's access
-  tag, granting (or on update, revoking) that tenant's visibility with no authorization from the
-  tenant itself. This was reintroduced by commit `a5ded4a4a` ("DCON-4806 revert
-  isAccessToResourceAllowedBySecurityTags tag-match requirement"), which reverted an earlier fix
-  on the mistaken premise that `canWriteResourceAsync`'s clinical-ownership check already covers
-  tag-value legitimacy — it doesn't; the two checks validate different things. The reverted unit
-  tests (`scopesManager.crossTenant.test.js`, `scopesManager.writeBypass.test.js`) still encode
-  the correct expected behavior but are excluded from CI (see below).
+  tag, granting (or revoking) that tenant's visibility with no authorization from the tenant
+  itself. (On **create** this reasoning doesn't apply the same way — there's no pre-existing
+  tenant's visibility to silently grant or revoke, and patient-scoped apps legitimately set their
+  own initial tags with no `access/` scope to check against at all, confirmed by
+  `create_with_patient_scope.test.js`'s currently-passing fixture; tightening the create path
+  the same way would reject that legitimate flow.) Note: `isAccessToResourceAllowedBySecurityTags`
+  (`scopesManager.js:240`) — changed by commit `a5ded4a4a` ("DCON-4806 revert
+  isAccessToResourceAllowedBySecurityTags tag-match requirement") — has the same-looking
+  patient-scope short-circuit but is **not** part of this bug: it's a separate, general
+  read-or-write resource-touch gate, and every one of its real callers (create/update/patch/merge/
+  remove, via `ScopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes`) independently
+  ANDs it with `canWriteResourceAsync` in the same composed call — tightening it would just deny
+  every patient-scoped write, not close this gap. The reverted unit tests
+  (`scopesManager.crossTenant.test.js`, `scopesManager.writeBypass.test.js`) originally asserted
+  against that unrelated method in isolation and have since been rewritten to cover the real,
+  update-path-only gap described above. **Fixed by [DCON-4854](https://icanbwell.atlassian.net/browse/DCON-4854)**
+  (PR [#2447](https://github.com/icanbwell/fhir-server/pull/2447)) via an `isCreate` flag on
+  `isAccessTagChangeAllowedByScopes`. That same ticket documents two narrower, still-open
+  variants left deliberately unfixed: a caller holding *both* a `patient/` scope and an `access/`
+  scope for a different tenant can still forge an owner/access tag on **create**; and whether
+  `canWriteResourceAsync`'s literal-string patient-id matching can be defeated by a source-system
+  id that collides across two tenants is a separate identity-normalization question.
 - **High — `$access-history` link traversal drops the access-tag check past the first hop (§5).**
   `PersonToPatientIdsExpander.getPatientIdsFromPersonAsync`
   (`src/utils/personToPatientIdsExpander.js:200`) applies the caller's access-tag filter only when
