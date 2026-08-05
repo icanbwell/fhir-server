@@ -155,6 +155,14 @@ class ScopesManager {
      * @property {string} resourceType
      * @property {string} user
      * @property {string} scope
+     * @property {boolean} [isCreate] true when there is no existing stored resource (oldAccessCodes
+     *   reflects "doesn't exist yet", not "exists with no tags"). Patient-scoped callers hold no
+     *   access/ scope to compare against by design, so on a create there is no pre-existing tenant's
+     *   visibility to silently grant/revoke - the initial tags are only as trustworthy as the write
+     *   itself, which patientScopeManager.canWriteResourceAsync independently gates on identity-graph
+     *   ownership. That reasoning does NOT extend to a write against an EXISTING resource: changing
+     *   its tags there always either grants or revokes some tenant's visibility of data that already
+     *   existed, so it must still go through the change-comparison below like any other caller.
      * @property {boolean} [ignoreRemovals] set when the calling write path can only ever append access
      *   tags (e.g. a smart-merge, which appends to arrays rather than replacing them), so a code missing
      *   from newAccessCodes reflects it not being repeated in the incoming body rather than an intentional
@@ -169,11 +177,14 @@ class ScopesManager {
         resourceType,
         user,
         scope,
+        isCreate = false,
         ignoreRemovals = false
     }) {
         // a patient scoped caller is authorized via the patient/person the resource belongs to, not via
-        // access codes - it holds no access scopes to compare against, so defer to the patient scope checks
-        if (this.isAccessAllowedByPatientScopes({ scope, resourceType })) {
+        // access codes - it holds no access scopes to compare against, so defer to the patient scope
+        // checks. Only safe on a create (see isCreate doc above) - an existing resource's tags must
+        // still go through the change-comparison below.
+        if (isCreate && this.isAccessAllowedByPatientScopes({ scope, resourceType })) {
             return true;
         }
         /**

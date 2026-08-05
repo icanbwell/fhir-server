@@ -22,10 +22,15 @@ module.exports = {
         '<rootDir>/src/graphql/resolvers',
         '<rootDir>/src/graphqlv2/resolvers'
     ],
-    // These suites assert correct behavior for known, tracked bugs (see BUG_REPORT.md /
-    // fhir-server-security-bugs.csv) and fail by design until each is fixed (security findings
-    // also need adversarial review against review.md); excluded here so a documented-but-unfixed
-    // bug doesn't fail CI. Remove an entry once its bug is fixed (and reviewed, for security ones).
+    // These suites assert correct behavior for known, tracked bugs and fail by design until each
+    // is fixed (security findings also need adversarial review against review.md); excluded here
+    // so a documented-but-unfixed bug doesn't fail CI. Note: entries below do NOT all point at a
+    // single external tracker - `BUG_REPORT.md`/`fhir-server-security-bugs.csv`, previously cited
+    // here for the whole list, do not exist in this repo (see docs/superpowers/plans/
+    // 2026-08-04-security-review-test-coverage.md's Global Constraints). Before removing an entry,
+    // run it directly (bypasses this ignore list) and confirm it passes against current `main` -
+    // some bugs get fixed without their quarantine entry being removed. Remove an entry once its
+    // bug is fixed (and reviewed, for security ones).
     testPathIgnorePatterns: [
         '<rootDir>/src/tests/performance/',
         '<rootDir>/.claude/',
@@ -81,11 +86,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/merge/mergeCrossTenantWrite.test.js',
         '<rootDir>/src/tests/unit/operations/query/searchQuery.crossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/search/proaConsentVulnerabilities.test.js',
-        '<rootDir>/src/tests/unit/operations/security/delegatedAccessScopeManager.test.js',
-        '<rootDir>/src/tests/unit/operations/security/patientScopeWriteBypass.test.js',
-        '<rootDir>/src/tests/unit/operations/security/scopesManager.crossTenant.test.js',
-        '<rootDir>/src/tests/unit/operations/security/scopesManager.writeBypass.test.js',
-        '<rootDir>/src/tests/unit/operations/security/writeAuthorizationBypass.test.js',
         '<rootDir>/src/tests/unit/operations/subscription/subscription.crossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/subscription/webhookPhiLeakage.test.js',
         '<rootDir>/src/tests/unit/operations/update/conditionalCrossTenant.test.js',
