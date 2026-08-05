@@ -216,9 +216,10 @@ describe('ResourceValidator', () => {
                 currentResource, resourceToValidateJson, isUser: false
             });
 
-            // DCON-4844's cross-tenant check is scoped to Person.link -- this is a tripwire: if W3
-            // is ever fixed by tightening this validator generically instead of Person-specifically,
-            // this test should keep passing unchanged, since it doesn't touch Person at all.
+            // DCON-4844's cross-tenant check is scoped to Person.link -- this is a tripwire: if the
+            // gap for other array reference fields (see review.md section B) is ever fixed by
+            // tightening this validator generically instead of Person-specifically, this test
+            // should keep passing unchanged, since it doesn't touch Person at all.
             expect(result).toBeNull();
         });
     });
