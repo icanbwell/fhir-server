@@ -8,6 +8,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -39,7 +40,7 @@ describe('Task Period Tests', () => {
                 .get(
                     '/4_0_0/Task?period=2023-05-10&_bundle=1&_debug=1'
                 )
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedTaskResource);
         });

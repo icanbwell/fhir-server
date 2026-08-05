@@ -155,7 +155,7 @@ describe('GraphQL Subscription Tests', () => {
                     query: graphqlQueryText
                 })
                 // .set(getGraphQLHeaders());
-                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedSubscriptionResources, 'subscription');
@@ -239,7 +239,7 @@ describe('GraphQL Subscription Tests', () => {
                     query: graphqlQueryText
                 })
                 // .set(getGraphQLHeaders());
-                .set(getGraphQLHeadersWithPerson('xyz'));
+                .set(getGraphQLHeadersWithPerson('xyz', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedSubscriptionInvalidResources, 'subscription');
@@ -267,7 +267,7 @@ describe('GraphQL Subscription Tests', () => {
             expect(personResponse2).toHaveMergeResponse({ created: true });
 
             const person_payload = {
-                scope: 'patient/*.* user/*.* access/*.*',
+                scope: 'patient/*.* user/*.* access/*.* admin/*.read',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: personResponse2.body.uuid,
                 clientFhirPatientId: 'clientFhirPatient',
@@ -458,7 +458,7 @@ describe('GraphQL Subscription Tests', () => {
 
 
             const graphqlQueryText = subscription2Query.replace(/\\n/g, '');
-            const headers = getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454')
+            const headers = getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read')
             headers.Prefer = 'global_id=true';
             // // // ACT & ASSERT
             resp = await request

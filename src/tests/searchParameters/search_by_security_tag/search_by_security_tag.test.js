@@ -12,6 +12,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -55,19 +56,19 @@ describe('Person Tests', () => {
             // search by token system and code and make sure we get the right Medication back
             resp = await request
                 .get('/4_0_0/Person?_security=https://www.icanbwell.com/owner%7Chealthsystem1&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonHealthSystem1Resources);
 
             resp = await request
                 .get('/4_0_0/Person?_security=https://www.icanbwell.com/owner%7Chealthsystem2&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonHealthSystem2Resources);
 
             resp = await request
                 .get('/4_0_0/Person?_security:not=https://www.icanbwell.com/owner%7Chealthsystem1&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonHealthSystem2NotQueryResources);
         });

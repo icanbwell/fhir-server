@@ -95,7 +95,7 @@ describe('GraphQL Input Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse1);
@@ -110,7 +110,7 @@ describe('GraphQL Input Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse2);
@@ -125,7 +125,7 @@ describe('GraphQL Input Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse3);

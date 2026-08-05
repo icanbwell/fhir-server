@@ -94,7 +94,7 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                     variables: {},
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeaders());
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQLResponse, (r) => {
@@ -162,7 +162,7 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                     variables: {},
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeaders());
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQLWithExplainResponse);

@@ -91,7 +91,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText1
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAllergyIntolerance1);
@@ -103,7 +103,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText2
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAllergyIntolerance1);
@@ -115,7 +115,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText3
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAllergyIntolerance2);
@@ -127,7 +127,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText4
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAllergyIntolerance3);
@@ -173,7 +173,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText1
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedRiskAssessment1);
@@ -185,7 +185,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText2
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedRiskAssessment1);
@@ -197,7 +197,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText3
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedRiskAssessment2);
@@ -209,7 +209,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText4
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedRiskAssessment3);

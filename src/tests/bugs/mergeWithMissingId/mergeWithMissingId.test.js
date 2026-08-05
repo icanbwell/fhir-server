@@ -5,7 +5,7 @@ const auditevent1Resource = require('./fixtures/AuditEvent/auditevent1.json');
 const expectedAuditEventResources = require('./fixtures/expected/expected_AuditEvent.json');
 const expectedMergeResponse = require('./fixtures/expected/expectedMergeResponse.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('AuditEvent Tests', () => {
@@ -32,7 +32,7 @@ describe('AuditEvent Tests', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/AuditEvent/?date=gt2022-08-15&date=lt2022-10-09&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResources);
         });

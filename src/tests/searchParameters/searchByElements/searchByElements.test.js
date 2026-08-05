@@ -11,6 +11,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -39,21 +40,21 @@ describe('Person Tests', () => {
             // Passing _elements=id, and should receive only id in respone
             resp = await request
                 .get('/4_0_0/Person/?_elements=id&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithOnlyId);
 
             // Passing _elements=meta, and should receive only meta in respone
             resp = await request
                 .get('/4_0_0/Person/?_elements=id,meta&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithOnlyMetaField);
 
             // Passing _elements=id,meta, and should receive both the fields in response
             resp = await request
                 .get('/4_0_0/Person/?_elements=meta,id&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithIdAndMetaFields);
 
@@ -85,21 +86,21 @@ describe('Person Tests', () => {
             // Passing _elements=id, and should receive only id in respone
             resp = await request
                 .get('/4_0_0/Person/?_elements=id&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResourcesIdWhenUsingAccessIndex);
 
             // Passing _elements=meta, and should receive only meta in respone
             resp = await request
                 .get('/4_0_0/Person/?_elements=id,meta&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithOnlyMetaField);
 
             // Passing _elements=id,meta, and should receive both the fields in response
             resp = await request
                 .get('/4_0_0/Person/?_elements=meta,id&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithIdAndMetaFields);
             process.env.USE_ACCESS_INDEX = 0;
@@ -124,21 +125,21 @@ describe('Person Tests', () => {
             // Passing _elements=id, and should receive only id in respone
             resp = await request
                 .get('/4_0_0/Person/?_elements=id&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithOnlyId);
 
             // Passing _elements=meta, and should receive only meta in respone
             resp = await request
                 .get('/4_0_0/Person/?_elements=id,meta&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithOnlyMetaField);
 
             // Passing _elements=id,meta, and should receive both the fields in response
             resp = await request
                 .get('/4_0_0/Person/?_elements=meta,id&_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithIdAndMetaFields);
 
