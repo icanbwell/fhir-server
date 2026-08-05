@@ -212,7 +212,7 @@ describe('Person and Patient $everything Tests', () => {
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includePatientLinkedOnly=true')
                 .set({
-                    ...getHeaders(),
+                    ...getHeadersWithAdmin(),
                     prefer: 'global_id=false'
                 });
             expect(resp).toHaveMongoQuery(expectedPatientResources);
@@ -352,7 +352,7 @@ describe('Person and Patient $everything Tests', () => {
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?_type=Account,Observation,Person&_includePatientLinkedOnly=true&_debug=true')
                 .set({
-                    ...getHeaders(),
+                    ...getHeadersWithAdmin(),
                     prefer: 'global_id=false'
                 });
             // noinspection JSUnresolvedFunction
@@ -561,7 +561,7 @@ describe('Person and Patient $everything Tests', () => {
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeHidden=1&_includePatientLinkedOnly=true')
                 .set({
-                    ...getHeaders(),
+                    ...getHeadersWithAdmin(),
                     prefer: 'global_id=false'
                 });
             expect(resp).toHaveMongoQuery(expectedPatientIncludeHiddenResourcesNoGraph);

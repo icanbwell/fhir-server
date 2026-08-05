@@ -105,7 +105,7 @@ describe('Proxy Patient $everything Tests', () => {
         resp = await request
             .get('/4_0_0/Person/' + person1Resp.body.uuid + '/$everything?_debug=true')
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         expect(resp).toHaveResponse(expectedPersonResourcesWithProxyPatient);
@@ -124,7 +124,7 @@ describe('Proxy Patient $everything Tests', () => {
                     '/$everything?_debug=true&_includePatientLinkedOnly=true&_rewritePatientReference=true'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         expect(resp).toHaveResponse(expectedPatientResourcesWithProxyPatient);
@@ -137,7 +137,7 @@ describe('Proxy Patient $everything Tests', () => {
                     '/$everything?_debug=true&_includePatientLinkedUuidOnly=true&_rewritePatientReference=true'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         expect(resp).toHaveResponse(expectedPatientResourcesWithProxyPatientAndUuidOnly);
@@ -166,7 +166,7 @@ describe('Proxy Patient $everything Tests', () => {
 
         // proxy patient everything with patient scope
         let jwtPayload = {
-            scope: 'patient/*.* user/*.* access/*.*',
+            scope: 'patient/*.* user/*.* access/*.* admin/*.*',
             username: 'test',
             client_id: 'client',
             clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',

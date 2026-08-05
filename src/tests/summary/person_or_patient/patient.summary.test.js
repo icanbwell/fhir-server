@@ -374,7 +374,7 @@ describe('Patient $summary Tests', () => {
         // ACT & ASSERT
         resp = await request
             .get('/4_0_0/Patient/patient1/$summary?_debug=true&_lastUpdated=gt2024-12-31')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
 
         // Basic response checks
         expect(resp.status).toBe(200);
@@ -388,7 +388,7 @@ describe('Patient $summary Tests', () => {
 
         resp = await request
             .get('/4_0_0/Patient/patient1/$summary?_debug=true&_lastUpdated=gt2024-12-31&_lastUpdated=lt2025-01-02')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
 
         // Basic response checks
         expect(resp.status).toBe(200);
@@ -953,7 +953,7 @@ describe('Patient $summary Tests', () => {
 
         resp = await request
             .get('/4_0_0/Patient/person.0eb80391-0f61-5ce6-b221-a5428f2f38a7/$summary?_debug=true')
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
 
         expect(resp).toHaveResourceCount(5);
         expect(redisReadSpy).not.toHaveBeenCalled();

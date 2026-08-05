@@ -339,7 +339,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
                 '/4_0_0/Patient/patient1/$everything?_debug=true'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
@@ -363,7 +363,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
                 '/4_0_0/Patient/patient1/$everything?_debug=true&_includeHidden=1'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
@@ -375,7 +375,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // patient everything ignores params _includeNonClinicalResources & _nonClinicalResourcesDepth
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeNonClinicalResources=false&_nonClinicalResourcesDepth=4')
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
@@ -397,7 +397,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
 
         // patient everything with patient scope
         let jwtPayload = {
-            scope: 'patient/*.* user/*.* access/*.*',
+            scope: 'patient/*.* user/*.* access/*.* admin/*.*',
             username: 'test',
             client_id: 'client',
             clientFhirPersonId: '5f3ca115-8630-5e55-a97d-4d6ee26c0adc',
@@ -512,7 +512,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
                 '/4_0_0/Patient/patient1/$everything?_debug=true&_since=lt2025-01-02T00:00:00.000Z'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
@@ -525,7 +525,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
                 '/4_0_0/Patient/patient1/$everything?_debug=true&_since=2025-201T00:00:00.000Z'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
@@ -538,7 +538,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
                 '/4_0_0/Patient/patient1/$everything?_debug=true&_since=2025-01-01W10:00.000Z'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
@@ -590,7 +590,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
 
         // patient everything with patient scope
         let jwtPayload = {
-            scope: 'patient/*.* user/*.* access/*.*',
+            scope: 'patient/*.* user/*.* access/*.* admin/*.*',
             username: 'test',
             client_id: 'client',
             clientFhirPersonId: '5f3ca115-8630-5e55-a97d-4d6ee26c0adc',
@@ -638,7 +638,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         let jwtPayload2 = {
-            scope: 'patient/*.* user/*.* access/*.*',
+            scope: 'patient/*.* user/*.* access/*.* admin/*.*',
             username: 'test',
             client_id: 'client',
             clientFhirPersonId: '65810a24-e90c-55b6-8b32-44bb9aa18c44',
