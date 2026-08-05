@@ -212,6 +212,47 @@ describe('Proxy Patient $everything Tests', () => {
         expect(resp).toHaveResponse(expectedPatientResourcesWithExcludeProxyUuidOnly);
     });
 
+    test('Proxy Patient tests for $everything with repeated id query params', async () => {
+        const request = await createTestRequest();
+        // ARRANGE
+        let person1Resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(person1Resp).toHaveMergeResponse({ created: true });
+
+        let resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // ACT & ASSERT
+        // Express parses repeated query keys into an array, so `id` does not always arrive
+        // as a comma separated string. These requests must not blow up with a 500.
+        resp = await request
+            .get('/4_0_0/Patient/$everything?id=patient1&id=patient2')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveStatusCode(200);
+
+        resp = await request
+            .get(
+                `/4_0_0/Patient/$everything?id=person.${person1Resp.body.uuid}&id=person.person1`
+            )
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveStatusCode(200);
+
+        resp = await request
+            .get('/4_0_0/Person/$everything?id=person1&id=personX')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveStatusCode(200);
+    });
+
     test('Proxy Patient tests for $everything with redis', async () => {
         const request = await createTestRequest();
         // ARRANGE
