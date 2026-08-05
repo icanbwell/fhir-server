@@ -5,7 +5,7 @@ const patient1Resource = require('./fixtures/Patient/patient1.json');
 // expected
 const expectedEncounterResources = require('./fixtures/expected/expected_encounter.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
 
@@ -50,7 +50,7 @@ describe('Encounter Tests', () => {
             // search by token system and code and make sure we get the right Encounter back
             resp = await request
                 .get('/4_0_0/Encounter?patient=Patient/3ec4d201-e816-5cc2-899c-832cf5a81c79&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedEncounterResources);
         });

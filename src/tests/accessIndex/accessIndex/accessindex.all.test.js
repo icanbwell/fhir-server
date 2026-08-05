@@ -6,7 +6,7 @@ const patient1Resource = require('./fixtures/Patient/patient1.json');
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 const expectedPatientResourcesAccessIndex = require('./fixtures/expected/expected_Patient_access_index.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
 const { describe, beforeAll, afterAll, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('AuditEvent when all is set Tests', () => {
@@ -101,7 +101,7 @@ describe('AuditEvent when all is set Tests', () => {
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request
                 .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cclient1&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
         });
@@ -160,7 +160,7 @@ describe('AuditEvent when all is set Tests', () => {
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request
                 .get('/4_0_0/Patient/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cclient1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResourcesAccessIndex);
         });

@@ -167,7 +167,7 @@ describe('Person and Patient $everything Tests', () => {
             // First get patient everything
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?_debug=true')
-                .set(getHeadersCsv())
+                .set(getHeadersCsv('user/*.read user/*.write access/*.* admin/*.*'))
                 .responseType('blob'); // Important for binary data
 
             // Basic response checks
