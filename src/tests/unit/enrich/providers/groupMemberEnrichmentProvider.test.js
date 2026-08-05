@@ -118,7 +118,11 @@ describe('GroupMemberEnrichmentProvider', () => {
                 name: 'Test Group'
             }];
 
-            const result = await provider.enrichAsync({ resources, parsedArgs: baseParsedArgs });
+            const result = await provider.enrichAsync({
+                resources,
+                parsedArgs: baseParsedArgs,
+                enrichmentContext: { securityContext: { hasFullAccess: true } }
+            });
 
             expect(result).toHaveLength(1);
             expect(result[0].member).toBeUndefined();
@@ -149,7 +153,11 @@ describe('GroupMemberEnrichmentProvider', () => {
                 { resourceType: 'Patient', id: 'patient1' }
             ];
 
-            const result = await provider.enrichAsync({ resources, parsedArgs: baseParsedArgs });
+            const result = await provider.enrichAsync({
+                resources,
+                parsedArgs: baseParsedArgs,
+                enrichmentContext: { securityContext: { hasFullAccess: true } }
+            });
 
             expect(result).toHaveLength(2);
             expect(result[0].member).toBeUndefined();
@@ -219,7 +227,11 @@ describe('GroupMemberEnrichmentProvider', () => {
                 }
             }];
 
-            const result = await provider.enrichBundleEntriesAsync({ entries, parsedArgs: baseParsedArgs });
+            const result = await provider.enrichBundleEntriesAsync({
+                entries,
+                parsedArgs: baseParsedArgs,
+                enrichmentContext: { securityContext: { hasFullAccess: true } }
+            });
 
             expect(result).toHaveLength(1);
             expect(result[0].resource.member).toBeUndefined();
@@ -272,7 +284,7 @@ describe('GroupMemberEnrichmentProvider', () => {
                 actual: true
             };
 
-            const result = await provider._enrichGroupResource(resource);
+            const result = await provider._enrichGroupResource(resource, { hasFullAccess: true });
 
             expect(result.member).toBeUndefined();
             expect(result.quantity).toBe(42);
@@ -290,7 +302,7 @@ describe('GroupMemberEnrichmentProvider', () => {
                 member: [{ entity: { reference: 'Patient/1' } }]
             };
 
-            await provider._enrichGroupResource(resource);
+            await provider._enrichGroupResource(resource, { hasFullAccess: true });
 
             // Original should still have member
             expect(resource.member).toBeDefined();
@@ -305,7 +317,7 @@ describe('GroupMemberEnrichmentProvider', () => {
                 member: [{ entity: { reference: 'Patient/1' } }]
             };
 
-            const result = await provider._enrichGroupResource(resource);
+            const result = await provider._enrichGroupResource(resource, { hasFullAccess: true });
 
             expect(result.member).toBeUndefined();
             expect(result.quantity).toBe(0);
@@ -321,7 +333,7 @@ describe('GroupMemberEnrichmentProvider', () => {
                 member: [{ entity: { reference: 'Patient/1' } }]
             };
 
-            await provider._enrichGroupResource(resource);
+            await provider._enrichGroupResource(resource, { hasFullAccess: true });
 
             expect(logDebug).toHaveBeenCalledWith('Enriching Group resource', expect.objectContaining({
                 groupId: 'group1',
@@ -335,7 +347,7 @@ describe('GroupMemberEnrichmentProvider', () => {
         test('returns parsed integer count from ClickHouse query', async () => {
             mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '15' }]);
 
-            const count = await provider._getMemberCount('group-123');
+            const count = await provider._getMemberCount('group-123', { hasFullAccess: true });
 
             expect(count).toBe(15);
             expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalledWith(
@@ -348,7 +360,7 @@ describe('GroupMemberEnrichmentProvider', () => {
         test('returns 0 when query returns empty results', async () => {
             mockClickHouseClientManager.queryAsync.mockResolvedValue([]);
 
-            const count = await provider._getMemberCount('group-empty');
+            const count = await provider._getMemberCount('group-empty', { hasFullAccess: true });
 
             expect(count).toBe(0);
         });
@@ -356,7 +368,7 @@ describe('GroupMemberEnrichmentProvider', () => {
         test('returns 0 on query error', async () => {
             mockClickHouseClientManager.queryAsync.mockRejectedValue(new Error('Timeout'));
 
-            const count = await provider._getMemberCount('group-error');
+            const count = await provider._getMemberCount('group-error', { hasFullAccess: true });
 
             expect(count).toBe(0);
             expect(logError).toHaveBeenCalledWith('Error querying member count from ClickHouse', expect.objectContaining({
@@ -368,7 +380,7 @@ describe('GroupMemberEnrichmentProvider', () => {
         test('passes correct SQL query structure', async () => {
             mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '0' }]);
 
-            await provider._getMemberCount('group-abc');
+            await provider._getMemberCount('group-abc', { hasFullAccess: true });
 
             const callArgs = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
             expect(callArgs.query).toContain('SELECT count() as count');
@@ -554,8 +566,6 @@ describe('GroupMemberEnrichmentProvider', () => {
         });
 
         test('handles missing enrichmentContext gracefully', async () => {
-            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '3' }]);
-
             const resources = [{
                 resourceType: 'Group',
                 id: 'group2',
@@ -568,13 +578,13 @@ describe('GroupMemberEnrichmentProvider', () => {
                 enrichmentContext: undefined
             });
 
-            expect(result[0].quantity).toBe(3);
-            // Should not crash, should use default empty securityContext
+            // Fail closed: no enrichmentContext → no security tags → quantity = 0
+            expect(result[0].quantity).toBe(0);
+            expect(result[0].member).toBeUndefined();
+            expect(mockClickHouseClientManager.queryAsync).not.toHaveBeenCalled();
         });
 
         test('handles enrichmentContext without securityContext', async () => {
-            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '2' }]);
-
             const resources = [{
                 resourceType: 'Group',
                 id: 'group3',
@@ -593,8 +603,10 @@ describe('GroupMemberEnrichmentProvider', () => {
                 enrichmentContext
             });
 
-            expect(result[0].quantity).toBe(2);
-            // Should default to empty securityContext
+            // Fail closed: no securityContext → no security tags → quantity = 0
+            expect(result[0].quantity).toBe(0);
+            expect(result[0].member).toBeUndefined();
+            expect(mockClickHouseClientManager.queryAsync).not.toHaveBeenCalled();
         });
     });
 });
