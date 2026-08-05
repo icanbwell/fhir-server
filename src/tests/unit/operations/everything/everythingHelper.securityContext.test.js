@@ -43,7 +43,8 @@ describe('EverythingHelper - Security Context Derivation (EA-2335)', () => {
 
         // Mock SearchManager with scopesManager and securityTagManager
         mockScopesManager = {
-            getAccessCodesFromScopes: jest.fn()
+            getAccessCodesFromScopes: jest.fn(),
+            isAccessAllowedByPatientScopes: jest.fn()
         };
         mockSecurityTagManager = {
             getSecurityTagsFromScope: jest.fn()
@@ -122,6 +123,7 @@ describe('EverythingHelper - Security Context Derivation (EA-2335)', () => {
             };
 
             mockScopesManager.getAccessCodesFromScopes.mockReturnValue(['client-a']);
+            mockScopesManager.isAccessAllowedByPatientScopes.mockReturnValue(false);
             mockSecurityTagManager.getSecurityTagsFromScope.mockReturnValue(['client-a']);
 
             // Mock database query to return no results (we just want to verify enrichmentManager call)
@@ -155,10 +157,15 @@ describe('EverythingHelper - Security Context Derivation (EA-2335)', () => {
             expect(mockScopesManager.getAccessCodesFromScopes).toHaveBeenCalledWith(
                 'read', 'client-a', 'access/client-a.*'
             );
+            expect(mockScopesManager.isAccessAllowedByPatientScopes).toHaveBeenCalledWith({
+                scope: 'access/client-a.*',
+                resourceType: 'Person'
+            });
             expect(mockSecurityTagManager.getSecurityTagsFromScope).toHaveBeenCalledWith({
                 user: 'client-a',
                 scope: 'access/client-a.*',
-                accessRequested: 'read'
+                accessRequested: 'read',
+                accessViaPatientScopes: false
             });
 
             expect(mockEnrichmentManager.enrichBundleEntriesAsync).toHaveBeenCalledWith(
@@ -188,6 +195,7 @@ describe('EverythingHelper - Security Context Derivation (EA-2335)', () => {
             };
 
             mockScopesManager.getAccessCodesFromScopes.mockReturnValue(['*']);
+            mockScopesManager.isAccessAllowedByPatientScopes.mockReturnValue(false);
             mockSecurityTagManager.getSecurityTagsFromScope.mockReturnValue([]);
 
             everythingHelper.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
@@ -220,6 +228,16 @@ describe('EverythingHelper - Security Context Derivation (EA-2335)', () => {
             expect(mockScopesManager.getAccessCodesFromScopes).toHaveBeenCalledWith(
                 'read', 'admin-user', 'access/*.*'
             );
+            expect(mockScopesManager.isAccessAllowedByPatientScopes).toHaveBeenCalledWith({
+                scope: 'access/*.*',
+                resourceType: 'Person'
+            });
+            expect(mockSecurityTagManager.getSecurityTagsFromScope).toHaveBeenCalledWith({
+                user: 'admin-user',
+                scope: 'access/*.*',
+                accessRequested: 'read',
+                accessViaPatientScopes: false
+            });
 
             expect(mockEnrichmentManager.enrichBundleEntriesAsync).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -244,6 +262,7 @@ describe('EverythingHelper - Security Context Derivation (EA-2335)', () => {
             };
 
             mockScopesManager.getAccessCodesFromScopes.mockReturnValue(['client-a', 'client-b']);
+            mockScopesManager.isAccessAllowedByPatientScopes.mockReturnValue(false);
             mockSecurityTagManager.getSecurityTagsFromScope.mockReturnValue(['client-a', 'client-b']);
 
             everythingHelper.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
@@ -344,6 +363,7 @@ describe('EverythingHelper - Security Context Derivation (EA-2335)', () => {
             };
 
             mockScopesManager.getAccessCodesFromScopes.mockReturnValue(['client-a']);
+            mockScopesManager.isAccessAllowedByPatientScopes.mockReturnValue(false);
             mockSecurityTagManager.getSecurityTagsFromScope.mockReturnValue(['client-a']);
 
             const mockResponseStreamer = {
@@ -380,10 +400,15 @@ describe('EverythingHelper - Security Context Derivation (EA-2335)', () => {
             expect(mockScopesManager.getAccessCodesFromScopes).toHaveBeenCalledWith(
                 'read', 'client-a', 'access/client-a.*'
             );
+            expect(mockScopesManager.isAccessAllowedByPatientScopes).toHaveBeenCalledWith({
+                scope: 'access/client-a.*',
+                resourceType: 'Group'
+            });
             expect(mockSecurityTagManager.getSecurityTagsFromScope).toHaveBeenCalledWith({
                 user: 'client-a',
                 scope: 'access/client-a.*',
-                accessRequested: 'read'
+                accessRequested: 'read',
+                accessViaPatientScopes: false
             });
 
             expect(mockEnrichmentManager.enrichBundleEntriesAsync).toHaveBeenCalledWith(
