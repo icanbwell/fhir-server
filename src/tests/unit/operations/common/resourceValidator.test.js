@@ -211,12 +211,13 @@ describe('ResourceValidator', () => {
         // (resourceValidator.js ~line 123), which is also what allows the still-open,
         // quarantined Person.link cross-tenant forgery gap documented in
         // src/tests/unit/operations/merge/merge.crossTenant.test.js ("MUST validate that
-        // link target Person belongs to same tenant before creating link", DCON-4844) and
-        // review.md ("W3" in the FHIR security review). If W3 is fixed by adding a target-
-        // tenant check for Person.link specifically, this test (which only exercises a
-        // generic `Appointment` reference array, not `Person.link`) should still pass
-        // unchanged -- but do not "fix" the vulnerability by loosening this assertion
-        // instead of tightening the validator for Person resources.
+        // link target Person belongs to same tenant before creating link", DCON-4844) --
+        // see review.md section B (Person/Patient link traversal & expansion). If that gap
+        // is fixed by adding a target-tenant check for Person.link specifically (tracked in
+        // PR #2436), this test (which only exercises a generic `Appointment` reference
+        // array, not `Person.link`) should still pass unchanged -- but do not "fix" the
+        // vulnerability by loosening this assertion instead of tightening the validator for
+        // Person resources.
         it('allows array reference update for non-user scope', () => {
             mockPatientFilterManager.getPatientPropertyForResource = jest.fn().mockReturnValue('participant.actor.reference');
             const currentResource = { resourceType: 'Appointment', id: 'app-1', participant: [{ actor: { reference: 'Patient/p1' } }] };
