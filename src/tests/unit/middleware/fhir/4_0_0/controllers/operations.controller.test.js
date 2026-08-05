@@ -218,7 +218,7 @@ describe('CustomOperationsController', () => {
             expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(false);
         });
 
-        test('BUG: cache leaks if postRequestProcessor.executeAsync throws', async () => {
+        test('cache is still cleared if postRequestProcessor.executeAsync throws', async () => {
             const postProcessorError = new Error('post processor failed');
             mockPostRequestProcessor.executeAsync = jest.fn().mockRejectedValue(postProcessorError);
 
@@ -230,8 +230,8 @@ describe('CustomOperationsController', () => {
                 await handler(mockReq, mockRes, mockNext);
             }).rejects.toThrow('post processor failed');
 
-            // BUG: Cache is NOT cleared because clearAsync is never reached
-            expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(true);
+            // Cache is cleared even though executeAsync threw, since clearAsync now runs in its own finally
+            expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(false);
         });
 
         test('BUG: when httpContext returns undefined requestId, executeAsync is called with undefined', async () => {
@@ -307,7 +307,7 @@ describe('CustomOperationsController', () => {
             expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(false);
         });
 
-        test('BUG: cache leaks if postRequestProcessor.executeAsync throws in delete', async () => {
+        test('cache is still cleared if postRequestProcessor.executeAsync throws in delete', async () => {
             mockFhirOperationsManager.removeLinks = jest.fn().mockResolvedValue({ deleted: true });
             const postProcessorError = new Error('post processor failed in delete');
             mockPostRequestProcessor.executeAsync = jest.fn().mockRejectedValue(postProcessorError);
@@ -320,8 +320,8 @@ describe('CustomOperationsController', () => {
                 await handler(mockReq, mockRes, mockNext);
             }).rejects.toThrow('post processor failed in delete');
 
-            // BUG: Cache is NOT cleared
-            expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(true);
+            // Cache is cleared even though executeAsync threw, since clearAsync now runs in its own finally
+            expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(false);
         });
     });
 
@@ -413,7 +413,7 @@ describe('CustomOperationsController', () => {
             expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(false);
         });
 
-        test('BUG: cache leaks if postRequestProcessor.executeAsync throws in GET', async () => {
+        test('cache is still cleared if postRequestProcessor.executeAsync throws in GET', async () => {
             const postProcessorError = new Error('post processor failed in get');
             mockPostRequestProcessor.executeAsync = jest.fn().mockRejectedValue(postProcessorError);
 
@@ -425,8 +425,8 @@ describe('CustomOperationsController', () => {
                 await handler(mockReq, mockRes, mockNext);
             }).rejects.toThrow('post processor failed in get');
 
-            // BUG: Cache is NOT cleared
-            expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(true);
+            // Cache is cleared even though executeAsync threw, since clearAsync now runs in its own finally
+            expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(false);
         });
 
         test('BUG: when httpContext returns undefined requestId in GET, executeAsync is called with undefined', async () => {

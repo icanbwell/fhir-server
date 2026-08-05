@@ -12,6 +12,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest,
     getTestContainer,
     mockHttpContext
@@ -87,7 +88,7 @@ describe('Observation Tests', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationAllResources);
 

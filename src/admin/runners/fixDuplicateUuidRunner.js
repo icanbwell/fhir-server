@@ -234,7 +234,12 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
              * @type {number}
              */
             const versionIdToKeep = resources.reduce(
-                (versionId, res) => Math.max(versionId, Number(res.meta.versionId)),
+                (versionId, res) => {
+                    const currentVersionId = Number(res.meta.versionId);
+                    // Ignore non-numeric versionIds so a single malformed resource
+                    // doesn't poison the max computation for the whole group with NaN.
+                    return Number.isNaN(currentVersionId) ? versionId : Math.max(versionId, currentVersionId);
+                },
                 0
             );
 
@@ -245,8 +250,21 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                 (res) => Number(res.meta.versionId) === versionIdToKeep
             );
 
+            if (resourcesWithMaxVersionId.length === 0) {
+                // safety check: happens if none of the resources have a numeric versionId
+                this.adminLogger.logInfo(`No resource with a valid numeric versionId found for uuid: ${uuid}`);
+                return [];
+            }
+
             if (resourcesWithMaxVersionId.length > 1) {
-                resourcesWithMaxVersionId.sort((res1, res2) => (new Date(res2.meta.lastUpdated)).getTime() - (new Date(res1.meta.lastUpdated)).getTime());
+                resourcesWithMaxVersionId.sort((res1, res2) => {
+                    const dateDiff = (new Date(res2.meta.lastUpdated)).getTime() - (new Date(res1.meta.lastUpdated)).getTime();
+                    // Fall back to a stable tiebreaker (_id) when lastUpdated is missing/invalid
+                    // on both sides so the result doesn't depend on arbitrary input ordering.
+                    return Number.isNaN(dateDiff) || dateDiff === 0
+                        ? String(res1._id).localeCompare(String(res2._id))
+                        : dateDiff;
+                });
             }
 
             const resourcesToDelete = resources.reduce((toDelete, res) => {

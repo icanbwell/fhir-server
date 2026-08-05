@@ -68,7 +68,10 @@ describe('GraphOperation', () => {
         });
 
         mockScopesValidator = createMockInstance(ScopesValidator, {
-            verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined)
+            verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined),
+            // Default to admin so pre-existing tests (unrelated to the DCON-4808 admin-scope
+            // gating) keep exercising their original code path.
+            isAdminScope: jest.fn().mockReturnValue(true)
         });
 
         mockResourceValidator = createMockInstance(ResourceValidator, {
@@ -166,6 +169,45 @@ describe('GraphOperation', () => {
             expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
                 expect.objectContaining({ accessRequested: 'write' })
             );
+        });
+
+        // DCON-4808: _explain/_debug/_setIndexHint expose Mongo query plans, collection
+        // internals, and let the caller pick the query's index -- graph.js was not
+        // previously gating these, unlike history.js/searchBundle.js/searchStreaming.js.
+        test('non-admin caller: _explain/_debug/_setIndexHint are cleared before processGraphAsync', async () => {
+            mockScopesValidator.isAdminScope.mockReturnValue(false);
+            mockParsedArgs._explain = true;
+            mockParsedArgs._debug = true;
+            mockParsedArgs._setIndexHint = 'someIndex';
+
+            await graphOperation.graph({
+                requestInfo: mockRequestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            const receivedArgs = mockGraphHelper.processGraphAsync.mock.calls[0][0].parsedArgs;
+            expect(receivedArgs._explain).toBeUndefined();
+            expect(receivedArgs._debug).toBeUndefined();
+            expect(receivedArgs._setIndexHint).toBeUndefined();
+        });
+
+        test('admin caller: _explain/_debug/_setIndexHint are preserved', async () => {
+            mockScopesValidator.isAdminScope.mockReturnValue(true);
+            mockParsedArgs._explain = true;
+            mockParsedArgs._debug = true;
+            mockParsedArgs._setIndexHint = 'someIndex';
+
+            await graphOperation.graph({
+                requestInfo: mockRequestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            const receivedArgs = mockGraphHelper.processGraphAsync.mock.calls[0][0].parsedArgs;
+            expect(receivedArgs._explain).toBe(true);
+            expect(receivedArgs._debug).toBe(true);
+            expect(receivedArgs._setIndexHint).toBe('someIndex');
         });
 
         test('should verify read scope for non-DELETE methods', async () => {

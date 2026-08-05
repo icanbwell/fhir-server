@@ -283,11 +283,22 @@ class PatientScopeManager {
     }) {
         assertIsValid(scope, 'scope is required');
         assertIsValid(resource, 'resource is required');
+
+        if (!this.scopesManager.hasPatientScope({ scope })) {
+            // No patient scope at all on this token -- patient-scope checks don't apply to
+            // this caller, so defer entirely to the access/tenant scope check elsewhere.
+            return true;
+        }
+
         if (!this.scopesManager.isAccessAllowedByPatientScopes({
             scope,
             resourceType: resource.resourceType
         })) {
-            return true;
+            // The caller does hold a patient scope, but this resource type is not
+            // patient-filterable. A patient scope must never authorize writes to
+            // shared/administrative resource types, regardless of any other scope also
+            // present on the token.
+            return false;
         }
 
         let personProperty = this.patientFilterManager.getPersonPropertyForResource({resourceType: resource.resourceType});

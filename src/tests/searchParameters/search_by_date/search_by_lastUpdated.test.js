@@ -10,7 +10,8 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders
+    getHeaders,
+    getHeadersWithAdmin
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
@@ -49,14 +50,14 @@ describe('Person Tests', () => {
 
             let resp = await request
                 .get('/4_0_0/Person?_lastUpdated=ne2024-01-01&_debug=true&_bundle=1')
-                .set(getHeaders())
+                .set(getHeadersWithAdmin())
                 .expect(200);
 
             expect(resp).toHaveResponse(expectedPerson1Response);
 
             resp = await request
                 .get('/4_0_0/Person?_lastUpdated=ne2024-01-02&_debug=true&_bundle=1')
-                .set(getHeaders())
+                .set(getHeadersWithAdmin())
                 .expect(200);
 
             expect(resp).toHaveResponse(expectedPerson2Response);

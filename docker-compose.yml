@@ -71,7 +71,6 @@ services:
       ENABLE_GRAPHQLV2_PLAYGROUND: '1'
       ENABLE_GRAPHQLV2: '1'
       ENABLE_CONSENTED_PROA_DATA_ACCESS: '1'
-      ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS: '1'
       EXTERNAL_SERVICES_WITH_REQ_LIMIT: 'external-service|http://external-service.com'
       # FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
       ENABLE_STATS_ENDPOINT: '1'

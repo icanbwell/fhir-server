@@ -89,8 +89,11 @@ class CustomOperationsController {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({ requestId });
-                await this.requestSpecificCache.clearAsync({ requestId });
+                try {
+                    await this.postRequestProcessor.executeAsync({ requestId });
+                } finally {
+                    await this.requestSpecificCache.clearAsync({ requestId });
+                }
             }
         };
     }
@@ -128,8 +131,11 @@ class CustomOperationsController {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({ requestId });
-                await this.requestSpecificCache.clearAsync({ requestId });
+                try {
+                    await this.postRequestProcessor.executeAsync({ requestId });
+                } finally {
+                    await this.requestSpecificCache.clearAsync({ requestId });
+                }
             }
         };
     }
@@ -167,8 +173,11 @@ class CustomOperationsController {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({ requestId });
-                await this.requestSpecificCache.clearAsync({ requestId });
+                try {
+                    await this.postRequestProcessor.executeAsync({ requestId });
+                } finally {
+                    await this.requestSpecificCache.clearAsync({ requestId });
+                }
             }
         };
     }
