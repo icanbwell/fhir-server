@@ -236,6 +236,15 @@ describe('Person and Patient $everything Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPerson1Resources);
 
+            // Calling the equivalent proxy patient id form directly against the Patient
+            // endpoint must apply the same sibling-person scoping as Person $everything
+            // (SEC-1580 F10) — it must not also return the sibling personTopLevel.
+            resp = await request
+                .get('/4_0_0/Patient/person.person1/$everything')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPerson1Resources);
+
             resp = await request
                 .get('/4_0_0/Person/person1,personTopLevel/$everything?_debug=1')
                 .set(getHeadersWithAdmin());

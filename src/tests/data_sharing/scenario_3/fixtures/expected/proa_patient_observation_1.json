@@ -1,69 +1,11 @@
 {
-  "entry": [
-    {
-      "resource": {
-        "resourceType": "Patient",
-        "id": "fde7f82b-b1e4-4a25-9a58-83b6921414cc",
-        "meta": {
-          "versionId": "1",
-          "lastUpdated": "2023-12-15T10:01:50.000Z",
-          "source": "client-1",
-          "security": [
-            {
-              "system": "https://www.icanbwell.com/access",
-              "id": "6ecd25a8-d651-54df-a87f-cf15a6096f1e",
-              "code": "client-1"
-            },
-            {
-              "system": "https://www.icanbwell.com/owner",
-              "id": "f0eb75ae-8b01-5624-b1c6-1d4b8fef9486",
-              "code": "client-1"
-            },
-            {
-              "system": "https://www.icanbwell.com/connectionType",
-              "id": "2ddb7b9d-413a-59ba-abb6-65774d005ed9",
-              "code": "proa"
-            },
-            {
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "id": "a5eb71b9-d97f-5f50-80d8-9e78e0bfaea2",
-              "code": "client-1"
-            }
-          ]
-        },
-        "identifier": [
-          {
-            "id": "sourceId",
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "fde7f82b-b1e4-4a25-9a58-83b6921414cc"
-          },
-          {
-            "id": "uuid",
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "fde7f82b-b1e4-4a25-9a58-83b6921414cc"
-          }
-        ],
-        "name": [
-          {
-            "use": "usual",
-            "text": "t",
-            "family": "PATIENT1",
-            "given": [
-              "SHYLA"
-            ]
-          }
-        ],
-        "gender": "female",
-        "birthDate": "2017-01-01"
-      }
-    }
-  ],
+  "entry": [],
   "resourceType": "Bundle",
   "meta": {
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
-        "display": "db.Patient_4_0_0.find({'$or':[{'$and':[{'$or':[{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'_sourceId':'90'}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':'proa'}}}]}]}, {}).sort({'_uuid':1}).limit(1000)"
+        "display": "db.Patient_4_0_0.find({'$and':[{'$or':[{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'_sourceId':'90'}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]}, {}).sort({'_uuid':1}).limit(1000)"
       },
       {
         "system": "https://www.icanbwell.com/queryCollection",
