@@ -11,6 +11,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -49,14 +50,14 @@ describe('ObservationReturnIdTests', () => {
                 .get(
                     '/4_0_0/Observation/?code=http://www.icanbwell.com/cql/library|BMI001&_setIndexHint=1&_bundle=1'
                 )
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
 
             // search by just token code and make sure we get the right observation back
             resp = await request
                 .get('/4_0_0/Observation/?code=BMI001&_setIndexHint=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
 
@@ -100,7 +101,7 @@ describe('Encounter tests', () => {
                 .get(
                     '/4_0_0/Encounter?class=http://terminology.hl7.org/CodeSystem/v3-ActCode|AMB&_bundle=1&_debug=1'
                 )
-                .set(getHeaders())
+                .set(getHeadersWithAdmin())
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedEncounterResources);

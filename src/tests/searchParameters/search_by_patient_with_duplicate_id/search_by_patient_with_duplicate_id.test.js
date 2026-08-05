@@ -10,6 +10,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest,
     getTestContainer,
     mockHttpContext
@@ -67,14 +68,14 @@ describe('Observation Tests', () => {
 
             resp = await request
                 .get('/4_0_0/Observation/?_debug=1&patient=Patient/2354|C')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByOwnerResources);
 
             // search by id but with token limited to one access security tag should return 1
             resp = await request
                 .get('/4_0_0/Observation/1/?_debug=1&patient=Patient/2354|C')
-                .set(getHeaders('user/*.read user/*.write access/C.*'));
+                .set(getHeaders('user/*.read user/*.write access/C.* admin/*.read'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByAccessResources);
         });

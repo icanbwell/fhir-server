@@ -155,7 +155,7 @@ describe('GraphQL Subscription Tests', () => {
                 })
                 // .set(getGraphQLHeaders());
                 .set({
-                    ...getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'),
+                    ...getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'),
                     prefer: 'global_id=false'
                 });
 
@@ -241,7 +241,7 @@ describe('GraphQL Subscription Tests', () => {
                     query: graphqlQueryText
                 })
                 // .set(getGraphQLHeaders());
-                .set(getGraphQLHeadersWithPerson('xyz'));
+                .set(getGraphQLHeadersWithPerson('xyz', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedSubscriptionInvalidResources, 'subscriptions');
