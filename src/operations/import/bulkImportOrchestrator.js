@@ -64,6 +64,18 @@ async function main() {
         await joinPromise;
         isReady = true;
         logInfo('Bulk import orchestrator joined group', { groupId });
+
+        // kafkaClientV2's own CRASH listener (registered inside waitForConsumerToJoinGroupAsync)
+        // only rejects the join promise above, which is a no-op once already resolved — so a
+        // crash after startup would otherwise leave this process running (health check still
+        // answering isReady=true) with no consumer actually reading messages. Exiting lets
+        // Kubernetes detect the failure and restart the pod instead of silently zombie-ing.
+        consumer.on(consumer.events.CRASH, (event) => {
+            logError('Bulk import orchestrator consumer crashed, exiting', {
+                error: event.payload.error?.message
+            });
+            process.exit(1);
+        });
     } catch (e) {
         console.error(JSON.stringify({
             method: 'bulkImportOrchestrator.main',

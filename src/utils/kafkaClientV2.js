@@ -206,8 +206,16 @@ class KafkaClientV2 {
                 clearTimeout(timeoutId);
                 resolve(event);
             });
-            consumer.on(consumer.events.CRASH, (event) => {
+            consumer.on(consumer.events.CRASH, async (event) => {
                 clearTimeout(timeoutId);
+                // Log unconditionally — a crash after the join promise has already settled would
+                // otherwise vanish silently, since rejecting an already-settled promise is a no-op.
+                await logSystemErrorAsync({
+                    event: 'kafkaClientV2',
+                    message: `Consumer crashed${label ? ` (${label})` : ''}`,
+                    args: {},
+                    error: event.payload.error
+                });
                 consumer.disconnect().then(() => {
                     reject(event.payload.error);
                 });
