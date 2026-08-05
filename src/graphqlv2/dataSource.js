@@ -737,7 +737,14 @@ class FhirDataSource {
             // Its called later too in the request lifecycle but as its result is cached,
             // it will not be executed again
             await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext: true
+                base_version,
+                isUser,
+                personIdFromJwtToken,
+                addPersonOwnerToContext: true,
+                // Apply the caller's access-tag security filter while traversing Person.link so a
+                // Person/Patient reachable only via a cross-tenant link on the caller's own Person is
+                // not silently included in the patient-scope filter.
+                requestInfo: this.requestInfo
             });
 
             await this.customTracer.trace({

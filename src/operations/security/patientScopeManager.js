@@ -59,11 +59,14 @@ class PatientScopeManager {
      * @param {boolean | null} isUser
      * @param {string} personIdFromJwtToken
      * @param {boolean} addPersonOwnerToContext
+     * @param {FhirRequestInfo|{user: string, scope: string}} [requestInfo] Used (when present) to apply the
+     *   caller's access-tag security filter while traversing Person.link, so a Person/Patient reachable
+     *   only via a cross-tenant link is not silently included. See personToPatientIdsExpander.js.
      * @return {Promise<string[]>}
      */
     async getLinkedPatientsAsync (
         {
-            base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext = false
+            base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext = false, requestInfo
         }
     ) {
         try {
@@ -79,7 +82,8 @@ class PatientScopeManager {
                 let linkedPatientIds = await this.getPatientIdsByPersonIdAsync({
                     base_version,
                     personIdFromJwtToken,
-                    addPersonOwnerToContext
+                    addPersonOwnerToContext,
+                    requestInfo
                 });
                 httpContext.set(
                     `${HTTP_CONTEXT_KEYS.LINKED_PATIENTS_FOR_PERSON_PREFIX}${personIdFromJwtToken}`,
@@ -101,13 +105,17 @@ class PatientScopeManager {
      * @param {string} base_version
      * @param {string} personIdFromJwtToken
      * @param {boolean} addPersonOwnerToContext
+     * @param {FhirRequestInfo|{user: string, scope: string}} [requestInfo] Used (when present) to apply the
+     *   caller's access-tag security filter while traversing Person.link, so a Person/Patient reachable
+     *   only via a cross-tenant link is not silently included. See personToPatientIdsExpander.js.
      * @return {Promise<string[]>}
      */
     async getPatientIdsByPersonIdAsync (
         {
             base_version,
             personIdFromJwtToken,
-            addPersonOwnerToContext = false
+            addPersonOwnerToContext = false,
+            requestInfo
         }
     ) {
         assertIsValid(base_version);
@@ -122,7 +130,12 @@ class PatientScopeManager {
                 personIds: [personIdFromJwtToken],
                 totalProcessedPersonIds: new Set(),
                 level: 1,
-                addPersonOwnerToContext
+                addPersonOwnerToContext,
+                requestInfo,
+                // Only meaningful when requestInfo (user + scope) is actually available -- callers that
+                // can't supply it fall back to the pre-existing (unfiltered) behavior rather than
+                // throwing, since the expander asserts requestInfo is defined when this is true.
+                addTopPersonAccessCheck: Boolean(requestInfo)
             });
         } catch (e) {
             throw new RethrownError({
@@ -138,9 +151,12 @@ class PatientScopeManager {
      * @param {boolean | null} isUser
      * @param {string} personIdFromJwtToken
      * @param {boolean} addPersonOwnerToContext
+     * @param {FhirRequestInfo|{user: string, scope: string}} [requestInfo] Used (when present) to apply the
+     *   caller's access-tag security filter while traversing Person.link, so a Person/Patient reachable
+     *   only via a cross-tenant link is not silently included. See personToPatientIdsExpander.js.
      * @returns {Promise<string[]|null>}
      */
-    async getPatientIdsFromScopeAsync ({ base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext = false }) {
+    async getPatientIdsFromScopeAsync ({ base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext = false, requestInfo }) {
         /**
          * @type {string[]}
          */
@@ -151,7 +167,7 @@ class PatientScopeManager {
             patientIdsLinkedToPersonId = patientIdsLinkedToPersonId.concat(
                 await this.getLinkedPatientsAsync(
                     {
-                        base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext
+                        base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext, requestInfo
                     }
                 )
             );
@@ -272,6 +288,8 @@ class PatientScopeManager {
      * @param {string|null} personIdFromJwtToken
      * @param {Resource} resource
      * @param {string | null} scope
+     * @param {string} [user] Present when called via isAccessToResourceAllowedByPatientScopes(), which
+     *   spreads the full FhirRequestInfo (including `user`) into this call.
      * @returns {Promise<boolean>}
      */
     async canWriteResourceAsync ({
@@ -279,7 +297,8 @@ class PatientScopeManager {
         isUser,
         personIdFromJwtToken,
         resource,
-        scope
+        scope,
+        user
     }) {
         assertIsValid(scope, 'scope is required');
         assertIsValid(resource, 'resource is required');
@@ -314,7 +333,12 @@ class PatientScopeManager {
         const patientIds = await this.getPatientIdsFromScopeAsync({
             base_version,
             isUser,
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            // Apply the same cross-tenant Person.link access-tag check that ordinary search/GraphQL
+            // now gets, so a write cannot be authorized against a Patient reachable only via a
+            // cross-tenant link on the caller's own Person. Only supplied when we have a real user
+            // identity to check against (see getSecurityTagsFromScope, which requires a string user).
+            requestInfo: typeof user === 'string' && scope ? { user, scope } : undefined
         });
         if (patientIds && patientIds.length > 0) {
             return await this.canWriteResourceWithAllowedPatientIdsAsync({
