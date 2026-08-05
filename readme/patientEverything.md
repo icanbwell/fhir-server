@@ -89,6 +89,16 @@ It can be used if data related to more than one patient resources provided needs
 
 For example: <base_url>/4_0_0/Patient/$everything?id=patient1,patient2
 
+:warning: Plain patient ids and [proxy patient](proxyPatient.md) ids (`person.\<person_id>`) cannot be mixed in the same request. Such a request is rejected with a `400` and an `OperationOutcome` of:
+
+```
+Cannot mix proxy patient ids (person.<id>) with regular patient ids in the same $everything request
+```
+
+The two forms cannot be combined because the person scoping described in [Person $everything](personEverything.md) is derived from the `person.` prefixed entries and is then applied to the request as a whole, which would also wrongly restrict the Person resources linked to the plain patient ids. Send the two forms as separate requests instead.
+
+For example, this returns `400`: <base_url>/4_0_0/Patient/$everything?id=person.\<person1>,\<patient2>
+
 ### \_type
 
 This parameter can be used to narrow down the result of resources to the provided list of resources. 
