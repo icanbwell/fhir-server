@@ -12,6 +12,26 @@ questions), see:
 Before reviewing or modifying any code in this area, read `review.md` at the repo root — it's a
 standing adversarial-review checklist for this exact surface (see `CLAUDE.md`).
 
+## Quick index
+
+Looking for one specific mechanism rather than reading start to finish? Jump straight to its
+section:
+
+| § | Mechanism | In one line |
+|---|---|---|
+| 1 | Access tags | Tenant-visibility filter ANDed onto every query |
+| 2 | Owner tags | Single authoritative tenant; used in narrower single-resource/write checks |
+| 3 | Scopes | `user`/`access`/`patient`/`admin` SMART scopes, validated before any query is built |
+| 4 | Caller / account type | Service account, admin/tester, end-user, delegated actor, CMS partner |
+| 5 | Patient-scoped tokens & link expansion | Identity-graph reachability replaces access-tag filtering |
+| 6 | Consent | Four independent Consent-driven mechanisms (PROA/IAS, CMS, delegated, data-view-control) |
+| 7 | Admin scope / wildcard bypass | `access/*` removes the tag filter; `admin/*` does not |
+| 8 | Tag-based filters | `hidden` tag, connection-type tag |
+| 9 | Sensitivity classification | Confidentiality-`R` tag, `unclassified` tag, delegated denylist |
+| 10 | Delegated actor access | The full composed model: detection → consent gate → query routing → sensitive-data exclusion → section-level filtering |
+| 11 | How these compose | The overall AND/OR rule tying §1–§10 together |
+| 12 | Known gaps | Confirmed defects between intended and actual behavior |
+
 ## Mental model
 
 A resource is returned to a caller only if it passes **every** gate below that applies to that
@@ -21,17 +41,23 @@ never leaves the database); a few are applied to already-fetched resources
 it followed an unusual code path (a different traversal operation, a different resource type, a
 raw id lookup) is a tenant-isolation bug, not a feature gap.
 
-Request flow: `FhirRouter` → an Operation class (`operations/search/searchBundle.js`,
-`searchStreaming.js`, `searchById/searchById.js`, `searchByVersionId/searchByVersionId.js`,
-`history/history.js`, `everything/everythingHelper.js`, `graph/graphHelpers.js`,
-`export/script/bulkDataExportRunner.js`, GraphQL v1 `graphql/dataSource.js` and v2
-`graphqlv2/dataSource.js`, …) → `ScopesValidator.verifyHasValidScopesAsync` (scope gate, run
-before any query is built) → `SearchManager.constructQueryAsync` (`src/operations/search/searchManager.js`
-— the central point where nearly all of the mechanisms below get ANDed onto the query) →
-`queryRewriterManager` → `DataLayer` → MongoDB. The write paths (`remove.js`, `update.js`,
-`patch.js`, `validate.js`) call the same `constructQueryAsync` to locate their target resource
-before mutating it, so every gate below applies there too — a caller can't find-and-modify a
-resource it couldn't have found via search.
+**Request flow:**
+
+1. `FhirRouter` dispatches the request to an Operation class — e.g.
+   `operations/search/searchBundle.js`, `searchStreaming.js`, `searchById/searchById.js`,
+   `searchByVersionId/searchByVersionId.js`, `history/history.js`,
+   `everything/everythingHelper.js`, `graph/graphHelpers.js`,
+   `export/script/bulkDataExportRunner.js`, or GraphQL's `graphql/dataSource.js` (v1) /
+   `graphqlv2/dataSource.js` (v2).
+2. `ScopesValidator.verifyHasValidScopesAsync` runs the scope gate (§3) — before any query is
+   built.
+3. `SearchManager.constructQueryAsync` (`src/operations/search/searchManager.js`) is the central
+   point where nearly all of the mechanisms below get ANDed onto the query.
+4. The query flows through `queryRewriterManager` → `DataLayer` → MongoDB.
+
+The write paths (`remove.js`, `update.js`, `patch.js`, `validate.js`) call that same
+`constructQueryAsync` to locate their target resource before mutating it, so every gate below
+applies there too — a caller can't find-and-modify a resource it couldn't have found via search.
 
 ### Gate composition diagram
 
@@ -402,12 +428,12 @@ red flag under `review.md`'s checklist, since `_uuid`/`id` are deterministic and
 
 ## 12. Known gaps in the current implementation
 
-Findings from an adversarial review of this surface against `review.md`'s checklist, verified
-directly against source (not assumed from the checklist, and not taken on faith from a single
-pass — the two most severe items below were independently re-derived by reading the cited code
-and, for the first, its git history). These are gaps between what the sections above document as
-the *intended* composition and what the code actually enforces today — confirmed defects, not
-speculative concerns.
+Findings from an adversarial review of this surface against `review.md`'s checklist. Each finding
+was verified directly against source — not assumed from the checklist, and not taken on faith
+from a single pass; the two most severe items below were independently re-derived by reading the
+cited code and, for the first, its git history. These are gaps between what the sections above
+document as the *intended* composition and what the code actually enforces today — confirmed
+defects, not speculative concerns.
 
 - **Critical — a patient-scoped write can set an arbitrary access tag (§1, §4).**
   `ScopesManager.isAccessTagChangeAllowedByScopes` (`src/operations/security/scopesManager.js:166`)
@@ -447,15 +473,15 @@ speculative concerns.
   hardcoded `unclassified` code, so an `unclassified`-tagged *section* inside an otherwise-visible
   Composition is not stripped.
 
-None of this was caught by CI: regression tests that would catch the Critical finding above
-already exist (`src/tests/unit/operations/security/scopesManager.crossTenant.test.js`,
-`scopesManager.writeBypass.test.js`, `patientScopeWriteBypass.test.js`,
-`writeAuthorizationBypass.test.js`) but are excluded from the test run via `jest.config.js`'s
-`testPathIgnorePatterns`, which cites a `BUG_REPORT.md`/`fhir-server-security-bugs.csv` tracker
-that doesn't exist in this repo. That same exclusion list also contains at least one fabricated
-test (`delegatedAccessScopeManager.test.js` asserts against an inline stand-in class, not the real
-`DelegatedAccessScopeManager`) — treat the list as unverified per-entry, not as a trustworthy
-tracker of what's actually broken.
+None of this was caught by CI. Regression tests that would catch the Critical finding above
+already exist — `scopesManager.crossTenant.test.js`, `scopesManager.writeBypass.test.js`,
+`patientScopeWriteBypass.test.js`, `writeAuthorizationBypass.test.js` (all under
+`src/tests/unit/operations/security/`) — but are excluded from the test run via `jest.config.js`'s
+`testPathIgnorePatterns`. That exclusion list cites a `BUG_REPORT.md`/`fhir-server-security-bugs.csv`
+tracker that doesn't exist in this repo, and it also contains at least one fabricated test:
+`delegatedAccessScopeManager.test.js` asserts against an inline stand-in class, not the real
+`DelegatedAccessScopeManager`. Treat the exclusion list as unverified per-entry, not as a
+trustworthy tracker of what's actually broken.
 
 ## Further reading
 
