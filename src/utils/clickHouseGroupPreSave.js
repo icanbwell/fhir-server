@@ -64,19 +64,6 @@ function stripMembersIfNeeded(doc, contextData) {
 }
 
 /**
- * Checks whether a Group resource carries the externalStorageFields|member tag,
- * i.e. its member roster is tracked in ClickHouse rather than inline in MongoDB.
- *
- * @param {Object} doc - The Group resource (or plain doc) to inspect
- * @returns {boolean}
- */
-function hasExternalStorageMemberTag(doc) {
-    return (doc?.meta?.tag || []).some(
-        t => t.system === EXTERNAL_STORAGE_TAG_SYSTEM && t.code === EXTERNAL_STORAGE_TAG_CODE
-    );
-}
-
-/**
  * Handles all ClickHouse-related pre-save modifications for Group resources.
  * Called from both DatabaseBulkInserter and FastDatabaseBulkInserter after preSaveManager runs.
  *
@@ -97,7 +84,6 @@ module.exports = {
     handleClickHouseGroupPreSave,
     addExternalStorageTagIfNeeded,
     stripMembersIfNeeded,
-    hasExternalStorageMemberTag,
     EXTERNAL_STORAGE_TAG_SYSTEM,
     EXTERNAL_STORAGE_TAG_CODE
 };

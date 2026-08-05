@@ -173,50 +173,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
     }
 
     /**
-     * Get active members page (roster only, no count)
-     * Uses argMaxMerge on pre-aggregated current state table
-     * Returns only active members (event_type=MEMBER_ADDED AND inactive=0)
-     *
-     * @param {string} groupId - Group ID to query
-     * @param {Object} options - Query options
-     * @param {number} options.limit - Page size (default 100)
-     * @param {string|null} options.afterReference - Seek cursor (entity_reference to start after)
-     * @param {Object} securityContext - Caller tenant scope
-     * @param {string[]} securityContext.accessTags - Access security tags
-     * @param {string[]} securityContext.ownerTags - Owner security tags
-     * @param {boolean} securityContext.hasFullAccess - True for admin/full-access callers
-     * @returns {Promise<Array<Object>>} Array of member objects
-     */
-    async getActiveMembersPageAsync(groupId, { limit = 100, afterReference = null } = {}, securityContext = {}) {
-        const { accessTags, ownerTags, hasFullAccess } = this._normalizeTenantContext(securityContext);
-        // Fail closed before touching ClickHouse.
-        this._assertTenantScope({ accessTags, ownerTags, hasFullAccess });
-        try {
-            const rosterQuery = this._buildRosterQuery(groupId, { limit, afterReference, accessTags, ownerTags });
-
-            const members = await this.clickHouseClientManager.queryAsync(rosterQuery);
-
-            return members;
-        } catch (error) {
-            logError('Error querying active members page from ClickHouse current state table', {
-                error: error.message,
-                groupId,
-                limit,
-                afterReference
-            });
-
-            throw new RethrownError({
-                message: 'Error getting active members page from ClickHouse',
-                error,
-                args: { groupId, limit, afterReference }
-            });
-        }
-    }
-
     /**
-     * Get member count only (for metadata-only GET / Group.quantity)
-     * Uses argMaxMerge on pre-aggregated current state table
-     * Counts members where event_type=MEMBER_ADDED AND inactive=0
      *
      * @param {string} groupId - Group ID to query
      * @param {Object} securityContext - Caller tenant scope
