@@ -51,6 +51,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest,
     getHeadersWithCustomPayload,
     getTestContainer
@@ -336,7 +337,7 @@ describe('patient everything kafka events', () => {
 
         // patient everything with patient scope
         let jwtPayload = {
-            scope: 'patient/*.* user/*.* access/*.*',
+            scope: 'patient/*.* user/*.* access/*.* admin/*.read',
             username: 'test',
             client_id: 'client',
             clientFhirPersonId: '5f3ca115-8630-5e55-a97d-4d6ee26c0adc',
@@ -384,7 +385,7 @@ describe('patient everything kafka events', () => {
         // only works for patient scope
         resp = await request
             .get('/4_0_0/Patient/patient1/$everything?_debug=true')
-            .set({ 'x-request-id': requestId, ...getHeaders()});
+            .set({ 'x-request-id': requestId, ...getHeadersWithAdmin()});
         await postRequestProcessor.waitTillDoneAsync({ requestId });
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(

@@ -89,7 +89,7 @@ describe('Client person access test using patient scope', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         let jwtPayloadClientA = {
-            scope: 'patient/*.* user/*.* access/*.*',
+            scope: 'patient/*.* user/*.* access/*.* admin/*.read',
             username: 'test',
             client_id: 'client',
             clientFhirPersonId: 'a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0',
@@ -100,7 +100,7 @@ describe('Client person access test using patient scope', () => {
         };
 
         let jwtPayloadClientB = {
-            scope: 'patient/*.* user/*.* access/*.*',
+            scope: 'patient/*.* user/*.* access/*.* admin/*.read',
             username: 'test',
             client_id: 'client',
             clientFhirPersonId: 'b83b2b9a-a454-4b64-aae6-583ec758abeb',
