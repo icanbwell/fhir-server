@@ -217,6 +217,16 @@ class FhirDataSource {
                     if (!resourceType) {
                         return [];
                     }
+                    // DCON-4846: getResources/getResourcesBundle gate their own root resourceType,
+                    // but a reference field (e.g. Patient.generalPractitioner) resolves through this
+                    // batch loader for the *referenced* resourceType, bypassing that gate entirely --
+                    // gate it here too so a CMS-partner/delegated-user caller can't pivot through a
+                    // reference to read a disallowed resource type.
+                    this.accessManager.verifyGraphQLReadAccess({
+                        requestInfo,
+                        resourceType,
+                        operation: 'search'
+                    });
                     /**
                      * @type {string[]}
                      */

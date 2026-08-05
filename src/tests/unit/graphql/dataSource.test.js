@@ -238,6 +238,46 @@ describe('FhirDataSource (graphql)', () => {
         });
     });
 
+    describe('getResourcesInBatch (DCON-4846)', () => {
+        test('checks operation access per resourceType group before executing the search', async () => {
+            const requestInfo = { user: 'test', scope: 'access/tenant_a.*' };
+            await dataSource.getResourcesInBatch({
+                keys: ['Patient/p1'],
+                requestInfo,
+                args: {}
+            });
+
+            expect(dataSource.accessManager.verifyGraphQLReadAccess).toHaveBeenCalledWith({
+                requestInfo,
+                resourceType: 'Patient',
+                operation: 'search'
+            });
+        });
+
+        test('does not execute the search for a disallowed resourceType reached via a reference field', async () => {
+            // Simulates a CMS-partner caller allowlisted to Patient querying
+            // { Patient(id: "p1") { generalPractitioner { id } } } -- the nested
+            // Practitioner reference resolves through this batch loader, not getResources.
+            const forbiddenError = new Error('CMS partner user does not have access to Practitioner search');
+            dataSource.accessManager.verifyGraphQLReadAccess.mockImplementation(({ resourceType }) => {
+                if (resourceType === 'Practitioner') {
+                    throw forbiddenError;
+                }
+            });
+            const requestInfo = { user: 'test', scope: 'access/tenant_a.*' };
+
+            await expect(
+                dataSource.getResourcesInBatch({
+                    keys: ['Practitioner/pract1'],
+                    requestInfo,
+                    args: {}
+                })
+            ).rejects.toThrow(forbiddenError.message);
+
+            expect(dataSource.searchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
+        });
+    });
+
     describe('getParsedArgsAsync', () => {
         test('parses and rewrites args', async () => {
             await dataSource.getParsedArgsAsync({ args: { base_version: '4_0_0' }, resourceType: 'Patient', headers: {} });
