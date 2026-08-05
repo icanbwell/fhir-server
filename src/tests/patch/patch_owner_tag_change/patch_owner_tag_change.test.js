@@ -32,6 +32,14 @@ const hijackOwnerTagAndSourcePatch = [
     { op: 'add', path: '/meta/source', value: 'https://evil.example.com' }
 ];
 
+// Unlike hijackOwnerTagAndSourcePatch, this never touches meta.source, so it's the patch that
+// actually discriminates the DCON-4841 fix: under the old guard
+// (foundResource.meta.source || resource?.meta?.source), a source-less resource with no
+// meta.source op in the patch would leave both operands falsy and skip the revert entirely.
+const hijackOwnerTagOnlyPatch = [
+    { op: 'replace', path: '/meta/security/0/code', value: 'attacker_tenant' }
+];
+
 describe('DCON-4841 - patch cannot reassign owner tag or forge meta.source on a source-less resource', () => {
     let originalRequireMetaSourceTags;
 
@@ -43,7 +51,11 @@ describe('DCON-4841 - patch cannot reassign owner tag or forge meta.source on a 
 
     afterEach(async () => {
         await commonAfterEach();
-        process.env.REQUIRE_META_SOURCE_TAGS = originalRequireMetaSourceTags;
+        if (originalRequireMetaSourceTags === undefined) {
+            delete process.env.REQUIRE_META_SOURCE_TAGS;
+        } else {
+            process.env.REQUIRE_META_SOURCE_TAGS = originalRequireMetaSourceTags;
+        }
     });
 
     test('a patch attempting to hijack the owner tag and forge meta.source is silently reverted', async () => {
@@ -102,5 +114,33 @@ describe('DCON-4841 - patch cannot reassign owner tag or forge meta.source on a 
             .map(s => s.code);
         expect(ownerCodes).toStrictEqual(['clientA']);
         expect(resp.body.meta.source).toBeUndefined();
+    });
+
+    test('a patch that only hijacks the owner tag, with no meta.source op, is silently reverted on a source-less resource', async () => {
+        const request = await createTestRequest();
+
+        const createResp = await request
+            .post('/4_0_0/Patient/$merge')
+            .send(patientOwnedByClientAWithNoMetaSource())
+            .set(getHeaders())
+            .expect(200);
+        expect(createResp).toHaveMergeResponse({ created: true });
+
+        const resp = await request
+            .patch('/4_0_0/Patient/1')
+            .send(hijackOwnerTagOnlyPatch)
+            .set(getHeadersJsonPatch('access/clientA.* user/*.*'))
+            .expect(200);
+
+        const ownerCodes = resp.body.meta.security
+            .filter(s => s.system === 'https://www.icanbwell.com/owner')
+            .map(s => s.code);
+        expect(ownerCodes).toStrictEqual(['clientA']);
+
+        const getResp = await request.get('/4_0_0/Patient/1').set(getHeaders()).expect(200);
+        const persistedOwnerCodes = getResp.body.meta.security
+            .filter(s => s.system === 'https://www.icanbwell.com/owner')
+            .map(s => s.code);
+        expect(persistedOwnerCodes).toStrictEqual(['clientA']);
     });
 });
