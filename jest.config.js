@@ -84,7 +84,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/security/delegatedAccessScopeManager.test.js',
         '<rootDir>/src/tests/unit/operations/subscription/subscription.crossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/subscription/webhookPhiLeakage.test.js',
-        '<rootDir>/src/tests/unit/operations/update/conditionalCrossTenant.test.js',
         '<rootDir>/src/tests/unit/strategies/authFailureMode.test.js',
         '<rootDir>/src/tests/unit/strategies/jwtCacheThunderingHerd.test.js',
         '<rootDir>/src/tests/unit/utils/personToPatientIdsExpander.crossTenant.test.js'

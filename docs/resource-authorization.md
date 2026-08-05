@@ -405,7 +405,9 @@ red flag under `review.md`'s checklist, since `_uuid`/`id` are deterministic and
 Findings from an adversarial review of this surface against `review.md`'s checklist, verified
 directly against source (not assumed from the checklist, and not taken on faith from a single
 pass). These are gaps between what the sections above document as the *intended* composition and
-what the code actually enforces — two have since been fixed; two remain open.
+what the code actually enforces — two have since been fixed, two remain open, and one suspected
+finding was investigated and does not reproduce (kept here, marked as such, so it isn't
+re-discovered and re-reported from scratch later).
 
 - **FIXED — a patient-scoped write could set an arbitrary access tag (§1, §4).**
   `ScopesManager.isAccessTagChangeAllowedByScopes` and `isAccessToResourceAllowedBySecurityTags`
@@ -451,18 +453,25 @@ what the code actually enforces — two have since been fixed; two remain open.
   `DataSharingManager.updateQueryForDelegatedAccessSensitiveData`, it does not also fold in the
   hardcoded `unclassified` code, so an `unclassified`-tagged *section* inside an otherwise-visible
   Composition is not stripped.
-- **Open, newly identified while verifying the fixes above — conditional update/delete can match
-  cross-tenant resources (§5).** Conditional operations (`PUT /Patient?identifier=...`,
-  conditional delete) identify their target by a search query rather than by id. When the caller is
-  patient-scoped, that search query is built via the §5 patient-scope/identity-graph branch, which
-  does not apply an owner/access tag filter — by design, reachability is the check for that branch.
-  But a conditional search can match by a clinical identifier (SSN, MRN, name+birthDate) that a
-  different tenant's resource happens to share, letting a patient-scoped caller from tenant B
-  locate and modify a resource actually owned by tenant A. This is a different root cause from the
-  two FIXED findings above (query construction, not write-time tag validation) and is not yet
-  fixed. See `src/tests/unit/operations/update/conditionalCrossTenant.test.js` (currently excluded
-  from CI, and its own mocks need repair before it can be trusted as a clean regression test, but
-  the underlying scenario is real).
+- **Investigated, does not reproduce — conditional update/delete matching a cross-tenant resource
+  via a shared clinical identifier (§5).** A pre-existing test
+  (`src/tests/unit/operations/update/conditionalCrossTenant.test.js`) claimed that since the
+  patient-scope query branch restricts by the caller's own resolved patient-id set rather than by
+  owner/access tag (true, and by design), a conditional write like
+  `PUT /Patient?identifier=SSN|123-45-6789` could match a *different* tenant's resource sharing
+  that identifier. This does not hold up: `PatientQueryCreator.getQueryWithPatientFilter` ANDs the
+  patient-id restriction onto the *existing* query via
+  `R4SearchQueryCreator.appendAndSimplifyQuery` rather than replacing it, so a resource matching
+  the identifier but whose `_uuid` isn't in the caller's own resolved patient-id set can never
+  satisfy the combined `$and` — proven against the real (non-mocked) `PatientQueryCreator` in
+  `src/tests/unit/resourceAuthorization/12_knownGap_conditionalWriteCrossTenant.test.js`.
+  Independently, `update.js`/`remove.js` also call
+  `scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes` on whatever resource a query
+  *does* resolve, before writing/deleting it — covered by the Critical fix above. The two tests in
+  `conditionalCrossTenant.test.js` that asserted the incorrect premise mocked `searchManager`
+  entirely and asserted against their own fabricated mock return value, the same category of error
+  as the confirmed-fabricated `delegatedAccessScopeManager.test.js`; they've been corrected and the
+  file re-enabled in `jest.config.js`.
 
 Regression tests for both FIXED findings are in `src/tests/unit/resourceAuthorization/` (see
 `12_knownGap_patientScopedWriteTagBypass.test.js` and
