@@ -1,26 +1,25 @@
 'use strict';
 
 /**
- * Regression test tracking a KNOWN, DOCUMENTED gap from docs/resource-authorization.md §12
+ * Regression test for a FIXED gap that was tracked in docs/resource-authorization.md §12
  * "Known gaps in the current implementation" — the "High — `$access-history` link traversal drops
  * the access-tag check past the first hop" finding.
  *
- * This is intentionally a `test.failing` (Jest 30): the assertion below encodes CORRECT behavior
- * that `PersonToPatientIdsExpander.getPatientIdsFromPersonAsync` does not currently implement. The
- * test SUCCEEDS (green) as long as the assertion keeps failing internally, i.e. as long as the bug
- * is still present. If someone fixes the bug and forgets to flip this back to `test(...)`, this
- * file turns red in CI, which is the whole point. Not new/undiscovered — see §12 for the write-up.
+ * Originally written as `test.failing` (Jest 30) to document a real, then-unfixed bug. The fix
+ * forwards `addTopPersonAccessCheck` through both recursive calls in
+ * `getPatientIdsFromPersonAsync`, so the access-tag filter now applies at every recursion level,
+ * not just the initial lookup. This is now a plain `test(...)` asserting the fixed behavior.
  *
- * Background:
- *   `getPatientIdsFromPersonAsync` (src/utils/personToPatientIdsExpander.js:200) only applies the
- *   caller's access-tag filter to the Mongo query when `addTopPersonAccessCheck` is true (or the
- *   `$everything` GET special-case matches) — see lines ~224-264. Its own recursive calls, made
- *   when a Person links to another Person (lines ~350 and ~372), pass `requestInfo` through but
- *   never forward `addTopPersonAccessCheck`, so it silently defaults back to `false` at every
- *   deeper recursion level (the parameter default on line ~209). That means: a caller who is only
- *   entitled to see the *top-level* Person (because it passed the access-tag filter there) will
- *   still have every Person/Patient reachable by following `Person.link` at depth >= 2 returned to
- *   them, with no re-check that they hold an access tag for that deeper resource's tenant.
+ * Background (kept for context; see docs/resource-authorization.md §12 for the historical write-up):
+ *   Before the fix, `getPatientIdsFromPersonAsync` (src/utils/personToPatientIdsExpander.js) only
+ *   applied the caller's access-tag filter to the Mongo query when `addTopPersonAccessCheck` was
+ *   true (or the `$everything` GET special-case matched). Its own recursive calls, made when a
+ *   Person links to another Person, passed `requestInfo` through but never forwarded
+ *   `addTopPersonAccessCheck`, so it silently defaulted back to `false` at every deeper recursion
+ *   level. A caller entitled to see only the *top-level* Person (having passed the access-tag
+ *   filter there) would still have every Person/Patient reachable by following `Person.link` at
+ *   depth >= 2 returned to them, with no re-check that they held an access tag for that deeper
+ *   resource's tenant.
  *
  * This test constructs a 2-level Person.link chain:
  *   - level 0: Person tagged for `clientA` (the caller's tenant) — reachable via the top-level
@@ -190,36 +189,60 @@ describe('§12 known gap — $access-history link traversal drops the access-tag
         });
     });
 
-    test.failing(
-        'a Patient reachable only through a second-hop Person link tagged for a different ' +
-        "tenant than the caller's must not be included in the result",
-        async () => {
-            const requestInfo = {
-                user: 'service-account@clientA',
-                scope: 'access/clientA.read',
-                originalUrl: '/4_0_0/Person/person-0/$access-history',
-                method: 'GET'
-            };
+    test('a Patient reachable only through a second-hop Person link tagged for a different ' +
+        "tenant than the caller's must not be included in the result", async () => {
+        const requestInfo = {
+            user: 'service-account@clientA',
+            scope: 'access/clientA.read',
+            originalUrl: '/4_0_0/Person/person-0/$access-history',
+            method: 'GET'
+        };
 
-            const patientIds = await expander.getPatientIdsFromPersonAsync({
-                personIds: ['person-0'],
-                totalProcessedPersonIds: new Set(),
-                databaseQueryManager: mockDatabaseQueryManager,
-                level: 1,
-                toMap: false,
-                requestInfo,
-                addTopPersonAccessCheck: true
-            });
+        const patientIds = await expander.getPatientIdsFromPersonAsync({
+            personIds: ['person-0'],
+            totalProcessedPersonIds: new Set(),
+            databaseQueryManager: mockDatabaseQueryManager,
+            level: 1,
+            toMap: false,
+            requestInfo,
+            addTopPersonAccessCheck: true
+        });
 
-            // CORRECT behavior: the caller only holds an access tag for clientA. The level-1
-            // Person (and the Patient linked from it) is tagged for clientB only, so it must never
-            // be resolved into the result, no matter how many link hops away it is.
-            //
-            // ACTUAL current behavior: the recursive call omits addTopPersonAccessCheck, so no
-            // security-tag filter is applied to the level-1 query. The fake DB above then returns
-            // the clientB-tagged Person purely by id match, and its linked Patient
-            // ("patient-1-uuid") leaks into the result.
-            expect(patientIds).not.toContain('patient-1-uuid');
-        }
-    );
+        // The caller only holds an access tag for clientA. The level-1 Person (and the Patient
+        // linked from it) is tagged for clientB only, so it must never be resolved into the
+        // result, no matter how many link hops away it is.
+        expect(patientIds).not.toContain('patient-1-uuid');
+    });
+
+    test('a Patient reachable through a second-hop Person link tagged for the SAME tenant as the ' +
+        'caller is still included', async () => {
+        // Regression guard for the fix itself: propagating addTopPersonAccessCheck through
+        // recursion must not turn into an unconditional deny — a legitimately-reachable,
+        // correctly-tagged deeper resource should still come back.
+        fakeDatabase[1] = {
+            ...levelOnePerson,
+            meta: {
+                security: [{ system: SecurityTagSystem.access, code: 'clientA' }]
+            }
+        };
+
+        const requestInfo = {
+            user: 'service-account@clientA',
+            scope: 'access/clientA.read',
+            originalUrl: '/4_0_0/Person/person-0/$access-history',
+            method: 'GET'
+        };
+
+        const patientIds = await expander.getPatientIdsFromPersonAsync({
+            personIds: ['person-0'],
+            totalProcessedPersonIds: new Set(),
+            databaseQueryManager: mockDatabaseQueryManager,
+            level: 1,
+            toMap: false,
+            requestInfo,
+            addTopPersonAccessCheck: true
+        });
+
+        expect(patientIds).toContain('patient-1-uuid');
+    });
 });

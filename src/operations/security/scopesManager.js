@@ -171,11 +171,6 @@ class ScopesManager {
         scope,
         ignoreRemovals = false
     }) {
-        // a patient scoped caller is authorized via the patient/person the resource belongs to, not via
-        // access codes - it holds no access scopes to compare against, so defer to the patient scope checks
-        if (this.isAccessAllowedByPatientScopes({ scope, resourceType })) {
-            return true;
-        }
         /**
          * @type {string[]}
          */
@@ -241,14 +236,11 @@ class ScopesManager {
         const accessViaPatientScopes = this.isAccessAllowedByPatientScopes({
             scope, resourceType: resource.resourceType
         });
-        if (accessViaPatientScopes) {
-            // Patient scope tokens in this system never carry an access/ scope of their
-            // own (that's the separate tenant/service-account mechanism), so requiring a
-            // tenant-tag match here would deny every legitimate patient-scoped write. The
-            // "does this resource actually belong to this patient" check the old TODO asked
-            // for is already enforced independently by patientScopeManager.canWriteResourceAsync
-            // (Person/Patient-id matching), which every write path ANDs with this check via
-            // scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes.
+        if (accessViaPatientScopes && !this.doesResourceHaveAccessTags(resource)) {
+            // Patient scope is valid for this resource type, and the resource carries no
+            // owner/access security tags to check against, so there's nothing for the
+            // tenant-tag model to contradict -- patient identity is the only applicable
+            // signal here.
             return true;
         }
         // add any access codes from scopes
@@ -256,6 +248,15 @@ class ScopesManager {
          * @type {string[]}
          */
         const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
+        if (accessViaPatientScopes) {
+            // The resource DOES carry owner/access tags, so a patient scope must not override
+            // them. A patient-scoped token can also carry its own access/ scope (a tenant's
+            // patient-facing app is commonly scoped as `patient/*.* access/<tenant>.*`); if so,
+            // the tag must match it like any other caller. If the token carries no access/ scope
+            // at all, accessCodes is empty here, which just means deny (no tenant tag matches),
+            // not a malformed-request error.
+            return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, resource);
+        }
         if (!accessCodes || accessCodes.length === 0) {
             const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
             throw new ForbiddenError(errorMessage);
