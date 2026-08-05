@@ -58,6 +58,7 @@ const { CustomTracer } = require('../../utils/customTracer');
 const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
+const { RedisManager } = require('../../utils/redisManager');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const httpContext = require('express-http-context');
 const { recordOutboundEverything } = require('../../utils/metrics');
@@ -111,6 +112,7 @@ class EverythingHelper {
      *
      * @param {EverythingHelperParams}
      * @param {RedisStreamManager} redisStreamManager
+     * @param {RedisManager} redisManager
      */
     constructor({
         databaseQueryFactory,
@@ -128,7 +130,8 @@ class EverythingHelper {
         patientDataViewControlManager,
         auditLogger,
         postRequestProcessor,
-        redisStreamManager
+        redisStreamManager,
+        redisManager
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -247,6 +250,12 @@ class EverythingHelper {
          * @type {RedisStreamManager}
          */
         this.redisStreamManager = redisStreamManager;
+
+        /**
+         * @type {RedisManager}
+         */
+        this.redisManager = redisManager;
+        assertTypeEquals(redisManager, RedisManager);
     }
 
     /**
@@ -318,7 +327,7 @@ class EverythingHelper {
         if (!requestInfo.personIdFromJwtToken || requestInfo.userType) {
             return undefined;
         }
-        const keyGenerator = new PatientEverythingCacheKeyGenerator();
+        const keyGenerator = new PatientEverythingCacheKeyGenerator({ redisManager: this.redisManager });
         if (!keyGenerator.isResponseTypeCacheable(requestInfo.accept, parsedArgs)) {
             return undefined;
         }

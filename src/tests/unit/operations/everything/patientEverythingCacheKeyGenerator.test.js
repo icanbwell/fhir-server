@@ -25,12 +25,29 @@ jestObj.mock('../../../../utils/contentTypes', () => ({
 }));
 
 const { PatientEverythingCacheKeyGenerator } = require('../../../../operations/everything/patientEverythingCachekeyGenerator');
+const { RedisManager } = require('../../../../utils/redisManager');
+
+/**
+ * Builds a real RedisManager backed by an in-memory fake redisClient, so the
+ * generator's `instanceof RedisManager` assertion is satisfied without needing a real
+ * Redis server.
+ * @returns {RedisManager}
+ */
+function createFakeRedisManager() {
+    return new RedisManager({
+        redisClient: {
+            connectAsync: jestObj.fn().mockResolvedValue(undefined),
+            get: jestObj.fn().mockResolvedValue(null),
+            incr: jestObj.fn().mockResolvedValue(1)
+        }
+    });
+}
 
 describe('PatientEverythingCacheKeyGenerator', () => {
     let generator;
 
     beforeEach(() => {
-        generator = new PatientEverythingCacheKeyGenerator();
+        generator = new PatientEverythingCacheKeyGenerator({ redisManager: createFakeRedisManager() });
     });
 
     test('sets operation to Everything', () => {
@@ -73,5 +90,13 @@ describe('PatientEverythingCacheKeyGenerator', () => {
 
     test('cacheableResponseTypes has 6 items total', () => {
         expect(generator.cacheableResponseTypes).toHaveLength(6);
+    });
+
+    test('keyParamsforCache includes _type so requests with different resource-type filters do not share a cache entry', () => {
+        expect(generator.keyParamsforCache).toEqual(['_type']);
+    });
+
+    test('constructor stores the provided redisManager', () => {
+        expect(generator.redisManager).toBeDefined();
     });
 });
