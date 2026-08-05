@@ -6,21 +6,6 @@ jestObj.mock('../../../../operations/common/logging', () => ({
     logError: jestObj.fn()
 }));
 
-jestObj.mock('../../../../constants/clickHouseConstants', () => ({
-    TABLES: {
-        GROUP_MEMBER_EVENTS: 'group_member_events'
-    }
-}));
-
-jestObj.mock('../../../../utils/clickHouse/queryFragments', () => ({
-    QueryFragments: {
-        argMaxWithTieBreaker: jestObj.fn(() => 'argMax(event_type, version)'),
-        whereGroupId: jestObj.fn(() => 'WHERE group_id = {groupId:String}'),
-        groupByEntityReference: jestObj.fn(() => 'GROUP BY entity_reference'),
-        activeMembers: jestObj.fn(() => "latest_event_type = 'add'")
-    }
-}));
-
 jestObj.mock('../../../../utils/contextDataBuilder', () => ({
     USE_EXTERNAL_STORAGE_HEADER: 'useexternalstorage'
 }));
@@ -384,7 +369,8 @@ describe('GroupMemberEnrichmentProvider', () => {
 
             const callArgs = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
             expect(callArgs.query).toContain('SELECT count() as count');
-            expect(callArgs.query).toContain('group_member_events');
+            expect(callArgs.query).toContain('Group_4_0_0_MemberCurrent');
+            expect(callArgs.query).toContain('FINAL');
             expect(callArgs.query_params).toEqual({ groupId: 'group-abc' });
         });
     });
