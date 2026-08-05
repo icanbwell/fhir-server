@@ -77,7 +77,7 @@ describe('GraphQL DocumentReference Tests', () => {
                 variables: {},
                 query: graphqlQueryText
             })
-            .set(getGraphQLHeaders());
+            .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedDocumentReferenceWithBinaryResponse);
@@ -91,7 +91,7 @@ describe('GraphQL DocumentReference Tests', () => {
                 variables: {},
                 query: graphqlQueryText
             })
-            .set(getGraphQLHeaders());
+            .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedDocumentReferenceWithBinaryResponse);
@@ -138,7 +138,7 @@ describe('GraphQL DocumentReference Tests', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         const patient_scope = {
-            scope: 'access/*.* patient/*.* user/*.*',
+            scope: 'access/*.* patient/*.* user/*.* admin/*.read',
             username: 'patient-123@example.com',
             clientFhirPersonId: 'f0f35c4e-22a2-549d-88e9-50263c4da925',
             clientFhirPatientId: 'b4fa6c01-9fb5-5ef7-83e2-071e32a28ca1',
@@ -203,7 +203,7 @@ describe('GraphQL DocumentReference Tests', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         const patient_scope = {
-            scope: 'access/*.* patient/*.* user/*.*',
+            scope: 'access/*.* patient/*.* user/*.* admin/*.read',
             username: 'patient-123@example.com',
             clientFhirPersonId: 'f0f35c4e-22a2-549d-88e9-50263c4da925',
             clientFhirPatientId: 'b4fa6c01-9fb5-5ef7-83e2-071e32a28ca1',

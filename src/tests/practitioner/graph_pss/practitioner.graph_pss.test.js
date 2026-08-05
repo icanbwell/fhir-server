@@ -20,6 +20,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -108,7 +109,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1003059437&contained=true&_debug=1')
                 .send(graphDefinitionResource)
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMongoQuery(expectedResource);
             expect(resp).toHaveResponse(expectedResource);
@@ -128,7 +129,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1003059437,1003059438&contained=true&_debug=1')
                 .send(graphDefinitionResource)
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMongoQuery(expectedMultipleResource);
             expect(resp).toHaveResponse(expectedMultipleResource);

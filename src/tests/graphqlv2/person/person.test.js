@@ -78,7 +78,7 @@ describe('GraphQLV2 Patient Tests', () => {
                     variables: {},
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeaders());
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlPersonResponse, r => {
