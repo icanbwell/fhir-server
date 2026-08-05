@@ -69,7 +69,7 @@ class MockConfigManager extends ConfigManager {
 }
 
 const delegatedPayload = {
-    scope: 'patient/Composition.read patient/Patient.read access/*.read',
+    scope: 'patient/Composition.read patient/Patient.read access/*.read admin/*.read',
     username: 'test',
     client_id: 'client',
     clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',
@@ -84,7 +84,7 @@ const delegatedPayload = {
 };
 
 const nonDelegatedPayload = {
-    scope: 'patient/Composition.read patient/Patient.read access/*.read',
+    scope: 'patient/Composition.read patient/Patient.read access/*.read admin/*.read',
     username: 'test',
     client_id: 'client',
     clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',

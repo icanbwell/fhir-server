@@ -97,7 +97,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedObservationResources, 'observations');
@@ -140,7 +140,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedObservationSubjectResources, 'observations');
@@ -183,7 +183,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedObservationNotSubjectResources, 'observations');
@@ -226,7 +226,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedObservationQuantityResources, 'observations');
@@ -269,7 +269,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedObservationQuantityResources, 'observations');
@@ -312,7 +312,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedResultQuantity5sig, 'observations');
@@ -355,7 +355,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedResultQuantitySN1, 'observations');
@@ -398,7 +398,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedResultQuantitySN2, 'observations');
@@ -441,7 +441,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedResultQuantitySN3, 'observations');
@@ -484,7 +484,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedResultMissing, 'observations');
@@ -527,7 +527,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedResultNotMissing, 'observations');
@@ -568,7 +568,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedObservationNeNotFound, 'observations');
@@ -611,7 +611,7 @@ describe('GraphQL Observation Tests', () => {
                     },
                     query: graphqlQueryText
                 })
-               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedObservationNeFound, 'observations');
@@ -668,7 +668,7 @@ describe('GraphQL Observation Tests', () => {
                     operationName: null,
                     query: observationQueryIdEqualsText
                 })
-               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedObservationIdEquals, 'observations');
 
@@ -678,7 +678,7 @@ describe('GraphQL Observation Tests', () => {
                     operationName: null,
                     query: observationQueryIdNotEqualsText
                 })
-               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454', 'patient/*.read user/*.* access/*.* admin/*.read'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedObservationIdNotEquals, 'observations');
 

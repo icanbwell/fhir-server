@@ -101,7 +101,7 @@ describe('Patient Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             const person_payload = {
-                scope: 'patient/Task.read',
+                scope: 'patient/Task.read admin/*.read',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: '41db6857-b989-4617-ac8b-35d853250449',
                 clientFhirPatientId: 'clientFhirPatient',

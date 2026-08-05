@@ -358,6 +358,100 @@ describe('GraphHelper', () => {
             });
             expect(result).toBeUndefined();
         });
+
+        // DCON-4808: filterProperty is parsed from a caller-supplied GraphDefinition
+        // link.path (e.g. "subject:role=doctor") and was used as a raw MongoDB query key,
+        // letting a value like "$where" inject a MongoDB operator into the query.
+        describe('filterProperty MongoDB operator injection', () => {
+            const { ResourceEntityAndContained } = require('../../../../operations/graph/resourceEntityAndContained');
+
+            function makeParentEntityReferencingPatient123() {
+                const entity = {
+                    resource: {
+                        id: 'obs-1',
+                        resourceType: 'Observation',
+                        subject: { reference: 'Patient/123', _uuid: 'Patient/123' }
+                    },
+                    containedEntries: []
+                };
+                Object.setPrototypeOf(entity, ResourceEntityAndContained.prototype);
+                return entity;
+            }
+
+            function mockFindAsyncCapturingQuery() {
+                const mockCursor = {
+                    explainAsync: jest.fn().mockResolvedValue([]),
+                    limit: jest.fn().mockReturnThis(),
+                    maxTimeMS: jest.fn().mockReturnThis(),
+                    getCollection: jest.fn().mockReturnValue('Patient_4_0_0'),
+                    hasNext: jest.fn().mockResolvedValue(false)
+                };
+                const findAsync = jest.fn().mockResolvedValue(mockCursor);
+                mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({ findAsync });
+                return findAsync;
+            }
+
+            test('applies a safe filterProperty as a query key', async () => {
+                const findAsync = mockFindAsyncCapturingQuery();
+
+                await graphHelper.getForwardReferencesAsync({
+                    requestInfo: {},
+                    base_version: '4_0_0',
+                    resourceType: 'Patient',
+                    parentEntities: [makeParentEntityReferencingPatient123()],
+                    property: 'subject',
+                    filterProperty: 'status',
+                    filterValue: 'active',
+                    parsedArgs: {},
+                    explain: false,
+                    debug: false
+                });
+
+                const queryPassed = findAsync.mock.calls[0][0].query;
+                expect(queryPassed.status).toBe('active');
+            });
+
+            test('drops a filterProperty that looks like a MongoDB operator', async () => {
+                const findAsync = mockFindAsyncCapturingQuery();
+
+                await graphHelper.getForwardReferencesAsync({
+                    requestInfo: {},
+                    base_version: '4_0_0',
+                    resourceType: 'Patient',
+                    parentEntities: [makeParentEntityReferencingPatient123()],
+                    property: 'subject',
+                    filterProperty: '$where',
+                    filterValue: 'sleep(10000)',
+                    parsedArgs: {},
+                    explain: false,
+                    debug: false
+                });
+
+                const queryPassed = findAsync.mock.calls[0][0].query;
+                expect(queryPassed.$where).toBeUndefined();
+                expect(Object.keys(queryPassed)).not.toContain('$where');
+            });
+
+            test('drops a filterProperty containing a nested operator key', async () => {
+                const findAsync = mockFindAsyncCapturingQuery();
+
+                await graphHelper.getForwardReferencesAsync({
+                    requestInfo: {},
+                    base_version: '4_0_0',
+                    resourceType: 'Patient',
+                    parentEntities: [makeParentEntityReferencingPatient123()],
+                    property: 'subject',
+                    filterProperty: 'status[$ne]',
+                    filterValue: 'active',
+                    parsedArgs: {},
+                    explain: false,
+                    debug: false
+                });
+
+                const queryPassed = findAsync.mock.calls[0][0].query;
+                expect(Object.keys(queryPassed)).not.toContain('status[$ne]');
+            });
+        });
     });
 
     describe('getReverseReferencesAsync', () => {
