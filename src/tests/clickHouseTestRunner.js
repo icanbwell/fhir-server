@@ -5,6 +5,7 @@ const { withNockSuspended, setEnvVars } = require('./testContainerUtils');
 const CLICKHOUSE_IMAGE = 'clickhouse/clickhouse-server:26.2';
 const STARTUP_TIMEOUT_MS = 60000;
 const SCHEMA_WAIT_TIMEOUT_MS = 30000;
+const STOP_TIMEOUT_MS = 15000;
 
 const SCHEMA_FILES = [
     '01-init-schema.sql',
@@ -126,12 +127,26 @@ async function startTestClickHouseAsync () {
 /**
  * Stops the shared ClickHouse container if one was started.
  *
+ * Races the stop against a hard timeout: an occasional CI flake left this hanging
+ * indefinitely (the container-runtime call to Docker never settled), which silently
+ * blocked the whole globalTeardown until the CI job itself was killed on its own
+ * timeout -- indistinguishable from a crash, since nothing ever got to log an error.
+ * A bounded timeout guarantees this rejects instead, so the try/catch around the
+ * caller actually gets a chance to run.
+ *
  * @returns {Promise<void>}
  */
 async function stopTestClickHouseAsync () {
     if (startedContainer) {
+        const container = startedContainer;
         try {
-            await withNockSuspended(() => startedContainer.stop());
+            await withNockSuspended(() => Promise.race([
+                container.stop(),
+                new Promise((_resolve, reject) => setTimeout(
+                    () => reject(new Error(`ClickHouse container did not stop within ${STOP_TIMEOUT_MS}ms`)),
+                    STOP_TIMEOUT_MS
+                ))
+            ]));
         } finally {
             startedContainer = null;
         }
