@@ -57,7 +57,11 @@ const {
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
-const headers = getHeaders('user/*.read access/client.*');
+// admin/*.read is required for the _debug=1 request below (DCON-4808 gates _explain/_debug/
+// _setIndexHint behind admin scope) -- these tests use it purely to get the query-echo written
+// into meta.tag for the toHaveResponse assertion, not to test the gate itself. Matches the same
+// fix already applied to client1Headers by commit 12e1ff744.
+const headers = getHeaders('user/*.read access/client.* admin/*.read');
 const client1Headers = getHeaders('user/*.read access/client-1.* admin/*.read');
 const { jest } = require('@jest/globals');
 
