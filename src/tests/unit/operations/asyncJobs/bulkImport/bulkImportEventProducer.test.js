@@ -2,29 +2,29 @@
 
 const { describe, test, expect, jest: jestObj, beforeEach } = require('@jest/globals');
 
-jestObj.mock('../../../../utils/assertType', () => ({
+jestObj.mock('../../../../../utils/assertType', () => ({
     assertTypeEquals: jestObj.fn(),
     assertIsValid: jestObj.fn()
 }));
 
-jestObj.mock('../../../../utils/uid.util', () => ({
+jestObj.mock('../../../../../utils/uid.util', () => ({
     generateUUID: jestObj.fn(() => 'mock-uuid')
 }));
 
-jestObj.mock('../../../../utils/kafkaClientV2', () => ({
+jestObj.mock('../../../../../utils/kafkaClientV2', () => ({
     KafkaClientV2: class KafkaClientV2 {}
 }));
 
-jestObj.mock('../../../../utils/configManager', () => ({
+jestObj.mock('../../../../../utils/configManager', () => ({
     ConfigManager: class ConfigManager {}
 }));
 
-jestObj.mock('../../../../operations/common/logging', () => ({
+jestObj.mock('../../../../../operations/common/logging', () => ({
     logInfo: jestObj.fn(),
     logError: jestObj.fn()
 }));
 
-const { BulkImportEventProducer } = require('../../../../operations/import/bulkImportEventProducer');
+const { BulkImportEventProducer } = require('../../../../../operations/asyncJobs/bulkImport/bulkImportEventProducer');
 
 describe('BulkImportEventProducer', () => {
     let producer;

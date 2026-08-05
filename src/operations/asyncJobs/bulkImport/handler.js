@@ -1,20 +1,23 @@
+const { S3Client: S3, HeadObjectCommand } = require('@aws-sdk/client-s3');
 const moment = require('moment-timezone');
-const { assertTypeEquals } = require('../../utils/assertType');
-const { ConfigManager } = require('../../utils/configManager');
-const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
-const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { ConfigManager } = require('../../../utils/configManager');
+const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
+const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
+const { DatabaseUpdateFactory } = require('../../../dataLayer/databaseUpdateFactory');
+const { FastDatabaseBulkInserter } = require('../../../dataLayer/fastDatabaseBulkInserter');
 const { S3NdjsonReader } = require('./s3NdjsonReader');
-const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
-const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
-const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
-const { generateUUID } = require('../../utils/uid.util');
-const { SecurityTagSystem } = require('../../utils/securityTagSystem');
-const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../constants');
-const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { RequestSpecificCache } = require('../../utils/requestSpecificCache');
-const { MergeResultEntry } = require('../common/mergeResultEntry');
-const { logInfo, logError } = require('../common/logging');
+const { BulkImportEventProducer } = require('./bulkImportEventProducer');
+const { FhirResourceWriteSerializer } = require('../../../fhir/fhirResourceWriteSerializer');
+const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
+const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
+const { generateUUID } = require('../../../utils/uid.util');
+const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
+const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../../constants');
+const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
+const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
+const { MergeResultEntry } = require('../../common/mergeResultEntry');
+const { logInfo, logError } = require('../../common/logging');
 
 /**
  * Extension URL used to record a marker on the Task each time a byte-range finishes
@@ -27,10 +30,23 @@ const { logInfo, logError } = require('../common/logging');
  */
 const BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL = 'https://www.icanbwell.com/bulk-import-range-completed';
 
-class BulkImportConsumerRunner {
+/**
+ * Handles every Kafka message type for the bulk-import async job. Both
+ * src/operations/asyncJobs/orchestrator.js (topic fhir_server.bulk_import.requested) and
+ * src/operations/asyncJobs/worker.js (topic fhir_server.bulk_import.events) route into this
+ * same handler; handleMessageAsync dispatches on the CloudEvent "type" rather than the topic,
+ * since a single job's messages can arrive on more than one topic:
+ * - TaskCreated: validates S3 inputs and will publish ImportRangeRequested events (byte-range
+ *   splitting is a follow-up — see the TODO in handleTaskCreatedAsync).
+ * - ImportRangeRequested: reads a byte range's NDJSON, merges resources, writes result/error
+ *   output to S3, and records completion on the Task.
+ */
+class BulkImportHandler {
     /**
      * @typedef {Object} ConstructorParams
      * @property {ConfigManager} configManager
+     * @property {KafkaClientV2} kafkaClientV2
+     * @property {BulkImportEventProducer} bulkImportEventProducer
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
      * @property {FastDatabaseBulkInserter} fastDatabaseBulkInserter
@@ -42,6 +58,8 @@ class BulkImportConsumerRunner {
      */
     constructor({
         configManager,
+        kafkaClientV2,
+        bulkImportEventProducer,
         databaseQueryFactory,
         databaseUpdateFactory,
         fastDatabaseBulkInserter,
@@ -51,6 +69,12 @@ class BulkImportConsumerRunner {
     }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        this.kafkaClientV2 = kafkaClientV2;
+        assertTypeEquals(kafkaClientV2, KafkaClientV2);
+
+        this.bulkImportEventProducer = bulkImportEventProducer;
+        assertTypeEquals(bulkImportEventProducer, BulkImportEventProducer);
 
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
@@ -70,6 +94,222 @@ class BulkImportConsumerRunner {
         this.requestSpecificCache = requestSpecificCache;
         assertTypeEquals(requestSpecificCache, RequestSpecificCache);
     }
+
+    /**
+     * Routes a raw Kafka message to the handler for its CloudEvent type.
+     * @param {{ key: string, value: string, headers: Array<{key: string, value: string}> }} message
+     * @returns {Promise<void>}
+     */
+    async handleMessageAsync(message) {
+        let envelope;
+        try {
+            envelope = JSON.parse(message.value);
+        } catch (e) {
+            logError('Failed to parse bulk import Kafka message', {
+                error: e.message,
+                key: message.key
+            });
+            return;
+        }
+
+        switch (envelope.type) {
+            case 'TaskCreated':
+                return this.handleTaskCreatedAsync(message);
+            case 'ImportRangeRequested':
+                return this.handleImportRangeRequestedAsync(message);
+            default:
+                logError('Unexpected bulk import event type', { type: envelope.type, key: message.key });
+        }
+    }
+
+    /**
+     * Loads the Task resource by ID
+     * @param {string} taskId
+     * @returns {Promise<Object|null>}
+     */
+    async loadTaskAsync(taskId) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Task',
+            base_version: '4_0_0'
+        });
+
+        return databaseQueryManager.findOneAsync({
+            query: { id: taskId }
+        });
+    }
+
+    // ── TaskCreated (orchestrator side, topic fhir_server.bulk_import.requested) ───────────
+
+    /**
+     * Parses a TaskCreated CloudEvent message
+     * @param {string} messageValue
+     * @returns {Object} parsed CloudEvent data
+     */
+    parseTaskCreatedEvent(messageValue) {
+        const envelope = JSON.parse(messageValue);
+        if (envelope.type !== 'TaskCreated') {
+            throw new Error(`Unexpected event type: ${envelope.type}`);
+        }
+        if (!envelope.data || !envelope.data.taskId) {
+            throw new Error('Invalid TaskCreated event: missing taskId');
+        }
+        return envelope.data;
+    }
+
+    /**
+     * @param {Object} task
+     * @param {string} status
+     * @param {string} [statusReason]
+     * @returns {Promise<void>}
+     */
+    async updateOrchestratorTaskStatusAsync(task, status, statusReason) {
+        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+            resourceType: 'Task',
+            base_version: '4_0_0'
+        });
+
+        const updated = task.clone();
+        updated.status = status;
+        updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
+        if (statusReason) {
+            if (!updated.statusReason) {
+                updated.statusReason = {};
+            }
+            updated.statusReason.text = statusReason;
+        }
+
+        await databaseUpdateManager.updateOneAsync({ doc: updated });
+    }
+
+    /**
+     * HEADs each S3 file to get file sizes and validate they exist.
+     * Validates each bucket against the configured allow-list to prevent SSRF.
+     * @param {Array<{ url: string }>} inputs
+     * @returns {Promise<Array<{ url: string, fileSize: number }>>}
+     */
+    async headS3FilesAsync(inputs) {
+        const allowedBuckets = this.configManager.bulkImportAllowedS3Buckets;
+        if (!allowedBuckets.length) {
+            throw new Error('Bulk import S3 bucket allowlist is not configured');
+        }
+
+        const region = this.configManager.awsRegion || 'us-east-1';
+        const s3 = new S3({ region });
+        const minBytes = this.configManager.bulkImportMinFileSizeMb * 1024 * 1024;
+        const maxBytes = this.configManager.bulkImportMaxFileSizeGb * 1024 * 1024 * 1024;
+
+        const results = [];
+        for (const input of inputs) {
+            const match = input.url.match(/^s3:\/\/([^/]+)\/(.+)$/);
+            if (!match) {
+                throw new Error(`Invalid S3 URI: "${input.url}"`);
+            }
+            const bucket = match[1];
+            const key = match[2];
+
+            if (!allowedBuckets.includes(bucket)) {
+                throw new Error(`S3 bucket "${bucket}" is not in the allowed list`);
+            }
+
+            let fileSize;
+            try {
+                const response = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+                fileSize = response.ContentLength;
+            } catch (e) {
+                throw new Error(`Cannot access S3 file "${input.url}": ${e.name}: ${e.message}`);
+            }
+
+            if (!Number.isFinite(fileSize)) {
+                throw new Error(`S3 HEAD for "${input.url}" returned no ContentLength`);
+            }
+
+            if (fileSize <= 0) {
+                throw new Error(`File "${input.url}" is empty (0 bytes)`);
+            }
+            if (minBytes > 0 && fileSize < minBytes) {
+                throw new Error(
+                    `File "${input.url}" is ${(fileSize / (1024 * 1024)).toFixed(1)} MB, ` +
+                    `below the minimum of ${this.configManager.bulkImportMinFileSizeMb} MB`
+                );
+            }
+            if (fileSize > maxBytes) {
+                throw new Error(
+                    `File "${input.url}" is ${(fileSize / (1024 * 1024 * 1024)).toFixed(1)} GB, ` +
+                    `above the maximum of ${this.configManager.bulkImportMaxFileSizeGb} GB`
+                );
+            }
+
+            results.push({ url: input.url, fileSize });
+        }
+        return results;
+    }
+
+    /**
+     * Handles a single TaskCreated Kafka message:
+     * HEADs S3 files for sizes, then publishes byte-range messages
+     * @param {{ key: string, value: string, headers: Array<{key: string, value: string}> }} message
+     * @returns {Promise<void>}
+     */
+    async handleTaskCreatedAsync(message) {
+        let eventData;
+        try {
+            eventData = this.parseTaskCreatedEvent(message.value);
+        } catch (e) {
+            logError('Failed to parse TaskCreated Kafka message', {
+                error: e.message,
+                key: message.key
+            });
+            return;
+        }
+
+        const { taskId, inputs, requestId, scope, user } = eventData;
+
+        logInfo('Orchestrator received TaskCreated event', {
+            taskId,
+            inputCount: inputs.length,
+            inputs,
+            requestId,
+            scope,
+            user
+        });
+
+        // TODO: S3 HEAD validation and byte-range splitting will be added in a follow-up PR.
+        // The orchestrator will:
+        // 1. Load the Task resource
+        // 2. HEAD each S3 file to get sizes and validate
+        // 3. Split files into byte ranges
+        // 4. Publish ImportRangeRequested events for each range
+        //
+        // const task = await this.loadTaskAsync(taskId);
+        // if (!task) {
+        //     logError('Task not found for orchestrator message', { taskId });
+        //     return;
+        // }
+        //
+        // let inputsWithSizes;
+        // try {
+        //     inputsWithSizes = await this.headS3FilesAsync(inputs);
+        // } catch (e) {
+        //     logError('S3 validation failed for import task', { taskId, error: e.message });
+        //     await this.updateOrchestratorTaskStatusAsync(task, 'failed', e.message);
+        //     return;
+        // }
+        //
+        // const messageCount = await this.bulkImportEventProducer.publishImportEventsAsync({
+        //     taskId,
+        //     inputs: inputsWithSizes,
+        //     requestId,
+        //     scope,
+        //     user
+        // });
+        //
+        // logInfo('Orchestrator published byte-range messages', {
+        //     taskId,
+        //     messageCount
+        // });
+    }
+
+    // ── ImportRangeRequested (worker side, topic fhir_server.bulk_import.events) ───────────
 
     /**
      * Builds a request-scoped FhirRequestInfo for a single byte-range's writes.
@@ -129,11 +369,11 @@ class BulkImportConsumerRunner {
     }
 
     /**
-     * Parses a CloudEvent message from Kafka
+     * Parses an ImportRangeRequested CloudEvent message
      * @param {string} messageValue
      * @returns {Object} parsed CloudEvent data
      */
-    parseCloudEvent(messageValue) {
+    parseImportRangeRequestedEvent(messageValue) {
         const envelope = JSON.parse(messageValue);
         if (envelope.type !== 'ImportRangeRequested') {
             throw new Error(`Unexpected event type: ${envelope.type}`);
@@ -142,22 +382,6 @@ class BulkImportConsumerRunner {
             throw new Error('Invalid ImportRangeRequested event: missing taskId or filepath');
         }
         return envelope.data;
-    }
-
-    /**
-     * Loads the Task resource by ID
-     * @param {string} taskId
-     * @returns {Promise<Object|null>}
-     */
-    async loadTaskAsync(taskId) {
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({
-            resourceType: 'Task',
-            base_version: '4_0_0'
-        });
-
-        return databaseQueryManager.findOneAsync({
-            query: { id: taskId }
-        });
     }
 
     /**
@@ -210,7 +434,7 @@ class BulkImportConsumerRunner {
     }
 
     /**
-     * @param {import('../common/mergeResultEntry').MergeResultEntry[]} entries
+     * @param {import('../../common/mergeResultEntry').MergeResultEntry[]} entries
      * @returns {string}
      */
     buildNdjson(entries) {
@@ -291,12 +515,12 @@ class BulkImportConsumerRunner {
      * @param {string} params.filepath
      * @param {number} params.rangeIndex
      * @param {number} params.totalRanges
-     * @param {import('../common/mergeResultEntry').MergeResultEntry[]} params.mergeResultEntries
+     * @param {import('../../common/mergeResultEntry').MergeResultEntry[]} params.mergeResultEntries
      * @param {FhirRequestInfo} params.requestInfo
      * @returns {Promise<void>}
      */
     async recordRangeCompletionAsync({ taskId, filepath, rangeIndex, totalRanges, mergeResultEntries, requestInfo }) {
-        // Reload fresh rather than reusing the Task loaded at the top of handleMessageAsync —
+        // Reload fresh rather than reusing the Task loaded at the top of handleImportRangeRequestedAsync —
         // that snapshot can be minutes stale by the time a large range finishes, and
         // replaceOneAsync's merge takes scalar fields (e.g. status) from OUR doc when they
         // differ from the DB, so a stale snapshot here could silently regress a concurrent
@@ -365,10 +589,10 @@ class BulkImportConsumerRunner {
      * @param {{ key: string, value: string, headers: Array<{key: string, value: string}> }} message
      * @returns {Promise<void>}
      */
-    async handleMessageAsync(message) {
+    async handleImportRangeRequestedAsync(message) {
         let eventData;
         try {
-            eventData = this.parseCloudEvent(message.value);
+            eventData = this.parseImportRangeRequestedEvent(message.value);
         } catch (e) {
             logError('Failed to parse bulk import Kafka message', {
                 error: e.message,
@@ -526,4 +750,4 @@ class BulkImportConsumerRunner {
     }
 }
 
-module.exports = { BulkImportConsumerRunner };
+module.exports = { BulkImportHandler };

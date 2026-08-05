@@ -1,8 +1,8 @@
 const { S3Client: S3, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
 const readline = require('readline');
-const { assertTypeEquals } = require('../../utils/assertType');
-const { ConfigManager } = require('../../utils/configManager');
-const { logInfo, logError } = require('../common/logging');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { ConfigManager } = require('../../../utils/configManager');
+const { logInfo, logError } = require('../../common/logging');
 
 class S3NdjsonReader {
     /**

@@ -1,4 +1,4 @@
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
 const makeCloudEvent = (overrides = {}) => {
@@ -36,7 +36,7 @@ const validParametersBody = {
     ]
 };
 
-describe('BulkImportConsumerRunner', () => {
+describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
     beforeEach(async () => {
         process.env.ENABLE_BULK_IMPORT = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
@@ -49,12 +49,12 @@ describe('BulkImportConsumerRunner', () => {
         await commonAfterEach();
     });
 
-    test('parseCloudEvent extracts data from valid message', () => {
-        const { createTestContainer } = require('../createTestContainer');
+    test('parseImportRangeRequestedEvent extracts data from valid message', () => {
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
-        const data = runner.parseCloudEvent(makeCloudEvent());
+        const data = handler.parseImportRangeRequestedEvent(makeCloudEvent());
         expect(data.taskId).toBe('import-consumer-001');
         expect(data.filepath).toBe('s3://allowed-bucket/Patient.ndjson');
         expect(data.byteRangeStart).toBe(0);
@@ -63,16 +63,16 @@ describe('BulkImportConsumerRunner', () => {
         expect(data.totalRanges).toBe(1);
     });
 
-    test('parseCloudEvent rejects wrong event type', () => {
-        const { createTestContainer } = require('../createTestContainer');
+    test('parseImportRangeRequestedEvent rejects wrong event type', () => {
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
         const badEvent = JSON.stringify({
             type: 'SomethingElse',
             data: { taskId: 'x', filepath: 'y' }
         });
-        expect(() => runner.parseCloudEvent(badEvent)).toThrow('Unexpected event type');
+        expect(() => handler.parseImportRangeRequestedEvent(badEvent)).toThrow('Unexpected event type');
     });
 
     test('handleMessageAsync updates Task status to in-progress', async () => {
@@ -90,11 +90,11 @@ describe('BulkImportConsumerRunner', () => {
             .expect(200);
         expect(taskResp.body.status).toBe('requested');
 
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'import-consumer-001-0-0',
             // totalRanges: 2 so this single range does not also complete the Task —
             // that behavior is covered separately below.
@@ -110,11 +110,11 @@ describe('BulkImportConsumerRunner', () => {
     });
 
     test('handleMessageAsync skips update if Task not found', async () => {
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'nonexistent-task-0',
             value: makeCloudEvent({ taskId: 'nonexistent-task' }),
             headers: []
@@ -130,11 +130,11 @@ describe('BulkImportConsumerRunner', () => {
             .set(getHeaders())
             .expect(202);
 
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'import-consumer-001-0-0',
             value: makeCloudEvent({ rangeIndex: 0, totalRanges: 2 }),
             headers: []
@@ -146,7 +146,7 @@ describe('BulkImportConsumerRunner', () => {
             .expect(200);
         expect(taskResp.body.status).toBe('in-progress');
 
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'import-consumer-001-1',
             value: makeCloudEvent({ rangeIndex: 1, totalRanges: 2 }),
             headers: []
@@ -160,11 +160,11 @@ describe('BulkImportConsumerRunner', () => {
     });
 
     test('handleMessageAsync ignores malformed messages', async () => {
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'bad-message',
             value: 'not-valid-json{{{',
             headers: []
@@ -180,16 +180,16 @@ describe('BulkImportConsumerRunner', () => {
             .set(getHeaders())
             .expect(202);
 
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
         container.s3NdjsonReader.setLinesToYield([
             { resourceType: 'Patient', id: 'bulk-import-patient-1', name: [{ family: 'Smith', given: ['John'] }] },
             { resourceType: 'Patient', id: 'bulk-import-patient-2', name: [{ family: 'Jones', given: ['Sarah'] }] }
         ]);
 
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'import-consumer-write-0',
             value: makeCloudEvent({ taskId: 'import-consumer-write' }),
             headers: []
@@ -222,9 +222,9 @@ describe('BulkImportConsumerRunner', () => {
             .set(getHeaders())
             .expect(202);
 
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
         container.s3NdjsonReader.setLinesToYield([
             { resourceType: 'Patient', id: 'bulk-import-batch-1', name: [{ family: 'One' }] },
@@ -235,7 +235,7 @@ describe('BulkImportConsumerRunner', () => {
         ]);
 
         try {
-            await runner.handleMessageAsync({
+            await handler.handleMessageAsync({
                 key: 'import-consumer-batches-0',
                 value: makeCloudEvent({ taskId: 'import-consumer-batches' }),
                 headers: []
@@ -261,16 +261,16 @@ describe('BulkImportConsumerRunner', () => {
             .set(getHeaders())
             .expect(202);
 
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
         container.s3NdjsonReader.setLinesToYield([
             { id: 'missing-resource-type' },
             { resourceType: 'Patient', id: 'bulk-import-survivor', name: [{ family: 'Survivor' }] }
         ]);
 
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'import-consumer-partial-fail-0',
             value: makeCloudEvent({ taskId: 'import-consumer-partial-fail' }),
             headers: []
@@ -311,9 +311,9 @@ describe('BulkImportConsumerRunner', () => {
             .set(getHeaders())
             .expect(202);
 
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
         container.s3NdjsonReader.setLinesToYield([
             { resourceType: 'Patient', id: 'bulk-import-cleanup-1', name: [{ family: 'Cleanup' }] }
@@ -323,7 +323,7 @@ describe('BulkImportConsumerRunner', () => {
         const clearAsyncSpy = jest.spyOn(container.requestSpecificCache, 'clearAsync');
         const requestIdsBefore = container.requestSpecificCache.getRequestIds().length;
 
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'import-consumer-cleanup-0',
             value: makeCloudEvent({ taskId: 'import-consumer-cleanup' }),
             headers: []
@@ -339,11 +339,11 @@ describe('BulkImportConsumerRunner', () => {
     });
 
     test('buildRangeOutputKeys nests result/error keys under an output/ prefix', () => {
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
-        const { resultKey, errorKey } = runner.buildRangeOutputKeys({
+        const { resultKey, errorKey } = handler.buildRangeOutputKeys({
             key: 'run-20260521/Patient.ndjson',
             rangeIndex: 0
         });
@@ -352,21 +352,21 @@ describe('BulkImportConsumerRunner', () => {
     });
 
     test('isTaskFullyComplete is false until every range of every input file is marked complete', () => {
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
         const marker = (filepath, rangeIndex, totalRanges) => ({
             url: 'https://www.icanbwell.com/bulk-import-range-completed',
             valueString: JSON.stringify({ filepath, rangeIndex, totalRanges })
         });
 
-        expect(runner.isTaskFullyComplete({
+        expect(handler.isTaskFullyComplete({
             input: [{ valueUri: 's3://bucket/a.ndjson' }],
             extension: []
         })).toBe(false);
 
-        expect(runner.isTaskFullyComplete({
+        expect(handler.isTaskFullyComplete({
             input: [
                 { valueUri: 's3://bucket/a.ndjson' },
                 { valueUri: 's3://bucket/b.ndjson' }
@@ -377,7 +377,7 @@ describe('BulkImportConsumerRunner', () => {
             ]
         })).toBe(false); // file "b" hasn't started
 
-        expect(runner.isTaskFullyComplete({
+        expect(handler.isTaskFullyComplete({
             input: [
                 { valueUri: 's3://bucket/a.ndjson' },
                 { valueUri: 's3://bucket/b.ndjson' }
@@ -399,15 +399,15 @@ describe('BulkImportConsumerRunner', () => {
             .set(getHeaders())
             .expect(202);
 
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
         container.s3NdjsonReader.setLinesToYield([
             { resourceType: 'Patient', id: 'bulk-import-output-1', name: [{ family: 'Output' }] }
         ]);
 
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'import-consumer-output-0',
             value: makeCloudEvent({ taskId: 'import-consumer-output' }),
             headers: []
@@ -430,11 +430,11 @@ describe('BulkImportConsumerRunner', () => {
     });
 
     test('isTaskFullyComplete ignores an unparseable completion marker rather than throwing', () => {
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
-        expect(() => runner.isTaskFullyComplete({
+        expect(() => handler.isTaskFullyComplete({
             input: [{ valueUri: 's3://bucket/a.ndjson' }],
             extension: [
                 { url: 'https://www.icanbwell.com/bulk-import-range-completed', valueString: 'not-json' }
@@ -443,29 +443,29 @@ describe('BulkImportConsumerRunner', () => {
     });
 
     test('writeNdjsonWithRetryAsync retries transient failures and succeeds', async () => {
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
         const writeSpy = jest.spyOn(container.s3NdjsonReader, 'writeNdjsonAsync')
             .mockRejectedValueOnce(new Error('throttled'))
             .mockResolvedValueOnce(undefined);
 
-        await runner.writeNdjsonWithRetryAsync({ filepath: 's3://allowed-bucket/x.ndjson', data: '{}\n' });
+        await handler.writeNdjsonWithRetryAsync({ filepath: 's3://allowed-bucket/x.ndjson', data: '{}\n' });
 
         expect(writeSpy).toHaveBeenCalledTimes(2);
         writeSpy.mockRestore();
     });
 
     test('writeNdjsonWithRetryAsync throws after exhausting retries', async () => {
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
         const writeSpy = jest.spyOn(container.s3NdjsonReader, 'writeNdjsonAsync')
             .mockRejectedValue(new Error('persistent S3 failure'));
 
-        await expect(runner.writeNdjsonWithRetryAsync({
+        await expect(handler.writeNdjsonWithRetryAsync({
             filepath: 's3://allowed-bucket/x.ndjson',
             data: '{}\n',
             attempts: 2
@@ -484,9 +484,9 @@ describe('BulkImportConsumerRunner', () => {
             .set(getHeaders())
             .expect(202);
 
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
         container.s3NdjsonReader.setLinesToYield([
             { resourceType: 'Patient', id: 'bulk-import-write-fail-1', name: [{ family: 'Fail' }] }
@@ -494,7 +494,7 @@ describe('BulkImportConsumerRunner', () => {
         const writeSpy = jest.spyOn(container.s3NdjsonReader, 'writeNdjsonAsync')
             .mockRejectedValue(new Error('persistent S3 failure'));
 
-        await expect(runner.handleMessageAsync({
+        await expect(handler.handleMessageAsync({
             key: 'import-consumer-write-fail-0',
             value: makeCloudEvent({ taskId: 'import-consumer-write-fail' }),
             headers: []
@@ -520,16 +520,16 @@ describe('BulkImportConsumerRunner', () => {
             .set(getHeaders())
             .expect(202);
 
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportConsumerRunner;
+        const handler = container.bulkImportHandler;
 
         container.s3NdjsonReader.setLinesToYield([
             { resourceType: 'Patient', id: 'bulk-import-no-regress-1', name: [{ family: 'Once' }] }
         ]);
 
         // First delivery: only range, only file -> Task completes.
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'import-consumer-no-regress-0',
             value: makeCloudEvent({ taskId: 'import-consumer-no-regress' }),
             headers: []
@@ -548,7 +548,7 @@ describe('BulkImportConsumerRunner', () => {
                 throw new Error('transient S3 read error');
             });
 
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'import-consumer-no-regress-0-redelivered',
             value: makeCloudEvent({ taskId: 'import-consumer-no-regress' }),
             headers: []

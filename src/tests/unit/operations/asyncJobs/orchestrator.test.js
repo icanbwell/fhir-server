@@ -1,8 +1,10 @@
 /**
- * Unit tests for bulkImportOrchestrator.js
+ * Unit tests for src/operations/asyncJobs/orchestrator.js
  *
- * This file orchestrates a Kafka consumer for bulk import. Since it calls main()
- * on load, we need to mock all dependencies before requiring it.
+ * This is the generic orchestrator entrypoint: it creates one Kafka consumer per
+ * registered job (today, just bulk import) and routes messages to that job's
+ * dispatcher. Since it calls main() on load, we need to mock all dependencies
+ * before requiring it.
  *
  * Covers:
  * - Health server behavior (ready/not ready states)
@@ -30,7 +32,7 @@ jestObj.mock('http', () => ({
 }));
 
 // Mock createContainer
-const mockBulkImportOrchestratorRunner = {
+const mockBulkImportOrchestratorDispatcher = {
     handleMessageAsync: jestObj.fn().mockResolvedValue(undefined)
 };
 
@@ -53,7 +55,7 @@ jestObj.mock('../../../../createContainer', () => ({
     createContainer: jestObj.fn(() => ({
         kafkaClientV2: mockKafkaClientV2,
         configManager: mockConfigManager,
-        bulkImportOrchestratorRunner: mockBulkImportOrchestratorRunner
+        bulkImportOrchestratorDispatcher: mockBulkImportOrchestratorDispatcher
     }))
 }));
 
@@ -76,7 +78,7 @@ jestObj.mock('../../../../utils/getCircularReplacer', () => ({
 const http = require('http');
 const { logInfo, logError } = require('../../../../operations/common/logging');
 
-describe('bulkImportOrchestrator', () => {
+describe('asyncJobs/orchestrator', () => {
     let processExitSpy;
 
     beforeEach(() => {
@@ -91,7 +93,7 @@ describe('bulkImportOrchestrator', () => {
             mockOnMessageAsync = onMessageAsync;
         });
         mockKafkaClientV2.removeConsumerAsync.mockResolvedValue(undefined);
-        mockBulkImportOrchestratorRunner.handleMessageAsync.mockResolvedValue(undefined);
+        mockBulkImportOrchestratorDispatcher.handleMessageAsync.mockResolvedValue(undefined);
         mockHealthServer.listen.mockImplementation(() => {});
         mockHealthServer.on.mockImplementation(() => {});
 
@@ -111,7 +113,7 @@ describe('bulkImportOrchestrator', () => {
             // Require the module to trigger main()
             // Since main() is called immediately and uses await, we need to give it a tick
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             // Wait for all promises to settle
@@ -124,7 +126,7 @@ describe('bulkImportOrchestrator', () => {
 
         test('starts health server on port 3000', async () => {
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             await new Promise(resolve => setImmediate(resolve));
@@ -134,7 +136,7 @@ describe('bulkImportOrchestrator', () => {
 
         test('subscribes to the configured topic', async () => {
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             await new Promise(resolve => setImmediate(resolve));
@@ -150,7 +152,7 @@ describe('bulkImportOrchestrator', () => {
 
         test('waits for consumer to join group with 30s timeout', async () => {
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             await new Promise(resolve => setImmediate(resolve));
@@ -163,7 +165,7 @@ describe('bulkImportOrchestrator', () => {
 
         test('registers SIGTERM and SIGINT handlers', async () => {
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             await new Promise(resolve => setImmediate(resolve));
@@ -174,13 +176,13 @@ describe('bulkImportOrchestrator', () => {
 
         test('logs startup information', async () => {
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             await new Promise(resolve => setImmediate(resolve));
 
             expect(logInfo).toHaveBeenCalledWith(
-                'Starting bulk import orchestrator',
+                'Starting async job orchestrator consumer',
                 { topic: 'test-topic', groupId: 'test-group-id' }
             );
         });
@@ -192,7 +194,7 @@ describe('bulkImportOrchestrator', () => {
             mockKafkaClientV2.waitForConsumerToJoinGroupAsync.mockReturnValue(new Promise(() => {}));
 
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             await new Promise(resolve => setImmediate(resolve));
@@ -212,7 +214,7 @@ describe('bulkImportOrchestrator', () => {
 
         test('returns 200 after consumer joins group', async () => {
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             // Flush all microtasks and macrotasks through multiple iterations
@@ -242,7 +244,7 @@ describe('bulkImportOrchestrator', () => {
             });
 
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             await new Promise(resolve => setImmediate(resolve));
@@ -253,9 +255,9 @@ describe('bulkImportOrchestrator', () => {
     });
 
     describe('message handling', () => {
-        test('delegates messages to bulkImportOrchestratorRunner', async () => {
+        test('delegates messages to the orchestrator dispatcher', async () => {
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             await new Promise(resolve => setImmediate(resolve));
@@ -263,14 +265,14 @@ describe('bulkImportOrchestrator', () => {
             const testMessage = { value: Buffer.from('{"taskId":"123"}') };
             await mockOnMessageAsync(testMessage);
 
-            expect(mockBulkImportOrchestratorRunner.handleMessageAsync).toHaveBeenCalledWith(testMessage);
+            expect(mockBulkImportOrchestratorDispatcher.handleMessageAsync).toHaveBeenCalledWith(testMessage);
         });
     });
 
     describe('shutdown handling', () => {
         test('SIGTERM removes consumer and exits cleanly', async () => {
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             await new Promise(resolve => setImmediate(resolve));
@@ -284,7 +286,7 @@ describe('bulkImportOrchestrator', () => {
 
         test('SIGINT removes consumer and exits cleanly', async () => {
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             await new Promise(resolve => setImmediate(resolve));
@@ -299,7 +301,7 @@ describe('bulkImportOrchestrator', () => {
             mockKafkaClientV2.removeConsumerAsync.mockRejectedValue(new Error('disconnect failed'));
 
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             await new Promise(resolve => setImmediate(resolve));
@@ -318,7 +320,7 @@ describe('bulkImportOrchestrator', () => {
             const consoleSpy = jestObj.spyOn(console, 'error').mockImplementation(() => {});
 
             jestObj.isolateModules(() => {
-                require('../../../../operations/import/bulkImportOrchestrator');
+                require('../../../../operations/asyncJobs/orchestrator');
             });
 
             await new Promise(resolve => setImmediate(resolve));

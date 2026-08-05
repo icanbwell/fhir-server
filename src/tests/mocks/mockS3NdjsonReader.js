@@ -1,4 +1,4 @@
-const { S3NdjsonReader } = require('../../operations/import/s3NdjsonReader');
+const { S3NdjsonReader } = require('../../operations/asyncJobs/bulkImport/s3NdjsonReader');
 
 class MockS3NdjsonReader extends S3NdjsonReader {
     constructor({ configManager }) {
