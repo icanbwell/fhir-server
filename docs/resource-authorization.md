@@ -22,11 +22,60 @@ it followed an unusual code path (a different traversal operation, a different r
 raw id lookup) is a tenant-isolation bug, not a feature gap.
 
 Request flow: `FhirRouter` → an Operation class (`operations/search/searchBundle.js`,
-`searchById.js`, `everything/everythingHelper.js`, `graph/graphHelpers.js`, GraphQLv2
+`searchStreaming.js`, `searchById/searchById.js`, `searchByVersionId/searchByVersionId.js`,
+`history/history.js`, `everything/everythingHelper.js`, `graph/graphHelpers.js`,
+`export/script/bulkDataExportRunner.js`, GraphQL v1 `graphql/dataSource.js` and v2
 `graphqlv2/dataSource.js`, …) → `ScopesValidator.verifyHasValidScopesAsync` (scope gate, run
 before any query is built) → `SearchManager.constructQueryAsync` (`src/operations/search/searchManager.js`
 — the central point where nearly all of the mechanisms below get ANDed onto the query) →
-`queryRewriterManager` → `DataLayer` → MongoDB.
+`queryRewriterManager` → `DataLayer` → MongoDB. The write paths (`remove.js`, `update.js`,
+`patch.js`, `validate.js`) call the same `constructQueryAsync` to locate their target resource
+before mutating it, so every gate below applies there too — a caller can't find-and-modify a
+resource it couldn't have found via search.
+
+### Gate composition diagram
+
+Section numbers on each node match the numbered sections below. This is the same logic as §11,
+drawn out as a decision path rather than a checklist.
+
+```mermaid
+flowchart TD
+    Start(["Operation calls constructQueryAsync"]) --> Scope{"§3: scope valid for resourceType + operation?"}
+    Scope -- no --> Deny403["403 Forbidden — query never built"]
+    Scope -- yes --> Branch{"§5: caller holds patient/ scope?"}
+
+    Branch -- yes --> PatientFilter["§5: filter by Person/Patient identity-graph reachability"]
+    PatientFilter --> ConfR["§9: AND exclude confidentiality-R tag (always, for every patient-scoped caller)"]
+    ConfR --> Delegated{"§10: userType == delegatedUser?"}
+    Delegated -- yes --> SensExcl["§10: AND exclude actor's denied sensitive categories + unclassified"]
+    Delegated -- no --> Merge
+    SensExcl --> Merge
+
+    Branch -- no --> Wildcard{"§7: caller holds access/* wildcard scope?"}
+    Wildcard -- yes --> NoTagFilter["No meta.security filter — every tenant's resources visible"]
+    Wildcard -- no --> AccessTag["§1: AND filter by caller's authorized access tag(s)"]
+    NoTagFilter --> Proa
+    AccessTag --> Proa{"§6a: PROA/HIE data-sharing consent enabled?"}
+    Proa -- yes --> ProaOr["OR a consent-driven branch (active, permit-type Consent)"]
+    Proa -- no --> Merge
+    ProaOr --> Merge
+
+    Merge["§8: AND exclude hidden tag, unless _includeHidden=true"] --> CmsCheck{"§4/§6b: userType == cms-partner?"}
+    CmsCheck -- yes --> CmsFilter["Restrict to consented patient uuids — fails closed if none"]
+    CmsCheck -- no --> RunQuery
+    CmsFilter --> RunQuery[("Run MongoDB query")]
+
+    RunQuery --> PdvcCheck{"§6d: $everything/GraphQLv2 with a data-view-control Consent?"}
+    PdvcCheck -- yes --> PdvcExcl["Exclude the patient-hidden resource reference(s)"]
+    PdvcCheck -- no --> PersonCheck
+    PdvcExcl --> PersonCheck{"§5: Person $everything?"}
+    PersonCheck -- yes --> PersonNarrow["Narrow result set to only the requested Person id(s)"]
+    PersonCheck -- no --> CompCheck
+    PersonNarrow --> CompCheck{"§10: delegated actor and resource is a Composition?"}
+    CompCheck -- yes --> SectionStrip["Strip denied-category sections (enrichment-time, not exclusion)"]
+    CompCheck -- no --> Returned(["Resource returned"])
+    SectionStrip --> Returned
+```
 
 ---
 
@@ -92,6 +141,14 @@ Four scope namespaces, all validated before any query is built:
   (`searchBundle.js`, `searchStreaming.js`, `searchById.js`, `history.js`, `everything.js`,
   `graph.js`, `summary.js`) before query construction — a request with an insufficient `user`
   scope for the resource type never reaches the query-building stage at all.
+- **`AuditEvent`-specific pre-query gate** (not scope-based) —
+  `SearchManager.validateAuditEventQueryParameters`, called from `searchBundle.js`,
+  `searchById.js`, and `searchStreaming.js` before `constructQueryAsync` runs, rejects the whole
+  request unless it supplies the resource type's required filters
+  (`configManager.requiredFiltersForAuditEvent`, typically a `date` range bounded by
+  `configManager.auditEventMaxRangePeriod`). This doesn't change *who* is allowed to see a
+  resource — it's a query-shape/cost guard, not an access-control check — but it does determine
+  whether any `AuditEvent` resources come back at all, so it belongs in this catalog.
 
 See `readme/security.md` for the full walkthrough and multi-scope examples.
 
@@ -109,8 +166,8 @@ mechanisms below apply:
   branch of `SearchManager.constructQueryAsync` builds the query — the patient-scope path (§5),
   not the tenant/access-tag path (§1) — for that request.
 - **Delegated actor** (`userType: 'delegatedUser'`) — a `RelatedPerson`/similar acting on behalf of
-  a Person via the JWT `act` claim. Gets consent-gated, read-only access with sensitive-category
-  filtering. See §6c and `readme/delegatedActorAccess.md`.
+  a Person via the JWT `act` claim. Composes the patient-scope (§5), consent (§6), and sensitivity
+  (§9) mechanisms rather than being a separate code path; full model in §10.
 - **CMS partner user** (`userType: 'cms-partner'`) — restricted to `Patient` search/`$everything`
   over GET only, with a `purposeOfUse` claim check, and further restricted to patients the partner
   has consent for (§6b). `src/utils/cmsManager.js` (`CMSManager.verifyAccess`).
@@ -137,9 +194,9 @@ separate, mutually exclusive branch from §1 in `SearchManager.constructQueryAsy
   See `readme/proxyPatient.md`.
 - `$everything` (`everything/everythingHelper.js`) and `$graph` (`graph/graphHelpers.js`) both
   re-invoke `SearchManager.constructQueryAsync` at **every traversal hop**, so a resource reached
-  via link-following gets the same filter a direct search would apply — not a weaker one. GraphQLv2
-  (`src/graphqlv2/dataSource.js`) funnels through the same `searchBundleAsync` path rather than an
-  independent query builder.
+  via link-following gets the same filter a direct search would apply — not a weaker one. Both
+  GraphQL APIs (`src/graphql/dataSource.js` and `src/graphqlv2/dataSource.js`) funnel through the
+  same `searchBundleAsync` path rather than an independent query builder.
 - **Person `$everything`** narrows the *result set* (not the underlying access check) to only the
   explicitly-requested Person id(s) — a sibling Person sharing the same underlying Patient is
   resolved internally but excluded from the response. See `readme/personEverything.md`.
@@ -162,12 +219,9 @@ connection-type-filtered query branch onto the search.
 restrict `Patient` search to consented patient uuids; fails closed (matches nothing) if no consent
 is found.
 
-**c. Delegated-actor consent** — for `userType: 'delegatedUser'` callers (§4). Looks up a single
-active Consent tying the grantor Person to the grantee actor, then builds a denied-sensitive-category
-list from the Consent's nested `deny` provisions (`src/utils/delegatedAccessRulesManager.js`).
-Resources tagged `unclassified` (§8) are *always* excluded for delegated users regardless of the
-Consent. Delegated users are further restricted to read-only operations
-(`OperationAccessManager` → `DelegatedAccessManager`). Full detail: `readme/delegatedActorAccess.md`.
+**c. Delegated-actor consent** — for `userType: 'delegatedUser'` callers (§4); ties a grantor
+Person's Consent to the grantee actor and drives a sensitivity-based (§9) denylist layered on top
+of the §5 patient-scope query. Full model, including the read-only operation restriction: §10.
 
 **d. Patient Data View Control consent** — lets a patient exclude specific resources from their
 own `$everything`/GraphQLv2 result via a `dataConnectionViewControl`-category Consent referencing
@@ -197,20 +251,127 @@ These apply regardless of scope type, on top of everything above:
 - **`hidden` tag** (`meta.tag`, system `.../CodeSystem/server-behavior`, code `hidden`) — excluded
   from every search by default (`src/operations/query/r4.js`), unless the caller passes
   `_includeHidden=true`. Does not apply to by-id lookups, history, `DELETE`, or `AuditEvent`.
-- **Confidentiality restriction tag** (`meta.security`, system
-  `http://terminology.hl7.org/CodeSystem/v3-Confidentiality`, code `R`) — blocks access for
-  patient-scoped (`isUser`) callers specifically, regardless of what the patient-scope identity
-  graph would otherwise allow. `ScopesValidator.isAccessToResourceRestrictedForPatientScope`
-  (`scopesValidator.js`); also consulted in `patientQueryCreator.js`.
-- **`unclassified` sensitivity tag** (`meta.security`, system `.../sensitivity-category`) —
-  auto-added on write for resource types listed in `UNCLASSIFIED_TAGGING_RESOURCES`; always
-  excluded for delegated-actor callers (§6c) regardless of their Consent. See
-  `readme/unclassifiedDataTagging.md`.
 - **Connection-type tag** (`.../connectionType`) — used by
   `DataSharingManager.getConnectionTypeFilteredQuery` to restrict consent/HIE-driven query
   branches (§6a) to an allow-listed set of connection types.
 
-## 9. How these compose
+The other two `meta.security` tags that gate access independent of tenant/consent — the
+confidentiality restriction tag and the `unclassified` sensitivity tag — classify a resource by
+*what it's about* rather than controlling visibility or search behavior, so they're covered
+together with the rest of the sensitivity model in §9.
+
+## 9. Sensitivity classification
+
+Orthogonal to tenant visibility (§1) and consent-driven expansion (§6): these mechanisms gate
+access based on how sensitive a resource's *content* is, not who owns it or what's been consented
+to. A resource can be tenant-visible and consent-permitted and still be excluded solely on
+sensitivity grounds.
+
+- **Confidentiality restriction tag** (`meta.security`, system
+  `http://terminology.hl7.org/CodeSystem/v3-Confidentiality`, code `R`; `RESOURCE_RESTRICTION_TAG`
+  in `src/constants.js`) — excluded unconditionally for every patient-scoped (`isUser`) caller,
+  regardless of what the patient-scope identity graph (§5) would otherwise allow. Applied at
+  query-build time by `PatientQueryCreator.applyCommonPatientFilters`
+  (`src/operations/common/patientQueryCreator.js`), which both branches of the §5 patient-scope
+  path route through, and enforced again on write by
+  `ScopesValidator.isAccessToResourceRestrictedForPatientScope` (`scopesValidator.js`) so a
+  patient-scoped caller can't write around the same restriction.
+- **`unclassified` sensitivity tag** (`meta.security`, system `.../sensitivity-category`, code
+  `unclassified`; `SENSITIVE_CATEGORY` in `src/constants.js`) — auto-added on write by
+  `unclassifiedSensitivityTagHandler` (`src/preSaveHandlers/handlers/unclassifiedSensitivityTagHandler.js`)
+  for resource types listed in `configManager.unclassifiedTaggingResources` (env
+  `UNCLASSIFIED_TAGGING_RESOURCES`); a writer can suppress the auto-tag with the
+  `x-suppress-unclassified-tag` header (`PreSaveOptions.suppressUnclassifiedTag`). On read, it is
+  hardcoded into the delegated-actor exclusion list (§10) regardless of what that actor's Consent
+  otherwise permits — no Consent can override it. See `readme/unclassifiedDataTagging.md`.
+- **Denied sensitive-category list** — not a fixed tag but a per-caller, Consent-derived denylist
+  of `sensitivity-category` codes. Built only for delegated actors, from their grantor's Consent
+  `deny` provisions; this is the mechanism, not a tag on the resource itself. Full detail: §10.
+
+## 10. Delegated actor access
+
+A delegated actor (`userType: 'delegatedUser'`, §4) is a `RelatedPerson`-like caller acting on
+behalf of a Person: authenticated with a `patient/` scope for that Person, plus a JWT `act` claim
+identifying the actor. Nothing here is a separate code path — it's several of the mechanisms above
+composed together:
+
+```mermaid
+sequenceDiagram
+    participant C as Caller (JWT act claim, patient scope)
+    participant Auth as AuthService
+    participant SV as ScopesValidator
+    participant OAM as OperationAccessManager
+    participant SM as SearchManager
+    participant DSM as DataSharingManager
+    participant DARM as DelegatedAccessRulesManager
+    participant Enrich as CompositionSectionFilterEnrichmentProvider
+
+    C->>Auth: Request
+    Auth->>Auth: processForDelegatedActor()<br/>sets userType=delegatedUser, actor
+    Auth->>SV: isScopesValidAsync()
+    SV->>DARM: hasValidConsentAsync() via DelegatedAccessScopeManager
+    alt no valid grantor-to-actor Consent
+        DARM-->>SV: invalid
+        SV-->>C: 403 Forbidden
+    else valid Consent
+        DARM-->>SV: valid
+        SV->>OAM: verifyAccess(operation)
+        alt write operation (create/update/delete/patch)
+            OAM-->>C: 403 Forbidden — read-only
+        else read operation (search/searchById/everything/graph)
+            OAM-->>SM: constructQueryAsync()
+            SM->>SM: route via the §5 patient-scope branch
+            SM->>DSM: updateQueryForDelegatedAccessSensitiveData()
+            DSM->>DARM: getFilteringRulesAsync() (cached per request)
+            DARM-->>DSM: deniedSensitiveCategories[]
+            DSM-->>SM: AND NOT(denied categories, unclassified)
+            SM-->>C: filtered Bundle
+            Enrich->>Enrich: strip denied-category sections<br/>from any returned Composition
+        end
+    end
+```
+
+1. **Detection** — gated by `configManager.enableDelegatedAccessDetection`. If the JWT carries an
+   `act` claim, `AuthService.processForDelegatedActor` (`src/strategies/authService.js`) sets
+   `userType: delegatedUser` and `actor` on the request context; `entitlements`, if present, become
+   `purposeOfUse`.
+2. **Pre-query consent gate** (alongside the §3 scope check) — `ScopesValidator.isScopesValidAsync`
+   calls `DelegatedAccessScopeManager.isAccessAllowedAsync` →
+   `DelegatedAccessRulesManager.hasValidConsentAsync`. No active Consent tying the grantor Person
+   to the actor → `ForbiddenError` before any query is built.
+3. **Query path** — because the actor holds a `patient/` scope, `SearchManager.constructQueryAsync`
+   routes the request through the ordinary patient-scope/identity-graph branch (§5), **not** the
+   access-tag branch (§1); reachability is decided exactly as it would be for the grantor Person.
+4. **Sensitive-data exclusion (bolt-on, delegated-only)** — for resource types the patient-scope
+   machinery can filter (`PatientFilterManager.canAccessResourceWithPatientScope`),
+   `SearchManager.constructQueryAsync` additionally calls
+   `DataSharingManager.updateQueryForDelegatedAccessSensitiveData`
+   (`src/operations/search/dataSharingManager.js`), which:
+   - looks up the grantor→actor Consent via `DelegatedAccessRulesManager.getFilteringRulesAsync`
+     (cached on the request-scoped `actor` object, so it's fetched once per request);
+   - returns an impossible query (`_uuid: '__invalid__'`) if no active Consent is found, and throws
+     `ForbiddenError` if more than one is found — ambiguous permissions fail closed rather than
+     guessing;
+   - otherwise parses `consent.provision.provision[]` entries with `type: 'deny'` and a
+     `sensitivity-category` `securityLabel` into a denied-code list, and ANDs a
+     `meta.security` `$not`/`$elemMatch` exclusion for those codes **plus** the hardcoded
+     `unclassified` code (§9) onto the query.
+5. **Operation restriction** — independent of the return-filter question, but part of the same
+   caller-type gate: `OperationAccessManager` → `DelegatedAccessManager.verifyAccess`
+   (`src/utils/delegatedAccessManager.js`) allows only `search`, `searchById`, `everything`, and
+   `graph`; any write operation is rejected with `ForbiddenError` before it reaches query or write
+   logic.
+6. **Content-level filtering (enrichment-time — not a resource inclusion/exclusion decision)** —
+   `CompositionSectionFilterEnrichmentProvider`
+   (`src/enrich/providers/compositionSectionFilterEnrichmentProvider.js`) reuses the denied-category
+   set from step 4 to strip individual `section`s (recursively, including into `contained`
+   resources) out of an already-*returned* `Composition`. The Composition itself still passed every
+   gate above; only some of its sections are removed. This is the one mechanism in this document
+   that shapes resource *content* rather than deciding whether the resource is returned at all.
+
+Full detail: `readme/delegatedActorAccess.md`.
+
+## 11. How these compose
 
 For a given caller and resource, the resource is returned only if **all** of the following hold:
 
@@ -219,9 +380,9 @@ For a given caller and resource, the resource is returned only if **all** of the
    tag the caller is authorized for (§1), **or** the caller is patient-scoped and the resource is
    reachable through that caller's own identity graph (§5).
 3. The resource is not `hidden`-tagged, unless explicitly requested (§8).
-4. If the caller is patient-scoped, the resource is not confidentiality-`R`-restricted (§8).
+4. If the caller is patient-scoped, the resource is not confidentiality-`R`-restricted (§9).
 5. If the caller is a delegated actor or CMS partner, the resource passes that caller type's
-   consent-driven filter and is not `unclassified` for delegated actors (§6b, §6c).
+   consent-driven filter and is not `unclassified` for delegated actors (§6b, §9, §10).
 6. If the requesting client relies on consent-based data-sharing expansion (§6a) or the patient
    has an active data-view-control exclusion (§6d), those results are included/excluded
    accordingly.
