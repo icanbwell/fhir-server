@@ -9,6 +9,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -106,7 +107,7 @@ describe('AuditEventRecordedTests', () => {
                 .get(
                     '/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&date=gt2021-05-02&date=lt2021-08-02&_bundle=1'
                 )
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResource);
@@ -116,7 +117,7 @@ describe('AuditEventRecordedTests', () => {
                 .get(
                     '/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-08-19&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&date=gt2021-07-19&date=lt2021-10-19&_bundle=1'
                 )
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResource2);

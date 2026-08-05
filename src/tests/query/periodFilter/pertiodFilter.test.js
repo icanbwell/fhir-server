@@ -15,7 +15,7 @@ const expectedEncounterPeriodStartAp2020 = require('./fixtures/expected/encounte
 const expectedEncounterPeriodEndgt2020 = require('./fixtures/expected/encounter_periodend_gt2020.json');
 const expectedObservationPeriodStartEq2026 = require('./fixtures/expected/observation_effectivePeriodStart.json');
 
-const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getHeadersWithAdmin} = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
 describe('Period start/end field search tests', () => {
@@ -33,28 +33,28 @@ describe('Period start/end field search tests', () => {
         let resp = await request.post('/4_0_0/Encounter/$merge').send([enounter1, enounter2]).set(getHeaders());
         expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
-        resp = await request.get('/4_0_0/Encounter?_periodStart=eq2020-01-01&_debug=1&_bundle=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Encounter?_periodStart=eq2020-01-01&_debug=1&_bundle=1').set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedEncounterPeriodStartEq2020);
 
-        resp = await request.get('/4_0_0/Encounter?_periodStart=ne2020-01-01&_debug=1&_bundle=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Encounter?_periodStart=ne2020-01-01&_debug=1&_bundle=1').set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedEncounterPeriodStartNe2020);
 
-        resp = await request.get('/4_0_0/Encounter?_periodStart=gt2020-01-01&_debug=1&_bundle=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Encounter?_periodStart=gt2020-01-01&_debug=1&_bundle=1').set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedEncounterPeriodStartGt2020);
 
-        resp = await request.get('/4_0_0/Encounter?_periodStart=lt2020-01-01&_debug=1&_bundle=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Encounter?_periodStart=lt2020-01-01&_debug=1&_bundle=1').set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedEncounterPeriodStartLt2020);
 
-        resp = await request.get('/4_0_0/Encounter?_periodStart=ge2020-01-01&_debug=1&_bundle=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Encounter?_periodStart=ge2020-01-01&_debug=1&_bundle=1').set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedEncounterPeriodStartGe2020);
 
-        resp = await request.get('/4_0_0/Encounter?_periodStart=le2020-01-01&_debug=1&_bundle=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Encounter?_periodStart=le2020-01-01&_debug=1&_bundle=1').set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedEncounterPeriodStartLe2020);
 
-        resp = await request.get('/4_0_0/Encounter?_periodStart=sa2020-01-01&_debug=1&_bundle=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Encounter?_periodStart=sa2020-01-01&_debug=1&_bundle=1').set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedEncounterPeriodStartSa2020);
 
-        resp = await request.get('/4_0_0/Encounter?_periodStart=eb2020-01-01&_debug=1&_bundle=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Encounter?_periodStart=eb2020-01-01&_debug=1&_bundle=1').set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedEncounterPeriodStartEb2020);
 
         jest.useFakeTimers({
@@ -77,19 +77,19 @@ describe('Period start/end field search tests', () => {
         });
         jest.setSystemTime(new Date('2024-01-01T00:00:00Z'));
 
-        resp = await request.get('/4_0_0/Encounter?_periodStart=ap2020-01-01&_debug=1&_bundle=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Encounter?_periodStart=ap2020-01-01&_debug=1&_bundle=1').set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedEncounterPeriodStartAp2020);
 
         jest.useRealTimers();
 
-        resp = await request.get('/4_0_0/Encounter?_periodEnd=gt2020-01-01&_debug=1&_bundle=1').set(getHeaders());
+        resp = await request.get('/4_0_0/Encounter?_periodEnd=gt2020-01-01&_debug=1&_bundle=1').set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedEncounterPeriodEndgt2020);
     });
 
     test('observation effective period start tests', async () => {
         const request = await createTestRequest();
 
-        let resp = await request.get('/4_0_0/Observation?_effectivePeriodStart=eq2026-01-01&_debug=1&_bundle=1').set(getHeaders());
+        let resp = await request.get('/4_0_0/Observation?_effectivePeriodStart=eq2026-01-01&_debug=1&_bundle=1').set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedObservationPeriodStartEq2026);
     });
 });
