@@ -12,9 +12,14 @@ currently, enforces in CI — not what a doc or a quarantined file merely *claim
 either (a) restores dead/skipped coverage that already exists, (b) writes a net-new adversarial
 test against a documented gap, or (c) reconciles a quarantined test with a bug fix that has
 already landed. Where the underlying product bug is still open, the new test is expected to fail
-initially and must be added to `jest.config.js`'s `testPathIgnorePatterns` with a one-line reason
-— this mirrors the pattern the repo already uses for ~58 existing quarantined security tests, so
-we are extending an established convention, not inventing one.
+initially and must be added to `jest.config.js`'s `testPathIgnorePatterns` — the quarantine
+mechanism itself (excluding known-failing security tests from CI) is an established convention
+with ~58 existing entries, so we're extending that, not inventing it. Note the existing
+convention documents reasons via a single block comment above the whole array pointing at
+`BUG_REPORT.md`/`fhir-server-security-bugs.csv` (external tracking files, not committed in this
+repo), not a one-line comment per entry — there's no per-entry precedent to match today, so add
+one line per new entry here as a documentation improvement, not because it mirrors existing
+entries.
 
 **Tech Stack:** Jest + MongoDB Memory Server, existing `src/tests/common.js` harness
 (`getHeaders(scopes)`, `createTestRequest`), the `data_sharing/scenario_*` fixture-and-`$merge`
@@ -34,6 +39,17 @@ pattern.
   JTG/Kristen: either keep Confluence authoritative and fix the review doc's file-path reference,
   or deliberately mirror it here on a cadence — that's a team call, not one this plan makes
   unilaterally.
+- The primary "FHIR Security Data Model Verification" review doc itself (INC-331 follow-up —
+  the source of the Part Z rule matrix and the IDG-1..7/SAE-1..6/WPI-1..2/CACHE-1..2/CL-1..3 rule
+  ids, plus the E.2/E.3/E.4/E.6 scenario definitions nearly every task below cites) is **also not
+  committed, located, or linked anywhere in this repo** — a repo-wide grep for its exact markers
+  returns hits only inside this plan file. Several tasks restate scenario content inline (Task
+  1.1's E.2 fixture setup, Task 2.2's E.3 nested-resource shape), which partially mitigates this
+  for those two, but the full Part Z matrix and the rule-id → task completeness claim in the
+  Self-review section below are unverifiable from any committed artifact. **Flag this before
+  sign-off, same as `security-model-spec.md` above** — get a ticket id or wiki link for the review
+  doc itself from JTG/Kristen so a future implementer working from a fresh checkout has a path to
+  the source material instead of relying solely on the inline paraphrases here.
 - The Confluence spec is dated **2026-07-31** and is already stale in places as of today
   (2026-08-04) — three `SEC-1580` fix commits (`d8d4da940`, `a3b99df35`, and others) landed today,
   same-day as this plan. Treat every "Known Gap" status below as "known gap as of 3 days ago,
@@ -143,7 +159,7 @@ not just wording:
 - Modify: `src/tests/data_sharing/scenario_9/data_sharing_scenario_9.test.js:33`
 - Modify: `src/tests/consented_data/consented_data/consent_based_data_access.test.js:64`
 - Modify: `src/tests/consented_data/consented_data/disabled_consent_based_data_access.test.js:38`
-- Modify: `src/tests/consented_data/consented_data/shared_patient.test.js:49`
+- Modify: `src/tests/consented_data/consented_data_with_one_patient_linked_to_multiple_client/shared_patient.test.js:49`
 
 - [ ] Change each `describe.skip(...)` to `describe(...)` one file at a time.
 - [ ] Run each file individually: `nvm use && node node_modules/.bin/jest <path> -t ""`.
@@ -306,7 +322,7 @@ a "flip the flag" task, not a "write a test" task.
 
 **Files:**
 - Verify: `src/operations/update/update.js:422-428` (`isAccessTagChangeAllowedByAccessScopes`)
-- Modify: `src/tests/unit/operations/security/writeAllowedByScopesValidator.test.js:491-541`
+- Modify: `src/tests/unit/operations/merge/validators/writeAllowedByScopesValidator.test.js:491-541`
 
 - [ ] Run `src/tests/operations/security/scopesManager.test.js` (F2/F3 cases, already live, not
   quarantined) — confirm green on current `main`.
@@ -324,15 +340,21 @@ a "flip the flag" task, not a "write a test" task.
 ### Task 3.2: W2 (SAE-2, access-tag forgery on write) — confirm still open, keep quarantined, narrow the citation
 
 **Files:**
-- Verify: `src/operations/security/scopesManager.js:244` (`if (accessViaPatientScopes) return
-  true`)
+- Verify: `src/operations/security/scopesManager.js:166-201` (`isAccessTagChangeAllowedByScopes`
+  — the ALL-match tag-change-forgery check that `update.js:426`/`452` actually calls via
+  `scopesValidator.isAccessTagChangeAllowedByAccessScopes`), specifically its patient-scope bypass
+  at line 176 (`if (this.isAccessAllowedByPatientScopes(...)) return true;`).
+  (Note: `scopesManager.js:244`'s `accessViaPatientScopes` short-circuit lives inside
+  `isAccessToResourceAllowedBySecurityTags`, a separate ANY-match general write-access gate used
+  broadly by create/update/patch/remove/merge — do not cite that line for this bug; fixing it
+  would break the legitimate general patient-scope write path while leaving this bypass unfixed.)
 
-- [ ] Confirm this line still unconditionally short-circuits the write-side "ALL access tags
+- [ ] Confirm line 176 still unconditionally short-circuits the write-side "ALL access tags
   required" check for any patient-scoped caller — if so, W2 is a distinct, still-open bug from
   W2b and must stay quarantined.
-- [ ] File a ticket citing `scopesManager.js:244` specifically (the doc only names the rule, not
-  the line) so whoever fixes it doesn't have to re-derive what Task 2 of this audit already
-  found.
+- [ ] File a ticket citing `scopesManager.js:176` (inside `isAccessTagChangeAllowedByScopes`,
+  lines 166-201) specifically (the doc only names the rule, not the line) so whoever fixes it
+  doesn't have to re-derive what Task 2 of this audit already found.
 
 ### Task 3.1b: WPI-1 patch-path gap (naming-convention blocklist misses the access tag) — confirm still open, keep quarantined
 
@@ -408,21 +430,25 @@ a "flip the flag" task, not a "write a test" task.
   without also fixing the cache key, this test starts failing and catches the reintroduction of
   CACHE-2 before it ships.
 
-### Task 3.5: X-export (VULN-3, `exportById` missing tenant-ownership check) — confirm still open, narrow quarantine
+### Task 3.5: X-export (VULN-3, `exportById` missing tenant-ownership check) — already fixed, flip the flag
 
 **Files:**
-- Verify: `src/operations/export/exportById.js` (`getExportStatusResourceWithId` — fetch by id
-  only, no access-tag cross-check)
-- Verify: `src/tests/unit/operations/export/bulkDataExportRunner.crossTenant.test.js` (VULN-1
+- Verify: `src/operations/export/exportById.js:72` (rejects any `exportStatusResource.user !==
+  user`) and `:80-86` (`scopesManager.isAccessToResourceAllowedByAccessTagOnly` access-tag check)
+  — landed via `3a506af`/`c884c8e` (SEC-1580 F7), already listed as merged in Global Constraints.
+- Modify: `src/tests/unit/operations/export/bulkDataExportRunner.crossTenant.test.js` (VULN-1
   through VULN-7)
 
-- [ ] Confirm `exportById.js` still has no tenant-ownership check on the fetched `ExportStatus`.
+- [ ] Confirmed already (2026-08-04): `exportById.js` now has both an ownership check
+  (`user !== user` on the fetched `ExportStatus`) and a follow-up access-tag check, both returning
+  a generic `NotFoundError` to avoid leaking existence — VULN-3 is closed, not open.
 - [ ] The rest of `bulkDataExportRunner.crossTenant.test.js` (VULN-1, 2, 4–7) may target different,
   independently-fixed or still-open issues — triage each `describe` block the same way as Task
   3.1/3.2, don't treat the file as one unit.
-- [ ] File a ticket for VULN-3 specifically if still open; this is the one X-export sub-finding the
-  review doc's exit criterion would block on, since Part D/W failures are blocking and this is the
-  X-equivalent severity.
+- [ ] For the VULN-3 sub-case specifically: run it directly against current `main`, confirm it now
+  passes, and remove its scoped `testPathIgnorePatterns` entry (or split it into its own file if
+  the surrounding VULN-1/2/4-7 cases are still quarantined) — this is a flip-the-flag task, not a
+  ticket-filing one.
 
 ### Task 3.6: X-gql (v1/v2 `OperationAccessManager` wiring) — confirm scope of the gap, keep quarantined, add a targeted read-isolation test
 
@@ -551,7 +577,7 @@ a "flip the flag" task, not a "write a test" task.
 
 **Files:**
 - Verify: `src/operations/summary/summaryCacheKeyGenerator.js:35-52`,
-  `src/dataLayer/redisManager.js:73` (`incrementGenerationAsync` — confirm still only called from
+  `src/utils/redisManager.js:73` (`incrementGenerationAsync` — confirm still only called from
   the lazy-init branch)
 - Create: `src/tests/unit/operations/summary/summaryCacheGenerationInvalidation.test.js`
   (quarantined — add to `testPathIgnorePatterns`)
