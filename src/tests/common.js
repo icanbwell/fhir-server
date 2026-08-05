@@ -145,6 +145,14 @@ const getFullAccessToken = (module.exports.getFullAccessToken = () => {
     return getToken('user/*.read user/*.write access/*.*');
 });
 
+// admin/*.read is added on top of the full-access scope so tests can exercise
+// _explain/_debug/_setIndexHint (DCON-4808) without switching to a token whose
+// scope string differs from the plain full-access one in ways other assertions
+// (e.g. an echoed-back `scope` field) might compare against literally.
+const getFullAccessTokenWithAdmin = (module.exports.getFullAccessTokenWithAdmin = () => {
+    return getToken('user/*.read user/*.write access/*.* admin/*.read');
+});
+
 const getTokenWithCustomClaims = (module.exports.getTokenWithCustomClaims = (scope) => {
     return createToken(privateKey, '123', {
         sub: 'john',
@@ -175,6 +183,17 @@ module.exports.getHeaders = (scope) => {
         'Content-Type': 'application/fhir+json',
         Accept: 'application/fhir+json',
         Authorization: `Bearer ${scope !== null && scope !== undefined ? getToken(scope) : getFullAccessToken()}`,
+        Host: 'localhost:3000'
+    };
+};
+
+// Full-access headers plus admin/*.read, for requests that use _explain/_debug/_setIndexHint
+// (DCON-4808) purely to assert on query construction, not to test the admin gate itself.
+module.exports.getHeadersWithAdmin = () => {
+    return {
+        'Content-Type': 'application/fhir+json',
+        Accept: 'application/fhir+json',
+        Authorization: `Bearer ${getFullAccessTokenWithAdmin()}`,
         Host: 'localhost:3000'
     };
 };
@@ -243,9 +262,19 @@ module.exports.getGraphQLHeaders = (scope) => {
     };
 };
 
-module.exports.getGraphQLHeadersWithPerson = (personId) => {
+// Full-access GraphQL headers plus admin/*.read, for queries that use _explain/_debug
+// (DCON-4808) purely to assert on query construction, not to test the admin gate itself.
+module.exports.getGraphQLHeadersWithAdmin = () => {
+    return {
+        'Content-Type': 'application/json; charset=utf-8',
+        accept: '*/*',
+        Authorization: `Bearer ${getFullAccessTokenWithAdmin()}`
+    };
+};
+
+module.exports.getGraphQLHeadersWithPerson = (personId, scope) => {
     const payload = {
-        scope: 'patient/*.read user/*.* access/*.*',
+        scope: scope || 'patient/*.read user/*.* access/*.*',
         username: 'patient-123@example.com',
         clientFhirPersonId: personId,
         clientFhirPatientId: 'clientFhirPatient',

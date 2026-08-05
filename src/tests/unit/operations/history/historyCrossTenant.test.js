@@ -81,7 +81,8 @@ describe('History Operation - Cross-Tenant Data Exposure', () => {
             logOperationFailureAsync: jest.fn().mockResolvedValue(undefined)
         };
         mockScopesValidator = {
-            verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined)
+            verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined),
+            isAdminScope: jest.fn().mockReturnValue(true)
         };
         mockBundleManager = {
             createRawBundleFromEntries: jest.fn().mockReturnValue({

@@ -26,6 +26,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -69,7 +70,7 @@ describe('Search By Text', () => {
             // search by token system and code and make sure we get the right Medication back
             resp = await request
                 .get('/4_0_0/Medication/?_bundle=1&code:text=prednisoLONE&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMedicationResources1);
         });
@@ -96,7 +97,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Medication?code:text=predniso,sample&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMedicationResources3);
@@ -117,7 +118,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Medication?code:text=pred&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMedicationResources4);
@@ -138,7 +139,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Medication?code:text=Record&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMedicationResources5);
@@ -158,7 +159,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Medication?code:text=prednisolone 1 MG/ML [Pediapred]&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMedicationResources6);
         });
@@ -179,7 +180,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Composition?section:text=Appointment&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedCompositionResources1);
@@ -199,7 +200,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Composition?section:text=Appointment&identifier:text=abc&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedCompositionResources2);
@@ -223,7 +224,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Medication?identifier:text=predniso&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMedicationResources2);
@@ -252,7 +253,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Medication?identifier:text=predniso,sample&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMedicationResources7);
@@ -273,7 +274,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Medication?identifier:text=pred&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMedicationResources8);
@@ -295,7 +296,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Medication?identifier:text=Record&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMedicationResources9);
         });
@@ -315,7 +316,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Medication?identifier:text=prednisoLONE Record Number&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMedicationResources10);
@@ -338,7 +339,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Medication?identifier:text=prednisoLONE&code:text=Foo&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMedicationResources11);
         });
@@ -358,7 +359,7 @@ describe('Search By Text', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Medication?identifier:text=prednisoLONE&code:text=ABC&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMedicationResources12);

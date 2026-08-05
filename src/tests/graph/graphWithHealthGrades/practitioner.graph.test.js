@@ -15,6 +15,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeAll, afterAll, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -91,7 +92,7 @@ describe('Claim Graph Contained Tests', () => {
                 .post(
                     '/4_0_0/Practitioner/$graph?id=1376656959&contained=true&_debug=1'
                 )
-                .set(getHeaders())
+                .set(getHeadersWithAdmin())
                 .send(graphDefinitionResource);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResource);
@@ -100,7 +101,7 @@ describe('Claim Graph Contained Tests', () => {
                 .post(
                     '/4_0_0/Practitioner/$graph?id=1376656959&contained=true&_debug=1'
                 )
-                .set(getHeaders())
+                .set(getHeadersWithAdmin())
                 .send(graphDefinitionClientResource);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedClientResource);

@@ -6,7 +6,7 @@ const expectedObservationResources = require('./fixtures/expected/expected_Obser
 const expectedObservationWithoutProxyPatientResources = require('./fixtures/expected/expected_Observation_without_proxy_patient.json');
 const expectedObservationWithProxyPatientResources = require('./fixtures/expected/expected_Observation_with_proxy_patient.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const Observation = require('../../../fhir/classes/4_0_0/resources/observation');
 const personResource = require('./fixtures/Person/person.json');
@@ -114,7 +114,7 @@ describe('UpdateReferences Tests', () => {
 
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&patient=Patient/00100000000&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationWithoutProxyPatientResources);
         });
@@ -147,13 +147,13 @@ describe('UpdateReferences Tests', () => {
 
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&patient=Patient/00100000000&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationWithoutProxyPatientResources);
 
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65633&_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationWithProxyPatientResources);
         });
@@ -193,7 +193,7 @@ describe('UpdateReferences Tests', () => {
 
             resp = await request
                 .post('/4_0_0/Patient/$graph?id=00100000000&_debug=1')
-                .set(getHeaders())
+                .set(getHeadersWithAdmin())
                 .send(graphDefinitionResource);
 
             // noinspection JSUnresolvedFunction
@@ -235,7 +235,7 @@ describe('UpdateReferences Tests', () => {
 
             resp = await request
                 .post('/4_0_0/Patient/$graph?id=person.m65633&_debug=1')
-                .set(getHeaders())
+                .set(getHeadersWithAdmin())
                 .send(graphDefinitionResource);
 
             // noinspection JSUnresolvedFunction

@@ -28,6 +28,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest,
     getHeadersWithCustomPayload,
     getTestContainer
@@ -104,7 +105,7 @@ describe('Proxy Patient $everything Tests', () => {
         resp = await request
             .get('/4_0_0/Person/' + person1Resp.body.uuid + '/$everything?_debug=true')
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         expect(resp).toHaveResponse(expectedPersonResourcesWithProxyPatient);
@@ -123,7 +124,7 @@ describe('Proxy Patient $everything Tests', () => {
                     '/$everything?_debug=true&_includePatientLinkedOnly=true&_rewritePatientReference=true'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         expect(resp).toHaveResponse(expectedPatientResourcesWithProxyPatient);
@@ -136,7 +137,7 @@ describe('Proxy Patient $everything Tests', () => {
                     '/$everything?_debug=true&_includePatientLinkedUuidOnly=true&_rewritePatientReference=true'
             )
             .set({
-                ...getHeaders(),
+                ...getHeadersWithAdmin(),
                 prefer: 'global_id=false'
             });
         expect(resp).toHaveResponse(expectedPatientResourcesWithProxyPatientAndUuidOnly);
@@ -165,7 +166,7 @@ describe('Proxy Patient $everything Tests', () => {
 
         // proxy patient everything with patient scope
         let jwtPayload = {
-            scope: 'patient/*.* user/*.* access/*.*',
+            scope: 'patient/*.* user/*.* access/*.* admin/*.*',
             username: 'test',
             client_id: 'client',
             clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',
@@ -183,31 +184,31 @@ describe('Proxy Patient $everything Tests', () => {
 
         resp = await request
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1`)
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedPatientResourcesWithMultipleProxyPatient);
 
         // get proxy patient everything with _includeProxyPatientLinkedOnly
         resp = await request
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_includeProxyPatientLinkedOnly=1`)
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedPatientResourcesWithIncludeProxyOnly);
 
         // get proxy patient everything with _excludeProxyPatientLinked
         resp = await request
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_excludeProxyPatientLinked=1`)
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedPatientResourcesWithExcludeProxy);
 
         // get proxy patient everything with _includeProxyPatientLinkedOnly and _includePatientLinkedUuidOnly
         resp = await request
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_includeProxyPatientLinkedOnly=1&_includePatientLinkedUuidOnly=1`)
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedPatientResourcesWithIncludeProxyUuidOnly);
 
         // get proxy patient everything with _excludeProxyPatientLinked and _includePatientLinkedUuidOnly
         resp = await request
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_excludeProxyPatientLinked=1&_includePatientLinkedUuidOnly=1`)
-            .set(getHeaders());
+            .set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedPatientResourcesWithExcludeProxyUuidOnly);
     });
 

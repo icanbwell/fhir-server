@@ -74,7 +74,7 @@ describe('GraphQL Token Tests', () => {
                 variables: {},
                 query: valuesInNotEqualsQuery
             })
-            .set(getGraphQLHeaders());
+            .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedValuesInNotEquals);
@@ -87,7 +87,7 @@ describe('GraphQL Token Tests', () => {
                 variables: {},
                 query: textModifierQuery
             })
-            .set(getGraphQLHeaders());
+            .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedTextModifier);
@@ -100,7 +100,7 @@ describe('GraphQL Token Tests', () => {
                 variables: {},
                 query: ofTypeModifierQuery
             })
-            .set(getGraphQLHeaders());
+            .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedOfTypeModifier);

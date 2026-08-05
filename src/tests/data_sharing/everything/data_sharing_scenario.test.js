@@ -72,11 +72,20 @@ const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/g
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 const deepcopy = require('deepcopy');
 
-const headers = getHeaders('user/*.read access/client.*');
+const headers = getHeaders('user/*.read access/client.* admin/*.read');
 const client1Headers = getHeaders('user/*.read access/client-1.*');
 const healthServiceHeader = getHeaders('user/*.read access/health-service.*');
 const healthService1Header = getHeaders('user/*.read access/health-service-1.*');
 const healthService2Header = getHeaders('user/*.read access/health-service-2.*');
+
+// _debug=1/_debug=true requests below need admin scope to get the query-echo debug info
+// (the everything.js admin-gate strips _debug for non-admin scopes); these variants exist
+// purely so the many non-debug requests elsewhere in this file keep their original,
+// narrower scope unchanged.
+const headersWithAdmin = getHeaders('user/*.read access/client.* admin/*.*');
+const client1HeadersWithAdmin = getHeaders('user/*.read access/client-1.* admin/*.*');
+const healthServiceHeaderWithAdmin = getHeaders('user/*.read access/health-service.* admin/*.*');
+const healthService2HeaderWithAdmin = getHeaders('user/*.read access/health-service-2.* admin/*.*');
 
 describe('Data sharing test cases for different scenarios', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
@@ -110,7 +119,7 @@ describe('Data sharing test cases for different scenarios', () => {
             resp = await request
                 .get('/4_0_0/Person/c12345/$everything?_debug=true')
                 .set({
-                    ...headers,
+                    ...headersWithAdmin,
                     prefer: 'global_id=false'
                 });
 
@@ -167,7 +176,7 @@ describe('Data sharing test cases for different scenarios', () => {
             resp = await request
                 .get('/4_0_0/Person/c12345/$everything?_debug=true')
                 .set({
-                    ...headers,
+                    ...headersWithAdmin,
                     prefer: 'global_id=false'
                 });
 
@@ -201,7 +210,7 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Person/c12345/$everything?_debug=true')
-                .set(healthServiceHeader);
+                .set(healthServiceHeaderWithAdmin);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse4Resource);
@@ -227,7 +236,7 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Person/c12345/$everything?_debug=true')
-                .set(healthServiceHeader);
+                .set(healthServiceHeaderWithAdmin);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse4Resource);
@@ -251,7 +260,7 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6/$everything?_debug=true')
-                .set(headers);
+                .set(headersWithAdmin);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse5Resource);
@@ -275,7 +284,7 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Patient/bb7762e6-b7ac-470e-bde3-e85cee9d1ce6/$everything?_debug=true')
-                .set(client1Headers);
+                .set(client1HeadersWithAdmin);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse6Resource);
@@ -301,7 +310,7 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce7/$everything?_debug=true')
-                .set(headers);
+                .set(headersWithAdmin);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse7Resource);
@@ -326,7 +335,7 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce7/$everything?_debug=true')
-                .set(healthServiceHeader);
+                .set(healthServiceHeaderWithAdmin);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse8Resource);
@@ -350,7 +359,7 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8/$everything?_debug=true')
-                .set(headers);
+                .set(headersWithAdmin);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse7Resource1);
@@ -399,7 +408,7 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Patient/d4c639de-f892-5b89-a63c-f64f0f2d69d1/$everything?_debug=true')
-                .set(headers);
+                .set(headersWithAdmin);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse10Resource);
@@ -424,7 +433,7 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Patient/d4c639de-f892-5b89-a63c-f64f0f2d69d1/$everything?_debug=true')
-                .set(healthService2Header);
+                .set(healthService2HeaderWithAdmin);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse11Resource);
@@ -703,7 +712,7 @@ describe('Data sharing test cases for different scenarios', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            const combinedHeaders = getHeaders('user/*.read access/client2.*');
+            const combinedHeaders = getHeaders('user/*.read access/client2.* admin/*.*');
 
             resp = await request
                 .get(`/4_0_0/Person/${PERSON_CLIENT2_ID}/$everything?_type=Subscription,SubscriptionStatus,SubscriptionTopic&_debug=1`)
@@ -755,7 +764,7 @@ describe('Data sharing test cases for different scenarios', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
 
-        const client2Headers = getHeaders('user/*.read access/client2.*');
+        const client2Headers = getHeaders('user/*.read access/client2.* admin/*.*');
 
         // client2's own Subscription for person A must come back, and person B's Subscription
         // (a different, sibling client person under the same client) must never leak in - even

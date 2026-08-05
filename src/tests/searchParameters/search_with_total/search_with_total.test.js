@@ -4,7 +4,7 @@ const person1Resource = require('./fixtures/Person/person1.json');
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_person.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest } = require('../../common');
 const { describe, beforeAll, afterAll, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
@@ -53,7 +53,7 @@ describe('Person Tests', () => {
             // search by token system and code and make sure we get the right Person back
             resp = await request
                 .get('/4_0_0/Person/?_bundle=1&gender:missing=true&_debug=1&_total=accurate&_elements=id&_security=https://www.icanbwell.com/access%7Cbwell')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
         });

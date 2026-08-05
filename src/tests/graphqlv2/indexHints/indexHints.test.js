@@ -97,7 +97,7 @@ describe('Graphql IndexHints Test', () => {
                     variables: {},
                     query: graphqlQueryTextWithIndexHint1
                 })
-                .set(getGraphQLHeaders());
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
             // Find the object with the specified system value
             let desiredObject = resp.body.data.patients.meta.tag.find(tag => tag.system === desiredSystem);
@@ -112,7 +112,7 @@ describe('Graphql IndexHints Test', () => {
                     variables: {},
                     query: graphqlQueryTextWithIndexHint2
                 })
-                .set(getGraphQLHeaders());
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
             desiredObject = resp.body.data.patients.meta.tag.find(tag => tag.system === desiredSystem);
 
