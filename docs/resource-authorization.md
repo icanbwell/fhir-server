@@ -177,14 +177,19 @@ an allow-listed `user_type` claim.
 
 ## 5. Patient-scoped tokens, proxy-patient, and Person/Patient link expansion
 
-When a caller holds a `patient/` scope (§3/§4), access is **not** decided by access tags at all —
-it's decided by reachability through that caller's own Person/Patient identity graph. This is a
-separate, mutually exclusive branch from §1 in `SearchManager.constructQueryAsync`.
+When a caller holds a `patient/` scope (§3/§4) **and** the requested resource type is
+patient-filterable (`ScopesManager.isAccessAllowedByPatientScopes` checks both), access is **not**
+decided by access tags at all — it's decided by reachability through that caller's own
+Person/Patient identity graph. This is a separate, mutually exclusive branch from §1 in
+`SearchManager.constructQueryAsync`: a patient-scoped caller requesting a non-patient-filterable
+resource type falls through to the §1 access-tag branch instead for that request.
 
 - `PatientScopeManager.getPatientIdsFromScopeAsync` (`src/operations/security/patientScopeManager.js`)
   resolves the JWT's person id into the proxy-patient id (`person.<uuid>`) plus every linked
   `Patient` id, via `PersonToPatientIdsExpander.getPatientIdsFromPersonAsync`
-  (`src/utils/personToPatientIdsExpander.js`) — the code that walks `Person.link`.
+  (`src/utils/personToPatientIdsExpander.js`) — the code that walks `Person.link`. Traversal is
+  capped at a recursion depth of 4 (`maximumRecursionDepth` in that file); hitting the cap logs a
+  warning and returns whatever was resolved so far rather than erroring.
 - `PatientQueryCreator.getQueryWithPatientFilter` (`src/operations/common/patientQueryCreator.js`)
   turns the resolved id set into the actual Mongo restriction, using the per-resource-type
   reference path in `patientFilterManager.js` (`patientFilterMapping`).
@@ -279,7 +284,7 @@ sensitivity grounds.
 - **`unclassified` sensitivity tag** (`meta.security`, system `.../sensitivity-category`, code
   `unclassified`; `SENSITIVE_CATEGORY` in `src/constants.js`) — auto-added on write by
   `unclassifiedSensitivityTagHandler` (`src/preSaveHandlers/handlers/unclassifiedSensitivityTagHandler.js`)
-  for resource types listed in `configManager.unclassifiedTaggingResources` (env
+  for resource types listed in `configManager.resourceTypesForUnclassifiedTagging` (env
   `UNCLASSIFIED_TAGGING_RESOURCES`); a writer can suppress the auto-tag with the
   `x-suppress-unclassified-tag` header (`PreSaveOptions.suppressUnclassifiedTag`). On read, it is
   hardcoded into the delegated-actor exclusion list (§10) regardless of what that actor's Consent
@@ -299,8 +304,8 @@ composed together:
 sequenceDiagram
     participant C as Caller (JWT act claim, patient scope)
     participant Auth as AuthService
-    participant SV as ScopesValidator
     participant OAM as OperationAccessManager
+    participant SV as ScopesValidator
     participant SM as SearchManager
     participant DSM as DataSharingManager
     participant DARM as DelegatedAccessRulesManager
@@ -308,25 +313,25 @@ sequenceDiagram
 
     C->>Auth: Request
     Auth->>Auth: processForDelegatedActor()<br/>sets userType=delegatedUser, actor
-    Auth->>SV: isScopesValidAsync()
-    SV->>DARM: hasValidConsentAsync() via DelegatedAccessScopeManager
-    alt no valid grantor-to-actor Consent
-        DARM-->>SV: invalid
-        SV-->>C: 403 Forbidden
-    else valid Consent
-        DARM-->>SV: valid
-        SV->>OAM: verifyAccess(operation)
-        alt write operation (create/update/delete/patch)
-            OAM-->>C: 403 Forbidden — read-only
-        else read operation (search/searchById/everything/graph)
-            OAM-->>SM: constructQueryAsync()
+    Auth->>OAM: verifyAccess(operation) — checked first, at the top<br/>of the operation handler, before args are parsed
+    alt write operation (create/update/delete/patch)
+        OAM-->>C: 403 Forbidden — read-only
+    else read operation (search/searchById/everything/graph)
+        OAM->>SV: isScopesValidAsync()
+        SV->>DARM: hasValidConsentAsync() via DelegatedAccessScopeManager
+        alt no valid grantor-to-actor Consent
+            DARM-->>SV: invalid
+            SV-->>C: 403 Forbidden
+        else valid Consent
+            DARM-->>SV: valid
+            SV->>SM: constructQueryAsync()
             SM->>SM: route via the §5 patient-scope branch
             SM->>DSM: updateQueryForDelegatedAccessSensitiveData()
             DSM->>DARM: getFilteringRulesAsync() (cached per request)
             DARM-->>DSM: deniedSensitiveCategories[]
             DSM-->>SM: AND NOT(denied categories, unclassified)
             SM-->>C: filtered Bundle
-            Enrich->>Enrich: strip denied-category sections<br/>from any returned Composition
+            Enrich->>Enrich: strip Consent-denied-category sections<br/>(not the hardcoded unclassified code)<br/>from any returned Composition
         end
     end
 ```
@@ -335,14 +340,19 @@ sequenceDiagram
    `act` claim, `AuthService.processForDelegatedActor` (`src/strategies/authService.js`) sets
    `userType: delegatedUser` and `actor` on the request context; `entitlements`, if present, become
    `purposeOfUse`.
-2. **Pre-query consent gate** (alongside the §3 scope check) — `ScopesValidator.isScopesValidAsync`
+2. **Operation restriction** — checked before anything else below: `OperationAccessManager` →
+   `DelegatedAccessManager.verifyAccess` (`src/utils/delegatedAccessManager.js`) runs at the top of
+   the operation handler in `fhirOperationsManager.js`, before request args are even parsed. It
+   allows only `search`, `searchById`, `everything`, and `graph`; any write operation is rejected
+   with `ForbiddenError` immediately — the consent/query logic below never runs for a write.
+3. **Pre-query consent gate** (alongside the §3 scope check) — `ScopesValidator.isScopesValidAsync`
    calls `DelegatedAccessScopeManager.isAccessAllowedAsync` →
    `DelegatedAccessRulesManager.hasValidConsentAsync`. No active Consent tying the grantor Person
    to the actor → `ForbiddenError` before any query is built.
-3. **Query path** — because the actor holds a `patient/` scope, `SearchManager.constructQueryAsync`
+4. **Query path** — because the actor holds a `patient/` scope, `SearchManager.constructQueryAsync`
    routes the request through the ordinary patient-scope/identity-graph branch (§5), **not** the
    access-tag branch (§1); reachability is decided exactly as it would be for the grantor Person.
-4. **Sensitive-data exclusion (bolt-on, delegated-only)** — for resource types the patient-scope
+5. **Sensitive-data exclusion (bolt-on, delegated-only)** — for resource types the patient-scope
    machinery can filter (`PatientFilterManager.canAccessResourceWithPatientScope`),
    `SearchManager.constructQueryAsync` additionally calls
    `DataSharingManager.updateQueryForDelegatedAccessSensitiveData`
@@ -356,18 +366,17 @@ sequenceDiagram
      `sensitivity-category` `securityLabel` into a denied-code list, and ANDs a
      `meta.security` `$not`/`$elemMatch` exclusion for those codes **plus** the hardcoded
      `unclassified` code (§9) onto the query.
-5. **Operation restriction** — independent of the return-filter question, but part of the same
-   caller-type gate: `OperationAccessManager` → `DelegatedAccessManager.verifyAccess`
-   (`src/utils/delegatedAccessManager.js`) allows only `search`, `searchById`, `everything`, and
-   `graph`; any write operation is rejected with `ForbiddenError` before it reaches query or write
-   logic.
 6. **Content-level filtering (enrichment-time — not a resource inclusion/exclusion decision)** —
    `CompositionSectionFilterEnrichmentProvider`
-   (`src/enrich/providers/compositionSectionFilterEnrichmentProvider.js`) reuses the denied-category
-   set from step 4 to strip individual `section`s (recursively, including into `contained`
-   resources) out of an already-*returned* `Composition`. The Composition itself still passed every
-   gate above; only some of its sections are removed. This is the one mechanism in this document
-   that shapes resource *content* rather than deciding whether the resource is returned at all.
+   (`src/enrich/providers/compositionSectionFilterEnrichmentProvider.js`) reuses the actor's
+   Consent-derived denied-category set (same lookup as step 5, read from the cached
+   `actor._filteringRules`) to strip individual `section`s (recursively, including into
+   `contained` resources) out of an already-*returned* `Composition`. Unlike step 5's query-level
+   exclusion, this does **not** also fold in the hardcoded `unclassified` code — a `Composition`
+   section tagged `unclassified` is not stripped here, only sections matching a code the grantor's
+   Consent explicitly denied. The Composition itself still passed every gate above; only some of
+   its sections are removed. This is the one mechanism in this document that shapes resource
+   *content* rather than deciding whether the resource is returned at all.
 
 Full detail: `readme/delegatedActorAccess.md`.
 
