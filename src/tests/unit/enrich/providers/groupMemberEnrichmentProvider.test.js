@@ -376,4 +376,229 @@ describe('GroupMemberEnrichmentProvider', () => {
             expect(callArgs.query_params).toEqual({ groupId: 'group-abc' });
         });
     });
+
+    describe('_getMemberCount tenant filtering (EA-2335)', () => {
+        test('applies access tags filter when provided', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '5' }]);
+
+            const securityContext = {
+                accessTags: ['client-a', 'client-b'],
+                ownerTags: [],
+                hasFullAccess: false
+            };
+
+            const count = await provider._getMemberCount('group-1', securityContext);
+
+            expect(count).toBe(5);
+            const callArgs = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
+            expect(callArgs.query).toContain('hasAny(argMaxMerge(access_tags)');
+            expect(callArgs.query_params.accessTags).toEqual(['client-a', 'client-b']);
+        });
+
+        test('applies owner tags filter when provided', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '3' }]);
+
+            const securityContext = {
+                accessTags: [],
+                ownerTags: ['bwell', 'healthsystem'],
+                hasFullAccess: false
+            };
+
+            const count = await provider._getMemberCount('group-2', securityContext);
+
+            expect(count).toBe(3);
+            const callArgs = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
+            expect(callArgs.query).toContain('hasAny(argMaxMerge(owner_tags)');
+            expect(callArgs.query_params.ownerTags).toEqual(['bwell', 'healthsystem']);
+        });
+
+        test('applies both access and owner tags when both provided', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '2' }]);
+
+            const securityContext = {
+                accessTags: ['client-a'],
+                ownerTags: ['bwell'],
+                hasFullAccess: false
+            };
+
+            const count = await provider._getMemberCount('group-3', securityContext);
+
+            expect(count).toBe(2);
+            const callArgs = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
+            expect(callArgs.query).toContain('hasAny(argMaxMerge(access_tags)');
+            expect(callArgs.query).toContain('hasAny(argMaxMerge(owner_tags)');
+            expect(callArgs.query_params.accessTags).toEqual(['client-a']);
+            expect(callArgs.query_params.ownerTags).toEqual(['bwell']);
+        });
+
+        test('bypasses tag filtering for admin (hasFullAccess)', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '100' }]);
+
+            const securityContext = {
+                accessTags: [],
+                ownerTags: [],
+                hasFullAccess: true
+            };
+
+            const count = await provider._getMemberCount('group-admin', securityContext);
+
+            expect(count).toBe(100);
+            const callArgs = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
+            expect(callArgs.query).not.toContain('hasAny(argMaxMerge(access_tags)');
+            expect(callArgs.query).not.toContain('hasAny(argMaxMerge(owner_tags)');
+            expect(callArgs.query_params.accessTags).toBeUndefined();
+            expect(callArgs.query_params.ownerTags).toBeUndefined();
+        });
+
+        test('handles empty securityContext (defense in depth)', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '0' }]);
+
+            // MongoDB already filtered unauthorized Groups, but if somehow bypassed,
+            // empty securityContext means no tag filters (may return 0 for cross-tenant)
+            const count = await provider._getMemberCount('group-4', {});
+
+            expect(count).toBe(0);
+            const callArgs = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
+            // With empty context, no tag filters are applied, so query returns 0 if no members match
+            expect(callArgs.query).not.toContain('hasAny(argMaxMerge(access_tags)');
+            expect(callArgs.query).not.toContain('hasAny(argMaxMerge(owner_tags)');
+        });
+
+        test('handles null/undefined securityContext gracefully', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '0' }]);
+
+            const count = await provider._getMemberCount('group-5', null);
+
+            expect(count).toBe(0);
+            // Should not crash, should default to no filtering
+        });
+
+        test('handles undefined securityContext parameter', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '0' }]);
+
+            const count = await provider._getMemberCount('group-6');
+
+            expect(count).toBe(0);
+            // Should use default parameter value {}
+        });
+
+        test('uses GROUP_MEMBER_CURRENT table with FINAL', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '10' }]);
+
+            const securityContext = {
+                accessTags: ['client-a'],
+                ownerTags: [],
+                hasFullAccess: false
+            };
+
+            await provider._getMemberCount('group-7', securityContext);
+
+            const callArgs = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
+            // Should use the materialized view with FINAL for efficiency
+            expect(callArgs.query).toContain('FINAL');
+        });
+
+        test('logs security context information', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '8' }]);
+
+            const securityContext = {
+                accessTags: ['client-x'],
+                ownerTags: ['org-y'],
+                hasFullAccess: false
+            };
+
+            await provider._getMemberCount('group-8', securityContext);
+
+            expect(logDebug).toHaveBeenCalledWith(
+                'ClickHouse member count query result',
+                expect.objectContaining({
+                    groupId: 'group-8',
+                    hasSecurityContext: true,
+                    accessTagsCount: 1,
+                    ownerTagsCount: 1,
+                    hasFullAccess: false
+                })
+            );
+        });
+    });
+
+    describe('enrichAsync with security context (EA-2335)', () => {
+        const baseParsedArgs = {
+            headers: { useexternalstorage: 'true' }
+        };
+
+        test('passes securityContext to _getMemberCount', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '5' }]);
+
+            const resources = [{
+                resourceType: 'Group',
+                id: 'group1',
+                member: [{ entity: { reference: 'Patient/1' } }]
+            }];
+
+            const enrichmentContext = {
+                userType: 'admin',
+                actor: 'user-1',
+                securityContext: {
+                    accessTags: ['client-a'],
+                    ownerTags: [],
+                    hasFullAccess: false
+                }
+            };
+
+            const result = await provider.enrichAsync({
+                resources,
+                parsedArgs: baseParsedArgs,
+                enrichmentContext
+            });
+
+            expect(result[0].quantity).toBe(5);
+            const callArgs = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
+            expect(callArgs.query_params.accessTags).toEqual(['client-a']);
+        });
+
+        test('handles missing enrichmentContext gracefully', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '3' }]);
+
+            const resources = [{
+                resourceType: 'Group',
+                id: 'group2',
+                member: []
+            }];
+
+            const result = await provider.enrichAsync({
+                resources,
+                parsedArgs: baseParsedArgs,
+                enrichmentContext: undefined
+            });
+
+            expect(result[0].quantity).toBe(3);
+            // Should not crash, should use default empty securityContext
+        });
+
+        test('handles enrichmentContext without securityContext', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ count: '2' }]);
+
+            const resources = [{
+                resourceType: 'Group',
+                id: 'group3',
+                member: []
+            }];
+
+            const enrichmentContext = {
+                userType: 'admin',
+                actor: 'user-1'
+                // No securityContext field
+            };
+
+            const result = await provider.enrichAsync({
+                resources,
+                parsedArgs: baseParsedArgs,
+                enrichmentContext
+            });
+
+            expect(result[0].quantity).toBe(2);
+            // Should default to empty securityContext
+        });
+    });
 });
