@@ -253,98 +253,19 @@ describe('Write Operation Authorization Bypass Vulnerabilities', () => {
 
     // =========================================================================
     // VULNERABILITY 3: PATCH can modify meta.security tags (privilege escalation)
-    // The patchInternalFieldsValidator only blocks fields starting with '_',
-    // but meta.security does NOT start with '_' so it passes through unchecked.
+    //
+    // The patchInternalFieldsValidator only blocks fields starting with '_', and meta.security/
+    // meta.source/meta.versionId/meta.lastUpdated do NOT start with '_' -- but that's not the layer
+    // that protects them. resourceMerger.overWriteNonWritableFields (called from patch.js) reverts
+    // any attempted change to the owner/sourceAssigningAuthority tags and to meta.source/versionId/
+    // lastUpdated, for every caller (see src/tests/patch/patch_meta/patch_meta.test.js's "doesn't
+    // work" tests). DCON-4841 fixed the one gap in that: patch.js only called it when meta.source
+    // was present on either side, so a REQUIRE_META_SOURCE_TAGS=false resource with no meta.source
+    // at all could skip the revert entirely. See
+    // src/tests/patch/patch_owner_tag_change/patch_owner_tag_change.test.js for that regression test.
+    // meta.security's ACCESS tags are a separate, already-correct mechanism
+    // (scopesValidator.isAccessTagChangeAllowedByAccessScopes, SEC-1580 F2/F3), unaffected by this.
     // =========================================================================
-    describe('VULN-3: PATCH can modify meta.security tags for privilege escalation', () => {
-        // We test the validator directly — it should reject paths targeting meta/security
-        const { validatePatchDoesNotTargetInternalFields } = require(
-            '../../../../operations/patch/validators/patchInternalFieldsValidator'
-        );
-
-        test('PATCH replacing meta/security owner tag must be rejected', () => {
-            const patchContent = [
-                {
-                    op: 'replace',
-                    path: '/meta/security/0/code',
-                    value: 'attacker_tenant'
-                }
-            ];
-
-            // CURRENT BUG: This passes validation because '/meta/security/0/code'
-            // has no segment starting with '_'.
-            // CORRECT: Should throw BadRequestError because modifying security tags
-            // allows privilege escalation (changing resource ownership/access).
-            expect(() => {
-                validatePatchDoesNotTargetInternalFields(patchContent);
-            }).toThrow();
-        });
-
-        test('PATCH adding new security tag must be rejected', () => {
-            const patchContent = [
-                {
-                    op: 'add',
-                    path: '/meta/security/-',
-                    value: {
-                        system: 'https://www.icanbwell.com/access',
-                        code: 'attacker_tenant'
-                    }
-                }
-            ];
-
-            // CORRECT: Should throw because adding access tags = giving self access
-            expect(() => {
-                validatePatchDoesNotTargetInternalFields(patchContent);
-            }).toThrow();
-        });
-
-        test('PATCH removing owner security tag must be rejected', () => {
-            const patchContent = [
-                {
-                    op: 'remove',
-                    path: '/meta/security/0'
-                }
-            ];
-
-            // CORRECT: Should throw because removing security tags = removing access control
-            expect(() => {
-                validatePatchDoesNotTargetInternalFields(patchContent);
-            }).toThrow();
-        });
-
-        test('PATCH replacing entire meta.security array must be rejected', () => {
-            const patchContent = [
-                {
-                    op: 'replace',
-                    path: '/meta/security',
-                    value: [
-                        { system: 'https://www.icanbwell.com/owner', code: 'attacker' },
-                        { system: 'https://www.icanbwell.com/access', code: 'attacker' }
-                    ]
-                }
-            ];
-
-            // CORRECT: Should throw because rewriting security = taking ownership
-            expect(() => {
-                validatePatchDoesNotTargetInternalFields(patchContent);
-            }).toThrow();
-        });
-
-        test('PATCH replacing meta.source must be rejected', () => {
-            const patchContent = [
-                {
-                    op: 'replace',
-                    path: '/meta/source',
-                    value: 'https://attacker.com/data'
-                }
-            ];
-
-            // CORRECT: meta.source is used for provenance tracking and should be immutable
-            expect(() => {
-                validatePatchDoesNotTargetInternalFields(patchContent);
-            }).toThrow();
-        });
-    });
 
     // =========================================================================
     // VULNERABILITY 4: Merge operation allows creating resources with arbitrary
