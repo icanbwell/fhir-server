@@ -79,7 +79,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/history/historyCrossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/merge/merge.crossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/merge/mergeCrossTenantWrite.test.js',
-        '<rootDir>/src/tests/unit/operations/patch/patchSecurityTagEscalation.test.js',
         '<rootDir>/src/tests/unit/operations/query/searchQuery.crossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/search/proaConsentVulnerabilities.test.js',
         '<rootDir>/src/tests/unit/operations/security/delegatedAccessScopeManager.test.js',

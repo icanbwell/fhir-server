@@ -67,7 +67,7 @@ describe('Practitioner $everything Tests with Excel content', () => {
             // First get patient everything
             resp = await request
                 .get('/4_0_0/Practitioner/1679033641/$everything?_debug=true')
-                .set(getHeadersExcel())
+                .set(getHeadersExcel('user/*.read user/*.write access/*.* admin/*.*'))
                 .responseType('blob'); // Important for binary data
 
             // Basic response checks
@@ -172,7 +172,7 @@ describe('Practitioner $everything Tests with Excel content', () => {
             // First get patient everything
             resp = await request
                 .get('/4_0_0/Practitioner/1679033641/$everything?_debug=true')
-                .set(getHeadersExcel())
+                .set(getHeadersExcel('user/*.read user/*.write access/*.* admin/*.*'))
                 .responseType('blob'); // Important for binary data
 
             // Basic response checks

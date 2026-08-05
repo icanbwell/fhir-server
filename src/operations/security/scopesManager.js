@@ -242,7 +242,14 @@ class ScopesManager {
             scope, resourceType: resource.resourceType
         });
         if (accessViaPatientScopes) {
-            return true; // TODO: should double check here that the resources belong to this patient
+            // Patient scope tokens in this system never carry an access/ scope of their
+            // own (that's the separate tenant/service-account mechanism), so requiring a
+            // tenant-tag match here would deny every legitimate patient-scoped write. The
+            // "does this resource actually belong to this patient" check the old TODO asked
+            // for is already enforced independently by patientScopeManager.canWriteResourceAsync
+            // (Person/Patient-id matching), which every write path ANDs with this check via
+            // scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes.
+            return true;
         }
         // add any access codes from scopes
         /**

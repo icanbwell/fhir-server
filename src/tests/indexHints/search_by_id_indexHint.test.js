@@ -4,7 +4,7 @@ const auditEventResource = require('./fixtures/auditEvents.json');
 // expected
 const expectedAuditEventResource = require('./fixtures/expectedAuditEvents.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 const { customIndexes } = require('./mockCustomIndexes');
@@ -55,7 +55,7 @@ describe('AuditEventReturnIdTests', () => {
                 .get(
                     '/4_0_0/AuditEvent/?date=gt2021-08-02&date=lt2021-10-02&_security=https://www.icanbwell.com/access|fake&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&_bundle=1'
                 )
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResource);

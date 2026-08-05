@@ -64,9 +64,7 @@ describe('DataSharingManager', () => {
         mockDatabaseQueryFactory = Object.create(DatabaseQueryFactory.prototype);
         mockConfigManager = Object.create(ConfigManager.prototype);
         Object.defineProperty(mockConfigManager, 'enableConsentedProaDataAccess', { value: false, writable: true, configurable: true });
-        Object.defineProperty(mockConfigManager, 'enableHIETreatmentRelatedDataAccess', { value: false, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'getConsentConnectionTypesList', { value: [], writable: true, configurable: true });
-        Object.defineProperty(mockConfigManager, 'getHIETreatmentConnectionTypesList', { value: [], writable: true, configurable: true });
         mockPatientFilterManager = Object.create(PatientFilterManager.prototype);
         mockSearchQueryBuilder = Object.create(SearchQueryBuilder.prototype);
         mockBwellPersonFinder = Object.create(BwellPersonFinder.prototype);
@@ -114,9 +112,7 @@ describe('DataSharingManager', () => {
             });
 
             mockConfigManager.enableConsentedProaDataAccess = true;
-            mockConfigManager.enableHIETreatmentRelatedDataAccess = true;
             mockConfigManager.getConsentConnectionTypesList = ['proa'];
-            mockConfigManager.getHIETreatmentConnectionTypesList = ['hie'];
         });
 
         it('returns original query when no requestId and patientIdToImmediatePersonUuid is empty', async () => {
