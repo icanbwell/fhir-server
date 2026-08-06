@@ -187,12 +187,27 @@ describe('ScopesManager - access tag change Tests (SEC-1580 F2/F3)', () => {
             expect(isChangeAllowed(scopesManager, [], ['clientA', 'clientB'], 'access/clientA.*')).toBeFalse();
         });
 
-        test('leaves a patient-scoped caller to the patient scope checks', async () => {
+        test('does not bypass a patient-scoped caller changing an existing resource\'s access tags', async () => {
             await createTestRequest();
             const scopesManager = getTestContainer().scopesManager;
-            // a patient scoped caller holds no access scopes to compare against
+            // isCreate defaults to false here (an update, not a create) - a patient-scoped caller
+            // holds no access scopes to compare against, so the change can't be verified and must
+            // not be silently allowed (see isAccessTagChangeAllowedByScopes' isCreate doc)
             expect(isChangeAllowed(scopesManager, ['clientA'], ['clientA', 'clientB'], 'patient/Patient.write'))
-                .toBeTrue();
+                .toBeFalse();
+        });
+
+        test('bypasses a patient-scoped caller setting access tags on a brand-new resource (create)', async () => {
+            await createTestRequest();
+            const scopesManager = getTestContainer().scopesManager;
+            expect(scopesManager.isAccessTagChangeAllowedByScopes({
+                oldAccessCodes: [],
+                newAccessCodes: ['clientA', 'clientB'],
+                resourceType: 'Patient',
+                user,
+                scope: 'patient/Patient.write',
+                isCreate: true
+            })).toBeTrue();
         });
 
         test('still checks a caller with both patient and access scopes on a resource type not accessible by patient scope', async () => {
