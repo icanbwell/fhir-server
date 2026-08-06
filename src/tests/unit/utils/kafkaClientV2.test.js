@@ -723,6 +723,105 @@ describe('KafkaClientV2', () => {
             ).rejects.toThrow('Subscribe failed');
             expect(mockConsumerDisconnect).toHaveBeenCalled();
         });
+
+        describe('retry and dead-letter behavior', () => {
+            const makeConsumer = (message = {
+                key: Buffer.from('msg-key'),
+                value: Buffer.from('msg-value'),
+                headers: {}
+            }) => ({
+                connect: mockConsumerConnect,
+                disconnect: mockConsumerDisconnect,
+                subscribe: mockConsumerSubscribe,
+                run: jestObj.fn().mockImplementation(async ({ eachMessage }) => {
+                    await eachMessage({ topic: 'test-topic', partition: 0, message });
+                })
+            });
+
+            test('without deadLetterTopic, a failure propagates with no retry (unchanged behavior)', async () => {
+                const onMessageAsync = jestObj.fn().mockRejectedValue(new Error('boom'));
+                await expect(
+                    kafkaClient.receiveMessagesAsync({ consumer: makeConsumer(), topic: 'test-topic', onMessageAsync })
+                ).rejects.toThrow('boom');
+                expect(onMessageAsync).toHaveBeenCalledTimes(1);
+                expect(mockProducerSend).not.toHaveBeenCalled();
+            });
+
+            test('with deadLetterTopic, succeeds on first attempt with no retry and no DLT publish', async () => {
+                const onMessageAsync = jestObj.fn().mockResolvedValue(undefined);
+                await kafkaClient.receiveMessagesAsync({
+                    consumer: makeConsumer(),
+                    topic: 'test-topic',
+                    onMessageAsync,
+                    deadLetterTopic: 'test-topic.dlt'
+                });
+                expect(onMessageAsync).toHaveBeenCalledTimes(1);
+                expect(mockProducerSend).not.toHaveBeenCalled();
+            });
+
+            test('retries up to maxRetries and succeeds without publishing to the DLT', async () => {
+                const onMessageAsync = jestObj.fn()
+                    .mockRejectedValueOnce(new Error('transient'))
+                    .mockRejectedValueOnce(new Error('transient'))
+                    .mockResolvedValueOnce(undefined);
+                await kafkaClient.receiveMessagesAsync({
+                    consumer: makeConsumer(),
+                    topic: 'test-topic',
+                    onMessageAsync,
+                    deadLetterTopic: 'test-topic.dlt',
+                    maxRetries: 3,
+                    retryInitialDelayMs: 1
+                });
+                expect(onMessageAsync).toHaveBeenCalledTimes(3);
+                expect(mockProducerSend).not.toHaveBeenCalled();
+            });
+
+            test('publishes to the dead-letter topic and does not throw once retries are exhausted', async () => {
+                const persistentError = new Error('poison message');
+                const onMessageAsync = jestObj.fn().mockRejectedValue(persistentError);
+
+                await expect(
+                    kafkaClient.receiveMessagesAsync({
+                        consumer: makeConsumer({
+                            key: Buffer.from('poison-key'),
+                            value: Buffer.from('poison-value'),
+                            headers: {}
+                        }),
+                        topic: 'test-topic',
+                        onMessageAsync,
+                        deadLetterTopic: 'test-topic.dlt',
+                        maxRetries: 2,
+                        retryInitialDelayMs: 1
+                    })
+                ).resolves.toBeUndefined();
+
+                // Initial attempt + 2 retries = 3 calls total.
+                expect(onMessageAsync).toHaveBeenCalledTimes(3);
+                expect(mockProducerSend).toHaveBeenCalledWith(expect.objectContaining({
+                    topic: 'test-topic.dlt',
+                    messages: [expect.objectContaining({ key: 'poison-key' })]
+                }));
+                const dltPayload = JSON.parse(mockProducerSend.mock.calls[0][0].messages[0].value);
+                expect(dltPayload.originalValue).toBe('poison-value');
+                expect(dltPayload.error.message).toBe('poison message');
+            });
+
+            test('rethrows (offset must not commit) when the dead-letter publish itself fails', async () => {
+                const onMessageAsync = jestObj.fn().mockRejectedValue(new Error('poison message'));
+                mockProducerSend.mockRejectedValueOnce(new Error('broker unavailable'));
+
+                await expect(
+                    kafkaClient.receiveMessagesAsync({
+                        consumer: makeConsumer(),
+                        topic: 'test-topic',
+                        onMessageAsync,
+                        deadLetterTopic: 'test-topic.dlt',
+                        maxRetries: 1,
+                        retryInitialDelayMs: 1
+                    })
+                ).rejects.toThrow('broker unavailable');
+            });
+        });
     });
 
     describe('removeConsumerAsync', () => {

@@ -4,6 +4,7 @@ const { logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync } = r
 const { RethrownError } = require('./rethrownError');
 const { ConfigManager } = require('./configManager');
 const { recordKafkaRetryExhausted } = require('./metrics');
+const { retryWithBackoff } = require('./retryWithBackoff');
 
 class KafkaClientV2 {
     /**
@@ -249,7 +250,18 @@ class KafkaClientV2 {
      * @param {function} onMessageAsync
      * @return {Promise<void>}
      */
-    async receiveMessagesAsync({ consumer, topic, fromBeginning = false, onMessageAsync }) {
+    async receiveMessagesAsync({
+        consumer,
+        topic,
+        fromBeginning = false,
+        onMessageAsync,
+        maxRetries = 3,
+        deadLetterTopic,
+        // Kept short (max ~1.4s total across 3 retries) since eachMessage blocks the
+        // partition while retrying -- a long backoff here risks exceeding the consumer's
+        // session/poll timeout and triggering a group rebalance mid-retry.
+        retryInitialDelayMs = 200
+    }) {
         try {
             await consumer.connect();
         } catch (e) {
@@ -263,14 +275,53 @@ class KafkaClientV2 {
             await consumer.subscribe({ topics: [topic], fromBeginning });
             await consumer.run({
                 eachMessage: async ({ topic: t, partition, message, heartbeat, pause }) => {
-                    await onMessageAsync({
+                    const parsedMessage = {
                         key: message.key.toString(),
                         value: message.value.toString(),
                         headers: Object.entries(message.headers).map(([k, v]) => ({
                             key: k,
                             value: v ? v.toString() : ''
                         }))
-                    });
+                    };
+
+                    // Without a deadLetterTopic, behave exactly as before: a failure
+                    // propagates straight out of eachMessage, no retry, no DLT.
+                    if (!deadLetterTopic) {
+                        await onMessageAsync(parsedMessage);
+                        return;
+                    }
+
+                    try {
+                        await retryWithBackoff({
+                            fn: () => onMessageAsync(parsedMessage),
+                            maxRetries,
+                            initialDelayMs: retryInitialDelayMs,
+                            onRetry: ({ attempt, error }) => {
+                                // onRetry is invoked synchronously (not awaited) by retryWithBackoff,
+                                // so this log write races the retry delay -- best-effort only.
+                                logSystemEventAsync({
+                                    event: 'kafkaClientV2',
+                                    message: 'Retrying failed message processing',
+                                    args: { topic: t, partition, key: parsedMessage.key, attempt, maxRetries, error: error.message }
+                                }).catch(() => {});
+                            }
+                        });
+                    } catch (finalError) {
+                        // Retries exhausted -- this message can't be processed. Publish it to
+                        // the dead-letter topic (with the failure reason) and let eachMessage
+                        // return normally so the offset commits; otherwise a single poison
+                        // message would block this partition forever. If the DLT publish
+                        // itself fails, sendToDeadLetterTopicAsync rethrows so the offset does
+                        // NOT commit -- losing the message's only record would be worse than
+                        // redelivering it.
+                        await logSystemErrorAsync({
+                            event: 'kafkaClientV2',
+                            message: 'Message failed after exhausting retries, sending to dead-letter topic',
+                            args: { topic: t, partition, key: parsedMessage.key, deadLetterTopic, maxRetries },
+                            error: finalError
+                        });
+                        await this.sendToDeadLetterTopicAsync({ deadLetterTopic, message: parsedMessage, error: finalError });
+                    }
                 }
             });
         } catch (e) {
@@ -284,6 +335,34 @@ class KafkaClientV2 {
         } finally {
             await consumer.disconnect();
         }
+    }
+
+    /**
+     * Publishes a message that exhausted its processing retries to a dead-letter topic,
+     * wrapped with the failure reason, so it can be inspected/replayed later instead of
+     * being silently lost when the caller lets eachMessage return normally to commit past it.
+     * Deliberately does not catch/swallow: if the DLT publish itself fails, the caller must
+     * NOT commit the original offset, since that would lose the message with no record of
+     * it anywhere.
+     * @param {Object} params
+     * @param {string} params.deadLetterTopic
+     * @param {{ key: string, value: string, headers: Array<{key: string, value: string}> }} params.message
+     * @param {Error} params.error
+     * @returns {Promise<void>}
+     */
+    async sendToDeadLetterTopicAsync({ deadLetterTopic, message, error }) {
+        await this.sendCloudEventMessageAsync({
+            topic: deadLetterTopic,
+            messages: [{
+                key: message.key,
+                value: JSON.stringify({
+                    originalValue: message.value,
+                    originalHeaders: message.headers,
+                    error: { name: error.name, message: error.message },
+                    failedAt: new Date().toISOString()
+                })
+            }]
+        });
     }
 
     /**

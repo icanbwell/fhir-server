@@ -9,7 +9,7 @@ const { getCircularReplacer } = require('../../utils/getCircularReplacer');
  * async job's worker-side consumer means adding another entry to `jobs` below, not a new
  * entrypoint file.
  * @param {import('../../utils/simpleContainer').SimpleContainer} container
- * @returns {Array<{ topic: string, groupId: string, dispatcher: { handleMessageAsync: function }, label: string }>}
+ * @returns {Array<{ topic: string, groupId: string, dispatcher: { handleMessageAsync: function }, label: string, deadLetterTopic: string }>}
  */
 function getJobs(container) {
     const { configManager } = container;
@@ -18,7 +18,10 @@ function getJobs(container) {
             topic: configManager.kafkaBulkImportEventTopic,
             groupId: configManager.bulkImportConsumerGroupId,
             dispatcher: container.bulkImportWorkerDispatcher,
-            label: 'bulk-import-worker'
+            label: 'bulk-import-worker',
+            // A message still failing after 3 retries goes here instead of blocking the
+            // partition forever — see kafkaClientV2.receiveMessagesAsync's deadLetterTopic option.
+            deadLetterTopic: `${configManager.kafkaBulkImportEventTopic}.dlt`
         }
     ];
 }
@@ -50,7 +53,9 @@ async function main() {
                 fromBeginning: false,
                 onMessageAsync: async (message) => {
                     await job.dispatcher.handleMessageAsync(message);
-                }
+                },
+                maxRetries: 3,
+                deadLetterTopic: job.deadLetterTopic
             });
 
             // kafkaClientV2's own CRASH listener (registered inside waitForConsumerToJoinGroupAsync)
