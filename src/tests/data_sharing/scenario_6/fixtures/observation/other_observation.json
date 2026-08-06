@@ -1,21 +1,21 @@
 {
     "resourceType": "Observation",
-    "id": "b59f86b9-5307-506a-bb6c-3eb555ace523",
+    "id": "3158b5b8-3c3a-4438-9c81-211d824d174b",
     "meta": {
         "lastUpdated": "2021-12-15T15:30:30+00:00",
         "source": "/patients",
         "security": [
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "client"
+                "code": "client-1"
             },
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "client"
+                "code": "client-1"
             },
             {
                 "system": "https://www.icanbwell.com/vendor",
-                "code": "client"
+                "code": "client-1"
             }
         ]
     },
@@ -37,12 +37,15 @@
         ]
     },
     "subject": {
-        "reference": "Patient/88999"
+        "reference": "Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc"
     },
     "effectivePeriod": {
         "start": "2021-01-01T00:00:00.000Z",
         "end": "2021-12-31T00:00:00.000Z"
     },
     "issued": "2021-01-01T12:00:00Z",
-    "valueBoolean": false
+    "valueBoolean": false,
+    "encounter": {
+        "reference": "Encounter/12345678"
+    }
 }
