@@ -334,4 +334,5 @@ describe('MongoWithClickHouseStorageProvider', () => {
             expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalled();
         });
     });
+
 });
