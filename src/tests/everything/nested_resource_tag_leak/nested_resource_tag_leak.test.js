@@ -98,9 +98,15 @@ describe('D-IDG5: nested cross-tenant resource must not leak via reference expan
             .get('/4_0_0/Patient/patA/$everything')
             .set(tenantAHeaders);
 
+        // Guard against this test passing vacuously (e.g. a 403 or an empty/error Bundle would
+        // also satisfy the not.toContain check below without proving anything was enforced).
+        expect(everythingResp.status).toBe(200);
+
         const returnedSourceIds = (everythingResp.body.entry || [])
             .map(e => e.resource?.identifier?.find(i => i.system === 'https://www.icanbwell.com/sourceId')?.value);
 
+        expect(returnedSourceIds).toContain('patA');
+        expect(returnedSourceIds).toContain('obsA');
         expect(returnedSourceIds).not.toContain('practB');
     });
 
@@ -135,10 +141,15 @@ describe('D-IDG5: nested cross-tenant resource must not leak via reference expan
         const patA = patient('patA2', 'tenant_a');
         const obsA = observationWithPerformer('obsA2', 'tenant_a', 'patA2', 'practB2');
         const practB = practitioner('practB2', 'tenant_b', ['tenant_b']);
+        // Same-tenant sibling under a second Observation, so a status/empty-response regression
+        // can't make the not.toContain assertion below pass vacuously -- something must actually
+        // be returned, and it must be the right thing.
+        const obsA2 = observationWithPerformer('obsA2b', 'tenant_a', 'patA2', 'practA2');
+        const practA = practitioner('practA2', 'tenant_a', ['tenant_a']);
 
         const mergeResp = await request
             .post('/4_0_0/Patient/1/$merge')
-            .send([patA, obsA, practB])
+            .send([patA, obsA, practB, obsA2, practA])
             .set(getHeaders());
         expect(mergeResp).toHaveMergeResponse({ created: true });
 
@@ -167,7 +178,12 @@ describe('D-IDG5: nested cross-tenant resource must not leak via reference expan
             .send(graphDefinition)
             .set(tenantAHeaders);
 
+        // Guard against this test passing vacuously (e.g. a 403 or an error OperationOutcome
+        // would also satisfy the not.toContain check below without proving anything was enforced).
+        expect(graphResp.status).toBe(200);
+
         const bodyText = JSON.stringify(graphResp.body);
+        expect(bodyText).toContain('practA2');
         expect(bodyText).not.toContain('practB2');
     });
 });
