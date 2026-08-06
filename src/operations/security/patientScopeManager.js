@@ -135,7 +135,14 @@ class PatientScopeManager {
                 // Only meaningful when requestInfo (user + scope) is actually available -- callers that
                 // can't supply it fall back to the pre-existing (unfiltered) behavior rather than
                 // throwing, since the expander asserts requestInfo is defined when this is true.
-                addTopPersonAccessCheck: Boolean(requestInfo)
+                addTopPersonAccessCheck: Boolean(requestInfo),
+                // personIdFromJwtToken is a trusted claim established by authentication, not
+                // user-suppliable input -- there's nothing to re-check by gating it against the
+                // caller's own access/ scope tags (which may legitimately carry no relation to their
+                // own Person's access tag). Only Person(s) reached transitively via Person.link
+                // (level 2+) need the access-tag check; see personToPatientIdsExpander.js for the
+                // full reasoning.
+                skipAccessCheckAtTopLevel: true
             });
         } catch (e) {
             throw new RethrownError({
