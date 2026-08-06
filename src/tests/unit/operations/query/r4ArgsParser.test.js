@@ -79,6 +79,104 @@ describe('R4ArgsParser', () => {
         });
     });
 
+    describe('parseArgs - rejects MongoDB operator injection', () => {
+        // A POST _search body of `url[$gt]=` parses into { url: { $gt: '' } }, which without
+        // a guard reaches the filters as a live MongoDB operator expression.
+        /**
+         * The parameter must be absent entirely, not present with a null value: a null-valued
+         * item still reaches the filters and some dereference it (FilterByDateTime) and 500.
+         * @param {ParsedArgs} parsedArgs
+         * @param {string} queryParameter
+         * @return {ParsedArgsItem|undefined}
+         */
+        function itemFor (parsedArgs, queryParameter) {
+            return parsedArgs.parsedArgItems.find(i => i.queryParameter === queryParameter);
+        }
+
+        test('drops an operator object on a date parameter without creating an item', () => {
+            mockSearchParametersManager.getPropertyObject.mockReturnValue(
+                new SearchParameterDefinition({ type: 'date', field: 'birthDate' })
+            );
+            mockFhirTypesManager.getTypeForField.mockReturnValue('date');
+
+            const result = r4ArgsParser.parseArgs({
+                resourceType: 'Patient',
+                args: { birthdate: { $gt: '' }, base_version: '4_0_0' }
+            });
+            expect(itemFor(result, 'birthdate')).toBeUndefined();
+        });
+
+        test('drops an operator object on a known search parameter', () => {
+            mockSearchParametersManager.getPropertyObject.mockReturnValue(
+                new SearchParameterDefinition({ type: 'uri', field: 'url' })
+            );
+            mockFhirTypesManager.getTypeForField.mockReturnValue('uri');
+
+            const result = r4ArgsParser.parseArgs({
+                resourceType: 'ValueSet',
+                args: { url: { $gt: '' }, base_version: '4_0_0' }
+            });
+            expect(itemFor(result, 'url')).toBeUndefined();
+        });
+
+        test('drops an operator object nested inside an array', () => {
+            mockSearchParametersManager.getPropertyObject.mockReturnValue(
+                new SearchParameterDefinition({ type: 'uri', field: 'url' })
+            );
+            mockFhirTypesManager.getTypeForField.mockReturnValue('uri');
+
+            // qs parses `url[0][$gt]=` into { url: [ { $gt: '' } ] }
+            const result = r4ArgsParser.parseArgs({
+                resourceType: 'ValueSet',
+                args: { url: [{ $gt: '' }], base_version: '4_0_0' }
+            });
+            expect(itemFor(result, 'url')).toBeUndefined();
+        });
+
+        test('preserves an object payload on a non-search parameter ($graph)', () => {
+            // operation payloads have no propertyObj so never become a filter, and $graph
+            // reads a whole GraphDefinition off parsedArgs.resource
+            mockSearchParametersManager.getPropertyObject.mockReturnValue(null);
+            const graphDefinition = { resourceType: 'GraphDefinition', id: 'x', start: 'Patient' };
+
+            const result = r4ArgsParser.parseArgs({
+                resourceType: 'Patient',
+                args: { resource: graphDefinition, base_version: '4_0_0' }
+            });
+            expect(result.resource).toEqual(graphDefinition);
+        });
+
+        test('preserves a GraphQL token object, which converts to strings', () => {
+            mockSearchParametersManager.getPropertyObject.mockReturnValue(
+                new SearchParameterDefinition({ type: 'token', field: 'identifier' })
+            );
+            mockFhirTypesManager.getTypeForField.mockReturnValue('Identifier');
+
+            const result = r4ArgsParser.parseArgs({
+                resourceType: 'Patient',
+                args: {
+                    identifier: { searchType: 'token', values: [{ system: 'http://s', code: 'c' }] },
+                    base_version: '4_0_0'
+                }
+            });
+            expect(itemFor(result, 'identifier').queryParameterValue.values).toEqual(['http://s|c']);
+        });
+
+        test('still parses a legitimate uri value', () => {
+            mockSearchParametersManager.getPropertyObject.mockReturnValue(
+                new SearchParameterDefinition({ type: 'uri', field: 'url' })
+            );
+            mockFhirTypesManager.getTypeForField.mockReturnValue('uri');
+
+            const result = r4ArgsParser.parseArgs({
+                resourceType: 'ValueSet',
+                args: { url: 'http://example.org/vs', base_version: '4_0_0' }
+            });
+            expect(result.parsedArgItems.find(i => i.queryParameter === 'url')
+                .queryParameterValue.value).toBe('http://example.org/vs');
+        });
+    });
+
     describe('parseArgs - backward compatibility mappings', () => {
         test('should map source to _source when _source not present', () => {
             const args = { source: 'http://example.com', base_version: '4_0_0' };
