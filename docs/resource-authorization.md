@@ -1,0 +1,511 @@
+# Resource Authorization: How a Resource Gets Returned From a Query
+
+This catalogs every distinct mechanism in this codebase that can affect whether a given FHIR
+resource is included in the response to a search, read, `$everything`, `$graph`, or GraphQL
+query. It is a map of *how*, in code, not a specification of *how it should behave* — for the
+authoritative, living specification of intended behavior (including current known gaps and open
+questions), see:
+
+- [FHIR Server Security & Data Model Specification](https://icanbwell.atlassian.net/wiki/spaces/ENTARCH/pages/6582730753) (ENTARCH Confluence)
+- [Plain-Language Companion](https://icanbwell.atlassian.net/wiki/spaces/ENTARCH/pages/6580764702) to the above
+
+Before reviewing or modifying any code in this area, read `review.md` at the repo root — it's a
+standing adversarial-review checklist for this exact surface (see `CLAUDE.md`).
+
+## Quick index
+
+Looking for one specific mechanism rather than reading start to finish? Jump straight to its
+section:
+
+| § | Mechanism | In one line |
+|---|---|---|
+| 1 | Access tags | Tenant-visibility filter ANDed onto every query |
+| 2 | Owner tags | Single authoritative tenant; used in narrower single-resource/write checks |
+| 3 | Scopes | `user`/`access`/`patient`/`admin` SMART scopes, validated before any query is built |
+| 4 | Caller / account type | Service account, admin/tester, end-user, delegated actor, CMS partner |
+| 5 | Patient-scoped tokens & link expansion | Identity-graph reachability replaces access-tag filtering |
+| 6 | Consent | Four independent Consent-driven mechanisms (PROA/IAS, CMS, delegated, data-view-control) |
+| 7 | Admin scope / wildcard bypass | `access/*` removes the tag filter; `admin/*` does not |
+| 8 | Tag-based filters | `hidden` tag, connection-type tag |
+| 9 | Sensitivity classification | Confidentiality-`R` tag, `unclassified` tag, delegated denylist |
+| 10 | Delegated actor access | The full composed model: detection → consent gate → query routing → sensitive-data exclusion → section-level filtering |
+| 11 | How these compose | The overall AND/OR rule tying §1–§10 together |
+| 12 | Known gaps | Confirmed defects between intended and actual behavior |
+
+## Mental model
+
+A resource is returned to a caller only if it passes **every** gate below that applies to that
+caller/request. Most gates are compiled into the MongoDB query itself (so a resource that fails
+never leaves the database); a few are applied to already-fetched resources
+(enrichment-time filtering). None of them are optional add-ons — a request that skips one because
+it followed an unusual code path (a different traversal operation, a different resource type, a
+raw id lookup) is a tenant-isolation bug, not a feature gap.
+
+**Request flow:**
+
+1. `FhirRouter` dispatches the request to an Operation class — e.g.
+   `operations/search/searchBundle.js`, `searchStreaming.js`, `searchById/searchById.js`,
+   `searchByVersionId/searchByVersionId.js`, `history/history.js`,
+   `everything/everythingHelper.js`, `graph/graphHelpers.js`,
+   `export/script/bulkDataExportRunner.js`, or GraphQL's `graphql/dataSource.js` (v1) /
+   `graphqlv2/dataSource.js` (v2).
+2. `ScopesValidator.verifyHasValidScopesAsync` runs the scope gate (§3) — before any query is
+   built.
+3. `SearchManager.constructQueryAsync` (`src/operations/search/searchManager.js`) is the central
+   point where nearly all of the mechanisms below get ANDed onto the query.
+4. The query flows through `queryRewriterManager` → `DataLayer` → MongoDB.
+
+The write paths (`remove.js`, `update.js`, `patch.js`, `validate.js`) call that same
+`constructQueryAsync` to locate their target resource before mutating it, so every gate below
+applies there too — a caller can't find-and-modify a resource it couldn't have found via search.
+
+### Gate composition diagram
+
+Section numbers on each node match the numbered sections below. This is the same logic as §11,
+drawn out as a decision path rather than a checklist.
+
+```mermaid
+flowchart TD
+    Start(["Operation calls constructQueryAsync"]) --> Scope{"§3: scope valid for resourceType + operation?"}
+    Scope -- no --> Deny403["403 Forbidden — query never built"]
+    Scope -- yes --> Branch{"§5: patient/ scope AND resourceType is patient-filterable?"}
+
+    Branch -- yes --> PatientFilter["§5: filter by Person/Patient identity-graph reachability"]
+    PatientFilter --> ConfR["§9: AND exclude confidentiality-R tag (always, for every patient-scoped caller)"]
+    ConfR --> Delegated{"§10: userType == delegatedUser?"}
+    Delegated -- yes --> SensExcl["§10: AND exclude actor's denied sensitive categories + unclassified"]
+    Delegated -- no --> Merge
+    SensExcl --> Merge
+
+    Branch -- no --> Wildcard{"§7: caller holds access/* wildcard scope?"}
+    Wildcard -- yes --> NoTagFilter["No meta.security filter — every tenant's resources visible"]
+    Wildcard -- no --> AccessTag["§1: AND filter by caller's authorized access tag(s)"]
+    NoTagFilter --> Proa
+    AccessTag --> Proa{"§6a: PROA/IAS data-sharing consent enabled?"}
+    Proa -- yes --> ProaOr["OR a consent-driven branch (active, permit-type Consent)"]
+    Proa -- no --> Merge
+    ProaOr --> Merge
+
+    Merge["§8: AND exclude hidden tag, unless _includeHidden=true"] --> CmsCheck{"§4/§6b: resourceType == Patient AND userType == cms-partner?"}
+    CmsCheck -- yes --> CmsFilter["Restrict to consented patient uuids — fails closed if none"]
+    CmsCheck -- no --> RunQuery
+    CmsFilter --> RunQuery[("Run MongoDB query")]
+
+    RunQuery --> PdvcCheck{"§6d: $everything/GraphQLv2 with a data-view-control Consent?"}
+    PdvcCheck -- yes --> PdvcExcl["Exclude the patient-hidden resource reference(s)"]
+    PdvcCheck -- no --> PersonCheck
+    PdvcExcl --> PersonCheck{"§5: Person $everything?"}
+    PersonCheck -- yes --> PersonNarrow["Narrow result set to only the requested Person id(s)"]
+    PersonCheck -- no --> CompCheck
+    PersonNarrow --> CompCheck{"§10: delegated actor and resource is a Composition?"}
+    CompCheck -- yes --> SectionStrip["Strip Consent-denied-category sections, not the hardcoded unclassified code (enrichment-time, not exclusion)"]
+    CompCheck -- no --> Returned(["Resource returned"])
+    SectionStrip --> Returned
+```
+
+---
+
+## 1. Access tags (`meta.security`, system `.../access`)
+
+The primary tenant-visibility control. One or more per resource; declares which tenant(s) may
+read it. A resource with multiple access tags is visible to *any* tenant whose scope matches *at
+least one* of them (shared-visibility, not exclusive-ownership).
+
+```json
+"meta": {
+  "security": [
+    { "system": "https://www.icanbwell.com/owner",  "code": "myhealth" },
+    { "system": "https://www.icanbwell.com/access", "code": "myhealth" },
+    { "system": "https://www.icanbwell.com/access", "code": "yourhealth" }
+  ]
+}
+```
+
+- `ScopesManager.getAccessCodesFromScopes` (`src/operations/security/scopesManager.js`) parses
+  `access/<tag>.<read|write|*>` scopes into the caller's authorized access codes.
+- `SecurityTagManager.getSecurityTagsFromScope` / `getQueryWithSecurityTags`
+  (`src/operations/common/securityTagManager.js`) turns those codes into the actual Mongo filter
+  ANDed onto every query — either a `meta.security` `$elemMatch` scan, or a denormalized
+  `_access.<code>: 1` field lookup when an access index exists for that collection
+  (`src/operations/common/accessIndexManager.js`, `src/indexes/indexProvider.js`).
+- The `_security=https://www.icanbwell.com/access|<code>` search parameter goes through a
+  separate but related path: `src/operations/query/filters/securityTag.js`
+  (`FilterBySecurityTag`) — this is the caller *searching by* tag, which happens to reuse the same
+  access-index field as the *authorization* filter above.
+
+See `readme/security.md` §5.2 for the user-facing description.
+
+## 2. Owner tags (`meta.security`, system `.../owner`)
+
+Exactly one per resource; declares the single authoritative tenant. Unlike access tags, the owner
+tag is **not** part of the bulk search-query filter — it's used in narrower checks:
+
+- Single-resource checks like `ScopesManager.doesResourceHaveAnyAccessCodeFromThisList`
+  (`scopesManager.js`) require the caller to match *both* an owner tag and an access tag.
+- Consent lookups can additionally scope by owner tag (e.g. `CmsConsentManager.getConsentResources`
+  takes an `ownerTags` filter, `src/operations/search/cmsConsentManager.js`).
+- On write, `ScopesManager.isAccessTagChangeAllowedByScopes` /
+  `ScopesValidator.isAccessTagChangeAllowedByAccessScopes` (`scopesValidator.js`) stop a caller
+  from adding an access tag for a tenant it isn't itself authorized for.
+
+## 3. Scopes (SMART on FHIR)
+
+Four scope namespaces, all validated before any query is built:
+
+| Scope | Form | Controls |
+|---|---|---|
+| `user` | `user/<resourceType\|*>.<read\|write\|*>` | which resource types the caller may read/write |
+| `access` | `access/<tag\|*>.*` | which access-tagged resources the caller may see (§1) |
+| `patient` | `patient/<resourceType\|*>.<read\|write>` | patient-scoped access via the identity graph (§5) |
+| `admin` | `admin/*.*` | admin routes and debug/explain query params — **not** a tenant-filter bypass (see §7) |
+
+- `ScopesManager` (`src/operations/security/scopesManager.js`): `parseScopes`,
+  `getAccessCodesFromScopes`, `getUserScopes`, `getPatientScopes`, `getAdminScopes`,
+  `hasPatientScope`.
+- `ScopesValidator.verifyHasValidScopesAsync` (`src/operations/security/scopesValidator.js`), using
+  `@asymmetrik/sof-scope-checker`, is called at the top of every read operation
+  (`searchBundle.js`, `searchStreaming.js`, `searchById.js`, `history.js`, `everything.js`,
+  `graph.js`, `summary.js`) before query construction — a request with an insufficient `user`
+  scope for the resource type never reaches the query-building stage at all.
+- **`AuditEvent`-specific pre-query gate** (not scope-based) —
+  `SearchManager.validateAuditEventQueryParameters`, called from `searchBundle.js`,
+  `searchById.js`, and `searchStreaming.js` before `constructQueryAsync` runs, rejects the whole
+  request unless it supplies the resource type's required filters
+  (`configManager.requiredFiltersForAuditEvent`, typically a `date` range bounded by
+  `configManager.auditEventMaxRangePeriod`). This doesn't change *who* is allowed to see a
+  resource — it's a query-shape/cost guard, not an access-control check — but it does determine
+  whether any `AuditEvent` resources come back at all, so it belongs in this catalog.
+
+See `readme/security.md` for the full walkthrough and multi-scope examples.
+
+## 4. Caller / account type
+
+The server doesn't just check scopes — *what kind of caller* holds them changes which of the
+mechanisms below apply:
+
+- **Service account** (OAuth client-credentials grant) and **admin/tester user account**
+  (username+password grant) are authorization-equivalent: both get `user`/`access`/`admin` scopes
+  and are filtered purely by §1–§3.
+- **Person/Patient (end-user) auth** carries a `patient/` scope and is distinguished at the single
+  line `const isUser = scopes.some(s => s.toLowerCase().startsWith('patient/'))`
+  (`src/strategies/authService.js`). `isUser` is threaded onto `FhirRequestInfo` and changes which
+  branch of `SearchManager.constructQueryAsync` builds the query — the patient-scope path (§5),
+  not the tenant/access-tag path (§1) — for that request.
+- **Delegated actor** (`userType: 'delegatedUser'`) — a `RelatedPerson`/similar acting on behalf of
+  a Person via the JWT `act` claim. Composes the patient-scope (§5), consent (§6), and sensitivity
+  (§9) mechanisms rather than being a separate code path; full model in §10.
+- **CMS partner user** (`userType: 'cms-partner'`) — restricted to `Patient` search/`$everything`
+  over GET only, with a `purposeOfUse` claim check, and further restricted to patients the partner
+  has consent for (§6b). `src/utils/cmsManager.js` (`CMSManager.verifyAccess`).
+
+`userType` is set in `AuthService.processUserInfo` (`authService.js`) from the JWT's `act` claim or
+an allow-listed `user_type` claim.
+
+## 5. Patient-scoped tokens, proxy-patient, and Person/Patient link expansion
+
+When a caller holds a `patient/` scope (§3/§4) **and** the requested resource type is
+patient-filterable (`ScopesManager.isAccessAllowedByPatientScopes` checks both), access is **not**
+decided by access tags at all — it's decided by reachability through that caller's own
+Person/Patient identity graph. This is a separate, mutually exclusive branch from §1 in
+`SearchManager.constructQueryAsync`: a patient-scoped caller requesting a non-patient-filterable
+resource type falls through to the §1 access-tag branch instead for that request.
+
+- `PatientScopeManager.getPatientIdsFromScopeAsync` (`src/operations/security/patientScopeManager.js`)
+  resolves the JWT's person id into the proxy-patient id (`person.<uuid>`) plus every linked
+  `Patient` id, via `PersonToPatientIdsExpander.getPatientIdsFromPersonAsync`
+  (`src/utils/personToPatientIdsExpander.js`) — the code that walks `Person.link`. Traversal is
+  capped at a recursion depth of 4 (`maximumRecursionDepth` in that file); hitting the cap logs a
+  warning and returns whatever was resolved so far rather than erroring.
+- `PatientQueryCreator.getQueryWithPatientFilter` (`src/operations/common/patientQueryCreator.js`)
+  turns the resolved id set into the actual Mongo restriction, using the per-resource-type
+  reference path in `patientFilterManager.js` (`patientFilterMapping`).
+- The **proxy-patient** convention (`Patient/person.<uuid>` in a search parameter, e.g.
+  `?subject=Patient/person.<id>`) is expanded the same way by
+  `PatientProxyQueryRewriter.rewriteArgsAsync` (`src/queryRewriters/rewriters/patientProxyQueryRewriter.js`).
+  See `readme/proxyPatient.md`.
+- `$everything` (`everything/everythingHelper.js`) and `$graph` (`graph/graphHelpers.js`) both
+  re-invoke `SearchManager.constructQueryAsync` at **every traversal hop**, so a resource reached
+  via link-following gets the same filter a direct search would apply — not a weaker one. Both
+  GraphQL APIs (`src/graphql/dataSource.js` and `src/graphqlv2/dataSource.js`) funnel through the
+  same `searchBundleAsync` path rather than an independent query builder.
+- **Person `$everything`** narrows the *result set* (not the underlying access check) to only the
+  explicitly-requested Person id(s) — a sibling Person sharing the same underlying Patient is
+  resolved internally but excluded from the response. See `readme/personEverything.md`.
+
+## 6. Consent
+
+There is no single "consent system" — four independent mechanisms use `Consent` resources to gate
+or expand what's returned, each with its own category code and its own code path:
+
+**a. PROA/IAS data-sharing consent** — gated by `ConfigManager.enableConsentedProaDataAccess`
+(env `ENABLE_CONSENTED_PROA_DATA_ACCESS`). `DataSharingManager.updateQueryConsideringDataSharing`
+(`src/operations/search/dataSharingManager.js`) uses `ProaConsentManager.getConsentResources`
+(`src/operations/search/proaConsentManager.js`) to find active, `permit`-type Consents and OR's a
+connection-type-filtered query branch onto the search.
+
+**b. CMS partner data-sharing consent** — for `userType: 'cms-partner'` callers only (§4).
+`DataSharingManager.updateQueryConsideringCmsDataSharing` uses
+`CmsConsentManager.getPatientIdsWithConsent` (`src/operations/search/cmsConsentManager.js`) to
+restrict `Patient` search to consented patient uuids; fails closed (matches nothing) if no consent
+is found.
+
+**c. Delegated-actor consent** — for `userType: 'delegatedUser'` callers (§4); ties a grantor
+Person's Consent to the grantee actor and drives a sensitivity-based (§9) denylist layered on top
+of the §5 patient-scope query. Full model, including the read-only operation restriction: §10.
+
+**d. Patient Data View Control consent** — lets a patient exclude specific resources from their
+own `$everything`/GraphQLv2 result via a `dataConnectionViewControl`-category Consent referencing
+the resource(s) to hide. `src/utils/patientDataViewController.js`
+(`PatientDataViewControlManager.getConsentAsync`), gated by
+`configManager.clientsWithDataConnectionViewControl`. Full detail:
+`readme/patientDataViewControl.md`.
+
+## 7. Admin scope and the wildcard bypass
+
+There is no dedicated "admin bypass" for tenant filtering. What actually removes the §1 filter is
+the **wildcard access code**, granted by a scope like `access/*.read` or `access/*.*`: when
+`ScopesManager.getAccessCodesFromScopes` returns `['*']`,
+`SecurityTagManager.getSecurityTagsFromScope` returns an empty tag list, which means *no*
+`meta.security` filter is ANDed onto the query at all — every tenant's resources become visible.
+
+The literal `admin/` scope namespace is a **different, narrower** mechanism
+(`ScopesManager.getAdminScopes`, `ScopesValidator.isAdminScope`): it gates admin-panel routes and
+unlocks debug/explain query parameters (`_explain`, `_debug`, `_setIndexHint`). Holding `admin/*.*`
+does not, by itself, bypass access-tag filtering — that only happens if the caller *also* has the
+`access/*` wildcard.
+
+## 8. Tag-based filters independent of the tenant/consent model
+
+These apply regardless of scope type, on top of everything above:
+
+- **`hidden` tag** (`meta.tag`, system `.../CodeSystem/server-behavior`, code `hidden`) — excluded
+  from every search by default (`src/operations/query/r4.js`), unless the caller passes
+  `_includeHidden=true`. Does not apply to by-id lookups, history, `DELETE`, or `AuditEvent`.
+- **Connection-type tag** (`.../connectionType`) — used by
+  `DataSharingManager.getConnectionTypeFilteredQuery` to restrict the PROA/IAS consent-driven query
+  branch (§6a) to an allow-listed set of connection types.
+
+The other two `meta.security` tags that gate access independent of tenant/consent — the
+confidentiality restriction tag and the `unclassified` sensitivity tag — classify a resource by
+*what it's about* rather than controlling visibility or search behavior, so they're covered
+together with the rest of the sensitivity model in §9.
+
+## 9. Sensitivity classification
+
+Orthogonal to tenant visibility (§1) and consent-driven expansion (§6): these mechanisms gate
+access based on how sensitive a resource's *content* is, not who owns it or what's been consented
+to. A resource can be tenant-visible and consent-permitted and still be excluded solely on
+sensitivity grounds.
+
+- **Confidentiality restriction tag** (`meta.security`, system
+  `http://terminology.hl7.org/CodeSystem/v3-Confidentiality`, code `R`; `RESOURCE_RESTRICTION_TAG`
+  in `src/constants.js`) — excluded unconditionally for every patient-scoped (`isUser`) caller,
+  regardless of what the patient-scope identity graph (§5) would otherwise allow. Applied at
+  query-build time by `PatientQueryCreator.applyCommonPatientFilters`
+  (`src/operations/common/patientQueryCreator.js`), which both branches of the §5 patient-scope
+  path route through, and enforced again on write by
+  `ScopesValidator.isAccessToResourceRestrictedForPatientScope` (`scopesValidator.js`) so a
+  patient-scoped caller can't write around the same restriction.
+- **`unclassified` sensitivity tag** (`meta.security`, system `.../sensitivity-category`, code
+  `unclassified`; `SENSITIVE_CATEGORY` in `src/constants.js`) — auto-added on write by
+  `unclassifiedSensitivityTagHandler` (`src/preSaveHandlers/handlers/unclassifiedSensitivityTagHandler.js`)
+  for resource types listed in `configManager.resourceTypesForUnclassifiedTagging` (env
+  `UNCLASSIFIED_TAGGING_RESOURCES`); a writer can suppress the auto-tag with the
+  `x-suppress-unclassified-tag` header (`PreSaveOptions.suppressUnclassifiedTag`). On read, it is
+  hardcoded into the delegated-actor exclusion list (§10) regardless of what that actor's Consent
+  otherwise permits — no Consent can override it. See `readme/unclassifiedDataTagging.md`.
+- **Denied sensitive-category list** — not a fixed tag but a per-caller, Consent-derived denylist
+  of `sensitivity-category` codes. Built only for delegated actors, from their grantor's Consent
+  `deny` provisions; this is the mechanism, not a tag on the resource itself. Full detail: §10.
+
+## 10. Delegated actor access
+
+A delegated actor (`userType: 'delegatedUser'`, §4) is a `RelatedPerson`-like caller acting on
+behalf of a Person: authenticated with a `patient/` scope for that Person, plus a JWT `act` claim
+identifying the actor. Nothing here is a separate code path — it's several of the mechanisms above
+composed together:
+
+```mermaid
+sequenceDiagram
+    participant C as Caller (JWT act claim, patient scope)
+    participant Auth as AuthService
+    participant OAM as OperationAccessManager
+    participant SV as ScopesValidator
+    participant SM as SearchManager
+    participant DSM as DataSharingManager
+    participant DARM as DelegatedAccessRulesManager
+    participant Enrich as CompositionSectionFilterEnrichmentProvider
+
+    C->>Auth: Request
+    Auth->>Auth: processForDelegatedActor()<br/>sets userType=delegatedUser, actor
+    Auth->>OAM: verifyAccess(operation) — checked first, at the top<br/>of the operation handler, before args are parsed
+    alt write operation (create/update/delete/patch)
+        OAM-->>C: 403 Forbidden — read-only
+    else read operation (search/searchById/everything/graph)
+        OAM->>SV: isScopesValidAsync()
+        SV->>DARM: hasValidConsentAsync() via DelegatedAccessScopeManager
+        alt no valid grantor-to-actor Consent
+            DARM-->>SV: invalid
+            SV-->>C: 403 Forbidden
+        else valid Consent
+            DARM-->>SV: valid
+            SV->>SM: constructQueryAsync()
+            SM->>SM: route via the §5 patient-scope branch
+            SM->>DSM: updateQueryForDelegatedAccessSensitiveData()
+            DSM->>DARM: getFilteringRulesAsync() (cached per request)
+            DARM-->>DSM: deniedSensitiveCategories[]
+            DSM-->>SM: AND NOT(denied categories, unclassified)
+            SM-->>C: filtered Bundle
+            Enrich->>Enrich: strip Consent-denied-category sections<br/>(not the hardcoded unclassified code)<br/>from any returned Composition
+        end
+    end
+```
+
+1. **Detection** — gated by `configManager.enableDelegatedAccessDetection`. If the JWT carries an
+   `act` claim, `AuthService.processForDelegatedActor` (`src/strategies/authService.js`) sets
+   `userType: delegatedUser` and `actor` on the request context; `entitlements`, if present, become
+   `purposeOfUse`.
+2. **Operation restriction** — checked before anything else below: `OperationAccessManager` →
+   `DelegatedAccessManager.verifyAccess` (`src/utils/delegatedAccessManager.js`) runs at the top of
+   the operation handler in `fhirOperationsManager.js`, before request args are even parsed. It
+   allows only `search`, `searchById`, `everything`, and `graph`; any write operation is rejected
+   with `ForbiddenError` immediately — the consent/query logic below never runs for a write.
+3. **Pre-query consent gate** (alongside the §3 scope check) — `ScopesValidator.isScopesValidAsync`
+   calls `DelegatedAccessScopeManager.isAccessAllowedAsync` →
+   `DelegatedAccessRulesManager.hasValidConsentAsync`. No active Consent tying the grantor Person
+   to the actor → `ForbiddenError` before any query is built.
+4. **Query path** — because the actor holds a `patient/` scope, `SearchManager.constructQueryAsync`
+   routes the request through the ordinary patient-scope/identity-graph branch (§5), **not** the
+   access-tag branch (§1); reachability is decided exactly as it would be for the grantor Person.
+5. **Sensitive-data exclusion (bolt-on, delegated-only)** — for resource types the patient-scope
+   machinery can filter (`PatientFilterManager.canAccessResourceWithPatientScope`),
+   `SearchManager.constructQueryAsync` additionally calls
+   `DataSharingManager.updateQueryForDelegatedAccessSensitiveData`
+   (`src/operations/search/dataSharingManager.js`), which:
+   - looks up the grantor→actor Consent via `DelegatedAccessRulesManager.getFilteringRulesAsync`
+     (cached on the request-scoped `actor` object, so it's fetched once per request);
+   - returns an impossible query (`_uuid: '__invalid__'`) if no active Consent is found, and throws
+     `ForbiddenError` if more than one is found — ambiguous permissions fail closed rather than
+     guessing;
+   - otherwise parses `consent.provision.provision[]` entries with `type: 'deny'` and a
+     `sensitivity-category` `securityLabel` into a denied-code list, and ANDs a
+     `meta.security` `$not`/`$elemMatch` exclusion for those codes **plus** the hardcoded
+     `unclassified` code (§9) onto the query.
+6. **Content-level filtering (enrichment-time — not a resource inclusion/exclusion decision)** —
+   `CompositionSectionFilterEnrichmentProvider`
+   (`src/enrich/providers/compositionSectionFilterEnrichmentProvider.js`) reuses the actor's
+   Consent-derived denied-category set (same lookup as step 5, read from the cached
+   `actor._filteringRules`) to strip individual `section`s (recursively, including into
+   `contained` resources) out of an already-*returned* `Composition`. Unlike step 5's query-level
+   exclusion, this does **not** also fold in the hardcoded `unclassified` code — a `Composition`
+   section tagged `unclassified` is not stripped here, only sections matching a code the grantor's
+   Consent explicitly denied. The Composition itself still passed every gate above; only some of
+   its sections are removed. This is the one mechanism in this document that shapes resource
+   *content* rather than deciding whether the resource is returned at all.
+
+Full detail: `readme/delegatedActorAccess.md`.
+
+## 11. How these compose
+
+For a given caller and resource, the resource is returned only if **all** of the following hold:
+
+1. The caller's `user`/`patient` scope permits the resource type and operation (§3).
+2. Either: the caller holds the wildcard access code (§7), **or** the resource carries an access
+   tag the caller is authorized for (§1), **or** the caller is patient-scoped and the resource is
+   reachable through that caller's own identity graph (§5).
+3. The resource is not `hidden`-tagged, unless explicitly requested (§8).
+4. If the caller is patient-scoped, the resource is not confidentiality-`R`-restricted (§9).
+5. If the caller is a delegated actor or CMS partner, the resource passes that caller type's
+   consent-driven filter and is not `unclassified` for delegated actors (§6b, §9, §10).
+6. If the requesting client relies on consent-based data-sharing expansion (§6a) or the patient
+   has an active data-view-control exclusion (§6d), those results are included/excluded
+   accordingly.
+
+Any code path that reaches the database without going through `SearchManager.constructQueryAsync`
+— or that fetches by raw id/uuid and defers the access check to after the fetch — is a
+red flag under `review.md`'s checklist, since `_uuid`/`id` are deterministic and not secret
+(`src/utils/uid.util.js`, see `readme/security.md` §5.3.1).
+
+## 12. Known gaps in the current implementation
+
+Findings from an adversarial review of this surface against `review.md`'s checklist. Each finding
+was verified directly against source — not assumed from the checklist, and not taken on faith
+from a single pass; the two most severe items below were independently re-derived by reading the
+cited code and, for the first, its git history. These are gaps between what the sections above
+document as the *intended* composition and what the code actually enforces today — confirmed
+defects, not speculative concerns.
+
+- **Critical (update-path; create-path is by-design permissive) — a patient-scoped update can set
+  an arbitrary access tag (§1, §4).** `ScopesManager.isAccessTagChangeAllowedByScopes`
+  (`src/operations/security/scopesManager.js:166`) — the only method whose job is comparing a
+  write's old vs. new `meta.security` access codes — returns `true` immediately once the caller
+  holds a `patient/` scope for the resource type, without doing that comparison at all. The only
+  other write-path check, `PatientScopeManager.canWriteResourceAsync`
+  (`src/operations/security/patientScopeManager.js:277`), validates that the resource's
+  `patient`/`subject` reference belongs to the caller — it never inspects `meta.security`. So for
+  a write to an **existing** resource, a patient-scoped caller can update a resource that
+  legitimately belongs to their own patient while stamping it with an arbitrary tenant's access
+  tag, granting (or revoking) that tenant's visibility with no authorization from the tenant
+  itself. (On **create** this reasoning doesn't apply the same way — there's no pre-existing
+  tenant's visibility to silently grant or revoke, and patient-scoped apps legitimately set their
+  own initial tags with no `access/` scope to check against at all, confirmed by
+  `create_with_patient_scope.test.js`'s currently-passing fixture; tightening the create path
+  the same way would reject that legitimate flow.) Note: `isAccessToResourceAllowedBySecurityTags`
+  (`scopesManager.js:240`) — changed by commit `a5ded4a4a` ("DCON-4806 revert
+  isAccessToResourceAllowedBySecurityTags tag-match requirement") — has the same-looking
+  patient-scope short-circuit but is **not** part of this bug: it's a separate, general
+  read-or-write resource-touch gate, and every one of its real callers (create/update/patch/merge/
+  remove, via `ScopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes`) independently
+  ANDs it with `canWriteResourceAsync` in the same composed call — tightening it would just deny
+  every patient-scoped write, not close this gap. The reverted unit tests
+  (`scopesManager.crossTenant.test.js`, `scopesManager.writeBypass.test.js`) originally asserted
+  against that unrelated method in isolation and have since been rewritten to cover the real,
+  update-path-only gap described above. **Fixed by [DCON-4854](https://icanbwell.atlassian.net/browse/DCON-4854)**
+  (PR [#2447](https://github.com/icanbwell/fhir-server/pull/2447)) via an `isCreate` flag on
+  `isAccessTagChangeAllowedByScopes`. That same ticket documents two narrower, still-open
+  variants left deliberately unfixed: a caller holding *both* a `patient/` scope and an `access/`
+  scope for a different tenant can still forge an owner/access tag on **create**; and whether
+  `canWriteResourceAsync`'s literal-string patient-id matching can be defeated by a source-system
+  id that collides across two tenants is a separate identity-normalization question.
+- **High — `$access-history` link traversal drops the access-tag check past the first hop (§5).**
+  `PersonToPatientIdsExpander.getPatientIdsFromPersonAsync`
+  (`src/utils/personToPatientIdsExpander.js:200`) applies the caller's access-tag filter only when
+  resolving the top-level Person id (the `addTopPersonAccessCheck` flag); its own recursive calls
+  (`:350`, `:372`) pass `requestInfo` through but omit `addTopPersonAccessCheck`, so it silently
+  defaults back to `false` at every deeper level. A tenant/service-account caller holding a valid
+  access tag on the top-level Person can reach a `Person.link`-connected Patient belonging to a
+  different tenant with no re-check, leaking access-history metadata cross-tenant via
+  `accessHistory.js`.
+- **Medium — link traversal never checks `assurance` (§5).** No code path in
+  `personToPatientIdsExpander.js` reads `Person.link.assurance` (FHIR's match-confidence field for
+  a link); every link is treated as fully authoritative regardless of confidence. Severity depends
+  on whether this system's identity-matching pipeline populates `assurance` meaningfully — not
+  verifiable from this codebase alone.
+- **Low — delegated-actor Composition section filter is narrower than the query-level filter (§9,
+  §10).** `CompositionSectionFilterEnrichmentProvider.getDeniedSensitiveCategorySet`
+  (`src/enrich/providers/compositionSectionFilterEnrichmentProvider.js:27`) strips only
+  Consent-derived denied-category sections; unlike the query-level exclusion in
+  `DataSharingManager.updateQueryForDelegatedAccessSensitiveData`, it does not also fold in the
+  hardcoded `unclassified` code, so an `unclassified`-tagged *section* inside an otherwise-visible
+  Composition is not stripped.
+
+None of this was caught by CI. Regression tests that would catch the Critical finding above
+already exist — `scopesManager.crossTenant.test.js`, `scopesManager.writeBypass.test.js`,
+`patientScopeWriteBypass.test.js`, `writeAuthorizationBypass.test.js` (all under
+`src/tests/unit/operations/security/`) — but are excluded from the test run via `jest.config.js`'s
+`testPathIgnorePatterns`. That exclusion list cites a `BUG_REPORT.md`/`fhir-server-security-bugs.csv`
+tracker that doesn't exist in this repo, and it also contains at least one fabricated test:
+`delegatedAccessScopeManager.test.js` asserts against an inline stand-in class, not the real
+`DelegatedAccessScopeManager`. Treat the exclusion list as unverified per-entry, not as a
+trustworthy tracker of what's actually broken.
+
+## Further reading
+
+- `review.md` — adversarial PR-review checklist for this exact surface
+- `readme/security.md` — auth/authz walkthrough with worked scope examples
+- `readme/proxyPatient.md`, `readme/everything.md`, `readme/patientEverything.md`,
+  `readme/personEverything.md`, `readme/graph.md` — traversal/expansion operations
+- `readme/delegatedActorAccess.md`, `readme/patientDataViewControl.md`,
+  `readme/unclassifiedDataTagging.md` — consent- and tag-driven filtering
+- [FHIR Server Security & Data Model Specification](https://icanbwell.atlassian.net/wiki/spaces/ENTARCH/pages/6582730753) —
+  canonical rule-by-rule spec of intended behavior, with current implementation status
