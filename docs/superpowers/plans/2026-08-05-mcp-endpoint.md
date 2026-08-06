@@ -38,6 +38,13 @@ following the existing `generatorScripts/` convention.
   `R4ArgsParser.parseArgs({ resourceType, args })` as **flat string values** — this is what REST
   query params already are, so every generated tool input field is `z.string().optional()`; there is
   no MCP-layer type coercion to duplicate.
+- `/mcp`'s router MUST mount `forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser])`, the same
+  categorical block `app.js` already applies to both GraphQL routers (`app.js:441,447,482`). This is
+  not optional hardening — without it, a CMS-partner-user token (normally restricted on REST to
+  `Patient`-only GET searches via `CMSManager`'s allowlist) would be able to search any resource type
+  through MCP, since `McpToolHandler` never calls `OperationAccessManager.verifyAccess` (see design
+  doc §5 / Resolved Decision 3 for the full provider-by-provider justification of why skipping that
+  per-call check is safe everywhere *except* this one case).
 - Per `CLAUDE.md`'s security-sensitive-changes rule: this touches resource search/read. Before the
   implementation PR is reviewed/approved, `review.md` at the repo root must be read and the diff
   adversarially reviewed against it (Task 10 calls this out again at the point it matters).
@@ -1017,8 +1024,13 @@ git commit -m "Add McpServer route handler wrapping createMcpHandler/toNodeHandl
 **Interfaces:**
 - Consumes: `McpServer` (Task 8), `MCP_REQUEST_INFO_CONTEXT_KEY` (Task 5),
   `FhirRequestInfoBuilder.fromRequest(req)` (existing, `src/utils/fhirRequestInfoBuilder.js`),
-  `authenticateWithJsonFailure` (existing, already imported in `app.js`).
-- Produces: a live `POST /mcp` route, authenticated the same way as `/4_0_0/$graphqlv2`.
+  `authenticateWithJsonFailure` (existing, already imported in `app.js`), `forbidForUserTypes`
+  (existing, already imported in `app.js` as `const forbidForUserTypes =
+  require('./middleware/forbidForUserTypes.middleware');`), `AUTH_USER_TYPES` (existing, already
+  imported in `app.js`).
+- Produces: a live `POST /mcp` route, authenticated the same way as `/4_0_0/$graphqlv2` **and**
+  blocking CMS-partner-user tokens the same way GraphQL does (see Global Constraints — this is a
+  required behavior, not optional hardening; see design doc §5 for why).
 
 - [ ] **Step 1: Add imports**
 
@@ -1054,6 +1066,11 @@ before the `passport.use('graphqlStrategy', ...)` line, insert:
     mcpRouter.use(cors(fhirServerConfig.server.corsOptions));
     mcpRouter.use(passport.initialize());
     mcpRouter.use(authenticateWithJsonFailure('mcpStrategy', {session: false}));
+    // Required, not optional: CMSManager's resource-type allowlist for CMS-partner tokens is only
+    // enforced for GraphQL via this same categorical block (app.js:441,447,482), not via a
+    // per-call OperationAccessManager.verifyAccess check -- McpToolHandler never calls that either,
+    // so without this line a CMS-partner token could search any resource type through MCP.
+    mcpRouter.use(forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]));
     mcpRouter.use(express.json());
     mcpRouter.use(function buildMcpRequestContext (req, res, next) {
         httpContext.set(MCP_REQUEST_INFO_CONTEXT_KEY, FhirRequestInfoBuilder.fromRequest(req));
@@ -1146,6 +1163,26 @@ describe('/mcp endpoint', () => {
         // SearchBundleOperation -- do not skip this test.
     });
 
+    test('a CMS-partner-user token is blocked from /mcp entirely, matching GraphQL behavior', async () => {
+        // Issue a token with authInfo.context.userType === AUTH_USER_TYPES.cmsPartnerUser (copy
+        // however an existing GraphQL test constructs one for its forbidRestrictedUserTypes
+        // coverage, e.g. search src/tests for AUTH_USER_TYPES.cmsPartnerUser). POST to /mcp with
+        // any tool call; assert 403, before any tool handler runs. This is the regression test for
+        // the CMS-partner-user gap found during planning (design doc §5 / Resolved Decision 3) --
+        // do not skip this test, it is the only thing that would catch someone later removing the
+        // forbidForUserTypes line from Task 9 as a well-meaning "unused import" cleanup.
+    });
+
+    test('two concurrent /mcp requests from different scoped tokens never cross-see each other\'s FhirRequestInfo', async () => {
+        // Fire two POST /mcp requests concurrently (Promise.all) with two different patient-scoped
+        // or tenant-scoped tokens, each searching for data only visible to its own scope. Assert
+        // each response contains only its own caller's data. This exercises review.md Section D's
+        // exact warning (request-scoped state on a process-wide singleton) against
+        // McpToolHandler + the httpContext-based FhirRequestInfo bridge from Task 9 -- a context
+        // bleed here would be a cross-tenant data leak, not a cosmetic bug, so this must pass
+        // before merging regardless of how obvious the httpContext design looks on paper.
+    });
+
     test('an unauthenticated request to /mcp is rejected the same way /4_0_0/$graphqlv2 is', async () => {
         // POST to /mcp with no Authorization header; assert 401, matching authenticateWithJsonFailure's
         // existing behavior.
@@ -1170,7 +1207,7 @@ assertions copied from the reference test).
 - [ ] **Step 3: Fill in the real test bodies and re-run until green**
 
 Run: `nvm use && node node_modules/.bin/jest src/tests/mcp/mcpEndpoint.integration.test.js -v`
-Expected: `5 passed`.
+Expected: `7 passed`.
 
 - [ ] **Step 4: Run the full test suite to check for regressions**
 
@@ -1225,31 +1262,35 @@ tested with that exact signature in Task 6's tests. `mcpToolsByResourceType[type
 identically in Task 4 (`genericFhirSearchTool.js`) and Task 6 (`mcpToolHandler.js`). `getRouter()`
 (Task 8) is the only method `src/app.js` (Task 9) calls on `McpServer`.
 
-**Open items NOT resolved by this plan** (carried from the design doc, still need the user's answer;
-do not treat as settled just because code got written against a reasonable default):
-1. Curated resource list (Task 2 Step 1) — built the plan's default 14-resource list into the codegen
-   input; trivial to change post-hoc.
-2. MCP transport statefulness — `createMcpHandler` in v2.0.0 SDK is inherently per-request/stateless
-   by default (confirmed against the SDK's own docs during planning), which resolves this question in
-   the design doc's recommended direction — no action needed, but flag to the user that the SDK
-   itself settled this rather than a deliberate choice made during brainstorming.
-3. REST's extra `OperationAccessManager.verifyAccess` gate — **not called** by this plan's
-   `McpToolHandler` (it follows GraphQL's precedent of skipping it). Confirm this is intentional.
-4. MCP client auth model — this plan implements bearer-JWT-only auth (mirroring REST/GraphQL exactly,
-   no OAuth 2.1 discovery/dynamic client registration). If interactive MCP clients (e.g. remote
-   connectors) are a target user, this is insufficient and needs `@modelcontextprotocol/express`'s
-   `requireBearerAuth`/discovery-metadata support layered in as a follow-up.
+**Resolved by the user (2026-08-05):**
+1. Curated resource list — confirmed as proposed (Task 2 Step 1's 14 resources).
+2. MCP transport statefulness — moot; the v2.0.0 SDK's `createMcpHandler` is inherently
+   per-request/stateless, settled by the SDK itself rather than a choice made here.
+3. REST's extra `OperationAccessManager.verifyAccess` gate — confirmed skip, but only after the user
+   pushed back on the initial claim ("are you sure GraphQL skips access checks?") and a
+   provider-by-provider re-verification surfaced a real gap: `CMSManager`'s CMS-partner-user
+   resource-type allowlist is *not* structurally moot for a read-only surface the way the other two
+   providers are. **This plan was corrected as a result** — Task 9 now mounts
+   `forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser])` on the `/mcp` router (matching GraphQL's
+   `app.js:441,447,482`), and Task 10 gained two tests that didn't exist in the first draft: a
+   CMS-partner-user block test and a concurrent-request context-isolation test (the latter also
+   responds to `review.md` Section D, which was read for the first time during this correction, not
+   during the original draft). See design doc §5 / Resolved Decision 3 for the full trace.
+4. MCP client auth model — bearer-JWT-only (mirroring REST/GraphQL) confirmed sufficient for now; no
+   OAuth 2.1 discovery/dynamic client registration in v1.
 5. `$everything`/`$graph`/proxy-patient tools — confirmed excluded from this plan entirely.
+
+**Process note:** item 3 above is a concrete example of why "GraphQL already does X, so this can too"
+needs verification against actual source before it goes in a plan — the original draft's claim was
+directionally right (skip the per-call check) but incomplete in a way that would have shipped a real
+access-control regression had it not been questioned before implementation started.
 
 ---
 
 **Plan complete and saved to `docs/superpowers/plans/2026-08-05-mcp-endpoint.md`.**
 
-Per the user's explicit instruction ("write the plan but don't implement" / "do what you can and ask
-me any questions when I come back"), **implementation is intentionally paused here.** When you're
-back, the two things worth deciding before any code gets written are Open Items 1 and 3–4 above (Item
-2 turned out to already be resolved by the SDK itself). Once those are confirmed, execution options
-are:
+Per the user's explicit instruction ("write the plan but don't implement"), **implementation is
+intentionally paused here.** All open questions are now resolved (see above). Execution options are:
 
 1. **Subagent-Driven (recommended)** — dispatch a fresh subagent per task, review between tasks.
 2. **Inline Execution** — execute tasks in this session with batch checkpoints.

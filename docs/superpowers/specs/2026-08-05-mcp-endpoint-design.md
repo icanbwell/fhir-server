@@ -142,16 +142,37 @@ matching REST query-param semantics.
 
 ## 5. Auth & scope enforcement
 
-No new authorization logic. `/mcp` sits behind the same passport JWT middleware already protecting
-GraphQL, so `req.authInfo` populates the same way, and `FhirRequestInfoBuilder.fromRequest(req)`
-builds the same `FhirRequestInfo` REST/GraphQL/admin use. Scope validation and patient/tenant/
-security-tag filtering happen automatically inside `SearchBundleOperation`/`SearchManager` — no
-MCP-specific code needed there. Whether to *also* call `OperationAccessManager.verifyAccess` (REST's
-one extra gate that GraphQL currently skips) is an open question below.
+No new authorization logic beyond one categorical route-level exclusion (see below). `/mcp` sits
+behind the same passport JWT middleware already protecting GraphQL, so `req.authInfo` populates the
+same way, and `FhirRequestInfoBuilder.fromRequest(req)` builds the same `FhirRequestInfo`
+REST/GraphQL/admin use. Scope validation and patient/tenant/security-tag filtering happen
+automatically inside `SearchBundleOperation`/`SearchManager` — no MCP-specific code needed there.
+
+`McpToolHandler` never calls `OperationAccessManager.verifyAccess` directly, matching GraphQL's
+precedent — but that precedent was verified provider-by-provider, not assumed (see Resolved Decision
+3 above). One consequence carries forward: `/mcp`'s router **must** mount
+`forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser])`, the same categorical block GraphQL's routers
+use (`app.js:441,447,482`), because that block — not a `verifyAccess` call — is what keeps CMS-partner
+tokens off GraphQL's unrestricted-by-resource-type search path. Without it, MCP would let a
+CMS-partner token (normally locked to `Patient`-only GET searches on REST) search any resource type.
+
+**`review.md` check (Section D — request-scoped state on singletons):** `McpToolHandler` is
+registered once in the IoC container and shared across every request/tenant, but it holds no
+per-request data as instance state — the per-request `FhirRequestInfo` is fetched fresh on every tool
+call via `httpContext.get(MCP_REQUEST_INFO_CONTEXT_KEY)` (`express-http-context`'s
+`AsyncLocalStorage`-backed store), the same mechanism already relied on elsewhere in this codebase
+(e.g. `postRequestProcessor.executeAsync` reading `httpContext` from inside a `res.once('finish', ...)`
+callback). This is checked clean, but because a wrong answer here is exactly the cross-tenant
+data-bleed shape `review.md` warns about, the implementation plan's integration tests (Task 10) must
+include a concurrency test: two simultaneous MCP requests from two different scoped tokens, asserting
+neither sees the other's `FhirRequestInfo`/results.
 
 Per `CLAUDE.md`'s security-sensitive-changes rule, this feature touches "resource search/read" and
 (if the generic tool ever allows reference-following in a later phase) cross-resource joins — the
 implementation PR must read `review.md` and adversarially review the diff against it before merge.
+The CMS-partner-user gap above is exactly the kind of finding that review is meant to catch; it was
+caught here during planning instead only because the user pushed back on an initial "GraphQL skips it
+so MCP can too" claim rather than accepting it at face value.
 
 ## 6. Error handling
 
@@ -175,23 +196,37 @@ for REST error responses.
   regenerate-and-diff in CI the same way other generated artifacts are checked (if such a check
   exists today for GraphQL/class generation — verify during planning and mirror it).
 
-## Open questions (to confirm before/while executing the implementation plan)
+## Resolved (confirmed by user on 2026-08-05)
 
-1. **Commonly-used resource list** — is the proposed 14-resource list in §4 right, or should it be
-   shorter/longer/different?
-2. **MCP transport mode** — recommend the SDK's `StreamableHTTPServerTransport` in **stateless** mode
-   (no server-side session affinity needed) since this app can run clustered/multi-instance
-   (`src/index.js` cluster mode). Confirm stateless is acceptable, or if session-based state is
-   wanted for some reason.
-3. **REST's extra `OperationAccessManager.verifyAccess` gate** — should MCP call it too (REST parity)
-   or is GraphQL's current behavior (skip it, rely solely on `SearchBundleOperation`-internal checks)
-   the intended precedent to follow?
-4. **MCP client auth model** — is this endpoint for service-to-service/agent clients presenting a
-   pre-issued bearer JWT (simplest, matches current REST/GraphQL auth), or do we need full MCP/OAuth
-   2.1 discovery metadata (`/.well-known/oauth-authorization-server`) for interactive MCP clients
-   (e.g. Claude.ai remote connectors) to complete a login flow? This significantly changes scope.
-5. **New dependency** — this requires adding `@modelcontextprotocol/sdk` to `package.json` (via
-   `make update`). No known version-lock conflict, but flagging since `CLAUDE.md` calls out that some
-   packages (Sentry, OpenTelemetry) are version-locked — confirm no similar constraint applies here.
-6. **`$everything`/`$graph`/proxy-patient tools** — confirmed out of scope for v1 (§ Resolved
-   decisions) — confirm that's still correct and not secretly expected in the first phase.
+1. **Commonly-used resource list** — the proposed 14-resource list in §4 is confirmed.
+2. **MCP transport mode** — moot: verified against the actual `@modelcontextprotocol/server@2.0.0`
+   API (this design originally assumed the older monolithic SDK/`StreamableHTTPServerTransport`,
+   which is no longer accurate — see the implementation plan). The current SDK's `createMcpHandler`
+   is per-request/stateless by construction; there is no separate stateful mode to choose between.
+3. **REST's extra `OperationAccessManager.verifyAccess` gate** — **skip the per-call `verifyAccess`
+   call** (matches GraphQL's precedent for `SearchBundleOperation` calls), but this required
+   unpacking *why* GraphQL skips it rather than assuming "skip = safe," because its three providers
+   are not equivalent:
+   - `ResourceOperationAccessProvider` blocks writes to `AuditEvent` — moot for a read-only surface.
+   - `DelegatedAccessManager` blocks writes for delegated-access users — moot because GraphQL v2 (and
+     MCP v1) exposes no mutations at all, so there's no write path to gate.
+   - `CMSManager` restricts CMS-partner-user tokens to `CMS_PARTNER_ACCESS.ALLOWED_RESOURCE_TYPES`
+     (`['Patient']` only), GET method, `search`/`everything` operations, plus a `purposeOfUse` claim
+     check — this is **not** a read/write distinction, it's a resource-type allowlist, so it is *not*
+     structurally moot for a read-only surface. GraphQL satisfies it not by calling `verifyAccess` but
+     via a **separate categorical block**: `app.js:441,447,482` mounts
+     `forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser])` in front of both GraphQL routers, 403-ing
+     that user type before it ever reaches a resolver.
+   - **Consequence for this design:** `/mcp` must mount that same `forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser])`
+     middleware (see the updated Task 9 in the implementation plan) — without it, a CMS-partner-user
+     token would be able to search any resource type via MCP, a real regression relative to both
+     REST and GraphQL's behavior for that user type. `McpToolHandler` still never calls
+     `OperationAccessManager.verifyAccess` directly (that part of the GraphQL precedent holds), but
+     the router-level exclusion it depends on must be replicated explicitly, not assumed to transfer.
+4. **MCP client auth model** — bearer JWT only (matching current REST/GraphQL auth) is sufficient for
+   now. No OAuth 2.1 discovery/dynamic client registration needed in v1.
+5. **New dependency** — resolved during implementation planning: the real current packages are
+   `@modelcontextprotocol/server@2.0.0` and `@modelcontextprotocol/node@2.0.0` (not a single
+   `@modelcontextprotocol/sdk` package as originally assumed here), plus `zod@^4.4.3`. No known
+   version-lock conflict.
+6. **`$everything`/`$graph`/proxy-patient tools** — confirmed out of scope for v1.
