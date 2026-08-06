@@ -106,7 +106,7 @@ function selfGrantedConsent (id, ownerCode, patientReference) {
     };
 }
 
-function observation (id, ownerCode, patientId) {
+function observation (id, ownerCode, patientId, { connectionType } = {}) {
     return {
         resourceType: 'Observation',
         id,
@@ -114,7 +114,8 @@ function observation (id, ownerCode, patientId) {
             source: ownerCode,
             security: [
                 { system: OWNER, code: ownerCode },
-                { system: ACCESS, code: ownerCode }
+                { system: ACCESS, code: ownerCode },
+                ...(connectionType ? [{ system: CONNECTION_TYPE, code: connectionType }] : [])
             ]
         },
         status: 'final',
@@ -217,24 +218,45 @@ describe('SEC-1580 W-chain: consent self-grant + Person.link graft (Task 1.1)', 
         // widens the query via `$or`, never narrows it), and the test would pass regardless of
         // whether the self-granted-consent bridge actually works.
         const patBProa = patient('patBProa', 'tenant_proa_source', { connectionType: 'proa' });
-        const obsBProa = observation('obsBProa', 'tenant_proa_source', 'patBProa');
+        // The consent-derived query branch (dataSharingManager's connectionTypeQuery) filters on
+        // the RETURNED resource's own connectionType tag, not its subject Patient's -- so obsBProa
+        // needs its own connectionType tag here, mirroring patBProa's, or it's excluded from both
+        // the base query and the consent-widened query regardless of the consent/link setup below.
+        const obsBProa = observation('obsBProa', 'tenant_proa_source', 'patBProa', { connectionType: 'proa' });
         const patB = patient('patB', 'tenant_b');
-        const personB = person('personB', 'tenant_b', ['Patient/patB', 'Patient/patBProa']);
 
-        const mergeResp = await request
+        // Merge patBProa/obsBProa/patB FIRST, without personB, so patBProa's real _uuid can be
+        // learned from the response before constructing personB's link. This matters because a
+        // bare cross-tenant reference gets "enriched" by assuming the SAME authority as the
+        // referencing resource -- if personB (owned by tenant_b) linked to the bare source id
+        // "Patient/patBProa" directly, the resulting target._uuid would be derived assuming
+        // patBProa is ALSO owned by tenant_b, which differs from patBProa's real owning tenant
+        // (tenant_proa_source) and resolves to a different, nonexistent _uuid. That mismatch
+        // would make bwellPersonFinder's personToLinkedPatientsMap never actually contain
+        // patBProa under personB, silently breaking the very consent-bridge path this test means
+        // to exercise -- and masking that breakage as an (incorrect) test failure rather than
+        // revealing it as the fixture bug it actually is. Same pitfall documented below for the
+        // Consent's patient reference, and on the W-chain test above.
+        const patientMergeResp = await request
             .post('/4_0_0/Patient/1/$merge')
-            .send([patBProa, obsBProa, patB, personB])
+            .send([patBProa, obsBProa, patB])
             .set(getHeaders());
-        expect(mergeResp).toHaveMergeResponse({ created: true });
-        const personBUuid = uuidOf(mergeResp.body, 'personB');
-        // Reference patBProa by its real _uuid, not the bare source id: patBProa's owning
-        // tenant (tenant_proa_source) now differs from this Consent's own tenant (tenant_b), and
-        // a bare cross-tenant reference gets "enriched" by assuming the SAME authority as the
-        // referencing resource (tenant_b) -- resolving to a different, nonexistent _uuid and
-        // making the consent-bridge query silently match nothing (same pitfall documented on the
-        // W-chain test above).
-        const patBProaUuid = uuidOf(mergeResp.body, 'patBProa');
+        expect(patientMergeResp).toHaveMergeResponse({ created: true });
+        const patBProaUuid = uuidOf(patientMergeResp.body, 'patBProa');
 
+        // Now merge personB, linking to patBProa by its real _uuid (learned above) and to patB by
+        // its bare source id -- patB shares personB's own tenant_b authority, so the bare
+        // reference resolves correctly there.
+        const personB = person('personB', 'tenant_b', ['Patient/patB', `Patient/${patBProaUuid}`]);
+        const personMergeResp = await request
+            .post('/4_0_0/Person/$merge')
+            .send([personB])
+            .set(getHeaders());
+        expect(personMergeResp).toHaveMergeResponse({ created: true });
+        const personBUuid = uuidOf(personMergeResp.body, 'personB');
+
+        // Also reference patBProa by its real _uuid here, for the same reason as above: the
+        // Consent (owned by tenant_b) must not use a bare cross-tenant reference to patBProa.
         const tenantBHeaders = getHeaders('user/*.read user/*.write access/tenant_b.*');
 
         const consentResp = await request
