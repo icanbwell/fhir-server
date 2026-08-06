@@ -1,0 +1,19 @@
+{
+    "resourceType": "Person",
+    "id": "tenantAPerson001",
+    "meta": {
+        "source": "tenantA",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "tenantA" },
+            { "system": "https://www.icanbwell.com/access", "code": "tenantA" }
+        ]
+    },
+    "name": [ { "use": "official", "family": "Kent", "given": ["Bob"] } ],
+    "gender": "male",
+    "birthDate": "1991-03-14",
+    "link": [
+        { "target": { "reference": "Patient/tenantAOwnPatient001", "type": "Patient" }, "assurance": "level4" },
+        { "target": { "reference": "Patient/accessTagSharedPatient001", "type": "Patient" }, "assurance": "level4" },
+        { "target": { "reference": "Patient/sharedProaPatientNoConsent001", "type": "Patient" }, "assurance": "level4" }
+    ]
+}

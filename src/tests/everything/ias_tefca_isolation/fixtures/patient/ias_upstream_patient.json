@@ -1,0 +1,11 @@
+{
+  "resourceType": "Patient",
+  "id": "iasUpstreamPatient001",
+  "meta": { "source": "tc_epic", "security": [
+    { "system": "https://www.icanbwell.com/owner", "code": "tc_epic" },
+    { "system": "https://www.icanbwell.com/access", "code": "tc_epic" },
+    { "system": "https://www.icanbwell.com/connectionType", "code": "ias" }
+  ]},
+  "birthDate": "1991-03-14", "gender": "male",
+  "name": [ { "use": "official", "family": "Kent", "given": ["Bob"] } ]
+}
