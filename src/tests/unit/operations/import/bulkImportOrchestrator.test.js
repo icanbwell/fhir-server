@@ -35,7 +35,11 @@ const mockBulkImportOrchestratorRunner = {
 };
 
 let mockOnMessageAsync;
-const mockConsumer = { id: 'mock-consumer' };
+const mockConsumer = {
+    id: 'mock-consumer',
+    on: jestObj.fn(),
+    events: { CRASH: 'consumer.crash' }
+};
 const mockKafkaClientV2 = {
     createConsumerAsync: jestObj.fn().mockResolvedValue(mockConsumer),
     waitForConsumerToJoinGroupAsync: jestObj.fn().mockResolvedValue(undefined),
@@ -249,6 +253,73 @@ describe('bulkImportOrchestrator', () => {
 
             expect(logError).toHaveBeenCalledWith('Health server error', { error: 'EADDRINUSE' });
             expect(processExitSpy).toHaveBeenCalledWith(1);
+        });
+    });
+
+    describe('crash handling', () => {
+        test('registers a CRASH listener on the consumer after joining the group', async () => {
+            jestObj.isolateModules(() => {
+                require('../../../../operations/import/bulkImportOrchestrator');
+            });
+
+            for (let i = 0; i < 10; i++) {
+                await new Promise(resolve => setImmediate(resolve));
+            }
+
+            expect(mockConsumer.on).toHaveBeenCalledWith('consumer.crash', expect.any(Function));
+        });
+
+        test('logs the error and exits when the consumer crashes after joining', async () => {
+            jestObj.isolateModules(() => {
+                require('../../../../operations/import/bulkImportOrchestrator');
+            });
+
+            for (let i = 0; i < 10; i++) {
+                await new Promise(resolve => setImmediate(resolve));
+            }
+
+            const [, crashHandler] = mockConsumer.on.mock.calls.find(([event]) => event === 'consumer.crash');
+            await crashHandler({ payload: { error: new Error('Consumer crashed'), restart: false } });
+
+            expect(logError).toHaveBeenCalledWith(
+                'Bulk import orchestrator consumer crashed, exiting',
+                { error: 'Consumer crashed' }
+            );
+            expect(processExitSpy).toHaveBeenCalledWith(1);
+        });
+
+        test('does not exit when kafkajs reports the crash is retriable', async () => {
+            jestObj.isolateModules(() => {
+                require('../../../../operations/import/bulkImportOrchestrator');
+            });
+
+            for (let i = 0; i < 10; i++) {
+                await new Promise(resolve => setImmediate(resolve));
+            }
+
+            const [, crashHandler] = mockConsumer.on.mock.calls.find(([event]) => event === 'consumer.crash');
+            await crashHandler({ payload: { error: new Error('Transient error'), restart: true } });
+
+            expect(logError).not.toHaveBeenCalledWith(
+                'Bulk import orchestrator consumer crashed, exiting',
+                expect.anything()
+            );
+            expect(processExitSpy).not.toHaveBeenCalledWith(1);
+        });
+
+        test('does not throw when V2 Kafka is disabled and consumer is null', async () => {
+            mockKafkaClientV2.createConsumerAsync.mockResolvedValue(null);
+
+            jestObj.isolateModules(() => {
+                require('../../../../operations/import/bulkImportOrchestrator');
+            });
+
+            for (let i = 0; i < 10; i++) {
+                await new Promise(resolve => setImmediate(resolve));
+            }
+
+            expect(mockConsumer.on).not.toHaveBeenCalled();
+            expect(processExitSpy).not.toHaveBeenCalledWith(1);
         });
     });
 

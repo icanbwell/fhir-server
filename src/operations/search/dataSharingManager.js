@@ -118,8 +118,8 @@ class DataSharingManager {
     }
 
     /**
-     * Update the query to consider data sharing logic, which includes HIE/Treatment related data linked to the client person
-     * and consented data(PROA only) and return mongo query from it.
+     * Update the query to consider data sharing logic for consented data (PROA only)
+     * and return mongo query from it.
      * @typedef {Object} RewriteDataSharingQuery
      * @property {string} base_version Base Version
      * @property {string} resourceType Resource Type
@@ -197,11 +197,6 @@ class DataSharingManager {
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
         let queryWithConsentedData;
-        /**
-         * Updated query filter with HIE/Treatment related data.
-         * @type {import('mongodb').Filter<import('mongodb').Document>}
-         */
-        let queryWithHIETreatmentData;
 
         // Case when consented proa data access is enabled.
         if (allowConsentedProaDataAccess && this.configManager.enableConsentedProaDataAccess) {
@@ -238,40 +233,12 @@ class DataSharingManager {
             }
         }
 
-        // Case when HIE/Treatment related data access is enabled.
-        if (this.configManager.enableHIETreatmentRelatedDataAccess) {
-            allowedPatientIds = new Set(Object.keys(patientIdToImmediatePersonUuid));
-            allowedConnectionTypesList = this.configManager.getHIETreatmentConnectionTypesList;
-            this.filterPatientsByConnectionType({
-                allowedPatientIds,
-                patientIdToConnectionTypeMap,
-                allowedConnectionTypesList
-            });
-            if (allowedPatientIds.size > 0 && allowedConnectionTypesList.length) {
-                queryWithHIETreatmentData = this.getConnectionTypeFilteredQuery({
-                    base_version,
-                    resourceType,
-                    allowedPatientIds,
-                    parsedArgs,
-                    allowedConnectionTypesList,
-                    useHistoryTable,
-                    patientsList,
-                    isUser
-                });
-            }
-        }
-
         if (queryWithConsentedData) {
             httpContext.set(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED, true);
         }
 
-        // Logic to update original query to consider above 2 cases.
-        if (queryWithConsentedData && queryWithHIETreatmentData) {
-            query = { $or: [query, queryWithConsentedData, queryWithHIETreatmentData] };
-        } else if (queryWithConsentedData) {
+        if (queryWithConsentedData) {
             query = { $or: [query, queryWithConsentedData] };
-        } else if (queryWithHIETreatmentData) {
-            query = { $or: [query, queryWithHIETreatmentData] };
         }
         return query;
     }

@@ -255,6 +255,7 @@ class ScopesValidator {
                 resourceType: updatedResource.resourceType,
                 user,
                 scope,
+                isCreate: !currentResource,
                 ignoreRemovals
             })
         ) {
