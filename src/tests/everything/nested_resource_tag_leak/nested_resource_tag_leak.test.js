@@ -158,10 +158,10 @@ describe('D-IDG5: nested cross-tenant resource must not leak via reference expan
         const graphDefinition = {
             resourceType: 'GraphDefinition',
             id: 'test-graph',
+            name: 'test-graph',
             status: 'active',
             start: 'Patient',
             link: [{
-                path: 'Observation',
                 target: [{
                     type: 'Observation',
                     params: 'patient={ref}',
@@ -182,8 +182,15 @@ describe('D-IDG5: nested cross-tenant resource must not leak via reference expan
         // would also satisfy the not.toContain check below without proving anything was enforced).
         expect(graphResp.status).toBe(200);
 
-        const bodyText = JSON.stringify(graphResp.body);
-        expect(bodyText).toContain('practA2');
-        expect(bodyText).not.toContain('practB2');
+        // Check actual returned resources by sourceId rather than doing a raw substring search
+        // over the whole response body: the same-tenant Observation legitimately still carries
+        // a `performer` *reference* to Practitioner/practB2 (referential integrity for an
+        // excluded resource), so a bodyText.not.toContain('practB2') check would false-fail on
+        // that reference string even when the Practitioner resource itself is correctly excluded.
+        const returnedSourceIds = (graphResp.body.entry || [])
+            .map(e => e.resource?.identifier?.find(i => i.system === 'https://www.icanbwell.com/sourceId')?.value);
+
+        expect(returnedSourceIds).toContain('practA2');
+        expect(returnedSourceIds).not.toContain('practB2');
     });
 });
