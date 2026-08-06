@@ -64,7 +64,10 @@ class PersonToPatientIdsExpander {
      * @param {boolean} includePatientPrefix
      * @param {boolean} toMap If return map of person to patient
      * @param {FhirRequestInfo} requestInfo
-     * @param {boolean} addTopPersonAccessCheck if true, adds access tag check while finding top level person
+     * @param {boolean} addTopPersonAccessCheck if true, adds an access tag check for every Person
+     *   resolved during traversal (the top-level id and every id reached via Person.link), not just
+     *   the top-level id -- a caller must hold a matching access tag at every hop, since a shared
+     *   link graph (e.g. a Main Person hub) can span multiple tenants
      * @return {Promise<string|string[]|{[key: string]: string[]}>}
      */
     async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap, requestInfo, addTopPersonAccessCheck = false }) {
@@ -191,7 +194,9 @@ class PersonToPatientIdsExpander {
      * @property {boolean} toMap If passed, will return a map of personId -> all related personIds
      * @property {boolean} returnOriginalPersonId If true then returns original personId passed. By default returns person _uuid
      * @property {boolean} addPersonOwnerToContext If true then add person owner to context
-     * @property {boolean} addTopPersonAccessCheck If true then add access tag check when fetching person
+     * @property {boolean} addTopPersonAccessCheck If true, applies the access tag check at every
+     *   recursion level while walking Person.link, not just the initial lookup -- propagated through
+     *   each recursive call so a caller can't bypass it via a Person reached transitively
      * @property {FhirRequestInfo} requestInfo
      *
      * @param {getPatientIdsFromPersonAsyncArgs}
