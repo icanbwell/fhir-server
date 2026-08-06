@@ -301,7 +301,7 @@ class SearchManager {
                     useHistoryTable
                 });
 
-                if (this.configManager.enableConsentedProaDataAccess || this.configManager.enableHIETreatmentRelatedDataAccess) {
+                if (this.configManager.enableConsentedProaDataAccess) {
                     query = await this.dataSharingManager.updateQueryConsideringDataSharing({
                         base_version,
                         resourceType,

@@ -8,7 +8,13 @@ let mongoRepl;
 async function startTestMongoServerAsync () {
     mongoRepl = await MongoMemoryReplSet.create({
         replSet: { count: 1, storageEngine: 'wiredTiger' },
-        binary: { version: '8.0.20' }
+        binary: { version: '8.0.20' },
+        // Without this, each mongod independently sizes its cache off total system RAM
+        // (default ~50%), so running several agents/worktrees concurrently makes every
+        // instance overcommit memory it doesn't actually have, causing hangs/OOM kills.
+        instanceOpts: [
+            { args: ['--wiredTigerCacheSizeGB', process.env.MONGO_MEMORY_SERVER_WT_CACHE_GB || '0.5'] }
+        ]
     });
     await mongoRepl.waitUntilRunning();
     process.env.MONGO_MEMORY_SERVER_URL = mongoRepl.getUri();
