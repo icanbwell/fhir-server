@@ -45,6 +45,30 @@ async function main() {
 
         await joinPromise;
         logInfo('Bulk import consumer joined group', { groupId });
+
+        // kafkaClientV2's own CRASH listener (registered inside waitForConsumerToJoinGroupAsync)
+        // only rejects the join promise above, which is a no-op once already resolved — so a
+        // crash after startup would otherwise leave this process running with no consumer
+        // actually reading messages, and no health check to ever catch it. Exiting lets
+        // Kubernetes detect the failure and restart the pod instead of silently zombie-ing.
+        // consumer is null when V2 Kafka is disabled (DummyKafkaClientV2) — nothing to listen on.
+        // Only exit when kafkajs itself won't retry (payload.restart === false); a retriable
+        // crash already self-heals in-process and killing the pod would just force an
+        // unnecessary rebalance. Yield a tick before exiting so kafkaClientV2's own CRASH
+        // listener (registered first, above) gets a chance to finish its async log write —
+        // otherwise this handler's process.exit could cut that write off mid-flight.
+        if (consumer) {
+            consumer.on(consumer.events.CRASH, async (event) => {
+                if (event.payload.restart) {
+                    return;
+                }
+                logError('Bulk import consumer crashed, exiting', {
+                    error: event.payload.error?.message
+                });
+                await new Promise((resolve) => setImmediate(resolve));
+                process.exit(1);
+            });
+        }
     } catch (e) {
         console.error(JSON.stringify({
             method: 'bulkImportConsumer.main',
