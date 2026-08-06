@@ -103,17 +103,21 @@ class ResourceValidator {
      *   4. Multiple matches ARE accessible -> reject (400, issue type `multiple-matches`): this can
      *      only happen for a bare-id lookup that resolved ambiguously; the caller must disambiguate
      *      with the target's `_uuid` or an explicit `sourceAssigningAuthority`.
-     *   5. Exactly one accessible match -> allow.
+     *   5. Exactly one accessible match -> allow, and (bare-id references only) rewrite the
+     *      reference to carry the resolved resource's real `sourceAssigningAuthority` so the correct
+     *      `_uuid` is generated at persist time -- see the rewrite block below.
      *
-     * Known follow-up (not implemented here): when the accepted match's real
-     * `sourceAssigningAuthority` differs from the referencing Person's own authority and the
-     * reference was a bare id, `referenceGlobalIdHandler`'s pre-save enrichment will default the
+     * Step-5 rewrite scope (partial, fail-safe): without the correction, when the accepted match's
+     * real `sourceAssigningAuthority` differs from the referencing Person's own authority and the
+     * reference was a bare id, `referenceGlobalIdHandler`'s pre-save enrichment defaults the
      * generated `_uuid` to the *referencing* resource's authority (see `updateReferenceAsync`),
      * which is wrong for a genuinely cross-tenant-but-accessible match (e.g. a consent-bridged PROA
-     * patient, as in the DCON-4847 W-chain tests). Correcting the reference to carry the resolved
-     * authority requires `validateResourceAsync` to return the corrected resource body and every
-     * caller (create/update/merge/patch/graph/validate) to use it -- a larger, separate change than
-     * this validator's access-control fix; tracked for a follow-up rather than bundled in here.
+     * patient, as in the DCON-4847 W-chain tests). We now correct this on `resourceObj` -- the
+     * resource instance the caller persists, which `create.js` passes directly. The
+     * update/merge/patch/graph paths validate a separate copy, so they do not yet receive the
+     * rewrite; making it universal requires `validateResourceAsync` to return the corrected body and
+     * every caller to apply it, a larger separate change. Until then those paths keep their
+     * pre-existing behavior (no rewrite) -- never a newly-wrong `_uuid`.
      *
      * @typedef {Object} ValidateNewPersonLinkTargetsParams
      * @property {string[]|undefined} currentValue
@@ -125,7 +129,7 @@ class ResourceValidator {
      * @param {ValidateNewPersonLinkTargetsParams}
      * @returns {Promise<OperationOutcome|null>}
      */
-    async validateNewPersonLinkTargetsBelongToCallersTenant ({ currentValue, newValue, user, scope, base_version }) {
+    async validateNewPersonLinkTargetsBelongToCallersTenant ({ currentValue, newValue, user, scope, base_version, resourceObj = null }) {
         const addedReferences = (newValue || []).filter(ref => !(currentValue || []).includes(ref));
         if (addedReferences.length === 0) {
             return null;
@@ -137,7 +141,19 @@ class ResourceValidator {
         for (const reference of addedReferences) {
             const { resourceType, id, sourceAssigningAuthority } = ReferenceParser.parseReference(reference);
             if (!resourceType || !id) {
-                continue;
+                // DCON-4844 follow-up: a link target we can't parse into resourceType + id
+                // (e.g. an absolute-URL reference) can't be resolved to a tenant, so we cannot
+                // verify the caller is allowed to link it. Silently skipping it -- the previous
+                // behavior -- is a bypass of this whole check, so fail closed and reject instead.
+                return new OperationOutcome({
+                    issue: new OperationOutcomeIssue({
+                        code: 'invalid',
+                        severity: 'error',
+                        details: new CodeableConcept({
+                            text: `Person.link target ${reference} could not be resolved to a resource. Specify it as ResourceType/id with a _uuid or sourceAssigningAuthority.`
+                        })
+                    })
+                });
             }
             const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
 
@@ -195,8 +211,56 @@ class ResourceValidator {
                     })
                 });
             }
+
+            // Reviewer step 5 (DCON-4844): exactly one accessible match. When the caller referenced
+            // it by a bare id (no _uuid, no explicit authority) we rewrite the reference to carry the
+            // resolved resource's real sourceAssigningAuthority, so the correct _uuid is generated at
+            // persist time. This matters when the accessible match lives in a different authority than
+            // the referencing Person (e.g. a consent-bridged PROA patient): referenceGlobalIdHandler
+            // would otherwise default the generated _uuid to the referencing resource's authority and
+            // link the wrong (or a non-existent) target.
+            //
+            // Fail-safe scope: we only rewrite on resourceObj -- the resource instance the caller
+            // actually persists (create.js passes it directly). The update/merge/patch/graph paths
+            // validate a separate copy, so resourceObj there is not the persisted object; rather than
+            // thread a correction blindly through those divergent write paths, we leave the reference
+            // unchanged for them -- worst case the pre-existing behavior, never a wrong _uuid. Full
+            // threading through every caller is the larger follow-up noted in the method doc above.
+            const [match] = accessibleTargetResources;
+            if (
+                resourceObj &&
+                !ReferenceParser.isUuidReference(reference) &&
+                !sourceAssigningAuthority &&
+                match?._sourceAssigningAuthority
+            ) {
+                const correctedReference = ReferenceParser.createReference({
+                    resourceType, id, sourceAssigningAuthority: match._sourceAssigningAuthority
+                });
+                if (correctedReference !== reference) {
+                    this.rewritePersonLinkReference({
+                        resourceObj, originalReference: reference, correctedReference
+                    });
+                }
+            }
         }
         return null;
+    }
+
+    /**
+     * DCON-4844: rewrite a matching Person.link target reference in place on the resource instance
+     * that will be persisted, so a corrected sourceAssigningAuthority flows into _uuid generation.
+     * No-op if the resource has no matching link (fail-safe).
+     * @param {Resource} resourceObj
+     * @param {string} originalReference
+     * @param {string} correctedReference
+     * @returns {void}
+     */
+    rewritePersonLinkReference ({ resourceObj, originalReference, correctedReference }) {
+        for (const link of (resourceObj.link || [])) {
+            if (link?.target?.reference === originalReference) {
+                link.target.reference = correctedReference;
+            }
+        }
     }
 
     /**
@@ -212,7 +276,7 @@ class ResourceValidator {
      * @param {ValidatePatientReferenceParams}
      * @returns {Promise<OperationOutcome | null>}
      */
-    async validatePatientReference ({ currentResource, resourceToValidateJson, isUser, user, scope, base_version }) {
+    async validatePatientReference ({ currentResource, resourceToValidateJson, isUser, user, scope, base_version, resourceObj = null }) {
         if (!currentResource) {
             // DCON-4844: mergeInsertAsync/create.js never pass a currentResource (there's nothing
             // to diff a brand-new resource against), so this is the only place a non-user caller
@@ -231,7 +295,7 @@ class ResourceValidator {
                 obj: resourceToValidateJson, path: newLinkValue
             });
             return await this.validateNewPersonLinkTargetsBelongToCallersTenant({
-                currentValue: undefined, newValue, user, scope, base_version
+                currentValue: undefined, newValue, user, scope, base_version, resourceObj
             });
         }
         // For Patient resource, check for id field is ignored as id field cannot be updated and is ignored later
@@ -267,7 +331,7 @@ class ResourceValidator {
                     // tenant's Person/Patient -- see validateNewPersonLinkTargetsBelongToCallersTenant
                     if (currentResource.resourceType === 'Person') {
                         const crossTenantLinkOutcome = await this.validateNewPersonLinkTargetsBelongToCallersTenant({
-                            currentValue, newValue, user, scope, base_version
+                            currentValue, newValue, user, scope, base_version, resourceObj
                         });
                         if (crossTenantLinkOutcome) {
                             return crossTenantLinkOutcome;
@@ -391,7 +455,8 @@ class ResourceValidator {
                 isUser,
                 user,
                 scope,
-                base_version
+                base_version,
+                resourceObj
             });
             if (validationOperationOutcome) {
                 validationStage = VALIDATION_STAGE.REFERENCE;
