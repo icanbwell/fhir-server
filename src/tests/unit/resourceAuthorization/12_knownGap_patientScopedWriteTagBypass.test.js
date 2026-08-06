@@ -1,37 +1,36 @@
 'use strict';
 
 /**
- * Regression test for a FIXED gap that was tracked in docs/resource-authorization.md §12
- * "Known gaps in the current implementation" — the "Critical — a patient-scoped write can set
- * an arbitrary access tag" finding.
+ * Regression test for a FIXED gap that was tracked in docs/resource-authorization.md §12 —
+ * "a patient-scoped write to an EXISTING resource can set an arbitrary access tag."
  *
- * Originally written as `test.failing` (Jest 30) to document a real, then-unfixed bug. The fix
- * removed `ScopesManager.isAccessTagChangeAllowedByScopes`'s unconditional `return true` for
- * patient-scoped callers, so the old-vs-new access-code comparison now runs for every caller,
- * including patient-scoped ones. This is now a plain `test(...)` asserting the fixed behavior —
- * if this ever regresses, it fails normally rather than needing a `test.failing` inversion.
+ * CORRECTION TO THIS FILE'S OWN EARLIER VERSION: an earlier version of this fix removed
+ * `ScopesManager.isAccessTagChangeAllowedByScopes`'s patient-scope bypass unconditionally (for
+ * both create and update) and additionally modified `isAccessToResourceAllowedBySecurityTags` the
+ * same way. That broke a real, legitimate flow —
+ * `src/tests/patientScope/create_with_patient_scope/create_with_patient_scope.test.js` — because a
+ * patient-scoped app has no `access/` scope on its token to validate a NEW resource's self-assigned
+ * owner/access tags against; there is no other mechanism in this codebase for it to declare its own
+ * tenant identity on create. That test's fixture (a `Condition` create carrying `owner`/`access`
+ * tags of `client`/`B` under a bare `patient/Condition.write` scope, no `access/` scope at all)
+ * proved the unconditional version wrong empirically, not just in theory.
  *
- * Background (kept for context; see docs/resource-authorization.md §12 for the historical write-up):
- *   Before the fix, `isAccessTagChangeAllowedByScopes` (src/operations/security/scopesManager.js)
- *   returned `true` immediately once the caller held a `patient/` scope for the resource type,
- *   without ever comparing the resource's old vs. new `meta.security` access-tag values. That
- *   allowed a patient-scoped caller to write a resource belonging to their own patient while
- *   stamping it with an access tag for an unrelated tenant.
+ * The corrected fix (matching DCON-4854 / PR #2447, which reached this independently and first):
+ * - `isAccessToResourceAllowedBySecurityTags` is NOT changed — its patient-scope bypass is safe
+ *   because every real write-path caller ANDs it with `PatientScopeManager.canWriteResourceAsync`
+ *   (Person/Patient-id ownership matching) via
+ *   `ScopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes`.
+ * - `isAccessTagChangeAllowedByScopes` gets a new `isCreate` parameter
+ *   (`ScopesValidator.isAccessTagChangeAllowedByAccessScopes` passes `isCreate: !currentResource`).
+ *   The patient-scope bypass now applies ONLY when `isCreate` is true. A write to an EXISTING
+ *   resource always goes through the real old-vs-new comparison, regardless of caller type.
  *
- *   The bypass had been reintroduced by commit a5ded4a4a ("DCON-4806 revert
- *   isAccessToResourceAllowedBySecurityTags tag-match requirement"), which reverted a similar fix
- *   to a *different* function (`isAccessToResourceAllowedBySecurityTags`) based on the premise
- *   that patient-scoped tokens in this system never carry an `access/` scope of their own. That
- *   premise turned out to be false — `src/tests/unit/operations/update/conditionalCrossTenant.test.js`
- *   and `scopesManager.writeBypass.test.js` (both pre-existing, CI-excluded) already modeled scopes
- *   like `patient/Patient.write access/tenant_b.*`, i.e. a patient scope legitimately combined with
- *   an access scope for the token's own tenant. The fix for both functions restores the original,
- *   more nuanced logic: bypass the tag check only when the resource carries no access/owner tags at
- *   all (nothing to validate against); otherwise fall through to the normal tag-matching comparison
- *   for every caller, patient-scoped or not.
- *
- * Finding 4 from §12 (Composition section filter not folding in the hardcoded `unclassified` code)
- * remains open and is covered as a documenting (non-failing) test in `10_delegatedActorAccess.test.js`.
+ * Known, deliberately-unfixed residual gap (tracked, not addressed by this file): a patient-scoped
+ * caller can still forge an arbitrary tenant's owner/access tag on CREATE, since there's no
+ * server-side source of truth for "this token's own tenant" to validate against on a brand-new
+ * resource. Tightening this without breaking legitimate creates would need a different mechanism
+ * entirely (e.g. deriving the allowed tag from the OAuth client/JWT itself) and is out of scope
+ * here.
  */
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 
@@ -51,7 +50,8 @@ jestGlobal.mock('../../../utils/assertType', () => ({
 
 const { ScopesManager } = require('../../../operations/security/scopesManager');
 
-describe('§12 known gap — patient-scoped write can set an arbitrary access tag', () => {
+describe('§12 known gap — patient-scoped update can set an arbitrary access tag ' +
+    '(create-path is intentionally permissive, see file header)', () => {
     /** @type {ScopesManager} */
     let scopesManager;
 
@@ -69,68 +69,103 @@ describe('§12 known gap — patient-scoped write can set an arbitrary access ta
         });
     });
 
-    test('a patient-scoped caller with no access/ scope must not be allowed to change a resource ' +
-        'access tag to a tenant it has no relationship with', () => {
-        // Caller holds only a patient scope for Observation.write — no `access/` scope at all.
-        // The resource is being changed from tenant_a's access tag to tenant_b's.
-        const result = scopesManager.isAccessTagChangeAllowedByScopes({
-            oldAccessCodes: ['tenant_a'],
-            newAccessCodes: ['tenant_b'],
-            resourceType: 'Observation',
-            user: 'patient-user@tenant_a',
-            scope: 'patient/Observation.write'
+    describe('isAccessTagChangeAllowedByScopes — update path (isCreate: false)', () => {
+        test('a patient-scoped caller with no access/ scope must not be allowed to change an ' +
+            'EXISTING resource\'s access tag to a tenant it has no relationship with', () => {
+            const result = scopesManager.isAccessTagChangeAllowedByScopes({
+                oldAccessCodes: ['tenant_a'],
+                newAccessCodes: ['tenant_b'],
+                resourceType: 'Observation',
+                user: 'patient-user@tenant_a',
+                scope: 'patient/Observation.write',
+                isCreate: false
+            });
+
+            expect(result).toBe(false);
         });
 
-        // The caller has no authorization from tenant_b (or tenant_a) to make this change.
-        expect(result).toBe(false);
-    });
+        test('a patient-scoped caller may write an existing resource whose access tags are ' +
+            'unchanged, even with no access/ scope of its own', () => {
+            // The common legitimate case: an update that never touches the access tag at all.
+            // Reachability via the patient-scope identity graph is the only applicable signal
+            // here — this must keep working.
+            const result = scopesManager.isAccessTagChangeAllowedByScopes({
+                oldAccessCodes: ['tenant_a'],
+                newAccessCodes: ['tenant_a'],
+                resourceType: 'Observation',
+                user: 'patient-user@tenant_a',
+                scope: 'patient/Observation.write',
+                isCreate: false
+            });
 
-    test('a patient-scoped caller may not add a brand-new access tag on create without holding ' +
-        'a matching access/ scope', () => {
-        const result = scopesManager.isAccessTagChangeAllowedByScopes({
-            oldAccessCodes: [], // create: no pre-existing resource
-            newAccessCodes: ['tenant_b'],
-            resourceType: 'Observation',
-            user: 'patient-user@tenant_a',
-            scope: 'patient/Observation.write'
+            expect(result).toBe(true);
         });
 
-        expect(result).toBe(false);
-    });
+        test('a patient-scoped caller that also holds a matching access/ scope for its own ' +
+            'tenant may change an existing resource to that tenant\'s tag', () => {
+            // Realistic combined scope for a tenant's own patient-facing app: patient/* + access/<tenant>.
+            const result = scopesManager.isAccessTagChangeAllowedByScopes({
+                oldAccessCodes: ['tenant_a'],
+                newAccessCodes: ['tenant_a', 'tenant_c'],
+                resourceType: 'Observation',
+                user: 'patient-user@tenant_a',
+                scope: 'patient/Observation.write access/tenant_c.write',
+                isCreate: false
+            });
 
-    test('a patient-scoped caller may write a resource whose access tags are unchanged, even with ' +
-        'no access/ scope of its own', () => {
-        // The common legitimate case: a patient-authored resource that never carries (or never
-        // changes) an access tag at all. Reachability via the patient-scope identity graph is the
-        // only applicable signal here — this must keep working after the fix.
-        const result = scopesManager.isAccessTagChangeAllowedByScopes({
-            oldAccessCodes: [],
-            newAccessCodes: [],
-            resourceType: 'Observation',
-            user: 'patient-user@tenant_a',
-            scope: 'patient/Observation.write'
+            expect(result).toBe(true);
         });
 
-        expect(result).toBe(true);
+        test('that same combined-scope caller still cannot add a tag for a THIRD tenant it has ' +
+            'no relationship with, on an existing resource', () => {
+            const result = scopesManager.isAccessTagChangeAllowedByScopes({
+                oldAccessCodes: ['tenant_a'],
+                newAccessCodes: ['tenant_a', 'tenant_evil'],
+                resourceType: 'Observation',
+                user: 'patient-user@tenant_a',
+                scope: 'patient/Observation.write access/tenant_c.write',
+                isCreate: false
+            });
+
+            expect(result).toBe(false);
+        });
     });
 
-    test('a patient-scoped caller that also holds a matching access/ scope for its own tenant may ' +
-        'set that tenant\'s access tag', () => {
-        // Realistic combined scope for a tenant's own patient-facing app: patient/* + access/<tenant>.
-        const result = scopesManager.isAccessTagChangeAllowedByScopes({
-            oldAccessCodes: [],
-            newAccessCodes: ['tenant_a'],
-            resourceType: 'Observation',
-            user: 'patient-user@tenant_a',
-            scope: 'patient/Observation.write access/tenant_a.write'
+    describe('isAccessTagChangeAllowedByScopes — create path (isCreate: true, intentionally ' +
+        'permissive — see file header for why)', () => {
+        test('a patient-scoped caller with no access/ scope MAY set its own owner/access tags on ' +
+            'a brand-new resource (matches the real create_with_patient_scope.test.js fixture)', () => {
+            const result = scopesManager.isAccessTagChangeAllowedByScopes({
+                oldAccessCodes: [],
+                newAccessCodes: ['client', 'B'],
+                resourceType: 'Condition',
+                user: 'patient-123@example.com',
+                scope: 'patient/Condition.write',
+                isCreate: true
+            });
+
+            expect(result).toBe(true);
         });
 
-        expect(result).toBe(true);
+        test('a patient-scoped caller with no access/ scope can also set an UNRELATED tenant\'s ' +
+            'tag on create — the known, deliberately-unfixed residual gap', () => {
+            const result = scopesManager.isAccessTagChangeAllowedByScopes({
+                oldAccessCodes: [],
+                newAccessCodes: ['tenant_evil'],
+                resourceType: 'Observation',
+                user: 'patient-user@tenant_a',
+                scope: 'patient/Observation.write',
+                isCreate: true
+            });
+
+            // Documents current, accepted behavior — not asserting this is ideal, just real.
+            expect(result).toBe(true);
+        });
     });
 
-    describe('isAccessToResourceAllowedBySecurityTags (the sibling function fixed alongside this one)', () => {
-        test('a patient-scoped caller with no access/ scope is denied access to a resource tagged ' +
-            "for a tenant it has no relationship with", () => {
+    describe('isAccessToResourceAllowedBySecurityTags — intentionally unchanged (not this bug)', () => {
+        test('a patient-scoped caller is allowed access to a resource regardless of its owner/' +
+            'access tags — ownership is independently enforced elsewhere in the write path, not here', () => {
             const resource = {
                 resourceType: 'Observation',
                 id: 'obs-1',
@@ -149,11 +184,11 @@ describe('§12 known gap — patient-scoped write can set an arbitrary access ta
                 accessRequested: 'write'
             });
 
-            expect(result).toBe(false);
+            expect(result).toBe(true);
         });
 
-        test('a patient-scoped caller may access a resource that carries no access/owner tags at ' +
-            'all, based on patient-graph reachability alone', () => {
+        test('a patient-scoped caller is allowed access to a resource with no access/owner tags ' +
+            'at all too', () => {
             const resource = {
                 resourceType: 'Observation',
                 id: 'obs-2',
@@ -164,32 +199,6 @@ describe('§12 known gap — patient-scoped write can set an arbitrary access ta
                 resource,
                 user: 'patient-user@tenant_a',
                 scope: 'patient/Observation.write',
-                accessRequested: 'write'
-            });
-
-            expect(result).toBe(true);
-        });
-
-        test('a patient-scoped caller holding a matching access/ scope may access a resource tagged ' +
-            'for that same tenant', () => {
-            // doesResourceHaveAnyAccessCodeFromThisList (used by the function under test) requires
-            // BOTH an owner tag and an access tag match, despite what its name might suggest — see
-            // §2 of docs/resource-authorization.md — so this resource needs both.
-            const resource = {
-                resourceType: 'Observation',
-                id: 'obs-3',
-                meta: {
-                    security: [
-                        { system: 'https://www.icanbwell.com/owner', code: 'tenant_a' },
-                        { system: 'https://www.icanbwell.com/access', code: 'tenant_a' }
-                    ]
-                }
-            };
-
-            const result = scopesManager.isAccessToResourceAllowedBySecurityTags({
-                resource,
-                user: 'patient-user@tenant_a',
-                scope: 'patient/Observation.write access/tenant_a.write',
                 accessRequested: 'write'
             });
 

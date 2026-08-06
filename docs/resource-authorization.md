@@ -409,26 +409,43 @@ what the code actually enforces — two have since been fixed, two remain open, 
 finding was investigated and does not reproduce (kept here, marked as such, so it isn't
 re-discovered and re-reported from scratch later).
 
-- **FIXED — a patient-scoped write could set an arbitrary access tag (§1, §4).**
-  `ScopesManager.isAccessTagChangeAllowedByScopes` and `isAccessToResourceAllowedBySecurityTags`
+- **FIXED — a patient-scoped write to an EXISTING resource could set an arbitrary access tag
+  (§1, §4).** `ScopesManager.isAccessTagChangeAllowedByScopes`
   (`src/operations/security/scopesManager.js`) used to return `true` immediately once the caller
   held a `patient/` scope for the resource type, without comparing old vs. new `meta.security`
   access-code values at all. The only other write-path check,
   `PatientScopeManager.canWriteResourceAsync` (`src/operations/security/patientScopeManager.js:277`),
   validates that the resource's `patient`/`subject` reference belongs to the caller but never
-  inspects `meta.security`. A patient-scoped caller could therefore create/update a resource that
+  inspects `meta.security`. A patient-scoped caller could therefore update a resource that
   legitimately belonged to their own patient while stamping it with an arbitrary tenant's access
-  tag, granting (or on update, revoking) that tenant's visibility with no authorization from the
-  tenant itself. This had been reintroduced by commit `a5ded4a4a` ("DCON-4806 revert
-  isAccessToResourceAllowedBySecurityTags tag-match requirement"), on the mistaken premise that (a)
-  `canWriteResourceAsync`'s clinical-ownership check already covers tag-value legitimacy — it
-  doesn't, the two checks validate different things — and (b) patient-scoped tokens in this system
-  never carry an `access/` scope of their own — also false: `src/tests/unit/operations/update/conditionalCrossTenant.test.js`
-  and `scopesManager.writeBypass.test.js` already modeled realistic combined scopes like
-  `patient/Patient.write access/tenant_b.*`. The fix restores the original, more nuanced logic for
-  both functions: bypass the tag check only when the resource carries no access/owner tags at all
-  (nothing to validate against, patient-graph reachability is the only applicable signal);
-  otherwise require the tag to match the caller's own `access/` scope like any other caller.
+  tag, granting (or revoking) that tenant's visibility with no authorization from the tenant
+  itself.
+
+  The fix adds an `isCreate` parameter (`ScopesValidator.isAccessTagChangeAllowedByAccessScopes`
+  passes `isCreate: !currentResource`): the patient-scope bypass now applies **only on create**. A
+  patient-facing app has no `access/` scope on its token to validate a brand-new resource's
+  self-assigned owner/access tags against — there's no other mechanism in this codebase for it to
+  declare its own tenant identity on create (confirmed empirically against
+  `src/tests/patientScope/create_with_patient_scope/create_with_patient_scope.test.js`, whose real
+  fixture creates a `Condition` under a bare `patient/Condition.write` scope carrying its own
+  `owner`/`access` tags, no `access/` scope at all). A write against an **existing** resource
+  always goes through the real old-vs-new comparison, regardless of caller type, closing the
+  actual vulnerability (silently granting/revoking a tenant's visibility on data that already
+  existed).
+
+  `isAccessToResourceAllowedBySecurityTags` is deliberately **left unchanged** — an earlier version
+  of this fix modified it the same way (bypass only when the resource carries no tags at all), but
+  that also breaks the `create_with_patient_scope` flow (it's called, unconditionally, before the
+  tag-change check on every write). More fundamentally, its patient-scope bypass isn't the same bug:
+  this method's job for a patient-scoped caller was never tenant isolation by tag — that's
+  `PatientScopeManager.canWriteResourceAsync` (Person/Patient-id ownership matching), which every
+  real write path ANDs in via `ScopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes`.
+  This was tried once already, for real: commit `8542592a5` (DCON-4806) added a tag-match
+  requirement here and was reverted in `a5ded4a4a` because it broke legitimate patient-scoped
+  writes — re-adding it repeats that regression. (Tests that assert this method alone should
+  enforce tenant isolation, in isolation from the ANDed ownership check, produce a false positive;
+  see the "Open" finding below and the note on `merge.crossTenant.test.js`/
+  `mergeCrossTenantWrite.test.js` for the same failure shape elsewhere.)
 - **FIXED — `$access-history` link traversal dropped the access-tag check past the first hop (§5).**
   `PersonToPatientIdsExpander.getPatientIdsFromPersonAsync`
   (`src/utils/personToPatientIdsExpander.js`) applies the caller's access-tag filter only when
@@ -476,14 +493,18 @@ re-discovered and re-reported from scratch later).
 Regression tests for both FIXED findings are in `src/tests/unit/resourceAuthorization/` (see
 `12_knownGap_patientScopedWriteTagBypass.test.js` and
 `12_knownGap_accessHistoryLinkTraversalLeak.test.js` — no longer `test.failing`, now plain
-regression tests). Neither fix was caught missing by CI originally: `src/tests/unit/operations/security/scopesManager.crossTenant.test.js`,
-`scopesManager.writeBypass.test.js`, `patientScopeWriteBypass.test.js`, and
-`writeAuthorizationBypass.test.js` already encoded the first finding's correct expected behavior
-and now pass; they've been re-enabled in `jest.config.js` accordingly. That same exclusion list
-still contains at least one fabricated test (`delegatedAccessScopeManager.test.js` asserts against
-an inline stand-in class, not the real `DelegatedAccessScopeManager`) and other files with their
-own unrelated defects (e.g. a broken relative import in `personToPatientIdsExpander.crossTenant.test.js`)
-— treat the remaining list as unverified per-entry, not as a trustworthy tracker of what's broken.
+regression tests). Neither fix was caught missing by CI originally:
+`src/tests/unit/operations/security/scopesManager.crossTenant.test.js`,
+`scopesManager.writeBypass.test.js`, and `patientScopeWriteBypass.test.js` already encoded the
+first finding's correct expected behavior (for the `isCreate`-aware version of the fix) and now
+pass; `writeAuthorizationBypass.test.js` and `delegatedAccessScopeManager.test.js` needed rewriting
+first — both asserted against an inline stand-in class instead of the real
+`DelegatedAccessScopeManager`/`ScopesManager` (the same fabrication pattern flagged elsewhere in
+this doc). All five have been corrected where needed and re-enabled in `jest.config.js`.
+`src/tests/unit/utils/personToPatientIdsExpander.crossTenant.test.js` had its own, unrelated defect
+(a broken relative import) fixed and re-enabled in a separate PR alongside the §5 access-history fix
+above — treat any entry still remaining in `jest.config.js`'s exclusion list as unverified
+per-entry, not as a trustworthy tracker of what's broken.
 
 ## Further reading
 
