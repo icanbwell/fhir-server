@@ -33,11 +33,20 @@ function handleSigningKeyError(err, cb) {
         user: '',
         args: {error: err.message, type: err.name}
     });
-    err.isTransient = true;
-    if (!err.statusCode) {
-        err.statusCode = 503;
+    // Build a new error object instead of mutating the caller-owned `err` in place --
+    // jwks-rsa/passport-jwt may hold onto or reuse that error instance elsewhere, and
+    // mutating it here could leak the isTransient/statusCode markers onto a shared
+    // object outside this function's control. `message` and `stack` are own but
+    // non-enumerable on native Error instances, so Object.assign alone won't copy
+    // them -- carry them over explicitly.
+    const transientError = Object.assign(Object.create(Object.getPrototypeOf(err)), err);
+    transientError.message = err.message;
+    transientError.stack = err.stack;
+    transientError.isTransient = true;
+    if (!transientError.statusCode) {
+        transientError.statusCode = 503;
     }
-    return cb(err);
+    return cb(transientError);
 }
 
 class MyJwtStrategy extends JwtStrategy {

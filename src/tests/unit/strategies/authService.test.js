@@ -238,6 +238,80 @@ describe('AuthService', () => {
             });
         });
 
+        test('partial JWKS provider failure still returns keys from healthy providers (INC-322)', async () => {
+            // Two providers configured; one is down, one is healthy. async.map's
+            // fail-fast behavior used to make the whole call reject even though a
+            // healthy provider's keys were available -- Promise.allSettled must
+            // instead aggregate the successful result and only log the failure.
+            Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', {
+                get: () => ['http://down-provider.com/jwks', 'http://healthy-provider.com/jwks'],
+                configurable: true
+            });
+            superagent.timeout.mockRejectedValueOnce(new Error('ECONNREFUSED'));
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager
+            });
+            const result = await authService.getExternalJwksAsync();
+            expect(result).toEqual([{ kid: 'key1' }]);
+            expect(logError).toHaveBeenCalledWith(
+                expect.stringContaining('Failed to fetch keys from 1 of 2 external jwk url(s)'),
+                expect.any(Object)
+            );
+        });
+
+        test('throws a transient error when every configured JWKS provider fails (INC-322)', async () => {
+            Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', {
+                get: () => ['http://down-provider-1.com/jwks', 'http://down-provider-2.com/jwks'],
+                configurable: true
+            });
+            // mockRejectedValueOnce (not the persistent mockRejectedValue) so this doesn't
+            // leak into later tests in this file that rely on the default resolved mock --
+            // one rejection queued per configured URL, matching the two calls this test makes.
+            superagent.timeout
+                .mockRejectedValueOnce(new Error('ECONNREFUSED'))
+                .mockRejectedValueOnce(new Error('ECONNREFUSED'));
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager
+            });
+            // Only when EVERY configured provider fails (zero usable keys) should this
+            // surface a transient/503 error.
+            await expect(
+                authService.getExternalJwksAsync()
+            ).rejects.toMatchObject({ isTransient: true, statusCode: 503 });
+        });
+
+        test('propagates a transient error when every well-known URL fails to resolve JWKS URLs (INC-322)', async () => {
+            // Before this fix, WellKnownConfigurationManager#getJwksUrlsAsync swallowed
+            // per-URL failures into [] with no transient/503 marker, so a total
+            // well-known outage looked exactly like "no well-known URLs configured" --
+            // extJwksUrls.length === 0, and getExternalJwksAsync silently fell through
+            // to its unguarded `return []`, reintroducing the exact bug INC-322 was
+            // about via the well-known fallback path. Now getJwksUrlsAsync rethrows on
+            // total failure, and getExternalJwksAsync must let that propagate rather
+            // than swallow it.
+            Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', { get: () => [], configurable: true });
+            Object.defineProperty(mockConfigManager, 'externalAuthWellKnownUrls', {
+                get: () => ['http://well-known.com'], configurable: true
+            });
+            const wellKnownOutageError = new Error(
+                'Failed to resolve any JWKS URL from 1 configured well-known endpoint(s): ECONNREFUSED'
+            );
+            wellKnownOutageError.isTransient = true;
+            wellKnownOutageError.statusCode = 503;
+            mockWellKnownConfigManager.getJwksUrlsAsync = jest.fn().mockRejectedValue(wellKnownOutageError);
+
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager
+            });
+
+            await expect(
+                authService.getExternalJwksAsync()
+            ).rejects.toMatchObject({ isTransient: true, statusCode: 503 });
+        });
+
         test('trims whitespace from external URLs', async () => {
             Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', {
                 get: () => ['  http://example.com/jwks  '], configurable: true

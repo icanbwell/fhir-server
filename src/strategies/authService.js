@@ -1,4 +1,3 @@
-const async = require('async');
 const superagent = require('superagent');
 const {LRUCache} = require('lru-cache');
 const {
@@ -170,6 +169,13 @@ class AuthService {
 
     /**
      * Fetches external JWKS URLs and retrieves the keys from them.
+     *
+     * Uses Promise.allSettled (not a fail-fast aggregator like async.map) so that one
+     * dead JWKS provider among several configured ones doesn't take down auth for
+     * tokens signed by a different, healthy provider. Keys are collected from every
+     * URL that succeeded; a transient/503 error is only thrown when EVERY URL failed,
+     * i.e. there are truly zero usable external keys (INC-322: an infrastructure
+     * outage must not look like "no external keys configured").
      * @returns {Promise<Object[]>}
      */
     async getExternalJwksAsync() {
@@ -178,29 +184,54 @@ class AuthService {
         }
         let extJwksUrls = this.configManager.externalAuthJwksUrls;
         if (extJwksUrls.length === 0 && this.configManager.externalAuthWellKnownUrls.length > 0) {
+            // getJwksUrlsAsync() throws a transient/503-marked error if EVERY configured
+            // well-known URL failed to resolve (INC-322) -- let that propagate below
+            // rather than treating a total well-known outage the same as "no well-known
+            // URLs configured at all" (which legitimately resolves to []).
             extJwksUrls = await this.wellKnownConfigurationManager.getJwksUrlsAsync();
         }
         if (extJwksUrls.length > 0) {
-            try {
-                const keysArray = await async.map(
-                    extJwksUrls,
+            const results = await Promise.allSettled(
+                extJwksUrls.map(
                     async (extJwksUrl) => (await this.getJwksByUrlAsync(extJwksUrl.trim())).keys
+                )
+            );
+            const keysArray = [];
+            const failures = [];
+            results.forEach((result, index) => {
+                if (result.status === 'fulfilled') {
+                    keysArray.push(result.value);
+                } else {
+                    failures.push({url: extJwksUrls[index], error: result.reason});
+                }
+            });
+            if (failures.length > 0) {
+                logError(
+                    `Failed to fetch keys from ${failures.length} of ${extJwksUrls.length} external jwk url(s)`,
+                    {
+                        args: {
+                            failures: failures.map((f) => ({
+                                url: f.url,
+                                error: f.error && f.error.message
+                            }))
+                        }
+                    }
                 );
-                return keysArray.flat(2);
-            } catch (error) {
-                logError(`Error while fetching keys from external jwk urls: ${error.message}`, {
-                    error: error,
-                    args: {extJwksUrls: extJwksUrls}
-                });
-                // Same reasoning as getJwksByUrlAsync: swallowing this into [] would make
-                // an infrastructure outage look like "no external keys configured", which
-                // downstream turns into a permanent SigningKeyNotFoundError -> 401 (INC-322).
+            }
+            // Only treat this as a total outage (and surface 503) when every configured
+            // URL failed. If at least one provider is healthy, use the keys it returned --
+            // that redundancy is the whole point of allowing multiple configured providers.
+            if (failures.length === extJwksUrls.length) {
+                const error = failures[0].error instanceof Error
+                    ? failures[0].error
+                    : new Error('Failed to fetch keys from any external jwk url');
                 error.isTransient = true;
                 if (!error.statusCode) {
                     error.statusCode = 503;
                 }
                 throw error;
             }
+            return keysArray.flat(2);
         }
         return [];
     }
