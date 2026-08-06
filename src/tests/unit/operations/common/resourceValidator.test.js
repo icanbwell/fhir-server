@@ -525,6 +525,119 @@ describe('ResourceValidator', () => {
             expect(result).toBeNull();
             expect(mockFindAsync).toHaveBeenCalledWith({ query: { _uuid: expect.any(String) } });
         });
+
+        it('rejects a link target that cannot be parsed into resourceType + id (e.g. an absolute URL) instead of silently skipping it', async () => {
+            // DCON-4844 follow-up: an unparseable/URL target can't be resolved to a tenant, so it
+            // must not be waved through. It should be rejected before any DB lookup is attempted.
+            const result = await personResourceValidator.validatePatientReference({
+                currentResource: personWithLinks(['uuid-a']),
+                resourceToValidateJson: {
+                    resourceType: 'Person',
+                    id: 'person-1',
+                    link: [
+                        { target: { reference: 'Person/uuid-a' } },
+                        { target: { reference: 'https://external.example.com/fhir/Person/x' } }
+                    ]
+                },
+                isUser: false,
+                user: 'service@tenant_a',
+                scope: 'access/tenant_a.*',
+                base_version: '4_0_0'
+            });
+
+            expect(result).not.toBeNull();
+            const issue = Array.isArray(result.issue) ? result.issue[0] : result.issue;
+            expect(issue.code).toBe('invalid');
+            expect(issue.details.text).toContain('could not be resolved');
+            expect(mockFindAsync).not.toHaveBeenCalled();
+        });
+
+        it('rewrites a bare-id link reference to carry the resolved sourceAssigningAuthority on the persisted resource (reviewer step 5)', async () => {
+            // A caller with access to tenant_b links a tenant_b-owned target by bare id. The
+            // target's real authority (tenant_b) must be written back into the reference so the
+            // correct _uuid is generated at persist time, rather than defaulting to the referencing
+            // Person's own authority.
+            resolveTargetsAs([{
+                resourceType: 'Person',
+                id: 'bridged-person',
+                _sourceAssigningAuthority: 'tenant_b',
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/owner', code: 'tenant_b' },
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant_b' }
+                    ]
+                }
+            }]);
+
+            // resourceObj is the instance the caller persists (create.js passes it through)
+            const resourceObj = {
+                resourceType: 'Person',
+                id: 'person-1',
+                link: [
+                    { target: { reference: 'Person/uuid-a' } },
+                    { target: { reference: 'Person/bridged-person' } }
+                ]
+            };
+
+            const result = await personResourceValidator.validatePatientReference({
+                currentResource: personWithLinks(['uuid-a']),
+                resourceToValidateJson: {
+                    resourceType: 'Person',
+                    id: 'person-1',
+                    link: [
+                        { target: { reference: 'Person/uuid-a' } },
+                        { target: { reference: 'Person/bridged-person' } }
+                    ]
+                },
+                isUser: false,
+                user: 'service@tenant_b',
+                scope: 'access/tenant_b.*',
+                base_version: '4_0_0',
+                resourceObj
+            });
+
+            expect(result).toBeNull();
+            // the newly-added bare-id link now carries the resolved authority
+            expect(resourceObj.link[1].target.reference).toBe('Person/bridged-person|tenant_b');
+            // the pre-existing link is left untouched
+            expect(resourceObj.link[0].target.reference).toBe('Person/uuid-a');
+        });
+
+        it('does not rewrite a bare-id link when resourceObj is absent (non-create paths keep prior behavior, fail-safe)', async () => {
+            resolveTargetsAs([{
+                resourceType: 'Person',
+                id: 'bridged-person',
+                _sourceAssigningAuthority: 'tenant_b',
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/owner', code: 'tenant_b' },
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant_b' }
+                    ]
+                }
+            }]);
+
+            const resourceToValidateJson = {
+                resourceType: 'Person',
+                id: 'person-1',
+                link: [
+                    { target: { reference: 'Person/uuid-a' } },
+                    { target: { reference: 'Person/bridged-person' } }
+                ]
+            };
+
+            const result = await personResourceValidator.validatePatientReference({
+                currentResource: personWithLinks(['uuid-a']),
+                resourceToValidateJson,
+                isUser: false,
+                user: 'service@tenant_b',
+                scope: 'access/tenant_b.*',
+                base_version: '4_0_0'
+                // no resourceObj: validation still passes, but no rewrite happens
+            });
+
+            expect(result).toBeNull();
+            expect(resourceToValidateJson.link[1].target.reference).toBe('Person/bridged-person');
+        });
     });
 
     describe('validateResourceSizeSync', () => {
