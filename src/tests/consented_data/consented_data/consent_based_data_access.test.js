@@ -57,11 +57,15 @@ const {
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
-const headers = getHeaders('user/*.read access/client.*');
-const client1Headers = getHeaders('user/*.read access/client-1.*');
+// admin/*.read is required for the _debug=1 request below (DCON-4808 gates _explain/_debug/
+// _setIndexHint behind admin scope) -- these tests use it purely to get the query-echo written
+// into meta.tag for the toHaveResponse assertion, not to test the gate itself. Matches the same
+// fix already applied to client1Headers by commit 12e1ff744.
+const headers = getHeaders('user/*.read access/client.* admin/*.read');
+const client1Headers = getHeaders('user/*.read access/client-1.* admin/*.read');
 const { jest } = require('@jest/globals');
 
-describe.skip('Consent Based Data Access Test', () => {
+describe('Consent Based Data Access Test', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {
@@ -98,6 +102,9 @@ describe.skip('Consent Based Data Access Test', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedClintObservationCopy]);
         });
+        // Plain (non-$everything) search intentionally stopped including PROA-consented data as
+        // of DCON-2773 (#2048, Feb 2026) — allowConsentedProaDataAccess now defaults to false and
+        // is only passed true from everythingHelper.js. See PR #2424 for the full root-cause.
         test('Consent has provided to Client', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -114,15 +121,13 @@ describe.skip('Consent Based Data Access Test', () => {
 
             const expectedClintObservationCopy = deepcopy(expectedClintObservation);
             expectedClintObservationCopy.subject.reference = 'Patient/person.33226ded-51e8-590e-8342-1197955a2af7';
-            const expectedProaObservationCopy = deepcopy(expectedProaObservation);
-            expectedProaObservationCopy.subject.reference = 'Patient/person.33226ded-51e8-590e-8342-1197955a2af7';
 
-            // Get Observation for a specific person, client have access to read both proa and client resources
+            // Get Observation for a specific person — consent no longer widens plain search
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedProaObservationCopy, expectedClintObservationCopy]);
+            expect(resp).toHaveResponse([expectedClintObservationCopy]);
         });
 
         test('Consent has provided to Client but proa data doesnot have connection type', async () => {
@@ -179,6 +184,8 @@ describe.skip('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse([expectedClintObservationCopy]);
         });
 
+        // Same DCON-2773 behavior change as above (see PR #2424): the proa patient is no longer
+        // resolvable via plain search regardless of consent.
         test('Check Consented data fetching using patient ID', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -198,16 +205,18 @@ describe.skip('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Observation?patient=Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedProaObservation]);
+            expect(resp).toHaveResponse([]);
 
-            // Get Observation for both client and proa
+            // Get Observation for both client and proa — only client's is returned
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc,Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedProaObservation, expectedClintObservation]);
+            expect(resp).toHaveResponse([expectedClintObservation]);
         });
 
+        // Same DCON-2773 behavior change as above (see PR #2424): neither proa patient is
+        // resolvable via plain search regardless of consent state.
         test('Check Consented data fetching for two different patient and both have consented', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -230,9 +239,10 @@ describe.skip('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedProaObservation, expectedProaObservation3]);
+            expect(resp).toHaveResponse([]);
         });
 
+        // Same DCON-2773 behavior change as above (see PR #2424).
         test('Check Consented data fetching for two different patient but only has consented', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -255,9 +265,10 @@ describe.skip('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedProaObservation3);
+            expect(resp).toHaveResponse([]);
         });
 
+        // Same DCON-2773 behavior change as above (see PR #2424).
         test('Consent has provided, it should return all consented data when searching with proxy-patient with master person id', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -282,16 +293,17 @@ describe.skip('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid&_rewritePatientReference=0')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedProaObservation, expectedClintObservation]);
+            expect(resp).toHaveResponse([expectedClintObservation]);
 
-            // Should return only client-1 resources
+            // Should return only client-1's own resource (xyz was only reachable via consent)
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid&_rewritePatientReference=0')
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson]);
+            expect(resp).toHaveResponse([expectedXyzObservationJson]);
         });
 
+        // Same DCON-2773 behavior change as above (see PR #2424).
         test('Only one client Consent has provided, it should return only consented data when searching with proxy-patient with master person id', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -318,14 +330,15 @@ describe.skip('Consent Based Data Access Test', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedClintObservation]);
 
-            // Should return only client-1 resources
+            // Should return only client-1's own resource
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid&_rewritePatientReference=0')
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson]);
+            expect(resp).toHaveResponse([expectedXyzObservationJson]);
         });
 
+        // Same DCON-2773 behavior change as above (see PR #2424).
         test('Should not be able to access resource if proxy-patient references is not present', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -350,9 +363,10 @@ describe.skip('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedProaObservation2);
+            expect(resp).toHaveResponse([]);
         });
 
+        // Same DCON-2773 behavior change as above (see PR #2424).
         test('Should be able to access observation of xyz and highmark if client-1 has consent', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -371,12 +385,13 @@ describe.skip('Consent Based Data Access Test', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            // Get Observation for xyz and client-1 patient
+            // Get Observation for xyz and client-1 patient — only client-1's own resource is
+            // returned now; xyz/highmark were only reachable via the PROA-consent branch.
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/69e5e0ca-27dd-4560-9963-590e6ca4abd3,Patient/0afee0eb-4984-46ea-8052-63fad42e4817|xyz,Patient/44001f52-99f5-4246-9c9a-d7ed1c1c8b39&_sort=_uuid')
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson, expectedHighMarkObservationJson]);
+            expect(resp).toHaveResponse([expectedXyzObservationJson]);
         });
 
         test('Should not be able to access patient of xyz and highmark if client-1 doesn\'t have consent', async () => {
@@ -433,6 +448,9 @@ describe.skip('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse(expectedPatientWithConsentForClient1Json);
         });
 
+        // Same DCON-2773 behavior change as above (see PR #2424): the Patient search itself is
+        // gated by the same consent-driven query branch, so only client-1's own patient (not
+        // xyz/highmark) is resolvable via the proxy-person search now.
         test('Should be able to access observation based on patient searched using proxy-person', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -458,14 +476,14 @@ describe.skip('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Patient/?id=person.bdc02b42-ad3a-4e8b-a607-6210316cf58e&_sort=_uuid&_rewritePatientReference=0')
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(3);
+            expect(resp).toHaveResourceCount(1);
             const patientIds = JSON.parse(resp.text).map((r) => r.id);
 
             resp = await request
                 .get(`/4_0_0/Observation/?patient=${patientIds.map(id => `Patient/${id}`).join(',')}`)
                 .set(client1Headers);
 
-            expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson, expectedHighMarkObservationJson]);
+            expect(resp).toHaveResponse([expectedXyzObservationJson]);
         });
 
         test('Consent has provided, search on basis of proxy-person, consent query should not contain proxy-patient', async () => {

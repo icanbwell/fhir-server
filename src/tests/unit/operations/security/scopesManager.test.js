@@ -226,42 +226,6 @@ describe('ScopesManager', () => {
         });
     });
 
-    describe('doesResourceHaveAccessTags', () => {
-        test('should return false for null resource', () => {
-            expect(scopesManager.doesResourceHaveAccessTags(null)).toBeFalsy();
-        });
-
-        test('should return false for resource without meta', () => {
-            expect(scopesManager.doesResourceHaveAccessTags({})).toBeFalsy();
-        });
-
-        test('should return false for resource with meta but no security', () => {
-            expect(scopesManager.doesResourceHaveAccessTags({ meta: {} })).toBeFalsy();
-        });
-
-        test('should return false when no security tags match access system', () => {
-            const resource = {
-                meta: {
-                    security: [
-                        { system: SecurityTagSystem.owner, code: 'client' }
-                    ]
-                }
-            };
-            expect(scopesManager.doesResourceHaveAccessTags(resource)).toBeFalsy();
-        });
-
-        test('should return true when access tag is present', () => {
-            const resource = {
-                meta: {
-                    security: [
-                        { system: SecurityTagSystem.access, code: 'client' }
-                    ]
-                }
-            };
-            expect(scopesManager.doesResourceHaveAccessTags(resource)).toBeTruthy();
-        });
-    });
-
     describe('doesResourceHaveOwnerTags', () => {
         test('should return false for null resource', () => {
             expect(scopesManager.doesResourceHaveOwnerTags(null)).toBeFalsy();

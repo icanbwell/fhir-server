@@ -63,7 +63,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
                     variables: {},
                     query: graphqlQueryText
                 })
-                .set(getGraphQLHeaders())
+                .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
 
             const body = resp.body;

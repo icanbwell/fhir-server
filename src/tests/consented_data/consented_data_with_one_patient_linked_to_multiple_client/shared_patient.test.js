@@ -43,10 +43,10 @@ const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/g
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
 const headers = getHeaders();
-const client1Headers = getHeaders('user/*.read access/client-1.*');
+const client1Headers = getHeaders('user/*.read access/client-1.* admin/*.read');
 const client2Headers = getHeaders('user/*.read access/client-2.*');
 
-describe.skip('Consent Based Data Access Test With Shared Patient', () => {
+describe('Consent Based Data Access Test With Shared Patient', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {
