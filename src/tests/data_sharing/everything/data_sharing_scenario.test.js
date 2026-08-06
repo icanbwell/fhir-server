@@ -1,5 +1,5 @@
 // This test case contains bwell master person & patient along with client person and client-1 person linked with master person.
-// Client person is further linked with 4 client patients[2 of them are proa patient, & 1 is hie patient].
+// Client person is further linked with 3 client patients[2 of them are proa patient].
 // Client-1 person is further linked with 2 patients[1 of them is proa patient].
 // All patients further have observations resources linked with.
 // Here we will test the data for $everything endpoint for different cases.
@@ -20,15 +20,8 @@ const proaObservation1Resource = require('./fixtures/observation/proa_observatio
 const proaPatient2Resource = require('./fixtures/patient/proa_patient_2.json');
 const proaObservation2Resource = require('./fixtures/observation/proa_observation_2.json');
 
-const hieTreatmentPatientResource = require('./fixtures/patient/hie_patient.json');
-const hieTreatmentObservationResource = require('./fixtures/observation/hie_observation.json');
-
 const clientConsentGivenResource = require('./fixtures/consent/client_consent_given.json');
-const clientConsentDeniedResource = require('./fixtures/consent/client_consent_denied.json');
 
-const expectedResponse1Resource = require('./fixtures/expected/expected_response_1.json');
-const expectedResponse2Resource = require('./fixtures/expected/expected_response_2.json');
-const expectedResponse3Resource = require('./fixtures/expected/expected_response_3.json');
 const expectedResponse4Resource = require('./fixtures/expected/expected_response_4.json');
 const expectedResponse5Resource = require('./fixtures/expected/expected_response_5.json');
 const expectedResponse6Resource = require('./fixtures/expected/expected_response_6.json');
@@ -36,8 +29,6 @@ const expectedResponse7Resource = require('./fixtures/expected/expected_response
 const expectedResponse7Resource1 = require('./fixtures/expected/expected_response_7_1.json');
 const expectedResponse8Resource = require('./fixtures/expected/expected_response_8.json');
 const expectedResponse9Resource = require('./fixtures/expected/expected_response_9.json');
-const expectedResponse10Resource = require('./fixtures/expected/expected_response_10.json');
-const expectedResponse11Resource = require('./fixtures/expected/expected_response_11.json');
 
 const proaDedupClientPersonResource = require('./fixtures/person/proa_dedup_client_person.json');
 const proaDedupClient2PersonResource = require('./fixtures/person/proa_dedup_client2_person.json');
@@ -85,7 +76,6 @@ const healthService2Header = getHeaders('user/*.read access/health-service-2.*')
 const headersWithAdmin = getHeaders('user/*.read access/client.* admin/*.*');
 const client1HeadersWithAdmin = getHeaders('user/*.read access/client-1.* admin/*.*');
 const healthServiceHeaderWithAdmin = getHeaders('user/*.read access/health-service.* admin/*.*');
-const healthService2HeaderWithAdmin = getHeaders('user/*.read access/health-service-2.* admin/*.*');
 
 describe('Data sharing test cases for different scenarios', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
@@ -100,90 +90,6 @@ describe('Data sharing test cases for different scenarios', () => {
     });
 
     describe('Data Sharing Scenario for everything endpoint', () => {
-        test('Everything operation on client person: Get client & hie data only & no proa data. when consent not provided', async () => {
-            const request = await createTestRequest((c) => {
-                return c;
-            });
-
-            // Add the resources to FHIR server
-            let resp = await request
-                .post('/4_0_0/Person/1/$merge')
-                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
-                    clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
-                    proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource])
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .get('/4_0_0/Person/c12345/$everything?_debug=true')
-                .set({
-                    ...headersWithAdmin,
-                    prefer: 'global_id=false'
-                });
-
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMongoQuery(expectedResponse1Resource);
-
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResponse1Resource);
-        });
-
-        test('Everything operation on client person: Get client and hie data only, & no proa data, when consent denied', async () => {
-            const request = await createTestRequest((c) => {
-                return c;
-            });
-
-            // Add the resources to FHIR server
-            let resp = await request
-                .post('/4_0_0/Person/1/$merge')
-                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
-                    clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
-                    proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentDeniedResource])
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .get('/4_0_0/Person/c12345/$everything')
-                .set({
-                    ...headers,
-                    prefer: 'global_id=false'
-                });
-
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResponse2Resource);
-        });
-
-        test('Everything operation on client person: Get client, proa & hie patient data, when consent provided', async () => {
-            const request = await createTestRequest((c) => {
-                return c;
-            });
-
-            // Add the resources to FHIR server
-            let resp = await request
-                .post('/4_0_0/Person/1/$merge')
-                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
-                    clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
-                    proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .get('/4_0_0/Person/c12345/$everything?_debug=true')
-                .set({
-                    ...headersWithAdmin,
-                    prefer: 'global_id=false'
-                });
-
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResponse3Resource);
-        });
-
         test('Everything operation on client person: Get no data when access token does not match the client person & no consent provided', async () => {
             // The proxy-person-to-patient expansion (personToPatientIdsExpander) applies the
             // caller's access-scope security tag to the Person lookup itself before resolving its
@@ -202,8 +108,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
-                    proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource])
+                    proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
@@ -229,7 +134,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
                     proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
+                    clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
@@ -242,7 +147,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedResponse4Resource);
         });
 
-        test('Everything operation on client patient: Get client patient data & not proa/hie patient, even consent provided', async () => {
+        test('Everything operation on client patient: Get client patient data & not proa patient, even consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -253,7 +158,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
                     proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
+                    clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
@@ -277,7 +182,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
                     proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
+                    clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
@@ -303,7 +208,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
                     proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
+                    clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
@@ -328,7 +233,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
                     proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
+                    clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
@@ -352,7 +257,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
                     proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
+                    clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
@@ -377,7 +282,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
                     proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
+                    clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
@@ -388,55 +293,6 @@ describe('Data sharing test cases for different scenarios', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse9Resource);
-        });
-
-        test('Everything operation on hie/treatment patient: Get linked client person and hie data, with different access token, when consent provided', async () => {
-            const request = await createTestRequest((c) => {
-                return c;
-            });
-
-            // Add the resources to FHIR server
-            let resp = await request
-                .post('/4_0_0/Person/1/$merge')
-                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
-                    clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
-                    proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .get('/4_0_0/Patient/d4c639de-f892-5b89-a63c-f64f0f2d69d1/$everything?_debug=true')
-                .set(headersWithAdmin);
-
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResponse10Resource);
-        });
-
-        test('Everything operation on hie/treatment patient: Get all linked data, with appropriate access token, even no consent provided', async () => {
-            // Here client person is not received as it's access token is different.
-            const request = await createTestRequest((c) => {
-                return c;
-            });
-
-            // Add the resources to FHIR server
-            let resp = await request
-                .post('/4_0_0/Person/1/$merge')
-                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
-                    clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
-                    proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
-                    hieTreatmentPatientResource, hieTreatmentObservationResource])
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .get('/4_0_0/Patient/d4c639de-f892-5b89-a63c-f64f0f2d69d1/$everything?_debug=true')
-                .set(healthService2HeaderWithAdmin);
-
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResponse11Resource);
         });
 
         describe('PROA data sharing flow with connectionType-based consent', () => {

@@ -68,7 +68,6 @@ describe('SearchManager', () => {
         mockR4SearchQueryCreator = Object.create(R4SearchQueryCreator.prototype);
         mockConfigManager = Object.create(ConfigManager.prototype);
         Object.defineProperty(mockConfigManager, 'enableConsentedProaDataAccess', { value: false, writable: true, configurable: true });
-        Object.defineProperty(mockConfigManager, 'enableHIETreatmentRelatedDataAccess', { value: false, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'doNotRequirePersonOrPatientIdForPatientScope', { value: false, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'requiredFiltersForAuditEvent', { value: null, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'auditEventMaxRangePeriod', { value: 30, writable: true, configurable: true });
@@ -122,7 +121,6 @@ describe('SearchManager', () => {
                 query: { resourceType: 'Observation' }, columns: new Set(['_uuid'])
             });
             mockConfigManager.enableConsentedProaDataAccess = false;
-            mockConfigManager.enableHIETreatmentRelatedDataAccess = false;
             mockQueryRewriterManager.rewriteQueryAsync = jest.fn().mockImplementation(async ({ query, columns }) => ({ query, columns }));
         });
 

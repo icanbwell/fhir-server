@@ -428,22 +428,6 @@ class ConfigManager {
     }
 
     /**
-     * Specifies whether to enable HIE/Treatment related data access.
-     * @return {boolean}
-     */
-    get enableHIETreatmentRelatedDataAccess() {
-        return isTrue(env.ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS);
-    }
-
-    /**
-     * Specifies allowed connection types for HIE/Treatment related data.
-     * @return {string[]}
-     */
-    get getHIETreatmentConnectionTypesList() {
-        return env.HIE_TREATMENT_CONNECTION_TYPES_LIST ? env.HIE_TREATMENT_CONNECTION_TYPES_LIST.split(',') : ['hipaa'];
-    }
-
-    /**
      * Specifies "provision.class.code" for the Data sharing Consent
      * @return {string[]}
      */
