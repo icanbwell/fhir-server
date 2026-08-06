@@ -223,6 +223,108 @@ for REST error responses.
   regenerate-and-diff in CI the same way other generated artifacts are checked (if such a check
   exists today for GraphQL/class generation — verify during planning and mirror it).
 
+## 8. Example tool calls
+
+These show the actual wire format — Streamable HTTP, JSON-RPC 2.0, SSE-wrapped responses — verified
+against `@modelcontextprotocol/server@2.0.0`'s own documented example (see implementation plan Task 8),
+not a hypothetical shape. `<jwt>` is the same bearer token REST/GraphQL callers already use.
+
+### 8.1 Listing available tools
+
+```bash
+curl -s -X POST https://<host>/mcp \
+  -H 'Authorization: Bearer <jwt>' \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+Response (abbreviated — 15 tools total: 14 dedicated + `fhir_search`):
+
+```
+event: message
+data: {"result":{"tools":[
+  {"name":"search_patient",
+   "description":"Search FHIR Patient resources using its supported search parameters. Comma-separate multiple values for the same parameter to OR them (e.g. 'active,inactive'). Every parameter also accepts these FHIR search modifiers by appending ':modifier' to the parameter name: :missing, :not, :contains, :exact, :above, :below, :text, :of-type (not every modifier is meaningful for every parameter -- see each parameter's own description for its expected value syntax).",
+   "inputSchema":{"type":"object","properties":{
+     "birthdate":{"type":"string","description":"The patient's date of birth. (date) Prefix the value with a comparator for a range match: eq, ne, gt, lt, ge, le, sa, eb, ap (e.g. 'ge2020-01-01'). Omit the prefix for an exact match."},
+     "name":{"type":"string","description":"A server defined search that matches any of the string fields in the HumanName. (string) Case-insensitive; matches values starting with the given text by default. Append ':exact' to the parameter name for an exact match, or ':contains' for a substring match anywhere in the value."},
+     "general-practitioner":{"type":"string","description":"Patient's nominated general practitioner. (reference: Practitioner | Organization | PractitionerRole) Format: 'ResourceType/id', or bare 'id' to match against any of this parameter's allowed target types."}
+   },"additionalProperties":true}},
+  {"name":"fhir_search",
+   "description":"Search any FHIR resource type not covered by a dedicated search_<resource> tool (dedicated tools already exist for: AllergyIntolerance, CarePlan, Condition, Coverage, DiagnosticReport, DocumentReference, Encounter, Immunization, MedicationRequest, Observation, Organization, Patient, Practitioner, Procedure). ...",
+   "inputSchema":{"type":"object","properties":{"resourceType":{"type":"string"},"filters":{"type":"object","additionalProperties":{"type":"string"}}},"required":["resourceType"]}}
+]},"jsonrpc":"2.0","id":1}
+```
+
+### 8.2 Dedicated tool — simple match
+
+```json
+{"jsonrpc":"2.0","id":2,"method":"tools/call",
+ "params":{"name":"search_patient","arguments":{"name":"Smith","_count":"20"}}}
+```
+
+`McpToolHandler.handleSearchToolCall({ resourceType: 'Patient', args: { name: 'Smith', _count: '20' } })`
+→ `r4ArgsParser.parseArgs(...)` → `searchBundleOperation.searchBundleAsync(...)` — identical to REST's
+`GET /4_0_0/Patient?name=Smith&_count=20`.
+
+### 8.3 Dedicated tool — date range + string modifier
+
+```json
+{"jsonrpc":"2.0","id":3,"method":"tools/call",
+ "params":{"name":"search_patient",
+           "arguments":{"birthdate":"ge2015-01-01","name:contains":"ithso"}}}
+```
+
+Patients born on/after 2015-01-01 whose name contains "ithso" anywhere (not just as a prefix) —
+exercises both a comparator-prefixed *value* (§4's `TYPE_VALUE_SYNTAX_HINTS['date']`) and a
+modifier-suffixed *key* (`name:contains`, accepted via `.passthrough()` even though `name` alone is
+the only literal property in the schema).
+
+### 8.4 Dedicated tool — token and reference filters
+
+```json
+{"jsonrpc":"2.0","id":4,"method":"tools/call",
+ "params":{"name":"search_observation",
+           "arguments":{"code":"http://loinc.org|2339-0","patient":"Patient/abc123"}}}
+```
+
+`code` uses the token `system|code` format; `patient` uses the reference `ResourceType/id` format —
+both exactly as a REST caller would write them as query-string values
+(`?code=http://loinc.org|2339-0&patient=Patient/abc123`).
+
+### 8.5 Generic tool — a resource type with no dedicated tool
+
+```json
+{"jsonrpc":"2.0","id":5,"method":"tools/call",
+ "params":{"name":"fhir_search",
+           "arguments":{"resourceType":"Coverage","filters":{"status":"active","beneficiary":"Patient/abc123"}}}}
+```
+
+### 8.6 Generic tool — rejected because a dedicated tool exists
+
+```json
+{"jsonrpc":"2.0","id":6,"method":"tools/call",
+ "params":{"name":"fhir_search","arguments":{"resourceType":"Patient"}}}
+```
+
+Response:
+
+```
+event: message
+data: {"result":{"isError":true,"content":[{"type":"text","text":"Use the dedicated search_patient tool for Patient, not fhir_search."}]},"jsonrpc":"2.0","id":6}
+```
+
+### 8.7 Blocked before any tool ever runs: CMS-partner-user token
+
+```bash
+curl -s -X POST https://<host>/mcp -H 'Authorization: Bearer <cms-partner-jwt>' ...
+```
+
+Response: HTTP `403`, from the `forbidForUserTypes` middleware (§5) — the request never reaches the
+JSON-RPC layer, so there is no `tools/call` response body here. Intentionally the same shape GraphQL
+returns for this user type today.
+
 ## Resolved (confirmed by user on 2026-08-05)
 
 1. **Commonly-used resource list** — the proposed 14-resource list in §4 is confirmed.

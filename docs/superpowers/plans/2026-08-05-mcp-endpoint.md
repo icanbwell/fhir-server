@@ -1259,6 +1259,23 @@ describe('/mcp endpoint', () => {
         // Same shape as above, using { name: 'fhir_search', arguments: { resourceType: 'Coverage', filters: {...} } }.
     });
 
+    test('search_patient supports a date-comparator value combined with a string modifier key (design doc §8.3)', async () => {
+        // Seed two Patients with different birthDates/names (via the app's create endpoint, same as
+        // every other test in this file). Call search_patient with
+        // { birthdate: 'ge2015-01-01', 'name:contains': '<substring>' } and assert only the Patient
+        // matching BOTH conditions comes back. This is the regression test proving the
+        // TYPE_VALUE_SYNTAX_HINTS date-prefix documentation (Task 2) and the schema's .passthrough()
+        // modifier-key support (Task 2's template) actually work together, not just independently.
+    });
+
+    test('search_observation supports token (system|code) and reference (ResourceType/id) filter values (design doc §8.4)', async () => {
+        // Seed an Observation referencing a known Patient with a known LOINC code. Call
+        // search_observation with { code: '<system>|<code>', patient: 'Patient/<id>' } and assert the
+        // seeded Observation comes back. Regression test for the token/reference syntax hints
+        // documented in Task 2's TYPE_VALUE_SYNTAX_HINTS actually matching this server's real
+        // token.js/reference.js filter behavior.
+    });
+
     test('fhir_search rejects a resourceType that has a dedicated tool', async () => {
         // POST { name: 'fhir_search', arguments: { resourceType: 'Patient' } }, assert the JSON-RPC
         // result carries isError: true and mentions search_patient.
@@ -1316,7 +1333,7 @@ assertions copied from the reference test).
 - [ ] **Step 3: Fill in the real test bodies and re-run until green**
 
 Run: `nvm use && node node_modules/.bin/jest src/tests/mcp/mcpEndpoint.integration.test.js -v`
-Expected: `7 passed`.
+Expected: `9 passed`.
 
 - [ ] **Step 4: Run the full test suite to check for regressions**
 
@@ -1349,6 +1366,9 @@ git commit -m "Add /mcp integration tests: dedicated tool, generic tool, scope e
 - §5 Auth & scope enforcement (reuse passport, `FhirRequestInfoBuilder`, no new authz logic) → Task 9. ✓
 - §6 Error handling (`isError` mapping) → Task 6. ✓
 - §7 Testing (integration suite, scope enforcement regression) → Task 10. ✓
+- §8 Example tool calls (date+modifier combo, token/reference combo, generic-tool rejection) → Task 10's
+  two added tests turn §8.3/§8.4's illustrative examples into actual regression coverage rather than
+  leaving them as documentation-only claims. ✓
 - Resolved decision "zero new data-access code" → enforced by construction in Task 6 (only
   `searchBundleOperation`/`r4ArgsParser` dependencies; no `dataLayer` import anywhere in this plan).
 - Resolved decision "generated tool files are pure data" → Task 2's template emits only a `tool`
