@@ -48,10 +48,15 @@ following the existing `generatorScripts/` convention.
 - Per `CLAUDE.md`'s security-sensitive-changes rule: this touches resource search/read. Before the
   implementation PR is reviewed/approved, `review.md` at the repo root must be read and the diff
   adversarially reviewed against it (Task 10 calls this out again at the point it matters).
-- This plan's design doc is `docs/superpowers/specs/2026-08-05-mcp-endpoint-design.md` — six open
-  questions in its final section are NOT yet resolved by the user (they stepped away mid-session).
-  Two are resolved enough to build against (see per-task notes); do not treat the others as decided —
-  flag them again before merging.
+- This plan's design doc is `docs/superpowers/specs/2026-08-05-mcp-endpoint-design.md` — all six open
+  questions in its final section are resolved (see the design doc's "Resolved (confirmed by user on
+  2026-08-05)" section and this plan's own Self-Review section below for the final decisions).
+- `McpToolHandler` (Task 6) must apply the same patient data-connection-view-control (consent-based)
+  exclusion `src/graphqlv2/dataSource.js`'s `getParsedArgsAsync` applies before calling
+  `searchBundleAsync` — otherwise a patient-scoped token from a `clientsWithDataConnectionViewControl`
+  client can retrieve a resource the patient explicitly hid from that app via `Consent` through `/mcp`,
+  even though the identical GraphQL query is correctly blocked. See design doc §5 for the full
+  attack scenario and Task 6 for the required implementation.
 
 ---
 
@@ -711,10 +716,29 @@ git commit -m "Add MCP_REQUEST_INFO_CONTEXT_KEY constant"
   useAggregationPipeline })` → `Promise<Bundle>` (`src/operations/search/searchBundle.js`);
   `R4ArgsParser.parseArgs({ resourceType, args })` → `ParsedArgs` (`src/operations/query/r4ArgsParser.js`);
   `mcpToolsByResourceType` and `genericFhirSearchTool`/`DEDICATED_RESOURCE_TYPES` (Tasks 3–4);
-  `MCP_REQUEST_INFO_CONTEXT_KEY` (Task 5).
+  `MCP_REQUEST_INFO_CONTEXT_KEY` (Task 5); `PatientDataViewControlManager.getConsentAsync({ requestInfo,
+  base_version, raiseErrorForMissingUserOwner })` (existing, `src/utils/patientDataViewController.js` —
+  same class GraphQL's `dataSource.js` uses for the consent-based view-control exclusion).
 - Produces: `McpToolHandler` with `registerTools(server)` (consumed by `McpServer`, Task 7) and
   `handleSearchToolCall({ resourceType, args })` / `handleGenericSearchToolCall({ resourceType, filters })`
   → `Promise<{ content: [{ type: 'text', text: string }], isError?: true }>`.
+
+**Consent-exclusion requirement (see design doc §5):** for a patient-scoped caller
+(`requestInfo.isUser`), `handleSearchToolCall` must call `patientDataViewControlManager.getConsentAsync`
+and merge the returned per-resource-type exclude-id map into the parsed args as `_id:not`, *before*
+calling `searchBundleAsync` — mirroring `src/graphqlv2/dataSource.js`'s `getParsedArgsAsync`. Without
+this, a patient explicitly hiding a resource from a connected app via `Consent` (category
+data-connection-view-control) would have that resource leak through `/mcp` even though the identical
+GraphQL query is correctly blocked.
+
+**Do not copy `dataSource.js`'s per-instance caching of the consent result.** `dataSource.js` caches
+`this.patientViewControlResourceExcludeIds` because a fresh `FhirDataSource` is constructed per
+GraphQL request. `McpToolHandler` is the opposite: it is registered **once** in the IoC container and
+shared across every request/tenant (see design doc §5's `review.md` Section D check). Caching the
+consent result as instance state here would carry one request's/tenant's exclude-list into a later,
+differently-scoped call on the same shared instance — exactly the singleton request-scoped-caching
+bug `review.md` Section D warns against. Call `getConsentAsync` fresh on every `handleSearchToolCall`
+invocation instead; there is no per-request object to cache it on the way `dataSource.js` has one.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -728,6 +752,7 @@ const httpContext = require('express-http-context');
 const { McpToolHandler } = require('../../../mcp/mcpToolHandler');
 const { SearchBundleOperation } = require('../../../operations/search/searchBundle');
 const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
+const { PatientDataViewControlManager } = require('../../../utils/patientDataViewController');
 const { MCP_REQUEST_INFO_CONTEXT_KEY } = require('../../../constants');
 
 function createPrototypedMock (RealClass) {
@@ -739,8 +764,12 @@ function createHandler () {
     searchBundleOperation.searchBundleAsync = jestGlobal.fn();
     const r4ArgsParser = createPrototypedMock(R4ArgsParser);
     r4ArgsParser.parseArgs = jestGlobal.fn().mockReturnValue({ parsedArgItems: [] });
-    const handler = new McpToolHandler({ searchBundleOperation, r4ArgsParser });
-    return { handler, searchBundleOperation, r4ArgsParser };
+    const patientDataViewControlManager = createPrototypedMock(PatientDataViewControlManager);
+    patientDataViewControlManager.getConsentAsync = jestGlobal.fn().mockResolvedValue({
+        viewControlResourceToExcludeMap: {}
+    });
+    const handler = new McpToolHandler({ searchBundleOperation, r4ArgsParser, patientDataViewControlManager });
+    return { handler, searchBundleOperation, r4ArgsParser, patientDataViewControlManager };
 }
 
 describe('McpToolHandler', () => {
@@ -760,8 +789,8 @@ describe('McpToolHandler', () => {
         });
 
         test('calls searchBundleAsync with parsed args and returns the bundle as JSON text', async () => {
-            const { handler, searchBundleOperation, r4ArgsParser } = createHandler();
-            const fhirRequestInfo = { user: 'test-user' };
+            const { handler, searchBundleOperation, r4ArgsParser, patientDataViewControlManager } = createHandler();
+            const fhirRequestInfo = { user: 'test-user', isUser: false };
             jestGlobal.spyOn(httpContext, 'get').mockImplementation(
                 (key) => (key === MCP_REQUEST_INFO_CONTEXT_KEY ? fhirRequestInfo : undefined)
             );
@@ -771,11 +800,37 @@ describe('McpToolHandler', () => {
             const result = await handler.handleSearchToolCall({ resourceType: 'Patient', args: { name: 'Smith' } });
 
             expect(r4ArgsParser.parseArgs).toHaveBeenCalledWith({ resourceType: 'Patient', args: { name: 'Smith' } });
+            expect(patientDataViewControlManager.getConsentAsync).not.toHaveBeenCalled();
             expect(searchBundleOperation.searchBundleAsync).toHaveBeenCalledWith(
                 expect.objectContaining({ requestInfo: fhirRequestInfo, resourceType: 'Patient', useAggregationPipeline: false })
             );
             expect(result.content[0].text).toBe(JSON.stringify(bundle));
             expect(result.isError).toBeUndefined();
+        });
+
+        test('excludes patient-data-connection-view-control-hidden ids for a patient-scoped caller', async () => {
+            const { handler, searchBundleOperation, r4ArgsParser, patientDataViewControlManager } = createHandler();
+            const fhirRequestInfo = { user: 'test-patient-user', isUser: true };
+            jestGlobal.spyOn(httpContext, 'get').mockImplementation(
+                (key) => (key === MCP_REQUEST_INFO_CONTEXT_KEY ? fhirRequestInfo : undefined)
+            );
+            const parsedArgs = { parsedArgItems: [], 'add': jestGlobal.fn() };
+            r4ArgsParser.parseArgs.mockReturnValue(parsedArgs);
+            patientDataViewControlManager.getConsentAsync.mockResolvedValue({
+                viewControlResourceToExcludeMap: { Observation: ['hidden-obs-1'] }
+            });
+            searchBundleOperation.searchBundleAsync.mockResolvedValue({ resourceType: 'Bundle', entry: [] });
+
+            await handler.handleSearchToolCall({ resourceType: 'Observation', args: {} });
+
+            expect(patientDataViewControlManager.getConsentAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ requestInfo: fhirRequestInfo })
+            );
+            expect(searchBundleOperation.searchBundleAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    parsedArgs: expect.objectContaining({ '_id:not': ['hidden-obs-1'] })
+                })
+            );
         });
 
         test('returns an error result when searchBundleAsync throws', async () => {
@@ -846,6 +901,8 @@ const httpContext = require('express-http-context');
 const { assertTypeEquals } = require('../utils/assertType');
 const { SearchBundleOperation } = require('../operations/search/searchBundle');
 const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
+const { PatientDataViewControlManager } = require('../utils/patientDataViewController');
+const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { mcpToolsByResourceType } = require('./tools');
 const { genericFhirSearchTool, DEDICATED_RESOURCE_TYPES } = require('./genericFhirSearchTool');
 const { MCP_REQUEST_INFO_CONTEXT_KEY } = require('../constants');
@@ -855,12 +912,15 @@ class McpToolHandler {
      * @param {Object} params
      * @param {SearchBundleOperation} params.searchBundleOperation
      * @param {R4ArgsParser} params.r4ArgsParser
+     * @param {PatientDataViewControlManager} params.patientDataViewControlManager
      */
-    constructor ({ searchBundleOperation, r4ArgsParser }) {
+    constructor ({ searchBundleOperation, r4ArgsParser, patientDataViewControlManager }) {
         this.searchBundleOperation = searchBundleOperation;
         assertTypeEquals(searchBundleOperation, SearchBundleOperation);
         this.r4ArgsParser = r4ArgsParser;
         assertTypeEquals(r4ArgsParser, R4ArgsParser);
+        this.patientDataViewControlManager = patientDataViewControlManager;
+        assertTypeEquals(patientDataViewControlManager, PatientDataViewControlManager);
     }
 
     /**
@@ -913,6 +973,24 @@ class McpToolHandler {
         }
         try {
             const parsedArgs = this.r4ArgsParser.parseArgs({ resourceType, args });
+
+            // Patient data-connection-view-control (consent-based) exclusion -- mirrors
+            // src/graphqlv2/dataSource.js's getParsedArgsAsync. Deliberately re-fetched on every
+            // call rather than cached on `this`: McpToolHandler is a singleton shared across every
+            // request/tenant, unlike FhirDataSource which is constructed fresh per GraphQL request,
+            // so caching this on instance state would leak one request's exclude-list into another.
+            if (fhirRequestInfo.isUser) {
+                const { viewControlResourceToExcludeMap } = await this.patientDataViewControlManager.getConsentAsync({
+                    requestInfo: fhirRequestInfo,
+                    base_version: VERSIONS['4_0_0'],
+                    raiseErrorForMissingUserOwner: false
+                });
+                const resourceExcludeIds = viewControlResourceToExcludeMap?.[resourceType] || [];
+                if (resourceExcludeIds.length > 0) {
+                    parsedArgs['_id:not'] = resourceExcludeIds;
+                }
+            }
+
             const bundle = await this.searchBundleOperation.searchBundleAsync({
                 requestInfo: fhirRequestInfo,
                 parsedArgs,
@@ -932,7 +1010,7 @@ module.exports = { McpToolHandler };
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: `nvm use && node node_modules/.bin/jest src/tests/unit/mcp/mcpToolHandler.test.js -v`
-Expected: `6 passed`.
+Expected: `7 passed`.
 
 - [ ] **Step 5: Commit**
 
@@ -949,7 +1027,9 @@ git commit -m "Add McpToolHandler bridging MCP tool calls to SearchBundleOperati
 - Modify: `src/createContainer.js`
 
 **Interfaces:**
-- Consumes: existing `c.searchBundleOperation`, `c.r4ArgsParser` registrations.
+- Consumes: existing `c.searchBundleOperation`, `c.r4ArgsParser`, `c.patientDataViewControlManager`
+  registrations (`src/createContainer.js:1330` for the last one — same instance GraphQL's
+  `dataSource.js` uses).
 - Produces: `container.mcpToolHandler` (an `McpToolHandler` instance) — consumed by `McpServer`
   (Task 8).
 
@@ -975,7 +1055,8 @@ container.register('r4ArgsParser', (c) => new R4ArgsParser({
 
 container.register('mcpToolHandler', (c) => new McpToolHandler({
     searchBundleOperation: c.searchBundleOperation,
-    r4ArgsParser: c.r4ArgsParser
+    r4ArgsParser: c.r4ArgsParser,
+    patientDataViewControlManager: c.patientDataViewControlManager
 }));
 ```
 
@@ -1139,7 +1220,10 @@ git commit -m "Add McpServer route handler wrapping createMcpHandler/toNodeHandl
   imported in `app.js`).
 - Produces: a live `POST /mcp` route, authenticated the same way as `/4_0_0/$graphqlv2` **and**
   blocking CMS-partner-user tokens the same way GraphQL does (see Global Constraints — this is a
-  required behavior, not optional hardening; see design doc §5 for why).
+  required behavior, not optional hardening; see design doc §5 for why), **and** flushing the
+  post-response audit queue the same way GraphQL does (see Step 2's `mcpRequestCleanup` middleware —
+  without it, PHI-read audit entries for every `/mcp` request are silently dropped and
+  `PostRequestProcessor`/`RequestSpecificCache` leak one entry per request; see design doc §5).
 
 - [ ] **Step 1: Add imports**
 
@@ -1183,6 +1267,27 @@ before the `passport.use('graphqlStrategy', ...)` line, insert:
     mcpRouter.use(express.json());
     mcpRouter.use(function buildMcpRequestContext (req, res, next) {
         httpContext.set(MCP_REQUEST_INFO_CONTEXT_KEY, FhirRequestInfoBuilder.fromRequest(req));
+        next();
+    });
+    // Required, not optional: SearchBundleOperation only *queues* the PHI-read audit entry (via
+    // postRequestProcessor.add) against the current requestId -- nothing drains that queue
+    // automatically. REST (generic.controller.js) and GraphQL (graphqlPostRequestCleanup /
+    // graphqlV2PostRequestCleanup above) both flush it explicitly after the response is sent.
+    // Without this, every /mcp read silently never gets audited, and PostRequestProcessor /
+    // RequestSpecificCache leak one entry per request. See design doc §5.
+    mcpRouter.use(function mcpRequestCleanup (req, res, next) {
+        res.once('finish', async () => {
+            const container1 = req.container;
+            if (container1) {
+                const postRequestProcessor = container1.postRequestProcessor;
+                if (postRequestProcessor) {
+                    const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+                    const requestSpecificCache = container1.requestSpecificCache;
+                    await postRequestProcessor.executeAsync({requestId});
+                    await requestSpecificCache.clearAsync({requestId});
+                }
+            }
+        });
         next();
     });
     mcpRouter.use(new McpServer(fnGetContainer).getRouter());
@@ -1299,6 +1404,28 @@ describe('/mcp endpoint', () => {
         // forbidForUserTypes line from Task 9 as a well-meaning "unused import" cleanup.
     });
 
+    test('a patient-scoped caller does not see a resource hidden via data-connection-view-control consent', async () => {
+        // Seed a Patient/Observation the way an existing consent-based-data-access test does (search
+        // src/tests for patientDataViewControlManager/data-connection-view-control fixtures), then
+        // create a Consent (category data-connection-view-control) hiding that Observation from the
+        // test client. Issue the MCP search_observation/fhir_search call with that client's
+        // patient-scoped token and assert the hidden Observation is absent from the result --
+        // mirroring whatever existing GraphQL test proves the same exclusion for getParsedArgsAsync.
+        // This is the regression test for the consent-exclusion gap found during planning (design
+        // doc §5 / Task 6) -- do not skip it, it is the only thing that would catch someone later
+        // removing the getConsentAsync step from handleSearchToolCall as unnecessary.
+    });
+
+    test('a PHI read via /mcp is written to the audit log the same way REST/GraphQL reads are', async () => {
+        // Issue an authenticated search_patient (or fhir_search) call that returns a non-empty
+        // result, then assert an audit entry was recorded for it -- mirror however an existing
+        // REST/GraphQL search integration test asserts on auditLogger/AuditEvent output (search
+        // src/tests for an existing audit-log assertion on a search path). This is the regression
+        // test for the missing post-response flush gap found during planning (design doc §5 / Task
+        // 9's mcpRequestCleanup) -- do not skip it, it is the only thing that would catch someone
+        // later removing the mcpRequestCleanup middleware from app.js as unnecessary boilerplate.
+    });
+
     test('two concurrent /mcp requests from different scoped tokens never cross-see each other\'s FhirRequestInfo', async () => {
         // Fire two POST /mcp requests concurrently (Promise.all) with two different patient-scoped
         // or tenant-scoped tokens, each searching for data only visible to its own scope. Assert
@@ -1333,7 +1460,7 @@ assertions copied from the reference test).
 - [ ] **Step 3: Fill in the real test bodies and re-run until green**
 
 Run: `nvm use && node node_modules/.bin/jest src/tests/mcp/mcpEndpoint.integration.test.js -v`
-Expected: `9 passed`.
+Expected: `11 passed`.
 
 - [ ] **Step 4: Run the full test suite to check for regressions**
 
@@ -1363,7 +1490,8 @@ git commit -m "Add /mcp integration tests: dedicated tool, generic tool, scope e
 **Spec coverage** (against `docs/superpowers/specs/2026-08-05-mcp-endpoint-design.md`):
 - §3 Architecture (McpServer/McpToolHandler split, httpContext bridging) → Tasks 6, 8, 9. ✓
 - §4 Code generation (Jinja2, curated list, generated barrel) → Tasks 2, 3. ✓
-- §5 Auth & scope enforcement (reuse passport, `FhirRequestInfoBuilder`, no new authz logic) → Task 9. ✓
+- §5 Auth & scope enforcement (reuse passport, `FhirRequestInfoBuilder`, CMS-partner-user block,
+  consent exclusion, audit-log flush) → Tasks 6, 9. ✓
 - §6 Error handling (`isError` mapping) → Task 6. ✓
 - §7 Testing (integration suite, scope enforcement regression) → Task 10. ✓
 - §8 Example tool calls (date+modifier combo, token/reference combo, generic-tool rejection) → Task 10's
@@ -1418,10 +1546,26 @@ identically in Task 4 (`genericFhirSearchTool.js`) and Task 6 (`mcpToolHandler.j
    classes (not just the FHIR spec), keyed by `SearchParameter.type` and generated once, then folded
    into every parameter's `mcp_description` and into the generic tool's hand-written cheat sheet.
 
-**Process note:** item 3 above is a concrete example of why "GraphQL already does X, so this can too"
-needs verification against actual source before it goes in a plan — the original draft's claim was
-directionally right (skip the per-call check) but incomplete in a way that would have shipped a real
-access-control regression had it not been questioned before implementation started.
+**Two additional gaps found and fixed during PR review (2026-08-06):** the same "inherited for free
+from `SearchBundleOperation`" claim that item 3 already corrected once for the CMS-partner-user
+allowlist had two more exceptions, both caught by adversarial review of this plan before
+implementation started (per `CLAUDE.md`'s security-sensitive-changes rule): (a) the patient
+data-connection-view-control (consent) exclusion lives in `dataSource.js`/`everythingHelper.js`, not
+in `SearchBundleOperation` itself, so `McpToolHandler` would have silently skipped it — fixed by
+adding the `getConsentAsync` step to Task 6, with an explicit note not to cache the result on
+`McpToolHandler`'s instance state the way `dataSource.js` does, since the latter is per-request and
+the former is a shared singleton; and (b) the post-response audit-log flush
+(`postRequestProcessor.executeAsync`/`requestSpecificCache.clearAsync`) that REST and GraphQL both
+perform via a `res.once('finish', ...)` handler was entirely absent from Task 9's router, which would
+have silently dropped every `/mcp` PHI-read audit entry and leaked a cache entry per request — fixed
+by adding the `mcpRequestCleanup` middleware to Task 9, mirroring `graphqlPostRequestCleanup` exactly.
+Task 10 gained one regression test for each.
+
+**Process note:** item 3 above, and the two gaps immediately above, are concrete examples of why
+"GraphQL already does X, so this can too" needs verification against actual source before it goes in
+a plan — each original claim was directionally right (reuse `SearchBundleOperation`'s enforcement) but
+incomplete in a way that would have shipped a real access-control or audit-trail regression had it not
+been questioned before implementation started.
 
 ---
 

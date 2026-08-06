@@ -32,11 +32,15 @@ definitions.
   inputSchema }` objects only. A single hand-written `McpToolHandler` interprets any tool call
   (dedicated or generic) the same way — this mirrors how generated GraphQL resolvers are thin and
   delegate to shared hand-written classes.
-- **Auth/scope enforcement is inherited, not reimplemented.** `FhirRequestInfo` is built from the
-  incoming HTTP request exactly as `FhirRequestInfoBuilder.fromRequest(req)` does for REST/GraphQL/
-  admin today. Because SMART scope checks and patient/tenant/security-tag filtering live inside
-  `SearchBundleOperation`/`SearchManager` (not in REST-only middleware), MCP gets the same enforcement
-  "for free" once it passes a correctly-built `FhirRequestInfo` — exactly how GraphQL does it today.
+- **Auth/scope enforcement is inherited, not reimplemented — with three named exceptions.**
+  `FhirRequestInfo` is built from the incoming HTTP request exactly as
+  `FhirRequestInfoBuilder.fromRequest(req)` does for REST/GraphQL/admin today. Because SMART scope
+  checks and patient/tenant/security-tag filtering live inside `SearchBundleOperation`/`SearchManager`
+  (not in REST-only middleware), MCP gets that filtering "for free" once it passes a correctly-built
+  `FhirRequestInfo`. Three mechanisms live in the *callers* of `SearchBundleOperation` instead, and so
+  are not inherited for free — each requires explicit handling in the plan, detailed in §5: the
+  CMS-partner-user resource-type allowlist, the patient data-connection-view-control (consent)
+  exclusion, and the post-response audit-log flush.
 
 ## 1. Problem / Goal
 
@@ -182,6 +186,41 @@ precedent — but that precedent was verified provider-by-provider, not assumed 
 use (`app.js:441,447,482`), because that block — not a `verifyAccess` call — is what keeps CMS-partner
 tokens off GraphQL's unrestricted-by-resource-type search path. Without it, MCP would let a
 CMS-partner token (normally locked to `Patient`-only GET searches on REST) search any resource type.
+
+**Second gap found during review: patient data-connection-view-control (consent) exclusion.** The
+"enforcement is inherited... exactly how GraphQL does it today" claim above is incomplete for one
+specific mechanism. `src/graphqlv2/dataSource.js`'s `getParsedArgsAsync` and
+`src/operations/everything/everythingHelper.js` both call
+`patientDataViewControlManager.getConsentAsync(...)` and merge the returned per-resource-type
+exclude-id map into `parsedArgs['_id:not']` **before** calling `searchBundleAsync` — this exclusion
+lives in the *callers* of `SearchBundleOperation`, not inside `SearchBundleOperation`/`SearchManager`/
+`R4ArgsParser` themselves, so it is not inherited "for free" by anything that calls
+`searchBundleAsync` directly. Concretely: a patient uses a connected app whose OAuth client is in
+`configManager.clientsWithDataConnectionViewControl`; the patient creates a `Consent`
+(data-connection-view-control category) hiding a specific `Observation` from that app; the app's
+GraphQL query for `Observation` correctly excludes it via the `getConsentAsync` step, but the same
+app calling `/mcp`'s `search_observation` (or generic `fhir_search`) tool with an equivalent query
+would return it, since `McpToolHandler` skips that step — a real PHI exposure relative to GraphQL.
+**Fix (required, not optional):** `McpToolHandler.handleSearchToolCall` must perform the same
+`getConsentAsync` exclusion step for patient-scoped callers (`requestInfo.isUser`) before calling
+`searchBundleAsync` — see implementation plan Task 6 for the exact merge logic and the singleton-
+caching pitfall to avoid (`McpToolHandler` is shared across requests, unlike `FhirDataSource`, so the
+consent result must be re-fetched per call, not cached on instance state).
+
+**Third gap found during review: the post-response audit-log flush.** `SearchBundleOperation`
+(`src/operations/search/searchBundle.js`) does not write the PHI-access audit entry synchronously —
+for a successful, non-empty, non-`AuditEvent` read it only *queues* it via
+`postRequestProcessor.add({requestId, fnTask})`, deliberately deferred so the response isn't held up.
+Nothing automatically drains that queue; every existing caller does it explicitly after the response
+is sent: REST's `generic.controller.js` calls `postRequestProcessor.executeAsync({requestId})` +
+`requestSpecificCache.clearAsync({requestId})` per action, and GraphQL v1/v2 register
+`res.once('finish', ...)` handlers in `src/app.js` (`graphqlPostRequestCleanup` /
+`graphqlV2PostRequestCleanup`) that call the same two methods. Task 9's `/mcp` router did not.
+**Impact:** every FHIR resource read through `/mcp` would be silently absent from the audit trail —
+a HIPAA-relevant gap for a healthcare FHIR server — plus an unbounded per-`requestId` memory leak in
+`PostRequestProcessor`/`RequestSpecificCache`, since nothing else ever calls `clearAsync` for those
+requests. **Fix (required, not optional):** Task 9 adds an `mcpRequestCleanup` middleware to the
+`/mcp` router mirroring `graphqlPostRequestCleanup`/`graphqlV2PostRequestCleanup` exactly.
 
 **`review.md` check (Section D — request-scoped state on singletons):** `McpToolHandler` is
 registered once in the IoC container and shared across every request/tenant, but it holds no
