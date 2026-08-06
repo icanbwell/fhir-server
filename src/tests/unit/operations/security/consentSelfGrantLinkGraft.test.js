@@ -208,11 +208,16 @@ describe('SEC-1580 W-chain: consent self-grant + Person.link graft (Task 1.1)', 
     test('control: a legitimate self-granted consent for Tenant B\'s own already-linked patient still works', async () => {
         const request = await createTestRequest();
 
-        // Tenant B's own PROA-connected patient, already linked from Tenant B's Person from the
-        // start -- no link graft involved. This must keep working; the eventual fix must not
-        // overcorrect into rejecting all self-granted consent.
-        const patBProa = patient('patBProa', 'tenant_b', { connectionType: 'proa' });
-        const obsBProa = observation('obsBProa', 'tenant_b', 'patBProa');
+        // A PROA-connected patient owned/accessed by a DISTINCT source tenant (not Tenant B, not
+        // Tenant A), already linked from Tenant B's Person from the start -- no link graft
+        // involved. This must keep working; the eventual fix must not overcorrect into rejecting
+        // all self-granted consent. The owner/access tag must differ from the caller's own tenant
+        // (tenant_b) -- otherwise the base access-tag branch of the $everything query alone would
+        // already match this data (dataSharingManager.updateQueryConsideringDataSharing only ever
+        // widens the query via `$or`, never narrows it), and the test would pass regardless of
+        // whether the self-granted-consent bridge actually works.
+        const patBProa = patient('patBProa', 'tenant_proa_source', { connectionType: 'proa' });
+        const obsBProa = observation('obsBProa', 'tenant_proa_source', 'patBProa');
         const patB = patient('patB', 'tenant_b');
         const personB = person('personB', 'tenant_b', ['Patient/patB', 'Patient/patBProa']);
 
@@ -222,12 +227,19 @@ describe('SEC-1580 W-chain: consent self-grant + Person.link graft (Task 1.1)', 
             .set(getHeaders());
         expect(mergeResp).toHaveMergeResponse({ created: true });
         const personBUuid = uuidOf(mergeResp.body, 'personB');
+        // Reference patBProa by its real _uuid, not the bare source id: patBProa's owning
+        // tenant (tenant_proa_source) now differs from this Consent's own tenant (tenant_b), and
+        // a bare cross-tenant reference gets "enriched" by assuming the SAME authority as the
+        // referencing resource (tenant_b) -- resolving to a different, nonexistent _uuid and
+        // making the consent-bridge query silently match nothing (same pitfall documented on the
+        // W-chain test above).
+        const patBProaUuid = uuidOf(mergeResp.body, 'patBProa');
 
         const tenantBHeaders = getHeaders('user/*.read user/*.write access/tenant_b.*');
 
         const consentResp = await request
             .post('/4_0_0/Consent/$merge')
-            .send(selfGrantedConsent('consentBLegit', 'tenant_b', 'Patient/patBProa'))
+            .send(selfGrantedConsent('consentBLegit', 'tenant_b', `Patient/${patBProaUuid}`))
             .set(tenantBHeaders);
         expect(consentResp).toHaveMergeResponse({ created: true });
 
