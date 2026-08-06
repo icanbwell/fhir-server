@@ -113,32 +113,59 @@ Express app (src/app.js)
 
 ## 4. Code generation
 
-New generator, following the existing Jinja2 convention:
+New generator, following the existing Jinja2 convention. Finalized in the implementation plan (see
+`docs/superpowers/plans/2026-08-05-mcp-endpoint.md` Task 2) after this section's first draft turned
+out to be inaccurate in two ways once actually written: (1) it isn't necessary to consume
+`generate_resource_fields_type.get_resources_fields_data()` at all — REST/GraphQL query args are
+always flat strings regardless of the FHIR type, so every generated field is simply
+`z.string().optional()`, with no JSON-Schema-type mapping to do; (2) a bare `(type)` suffix on each
+field's description (the original plan) isn't enough for an agent to actually *write* a correct
+filter value — FHIR's per-type value syntax (date/number comparator prefixes, `token`'s `system|code`,
+`quantity`'s `value|system|code`, `reference`'s `ResourceType/id`) needs to be spelled out, or an
+agent has no way to know, say, that a "before this date" search means prefixing the value with `le`
+rather than putting `le` in the parameter name. That per-type syntax is fixed by this server's actual
+filter implementations, not by the resource — so it's generated **once**, as a lookup table keyed by
+`SearchParameter.type`, and reused for every resource/parameter, rather than repeated by hand:
 
-- `generatorScripts/mcp/generate_mcp_tools.py` — reads the same parsed `search-parameters.json`
-  structure the search-parameters generator already produces (reuse, don't refork, its parsing) plus
-  `generate_resource_fields_type.get_resources_fields_data()` for field typing.
+- `generatorScripts/mcp/generate_mcp_tools.py` — reads the same `search-parameters.json` bundle the
+  existing search-parameters generator reads (independently, since that script doesn't expose a
+  reusable parsing function — see the plan for the tradeoff). Contains a `TYPE_VALUE_SYNTAX_HINTS`
+  dict, keyed by `SearchParameter.type`, verified line-by-line against this repo's actual filter
+  classes (`src/operations/query/filters/*.js` + `src/utils/querybuilder.util.js`) rather than the
+  FHIR spec text alone — the spec and this server's implementation don't always agree (e.g. this
+  server's `canonical` filter does a plain exact match; it does **not** parse the `|version` suffix
+  the spec generally allows, so the hint doesn't claim it does). Each generated field's description is
+  `"<FHIR description> (<type>[: target types]) <type-specific syntax hint>"`.
 - `generatorScripts/mcp/template.mcp_tool.jinja2` — renders one `src/mcp/tools/<resource>.tool.js` per
-  **commonly-used** resource: an MCP `Tool` definition (`name: 'search_<resource>'`, `description`,
-  `resourceType`, `inputSchema`), where each search parameter's `SearchParameterDefinition.type` maps
-  to a JSON Schema type (`token`/`string`/`uri`/`email`/`phone` → `string`; `number`/`quantity` →
-  `number`; `date`/`datetime`/`instant`/`period` → `string` with `format: date-time` note in
-  description; `reference` → `string`, with the `target` array folded into the property description).
+  **commonly-used** resource: an MCP tool definition (`name: 'search_<resource>'`, `resourceType`,
+  `description`, `inputSchema`), where `inputSchema` is a Zod object with one `z.string().optional()`
+  field per search parameter (including `_id`, `_lastUpdated`, `_count`, `_sort`, added generically to
+  every resource) plus `.passthrough()` so a caller can pass FHIR search modifiers as extra key
+  suffixes.
+- The tool-level `description` also states, once, the modifier list (`:missing`, `:not`, `:contains`,
+  `:exact`, `:above`, `:below`, `:text`, `:of-type`) and the comma-separated-OR convention — both
+  verified as type-independent (accepted for any parameter at the code level, per
+  `src/operations/query/r4.js`'s modifier dispatch running before the type-specific filter switch, and
+  `src/operations/query/r4ArgsParser.js`/`queryParameterValue.js` splitting on `,` before any
+  type-specific filter runs) — so, like the syntax table, it's written once rather than per-field.
 - `src/mcp/tools/index.js` — generated barrel exporting every dedicated tool definition, analogous to
   `src/searchParameters/index.js`.
-- **Commonly-used resource list**: a small **hand-maintained** (not generated) JSON/JS file — single
+- **Commonly-used resource list**: a small **hand-maintained** (not generated) JSON file — single
   source of truth consumed both by the generator (which resources get a dedicated generated file) and
   by `McpToolHandler` at runtime (dedicated-tool-name → resourceType lookup vs. falling through to the
-  generic tool for anything not in the list). Proposed starting list (confirm in Open Questions):
+  generic tool for anything not in the list). Confirmed list:
   `Patient, Observation, Condition, MedicationRequest, AllergyIntolerance, Immunization, Procedure,
   DiagnosticReport, Encounter, CarePlan, Coverage, DocumentReference, Practitioner, Organization`.
 - `make mcp` target added to the `Makefile` alongside the existing `make searchParameters`, and wired
   into `make generate`.
 
 The generic `fhir_search` tool is hand-written (not generated) since its schema is intentionally
-resource-agnostic: `resourceType` (enum of all profiled resource types minus the dedicated list) plus
-a generic `filters` object of string key/value pairs passed through verbatim to `R4ArgsParser`,
-matching REST query-param semantics.
+resource-agnostic: `resourceType` (any resource type not in the dedicated list) plus a generic
+`filters` object of string key/value pairs passed through verbatim to `R4ArgsParser`, matching REST
+query-param semantics. Because it has no per-parameter schema to attach a type-specific hint to, its
+description instead spells out a compact version of the same syntax cheat sheet covering every type
+at once — kept in sync by hand with the generator's `TYPE_VALUE_SYNTAX_HINTS` (flagged in the plan as
+a manual-sync point worth watching).
 
 ## 5. Auth & scope enforcement
 

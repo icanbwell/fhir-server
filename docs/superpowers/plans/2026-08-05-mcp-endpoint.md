@@ -181,7 +181,7 @@ const { z } = require('zod/v4');
 const tool = {
     name: '{{ tool_name }}',
     resourceType: '{{ resource_type }}',
-    description: 'Search FHIR {{ resource_type }} resources using its supported search parameters. Append \':modifier\' to a parameter name (e.g. \'name:contains\') to use a FHIR search modifier.',
+    description: '{{ tool_description }}',
     inputSchema: z.object({
 {% for param in params %}
         '{{ param.code }}': z.string().optional().describe('{{ param.mcp_description }}'){% if not loop.last %},{% endif %}
@@ -225,6 +225,40 @@ COMMON_PARAMS: List[Dict[str, Any]] = [
     {"code": "_sort", "type": "string", "description": "Comma-separated fields to sort by; prefix a field with '-' for descending.", "target": []},
 ]
 
+# How to actually *write* a filter value for each FHIR SearchParameter.type, verified against this
+# repo's own filter implementations (src/operations/query/filters/*.js + src/utils/querybuilder.util.js),
+# not just the FHIR spec text -- a server's exact accepted syntax can differ in the details (e.g.
+# this repo's `canonical` filter does a plain exact match; it does not parse a spec-allowed
+# '|version' suffix, so documenting that suffix here would be wrong). Keyed by SearchParameter.type,
+# so this is written once and applied to every resource/parameter -- exactly the kind of thing that
+# belongs in the generator rather than hand-copied into each tool's description.
+## Sources verified for each entry below (not shipped in the description text itself):
+## date/dateTime/instant/period -> src/operations/query/filters/dateTime.js + querybuilder.util.js:dateQueryBuilder
+## number                       -> src/operations/query/filters/number.js:numberQueryBuilder
+## quantity                     -> src/operations/query/filters/quantity.js:quantityQueryBuilder
+## token                        -> src/operations/query/filters/token.js:tokenQueryBuilder
+## reference                    -> src/operations/query/filters/reference.js + utils/referenceParser.js
+## string                       -> src/operations/query/filters/string.js
+## uri                          -> src/operations/query/filters/uri.js
+## canonical                    -> src/operations/query/filters/canonical.js (plain exact match --
+##                                  this server does NOT parse a '|version' suffix, unlike the FHIR
+##                                  spec's general allowance for one; do not claim it does)
+TYPE_VALUE_SYNTAX_HINTS: Dict[str, str] = {
+    "date": "Prefix the value with a comparator for a range match: eq, ne, gt, lt, ge, le, sa, eb, ap (e.g. 'ge2020-01-01'). Omit the prefix for an exact match.",
+    "dateTime": "Prefix the value with a comparator for a range match: eq, ne, gt, lt, ge, le, sa, eb, ap (e.g. 'ge2020-01-01'). Omit the prefix for an exact match.",
+    "instant": "Prefix the value with a comparator for a range match: eq, ne, gt, lt, ge, le, sa, eb, ap (e.g. 'ge2020-01-01T00:00:00Z'). Omit the prefix for an exact match.",
+    "period": "Prefix the value with a comparator for a range match: eq, ne, gt, lt, ge, le, sa, eb, ap (e.g. 'ge2020-01-01'). Omit the prefix for an exact match.",
+    "number": "Prefix the value with a comparator for a range match: eq, ne, gt, lt, ge, le, sa, eb, ap (e.g. 'ge5'). Omit the prefix for an exact match.",
+    "quantity": "Format: '[comparator]value|system|code', e.g. 'ge5.4|http://unitsofmeasure.org|mg'. system and code may be omitted.",
+    "token": "Format: 'system|code', or bare 'code' to match any system.",
+    "reference": "Format: 'ResourceType/id', or bare 'id' to match against any of this parameter's allowed target types.",
+    "string": "Case-insensitive; matches values starting with the given text by default. Append ':exact' to the parameter name for an exact match, or ':contains' for a substring match anywhere in the value.",
+    "uri": "Exact match by default. Append ':above' or ':below' to the parameter name for hierarchical URI matching.",
+    "canonical": "Exact match on the canonical URL value.",
+    "email": "Bare email value, e.g. 'foo@example.com'.",
+    "phone": "Bare phone value.",
+}
+
 
 def load_search_parameters_by_resource() -> Dict[str, List[Dict[str, Any]]]:
     with open(SEARCH_PARAMETERS_JSON, "r") as f:
@@ -261,6 +295,9 @@ def format_mcp_description(param: Dict[str, Any]) -> str:
     if param.get("target"):
         suffix += f": {' | '.join(param['target'])}"
     suffix += ")"
+    syntax_hint = TYPE_VALUE_SYNTAX_HINTS.get(param["type"])
+    if syntax_hint:
+        suffix += f" {syntax_hint}"
     return text + suffix
 
 
@@ -286,6 +323,30 @@ def render_index_js(resource_types: List[str], file_names: List[str]) -> str:
     return "".join(lines)
 
 
+# Modifiers accepted on ANY search parameter regardless of type, verified against
+# src/operations/query/r4.js's modifier dispatch (checked before the type-specific filter switch,
+# so it is not gated per-type at the code level even though only some are spec-meaningful for a
+# given type -- e.g. ':contains' is meaningful for 'string' but not 'date'). Comma-separated OR
+# values are likewise universal, verified against src/operations/query/r4ArgsParser.js:131 and
+# src/operations/query/queryParameterValue.js:52 (both split on ',' before any type-specific
+# filter runs). This sentence is generated once and reused for every tool, rather than repeated
+# per-resource, since it's identical for all of them.
+GENERIC_SEARCH_CONVENTIONS = (
+    "Comma-separate multiple values for the same parameter to OR them (e.g. 'active,inactive'). "
+    "Every parameter also accepts these FHIR search modifiers by appending ':modifier' to the "
+    "parameter name: :missing, :not, :contains, :exact, :above, :below, :text, :of-type (not every "
+    "modifier is meaningful for every parameter -- see each parameter's own description for its "
+    "expected value syntax)."
+)
+
+
+def build_tool_description(resource_type: str) -> str:
+    return (
+        f"Search FHIR {resource_type} resources using its supported search parameters. "
+        f"{GENERIC_SEARCH_CONVENTIONS}"
+    )
+
+
 def main() -> int:
     search_parameters_by_resource = load_search_parameters_by_resource()
     commonly_used_resources = load_commonly_used_resources()
@@ -305,6 +366,7 @@ def main() -> int:
         rendered = template.render(
             resource_type=resource_type,
             tool_name=f"search_{file_name}",
+            tool_description=build_tool_description(resource_type).replace("'", "\\'"),
             params=params,
         )
         file_path = OUTPUT_DIR.joinpath(f"{file_name}.tool.js")
@@ -342,13 +404,44 @@ import generate_mcp_tools  # noqa: E402
 def test_format_mcp_description_includes_type():
     param = {"code": "birthdate", "type": "date", "description": "The patient's DOB", "target": []}
     result = generate_mcp_tools.format_mcp_description(param)
-    assert result == "The patient\\'s DOB (date)"
+    assert result == (
+        "The patient\\'s DOB (date) Prefix the value with a comparator for a range match: "
+        "eq, ne, gt, lt, ge, le, sa, eb, ap (e.g. 'ge2020-01-01'). Omit the prefix for an exact match."
+    )
 
 
 def test_format_mcp_description_includes_target_for_references():
     param = {"code": "subject", "type": "reference", "description": "The subject", "target": ["Patient", "Group"]}
     result = generate_mcp_tools.format_mcp_description(param)
-    assert result == "The subject (reference: Patient | Group)"
+    assert result == (
+        "The subject (reference: Patient | Group) Format: 'ResourceType/id', or bare 'id' to match "
+        "against any of this parameter's allowed target types."
+    )
+
+
+def test_format_mcp_description_includes_token_syntax_hint():
+    param = {"code": "identifier", "type": "token", "description": "An identifier", "target": []}
+    result = generate_mcp_tools.format_mcp_description(param)
+    assert "Format: 'system|code', or bare 'code' to match any system." in result
+
+
+def test_format_mcp_description_includes_quantity_syntax_hint():
+    param = {"code": "value-quantity", "type": "quantity", "description": "The value", "target": []}
+    result = generate_mcp_tools.format_mcp_description(param)
+    assert "'[comparator]value|system|code'" in result
+
+
+def test_format_mcp_description_falls_back_gracefully_for_unmapped_type():
+    param = {"code": "special-param", "type": "special", "description": "Something unusual", "target": []}
+    result = generate_mcp_tools.format_mcp_description(param)
+    assert result == "Something unusual (special)"
+
+
+def test_build_tool_description_mentions_modifiers_and_comma_or():
+    result = generate_mcp_tools.build_tool_description("Patient")
+    assert "Patient" in result
+    assert ":contains" in result
+    assert "Comma-separate" in result
 
 
 def test_dedupe_by_code_keeps_first_occurrence():
@@ -389,7 +482,7 @@ run it now to confirm the script as written is correct; if any assertion fails, 
 - [ ] **Step 6: Run the tests and confirm they pass**
 
 Run the same command as Step 5.
-Expected: `6 passed`.
+Expected: `10 passed`.
 
 - [ ] **Step 7: Commit**
 
@@ -524,20 +617,36 @@ const { mcpToolsByResourceType } = require('./tools');
 
 const DEDICATED_RESOURCE_TYPES = new Set(Object.keys(mcpToolsByResourceType));
 
+// Filter value syntax varies by the target search parameter's FHIR type, which this generic tool
+// (unlike the dedicated per-resource tools) has no per-parameter schema to hang a type-specific hint
+// off of -- so this cheat sheet is spelled out once, covering every type, instead of silently
+// leaving callers to guess. Kept in sync by hand with generatorScripts/mcp/generate_mcp_tools.py's
+// TYPE_VALUE_SYNTAX_HINTS (Task 2), which is the source of truth for the dedicated tools' per-field
+// hints -- if that table changes, update this string too.
+const FILTER_VALUE_SYNTAX_CHEAT_SHEET =
+    'Value syntax by parameter type: date/dateTime/instant/period/number -- optionally prefix the ' +
+    "value with a comparator (eq, ne, gt, lt, ge, le, sa, eb, ap), e.g. 'ge2020-01-01'. quantity -- " +
+    "'[comparator]value|system|code', e.g. 'ge5.4|http://unitsofmeasure.org|mg'. token -- 'system|code' " +
+    "or bare 'code'. reference -- 'ResourceType/id' or bare 'id'. string -- case-insensitive " +
+    "starts-with by default. uri/canonical -- exact match. Comma-separate multiple values for the " +
+    "same filter to OR them. Append ':modifier' to a filter key for: :missing, :not, :contains, " +
+    ':exact, :above, :below, :text, :of-type.';
+
 const genericFhirSearchTool = {
     name: 'fhir_search',
     description:
         'Search any FHIR resource type not covered by a dedicated search_<resource> tool ' +
         `(dedicated tools already exist for: ${[...DEDICATED_RESOURCE_TYPES].sort().join(', ')}). ` +
         "Provide the target 'resourceType' plus any FHIR search parameters as string values in " +
-        "'filters'. Append ':modifier' to a filter key (e.g. 'name:contains') to use a FHIR search modifier.",
+        `'filters'. ${FILTER_VALUE_SYNTAX_CHEAT_SHEET}`,
     inputSchema: z.object({
         resourceType: z.string().describe(
             'The FHIR resource type to search, e.g. "Practitioner" or "Coverage". Do not use this ' +
             'for a resource type that already has a dedicated search_<resource> tool.'
         ),
         filters: z.record(z.string(), z.string()).optional().describe(
-            'Search parameter name/value pairs, e.g. { "identifier": "12345", "status": "active" }.'
+            'Search parameter name/value pairs, e.g. { "identifier": "12345", "status": "active" }. ' +
+            FILTER_VALUE_SYNTAX_CHEAT_SHEET
         )
     })
 };
@@ -1279,6 +1388,15 @@ identically in Task 4 (`genericFhirSearchTool.js`) and Task 6 (`mcpToolHandler.j
 4. MCP client auth model — bearer-JWT-only (mirroring REST/GraphQL) confirmed sufficient for now; no
    OAuth 2.1 discovery/dynamic client registration in v1.
 5. `$everything`/`$graph`/proxy-patient tools — confirmed excluded from this plan entirely.
+6. Filter value syntax / tool instructions — the user asked directly whether this was handled, and
+   the honest first answer was "partially": FHIR modifiers (`:contains`, `:missing`, etc.) were
+   covered via `.passthrough()` + a description note, but per-type **value** syntax (date/number
+   comparator prefixes, token `system|code`, quantity `value|system|code`, reference `ResourceType/id`)
+   was not — each field's description only carried a bare `(type)` suffix. The user's follow-up
+   ("we should be able to code generate the filters like we do other code gen") was the right fix:
+   Task 2 now builds a `TYPE_VALUE_SYNTAX_HINTS` table, verified against this repo's actual filter
+   classes (not just the FHIR spec), keyed by `SearchParameter.type` and generated once, then folded
+   into every parameter's `mcp_description` and into the generic tool's hand-written cheat sheet.
 
 **Process note:** item 3 above is a concrete example of why "GraphQL already does X, so this can too"
 needs verification against actual source before it goes in a plan — the original draft's claim was
