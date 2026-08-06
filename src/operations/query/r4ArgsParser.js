@@ -17,8 +17,17 @@ const { SearchParametersManager } = require('../../searchParameters/searchParame
 const isPlainObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 
 /**
+ * @param {*} value
+ * @return {boolean} whether value is, or (at any depth of array nesting) contains, an operator object
+ */
+const containsOperatorObject = (value) =>
+    isPlainObject(value) || (Array.isArray(value) && value.some(containsOperatorObject));
+
+/**
  * Removes values MongoDB would interpret as operator expressions. A POST _search body of
- * `url[$gt]=` parses into { $gt: '' } and `url[0][$gt]=` into [{ $gt: '' }].
+ * `url[$gt]=` parses into { $gt: '' }, `url[0][$gt]=` into [{ $gt: '' }], and
+ * `url[0][0][$gt]=` into [[{ $gt: '' }]] -- recurses into arrays at any depth so an extra
+ * pair of brackets can't smuggle an operator object past a shallow check.
  *
  * Returning undefined makes the caller's emptiness checks skip the parameter entirely, so
  * no ParsedArgsItem is created -- matching an equivalent GET, and avoiding filters that
@@ -27,16 +36,16 @@ const isPlainObject = (value) => value !== null && typeof value === 'object' && 
  * @return {*} the value with operator objects removed, or undefined if nothing is left
  */
 const stripOperatorObjects = (value) => {
+    // bail out unless an operator object is actually present somewhere, so other inputs --
+    // notably an already-empty array -- keep their existing semantics unchanged
+    if (!containsOperatorObject(value)) {
+        return value;
+    }
     if (isPlainObject(value)) {
         return undefined;
     }
-    // only rewrite when an object is actually present, so other inputs notably an
-    // already-empty array -- keep their existing semantics
-    if (Array.isArray(value) && value.some(isPlainObject)) {
-        const scalars = value.filter(v => !isPlainObject(v));
-        return scalars.length > 0 ? scalars : undefined;
-    }
-    return value;
+    const scalars = value.map(v => stripOperatorObjects(v)).filter(v => v !== undefined);
+    return scalars.length > 0 ? scalars : undefined;
 };
 
 /**

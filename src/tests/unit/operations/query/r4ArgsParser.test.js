@@ -133,6 +133,37 @@ describe('R4ArgsParser', () => {
             expect(itemFor(result, 'url')).toBeUndefined();
         });
 
+        test('drops an operator object nested inside a doubly-nested array, without creating an item', () => {
+            // qs parses `birthdate[0][0][$gt]=` into { birthdate: [ [ { $gt: '' } ] ] }. A
+            // shallow check on the array's immediate elements misses this, since the sole
+            // element is itself an array rather than a plain object -- the value would pass
+            // through unstripped and reach FilterByDateTime.filterByItem, which calls
+            // value.match() on it and throws.
+            mockSearchParametersManager.getPropertyObject.mockReturnValue(
+                new SearchParameterDefinition({ type: 'date', field: 'birthDate' })
+            );
+            mockFhirTypesManager.getTypeForField.mockReturnValue('date');
+
+            const result = r4ArgsParser.parseArgs({
+                resourceType: 'Patient',
+                args: { birthdate: [[{ $gt: '' }]], base_version: '4_0_0' }
+            });
+            expect(itemFor(result, 'birthdate')).toBeUndefined();
+        });
+
+        test('drops only the tainted branch of a nested array, keeping sibling scalars', () => {
+            mockSearchParametersManager.getPropertyObject.mockReturnValue(
+                new SearchParameterDefinition({ type: 'uri', field: 'url' })
+            );
+            mockFhirTypesManager.getTypeForField.mockReturnValue('uri');
+
+            const result = r4ArgsParser.parseArgs({
+                resourceType: 'ValueSet',
+                args: { url: [[{ $gt: '' }], 'http://example.org/ok'], base_version: '4_0_0' }
+            });
+            expect(itemFor(result, 'url').queryParameterValue.values).toEqual(['http://example.org/ok']);
+        });
+
         test('preserves an object payload on a non-search parameter ($graph)', () => {
             // operation payloads have no propertyObj so never become a filter, and $graph
             // reads a whole GraphDefinition off parsedArgs.resource
