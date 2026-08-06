@@ -65,7 +65,7 @@ pattern.
   not yet merged) — check current status before assuming the doc's "not enforced" framing still
   holds for the specific line it cites.
 - This plan only adds/restores **tests**. Where a task uncovers a code fix that hasn't landed
-  (W-chain, W1, W3, X-summary CACHE-1, X-export VULN-3), file that as a separate ticket referencing
+  (W-chain, W1, W3, X-summary CACHE-1), file that as a separate ticket referencing
   the relevant `SEC-1580` sub-finding — do not fix product code as a side effect of a test task.
 
 ---
@@ -330,31 +330,52 @@ a "flip the flag" task, not a "write a test" task.
   post-merge check out as a no-op and asserts the *old* permissive behavior. Rewrite it to call
   through to the real check instead of stubbing it, so a future regression (someone removing the
   `update.js:422-428` call) fails this test instead of being silently masked.
-- [ ] `mergeCrossTenantWrite.test.js` and `writeAuthorizationBypass.test.js` are still in
-  `testPathIgnorePatterns`. Run both directly (`npx jest --testPathPatterns=<file>` bypasses the
-  ignore list). For any individual test whose scenario is specifically the post-merge re-check
-  (WPI-2), confirm it now passes; if so, split it out of the file or add a scoped
-  `testPathIgnorePatterns` removal — do not blanket-unquarantine either file, since both also
-  contain W2 (SAE-2, still open per Task 3.2) cases that will still fail.
+- [ ] `mergeCrossTenantWrite.test.js` is still in `testPathIgnorePatterns`;
+  `writeAuthorizationBypass.test.js` has already been rewritten against the real classes and
+  removed from `testPathIgnorePatterns` as part of the W2/SAE-2 fix (see Task 3.2 — that bug is
+  now fixed, not still open). Run `mergeCrossTenantWrite.test.js` directly
+  (`npx jest --testPathPatterns=<file>` bypasses the ignore list). For any individual test whose
+  scenario is specifically the post-merge re-check (WPI-2), confirm it now passes; if so, split
+  it out of the file or add a scoped
+  `testPathIgnorePatterns` removal — do not blanket-unquarantine the file, since it may still
+  contain other distinct, independently-open cross-tenant bugs unrelated to WPI-2/W2.
 
-### Task 3.2: W2 (SAE-2, access-tag forgery on write) — confirm still open, keep quarantined, narrow the citation
+### Task 3.2: W2 (SAE-2, access-tag forgery on write) — already fixed, flip the flag
 
 **Files:**
-- Verify: `src/operations/security/scopesManager.js:166-201` (`isAccessTagChangeAllowedByScopes`
+- Verify: `src/operations/security/scopesManager.js:174-212` (`isAccessTagChangeAllowedByScopes`
   — the ALL-match tag-change-forgery check that `update.js:426`/`452` actually calls via
-  `scopesValidator.isAccessTagChangeAllowedByAccessScopes`), specifically its patient-scope bypass
-  at line 176 (`if (this.isAccessAllowedByPatientScopes(...)) return true;`).
-  (Note: `scopesManager.js:244`'s `accessViaPatientScopes` short-circuit lives inside
+  `scopesValidator.isAccessTagChangeAllowedByAccessScopes`), specifically the patient-scope bypass
+  at line 187, which is now gated: `if (isCreate && this.isAccessAllowedByPatientScopes(...))
+  return true;` — landed via commit `b534088be` (DCON-4854, merged into `main` 2026-08-05, a
+  same-day follow-up to F2/F3).
+  (Note: `scopesManager.js:255`'s `accessViaPatientScopes` short-circuit lives inside
   `isAccessToResourceAllowedBySecurityTags`, a separate ANY-match general write-access gate used
-  broadly by create/update/patch/remove/merge — do not cite that line for this bug; fixing it
-  would break the legitimate general patient-scope write path while leaving this bypass unfixed.)
+  broadly by create/update/patch/remove/merge — do not cite that line for this bug; it is
+  deliberately left unconditional, since ownership is independently enforced by
+  `PatientScopeManager.canWriteResourceAsync`, ANDed in by every real write path.)
+- Reference: `docs/resource-authorization.md` §12 ("FIXED — a patient-scoped write to an EXISTING
+  resource could set an arbitrary access tag") and the live regression test
+  `src/tests/unit/resourceAuthorization/12_knownGap_patientScopedWriteTagBypass.test.js`.
 
-- [ ] Confirm line 176 still unconditionally short-circuits the write-side "ALL access tags
-  required" check for any patient-scoped caller — if so, W2 is a distinct, still-open bug from
-  W2b and must stay quarantined.
-- [ ] File a ticket citing `scopesManager.js:176` (inside `isAccessTagChangeAllowedByScopes`,
-  lines 166-201) specifically (the doc only names the rule, not the line) so whoever fixes it
-  doesn't have to re-derive what Task 2 of this audit already found.
+- [ ] Confirmed already (2026-08-05): the bypass at line 187 is now gated by `isCreate`. A write
+  against an EXISTING resource (`update.js:426`'s path, where `isCreate: !currentResource` is
+  `false`) always goes through the real old-vs-new access-code comparison; the bypass only fires
+  on create (`update.js:452`'s create-via-PUT path), which is a deliberate, documented design
+  choice — a patient-scoped token carries no `access/` scope to validate a brand-new resource's
+  self-assigned tags against — not a residual instance of this bug. W2/SAE-2, as originally scoped
+  (an unconditional bypass reachable on update), is closed, not open.
+- [ ] `scopesManager.crossTenant.test.js`, `scopesManager.writeBypass.test.js`,
+  `patientScopeWriteBypass.test.js`, and `writeAuthorizationBypass.test.js` (all under
+  `src/tests/unit/operations/security/`) have already been rewritten against the real classes and
+  removed from `jest.config.js`'s `testPathIgnorePatterns` as part of the same fix — verify
+  they're still absent from that list and still green, rather than filing a ticket or adding a new
+  `testPathIgnorePatterns` entry as an earlier draft of this task instructed.
+- [ ] Residual, deliberately-unfixed gap (tracked in `docs/resource-authorization.md` §12, not a
+  new finding): a patient-scoped caller can still self-assign an arbitrary tenant's owner/access
+  tag on **create**, since there's no server-side source of truth for "this token's own tenant" to
+  validate against on a brand-new resource. No new ticket needed for this task; note it if asked
+  about residual risk, but don't reopen it as if undiscovered.
 
 ### Task 3.1b: WPI-1 patch-path gap (naming-convention blocklist misses the access tag) — confirm still open, keep quarantined
 
