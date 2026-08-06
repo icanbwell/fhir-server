@@ -502,6 +502,64 @@ describe('KafkaClientV2', () => {
             expect(consumer.disconnect).toHaveBeenCalled();
         });
 
+        test('logs the crash error via logSystemErrorAsync', async () => {
+            const { logSystemErrorAsync } = require('../../../operations/common/systemEventLogging');
+            logSystemErrorAsync.mockClear();
+
+            const consumer = {
+                on: jestObj.fn(),
+                disconnect: jestObj.fn().mockResolvedValue(undefined),
+                events: { GROUP_JOIN: 'group_join', CRASH: 'crash' }
+            };
+
+            const crashError = new Error('Consumer crashed');
+            consumer.on.mockImplementation((event, handler) => {
+                if (event === 'crash') {
+                    setTimeout(() => handler({ payload: { error: crashError } }), 10);
+                }
+            });
+
+            await expect(
+                kafkaClient.waitForConsumerToJoinGroupAsync(consumer, { maxWait: 5000, label: 'test-consumer' })
+            ).rejects.toThrow('Consumer crashed');
+
+            expect(logSystemErrorAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ error: crashError, message: expect.stringContaining('test-consumer') })
+            );
+        });
+
+        test('logs but does not disconnect on a crash after the consumer already joined', async () => {
+            const { logSystemErrorAsync } = require('../../../operations/common/systemEventLogging');
+            logSystemErrorAsync.mockClear();
+
+            const handlers = {};
+            const consumer = {
+                on: jestObj.fn((event, handler) => {
+                    handlers[event] = handler;
+                }),
+                disconnect: jestObj.fn().mockResolvedValue(undefined),
+                events: { GROUP_JOIN: 'group_join', CRASH: 'crash' }
+            };
+
+            const joinPromise = kafkaClient.waitForConsumerToJoinGroupAsync(consumer, { maxWait: 5000 });
+
+            // Consumer joins successfully — the promise settles here.
+            handlers.group_join({ payload: {} });
+            await joinPromise;
+            expect(consumer.disconnect).not.toHaveBeenCalled();
+
+            // A later crash (e.g. one kafkajs is already self-healing via restart: true) must
+            // still be logged, but must NOT trigger a disconnect — that's the entrypoint's call
+            // now, and disconnecting here could race with kafkajs's own in-process restart.
+            const laterCrashError = new Error('Later crash after join');
+            await handlers.crash({ payload: { error: laterCrashError, restart: true } });
+
+            expect(logSystemErrorAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ error: laterCrashError })
+            );
+            expect(consumer.disconnect).not.toHaveBeenCalled();
+        });
+
         test('uses default maxWait of 10000', async () => {
             const consumer = {
                 on: jestObj.fn(),

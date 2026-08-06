@@ -100,8 +100,7 @@ describe('History Operation - Cross-Tenant Data Exposure', () => {
             useAccessIndex: false,
             cloudStorageHistoryResources: [],
             cloudStorageBatchDownloadSize: 10,
-            enableConsentedProaDataAccess: false,
-            enableHIETreatmentRelatedDataAccess: false
+            enableConsentedProaDataAccess: false
         };
         mockSearchManager = {
             constructQueryAsync: jest.fn().mockResolvedValue({ query: {}, columns: new Set() })
