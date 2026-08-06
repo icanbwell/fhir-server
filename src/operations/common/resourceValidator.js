@@ -24,6 +24,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
 const { ReferenceParser } = require('../../utils/referenceParser');
+const { generateUUIDv5 } = require('../../utils/uid.util');
 
 class ResourceValidator {
     /**
@@ -86,8 +87,34 @@ class ResourceValidator {
      * DCON-4844: for a non-user (access-scoped) caller adding to Person.link, verifies every newly
      * added link target resolves to a resource the caller has access to. Existing link targets and
      * removals are left alone -- only additions can expand the identity graph into another tenant.
-     * A target that can't be found is left to other validation (e.g. reference existence checks)
-     * rather than blocked here.
+     *
+     * Per-reference resolution (redesigned per reviewer request on PR #2436, replacing the earlier
+     * fetch-then-check-afterward approach that let not-found and cross-tenant-denied be
+     * distinguished by an access-scoped caller -- see PR discussion):
+     *   1. If the reference already carries a UUID, or an explicit `|sourceAssigningAuthority`
+     *      suffix, resolve it deterministically by `_uuid` -- this targets exactly one resource by
+     *      construction. Otherwise resolve by the bare source id, which can legitimately return
+     *      multiple candidates across tenants sharing the same source id.
+     *   2. No match at all -> reject (400, issue type `not-found`): the caller referenced something
+     *      that doesn't exist; allowing it through unverified is exactly how an unauthorized link
+     *      could be smuggled in.
+     *   3. Matches exist but none are accessible to the caller -> reject (403, issue type
+     *      `forbidden`).
+     *   4. Multiple matches ARE accessible -> reject (400, issue type `multiple-matches`): this can
+     *      only happen for a bare-id lookup that resolved ambiguously; the caller must disambiguate
+     *      with the target's `_uuid` or an explicit `sourceAssigningAuthority`.
+     *   5. Exactly one accessible match -> allow.
+     *
+     * Known follow-up (not implemented here): when the accepted match's real
+     * `sourceAssigningAuthority` differs from the referencing Person's own authority and the
+     * reference was a bare id, `referenceGlobalIdHandler`'s pre-save enrichment will default the
+     * generated `_uuid` to the *referencing* resource's authority (see `updateReferenceAsync`),
+     * which is wrong for a genuinely cross-tenant-but-accessible match (e.g. a consent-bridged PROA
+     * patient, as in the DCON-4847 W-chain tests). Correcting the reference to carry the resolved
+     * authority requires `validateResourceAsync` to return the corrected resource body and every
+     * caller (create/update/merge/patch/graph/validate) to use it -- a larger, separate change than
+     * this validator's access-control fix; tracked for a follow-up rather than bundled in here.
+     *
      * @typedef {Object} ValidateNewPersonLinkTargetsParams
      * @property {string[]|undefined} currentValue
      * @property {string[]|undefined} newValue
@@ -108,34 +135,62 @@ class ResourceValidator {
             return null;
         }
         for (const reference of addedReferences) {
-            const { resourceType, id } = ReferenceParser.parseReference(reference);
+            const { resourceType, id, sourceAssigningAuthority } = ReferenceParser.parseReference(reference);
             if (!resourceType || !id) {
                 continue;
             }
             const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
-            // A bare id (no explicit |sourceAssigningAuthority suffix) can collide across tenants
-            // -- generateUUIDv5(id|authority) can't help here since the authority is exactly what
-            // we don't know for a foreign-tenant target, and assuming it matches the referencing
-            // resource's own authority (the convention used elsewhere for enrichment, e.g.
-            // referenceGlobalIdHandler) defeats the check by construction. So resolve by bare id,
-            // which can return multiple candidates, and fail closed if ANY of them is inaccessible
-            // -- matching the ambiguity-must-be-explicit convention patch.js already uses for
-            // multi-match id lookups ("Multiple resources found ... specify the owner/
-            // sourceAssigningAuthority tag").
-            const query = ReferenceParser.isUuidReference(reference) ? { _uuid: id } : { id };
+
+            // A reference that names its target explicitly (UUID, or bare id + explicit authority)
+            // resolves to exactly one resource by construction -- look it up by _uuid directly.
+            // Only a bare id with no authority is genuinely ambiguous across tenants.
+            let query;
+            if (ReferenceParser.isUuidReference(reference)) {
+                query = { _uuid: id };
+            } else if (sourceAssigningAuthority) {
+                query = { _uuid: generateUUIDv5(`${id}|${sourceAssigningAuthority}`) };
+            } else {
+                query = { id };
+            }
             const targetResources = await (
                 await databaseQueryManager.findAsync({ query })
             ).toObjectArrayAsync();
-            const inaccessibleTargetResource = targetResources.find(
-                targetResource => !this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, targetResource)
-            );
-            if (inaccessibleTargetResource) {
+
+            if (targetResources.length === 0) {
                 return new OperationOutcome({
                     issue: new OperationOutcomeIssue({
-                        code: 'invalid',
+                        code: 'not-found',
+                        severity: 'error',
+                        details: new CodeableConcept({
+                            text: `Person.link target ${reference} was not found.`
+                        })
+                    })
+                });
+            }
+
+            const accessibleTargetResources = targetResources.filter(
+                targetResource => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, targetResource)
+            );
+
+            if (accessibleTargetResources.length === 0) {
+                return new OperationOutcome({
+                    issue: new OperationOutcomeIssue({
+                        code: 'forbidden',
                         severity: 'error',
                         details: new CodeableConcept({
                             text: `Person.link target ${reference} belongs to a tenant the caller does not have access to.`
+                        })
+                    })
+                });
+            }
+
+            if (accessibleTargetResources.length > 1) {
+                return new OperationOutcome({
+                    issue: new OperationOutcomeIssue({
+                        code: 'multiple-matches',
+                        severity: 'error',
+                        details: new CodeableConcept({
+                            text: `Person.link target ${reference} is ambiguous: multiple accessible resources share this id. Specify the target's _uuid or sourceAssigningAuthority.`
                         })
                     })
                 });

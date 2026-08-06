@@ -134,4 +134,39 @@ describe('DCON-4844 - $merge cannot link a Person into another tenant\'s identit
             .set(getHeaders())
             .expect(404);
     });
+
+    test('rejects an access-scoped caller linking to a Person.link target that does not exist at all', async () => {
+        // DCON-4844 redesign (per reviewer request on PR #2436): a not-found target used to be
+        // silently left to other validation (and would have succeeded, per the prior "allows
+        // linking to a target that cannot be found" test). Unverified references are now rejected
+        // outright -- letting one through unverified is exactly how an unauthorized link could be
+        // smuggled in later if the target were ever created.
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/Person/$merge')
+            .send(personOwnedBy('person-tenant-a-3', 'tenant_a'))
+            .set(getHeaders())
+            .expect(200);
+
+        const linkResp = await request
+            .post('/4_0_0/Person/$merge')
+            .send(personOwnedBy('person-tenant-a-3', 'tenant_a', 'Person/does-not-exist-anywhere'))
+            .set(getHeaders('access/tenant_a.* user/*.*'))
+            .expect(200);
+
+        expect(linkResp).toHaveMergeResponse({
+            issue: expect.objectContaining({
+                details: expect.objectContaining({
+                    text: expect.stringContaining('was not found')
+                })
+            })
+        });
+
+        const getResp = await request
+            .get('/4_0_0/Person/person-tenant-a-3')
+            .set(getHeaders())
+            .expect(200);
+        expect(getResp.body.link).toBeUndefined();
+    });
 });

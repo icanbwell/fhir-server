@@ -353,7 +353,7 @@ describe('ResourceValidator', () => {
             expect(mockFindAsync).not.toHaveBeenCalled();
         });
 
-        it('allows linking to a target that cannot be found (left to other validation)', async () => {
+        it('rejects linking to a target that cannot be found (DCON-4844 redesign: not-found is no longer silently allowed)', async () => {
             resolveTargetsAs([]);
 
             const result = await personResourceValidator.validatePatientReference({
@@ -365,13 +365,16 @@ describe('ResourceValidator', () => {
                 base_version: '4_0_0'
             });
 
-            expect(result).toBeNull();
+            expect(result).not.toBeNull();
+            const issue = Array.isArray(result.issue) ? result.issue[0] : result.issue;
+            expect(issue.code).toBe('not-found');
+            expect(issue.details.text).toContain('was not found');
         });
 
-        it('fails closed when a bare-id reference resolves to multiple candidates and any is inaccessible', async () => {
-            // a bare id (no |sourceAssigningAuthority suffix) can collide across tenants; this
-            // must not silently pick one of the candidates -- it has to reject if ANY of them
-            // belongs to a tenant the caller can't access
+        it('allows a bare-id reference to resolve when exactly one of multiple candidates is accessible', async () => {
+            // a bare id (no |sourceAssigningAuthority suffix) can collide across tenants; per the
+            // redesigned flow, a single accessible match among several candidates is unambiguous
+            // and should be allowed even though other, inaccessible candidates also share the id.
             resolveTargetsAs([
                 {
                     resourceType: 'Person',
@@ -404,12 +407,49 @@ describe('ResourceValidator', () => {
                 base_version: '4_0_0'
             });
 
+            expect(result).toBeNull();
+        });
+
+        it('rejects a bare-id reference when none of the resolved candidates are accessible', async () => {
+            resolveTargetsAs([
+                {
+                    resourceType: 'Person',
+                    id: 'ambiguous-id',
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'tenant_b' },
+                            { system: 'https://www.icanbwell.com/access', code: 'tenant_b' }
+                        ]
+                    }
+                },
+                {
+                    resourceType: 'Person',
+                    id: 'ambiguous-id',
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'tenant_c' },
+                            { system: 'https://www.icanbwell.com/access', code: 'tenant_c' }
+                        ]
+                    }
+                }
+            ]);
+
+            const result = await personResourceValidator.validatePatientReference({
+                currentResource: personWithLinks(['uuid-a']),
+                resourceToValidateJson: personWithLinks(['uuid-a', 'ambiguous-id']),
+                isUser: false,
+                user: 'service@tenant_a',
+                scope: 'access/tenant_a.*',
+                base_version: '4_0_0'
+            });
+
             expect(result).not.toBeNull();
             const issue = Array.isArray(result.issue) ? result.issue[0] : result.issue;
+            expect(issue.code).toBe('forbidden');
             expect(issue.details.text).toContain('does not have access');
         });
 
-        it('allows a bare-id reference that resolves to multiple candidates when all are accessible', async () => {
+        it('rejects an ambiguous bare-id reference when multiple candidates are all accessible', async () => {
             resolveTargetsAs([
                 {
                     resourceType: 'Person',
@@ -442,7 +482,37 @@ describe('ResourceValidator', () => {
                 base_version: '4_0_0'
             });
 
+            expect(result).not.toBeNull();
+            const issue = Array.isArray(result.issue) ? result.issue[0] : result.issue;
+            expect(issue.code).toBe('multiple-matches');
+            expect(issue.details.text).toContain('ambiguous');
+        });
+
+        it('resolves a reference with an explicit sourceAssigningAuthority deterministically by _uuid', async () => {
+            resolveTargetsAs([
+                {
+                    resourceType: 'Person',
+                    id: 'explicit-authority-person',
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'tenant_a' },
+                            { system: 'https://www.icanbwell.com/access', code: 'tenant_a' }
+                        ]
+                    }
+                }
+            ]);
+
+            const result = await personResourceValidator.validatePatientReference({
+                currentResource: personWithLinks(['uuid-a']),
+                resourceToValidateJson: personWithLinks(['uuid-a', 'explicit-authority-person|tenant_a']),
+                isUser: false,
+                user: 'service@tenant_a',
+                scope: 'access/tenant_a.*',
+                base_version: '4_0_0'
+            });
+
             expect(result).toBeNull();
+            expect(mockFindAsync).toHaveBeenCalledWith({ query: { _uuid: expect.any(String) } });
         });
     });
 
