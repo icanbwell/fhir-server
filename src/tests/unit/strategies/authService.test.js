@@ -1262,6 +1262,80 @@ describe('AuthService', () => {
             expect(user).toBeUndefined();
             expect(info).toBeUndefined();
         });
+
+        test('DCON-4882: does not resurrect a wildcard-only untrusted token via the empty-scope userinfo fallback', async () => {
+            // Regression test for a real bug: stripping a wildcard-only scope down to '' trips
+            // verify()'s pre-existing "no scope -> try userinfo endpoint" branch. If that branch's
+            // fallback returned jwt_payload raw (its un-stripped scope intact), verify()'s
+            // `scope1 || scope` would pick the raw wildcard scope back up, completely undoing the
+            // strip for exactly the untrusted-client case it exists to stop.
+            Object.defineProperty(mockConfigManager, 'allowedNonPatientScopeClients', {
+                get: () => new Set(['https://trusted.example.com|trusted-client']), // a different pair; not this caller
+                configurable: true
+            });
+            // No well-known config for this issuer -- common for JWKS-only/client-credentials issuers
+            mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest.fn().mockResolvedValue(null);
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager
+            });
+
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: {
+                    iss: 'https://untrusted.example.com',
+                    client_id: 'untrusted-client',
+                    scope: 'user/*.* access/*.*' // wildcard-only, no patient/ scope
+                },
+                token: 'tok',
+                done
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 20));
+            expect(done).toHaveBeenCalledWith(null, false, { reason: 'no_scope' });
+        });
+
+        test('DCON-4882: preserves an allowlisted client_id through the userinfo-endpoint enrichment path', async () => {
+            // Regression test for a real bug: the userinfo-fallback merge preserved iss but dropped
+            // client_id, so a legitimately allowlisted service whose JWT carries no embedded scope
+            // (common for Cognito access tokens, which require a userinfo call) would compute
+            // `${iss}|undefined` at the allowlist check -- never matching -- and silently lose its
+            // wildcard non-patient scope despite being correctly configured.
+            Object.defineProperty(mockConfigManager, 'allowedNonPatientScopeClients', {
+                get: () => new Set(['https://trusted.example.com|trusted-service-client']),
+                configurable: true
+            });
+            mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest.fn().mockResolvedValue({
+                userinfo_endpoint: 'http://auth.example.com/userinfo'
+            });
+            superagent.timeout.mockResolvedValue({
+                body: { scope: 'user/*.* access/*.*' } // standard userinfo response; no client_id field
+            });
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager
+            });
+
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: {
+                    iss: 'https://trusted.example.com',
+                    client_id: 'trusted-service-client'
+                    // no scope on the JWT itself -- must be resolved via the userinfo endpoint
+                },
+                token: 'tok',
+                done
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 20));
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.any(Object),
+                expect.objectContaining({ scope: 'user/*.* access/*.*' })
+            );
+        });
     });
 
     describe('getUserInfoFromUserInfoEndpoint', () => {
@@ -1284,30 +1358,32 @@ describe('AuthService', () => {
             expect(result).toEqual(cachedUserInfo);
         });
 
-        test('returns jwt_payload when no well-known config found', async () => {
+        test('reapplies getFieldsFromToken on the original payload when no well-known config found', async () => {
+            // DCON-4882: this must NOT return jwt_payload verbatim (its raw, un-stripped scope) --
+            // see the fail-open regression test below for why that would matter.
             mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync.mockResolvedValue(null);
 
-            const jwt_payload = { iss: 'issuer1', cid: 'cid1', sub: 'sub1' };
+            const jwt_payload = { iss: 'issuer1', cid: 'cid1', sub: 'sub1', scope: 'user/*.read' };
             const result = await authService.getUserInfoFromUserInfoEndpoint({
                 jwt_payload,
                 token: 'my-token'
             });
 
-            expect(result).toBe(jwt_payload);
+            expect(result).toEqual({ scope: 'user/*.read', isUser: false, username: null, subject: null, clientId: null });
         });
 
-        test('returns jwt_payload when well-known config has no userinfo_endpoint', async () => {
+        test('reapplies getFieldsFromToken on the original payload when well-known config has no userinfo_endpoint', async () => {
             mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync.mockResolvedValue({
                 jwks_uri: 'http://jwks.example.com'
             });
 
-            const jwt_payload = { iss: 'issuer1', cid: 'cid1', sub: 'sub1' };
+            const jwt_payload = { iss: 'issuer1', cid: 'cid1', sub: 'sub1', scope: 'user/*.read' };
             const result = await authService.getUserInfoFromUserInfoEndpoint({
                 jwt_payload,
                 token: 'my-token'
             });
 
-            expect(result).toBe(jwt_payload);
+            expect(result).toEqual({ scope: 'user/*.read', isUser: false, username: null, subject: null, clientId: null });
         });
 
         test('fetches user info and caches result', async () => {

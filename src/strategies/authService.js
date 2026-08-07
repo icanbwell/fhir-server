@@ -543,13 +543,16 @@ class AuthService {
                 .retry(EXTERNAL_REQUEST_RETRY_COUNT)
                 .timeout(this.requestTimeout);
             if (userInfoResponse && userInfoResponse.body) {
-                // Always keep the original token's iss, even if the userinfo response body includes
-                // its own iss field -- that field is unverified JSON over HTTP, unlike the JWT's iss
-                // claim, which was already checked against the JWKS signature. Letting a response
-                // body value override a signature-verified claim would let an untrusted value decide
-                // getFieldsFromToken's wildcard-non-patient-scope issuer check (isWildcardNonPatientScope,
-                // DCON-4882), which is exactly the kind of trust decision that claim exists to protect.
-                const mergedPayload = { ...userInfoResponse.body, iss: jwt_payload.iss };
+                // Always keep the original token's iss AND client_id, even if the userinfo response
+                // body includes its own values for either -- both are unverified JSON over HTTP,
+                // unlike the JWT's claims, which were already checked against the JWKS signature.
+                // Letting a response body value override a signature-verified claim would let an
+                // untrusted value decide getFieldsFromToken's wildcard-non-patient-scope (iss,
+                // client_id) allowlist check (isWildcardNonPatientScope, DCON-4882): dropping
+                // client_id here would compute `${iss}|undefined`, which can never match a real
+                // allowlist entry, silently stripping wildcard scope from a legitimately allowlisted
+                // service (standard OIDC/Cognito userinfo responses don't echo back client_id).
+                const mergedPayload = { ...userInfoResponse.body, iss: jwt_payload.iss, client_id: jwt_payload.client_id };
                 const userInfo = this.getFieldsFromToken(mergedPayload);
                 if (cacheKey) {
                     AuthService.userInfoCache.set(cacheKey, userInfo);
@@ -557,7 +560,15 @@ class AuthService {
                 return userInfo;
             }
         }
-        return jwt_payload;
+        // No userinfo endpoint configured for this issuer (or its response had no body) -- reapply
+        // getFieldsFromToken on the original payload rather than returning it raw. verify() only
+        // reaches this function when its first getFieldsFromToken call already returned an empty
+        // scope, which DCON-4882's wildcard-non-patient-scope strip can now legitimately produce for
+        // an untrusted (iss, client_id) pair whose token carries only wildcard scopes. Returning
+        // jwt_payload unprocessed would hand verify() the token's raw, un-stripped scope, which its
+        // `scope1 || scope` fallback then picks over the (correctly) stripped empty scope --
+        // completely undoing the strip for exactly the untrusted-client case it exists to stop.
+        return this.getFieldsFromToken(jwt_payload);
     }
 
     /**
