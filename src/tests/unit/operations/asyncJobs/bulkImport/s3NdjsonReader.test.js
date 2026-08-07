@@ -10,16 +10,16 @@ jestObj.mock('@aws-sdk/client-s3', () => ({
     GetObjectCommand: jestObj.fn()
 }));
 
-jestObj.mock('../../../../utils/assertType', () => ({
+jestObj.mock('../../../../../utils/assertType', () => ({
     assertTypeEquals: jestObj.fn()
 }));
 
-jestObj.mock('../../../../operations/common/logging', () => ({
+jestObj.mock('../../../../../operations/common/logging', () => ({
     logInfo: jestObj.fn(),
     logError: jestObj.fn()
 }));
 
-const { S3NdjsonReader } = require('../../../../operations/import/s3NdjsonReader');
+const { S3NdjsonReader } = require('../../../../../operations/asyncJobs/bulkImport/s3NdjsonReader');
 
 describe('S3NdjsonReader', () => {
     let reader;
