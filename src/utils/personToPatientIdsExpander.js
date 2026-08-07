@@ -197,6 +197,14 @@ class PersonToPatientIdsExpander {
      * @property {boolean} addTopPersonAccessCheck If true, applies the access tag check at every
      *   recursion level while walking Person.link, not just the initial lookup -- propagated through
      *   each recursive call so a caller can't bypass it via a Person reached transitively
+     * @property {boolean} skipAccessCheckAtTopLevel If true (and addTopPersonAccessCheck is also
+     *   true), the access tag check is skipped for level 1 (the personIds passed into the initial
+     *   call) and only applied from level 2 onward (i.e. to Person(s) reached via Person.link).
+     *   Set this when personIds at level 1 come from a trusted source that doesn't need (or
+     *   shouldn't be gated by) a scope-derived access-tag match -- e.g. a JWT claim established by
+     *   authentication (patientScopeManager's personIdFromJwtToken) -- as opposed to user/URL
+     *   supplied input (e.g. accessHistory's $access-history id parameter), which must still be
+     *   checked at level 1 too.
      * @property {FhirRequestInfo} requestInfo
      *
      * @param {getPatientIdsFromPersonAsyncArgs}
@@ -211,7 +219,8 @@ class PersonToPatientIdsExpander {
         returnOriginalPersonId = false,
         addPersonOwnerToContext = false,
         requestInfo,
-        addTopPersonAccessCheck = false
+        addTopPersonAccessCheck = false,
+        skipAccessCheckAtTopLevel = false
     }) {
         /**
          * Final result to return
@@ -234,6 +243,35 @@ class PersonToPatientIdsExpander {
 
         // Apply the caller's access-scope security tag filter to the requested Person so that
         // linked patients are not resolved for a Person the caller cannot access.
+        //
+        // NOTE: for a pure patient-scope token (no access/ scope at all -- the normal shape for a
+        // plain patient-facing app), getSecurityTagsFromScope() below legitimately returns []
+        // (accessViaPatientScopes short-circuits the "no access codes" error), which makes
+        // getQueryWithSecurityTags() a complete no-op: no filter is added at all (see review.md §D,
+        // "no restriction" must not be indistinguishable from "no matches"). That means this check
+        // does NOT protect a pure patient-scope caller from a cross-tenant Person.link today. An
+        // owner-tag same-tenant check was evaluated as a fallback for that case and rejected: this
+        // data model's Main-Person-to-Client-Person links are *intentionally* cross-tenant by design
+        // (see review.md §1 and e.g. src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid),
+        // so "different owner tag" cannot be used to distinguish a legitimate identity-matched link
+        // from a malicious/corrupted one -- doing so breaks that core feature. This gap is tracked by
+        // the (quarantined) tests in personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js
+        // pending a real fix (see jest.config.js).
+        //
+        // When skipAccessCheckAtTopLevel is set (patientScopeManager's ordinary-search / GraphQL v2 /
+        // patient-scoped-write callers), addTopPersonAccessCheck's filter is only applied from level 2
+        // onward (i.e. to Person(s) reached by following Person.link), never to the level-1 personIds
+        // passed into the initial call. Those level-1 ids come from a trusted JWT claim
+        // (personIdFromJwtToken) established by authentication, not from following a link or from
+        // user-suppliable input -- there is nothing to re-check there, and the caller's own access/
+        // scope (which may legitimately be unrelated to their own Person's access tag, e.g. a
+        // service-level access code alongside patient scopes) must not gate whether their own asserted
+        // identity resolves. What the fix must close is a *stray/malicious Person.link from that
+        // trusted anchor into another tenant* -- i.e. level 2+. Callers whose level-1 personIds are
+        // NOT a trusted JWT claim (e.g. accessHistory's $access-history id, which is user/URL
+        // supplied) leave skipAccessCheckAtTopLevel false, so the check still runs at level 1 too.
+        // The $everything path is separate: its top-level personId also comes from the request URL,
+        // so its existing top-level check (level-independent, unchanged here) is still required.
         if (
             requestInfo &&
             (
@@ -242,7 +280,7 @@ class PersonToPatientIdsExpander {
                     requestInfo.originalUrl?.includes('$everything') &&
                     requestInfo.method === 'GET'
                 ) ||
-                addTopPersonAccessCheck
+                (addTopPersonAccessCheck && (!skipAccessCheckAtTopLevel || level > 1))
             )
         ) {
             const { user, scope } = requestInfo;
@@ -360,7 +398,8 @@ class PersonToPatientIdsExpander {
                     toMap,
                     returnOriginalPersonId: false, // always return _uuid map for it
                     requestInfo,
-                    addTopPersonAccessCheck
+                    addTopPersonAccessCheck,
+                    skipAccessCheckAtTopLevel
                 });
 
                 // add all patients to current person
@@ -382,7 +421,8 @@ class PersonToPatientIdsExpander {
                 level: level + 1,
                 toMap,
                 requestInfo,
-                addTopPersonAccessCheck
+                addTopPersonAccessCheck,
+                skipAccessCheckAtTopLevel
             });
             return patientIds.concat(patientIdsFromPersons);
         }

@@ -16,6 +16,61 @@ const {
 } = require('../../common');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../../utils/configManager');
+const { withNockSuspended } = require('../../testContainerUtils');
+
+/**
+ * supertest methods that start a new HTTP request.
+ * @type {string[]}
+ */
+const HTTP_VERBS = ['get', 'post', 'put', 'patch', 'delete', 'del', 'head', 'options'];
+
+/**
+ * Runs a supertest request's actual HTTP round trip with nock suspended.
+ *
+ * Why: nock (v14, via @mswjs/interceptors) is active in every test because
+ * ../../common requires it, and importing it patches http.ClientRequest. Every
+ * supertest request to the in-process server is therefore wrapped in a
+ * MockHttpSocket "passthrough" that shares the real socket's underlying
+ * _handle. This test file also drives real ClickHouse HTTP traffic
+ * (insertRows/cleanupBetweenTests) in the same process, and under that socket
+ * churn the shared fd intermittently reads as invalid, surfacing as an
+ * unhandled `read EINVAL` that aborts the suite (see
+ * MockHttpSocket.ts passthrough handlers, and src/tests/group/groupTestSetup.js
+ * which hit the same issue for the Group suite).
+ *
+ * Suspending nock for the duration of the round trip keeps these requests on
+ * real, un-intercepted sockets.
+ *
+ * @param {import('supertest').Test} test
+ * @returns {import('supertest').Test}
+ */
+function runWithNockSuspended (test) {
+    const originalThen = test.then.bind(test);
+    test.then = (onFulfilled, onRejected) =>
+        withNockSuspended(() => originalThen()).then(onFulfilled, onRejected);
+    return test;
+}
+
+/**
+ * Wraps a supertest agent so every request it starts runs with nock suspended.
+ *
+ * @param {import('supertest').SuperTest} agent
+ * @returns {import('supertest').SuperTest}
+ */
+function wrapAgentWithNockSuspended (agent) {
+    return new Proxy(agent, {
+        get (target, prop, receiver) {
+            const value = Reflect.get(target, prop, receiver);
+            if (typeof value !== 'function') {
+                return value;
+            }
+            if (HTTP_VERBS.includes(prop)) {
+                return (...args) => runWithNockSuspended(value.apply(target, args));
+            }
+            return value.bind(target);
+        }
+    });
+}
 
 let sharedRequest = null;
 let sharedClickHouseManager = null;
@@ -35,7 +90,18 @@ async function setupAccessLogClickHouseTests () {
             const configManager = new ConfigManager();
             sharedClickHouseManager = new ClickHouseClientManager({ configManager });
 
-            sharedRequest = await createTestRequest();
+            const request = await createTestRequest();
+
+            // Warm the JWKS cache while nock is still intercepting. Requests handed
+            // to tests run with nock suspended (see wrapAgentWithNockSuspended), so a
+            // JWKS cache miss would try to reach the mocked auth host over the real
+            // network and fail auth. AuthService caches JWKS in a static LRU for 24h
+            // and every lookup funnels through it, so one warm-up covers every
+            // request (admin or non-admin) made in this file for the whole jest
+            // process.
+            await request.get('/admin/searchLogResults').set(getJsonHeadersWithAdminToken());
+
+            sharedRequest = wrapAgentWithNockSuspended(request);
 
             isSetupComplete = true;
         } catch (error) {
