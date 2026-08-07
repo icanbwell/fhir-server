@@ -1001,8 +1001,6 @@ class BulkDataExportRunner {
                 });
                 const db = await resourceLocator.getDatabaseConnectionAsync();
                 multipartContext.collection = db.collection(`${resourceType}_4_0_0`);
-                const stats = await db.command({ collStats: `${resourceType}_4_0_0` });
-                multipartContext.averageDocumentSize = stats.avgObjSize > 0 ? stats.avgObjSize : 2000;
             }
 
             const options = { batchSize: this.fetchResourceBatchSize };
@@ -1018,49 +1016,54 @@ class BulkDataExportRunner {
                 });
                 logInfo(`Starting multipart upload for ${resourceType} with uploadId ${multipartContext.uploadId}`);
             }
-            const minUploadBatchSize = Math.floor(this.uploadPartSize / multipartContext.averageDocumentSize);
             while (await cursor.hasNext()) {
-                let currentBatch = new Array(minUploadBatchSize);
-                let currentBatchSize = 0;
-                while (await cursor.hasNext() && currentBatchSize < minUploadBatchSize) {
+                const currentBatch = [];
+                // Byte-accounted, not count-based: collStats.avgObjSize reflects the full
+                // stored document, but elementsProjection (_elements) makes serializeExportDoc
+                // emit far smaller projected docs. A doc-count target derived from avgObjSize
+                // would then under-fill each part well below S3's 5MB non-final-part minimum
+                // (see PR #2459 review). Accumulating actual serialized bytes keeps parts
+                // correctly sized regardless of how small a projection makes each doc.
+                let currentBatchBytes = 0;
+                while (await cursor.hasNext() && currentBatchBytes < this.uploadPartSize) {
                     const doc = await this.serializeExportDoc({
                         doc: await cursor.next(),
                         resourceType,
                         parsedArgs,
                         isProjected: Boolean(elementsProjection)
                     });
-                    currentBatch[currentBatchSize++] = JSON.stringify(doc);
+                    const serializedDoc = JSON.stringify(doc);
+                    currentBatch.push(serializedDoc);
+                    currentBatchBytes += Buffer.byteLength(serializedDoc, 'utf8');
                 }
 
-                multipartContext.readCount += currentBatchSize;
+                multipartContext.readCount += currentBatch.length;
+                let batchToUpload = currentBatch;
+                let batchBytesToUpload = currentBatchBytes;
                 if (multipartContext.previousBuffer?.length) {
-                    // trim the pre-allocated array down to the entries actually written before
-                    // merging in the buffered records from the previous iteration, otherwise the
-                    // unused (undefined) slots between currentBatchSize and minUploadBatchSize
-                    // would be included in the merged batch
-                    currentBatch = currentBatch.slice(0, currentBatchSize).concat(multipartContext.previousBuffer);
-                    currentBatchSize += multipartContext.previousBatchSize;
+                    batchToUpload = multipartContext.previousBuffer.concat(currentBatch);
+                    batchBytesToUpload += multipartContext.previousBufferBytes;
                 }
-                if (currentBatchSize >= minUploadBatchSize) {
+                if (batchBytesToUpload >= this.uploadPartSize) {
                     logInfo(`${resourceType} resource read: ${multipartContext.readCount}`);
                     logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
 
                     // Upload the file to s3
                     multipartContext.multipartUploadParts.push(
                         await this.s3Client.uploadPartAsync({
-                            data: currentBatch.slice(0, currentBatchSize).join('\n'),
+                            data: batchToUpload.join('\n'),
                             partNumber: multipartContext.multipartUploadParts.length + 1,
                             uploadId: multipartContext.uploadId,
                             filePath: multipartContext.resourceFilePath
                         })
                     );
                     multipartContext.previousBuffer = null;
-                    multipartContext.previousBatchSize = null;
+                    multipartContext.previousBufferBytes = null;
 
                     logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
                 } else {
-                    multipartContext.previousBuffer = currentBatch;
-                    multipartContext.previousBatchSize = currentBatchSize;
+                    multipartContext.previousBuffer = batchToUpload;
+                    multipartContext.previousBufferBytes = batchBytesToUpload;
                 }
             }
         } catch (err) {
@@ -1135,30 +1138,28 @@ class BulkDataExportRunner {
             }
             const multipartUploadParts = [];
 
-            const stats = await db.command({ collStats: `${resourceType}_4_0_0` });
-            // avgObjSize can be reported as 0 by MongoDB for collections whose stats haven't
-            // caught up yet, which would otherwise make minUploadBatchSize evaluate to Infinity
-            // and crash on `new Array(Infinity)` below. Fall back to the same default used in
-            // exportPatientDataAsync when that happens.
-            const averageDocumentSize = stats.avgObjSize > 0 ? stats.avgObjSize : 2000;
-            const minUploadBatchSize = Math.floor(this.uploadPartSize / averageDocumentSize);
             while (await cursor.hasNext()) {
-                const currentBatch = new Array(minUploadBatchSize);
-                let currentBatchSize = 0;
+                const currentBatch = [];
+                // Byte-accounted, not count-based: see exportPatientDataAsync for why a
+                // doc-count target derived from collection avgObjSize under-fills parts once
+                // elementsProjection (_elements) is in play.
+                let currentBatchBytes = 0;
 
-                while (await cursor.hasNext() && currentBatchSize < minUploadBatchSize) {
+                while (await cursor.hasNext() && currentBatchBytes < this.uploadPartSize) {
                     const doc = await this.serializeExportDoc({
                         doc: await cursor.next(),
                         resourceType,
                         parsedArgs,
                         isProjected: Boolean(elementsProjection)
                     });
-                    currentBatch[currentBatchSize++] = JSON.stringify(doc);
+                    const serializedDoc = JSON.stringify(doc);
+                    currentBatch.push(serializedDoc);
+                    currentBatchBytes += Buffer.byteLength(serializedDoc, 'utf8');
                 }
 
-                const buffer = currentBatch.slice(0, currentBatchSize).join('\n');
+                const buffer = currentBatch.join('\n');
 
-                readCount += currentBatchSize;
+                readCount += currentBatch.length;
                 logInfo(`${resourceType} resource read: ${readCount}`);
                 logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${uploadId}`);
 

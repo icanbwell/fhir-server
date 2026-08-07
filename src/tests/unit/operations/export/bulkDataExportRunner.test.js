@@ -281,4 +281,109 @@ describe('BulkDataExportRunner', () => {
             expect(mocks.r4SearchQueryCreator.appendAndSimplifyQuery).toHaveBeenCalled();
         });
     });
+
+    // ========== multipart batch sizing (_elements projection) ==========
+    // PR #2459 review: minUploadBatchSize/averageDocumentSize was derived from the
+    // full collection's avgObjSize, which is far larger than the tiny docs an
+    // _elements=id-style projection actually serializes. A doc-count target sized
+    // for full documents under-fills each part well below S3's 5MB non-final-part
+    // minimum. These tests assert the fix: batching is byte-accounted against the
+    // actual serialized size of each doc, so small projected docs still fill parts
+    // to the configured uploadPartSize regardless of how much smaller they are than
+    // a full hydrated resource would be.
+    describe('multipart batch sizing (_elements projection)', () => {
+        function makeCursor(totalDocs) {
+            let i = 0;
+            return {
+                hasNext: jest.fn(() => Promise.resolve(i < totalDocs)),
+                next: jest.fn(() => Promise.resolve({
+                    resourceType: 'Patient',
+                    id: `p${i++}`,
+                    meta: { source: 'test', security: [] }
+                }))
+            };
+        }
+
+        test('processResourceAsync fills each non-final part to uploadPartSize bytes, not doc count', async () => {
+            const totalDocs = 200;
+            const cursor = makeCursor(totalDocs);
+            const mockCollection = { find: jest.fn().mockReturnValue(cursor) };
+            const mockDb = { collection: jest.fn().mockReturnValue(mockCollection) };
+            mocks.resourceLocatorFactory.createResourceLocator = jest.fn().mockReturnValue({
+                getDatabaseConnectionAsync: jest.fn().mockResolvedValue(mockDb)
+            });
+
+            runner.exportStatusResource = { output: [], meta: { security: [] } };
+            runner.baseS3Folder = 'exports/test';
+            // Tiny on purpose: each serialized doc is well under 100 bytes, so a
+            // 1000-byte target forces several docs per part and multiple parts —
+            // exactly the shape that exposed the doc-count bug.
+            runner.uploadPartSize = 1000;
+
+            const uploadedParts = [];
+            mocks.s3Client.uploadPartAsync = jest.fn((args) => {
+                uploadedParts.push(args.data);
+                return Promise.resolve({ ETag: `etag${uploadedParts.length}` });
+            });
+
+            await runner.processResourceAsync({ resourceType: 'Patient', query: {} });
+
+            expect(uploadedParts.length).toBeGreaterThan(1);
+
+            const totalDocsUploaded = uploadedParts.reduce(
+                (sum, part) => sum + part.split('\n').length, 0
+            );
+            expect(totalDocsUploaded).toBe(totalDocs);
+
+            // Every part except the last (S3 allows only the final part to be
+            // undersized) must meet the configured target.
+            for (const part of uploadedParts.slice(0, -1)) {
+                expect(Buffer.byteLength(part, 'utf8')).toBeGreaterThanOrEqual(runner.uploadPartSize);
+            }
+        });
+
+        test('exportPatientDataAsync fills each non-final part to uploadPartSize bytes via the carry-over buffer', async () => {
+            const totalDocs = 200;
+            const cursor = makeCursor(totalDocs);
+            const mockCollection = { find: jest.fn().mockReturnValue(cursor) };
+            mocks.resourceLocatorFactory.createResourceLocator = jest.fn().mockReturnValue({
+                getDatabaseConnectionAsync: jest.fn().mockResolvedValue({
+                    collection: jest.fn().mockReturnValue(mockCollection)
+                })
+            });
+
+            runner.uploadPartSize = 1000;
+
+            const uploadedParts = [];
+            mocks.s3Client.uploadPartAsync = jest.fn((args) => {
+                uploadedParts.push(args.data);
+                return Promise.resolve({ ETag: `etag${uploadedParts.length}` });
+            });
+
+            const { S3MultiPartContext } = require('../../../../operations/export/script/s3MultiPartContext');
+            const multipartContext = new S3MultiPartContext({
+                resourceFilePath: 'exports/test/Patient.ndjson'
+            });
+
+            await runner.exportPatientDataAsync({
+                resourceType: 'Patient',
+                query: {},
+                patientReferences: ['Patient/1'],
+                multipartContext
+            });
+
+            // The trailing under-target remainder is intentionally left in
+            // previousBuffer for the caller's final flush (see the method's
+            // carry-over contract) - assert on the parts actually uploaded here.
+            for (const part of uploadedParts) {
+                expect(Buffer.byteLength(part, 'utf8')).toBeGreaterThanOrEqual(runner.uploadPartSize);
+            }
+
+            const uploadedDocCount = uploadedParts.reduce(
+                (sum, part) => sum + part.split('\n').length, 0
+            );
+            const carriedOverDocCount = multipartContext.previousBuffer?.length || 0;
+            expect(uploadedDocCount + carriedOverDocCount).toBe(totalDocs);
+        });
+    });
 });
