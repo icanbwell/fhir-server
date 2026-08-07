@@ -103,6 +103,7 @@ class KafkaClientV2 {
         let iteration = 1;
         let shouldRetry = false;
         let lastErrorCode = null;
+        let lastError = null;
         do {
             try {
                 await this.sendCloudEventMessageHelperAsync({ topic, messages });
@@ -129,6 +130,7 @@ class KafkaClientV2 {
                         });
                         shouldRetry = true;
                         lastErrorCode = cause.code;
+                        lastError = e;
                     } else {
                         this.producerConnected = false;
                         throw e;
@@ -140,7 +142,16 @@ class KafkaClientV2 {
             }
         } while (++iteration <= maxRetries && shouldRetry);
         if (shouldRetry) {
+            // Every attempt hit the retriable code-72 case and none ultimately succeeded --
+            // must throw rather than resolve, otherwise callers (e.g. sendToDeadLetterTopicAsync)
+            // that rely on "resolves means it was actually sent" would treat this as success
+            // and lose the message.
             recordKafkaRetryExhausted(topic, lastErrorCode);
+            throw new RethrownError({
+                message: `Failed to send CloudEvent message to topic "${topic}" after ${maxRetries} attempts (last error code: ${lastErrorCode})`,
+                error: lastError,
+                config: this.client.config
+            });
         }
     }
 
@@ -257,9 +268,10 @@ class KafkaClientV2 {
         onMessageAsync,
         maxRetries = 3,
         deadLetterTopic,
-        // Kept short (max ~1.4s total across 3 retries) since eachMessage blocks the
-        // partition while retrying -- a long backoff here risks exceeding the consumer's
-        // session/poll timeout and triggering a group rebalance mid-retry.
+        // Kept short (max ~1.4s total across 3 retries) as a floor for the backoff delay
+        // itself, on top of a heartbeat() before every attempt (see below) -- together these
+        // bound how much a slow-but-eventually-successful handler can drift the consumer
+        // toward its session/poll timeout during retries.
         retryInitialDelayMs = 200
     }) {
         try {
@@ -293,7 +305,17 @@ class KafkaClientV2 {
 
                     try {
                         await retryWithBackoff({
-                            fn: () => onMessageAsync(parsedMessage),
+                            // Heartbeat before every attempt (including the first), not just
+                            // during the backoff delay -- a handler's own processing time (e.g.
+                            // S3 reads + Mongo writes) can be several seconds per attempt, and
+                            // replaying that up to maxRetries+1 times with no heartbeat in
+                            // between risks exceeding the consumer's session timeout and
+                            // triggering a rebalance mid-retry, independent of how short the
+                            // backoff itself is.
+                            fn: async () => {
+                                await heartbeat();
+                                return onMessageAsync(parsedMessage);
+                            },
                             maxRetries,
                             initialDelayMs: retryInitialDelayMs,
                             onRetry: ({ attempt, error }) => {
