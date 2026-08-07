@@ -264,6 +264,19 @@ class AuthService {
      * @return {void}
      */
     processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+        // A token that resolves to a completely empty scope (nothing on the JWT itself,
+        // no groups, and userinfo enrichment -- if attempted -- found nothing either) is
+        // authenticated but carries zero permissions; treat it as an auth failure (401),
+        // not a successful login with an empty grant. Without this, such a token would
+        // reach FHIR resource authorization normally and get a 403 there instead --
+        // this codebase's convention (see create_without_access/remove_without_access
+        // integration tests) is that a total absence of scope is 401, while a present
+        // but insufficient/mismatched scope is 403.
+        if (!scope) {
+            logWarn('Auth rejected', {reason: 'no_scope', username, subject});
+            done(null, false, {reason: 'no_scope'});
+            return;
+        }
         const context = {};
         if (username) {
             context.username = username;

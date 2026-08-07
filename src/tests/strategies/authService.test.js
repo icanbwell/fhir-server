@@ -140,14 +140,11 @@ describe('JWT Bearer Strategy', () => {
                 return [];
             }
 
-            /**
-             * @returns {string[]}
-             */
-            get externalAuthWellKnownUrls() {
-                return [
-                    'https://example.com/.well-known/openid-configuration'
-                ];
-            }
+            // externalAuthWellKnownUrls intentionally left at the base class's default
+            // ([]): this test is about NOTHING being configured at all. A non-empty
+            // well-known URL here exercises a different scenario -- "every configured
+            // well-known URL failed to resolve" -- which getJwksUrlsAsync now throws a
+            // transient/503 error for by design (INC-322), not the [] this test expects.
         }
 
         const configManager = new MockConfigManager();

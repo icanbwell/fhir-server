@@ -113,7 +113,11 @@ class WellKnownConfigurationManager {
      * @returns {Promise<WellKnownConfigurationInfo|undefined>}
      */
     async getWellKnownConfigurationForIssuerAsync(issuer) {
-        if (WellKnownConfigurationManager.cache.size === 0 && this.urls.length > 0) {
+        // this.urls.length > 0 must be checked first: the static cache is only ever
+        // initialized (in the constructor) when this.urls.length > 0, so an instance
+        // with no configured URLs leaves WellKnownConfigurationManager.cache undefined --
+        // evaluating `.size` on it before this check throws.
+        if (this.urls.length > 0 && WellKnownConfigurationManager.cache.size === 0) {
             await this.fetchAllConfigurationsAsync();
         }
         for (const url of this.urls) {
