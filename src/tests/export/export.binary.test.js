@@ -143,6 +143,7 @@ describe('Export Binary S3 Hydration Tests', () => {
             searchManager: c.searchManager,
             postSaveProcessor: c.postSaveProcessor,
             bulkExportEventProducer: c.bulkExportEventProducer,
+            storageProviderFactory: c.storageProviderFactory,
             exportStatusId,
             patientReferenceBatchSize: 1000,
             uploadPartSize: 1024 * 1024,

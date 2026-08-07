@@ -1,8 +1,8 @@
 /**
- * Unit tests for BulkImportOrchestratorRunner.
+ * Unit tests for BulkImportHandler.
  *
  * Covers:
- * - parseCloudEvent: validation of event type, taskId, and handling of untrusted fields
+ * - parseTaskCreatedEvent: validation of event type, taskId, and handling of untrusted fields
  * - headS3FilesAsync: S3 bucket allowlist enforcement, URI validation, file size checks
  * - handleMessageAsync: end-to-end message handling, logging of sensitive data
  *
@@ -11,7 +11,7 @@
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 
 // Mock logging before importing the module under test
-jestGlobal.mock('../../../../operations/common/logging', () => {
+jestGlobal.mock('../../../../../operations/common/logging', () => {
     const { jest: j } = require('@jest/globals');
     return {
         logInfo: j.fn(),
@@ -21,7 +21,7 @@ jestGlobal.mock('../../../../operations/common/logging', () => {
     };
 });
 
-jestGlobal.mock('../../../../utils/assertType', () => ({
+jestGlobal.mock('../../../../../utils/assertType', () => ({
     assertTypeEquals: () => {},
     assertIsValid: () => {}
 }));
@@ -33,8 +33,8 @@ jestGlobal.mock('@aws-sdk/client-s3', () => ({
     HeadObjectCommand: jestGlobal.fn().mockImplementation((params) => params)
 }));
 
-const { BulkImportOrchestratorRunner } = require('../../../../operations/import/bulkImportOrchestratorRunner');
-const { logInfo, logError } = require('../../../../operations/common/logging');
+const { BulkImportHandler } = require('../../../../../operations/asyncJobs/bulkImport/handler');
+const { logInfo, logError } = require('../../../../../operations/common/logging');
 
 /**
  * Creates a mock ConfigManager with standard bulk import settings.
@@ -57,17 +57,21 @@ function createMockConfigManager(overrides = {}) {
 }
 
 /**
- * Creates a BulkImportOrchestratorRunner with mock dependencies.
+ * Creates a BulkImportHandler with mock dependencies.
  * @param {Object} [configOverrides] - ConfigManager overrides
- * @returns {BulkImportOrchestratorRunner}
+ * @returns {BulkImportHandler}
  */
-function createRunner(configOverrides = {}) {
-    return new BulkImportOrchestratorRunner({
+function createHandler(configOverrides = {}) {
+    return new BulkImportHandler({
         configManager: createMockConfigManager(configOverrides),
         kafkaClientV2: {},
         bulkImportEventProducer: {},
         databaseQueryFactory: { createQuery: jestGlobal.fn() },
-        databaseUpdateFactory: { createDatabaseUpdateManager: jestGlobal.fn() }
+        databaseUpdateFactory: { createDatabaseUpdateManager: jestGlobal.fn() },
+        fastDatabaseBulkInserter: {},
+        s3NdjsonReader: {},
+        postRequestProcessor: {},
+        requestSpecificCache: {}
     });
 }
 
@@ -91,22 +95,22 @@ function createTaskCreatedMessage({
     });
 }
 
-describe('BulkImportOrchestratorRunner', () => {
-    let runner;
+describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
+    let handler;
 
     beforeEach(() => {
         jestGlobal.clearAllMocks();
         mockSend.mockReset();
-        runner = createRunner();
+        handler = createHandler();
     });
 
     // =========================================================================
-    // parseCloudEvent
+    // parseTaskCreatedEvent
     // =========================================================================
-    describe('parseCloudEvent', () => {
+    describe('parseTaskCreatedEvent', () => {
         test('parses a valid TaskCreated event and returns data', () => {
             const messageValue = createTaskCreatedMessage({ taskId: 'task-xyz' });
-            const result = runner.parseCloudEvent(messageValue);
+            const result = handler.parseTaskCreatedEvent(messageValue);
 
             expect(result.taskId).toBe('task-xyz');
             expect(result.inputs).toBeDefined();
@@ -114,7 +118,7 @@ describe('BulkImportOrchestratorRunner', () => {
         });
 
         test('throws on invalid JSON', () => {
-            expect(() => runner.parseCloudEvent('not json')).toThrow();
+            expect(() => handler.parseTaskCreatedEvent('not json')).toThrow();
         });
 
         test('rejects non-TaskCreated event types', () => {
@@ -123,19 +127,19 @@ describe('BulkImportOrchestratorRunner', () => {
                 data: { taskId: 'task-1' }
             });
 
-            expect(() => runner.parseCloudEvent(msg)).toThrow('Unexpected event type: TaskCompleted');
+            expect(() => handler.parseTaskCreatedEvent(msg)).toThrow('Unexpected event type: TaskCompleted');
         });
 
         test('rejects event with missing type field', () => {
             const msg = JSON.stringify({ data: { taskId: 'task-1' } });
 
-            expect(() => runner.parseCloudEvent(msg)).toThrow('Unexpected event type: undefined');
+            expect(() => handler.parseTaskCreatedEvent(msg)).toThrow('Unexpected event type: undefined');
         });
 
         test('rejects event with missing data field', () => {
             const msg = JSON.stringify({ type: 'TaskCreated' });
 
-            expect(() => runner.parseCloudEvent(msg)).toThrow('missing taskId');
+            expect(() => handler.parseTaskCreatedEvent(msg)).toThrow('missing taskId');
         });
 
         test('rejects event with missing taskId in data', () => {
@@ -144,27 +148,27 @@ describe('BulkImportOrchestratorRunner', () => {
                 data: { inputs: [] }
             });
 
-            expect(() => runner.parseCloudEvent(msg)).toThrow('missing taskId');
+            expect(() => handler.parseTaskCreatedEvent(msg)).toThrow('missing taskId');
         });
 
-        // SECURITY: parseCloudEvent does NOT validate scope or user fields.
+        // SECURITY: parseTaskCreatedEvent does NOT validate scope or user fields.
         // An attacker who can publish to the Kafka topic can set arbitrary
         // scope/user and the orchestrator will process with those credentials.
-        test('SECURITY: parseCloudEvent does not validate scope field - attacker can set arbitrary scope', () => {
+        test('SECURITY: parseTaskCreatedEvent does not validate scope field - attacker can set arbitrary scope', () => {
             const maliciousMsg = createTaskCreatedMessage({
                 scope: 'system/*.*',
                 user: 'admin/root'
             });
-            const result = runner.parseCloudEvent(maliciousMsg);
+            const result = handler.parseTaskCreatedEvent(maliciousMsg);
 
             // The parser blindly passes through whatever scope/user is provided
             expect(result.scope).toBe('system/*.*');
             expect(result.user).toBe('admin/root');
         });
 
-        test('SECURITY: parseCloudEvent accepts empty string scope', () => {
+        test('SECURITY: parseTaskCreatedEvent accepts empty string scope', () => {
             const msg = createTaskCreatedMessage({ scope: '' });
-            const result = runner.parseCloudEvent(msg);
+            const result = handler.parseTaskCreatedEvent(msg);
 
             // Empty scope is accepted without validation
             expect(result.scope).toBe('');
@@ -185,7 +189,7 @@ describe('BulkImportOrchestratorRunner', () => {
                 { url: 's3://another-allowed-bucket/data.ndjson' }
             ];
 
-            const results = await runner.headS3FilesAsync(inputs);
+            const results = await handler.headS3FilesAsync(inputs);
 
             expect(results).toHaveLength(2);
             expect(results[0]).toEqual({
@@ -201,7 +205,7 @@ describe('BulkImportOrchestratorRunner', () => {
         test('rejects S3 URIs from disallowed buckets', async () => {
             const inputs = [{ url: 's3://evil-bucket/stolen-data.ndjson' }];
 
-            await expect(runner.headS3FilesAsync(inputs)).rejects.toThrow(
+            await expect(handler.headS3FilesAsync(inputs)).rejects.toThrow(
                 'S3 bucket "evil-bucket" is not in the allowed list'
             );
         });
@@ -209,26 +213,26 @@ describe('BulkImportOrchestratorRunner', () => {
         test('rejects invalid S3 URIs - no protocol', async () => {
             const inputs = [{ url: 'https://allowed-bucket/file.ndjson' }];
 
-            await expect(runner.headS3FilesAsync(inputs)).rejects.toThrow('Invalid S3 URI');
+            await expect(handler.headS3FilesAsync(inputs)).rejects.toThrow('Invalid S3 URI');
         });
 
         test('rejects S3 URI with bucket only and trailing slash (no key)', async () => {
             // The regex requires at least one character after bucket/
             const inputs = [{ url: 's3://allowed-bucket/' }];
 
-            await expect(runner.headS3FilesAsync(inputs)).rejects.toThrow('Invalid S3 URI');
+            await expect(handler.headS3FilesAsync(inputs)).rejects.toThrow('Invalid S3 URI');
         });
 
         test('rejects S3 URI with bucket only and no trailing slash', async () => {
             const inputs = [{ url: 's3://allowed-bucket' }];
 
-            await expect(runner.headS3FilesAsync(inputs)).rejects.toThrow('Invalid S3 URI');
+            await expect(handler.headS3FilesAsync(inputs)).rejects.toThrow('Invalid S3 URI');
         });
 
         test('accepts S3 URI with minimal single-character key', async () => {
             const inputs = [{ url: 's3://allowed-bucket/a' }];
 
-            const results = await runner.headS3FilesAsync(inputs);
+            const results = await handler.headS3FilesAsync(inputs);
 
             expect(results).toHaveLength(1);
             expect(results[0].url).toBe('s3://allowed-bucket/a');
@@ -240,7 +244,7 @@ describe('BulkImportOrchestratorRunner', () => {
 
             // The bucket is allowed, and the key is not validated for path traversal.
             // S3 treats keys as opaque strings, but this is a defense-in-depth gap.
-            const results = await runner.headS3FilesAsync(inputs);
+            const results = await handler.headS3FilesAsync(inputs);
 
             expect(results).toHaveLength(1);
             expect(results[0].url).toBe('s3://allowed-bucket/../../other-tenant-bucket/data.ndjson');
@@ -249,7 +253,7 @@ describe('BulkImportOrchestratorRunner', () => {
         test('SECURITY: does not validate key path with encoded traversal', async () => {
             const inputs = [{ url: 's3://allowed-bucket/%2e%2e%2f%2e%2e%2fsecret/data.ndjson' }];
 
-            const results = await runner.headS3FilesAsync(inputs);
+            const results = await handler.headS3FilesAsync(inputs);
 
             expect(results).toHaveLength(1);
         });
@@ -257,31 +261,31 @@ describe('BulkImportOrchestratorRunner', () => {
         // BUG: If bulkImportAllowedS3Buckets is undefined/null, allowedBuckets.length
         // throws TypeError instead of a clear error message.
         test('BUG: throws TypeError when allowedBuckets is undefined', async () => {
-            const undefinedBucketsRunner = createRunner({
+            const undefinedBucketsHandler = createHandler({
                 bulkImportAllowedS3Buckets: undefined
             });
             const inputs = [{ url: 's3://allowed-bucket/file.ndjson' }];
 
             // This will throw TypeError because you cannot read .length of undefined
-            await expect(undefinedBucketsRunner.headS3FilesAsync(inputs)).rejects.toThrow(TypeError);
+            await expect(undefinedBucketsHandler.headS3FilesAsync(inputs)).rejects.toThrow(TypeError);
         });
 
         test('BUG: throws TypeError when allowedBuckets is null', async () => {
-            const nullBucketsRunner = createRunner({
+            const nullBucketsHandler = createHandler({
                 bulkImportAllowedS3Buckets: null
             });
             const inputs = [{ url: 's3://allowed-bucket/file.ndjson' }];
 
-            await expect(nullBucketsRunner.headS3FilesAsync(inputs)).rejects.toThrow(TypeError);
+            await expect(nullBucketsHandler.headS3FilesAsync(inputs)).rejects.toThrow(TypeError);
         });
 
         test('throws clear error when allowedBuckets is empty array', async () => {
-            const emptyBucketsRunner = createRunner({
+            const emptyBucketsHandler = createHandler({
                 bulkImportAllowedS3Buckets: []
             });
             const inputs = [{ url: 's3://allowed-bucket/file.ndjson' }];
 
-            await expect(emptyBucketsRunner.headS3FilesAsync(inputs)).rejects.toThrow(
+            await expect(emptyBucketsHandler.headS3FilesAsync(inputs)).rejects.toThrow(
                 'Bulk import S3 bucket allowlist is not configured'
             );
         });
@@ -290,7 +294,7 @@ describe('BulkImportOrchestratorRunner', () => {
             mockSend.mockRejectedValue({ name: 'NotFound', message: 'Not Found' });
             const inputs = [{ url: 's3://allowed-bucket/missing-file.ndjson' }];
 
-            await expect(runner.headS3FilesAsync(inputs)).rejects.toThrow(
+            await expect(handler.headS3FilesAsync(inputs)).rejects.toThrow(
                 'Cannot access S3 file'
             );
         });
@@ -299,7 +303,7 @@ describe('BulkImportOrchestratorRunner', () => {
             mockSend.mockResolvedValue({ ContentLength: 0 });
             const inputs = [{ url: 's3://allowed-bucket/empty.ndjson' }];
 
-            await expect(runner.headS3FilesAsync(inputs)).rejects.toThrow('is empty (0 bytes)');
+            await expect(handler.headS3FilesAsync(inputs)).rejects.toThrow('is empty (0 bytes)');
         });
 
         test('throws when file exceeds maximum size', async () => {
@@ -308,18 +312,18 @@ describe('BulkImportOrchestratorRunner', () => {
             mockSend.mockResolvedValue({ ContentLength: sixGb });
             const inputs = [{ url: 's3://allowed-bucket/huge-file.ndjson' }];
 
-            await expect(runner.headS3FilesAsync(inputs)).rejects.toThrow(
+            await expect(handler.headS3FilesAsync(inputs)).rejects.toThrow(
                 'above the maximum of 5 GB'
             );
         });
 
         test('throws when file is below minimum size', async () => {
-            const minRunner = createRunner({ bulkImportMinFileSizeMb: 10 });
+            const minHandler = createHandler({ bulkImportMinFileSizeMb: 10 });
             // Return a file smaller than 10 MB
             mockSend.mockResolvedValue({ ContentLength: 1024 * 1024 }); // 1 MB
             const inputs = [{ url: 's3://allowed-bucket/tiny-file.ndjson' }];
 
-            await expect(minRunner.headS3FilesAsync(inputs)).rejects.toThrow(
+            await expect(minHandler.headS3FilesAsync(inputs)).rejects.toThrow(
                 'below the minimum of 10 MB'
             );
         });
@@ -329,18 +333,18 @@ describe('BulkImportOrchestratorRunner', () => {
             mockSend.mockResolvedValue({ ContentLength: exactlyFiveGb });
             const inputs = [{ url: 's3://allowed-bucket/big-file.ndjson' }];
 
-            const results = await runner.headS3FilesAsync(inputs);
+            const results = await handler.headS3FilesAsync(inputs);
 
             expect(results[0].fileSize).toBe(exactlyFiveGb);
         });
 
         test('accepts file at exactly the minimum size boundary', async () => {
-            const minRunner = createRunner({ bulkImportMinFileSizeMb: 10 });
+            const minHandler = createHandler({ bulkImportMinFileSizeMb: 10 });
             const exactlyTenMb = 10 * 1024 * 1024;
             mockSend.mockResolvedValue({ ContentLength: exactlyTenMb });
             const inputs = [{ url: 's3://allowed-bucket/exact-min.ndjson' }];
 
-            const results = await minRunner.headS3FilesAsync(inputs);
+            const results = await minHandler.headS3FilesAsync(inputs);
 
             expect(results[0].fileSize).toBe(exactlyTenMb);
         });
@@ -349,7 +353,7 @@ describe('BulkImportOrchestratorRunner', () => {
             mockSend.mockResolvedValue({}); // no ContentLength
             const inputs = [{ url: 's3://allowed-bucket/no-length.ndjson' }];
 
-            await expect(runner.headS3FilesAsync(inputs)).rejects.toThrow(
+            await expect(handler.headS3FilesAsync(inputs)).rejects.toThrow(
                 'returned no ContentLength'
             );
         });
@@ -360,7 +364,7 @@ describe('BulkImportOrchestratorRunner', () => {
                 { url: 's3://evil-bucket/bad.ndjson' }
             ];
 
-            await expect(runner.headS3FilesAsync(inputs)).rejects.toThrow(
+            await expect(handler.headS3FilesAsync(inputs)).rejects.toThrow(
                 'S3 bucket "evil-bucket" is not in the allowed list'
             );
         });
@@ -377,7 +381,7 @@ describe('BulkImportOrchestratorRunner', () => {
                 headers: []
             };
 
-            await runner.handleMessageAsync(message);
+            await handler.handleMessageAsync(message);
 
             expect(logInfo).toHaveBeenCalledWith(
                 'Orchestrator received TaskCreated event',
@@ -395,11 +399,13 @@ describe('BulkImportOrchestratorRunner', () => {
                 headers: []
             };
 
-            // Should not throw - errors are caught and logged
-            await runner.handleMessageAsync(message);
+            // Should not throw - errors are caught and logged. Malformed JSON is
+            // caught by handleMessageAsync's own top-level parse, before routing by
+            // type, so it never reaches the TaskCreated-specific parse/log below.
+            await handler.handleMessageAsync(message);
 
             expect(logError).toHaveBeenCalledWith(
-                'Failed to parse TaskCreated Kafka message',
+                'Failed to parse bulk import Kafka message',
                 expect.objectContaining({
                     key: 'bad-key'
                 })
@@ -416,12 +422,15 @@ describe('BulkImportOrchestratorRunner', () => {
                 headers: []
             };
 
-            await runner.handleMessageAsync(message);
+            await handler.handleMessageAsync(message);
 
+            // handleMessageAsync's own type-based routing rejects this before it ever
+            // reaches handleTaskCreatedAsync's internal parseTaskCreatedEvent check.
             expect(logError).toHaveBeenCalledWith(
-                'Failed to parse TaskCreated Kafka message',
+                'Unexpected bulk import event type',
                 expect.objectContaining({
-                    error: expect.stringContaining('Unexpected event type')
+                    type: 'TaskCompleted',
+                    key: 'wrong-type'
                 })
             );
         });
@@ -445,7 +454,7 @@ describe('BulkImportOrchestratorRunner', () => {
                 headers: []
             };
 
-            await runner.handleMessageAsync(message);
+            await handler.handleMessageAsync(message);
 
             // The logInfo call includes the full inputs array with sensitive paths
             expect(logInfo).toHaveBeenCalledWith(
@@ -469,7 +478,7 @@ describe('BulkImportOrchestratorRunner', () => {
                 headers: []
             };
 
-            await runner.handleMessageAsync(message);
+            await handler.handleMessageAsync(message);
 
             // Attacker-controlled scope and user are logged and would be used
             expect(logInfo).toHaveBeenCalledWith(
