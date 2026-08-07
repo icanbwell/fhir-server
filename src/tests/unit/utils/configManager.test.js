@@ -207,6 +207,17 @@ describe('ConfigManager', () => {
             process.env.AUTH_CID_CHECK_CLIENT_IDS = 'cid1,cid2';
             expect(new ConfigManager().authCidCheckClientIds).toEqual(['cid1', 'cid2']);
         });
+
+        // DCON-4882
+        test('restrictNonPatientScopeForPatientTokens defaults to false when not set', () => {
+            delete process.env.AUTH_RESTRICT_NON_PATIENT_SCOPE_FOR_PATIENT_TOKENS;
+            expect(new ConfigManager().restrictNonPatientScopeForPatientTokens).toBe(false);
+        });
+
+        test('restrictNonPatientScopeForPatientTokens returns true when set', () => {
+            process.env.AUTH_RESTRICT_NON_PATIENT_SCOPE_FOR_PATIENT_TOKENS = '1';
+            expect(new ConfigManager().restrictNonPatientScopeForPatientTokens).toBe(true);
+        });
     });
 
     // ========== supportLegacyIds ==========

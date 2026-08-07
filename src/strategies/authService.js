@@ -394,6 +394,39 @@ class AuthService {
     }
 
     /**
+     * Returns true if the scope grants wildcard non-patient authority: `user/*.<x>` or
+     * `access/*.<x>` where the resource-type / tenant segment is `*` (e.g. `user/*.*`, `access/*.*`,
+     * `user/*.read`). Narrowly-scoped grants (`user/Questionnaire.*`, `access/walgreen.*`) and every
+     * `patient/` scope return false. See DCON-4882.
+     * @param {string} scope
+     * @returns {boolean}
+     */
+    isWildcardNonPatientScope(scope) {
+        if (typeof scope !== 'string') {
+            return false;
+        }
+        const lower = scope.toLowerCase();
+        if (!lower.startsWith('user/') && !lower.startsWith('access/')) {
+            return false;
+        }
+        const afterSlash = scope.substring(scope.indexOf('/') + 1);
+        const resourceOrTenant = afterSlash.split('.')[0];
+        return resourceOrTenant === '*';
+    }
+
+    /**
+     * Returns true if the raw JWT payload carries any patient/person id claim
+     * (this.requiredJWTFields). A real client-credentials grant has no authenticated end user
+     * behind it, so it structurally cannot carry these claims -- their presence means the token
+     * belongs to a real person. See DCON-4882.
+     * @param {Object} jwt_payload
+     * @returns {boolean}
+     */
+    hasPatientOrPersonIdClaim(jwt_payload) {
+        return Object.values(this.requiredJWTFields).some((field) => Boolean(jwt_payload[field]));
+    }
+
+    /**
      * Extracts fields from the JWT payload.
      * @param {Object} jwt_payload
      * @returns {{scope: string, isUser: boolean, username: string|undefined, subject: string|undefined, clientId: string|undefined}}
@@ -443,6 +476,25 @@ class AuthService {
                 }
             );
             scope = scopes.join(' ');
+        }
+
+        // A token carrying a patient/person id claim belongs to a real person -- a real
+        // client-credentials grant has no end user behind it and structurally cannot carry these
+        // claims. A real person should never also hold wildcard user/*.* or access/*.* authority,
+        // regardless of what scope an upstream identity provider granted, so strip only those
+        // wildcard scopes here. patient/ scopes and narrowly-scoped grants (user/Questionnaire.*,
+        // access/walgreen.*) are never touched. Config-gated (default off) so unconfigured
+        // environments are unchanged. See DCON-4882.
+        if (this.configManager.restrictNonPatientScopeForPatientTokens && this.hasPatientOrPersonIdClaim(jwt_payload)) {
+            const removedScopes = scopes.filter((s) => this.isWildcardNonPatientScope(s));
+            if (removedScopes.length > 0) {
+                logWarn('Stripped wildcard non-patient scopes from a patient/person-id-bearing token', {
+                    reason: 'wildcard_non_patient_scope_stripped_for_patient_token',
+                    args: { removedScopes }
+                });
+                scopes = scopes.filter((s) => !this.isWildcardNonPatientScope(s));
+                scope = scopes.join(' ');
+            }
         }
 
         const username = jwt_payload.username
@@ -495,15 +547,33 @@ class AuthService {
                 .retry(EXTERNAL_REQUEST_RETRY_COUNT)
                 .timeout(this.requestTimeout);
             if (userInfoResponse && userInfoResponse.body) {
-                jwt_payload = userInfoResponse.body;
-                const userInfo = this.getFieldsFromToken(jwt_payload);
+                // Preserve the original token's patient/person id claims rather than trusting
+                // whatever the userinfo response body says -- that body is unverified JSON over
+                // HTTP, unlike the JWT's own claims, which were already checked against the JWKS
+                // signature. Letting the response body add or remove one of these claims would let
+                // an untrusted value decide the wildcard-scope restriction in getFieldsFromToken
+                // (hasPatientOrPersonIdClaim, DCON-4882), which is exactly the kind of trust
+                // decision these claims exist to protect.
+                const claimOverrides = {};
+                for (const field of Object.values(this.requiredJWTFields)) {
+                    claimOverrides[field] = jwt_payload[field];
+                }
+                const mergedPayload = { ...userInfoResponse.body, ...claimOverrides };
+                const userInfo = this.getFieldsFromToken(mergedPayload);
                 if (cacheKey) {
                     AuthService.userInfoCache.set(cacheKey, userInfo);
                 }
                 return userInfo;
             }
         }
-        return jwt_payload;
+        // No userinfo endpoint configured for this issuer (or its response had no body) --
+        // reapply getFieldsFromToken on the original payload rather than returning it raw. If the
+        // first getFieldsFromToken call (in verify()) already stripped a wildcard-only scope down
+        // to '' because this token carries a patient/person id claim, returning jwt_payload
+        // unprocessed would hand verify() the token's raw, un-stripped scope, which its
+        // `scope1 || scope` fallback then picks over the (correctly) stripped empty scope --
+        // undoing the strip for exactly the token this check exists to restrict.
+        return this.getFieldsFromToken(jwt_payload);
     }
 
     /**

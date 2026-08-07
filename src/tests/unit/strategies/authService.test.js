@@ -57,6 +57,7 @@ describe('AuthService', () => {
         Object.defineProperty(mockConfigManager, 'authCidCheckIssuer', { get: () => '', configurable: true });
         Object.defineProperty(mockConfigManager, 'authCidCheckClientIds', { get: () => [], configurable: true });
         Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => false, configurable: true });
+        Object.defineProperty(mockConfigManager, 'restrictNonPatientScopeForPatientTokens', { get: () => false, configurable: true });
 
         mockWellKnownConfigManager = createMockInstance(WellKnownConfigurationManager);
         mockWellKnownConfigManager.getJwksUrlsAsync = jest.fn().mockResolvedValue([]);
@@ -491,6 +492,130 @@ describe('AuthService', () => {
             });
             const result = authService.getFieldsFromToken({ scope: 'short:user/*.read' });
             expect(result.scope).toBe('user/*.read');
+        });
+
+        // DCON-4882: wildcard non-patient scope restriction for patient/person-id-bearing tokens
+        describe('wildcard non-patient scope restriction for patient tokens (DCON-4882)', () => {
+            test('leaves scopes unchanged when the flag is off, even with a patient id claim', () => {
+                const result = authService.getFieldsFromToken({
+                    clientFhirPatientId: 'patient-1',
+                    scope: 'patient/*.* user/*.* access/*.*'
+                });
+                expect(result.scope).toBe('patient/*.* user/*.* access/*.*');
+            });
+
+            test('strips wildcard user/ and access/ scopes when the flag is on and a patient id claim is present', () => {
+                Object.defineProperty(mockConfigManager, 'restrictNonPatientScopeForPatientTokens', {
+                    get: () => true, configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    clientFhirPatientId: 'patient-1',
+                    scope: 'aws.cognito.signin.user.admin access/*.* patient/*.* user/*.*'
+                });
+                expect(result.scope).toBe('aws.cognito.signin.user.admin patient/*.*');
+                expect(result.isUser).toBe(true);
+            });
+
+            test('strips wildcard scopes when the flag is on and a person id claim is present (no patient id)', () => {
+                Object.defineProperty(mockConfigManager, 'restrictNonPatientScopeForPatientTokens', {
+                    get: () => true, configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    bwellFhirPersonId: 'person-1',
+                    scope: 'user/*.* access/*.*'
+                });
+                expect(result.scope).toBe('');
+            });
+
+            test('leaves scopes unchanged when the flag is on but no patient/person id claim is present', () => {
+                Object.defineProperty(mockConfigManager, 'restrictNonPatientScopeForPatientTokens', {
+                    get: () => true, configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    scope: 'user/*.* access/*.*'
+                });
+                expect(result.scope).toBe('user/*.* access/*.*');
+            });
+
+            test('preserves narrowly-scoped non-patient grants for a patient-id-bearing token', () => {
+                Object.defineProperty(mockConfigManager, 'restrictNonPatientScopeForPatientTokens', {
+                    get: () => true, configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    clientFhirPatientId: 'patient-1',
+                    scope: 'patient/*.* user/Questionnaire.* access/walgreen.* access/*.*'
+                });
+                // only the true wildcard (access/*.*) is stripped; narrow grants survive
+                expect(result.scope).toBe('patient/*.* user/Questionnaire.* access/walgreen.*');
+            });
+
+            test('applies after AUTH_REMOVE_SCOPE_PREFIX stripping', () => {
+                Object.defineProperty(mockConfigManager, 'restrictNonPatientScopeForPatientTokens', {
+                    get: () => true, configurable: true
+                });
+                Object.defineProperty(mockConfigManager, 'authRemoveScopePrefixes', {
+                    get: () => ['myapp:'], configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    clientFhirPatientId: 'patient-1',
+                    scope: 'myapp:patient/*.* myapp:access/*.*'
+                });
+                expect(result.scope).toBe('patient/*.*');
+            });
+        });
+    });
+
+    describe('isWildcardNonPatientScope', () => {
+        test.each([
+            ['user/*.*', true],
+            ['access/*.*', true],
+            ['User/*.Read', true],
+            ['ACCESS/*.write', true],
+            ['user/Questionnaire.*', false],
+            ['access/walgreen.*', false],
+            ['patient/*.*', false],
+            ['admin/*.*', false],
+            ['', false]
+        ])('%s -> %s', (scope, expected) => {
+            expect(authService.isWildcardNonPatientScope(scope)).toBe(expected);
+        });
+
+        test('returns false for non-string input', () => {
+            expect(authService.isWildcardNonPatientScope(undefined)).toBe(false);
+            expect(authService.isWildcardNonPatientScope(null)).toBe(false);
+        });
+    });
+
+    describe('hasPatientOrPersonIdClaim', () => {
+        test.each([
+            [{ clientFhirPersonId: 'p1' }, true],
+            [{ clientFhirPatientId: 'p1' }, true],
+            [{ bwellFhirPersonId: 'p1' }, true],
+            [{ bwellFhirPatientId: 'p1' }, true],
+            [{}, false],
+            [{ sub: 'some-user' }, false]
+        ])('%o -> %s', (jwt_payload, expected) => {
+            expect(authService.hasPatientOrPersonIdClaim(jwt_payload)).toBe(expected);
         });
     });
 
@@ -1119,6 +1244,73 @@ describe('AuthService', () => {
             expect(user).toBeUndefined();
             expect(info).toBeUndefined();
         });
+
+        test('DCON-4882: does not resurrect a wildcard-only patient-token via the empty-scope userinfo fallback', async () => {
+            // Regression test: stripping a wildcard-only scope down to '' trips verify()'s
+            // pre-existing "no scope -> try userinfo endpoint" branch. If that branch's fallback
+            // returned jwt_payload raw (its un-stripped scope intact) instead of reapplying the
+            // strip, verify()'s `scope1 || scope` would pick the raw wildcard scope back up,
+            // completely undoing the restriction for exactly the token it exists to restrict.
+            Object.defineProperty(mockConfigManager, 'restrictNonPatientScopeForPatientTokens', {
+                get: () => true, configurable: true
+            });
+            mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest.fn().mockResolvedValue(null);
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager
+            });
+
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: {
+                    iss: 'https://issuer.example.com',
+                    clientFhirPatientId: 'patient-1',
+                    scope: 'user/*.* access/*.*' // wildcard-only, no patient/ scope
+                },
+                token: 'tok',
+                done
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 20));
+            expect(done).toHaveBeenCalledWith(null, false, { reason: 'no_scope' });
+        });
+
+        test('DCON-4882: does not trust the userinfo response body to remove a patient id claim', async () => {
+            // Regression test: the userinfo-response merge must preserve the ORIGINAL token's
+            // patient/person id claims, not whatever the (unverified) response body says. If the
+            // merge let the response body's absence of the claim win, a patient-id-bearing token
+            // could escape the restriction simply by omitting the claim from its userinfo response.
+            Object.defineProperty(mockConfigManager, 'restrictNonPatientScopeForPatientTokens', {
+                get: () => true, configurable: true
+            });
+            mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest.fn().mockResolvedValue({
+                userinfo_endpoint: 'http://auth.example.com/userinfo'
+            });
+            superagent.timeout.mockResolvedValue({
+                body: { scope: 'user/*.* access/*.*' } // no patient/person claim echoed back
+            });
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager
+            });
+
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: {
+                    iss: 'https://issuer.example.com',
+                    sub: 'sub-1',
+                    clientFhirPatientId: 'patient-1'
+                    // no scope on the JWT itself -- must be resolved via the userinfo endpoint
+                },
+                token: 'tok',
+                done
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 20));
+            expect(done).toHaveBeenCalledWith(null, false, { reason: 'no_scope' });
+        });
     });
 
     describe('getUserInfoFromUserInfoEndpoint', () => {
@@ -1141,30 +1333,32 @@ describe('AuthService', () => {
             expect(result).toEqual(cachedUserInfo);
         });
 
-        test('returns jwt_payload when no well-known config found', async () => {
+        test('reapplies getFieldsFromToken on the original payload when no well-known config found', async () => {
+            // DCON-4882: must NOT return jwt_payload verbatim (its raw, un-stripped scope) --
+            // see the fail-open regression test in the `verify` block for why that would matter.
             mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync.mockResolvedValue(null);
 
-            const jwt_payload = { iss: 'issuer1', cid: 'cid1', sub: 'sub1' };
+            const jwt_payload = { iss: 'issuer1', cid: 'cid1', sub: 'sub1', scope: 'user/*.read' };
             const result = await authService.getUserInfoFromUserInfoEndpoint({
                 jwt_payload,
                 token: 'my-token'
             });
 
-            expect(result).toBe(jwt_payload);
+            expect(result).toEqual({ scope: 'user/*.read', isUser: false, username: null, subject: null, clientId: null });
         });
 
-        test('returns jwt_payload when well-known config has no userinfo_endpoint', async () => {
+        test('reapplies getFieldsFromToken on the original payload when well-known config has no userinfo_endpoint', async () => {
             mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync.mockResolvedValue({
                 jwks_uri: 'http://jwks.example.com'
             });
 
-            const jwt_payload = { iss: 'issuer1', cid: 'cid1', sub: 'sub1' };
+            const jwt_payload = { iss: 'issuer1', cid: 'cid1', sub: 'sub1', scope: 'user/*.read' };
             const result = await authService.getUserInfoFromUserInfoEndpoint({
                 jwt_payload,
                 token: 'my-token'
             });
 
-            expect(result).toBe(jwt_payload);
+            expect(result).toEqual({ scope: 'user/*.read', isUser: false, username: null, subject: null, clientId: null });
         });
 
         test('fetches user info and caches result', async () => {

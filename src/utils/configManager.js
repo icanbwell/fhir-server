@@ -1004,6 +1004,20 @@ class ConfigManager {
     }
 
     /**
+     * When true, a token carrying a patient/person id claim has its wildcard non-patient scopes
+     * (user/*.*, access/*.*) stripped, regardless of what the token's own scope claims. A real
+     * client-credentials grant has no authenticated end user, so it can never carry these claims --
+     * their presence means a real person is behind the token, and a real person should never also
+     * hold unrestricted tenant-wide read access via a wildcard scope, no matter what an upstream
+     * identity provider happened to grant. Defaults to false (unset = unchanged behavior). See
+     * DCON-4882.
+     * @returns {boolean}
+     */
+    get restrictNonPatientScopeForPatientTokens() {
+        return isTrue(env.AUTH_RESTRICT_NON_PATIENT_SCOPE_FOR_PATIENT_TOKENS);
+    }
+
+    /**
      * Allowlisted purposeOfUse codes parsed from CMS_ALLOWED_PURPOSE_OF_USE env var.
      * @returns {Set<string>}
      */
