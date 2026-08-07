@@ -4,7 +4,8 @@
 //   A3 / SAE-1 tenant cannot read a resource tagged only for another tenant; never sees its data
 //   D-IDG5 / IDG-5  an untagged PROA patient reachable ONLY via Person.link is not returned
 //   A3 / SAE-4 foreign patient by id is indistinguishable from not-found
-// MOCKED-LOGIC. LIVE validation blocked (staging service accounts denied) — plan Section 5.2.
+// Narrow integration. The broad-integration equivalent is in src/tests/live and is
+// gated on service-account credentials.
 // ============================================================================
 // =============================================================================
 // SEC-1580 — Cross-tenant isolation on $everything / Person.link traversal.
@@ -17,15 +18,14 @@
 //   SAE-4  A by-identifier read of a resource the caller isn't entitled to must be
 //          indistinguishable from "not found" (no existence oracle).
 //
-// Real-world origin: on staging, two upstream PROA Patient records were found reachable
-// via Person.link from five unrelated client tenants' Persons, carrying none of those
-// tenants' access tags and with no Consent naming them. This models that exact shape
-// with synthetic tenants (tenantA / tenantB / upstream_proa_source) so it can run in CI
-// against the server's real authorization code.
+// Shape under test: an upstream PROA Patient linked by Person.link from a client
+// tenant's Person, carrying none of that tenant's access tags and with no Consent
+// naming it. Modeled with synthetic tenants (tenantA / tenantB /
+// upstream_proa_source) so it runs in CI against the server's authorization code.
 //
-// POLARITY: every assertion states the SECURE, correct outcome. These tests PASS on a
-// correctly-isolated server and FAIL only when isolation is actually broken; a fix makes
-// them pass again. There are no "expected to fail" tests here.
+// POLARITY: every assertion states the target secure outcome. These tests pass when
+// the traversal and access checks behave as specified. There are no expected-to-fail
+// tests in this file.
 // =============================================================================
 
 const tenantAPersonResource = require('./fixtures/person/tenant_a_person.json');

@@ -3,18 +3,18 @@
 // a read request.
 //
 // Every other matrix file asks "given this data, who can read it?". This one
-// asks the opposite: when the data or the config changes, does visibility
-// follow immediately? A cached answer that outlives the permission it was
-// computed from is a leak with no attacker involved.
+// asks the opposite: when the data or the config changes, does visibility follow
+// immediately? A cached answer that outlives the permission it was computed from
+// would widen access with no caller action involved.
 //
-// Rules: CACHE-1 (a cached authorised view is dropped when the tags or consent
+// Rules: CACHE-1 (a cached authorized view is dropped when the tags or consent
 // behind it change), CL-2 and CL-3 (revocation lands promptly, and the
 // invalidation is triggered by the change itself), WPI-1 (access fields are
 // protected on every write mechanism).
 //
 // Also covers the paths that change tags in bulk. Admin runners and background
-// jobs can widen visibility across many records at once and nothing watches
-// them, so a bug there is both quiet and large.
+// jobs can widen visibility across many records at once, so this asserts that the
+// intended scoping holds on those paths.
 // =============================================================================
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');

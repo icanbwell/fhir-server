@@ -1,6 +1,7 @@
 // =============================================================================
-// AUTH AND WRITE FINDINGS — three more behaviours the matrix turned up. Each
-// test states the secure outcome and fails until fixed. Quarantined; run with:
+// AUTH AND WRITE GAPS — three more behaviors that do not yet meet the target
+// state. Each test states the target outcome and fails until it does. Quarantined;
+// run with:
 //   npx jest src/tests/security/matrix/findings.bugs
 //
 // 1. AN ID TOKEN WORKS AS AN ACCESS TOKEN
@@ -11,9 +12,9 @@
 //
 // 2. A MALFORMED SEARCH PARAMETER RETURNS 500
 //    At least one bad parameter value crashes the request instead of returning a
-//    4xx. A 500 is a robustness problem on its own, and it's the response most
-//    likely to carry a stack trace, so it's also the most likely place to leak
-//    internals. The suite checks the body separately and that part passes today.
+//    4xx. A 500 is a robustness concern on its own, and is the response most
+//    likely to carry a stack trace, so it is the most likely place for internal
+//    detail to appear. The body assertion is separate and passes today.
 //
 // 3. A CROSS-TENANT WRITE MAKES THE VICTIM'S RECORD UNREADABLE BY SOURCE ID
 //    Ids carry the owning tenant, so tenant A writing to tenant B's source id

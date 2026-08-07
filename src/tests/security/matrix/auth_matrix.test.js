@@ -3,11 +3,11 @@
 // missing credential, and what it says when it refuses.
 //
 // Two separate concerns:
-//   1. Fail closed. A request the server cannot authenticate or authorize must
-//      be refused. When the identity provider is unreachable the answer must be
-//      "try again" (5xx), never "you are not allowed" (401) and never success --
-//      a transient outage that reads as a valid rejection hides an outage, and
-//      one that reads as success is a breach. (INC-322)
+//   1. Fail closed. A request the server cannot authenticate or authorize must be
+//      refused. When the identity provider is unreachable the response must be
+//      retryable (5xx) rather than a rejection (401), and must never succeed. A
+//      transient outage reported as a valid rejection hides the outage. See
+//      INC-322.
 //   2. Say nothing useful. A refusal must not disclose tenant names, tag values,
 //      internal ids, stack traces, query fragments or database details.
 //
@@ -56,7 +56,7 @@ function algNoneJwt () {
     })}.`;
 }
 
-const LEAKY_PATTERNS = [
+const DISCLOSURE_PATTERNS = [
     /mongo/i, /mongodb/i, /aggregate/i, /\$match/, /\$lookup/,
     /at [A-Za-z0-9_$.]+ \(\/.*\.js:\d+/,     // a stack frame with a file path
     /node_modules/,
@@ -67,7 +67,7 @@ const LEAKY_PATTERNS = [
 
 function assertNoInternalDetail (resp) {
     const body = JSON.stringify(resp.body || {}) + String(resp.text || '');
-    for (const re of LEAKY_PATTERNS) {
+    for (const re of DISCLOSURE_PATTERNS) {
         expect(body).not.toMatch(re);
     }
 }

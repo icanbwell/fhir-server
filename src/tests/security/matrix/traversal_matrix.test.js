@@ -1,14 +1,12 @@
 // =============================================================================
 // SYSTEMATIC TRAVERSAL MATRIX — every shape a Person.link graph can take.
 //
-// Person.link is the mechanism that stitches one human's records together
-// across sources. It is also the mechanism behind INC-331: the link graph is
-// how a request for one person reached another person's data. The link has no
-// field recording WHY two persons are linked, so one shape covers three very
-// different relationships:
+// Person.link is the mechanism that stitches one human's records together across
+// sources, and is referenced in INC-331. The link carries no field recording WHY
+// two persons are linked, so one shape covers three different relationships:
 //   (a) same human, different tenant account  -> legitimate, must be followed
-//   (b) same human, duplicate/erroneous account -> a data defect, must not be
-//   (c) different humans, an authorised relationship (Health Circle) -> not yet
+//   (b) same human, duplicate or erroneous account -> a data-quality gap, must not be
+//   (c) different humans, an authorized relationship (Health Circle) -> not yet
 //       governed by any access-control layer
 // Owner-tag equality is the only signal available to tell (a) from (b).
 //
@@ -113,8 +111,9 @@ describe('SECURITY MATRIX — Person.link traversal shapes', () => {
 
     // -----------------------------------------------------------------------
     // IDG-2: a same-owner person-to-person hop must be a dead end. Two master
-    // records owned by the same tenant are either a duplicate-identity defect
-    // or an ungoverned Health Circle relationship -- neither should be walked.
+    // records owned by the same tenant indicate either a duplicate-identity
+    // data-quality gap or an ungoverned Health Circle relationship. Neither is a
+    // traversal step.
     // -----------------------------------------------------------------------
     describe('same-owner person hop is a dead end (IDG-2)', () => {
         const patA = pat('trvSoPatA', T_A, [T_A]);
@@ -235,7 +234,7 @@ describe('SECURITY MATRIX — Person.link traversal shapes', () => {
     });
 
     // -----------------------------------------------------------------------
-    // Malformed graphs must not crash or leak.
+    // Malformed graphs must terminate without error and without widening results.
     // -----------------------------------------------------------------------
     describe('malformed link graphs', () => {
         test('a cycle between two persons terminates without error', async () => {
@@ -263,7 +262,7 @@ describe('SECURITY MATRIX — Person.link traversal shapes', () => {
             expect(resIds(resp)).toContain('trvSelfPat');
         });
 
-        test('a link to a target that does not exist does not error or leak', async () => {
+        test('a link to a target that does not exist does not error or widen results', async () => {
             const patD = pat('trvDanglePat', T_A, [T_A]);
             const pD = per('trvDangle', T_A, [T_A], [
                 { ref: 'trvDanglePat', type: 'Patient', saa: T_A },

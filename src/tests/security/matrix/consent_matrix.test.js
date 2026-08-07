@@ -18,7 +18,7 @@
 // (inactive), rejected, draft, entered-in-error, provision deny, a consent
 // naming a different actor, and a consent a client writes for itself.
 //
-// Rules: CL-1 (validity period honoured, not just status), CL-2 (revocation
+// Rules: CL-1 (validity period honored, not just status), CL-2 (revocation
 // lands on the next request), CACHE-2 (a per-request cached decision is keyed
 // per batch -- the INC-331 cause), SAE-6 (the consent lookup is itself scoped).
 // =============================================================================
@@ -50,7 +50,7 @@ const BASE = [
 ];
 
 // The consent read path forces a Mongo index hint that the in-memory server has
-// no index for. Neutralising the hint is what the repo's own data-sharing tests
+// no index for. Neutralizing the hint is what the repo's own data-sharing tests
 // do; it stubs index selection only, not any access check.
 const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
@@ -138,10 +138,10 @@ describe('CONSENT MATRIX', () => {
     // The state table.
     // -----------------------------------------------------------------------
     describe('state table', () => {
-        // Rows the server handles correctly. The four it doesn't -- expired period,
-        // future period, a consent naming someone else's person, and a client writing
-        // its own consent -- live in consent_findings.bugs so they stay visible as
-        // tracked defects instead of turning this file red.
+        // States the server already handles as specified. Four states that do not yet
+        // meet the target state (elapsed period, future period, a consent naming a
+        // different person, and a client-written consent) are covered in
+        // consent_findings.bugs so they stay tracked without turning this file red.
         const CASES = [
             { name: 'active, period covers now', unlocks: true, c: { status: 'active', period: CURRENT } },
             { name: 'active, no period at all', unlocks: true, c: { status: 'active' } },

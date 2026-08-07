@@ -1,7 +1,7 @@
 // =============================================================================
-// TRAVERSAL FINDINGS — two link-graph behaviours that widen what a caller sees.
-// Each test states the secure outcome and fails until fixed. Quarantined from
-// the default run; run directly with:
+// TRAVERSAL GAPS — two link-graph behaviors that widen results beyond the target
+// state. Each test states the target outcome and fails until the behavior matches
+// it. Quarantined; run directly with:
 //   npx jest src/tests/security/matrix/findings.bugs
 //
 // 1. SAME-OWNER PERSON HOP IS FOLLOWED

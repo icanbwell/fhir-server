@@ -4,7 +4,8 @@
 //   D-IDG5 / IDG-5  IAS (connectionType=ias) record reachable only via Person.link, no tag/
 //                   consent, is not returned
 //   A3 / SAE-4      IAS record by id is indistinguishable from not-found
-// MOCKED-LOGIC. LIVE validation blocked (staging service accounts denied) — plan Section 5.2.
+// Narrow integration. The broad-integration equivalent is in src/tests/live and is
+// gated on service-account credentials.
 // ============================================================================
 // =============================================================================
 // IAS / TEFCA isolation parity (connectionType=ias).

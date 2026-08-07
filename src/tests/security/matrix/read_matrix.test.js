@@ -1,10 +1,10 @@
 // =============================================================================
 // SYSTEMATIC READ MATRIX — every endpoint that returns data, every caller type.
 //
-// This suite is derived from the access model, not from the incident list. For
-// each (endpoint, caller) pair it asserts the EXACT set of resources returned.
-// An exact-set assertion fails on over-sharing (a leak) and on under-sharing
-// (a broken feature), so a green result is meaningful in both directions.
+// This suite is derived from the access model rather than from a list of prior
+// tickets. For each (endpoint, caller) pair it asserts the EXACT set of resources
+// returned. An exact-set assertion fails on over-sharing and on under-sharing, so
+// a passing result is meaningful in both directions.
 //
 // Rules exercised: SAE-1 (at least one matching access tag grants read),
 // SAE-3 (patient-scoped callers get the same per-resource check), IDG-5 (a
@@ -284,8 +284,8 @@ describe('SECURITY MATRIX — read paths', () => {
             // tenantB's own observation carries no tenantA tag and must never appear
             expect(got).not.toContain('mtxObsOwnB');
             // mtxObsSharedAB carries access [tenanta, tenantb], so tenantA IS entitled to
-            // read it directly. Its presence here is not a PHI leak; what it reveals is
-            // that the traversal of a foreign person ran at all.
+            // read it directly, so returning it is within the access rules. What the
+            // result indicates is that the traversal of a foreign person executed.
         });
 
         test('tenantB substituting tenantA\'s person id gets none of A\'s data', async () => {

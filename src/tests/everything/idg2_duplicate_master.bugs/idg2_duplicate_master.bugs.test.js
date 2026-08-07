@@ -10,7 +10,7 @@
 // NOT masterB's (that hop is same-owner and should be a dead end).
 //
 // Asserts the SECURE outcome; if the same-owner hop is followed, masterB's Observation
-// leaks in and this FAILS. *.bugs — excluded from default CI.
+// is returned and this FAILS. *.bugs, excluded from default CI.
 // ============================================================================
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');

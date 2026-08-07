@@ -1,7 +1,7 @@
 // =============================================================================
-// FINDINGS — three behaviours the matrix turned up. Each test states the secure
-// outcome and fails until the behaviour changes. Quarantined from the default
-// run (see jest.config.js) so a known, tracked issue doesn't block CI.
+// GAPS — three behaviors that do not yet meet the target secure state. Each test
+// states the target outcome and fails until the behavior matches it. Quarantined
+// from the default run (see jest.config.js) so tracked work does not block CI.
 //
 // Run directly:
 //   npx jest src/tests/security/matrix/findings.bugs

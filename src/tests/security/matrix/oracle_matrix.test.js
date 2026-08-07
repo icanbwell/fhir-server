@@ -38,7 +38,7 @@ async function seed () {
     return request;
 }
 
-// Normalise a response for comparison: blank the id being probed so two replies
+// Normalize a response for comparison: blank the id being probed so two replies
 // that differ only by the id they echo compare equal.
 function shape (resp, probedId) {
     // Blank the things that legitimately vary per call: the probed id, the Bundle's

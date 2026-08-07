@@ -4,19 +4,19 @@
 // identity provider.
 //
 // WHY THIS EXISTS SEPARATELY FROM THE IN-PROCESS MATRIX
-// The in-process matrix proves the access-control code is correct. It cannot
-// prove the deployed system is correct, because three things are only true of
-// the real environment:
-//   1. real indexes and real data volume  (a tag-filtered search that returns
-//      instantly against a dozen records can crawl against millions)
-//   2. real connections to the other services that write into this one
-//   3. the real configuration -- whether a client was actually provisioned for
-//      one tenant or accidentally for all of them is set in the identity
-//      provider, not in this repository, and can change with no code change
+// The in-process matrix establishes that the access-control code is correct. It
+// cannot establish properties of the deployed environment, because three of them
+// exist only there:
+//   1. indexes and row counts (a tag-filtered search returning in milliseconds
+//      against 12 records can time out against millions)
+//   2. connections to the other services that write into this one
+//   3. deployed configuration. The scope granted to a client is held in the
+//      identity provider, not in this repository, and can change with no code
+//      change
 //
 // STATUS: written and committed. Every block self-skips unless the environment
-// below is present, so a normal run and CI are unaffected. Nothing here needs
-// new test code -- only credentials.
+// below is present, so a normal run and CI are unaffected. No further test code is
+// required, only credentials.
 //
 // REQUIRED ENVIRONMENT (scripts/security/.env, git-ignored; CI secrets)
 //   FHIR_BASE_URL        e.g. https://fhir.staging.icanbwell.com  (paths add /4_0_0)
@@ -37,9 +37,9 @@
 //
 // A NOTE ON `prefer`
 // $everything and $summary force internal-id output unless told otherwise, so a
-// check that greps the response for a source id cannot detect a leak on those
-// endpoints. Every request below sends `prefer: global_id=false` and the leak
-// check looks for BOTH id forms.
+// check that searches the response for a source id would not match on those
+// endpoints. Every request below sends `prefer: global_id=false`, and the
+// containment check covers both id forms.
 // =============================================================================
 const fs = require('fs');
 const path = require('path');

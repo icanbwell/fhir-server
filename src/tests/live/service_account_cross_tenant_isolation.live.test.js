@@ -47,9 +47,9 @@ const NONEXISTENT = '00000000-0000-4000-8000-000000000000';
 
 function client(token) { return axios.create({ baseURL: FHIR, headers: { Authorization: `Bearer ${token}` }, validateStatus: () => true, timeout: 30000 }); }
 function bodyStr(r) { return typeof r.data === 'string' ? r.data : JSON.stringify(r.data || ''); }
-function leaks(r, needle) { return needle ? bodyStr(r).includes(needle) : false; }
-// denied = 4xx, OR 200 whose body does not contain the forbidden id
-function denied(r, needle) { return [401, 403, 404].includes(r.status) || (r.status === 200 && !leaks(r, needle)); }
+function containsId(r, needle) { return needle ? bodyStr(r).includes(needle) : false; }
+// denied = 4xx, or 200 whose body does not contain the id under test
+function denied(r, needle) { return [401, 403, 404].includes(r.status) || (r.status === 200 && !containsId(r, needle)); }
 
 // ---- READ isolation (read-only SA) ----
 const roReady = E.RUN_LIVE_ISOLATION && RO && B_PATIENT;
@@ -60,7 +60,7 @@ const roReady = E.RUN_LIVE_ISOLATION && RO && B_PATIENT;
         if (!A_PATIENT) return; // control needs a known own-tenant id
         const r = await a.get(`/4_0_0/Patient/${A_PATIENT}`);
         expect(r.status).toBe(200);
-        expect(leaks(r, A_PATIENT)).toBe(true);
+        expect(containsId(r, A_PATIENT)).toBe(true);
     }, 40000);
 
     test('read by id: tenant-B Patient is denied (and no existence oracle)', async () => {
@@ -72,13 +72,13 @@ const roReady = E.RUN_LIVE_ISOLATION && RO && B_PATIENT;
 
     test('search by _id does not return tenant-B Patient', async () => {
         const r = await a.get(`/4_0_0/Patient?_id=${B_PATIENT}`);
-        expect(leaks(r, B_PATIENT)).toBe(false);
+        expect(containsId(r, B_PATIENT)).toBe(false);
     }, 40000);
 
     test('search by _security (tenant-B tag) cannot widen to tenant B', async () => {
         if (!B_TAG) return;
         const r = await a.get(`/4_0_0/Patient?_security=https://www.icanbwell.com/access|${encodeURIComponent(B_TAG)}`);
-        expect(leaks(r, B_PATIENT)).toBe(false);
+        expect(containsId(r, B_PATIENT)).toBe(false);
     }, 40000);
 
     test('$everything on tenant-B Patient is denied', async () => {
@@ -89,12 +89,12 @@ const roReady = E.RUN_LIVE_ISOLATION && RO && B_PATIENT;
     test('$everything on tenant-B Person returns no tenant-B data', async () => {
         if (!B_PERSON) return;
         const r = await a.get(`/4_0_0/Person/${B_PERSON}/$everything`);
-        expect(leaks(r, B_PATIENT)).toBe(false);
+        expect(containsId(r, B_PATIENT)).toBe(false);
     }, 60000);
 
     test('$graph rooted at tenant-B Patient returns no tenant-B data', async () => {
         const r = await a.post(`/4_0_0/Patient/$graph?id=${B_PATIENT}&contained=true`, {});
-        expect(!(r.status === 200 && leaks(r, B_PATIENT))).toBe(true);
+        expect(!(r.status === 200 && containsId(r, B_PATIENT))).toBe(true);
     }, 60000);
 
     test('$summary on tenant-B Patient is denied', async () => {
@@ -104,27 +104,27 @@ const roReady = E.RUN_LIVE_ISOLATION && RO && B_PATIENT;
 
     test('_history on tenant-B Patient returns no tenant-B data', async () => {
         const r = await a.get(`/4_0_0/Patient/${B_PATIENT}/_history`);
-        expect(leaks(r, B_PATIENT)).toBe(false);
+        expect(containsId(r, B_PATIENT)).toBe(false);
     }, 40000);
 
     test('_revinclude search cannot pull tenant-B Patient via a related resource', async () => {
         const r = await a.get(`/4_0_0/Observation?_revinclude=Patient:link&_count=50`);
-        expect(leaks(r, B_PATIENT)).toBe(false);
+        expect(containsId(r, B_PATIENT)).toBe(false);
     }, 40000);
 
     test('bulk $export kickoff/status never echoes tenant-B ids', async () => {
         const r = await a.post(`/4_0_0/$export?_type=Patient`, {}, { headers: { Prefer: 'respond-async' } });
-        expect(leaks(r, B_PATIENT)).toBe(false);
+        expect(containsId(r, B_PATIENT)).toBe(false);
     }, 60000);
 
     test('GraphQL v1 (/$graphql) cannot return tenant-B Patient', async () => {
         const r = await a.post('/$graphql', { query: `query { patient(id: "${B_PATIENT}") { id } }` });
-        expect(leaks(r, B_PATIENT)).toBe(false);
+        expect(containsId(r, B_PATIENT)).toBe(false);
     }, 40000);
 
     test('GraphQL v2 (/4_0_0/$graphqlv2) cannot return tenant-B Patient', async () => {
         const r = await a.post('/4_0_0/$graphqlv2', { query: `query { patient(id: "${B_PATIENT}") { id } }` });
-        expect(leaks(r, B_PATIENT)).toBe(false);
+        expect(containsId(r, B_PATIENT)).toBe(false);
     }, 40000);
 });
 
@@ -185,7 +185,7 @@ const rwReady = E.RUN_LIVE_ISOLATION && RW && B_TAG;
         });
         // A subsequent $everything on this person must not surface tenant-B data.
         const ev = await w.get(`/4_0_0/Person/sa-live-linkforge-001/$everything`);
-        expect(leaks(ev, B_PATIENT)).toBe(false);
+        expect(containsId(ev, B_PATIENT)).toBe(false);
     }, 60000);
 });
 
@@ -196,6 +196,6 @@ const gtReady = E.RUN_LIVE_ISOLATION && E.ADMIN_TOKEN && B_PATIENT;
     test('admin CAN reach the tenant-B Patient (proves the target is real and endpoint works)', async () => {
         const r = await adm.get(`/4_0_0/Patient/${B_PATIENT}`);
         expect(r.status).toBe(200);
-        expect(leaks(r, B_PATIENT)).toBe(true);
+        expect(containsId(r, B_PATIENT)).toBe(true);
     }, 40000);
 });

@@ -1,11 +1,11 @@
 // =============================================================================
 // Shared universe for the systematic FHIR-server security matrix.
 //
-// This is NOT a regression fixture set for known bugs. It enumerates every
-// visibility CLASS a resource can belong to under the security model, so the
-// matrix suites can assert the EXACT set of resources each caller type should
-// see through each endpoint. Asserting an exact set catches over-sharing (a
-// leak) and under-sharing (a broken feature) with the same assertion.
+// This is not a regression fixture set built from prior tickets. It enumerates
+// every visibility CLASS a resource can belong to under the security model, so the
+// matrix suites can assert the EXACT set of resources each caller type should see
+// through each endpoint. Asserting an exact set catches over-sharing and
+// under-sharing with the same assertion.
 //
 // Visibility classes (the access rule is: a caller may read a resource if it
 // holds at least one of that resource's access tags -- SAE-1):

@@ -1,7 +1,7 @@
 // =============================================================================
-// CONSENT FINDINGS — four consent states that unlock upstream data when they
-// shouldn't. Each test states the secure outcome and fails until fixed.
-// Quarantined from the default run; run directly with:
+// CONSENT GAPS — four consent states that unlock upstream data where the target
+// state is that they should not. Each test states the target outcome and fails
+// until the behavior matches it. Quarantined; run directly with:
 //   npx jest src/tests/security/matrix/findings.bugs
 //
 // 1. EXPIRED CONSENT STILL WORKS
@@ -13,14 +13,14 @@
 //    Same code path, other direction: a period starting in 2090 unlocks today.
 //    A consent scheduled to begin later is live the moment it's written.
 //
-// 3. THE AUTHORISING ACTOR ISN'T CHECKED
+// 3. THE AUTHORIZING ACTOR ISN'T CHECKED
 //    Repointing the provision actor (role AUT) at a completely different,
 //    non-existent person leaves the consent working. So the consent is matched
-//    on the patient and the owning client but not on who authorised it.
+//    on the patient and the owning client but not on who authorized it.
 //
 // 4. A CLIENT CAN GRANT ITSELF ACCESS
 //    A client with write scope can create a consent naming itself as recipient
-//    of upstream data, and it's honoured. Combined with 3, a client that can
+//    of upstream data, and it's honored. Combined with 3, a client that can
 //    write a Consent can unlock upstream data for any patient it can name.
 //
 //    TODO(product): confirm who is supposed to be able to create a dataSharing
@@ -124,7 +124,7 @@ describe('CONSENT FINDINGS', () => {
     });
 
     // ---- 3 ----------------------------------------------------------------
-    test('SECURE: a consent naming a different authorising actor does not unlock', async () => {
+    test('SECURE: a consent naming a different authorizing actor does not unlock', async () => {
         const request = await seed([variant({
             status: 'active', period: CURRENT,
             actorRef: 'Patient/person.00000000-0000-4000-8000-000000000000'

@@ -1,10 +1,10 @@
 // =============================================================================
 // SYSTEMATIC WRITE MATRIX — every write mechanism, every caller type.
 //
-// The read side gets most of the attention after a leak, but writes are what
-// create the tags, links and consents the read path later trusts. A caller that
-// can add another tenant's access tag to a record has granted that tenant read
-// access without ever reading anything itself.
+// Writes create the tags, links and consents that the read path later trusts, so
+// they need the same coverage as reads. A caller able to add another tenant's
+// access tag to a record would grant that tenant read access without reading
+// anything itself.
 //
 // Rules exercised:
 //   SAE-2  a resource carrying several access tags may only be written by a

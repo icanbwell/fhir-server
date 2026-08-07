@@ -6,7 +6,7 @@
 //
 // This asserts the SECURE behavior: data reachable only through a low-assurance link is
 // NOT returned. Against current code it FAILS (the low-assurance patient's Observation
-// comes back), which is the point — it documents the vulnerability and will turn green
+// comes back), which is the point. It records the target state and will turn green
 // when assurance is honored. Named *.bugs.test.js and excluded from the default CI run,
 // per the repo's existing convention for fail-by-design tests.
 // ============================================================================
