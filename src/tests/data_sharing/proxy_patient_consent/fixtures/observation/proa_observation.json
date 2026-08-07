@@ -1,0 +1,35 @@
+{
+    "resourceType": "Observation",
+    "id": "b59f86b9-5307-506a-bb6c-3eb555ace5a1",
+    "meta": {
+        "source": "/patients",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "health-service"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "health-service"
+            },
+            {
+                "system": "https://www.icanbwell.com/connectionType",
+                "code": "proa"
+            }
+        ]
+    },
+    "status": "final",
+    "code": {
+        "coding": [
+            {
+                "system": "http://www.icanbwell.com/cql/library",
+                "code": "BMI001"
+            }
+        ]
+    },
+    "subject": {
+        "reference": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce7"
+    },
+    "issued": "2021-01-01T12:00:00Z",
+    "valueBoolean": false
+}
