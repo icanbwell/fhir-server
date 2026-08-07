@@ -349,12 +349,15 @@ class DelegatedAccessRulesManager {
      * which can be used later in the request processing pipeline
      * @param {import('./fhirRequestInfo').JwtActor} actor
      * @param {string} personIdFromJwtToken
+     * @param {string} [base_version] the FHIR version of the resource being requested;
+     *  falls back to getFilteringRulesAsync's default when not supplied by the caller
      * @returns {Promise<boolean>}
      */
-    async hasValidConsentAsync({ actor, personIdFromJwtToken }) {
+    async hasValidConsentAsync({ actor, personIdFromJwtToken, base_version }) {
         const result = await this.getFilteringRulesAsync({
             actor,
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            base_version
         });
         const filteringRules = result.filteringRules;
         if (!filteringRules) {

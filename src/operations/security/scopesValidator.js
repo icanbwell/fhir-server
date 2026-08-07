@@ -65,15 +65,18 @@ class ScopesValidator {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {("read"|"write")} accessRequested
+     * @param {string} [base_version] the FHIR version of the resource being requested,
+     *  used to scope the delegated-actor consent check to the correct version
      * @returns {Promise<ForbiddenError|undefined>}
      */
-    async isScopesValidAsync({requestInfo, resourceType, accessRequested}) {
+    async isScopesValidAsync({requestInfo, resourceType, accessRequested, base_version}) {
         // eslint-disable-next-line no-useless-catch
         try {
             if (this.configManager.enableDelegatedAccessDetection && requestInfo.userType === AUTH_USER_TYPES.delegatedUser) {
                 const isAllowed = await this.delegatedAccessScopeManager.isAccessAllowedAsync({
                     actor: requestInfo.actor,
-                    personIdFromJwtToken: requestInfo.personIdFromJwtToken
+                    personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                    base_version
                 });
                 if (!isAllowed) {
                     return new ForbiddenError(
@@ -158,7 +161,9 @@ class ScopesValidator {
         // eslint-disable-next-line no-useless-catch
         try {
             // Verify if scopes are valid
-            const forbiddenError = await this.isScopesValidAsync({requestInfo, resourceType, accessRequested});
+            const forbiddenError = await this.isScopesValidAsync({
+                requestInfo, resourceType, accessRequested, base_version: parsedArgs?.base_version
+            });
 
             if (forbiddenError) {
                 await this.fhirLoggingManager.logOperationFailureAsync({
@@ -196,7 +201,9 @@ class ScopesValidator {
             accessRequested
         }
     ) {
-        const forbiddenError = await this.isScopesValidAsync({requestInfo, resourceType, accessRequested});
+        const forbiddenError = await this.isScopesValidAsync({
+            requestInfo, resourceType, accessRequested, base_version: parsedArgs?.base_version
+        });
         return !forbiddenError;
     }
 
