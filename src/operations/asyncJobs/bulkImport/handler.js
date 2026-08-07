@@ -652,7 +652,7 @@ class BulkImportHandler {
 
         try {
             try {
-                for await (const { lineNumber, resource } of this.s3NdjsonReader.readNdjsonAsync({
+                for await (const { lineNumber, byteOffset, resource } of this.s3NdjsonReader.readNdjsonAsync({
                     filepath,
                     byteRangeStart,
                     byteRangeEnd,
@@ -681,12 +681,13 @@ class BulkImportHandler {
                         // resourceType) — still record it so it lands in the error NDJSON and
                         // Task.output, not just a log line.
                         mergeResultEntries.push(
-                            MergeResultEntry.createFromError({ error: resourceError, resource, lineNumber })
+                            MergeResultEntry.createFromError({ error: resourceError, resource, sourceByteOffset: byteOffset })
                         );
                         logError('Failed to buffer bulk import resource for write', {
                             taskId,
                             filepath,
                             lineNumber,
+                            byteOffset,
                             error: resourceError.message
                         });
                     }

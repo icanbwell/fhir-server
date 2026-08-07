@@ -22,7 +22,10 @@ class MockS3NdjsonReader extends S3NdjsonReader {
     async *readNdjsonAsync({ filepath, byteRangeStart, byteRangeEnd, fileSize }) {
         this.readCalls.push({ filepath, byteRangeStart, byteRangeEnd, fileSize });
         for (let i = 0; i < this.linesToYield.length; i++) {
-            yield { lineNumber: i + 1, resource: this.linesToYield[i] };
+            // byteOffset is arbitrary here (this mock doesn't read real bytes) but must be
+            // distinct per line and independent of byteRangeStart to mirror the real
+            // reader's guarantee that it's a stable, range-independent identifier.
+            yield { lineNumber: i + 1, byteOffset: i * 100, resource: this.linesToYield[i] };
         }
     }
 

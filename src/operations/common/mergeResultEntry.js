@@ -4,7 +4,11 @@ const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_element
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Extension = require('../../fhir/classes/4_0_0/complex_types/extension');
 
-const SOURCE_LINE_EXTENSION_URL = 'https://www.icanbwell.com/source-line';
+// Byte offset rather than a decimal line number: bulk import splits large files into
+// byte ranges processed independently, and a within-range line counter resets to 1 for
+// every range, so it can't identify a line's true position in the original file. An
+// absolute byte offset is unambiguous no matter how the file was split.
+const SOURCE_BYTE_OFFSET_EXTENSION_URL = 'https://www.icanbwell.com/source-byte-offset';
 
 class MergeResultEntry {
     /**
@@ -83,10 +87,11 @@ class MergeResultEntry {
      * Creates a MergeResultEntry from an error
      * @param {Error} error
      * @param {Resource} resource
-     * @param {number|undefined} [lineNumber] - source NDJSON line number, e.g. for bulk import errors
+     * @param {number|undefined} [sourceByteOffset] - absolute byte offset of the source NDJSON
+     *   line in its original file, e.g. for bulk import errors
      * @return {MergeResultEntry}
      */
-    static createFromError ({ error, resource, lineNumber }) {
+    static createFromError ({ error, resource, sourceByteOffset }) {
         /**
          * @type {OperationOutcome}
          */
@@ -103,12 +108,12 @@ class MergeResultEntry {
                     expression: [
                         resource.resourceType
                     ],
-                    extension: lineNumber === undefined
+                    extension: sourceByteOffset === undefined
                         ? undefined
                         : [
                             new Extension({
-                                url: SOURCE_LINE_EXTENSION_URL,
-                                valueInteger: lineNumber
+                                url: SOURCE_BYTE_OFFSET_EXTENSION_URL,
+                                valueInteger: sourceByteOffset
                             })
                         ]
                 })
