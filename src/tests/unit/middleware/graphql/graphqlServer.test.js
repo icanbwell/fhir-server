@@ -86,11 +86,29 @@ jestObj.mock('../../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeI
     return jestObj.fn().mockImplementation((props) => props);
 });
 
+const { GraphQLError } = require('graphql');
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@as-integrations/express5');
 const { ApolloServerPluginLandingPageDisabled } = require('@apollo/server/plugin/disabled');
 const { ApolloServerPluginLandingPageLocalDefault } = require('@apollo/server/plugin/landingPage/default');
 const { graphql } = require('../../../../middleware/graphql/graphqlServer');
+
+/**
+ * Wraps an original error (as thrown inside a resolver/data source) in a
+ * GraphQLError with a `path`, matching how Apollo Server actually reports
+ * resolver errors to `formatError`. `unwrapResolverError` (from
+ * `@apollo/server/errors`) only unwraps to `originalError` when the error has
+ * both a `path` and an `originalError` -- i.e. it came from field resolution,
+ * as opposed to a parse/validation-time GraphQLError.
+ * @param {Error} originalError
+ * @return {GraphQLError}
+ */
+function asResolverError (originalError) {
+    return new GraphQLError(originalError.message, {
+        path: ['someField'],
+        originalError
+    });
+}
 
 describe('graphqlServer', () => {
     let mockContainer;
@@ -214,6 +232,68 @@ describe('graphqlServer', () => {
             const result = serverConfig.stringifyResult({ data: { patient: { id: '1' } } });
 
             expect(result).toBe(JSON.stringify({ data: { patient: { id: '1' } } }, null, 2));
+        });
+
+        describe('formatError - Internal error message leakage', () => {
+            // Apollo's expressMiddleware handles resolver/data-source throws itself
+            // (responding HTTP 200 with an `errors` array) and never calls `next(err)`,
+            // so graphqlErrorFormatter's redaction never runs for this path. These tests
+            // exercise the actual path: `formatError`, called with a GraphQLError that
+            // has `path` + `originalError` set, matching real Apollo behavior for a
+            // resolver/data-source throw (e.g. src/graphql/dataSource.js rethrowing a
+            // non-NotFound error unchanged via `throw e`).
+
+            test('5xx (unclassified) errors thrown inside a resolver are redacted', async () => {
+                await graphql(fnGetContainer);
+                const serverConfig = ApolloServer.mock.calls[0][0];
+
+                const internalMessage = 'MongoServerSelectionError: Server selection timed out for cluster at 10.0.1.50:27017';
+                const originalError = new Error(internalMessage);
+                const formattedError = {
+                    message: internalMessage,
+                    extensions: { code: 'INTERNAL_SERVER_ERROR' }
+                };
+
+                const result = serverConfig.formatError(formattedError, asResolverError(originalError));
+
+                expect(result.message).toBe('Internal server error');
+                expect(result.message).not.toContain('10.0.1.50');
+                expect(result.message).not.toContain('27017');
+                expect(result.message).not.toContain('MongoServerSelectionError');
+            });
+
+            test('4xx errors thrown inside a resolver remain descriptive (not redacted)', async () => {
+                await graphql(fnGetContainer);
+                const serverConfig = ApolloServer.mock.calls[0][0];
+
+                const message = 'Resource Patient/123 not found';
+                const originalError = new Error(message);
+                originalError.statusCode = 404;
+                const formattedError = {
+                    message,
+                    extensions: { code: 'NOT_FOUND' }
+                };
+
+                const result = serverConfig.formatError(formattedError, asResolverError(originalError));
+
+                expect(result.message).toBe(message);
+            });
+
+            test('GraphQL parse/validation errors (no path/originalError) are not touched by redaction', async () => {
+                await graphql(fnGetContainer);
+                const serverConfig = ApolloServer.mock.calls[0][0];
+
+                const message = 'Variable "$id" of required type "String!" was not provided.';
+                const formattedError = {
+                    message,
+                    extensions: { code: 'BAD_USER_INPUT' }
+                };
+                const validationError = new GraphQLError(message, {});
+
+                const result = serverConfig.formatError(formattedError, validationError);
+
+                expect(result.message).toBe(message);
+            });
         });
     });
 });
