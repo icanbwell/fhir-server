@@ -83,6 +83,9 @@ class ProaConsentManager {
      * @property {string[]} securityTags security Tags
      * @property {{[key: string]: string[]}} personToLinkedPatientsMap person to linked patient map
      * @param {PatientIdsWithConsent} param
+     * @returns {Promise<{allowedPatientIds: Set<string>, consentedPersonUuids: Set<string>}>}
+     *   allowedPatientIds: input patient ids whose person has a valid consent;
+     *   consentedPersonUuids: uuids of the persons those consents belong to (for proxy-patient references)
      */
     async getPatientIdsWithConsent ({ patientIdToImmediatePersonUuid, securityTags, personToLinkedPatientsMap }) {
         /**
@@ -117,6 +120,13 @@ class ProaConsentManager {
          * @type {Set<string>}
          */
         const allowedPatientIds = new Set();
+        /**
+         * Uuids of persons whose linked patient has a valid consent, i.e. the persons the
+         * consents semantically belong to. Used to allow proxy-patient references
+         * (Patient/person.<personUuid>) into the consented query branch.
+         * @type {Set<string>}
+         */
+        const consentedPersonUuids = new Set();
         consentResources.forEach((consent) => {
             const patientId = consent.patient?._uuid || consent.patient?._sourceId;
             if (!patientId) {
@@ -133,13 +143,14 @@ class ProaConsentManager {
             }
             matchingPersons.forEach((personUuid) => {
                 if (immediatePersonToInputPatientId.has(personUuid)) {
+                    consentedPersonUuids.add(personUuid);
                     immediatePersonToInputPatientId.get(personUuid).forEach((patientId) => {
                         allowedPatientIds.add(patientId);
                     });
                 }
             });
         });
-        return allowedPatientIds;
+        return { allowedPatientIds, consentedPersonUuids };
     }
 
     /**

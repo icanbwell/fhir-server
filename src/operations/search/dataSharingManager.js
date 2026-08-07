@@ -189,6 +189,12 @@ class DataSharingManager {
          */
         let allowedPatientIds;
         /**
+         * Uuids of persons having a valid data-sharing consent, used to allow proxy-patient
+         * references (Patient/person.<personUuid>) into the consented query branch.
+         * @type {Set<string>}
+         */
+        let consentedPersonUuids;
+        /**
          * Updated query filter with consented data.
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
@@ -203,15 +209,18 @@ class DataSharingManager {
         if (allowConsentedProaDataAccess && this.configManager.enableConsentedProaDataAccess) {
             if (everythingCacheMap?.has('allowedPatientIds')) {
                 allowedPatientIds = everythingCacheMap.get('allowedPatientIds');
+                consentedPersonUuids = everythingCacheMap.get('consentedPersonUuids');
             } else {
                 // Filter Patients which have provided consent to view data.
-                allowedPatientIds = await this.proaConsentManager.getPatientIdsWithConsent({
-                    patientIdToImmediatePersonUuid,
-                    securityTags,
-                    personToLinkedPatientsMap
-                });
+                ({ allowedPatientIds, consentedPersonUuids } =
+                    await this.proaConsentManager.getPatientIdsWithConsent({
+                        patientIdToImmediatePersonUuid,
+                        securityTags,
+                        personToLinkedPatientsMap
+                    }));
                 if (requestId) {
                     everythingCacheMap.set('allowedPatientIds', allowedPatientIds);
+                    everythingCacheMap.set('consentedPersonUuids', consentedPersonUuids);
                 }
             }
             allowedConnectionTypesList = this.configManager.getConsentConnectionTypesList;
@@ -220,7 +229,22 @@ class DataSharingManager {
                 patientIdToConnectionTypeMap,
                 allowedConnectionTypesList
             });
-            if (allowedPatientIds.size > 0 && allowedConnectionTypesList.length) {
+            // Proxy-patient references are only admitted for allowlisted resource types, and
+            // never for the Patient resource itself (the proxy patient has no document).
+            const proxyPatientConsentedResourceTypes = this.configManager.getProxyPatientConsentedResourceTypes;
+            /**
+             * Persons whose proxy-patient references may enter the consented branch for this
+             * resource type. Empty set when not allowlisted, so the reference rebuild below
+             * drops proxy references exactly as before.
+             * @type {Set<string>}
+             */
+            const consentedProxyPersonUuids =
+                resourceType !== 'Patient' &&
+                (proxyPatientConsentedResourceTypes.includes('*') ||
+                    proxyPatientConsentedResourceTypes.includes(resourceType))
+                    ? consentedPersonUuids
+                    : new Set();
+            if ((allowedPatientIds.size > 0 || consentedProxyPersonUuids.size > 0) && allowedConnectionTypesList.length) {
                 queryWithConsentedData = this.getConnectionTypeFilteredQuery({
                     base_version,
                     resourceType,
@@ -229,7 +253,8 @@ class DataSharingManager {
                     allowedConnectionTypesList,
                     useHistoryTable,
                     patientsList,
-                    isUser
+                    isUser,
+                    consentedProxyPersonUuids
                 });
             }
         }
@@ -443,6 +468,8 @@ class DataSharingManager {
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @property {any[]} patientsList List of patients containing id, _sourceId, _uuid & meta.security
      * @property {boolean} isUser whether request is with patient scope
+     * @property {Set<string>|undefined} consentedProxyPersonUuids Persons with valid consent whose
+     *   proxy-patient references (Patient/person.<personUuid>) may enter the consented branch
      * @param {RewriteDataSharingQuery2} param
      */
     getConnectionTypeFilteredQuery({
@@ -453,7 +480,8 @@ class DataSharingManager {
         allowedConnectionTypesList,
         useHistoryTable,
         patientsList,
-        isUser
+        isUser,
+        consentedProxyPersonUuids = new Set()
     }) {
         /**
          * Clone of the original parsed arguments
@@ -490,6 +518,15 @@ class DataSharingManager {
                         // Check if ref.id is uuid or sourceId.
                         if (isUuid(ref.id) && allowedPatientIds.has(ref.id)) {
                             newQueryParameterValues.push(`Patient/${ref.id}`);
+                        } else if (ref.id.startsWith(PERSON_PROXY_PREFIX)) {
+                            // Proxy-patient reference: kept only when the person behind the
+                            // proxy has a valid consent and this resource type is allowlisted
+                            // (consentedProxyPersonUuids is empty otherwise). Only the uuid
+                            // form (person.<personUuid>) is supported; other forms fail closed.
+                            const personUuid = ref.id.replace(PERSON_PROXY_PREFIX, '');
+                            if (consentedProxyPersonUuids.has(personUuid)) {
+                                newQueryParameterValues.push(`Patient/${ref.id}`);
+                            }
                         } else if (!isUuid(ref.id) && !ref.id.includes(PERSON_PROXY_PREFIX)) {
                             const refUUID = patientsList.find(patient => patient.id === ref.id)?._uuid;
                             if (refUUID && allowedPatientIds.has(refUUID)) {
