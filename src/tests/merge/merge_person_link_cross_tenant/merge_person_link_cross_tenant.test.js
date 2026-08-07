@@ -102,7 +102,7 @@ describe('DCON-4844 - $merge cannot link a Person into another tenant\'s identit
             .get('/4_0_0/Person/person-tenant-a-1')
             .set(getHeaders())
             .expect(200);
-        expect(getResp.body.link[0].target.reference).toStrictEqual('Person/person-tenant-a-2');
+        expect(getResp.body.link[0].target.reference).toStrictEqual('Person/person-tenant-a-2|tenant_a');
     });
 
     test('rejects an access-scoped caller creating a brand-new Person with the cross-tenant link already inlined', async () => {
