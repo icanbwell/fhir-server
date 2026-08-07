@@ -1329,6 +1329,40 @@ describe('AuthService', () => {
             expect(AuthService.userInfoCache.has('issuer2-cid2-sub2')).toBe(true);
         });
 
+        test('DCON-4882: does not trust an iss value injected via the userinfo response body', async () => {
+            // Regression test for a real IDOR-via-issuer-spoofing bug: the original fix merged
+            // the userinfo body with `{ iss: jwt_payload.iss, ...userInfoResponse.body }`, which let
+            // a same-named `iss` field in the (unverified, HTTP-fetched) response body silently win
+            // over the original JWT's signature-verified `iss` claim. Here the allowlist trusts the
+            // spoofed issuer but NOT the real one -- if the bug were present, the wildcard access/*.*
+            // scope would survive; with the fix, the real iss governs and it must be stripped.
+            mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync.mockResolvedValue({
+                userinfo_endpoint: 'http://auth.example.com/userinfo'
+            });
+            superagent.timeout.mockResolvedValue({
+                body: {
+                    iss: 'https://spoofed-issuer.example.com',
+                    client_id: 'trusted-client',
+                    scope: 'patient/*.* access/*.*'
+                }
+            });
+            Object.defineProperty(mockConfigManager, 'allowedNonPatientScopeClients', {
+                get: () => new Set(['https://spoofed-issuer.example.com|trusted-client']),
+                configurable: true
+            });
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager
+            });
+
+            const result = await authService.getUserInfoFromUserInfoEndpoint({
+                jwt_payload: { iss: 'https://real-verified-issuer.example.com', cid: 'cid-x', sub: 'sub-x' },
+                token: 'my-token'
+            });
+
+            expect(result.scope).toBe('patient/*.*');
+        });
+
         test('does not cache when iss, cid, or sub is missing', async () => {
             mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync.mockResolvedValue({
                 userinfo_endpoint: 'http://auth.example.com/userinfo'

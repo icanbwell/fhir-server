@@ -543,12 +543,14 @@ class AuthService {
                 .retry(EXTERNAL_REQUEST_RETRY_COUNT)
                 .timeout(this.requestTimeout);
             if (userInfoResponse && userInfoResponse.body) {
-                // Preserve the original token's iss if the userinfo endpoint's response body doesn't
-                // echo it back -- getFieldsFromToken's wildcard-non-patient-scope issuer check (see
-                // isWildcardNonPatientScope, DCON-4882) needs the real issuer to avoid incorrectly
-                // treating a legitimate, allowlisted issuer's token as untrusted.
-                jwt_payload = { ...userInfoResponse.body, iss: jwt_payload.iss };
-                const userInfo = this.getFieldsFromToken(jwt_payload);
+                // Always keep the original token's iss, even if the userinfo response body includes
+                // its own iss field -- that field is unverified JSON over HTTP, unlike the JWT's iss
+                // claim, which was already checked against the JWKS signature. Letting a response
+                // body value override a signature-verified claim would let an untrusted value decide
+                // getFieldsFromToken's wildcard-non-patient-scope issuer check (isWildcardNonPatientScope,
+                // DCON-4882), which is exactly the kind of trust decision that claim exists to protect.
+                const mergedPayload = { ...userInfoResponse.body, iss: jwt_payload.iss };
+                const userInfo = this.getFieldsFromToken(mergedPayload);
                 if (cacheKey) {
                     AuthService.userInfoCache.set(cacheKey, userInfo);
                 }
