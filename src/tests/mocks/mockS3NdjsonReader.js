@@ -1,9 +1,10 @@
-const { S3NdjsonReader } = require('../../operations/import/s3NdjsonReader');
+const { S3NdjsonReader } = require('../../operations/asyncJobs/bulkImport/s3NdjsonReader');
 
 class MockS3NdjsonReader extends S3NdjsonReader {
     constructor({ configManager }) {
         super({ configManager });
         this.readCalls = [];
+        this.writeCalls = [];
         /**
          * @type {Array<Object>}
          */
@@ -29,8 +30,17 @@ class MockS3NdjsonReader extends S3NdjsonReader {
         return this.readCalls;
     }
 
+    async writeNdjsonAsync({ filepath, data }) {
+        this.writeCalls.push({ filepath, data });
+    }
+
+    getWriteCalls() {
+        return this.writeCalls;
+    }
+
     clear() {
         this.readCalls = [];
+        this.writeCalls = [];
         this.linesToYield = [];
     }
 }

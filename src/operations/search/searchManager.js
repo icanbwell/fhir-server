@@ -260,7 +260,15 @@ class SearchManager {
                  * @type {string[]}
                  */
                 const allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                    base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext
+                    base_version,
+                    isUser,
+                    personIdFromJwtToken,
+                    addPersonOwnerToContext,
+                    // Apply the caller's access-tag security filter while traversing Person.link so a
+                    // Person/Patient reachable only via a cross-tenant link on the caller's own Person
+                    // is not silently included in the patient-scope filter. Only supplied when we have
+                    // a real user identity to check against (see getSecurityTagsFromScope).
+                    requestInfo: typeof user === 'string' && scope ? { user, scope } : undefined
                 });
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
