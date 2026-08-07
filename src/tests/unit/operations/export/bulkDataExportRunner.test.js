@@ -326,7 +326,21 @@ describe('BulkDataExportRunner', () => {
                 return Promise.resolve({ ETag: `etag${uploadedParts.length}` });
             });
 
-            await runner.processResourceAsync({ resourceType: 'Patient', query: {} });
+            // buildElementsProjection() is what actually derives isProjected=true here
+            // (processResourceAsync computes elementsProjection from searchParams, unlike
+            // exportPatientDataAsync which takes it directly) - wire the two calls it
+            // makes through r4ArgsParser/searchManager so it returns a truthy projection.
+            mocks.r4ArgsParser.parseArgs = jest.fn(({ args } = {}) => ({
+                headers: {},
+                _elements: args?._elements
+            }));
+            mocks.searchManager.handleElementsQuery = jest.fn(() => ({
+                options: { projection: { id: 1 } }
+            }));
+            const searchParams = new URLSearchParams();
+            searchParams.set('_elements', 'id');
+
+            await runner.processResourceAsync({ resourceType: 'Patient', query: {}, searchParams });
 
             expect(uploadedParts.length).toBeGreaterThan(1);
 
@@ -369,7 +383,11 @@ describe('BulkDataExportRunner', () => {
                 resourceType: 'Patient',
                 query: {},
                 patientReferences: ['Patient/1'],
-                multipartContext
+                multipartContext,
+                // Truthy projection -> isProjected=true -> serializeExportDoc skips
+                // enrichment/attachment/base64 entirely, matching the actual _elements
+                // path this fix targets (and avoiding the need to mock those out).
+                elementsProjection: { resourceType: 1, id: 1 }
             });
 
             // The trailing under-target remainder is intentionally left in
