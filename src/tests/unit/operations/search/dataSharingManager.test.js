@@ -160,7 +160,10 @@ describe('DataSharingManager', () => {
                 findAsync: jest.fn().mockResolvedValue(mockCursor)
             });
 
-            mockProaConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue(new Set(['patient-uuid-1']));
+            mockProaConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue({
+                allowedPatientIds: new Set(['patient-uuid-1']),
+                consentedPersonUuids: new Set(['person-uuid-1'])
+            });
 
             mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({
                 query: { 'subject.reference': 'Patient/patient-uuid-1' }
@@ -254,7 +257,10 @@ describe('DataSharingManager', () => {
                 patientReferenceToPersonUuid: { [patientUuid]: ['person-uuid-1'] },
                 personToLinkedPatientsMap: new Map()
             });
-            mockProaConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue(new Set([patientUuid]));
+            mockProaConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue({
+                allowedPatientIds: new Set([patientUuid]),
+                consentedPersonUuids: new Set(['person-uuid-1'])
+            });
             mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({
                 query: { 'subject.reference': `Patient/${patientUuid}` }
             });
