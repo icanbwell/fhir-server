@@ -1,7 +1,7 @@
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { BulkImportOrchestratorRunner } = require('../../operations/import/bulkImportOrchestratorRunner');
-const { ConfigManager } = require('../../utils/configManager');
+const { BulkImportHandler } = require('../../../operations/asyncJobs/bulkImport/handler');
+const { ConfigManager } = require('../../../utils/configManager');
 
 const makeTaskCreatedEvent = (overrides = {}) => {
     const data = {
@@ -34,7 +34,7 @@ const validParametersBody = {
     ]
 };
 
-describe('BulkImportOrchestratorRunner', () => {
+describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
     beforeEach(async () => {
         process.env.ENABLE_BULK_IMPORT = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
@@ -49,47 +49,47 @@ describe('BulkImportOrchestratorRunner', () => {
         await commonAfterEach();
     });
 
-    test('parseCloudEvent extracts data from valid TaskCreated message', () => {
-        const { createTestContainer } = require('../createTestContainer');
+    test('parseTaskCreatedEvent extracts data from valid TaskCreated message', () => {
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportOrchestratorRunner;
+        const handler = container.bulkImportHandler;
 
-        const data = runner.parseCloudEvent(makeTaskCreatedEvent());
+        const data = handler.parseTaskCreatedEvent(makeTaskCreatedEvent());
         expect(data.taskId).toBe('import-orch-001');
         expect(data.inputs).toEqual([{ url: 's3://allowed-bucket/Patient.ndjson' }]);
         expect(data.requestId).toBe('req-001');
     });
 
-    test('parseCloudEvent rejects wrong event type', () => {
-        const { createTestContainer } = require('../createTestContainer');
+    test('parseTaskCreatedEvent rejects wrong event type', () => {
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportOrchestratorRunner;
+        const handler = container.bulkImportHandler;
 
         const badEvent = JSON.stringify({
             type: 'SomethingElse',
             data: { taskId: 'x' }
         });
-        expect(() => runner.parseCloudEvent(badEvent)).toThrow('Unexpected event type');
+        expect(() => handler.parseTaskCreatedEvent(badEvent)).toThrow('Unexpected event type');
     });
 
-    test('parseCloudEvent rejects missing taskId', () => {
-        const { createTestContainer } = require('../createTestContainer');
+    test('parseTaskCreatedEvent rejects missing taskId', () => {
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportOrchestratorRunner;
+        const handler = container.bulkImportHandler;
 
         const badEvent = JSON.stringify({
             type: 'TaskCreated',
             data: {}
         });
-        expect(() => runner.parseCloudEvent(badEvent)).toThrow('missing taskId');
+        expect(() => handler.parseTaskCreatedEvent(badEvent)).toThrow('missing taskId');
     });
 
     test('handleMessageAsync logs event without errors', async () => {
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportOrchestratorRunner;
+        const handler = container.bulkImportHandler;
 
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'import-orch-001',
             value: makeTaskCreatedEvent(),
             headers: []
@@ -97,11 +97,11 @@ describe('BulkImportOrchestratorRunner', () => {
     });
 
     test('handleMessageAsync ignores malformed messages', async () => {
-        const { createTestContainer } = require('../createTestContainer');
+        const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const runner = container.bulkImportOrchestratorRunner;
+        const handler = container.bulkImportHandler;
 
-        await runner.handleMessageAsync({
+        await handler.handleMessageAsync({
             key: 'bad-message',
             value: 'not-valid-json{{{',
             headers: []
@@ -116,24 +116,28 @@ describe('BulkImportOrchestratorRunner', () => {
 //         send: jest.fn().mockResolvedValue({ ContentLength: contentLength })
 //     });
 //
-//     const makeRunner = (s3Client, envOverrides = {}) => {
+//     const makeHandler = (s3Client, envOverrides = {}) => {
 //         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = envOverrides.buckets || 'allowed-bucket';
 //         process.env.BULK_IMPORT_MIN_FILE_SIZE_MB = envOverrides.minMb || '0';
 //         process.env.BULK_IMPORT_MAX_FILE_SIZE_GB = envOverrides.maxGb || '5';
 //
-//         const { createTestContainer } = require('../createTestContainer');
+//         const { createTestContainer } = require('../../createTestContainer');
 //         const container = createTestContainer((c) => {
-//             c.register('bulkImportOrchestratorRunner', (cc) => new BulkImportOrchestratorRunner({
+//             c.register('bulkImportHandler', (cc) => new BulkImportHandler({
 //                 configManager: cc.configManager,
 //                 kafkaClientV2: cc.kafkaClientV2,
 //                 bulkImportEventProducer: cc.bulkImportEventProducer,
 //                 databaseQueryFactory: cc.databaseQueryFactory,
 //                 databaseUpdateFactory: cc.databaseUpdateFactory,
+//                 fastDatabaseBulkInserter: cc.fastDatabaseBulkInserter,
+//                 s3NdjsonReader: cc.s3NdjsonReader,
+//                 postRequestProcessor: cc.postRequestProcessor,
+//                 requestSpecificCache: cc.requestSpecificCache,
 //                 s3Client
 //             }));
 //             return c;
 //         });
-//         return container.bulkImportOrchestratorRunner;
+//         return container.bulkImportHandler;
 //     };
 //
 //     beforeEach(async () => {
@@ -153,9 +157,9 @@ describe('BulkImportOrchestratorRunner', () => {
 //
 //     test('returns inputs enriched with fileSize on success', async () => {
 //         const mockS3 = makeMockS3Client(500 * 1024 * 1024);
-//         const runner = makeRunner(mockS3);
+//         const handler = makeHandler(mockS3);
 //
-//         const result = await runner.headS3FilesAsync([
+//         const result = await handler.headS3FilesAsync([
 //             { url: 's3://allowed-bucket/Patient.ndjson' }
 //         ]);
 //
@@ -167,9 +171,9 @@ describe('BulkImportOrchestratorRunner', () => {
 //
 //     test('throws on disallowed bucket', async () => {
 //         const mockS3 = makeMockS3Client(100);
-//         const runner = makeRunner(mockS3);
+//         const handler = makeHandler(mockS3);
 //
-//         await expect(runner.headS3FilesAsync([
+//         await expect(handler.headS3FilesAsync([
 //             { url: 's3://evil-bucket/data.ndjson' }
 //         ])).rejects.toThrow('not in the allowed list');
 //         expect(mockS3.send).not.toHaveBeenCalled();
@@ -177,9 +181,9 @@ describe('BulkImportOrchestratorRunner', () => {
 //
 //     test('throws on invalid S3 URI', async () => {
 //         const mockS3 = makeMockS3Client(100);
-//         const runner = makeRunner(mockS3);
+//         const handler = makeHandler(mockS3);
 //
-//         await expect(runner.headS3FilesAsync([
+//         await expect(handler.headS3FilesAsync([
 //             { url: 'https://example.com/file.ndjson' }
 //         ])).rejects.toThrow('Invalid S3 URI');
 //     });
@@ -188,45 +192,45 @@ describe('BulkImportOrchestratorRunner', () => {
 //         const mockS3 = {
 //             send: jest.fn().mockRejectedValue(Object.assign(new Error('Access Denied'), { name: 'AccessDenied' }))
 //         };
-//         const runner = makeRunner(mockS3);
+//         const handler = makeHandler(mockS3);
 //
-//         await expect(runner.headS3FilesAsync([
+//         await expect(handler.headS3FilesAsync([
 //             { url: 's3://allowed-bucket/missing.ndjson' }
 //         ])).rejects.toThrow('Cannot access S3 file');
 //     });
 //
 //     test('throws on empty file', async () => {
 //         const mockS3 = makeMockS3Client(0);
-//         const runner = makeRunner(mockS3);
+//         const handler = makeHandler(mockS3);
 //
-//         await expect(runner.headS3FilesAsync([
+//         await expect(handler.headS3FilesAsync([
 //             { url: 's3://allowed-bucket/empty.ndjson' }
 //         ])).rejects.toThrow('empty (0 bytes)');
 //     });
 //
 //     test('throws when file is below minimum size', async () => {
 //         const mockS3 = makeMockS3Client(1 * 1024 * 1024);
-//         const runner = makeRunner(mockS3, { minMb: '50' });
+//         const handler = makeHandler(mockS3, { minMb: '50' });
 //
-//         await expect(runner.headS3FilesAsync([
+//         await expect(handler.headS3FilesAsync([
 //             { url: 's3://allowed-bucket/tiny.ndjson' }
 //         ])).rejects.toThrow('below the minimum');
 //     });
 //
 //     test('throws when file exceeds maximum size', async () => {
 //         const mockS3 = makeMockS3Client(10 * 1024 * 1024 * 1024);
-//         const runner = makeRunner(mockS3, { maxGb: '5' });
+//         const handler = makeHandler(mockS3, { maxGb: '5' });
 //
-//         await expect(runner.headS3FilesAsync([
+//         await expect(handler.headS3FilesAsync([
 //             { url: 's3://allowed-bucket/huge.ndjson' }
 //         ])).rejects.toThrow('above the maximum');
 //     });
 //
 //     test('throws when allowlist is empty', async () => {
 //         const mockS3 = makeMockS3Client(100);
-//         const runner = makeRunner(mockS3, { buckets: '' });
+//         const handler = makeHandler(mockS3, { buckets: '' });
 //
-//         await expect(runner.headS3FilesAsync([
+//         await expect(handler.headS3FilesAsync([
 //             { url: 's3://any-bucket/file.ndjson' }
 //         ])).rejects.toThrow('allowlist is not configured');
 //     });
@@ -239,9 +243,9 @@ describe('BulkImportOrchestratorRunner', () => {
 //                 return Promise.resolve({ ContentLength: callCount * 100 * 1024 * 1024 });
 //             })
 //         };
-//         const runner = makeRunner(mockS3);
+//         const handler = makeHandler(mockS3);
 //
-//         const result = await runner.headS3FilesAsync([
+//         const result = await handler.headS3FilesAsync([
 //             { url: 's3://allowed-bucket/Patient.ndjson' },
 //             { url: 's3://allowed-bucket/Observation.ndjson' }
 //         ]);
