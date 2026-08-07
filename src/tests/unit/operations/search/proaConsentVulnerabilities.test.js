@@ -34,6 +34,10 @@ jest.mock('../../../../operations/common/systemEventLogging', () => ({
     logSystemEventAsync: jest.fn()
 }));
 
+// --- Vulnerability 5: auto-mock BwellPersonFinder so ConsentCacheInvalidationHandler's
+// best-effort Person lookup can be exercised without a real DatabaseQueryFactory/DB.
+jest.mock('../../../../utils/bwellPersonFinder');
+
 describe('VULNERABILITY 1: ProaConsentManager does not enforce consent period expiry', () => {
     /**
      * FILE: src/operations/search/proaConsentManager.js
@@ -332,57 +336,68 @@ describe('VULNERABILITY 3: DataSharingManager caches allowedPatientIds ignoring 
 
 describe('VULNERABILITY 4: $everything cache key has no generation tracking for consent changes', () => {
     /**
-     * FILE: src/operations/everything/patientEverythingCachekeyGenerator.js (lines 1-35)
-     *       src/operations/common/baseCacheKeyGenerator.js (line 130)
+     * FILE: src/operations/everything/patientEverythingCachekeyGenerator.js
      *
-     * VULNERABILITY: PatientEverythingCacheKeyGenerator inherits getGenerationForId
-     * from BaseCacheKeyGenerator which always returns undefined. This means:
-     * - Cache key is: Patient:<id>:Everything:Scopes:<scopeHash>
-     * - No generation counter is included
-     * - When a Consent is revoked (status changed to 'rejected'), the cache key
-     *   remains identical, so stale cached PHI continues to be served
+     * FIXED (DCON: fix Everything-cache Consent invalidation): PatientEverythingCacheKeyGenerator
+     * now implements getGenerationForId, mirroring SummaryCacheKeyGenerator but supporting both
+     * Patient:<id> and ClientPerson:<id> forms (Everything's cache legitimately keys on either,
+     * depending on whether the request went through the direct-patient or proxy-Person path).
+     * The Generation segment it returns is what allows ConsentCacheInvalidationHandler
+     * (see VULNERABILITY 5 below) to bust the cache on a Consent write.
      *
-     * EXPLOITATION: Patient revokes PROA consent. For the next 5 minutes (TTL=300s),
-     * the $everything endpoint continues to serve the pre-revocation data including
-     * all PROA-sourced resources that should now be excluded.
-     *
-     * SEVERITY: CRITICAL - PHI served after consent revocation for up to TTL duration
-     *
-     * CORRECT BEHAVIOR: getGenerationForId MUST return a generation number that
-     * changes when any consent affecting this patient is modified.
+     * These tests now verify that fixed behavior directly, using a real RedisManager backed by
+     * an in-memory fake redisClient (no real Redis server needed).
      */
 
     const { PatientEverythingCacheKeyGenerator } = require('../../../../operations/everything/patientEverythingCachekeyGenerator');
+    const { RedisManager } = require('../../../../utils/redisManager');
+
+    /**
+     * Builds a real RedisManager backed by an in-memory fake redisClient.
+     * @returns {RedisManager}
+     */
+    function createFakeRedisManager() {
+        const store = new Map();
+        return new RedisManager({
+            redisClient: {
+                connectAsync: jest.fn().mockResolvedValue(undefined),
+                get: jest.fn(async (key) => (store.has(key) ? String(store.get(key)) : null)),
+                incr: jest.fn(async (key) => {
+                    const next = (store.get(key) || 0) + 1;
+                    store.set(key, next);
+                    return next;
+                })
+            }
+        });
+    }
 
     it('getGenerationForId MUST return a non-undefined generation for person IDs', async () => {
-        const generator = new PatientEverythingCacheKeyGenerator();
+        const generator = new PatientEverythingCacheKeyGenerator({ redisManager: createFakeRedisManager() });
 
         const generation = await generator.getGenerationForId({
             id: 'person-uuid-abc',
             isPersonId: true
         });
 
-        // CORRECT: Must return a number so cache key changes when consent changes
-        // Currently returns undefined, meaning consent changes don't bust the cache
         expect(generation).not.toBeUndefined();
         expect(typeof generation).toBe('number');
     });
 
     it('getGenerationForId MUST return a non-undefined generation for patient IDs', async () => {
-        const generator = new PatientEverythingCacheKeyGenerator();
+        const generator = new PatientEverythingCacheKeyGenerator({ redisManager: createFakeRedisManager() });
 
         const generation = await generator.getGenerationForId({
             id: 'patient-uuid-xyz',
             isPersonId: false
         });
 
-        // CORRECT: Must return a number so cache key changes when consent changes
         expect(generation).not.toBeUndefined();
         expect(typeof generation).toBe('number');
     });
 
     it('cache key MUST differ before and after consent revocation', async () => {
-        const generator = new PatientEverythingCacheKeyGenerator();
+        const redisManager = createFakeRedisManager();
+        const generator = new PatientEverythingCacheKeyGenerator({ redisManager });
 
         // Simulate a ParsedArgs-like object for cache key generation
         const mockParsedArgs = {
@@ -397,86 +412,163 @@ describe('VULNERABILITY 4: $everything cache key has no generation tracking for 
             scope: 'patient/*.read'
         });
 
-        // After consent revocation, generation should change.
-        // Since getGenerationForId returns undefined, key1 === key2 always.
-        // This test would pass only if generation tracking is implemented.
-        // For now, we verify the key includes a Generation segment at all.
         expect(key1).toBeDefined();
         expect(key1).toMatch(/Generation:\d+/);
+
+        // Simulate what ConsentCacheInvalidationHandler does on consent revocation: bump
+        // the generation counter for this patient. The next generated key must differ.
+        await redisManager.incrementGenerationAsync('Patient:patient-uuid-1:Everything:Generation');
+
+        const key2 = await generator.generateCacheKey({
+            id: 'patient-uuid-1',
+            isPersonId: false,
+            parsedArgs: mockParsedArgs,
+            scope: 'patient/*.read'
+        });
+
+        expect(key2).not.toEqual(key1);
     });
 });
 
 
 describe('VULNERABILITY 5: No automatic cache invalidation when Consent status changes', () => {
     /**
-     * FILE: src/utils/fhirCacheKeyManager.js (entire file)
-     *       src/routeHandlers/admin.js (lines 453-467)
+     * FILE (original vulnerability write-up): src/utils/fhirCacheKeyManager.js,
+     *       src/routeHandlers/admin.js (admin-only /admin/invalidateCache endpoint)
      *
-     * VULNERABILITY: Cache invalidation for $everything responses only happens
-     * via the admin endpoint (/admin/invalidateCache). There is NO automatic
-     * hook in the FHIR write pipeline that invalidates $everything caches
-     * when a Consent resource is created, updated, or deleted.
+     * VULNERABILITY: Cache invalidation for $everything responses only happened via the
+     * admin endpoint (/admin/invalidateCache). There was NO automatic hook in the FHIR
+     * write pipeline that invalidated $everything caches when a Consent resource was
+     * created, updated, or deleted.
      *
-     * EXPLOITATION: A patient revokes consent (PUT Consent with status='rejected').
-     * The write succeeds in MongoDB. But NO code triggers cache invalidation for
-     * the associated patient's $everything cache. Until the Redis TTL expires
-     * (300s default), all $everything requests serve stale pre-revocation data.
+     * FIXED (DCON: fix Everything-cache Consent invalidation): a new post-save handler,
+     * ConsentCacheInvalidationHandler (src/dataLayer/postSaveHandlers/handlers/consentCacheInvalidationHandler.js),
+     * is registered in the postSaveProcessor handler list (src/createContainer.js), which
+     * runs on every create/update/merge/patch/remove for every resource type. On a Consent
+     * write it resolves the patient uuid from Consent.patient and calls
+     * redisManager.incrementGenerationAsync('Patient:<uuid>:Everything:Generation'). Because
+     * PatientEverythingCacheKeyGenerator.getGenerationForId (VULNERABILITY 4 above) folds
+     * that counter into the cache key, the bump causes the next $everything cache-key
+     * computation for that patient to differ from any key computed before the Consent
+     * write - i.e. the old cached entry becomes unreachable and a fresh query runs.
      *
-     * SEVERITY: CRITICAL - Systematic PHI leak window after every consent revocation
-     *
-     * CORRECT BEHAVIOR: When a Consent resource is written/updated, the system
-     * MUST invalidate $everything caches for all patients linked to that consent.
-     * This should happen synchronously before the write response is returned.
+     * NOTE ON TEST DESIGN: the original version of this test asserted a
+     * `FhirCacheKeyManager.invalidateCacheForConsentChange` method. That was aspirational
+     * wording written before the fix's design was settled - it does not match the actual
+     * implementation, which deliberately reuses the existing-but-previously-unwired
+     * generation-counter pattern (shared with SummaryCacheKeyGenerator) via a post-save
+     * handler, rather than adding a new method to FhirCacheKeyManager. These tests assert
+     * the real behavior ("a Consent write causes future $everything cache lookups for that
+     * patient to miss/regenerate") against the actual implementation instead of forcing a
+     * same-named method that was never built onto FhirCacheKeyManager.
      */
 
-    const { FhirCacheKeyManager } = require('../../../../utils/fhirCacheKeyManager');
+    const { ConsentCacheInvalidationHandler } = require('../../../../dataLayer/postSaveHandlers/handlers/consentCacheInvalidationHandler');
+    const { PatientEverythingCacheKeyGenerator } = require('../../../../operations/everything/patientEverythingCachekeyGenerator');
+    const { RedisManager } = require('../../../../utils/redisManager');
+    const { BwellPersonFinder } = require('../../../../utils/bwellPersonFinder');
 
-    it('FhirCacheKeyManager MUST have a method to invalidate caches for consent-linked patients', () => {
-        const mockRedisClient = {
-            connectAsync: jest.fn(),
-            bulkDeleteKeys: jest.fn(),
-            invalidateByPrefixAsync: jest.fn(),
-            getAllKeysByPrefix: jest.fn()
-        };
+    /**
+     * Builds a real RedisManager backed by an in-memory fake redisClient.
+     * @returns {RedisManager}
+     */
+    function createFakeRedisManager() {
+        const store = new Map();
+        return new RedisManager({
+            redisClient: {
+                connectAsync: jest.fn().mockResolvedValue(undefined),
+                get: jest.fn(async (key) => (store.has(key) ? String(store.get(key)) : null)),
+                incr: jest.fn(async (key) => {
+                    const next = (store.get(key) || 0) + 1;
+                    store.set(key, next);
+                    return next;
+                })
+            }
+        });
+    }
 
-        const manager = new FhirCacheKeyManager({ redisClient: mockRedisClient });
+    /**
+     * BwellPersonFinder is auto-mocked (jest.mock at top of file) so this can be
+     * instantiated without a real DatabaseQueryFactory/DB. Its lookup of Person(s)
+     * immediately linked to a patient is stubbed to return no links by default.
+     * @returns {BwellPersonFinder}
+     */
+    function createFakeBwellPersonFinder() {
+        const finder = new BwellPersonFinder();
+        finder.getImmediatePersonIdsOfPatientsAsync = jest.fn().mockResolvedValue({
+            patientReferenceToPersonUuid: {}
+        });
+        return finder;
+    }
 
-        // CORRECT BEHAVIOR: Should have a consent-aware invalidation method
-        // that takes a Consent resource and invalidates all linked patient caches
-        expect(typeof manager.invalidateCacheForConsentChange).toBe('function');
-    });
+    it('ConsentCacheInvalidationHandler MUST bump the Everything-cache generation for the consent patient on a Consent write', async () => {
+        const redisManager = createFakeRedisManager();
+        const handler = new ConsentCacheInvalidationHandler({
+            redisManager,
+            bwellPersonFinder: createFakeBwellPersonFinder()
+        });
 
-    it('invalidateCacheForConsentChange MUST invalidate patient $everything cache when consent is revoked', async () => {
-        const mockRedisClient = {
-            connectAsync: jest.fn().mockResolvedValue(undefined),
-            bulkDeleteKeys: jest.fn().mockResolvedValue(undefined),
-            invalidateByPrefixAsync: jest.fn().mockResolvedValue(undefined),
-            getAllKeysByPrefix: jest.fn().mockResolvedValue([])
-        };
-
-        const manager = new FhirCacheKeyManager({ redisClient: mockRedisClient });
-
-        // A revoked consent resource
+        // A revoked consent resource, as it would appear post-save (patient reference
+        // enriched with _uuid, mirroring referenceGlobalIdHandler's output shape)
         const revokedConsent = {
             resourceType: 'Consent',
-            _uuid: 'consent-uuid-1',
+            id: 'consent-uuid-1',
             status: 'rejected',
             patient: {
-                _uuid: 'Patient/patient-uuid-linked'
+                reference: 'Patient/3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                _uuid: 'Patient/3fa85f64-5717-4562-b3fc-2c963f66afa6'
             }
         };
 
-        // CORRECT: This method should exist and invalidate the patient's cache
-        if (typeof manager.invalidateCacheForConsentChange === 'function') {
-            await manager.invalidateCacheForConsentChange({ consent: revokedConsent });
+        await handler.afterSaveAsync({
+            requestId: 'req-1',
+            eventType: 'U',
+            resourceType: 'Consent',
+            doc: revokedConsent
+        });
 
-            // Should have invalidated cache for the linked patient
-            expect(mockRedisClient.invalidateByPrefixAsync).toHaveBeenCalledWith(
-                expect.stringContaining('Patient:patient-uuid-linked')
-            );
-        } else {
-            // Method doesn't exist - this assertion will fail, proving the vulnerability
-            expect(typeof manager.invalidateCacheForConsentChange).toBe('function');
-        }
+        const generationValue = await redisManager.getCacheAsync('Patient:3fa85f64-5717-4562-b3fc-2c963f66afa6:Everything:Generation');
+        expect(Number(generationValue)).toBe(1);
+    });
+
+    it('a Consent write MUST cause the next $everything cache-key lookup for that patient to differ (cache miss/regenerate)', async () => {
+        const redisManager = createFakeRedisManager();
+        const handler = new ConsentCacheInvalidationHandler({
+            redisManager,
+            bwellPersonFinder: createFakeBwellPersonFinder()
+        });
+        const keyGenerator = new PatientEverythingCacheKeyGenerator({ redisManager });
+        const mockParsedArgs = { getRawArgs: () => ({}), _format: undefined };
+
+        const keyBeforeConsentWrite = await keyGenerator.generateCacheKey({
+            id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            isPersonId: false,
+            parsedArgs: mockParsedArgs,
+            scope: 'patient/*.read'
+        });
+
+        await handler.afterSaveAsync({
+            requestId: 'req-2',
+            eventType: 'U',
+            resourceType: 'Consent',
+            doc: {
+                resourceType: 'Consent',
+                id: 'consent-uuid-2',
+                status: 'rejected',
+                patient: {
+                    reference: 'Patient/3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                    _uuid: 'Patient/3fa85f64-5717-4562-b3fc-2c963f66afa6'
+                }
+            }
+        });
+
+        const keyAfterConsentWrite = await keyGenerator.generateCacheKey({
+            id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            isPersonId: false,
+            parsedArgs: mockParsedArgs,
+            scope: 'patient/*.read'
+        });
+
+        expect(keyAfterConsentWrite).not.toEqual(keyBeforeConsentWrite);
     });
 });

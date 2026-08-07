@@ -4,6 +4,7 @@ const { assertTypeEquals } = require('../../../utils/assertType');
 const { SimpleContainer } = require('../../../utils/simpleContainer');
 const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
 const { DateColumnHandler } = require('../../../preSaveHandlers/handlers/dateColumnHandler');
+const { NotFoundError, BadRequestError } = require('../../../utils/httpErrors');
 
 function mapParticipants (members) {
     const result = [];
@@ -90,7 +91,10 @@ module.exports = {
                     'Patient'
                 );
                 if (patients.length === 0) {
-                    throw new Error(`Patient not found ${args.patientId}`);
+                    // Domain-level "not found" error, not an internal-error leak; use an
+                    // explicit 4xx statusCode (see getSafeErrorMessage in
+                    // graphqlErrorFormatter.js) so the message isn't redacted as a 500.
+                    throw new NotFoundError(`Patient not found ${args.patientId}`);
                 }
                 const patientToChange = patients[0];
                 // create care team
@@ -130,9 +134,12 @@ module.exports = {
                     }
                 );
                 if (result && result[0].operationOutcome) {
-                    throw new Error(
+                    // Client-caused failure (e.g. missing access scope on the merge), not
+                    // an internal-error leak; use BadRequestError (4xx) so
+                    // getSafeErrorMessage doesn't redact this descriptive message.
+                    throw new BadRequestError(new Error(
                         `Unable to update care team data for ${args.patientId}: ` +
-                        `${result[0].operationOutcome.issue.map(i => i.diagnostics)}`);
+                        `${result[0].operationOutcome.issue.map(i => i.diagnostics)}`));
                 }
                 return patientToChange;
             }
