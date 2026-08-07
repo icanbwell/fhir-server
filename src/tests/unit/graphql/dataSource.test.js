@@ -33,6 +33,7 @@ function createDataSource(overrides = {}) {
     defineGetter(configManager, 'enableMongoProjectionsInGraphQL', false);
     const accessManager = createPrototypedMock(OperationAccessManager);
     accessManager.verifyAccess = jestGlobal.fn();
+    accessManager.verifyGraphQLReadAccess = jestGlobal.fn();
 
     return new FhirDataSource({
         requestInfo,
@@ -184,6 +185,96 @@ describe('FhirDataSource (graphql)', () => {
             const first = dataSource.dataLoader;
             dataSource.createDataLoader({});
             expect(dataSource.dataLoader).toBe(first);
+        });
+    });
+
+    describe('getResources (DCON-4846)', () => {
+        test('checks operation access before executing the search', async () => {
+            const context = { fhirRequestInfo: { user: 'test', scope: 'access/tenant_a.*' } };
+            await dataSource.getResources(null, {}, context, {}, 'Patient');
+
+            expect(dataSource.accessManager.verifyGraphQLReadAccess).toHaveBeenCalledWith({
+                requestInfo: context.fhirRequestInfo,
+                resourceType: 'Patient',
+                operation: 'search'
+            });
+        });
+
+        test('does not execute the search when access is denied', async () => {
+            const forbiddenError = new Error('CMS partner user does not have access to Practitioner search');
+            dataSource.accessManager.verifyGraphQLReadAccess.mockImplementation(() => { throw forbiddenError; });
+            const context = { fhirRequestInfo: { user: 'test', scope: 'access/tenant_a.*' } };
+
+            await expect(
+                dataSource.getResources(null, {}, context, {}, 'Practitioner')
+            ).rejects.toThrow(forbiddenError.message);
+
+            expect(dataSource.searchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('getResourcesBundle (DCON-4846)', () => {
+        test('checks operation access before executing the search', async () => {
+            const context = { fhirRequestInfo: { user: 'test', scope: 'access/tenant_a.*' }, req: {} };
+            await dataSource.getResourcesBundle(null, {}, context, {}, 'Patient');
+
+            expect(dataSource.accessManager.verifyGraphQLReadAccess).toHaveBeenCalledWith({
+                requestInfo: context.fhirRequestInfo,
+                resourceType: 'Patient',
+                operation: 'search'
+            });
+        });
+
+        test('does not execute the search when access is denied', async () => {
+            const forbiddenError = new Error('CMS partner user does not have access to Practitioner search');
+            dataSource.accessManager.verifyGraphQLReadAccess.mockImplementation(() => { throw forbiddenError; });
+            const context = { fhirRequestInfo: { user: 'test', scope: 'access/tenant_a.*' }, req: {} };
+
+            await expect(
+                dataSource.getResourcesBundle(null, {}, context, {}, 'Practitioner')
+            ).rejects.toThrow(forbiddenError.message);
+
+            expect(dataSource.searchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('getResourcesInBatch (DCON-4846)', () => {
+        test('checks operation access per resourceType group before executing the search', async () => {
+            const requestInfo = { user: 'test', scope: 'access/tenant_a.*' };
+            await dataSource.getResourcesInBatch({
+                keys: ['Patient/p1'],
+                requestInfo,
+                args: {}
+            });
+
+            expect(dataSource.accessManager.verifyGraphQLReadAccess).toHaveBeenCalledWith({
+                requestInfo,
+                resourceType: 'Patient',
+                operation: 'search'
+            });
+        });
+
+        test('does not execute the search for a disallowed resourceType reached via a reference field', async () => {
+            // Simulates a CMS-partner caller allowlisted to Patient querying
+            // { Patient(id: "p1") { generalPractitioner { id } } } -- the nested
+            // Practitioner reference resolves through this batch loader, not getResources.
+            const forbiddenError = new Error('CMS partner user does not have access to Practitioner search');
+            dataSource.accessManager.verifyGraphQLReadAccess.mockImplementation(({ resourceType }) => {
+                if (resourceType === 'Practitioner') {
+                    throw forbiddenError;
+                }
+            });
+            const requestInfo = { user: 'test', scope: 'access/tenant_a.*' };
+
+            await expect(
+                dataSource.getResourcesInBatch({
+                    keys: ['Practitioner/pract1'],
+                    requestInfo,
+                    args: {}
+                })
+            ).rejects.toThrow(forbiddenError.message);
+
+            expect(dataSource.searchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
         });
     });
 

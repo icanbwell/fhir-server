@@ -34,10 +34,6 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
         await cleanupAllData(); // Clean data from previous Jest runs
     });
 
-    beforeEach(async () => {
-        await cleanupAllData();
-    });
-
     afterAll(async () => {
         await teardownGroupTests();
     });
@@ -130,6 +126,7 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     }
 
     beforeEach(async () => {
+        await cleanupAllData();
         testGroup = await createTestGroup();
     }, 30000);
 

@@ -1,6 +1,9 @@
 const { StorageProvider } = require('./storageProvider');
 const { logDebug, logInfo, logError, logWarn } = require('../../operations/common/logging');
 const { RethrownError } = require('../../utils/rethrownError');
+const { ForbiddenError } = require('../../utils/httpErrors');
+const { TABLES, EVENT_TYPES } = require('../../constants/clickHouseConstants');
+const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
 const { QueryParser } = require('./mongoWithClickHouse/queryParser');
 const { QueryBuilder } = require('./mongoWithClickHouse/queryBuilder');
@@ -44,6 +47,248 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
         this.clickHouseClientManager = clickHouseClientManager;
         this.mongoStorageProvider = mongoStorageProvider;
         this.configManager = configManager;
+    }
+
+    /**
+     * Coerces a caller-supplied security context into a safe shape.
+     * Malformed input (bare-string tags, non-boolean hasFullAccess) normalizes
+     * to []/false so it fails closed at the guard rather than leaking to ClickHouse.
+     *
+     * @param {Object} [securityContext] - Caller tenant scope
+     * @returns {{accessTags: string[], ownerTags: string[], hasFullAccess: boolean}}
+     * @private
+     */
+    _normalizeTenantContext(securityContext = {}) {
+        const ctx = securityContext ?? {};
+        return {
+            accessTags: Array.isArray(ctx.accessTags) ? ctx.accessTags : [],
+            ownerTags: Array.isArray(ctx.ownerTags) ? ctx.ownerTags : [],
+            hasFullAccess: ctx.hasFullAccess === true
+        };
+    }
+
+    /**
+     * Fail-closed tenant guard for the Group member roster
+     * Denies callers that carry no tenant scope unless explicitly granted full access.
+     * Mirrors QueryFragments.whereAccessTags but raises a proper 403.
+     *
+     * @param {Object} params
+     * @param {string[]} params.accessTags - Access security tags
+     * @param {string[]} params.ownerTags - Owner security tags
+     * @param {boolean} params.hasFullAccess - True for admin/full-access callers
+     * @throws {ForbiddenError} When no tags and no full access
+     * @private
+     */
+    _assertTenantScope({ accessTags = [], ownerTags = [], hasFullAccess = false }) {
+        if (!hasFullAccess && accessTags.length === 0 && ownerTags.length === 0) {
+            throw new ForbiddenError(
+                'Cross-tenant access denied: security tags are required to read the Group member roster.'
+            );
+        }
+    }
+
+    /**
+     * Builds count query for active members of a Group
+     * Uses HAVING pattern (canonical for ID-only queries on AggregatingMergeTree)
+     * Active-by-default: Counts only event_type=MEMBER_ADDED AND inactive=0 members
+     *
+     * @param {string} groupId - Group ID
+     * @param {Object} [options]
+     * @param {string[]} [options.accessTags] - Access security tags for tenant filtering
+     * @param {string[]} [options.ownerTags] - Owner security tags for tenant filtering
+     * @returns {{query: string, query_params: Object}}
+     * @private
+     */
+    _buildCountQuery(groupId, { accessTags = [], ownerTags = [] } = {}) {
+        return QueryBuilder.buildActiveMemberCount({ groupId, accessTags, ownerTags });
+    }
+
+    /**
+     * Builds roster query for active members of a Group
+     * Uses canonical subquery + outer WHERE pattern (for AggregatingMergeTree)
+     * Active-by-default: Returns only event_type=MEMBER_ADDED AND inactive=0 members
+     *
+     * @param {string} groupId - Group ID
+     * @param {Object} options
+     * @param {number} options.limit - Page size
+     * @param {string|null} options.afterReference - Seek cursor (entity_reference to start after)
+     * @param {string[]} [options.accessTags] - Access security tags for tenant filtering
+     * @param {string[]} [options.ownerTags] - Owner security tags for tenant filtering
+     * @returns {{query: string, query_params: Object}}
+     * @private
+     */
+    _buildRosterQuery(groupId, { limit, afterReference = null, accessTags = [], ownerTags = [] }) {
+        return QueryBuilder.buildActiveMembers({ groupId, limit, afterReference, accessTags, ownerTags });
+    }
+
+    /**
+     * Get current members with total count from materialized current state table
+     * Uses argMaxMerge on pre-aggregated state (not argMax on events)
+     * Returns only active members (event_type=MEMBER_ADDED AND inactive=0)
+     *
+     * @param {string} groupId - Group ID to query
+     * @param {Object} options - Query options
+     * @param {number} options.limit - Page size (default 100)
+     * @param {string|null} options.afterReference - Seek cursor (entity_reference to start after)
+     * @param {Object} securityContext - Caller tenant scope
+     * @param {string[]} securityContext.accessTags - Access security tags
+     * @param {string[]} securityContext.ownerTags - Owner security tags
+     * @param {boolean} securityContext.hasFullAccess - True for admin/full-access callers
+     * @returns {Promise<{members: Array<Object>, totalCount: number}>}
+     */
+    async getCurrentMembersWithCountAsync(groupId, { limit = 100, afterReference = null } = {}, securityContext = {}) {
+        const { accessTags, ownerTags, hasFullAccess } = this._normalizeTenantContext(securityContext);
+        // Fail closed before touching ClickHouse.
+        this._assertTenantScope({ accessTags, ownerTags, hasFullAccess });
+        try {
+            const countQuery = this._buildCountQuery(groupId, { accessTags, ownerTags });
+            const rosterQuery = this._buildRosterQuery(groupId, { limit, afterReference, accessTags, ownerTags });
+
+            // Run queries in parallel for performance
+            const [countResult, members] = await Promise.all([
+                this.clickHouseClientManager.queryAsync(countQuery),
+                this.clickHouseClientManager.queryAsync(rosterQuery)
+            ]);
+
+            const totalCount = countResult.length > 0 ? parseInt(countResult[0].count) : 0;
+
+            return {
+                members,
+                totalCount
+            };
+        } catch (error) {
+            logError('Error querying current members from ClickHouse current state table', {
+                error: error.message,
+                groupId,
+                limit,
+                afterReference
+            });
+
+            throw new RethrownError({
+                message: 'Error getting current members with count from ClickHouse',
+                error,
+                args: { groupId, limit, afterReference }
+            });
+        }
+    }
+
+    /**
+     * Get active members page (roster only, no count)
+     * Uses argMaxMerge on pre-aggregated current state table
+     * Returns only active members (event_type=MEMBER_ADDED AND inactive=0)
+     *
+     * @param {string} groupId - Group ID to query
+     * @param {Object} options - Query options
+     * @param {number} options.limit - Page size (default 100)
+     * @param {string|null} options.afterReference - Seek cursor (entity_reference to start after)
+     * @param {Object} securityContext - Caller tenant scope
+     * @param {string[]} securityContext.accessTags - Access security tags
+     * @param {string[]} securityContext.ownerTags - Owner security tags
+     * @param {boolean} securityContext.hasFullAccess - True for admin/full-access callers
+     * @returns {Promise<Array<Object>>} Array of member objects
+     */
+    async getActiveMembersPageAsync(groupId, { limit = 100, afterReference = null } = {}, securityContext = {}) {
+        const { accessTags, ownerTags, hasFullAccess } = this._normalizeTenantContext(securityContext);
+        // Fail closed before touching ClickHouse.
+        this._assertTenantScope({ accessTags, ownerTags, hasFullAccess });
+        try {
+            const rosterQuery = this._buildRosterQuery(groupId, { limit, afterReference, accessTags, ownerTags });
+
+            const members = await this.clickHouseClientManager.queryAsync(rosterQuery);
+
+            return members;
+        } catch (error) {
+            logError('Error querying active members page from ClickHouse current state table', {
+                error: error.message,
+                groupId,
+                limit,
+                afterReference
+            });
+
+            throw new RethrownError({
+                message: 'Error getting active members page from ClickHouse',
+                error,
+                args: { groupId, limit, afterReference }
+            });
+        }
+    }
+
+    /**
+     * Get member count only (for metadata-only GET / Group.quantity)
+     * Uses argMaxMerge on pre-aggregated current state table
+     * Counts members where event_type=MEMBER_ADDED AND inactive=0
+     *
+     * @param {string} groupId - Group ID to query
+     * @param {Object} securityContext - Caller tenant scope
+     * @param {string[]} securityContext.accessTags - Access security tags
+     * @param {string[]} securityContext.ownerTags - Owner security tags
+     * @param {boolean} securityContext.hasFullAccess - True for admin/full-access callers
+     * @returns {Promise<number>} Count of active, non-inactive members
+     */
+    async getActiveMemberCountAsync(groupId, securityContext = {}) {
+        const { accessTags, ownerTags, hasFullAccess } = this._normalizeTenantContext(securityContext);
+        // Fail closed before touching ClickHouse.
+        this._assertTenantScope({ accessTags, ownerTags, hasFullAccess });
+        try {
+            const result = await this.clickHouseClientManager.queryAsync(
+                this._buildCountQuery(groupId, { accessTags, ownerTags })
+            );
+
+            return parseInt(result[0]?.count || 0);
+        } catch (error) {
+            logError('Error querying active member count from ClickHouse current state table', {
+                error: error.message,
+                groupId
+            });
+
+            throw new RethrownError({
+                message: 'Error getting active member count from ClickHouse',
+                error,
+                args: { groupId }
+            });
+        }
+    }
+
+    /**
+     * Search groups by member (GET /Group?member.entity._reference=Patient/X)
+     * Tuple tie-breaker ensures deterministic argMax
+     *
+     * @param {string} memberReference - Member reference to search for
+     * @returns {Promise<Array<Object>>} Array of { group_id } objects
+     */
+    async findGroupsByMemberAsync(memberReference) {
+        try {
+            const query = `
+                SELECT DISTINCT group_id
+                FROM (
+                    SELECT
+                        group_id,
+                        ${QueryFragments.argMaxWithTieBreaker('event_type')} as latest_event
+                    FROM ${TABLES.GROUP_MEMBER_EVENTS}
+                    ${QueryFragments.whereEntityReference('', true)}
+                    GROUP BY group_id
+                )
+                WHERE latest_event = '${EVENT_TYPES.MEMBER_ADDED}'
+            `;
+
+            const result = await this.clickHouseClientManager.queryAsync({
+                query,
+                query_params: { memberReference }
+            });
+
+            return result || [];
+        } catch (error) {
+            logError('Error finding groups by member in ClickHouse', {
+                error: error.message,
+                memberReference
+            });
+
+            throw new RethrownError({
+                message: 'Error finding groups by member in ClickHouse',
+                error,
+                args: { memberReference }
+            });
+        }
     }
 
     /**
