@@ -117,10 +117,10 @@ const {ExportByIdOperation} = require('./operations/export/exportById');
 const {AdminExportManager} = require('./admin/adminExportManager');
 const {BulkExportEventProducer} = require('./utils/bulkExportEventProducer');
 const {ImportOperation} = require('./operations/import/import');
-const {BulkImportEventProducer} = require('./operations/import/bulkImportEventProducer');
-const {BulkImportConsumerRunner} = require('./operations/import/bulkImportConsumerRunner');
-const {BulkImportOrchestratorRunner} = require('./operations/import/bulkImportOrchestratorRunner');
-const {S3NdjsonReader} = require('./operations/import/s3NdjsonReader');
+const {BulkImportEventProducer} = require('./operations/asyncJobs/bulkImport/bulkImportEventProducer');
+const {BulkImportHandler} = require('./operations/asyncJobs/bulkImport/handler');
+const {KafkaEventDispatcher} = require('./operations/common/kafkaEventDispatcher');
+const {S3NdjsonReader} = require('./operations/asyncJobs/bulkImport/s3NdjsonReader');
 const {KafkaClientV2} = require('./utils/kafkaClientV2');
 const {DummyKafkaClientV2} = require('./utils/dummyKafkaClientV2');
 const {S3Client} = require('./utils/s3Client');
@@ -1232,8 +1232,13 @@ const createContainer = function () {
         configManager: c.configManager
     }));
 
-    container.register('bulkImportConsumerRunner', (c) => new BulkImportConsumerRunner({
+    // Handles every message type for the bulk-import async job (TaskCreated on the
+    // orchestrator side, ImportRangeRequested on the worker side) — see
+    // src/operations/asyncJobs/bulkImport/handler.js.
+    container.register('bulkImportHandler', (c) => new BulkImportHandler({
         configManager: c.configManager,
+        kafkaClientV2: c.kafkaClientV2,
+        bulkImportEventProducer: c.bulkImportEventProducer,
         databaseQueryFactory: c.databaseQueryFactory,
         databaseUpdateFactory: c.databaseUpdateFactory,
         fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
@@ -1242,12 +1247,23 @@ const createContainer = function () {
         requestSpecificCache: c.requestSpecificCache
     }));
 
-    container.register('bulkImportOrchestratorRunner', (c) => new BulkImportOrchestratorRunner({
-        configManager: c.configManager,
-        kafkaClientV2: c.kafkaClientV2,
-        bulkImportEventProducer: c.bulkImportEventProducer,
-        databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory
+    // Routes messages on kafkaBulkImportTaskCreatedTopic to their handler by CloudEvent
+    // "type". TaskCreated is the only registered handler today; new event types on this
+    // topic are added here as another entry rather than a new topic+entrypoint+handler.
+    container.register('bulkImportOrchestratorDispatcher', (c) => new KafkaEventDispatcher({
+        handlersByEventType: {
+            TaskCreated: c.bulkImportHandler
+        }
+    }));
+
+    // Routes messages on kafkaBulkImportEventTopic to their handler by CloudEvent "type".
+    // ImportRangeRequested is the only registered handler today; new event types on this
+    // topic (e.g. a future patient-level bulk export event) are added here as another
+    // entry rather than a new topic+entrypoint+handler.
+    container.register('bulkImportWorkerDispatcher', (c) => new KafkaEventDispatcher({
+        handlersByEventType: {
+            ImportRangeRequested: c.bulkImportHandler
+        }
     }));
 
     container.register('importOperation', (c) => new ImportOperation({
