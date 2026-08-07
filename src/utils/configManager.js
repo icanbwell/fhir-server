@@ -1004,6 +1004,31 @@ class ConfigManager {
     }
 
     /**
+     * (issuer, client_id) pairs allowed to present wildcard non-patient scopes (user/*.* and
+     * access/*.*), parsed from EXTERNAL_AUTH_ALLOWED_NON_PATIENT_SCOPE_CLIENTS as a comma-separated
+     * list of "iss|client_id" entries (same "key|value" convention as
+     * EXTERNAL_SERVICES_WITH_REQ_LIMIT). Keyed on the (issuer, client_id) PAIR, not issuer alone,
+     * because a single Cognito pool can be the issuer for both a trusted internal service (via its
+     * own client_id) and an external consumer app (via a different client_id) -- issuer alone cannot
+     * distinguish them. For any token whose (iss, client_id) pair is NOT in this set, wildcard
+     * non-patient scopes are stripped so the token is confined to its patient compartment plus any
+     * explicit narrow grants. Empty (the default) means no restriction, so environments that do not
+     * set it are unchanged. See DCON-4882.
+     * @returns {Set<string>}
+     */
+    get allowedNonPatientScopeClients() {
+        const pairs = this._parseCommaSeparatedList(env.EXTERNAL_AUTH_ALLOWED_NON_PATIENT_SCOPE_CLIENTS, []);
+        return new Set(
+            pairs
+                .map((pair) => {
+                    const [issuer, clientId] = pair.split('|').map((part) => part && part.trim());
+                    return issuer && clientId ? `${issuer}|${clientId}` : null;
+                })
+                .filter((pair) => pair !== null)
+        );
+    }
+
+    /**
      * Allowlisted purposeOfUse codes parsed from CMS_ALLOWED_PURPOSE_OF_USE env var.
      * @returns {Set<string>}
      */

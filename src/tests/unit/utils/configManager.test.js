@@ -207,6 +207,29 @@ describe('ConfigManager', () => {
             process.env.AUTH_CID_CHECK_CLIENT_IDS = 'cid1,cid2';
             expect(new ConfigManager().authCidCheckClientIds).toEqual(['cid1', 'cid2']);
         });
+
+        // DCON-4882
+        test('allowedNonPatientScopeClients returns empty set when not set', () => {
+            delete process.env.EXTERNAL_AUTH_ALLOWED_NON_PATIENT_SCOPE_CLIENTS;
+            expect(new ConfigManager().allowedNonPatientScopeClients).toEqual(new Set());
+        });
+
+        test('allowedNonPatientScopeClients parses comma-separated "iss|client_id" pairs', () => {
+            process.env.EXTERNAL_AUTH_ALLOWED_NON_PATIENT_SCOPE_CLIENTS =
+                'https://a.example.com|client-a, https://b.example.com|client-b';
+            expect(new ConfigManager().allowedNonPatientScopeClients).toEqual(new Set([
+                'https://a.example.com|client-a',
+                'https://b.example.com|client-b'
+            ]));
+        });
+
+        test('allowedNonPatientScopeClients ignores malformed entries missing a pipe or client_id', () => {
+            process.env.EXTERNAL_AUTH_ALLOWED_NON_PATIENT_SCOPE_CLIENTS =
+                'https://a.example.com|client-a, https://no-pipe.example.com, https://c.example.com|';
+            expect(new ConfigManager().allowedNonPatientScopeClients).toEqual(new Set([
+                'https://a.example.com|client-a'
+            ]));
+        });
     });
 
     // ========== supportLegacyIds ==========

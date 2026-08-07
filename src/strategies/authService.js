@@ -394,6 +394,28 @@ class AuthService {
     }
 
     /**
+     * Returns true if the scope grants wildcard non-patient authority: `user/*.<x>` or
+     * `access/*.<x>` where the resource-type / tenant segment is `*` (e.g. `user/*.*`, `access/*.*`,
+     * `user/*.read`). These bypass tenant/access-tag filtering for non-patient resources, so they are
+     * gated by trusted issuer in getFieldsFromToken. Narrowly-scoped grants (`user/Questionnaire.*`,
+     * `access/walgreen.*`) and every `patient/` scope return false. See DCON-4882.
+     * @param {string} scope
+     * @returns {boolean}
+     */
+    isWildcardNonPatientScope(scope) {
+        if (typeof scope !== 'string') {
+            return false;
+        }
+        const lower = scope.toLowerCase();
+        if (!lower.startsWith('user/') && !lower.startsWith('access/')) {
+            return false;
+        }
+        const afterSlash = scope.substring(scope.indexOf('/') + 1);
+        const resourceOrTenant = afterSlash.split('.')[0];
+        return resourceOrTenant === '*';
+    }
+
+    /**
      * Extracts fields from the JWT payload.
      * @param {Object} jwt_payload
      * @returns {{scope: string, isUser: boolean, username: string|undefined, subject: string|undefined, clientId: string|undefined}}
@@ -466,6 +488,32 @@ class AuthService {
                 propertyNames: this.configManager.authCustomClientId
             });
 
+        // Restrict wildcard non-patient authority to trusted (issuer, client_id) pairs. `access/*.*`
+        // collapses to the '*' access code in scopesManager, which bypasses tenant/access-tag
+        // filtering for every non-patient resource; `user/*.*` is its resource-type counterpart. A
+        // single Cognito pool (issuer) can serve both a trusted internal service and an external
+        // consumer app under different client_ids, so the allowlist is keyed on the pair, not the
+        // issuer alone. For any token whose (iss, client_id) pair is not on the allowlist, drop only
+        // these wildcard non-patient scopes so the token is confined to its patient compartment plus
+        // any explicit narrow grants (e.g. user/Questionnaire.*, access/walgreen.*). No-op when the
+        // allowlist is unset (unconfigured environments unchanged); patient/ scopes are never
+        // touched. See DCON-4882.
+        const allowedNonPatientScopeClients = this.configManager.allowedNonPatientScopeClients;
+        if (
+            allowedNonPatientScopeClients.size > 0 &&
+            !allowedNonPatientScopeClients.has(`${jwt_payload.iss}|${clientId}`)
+        ) {
+            const removedScopes = scopes.filter((s) => this.isWildcardNonPatientScope(s));
+            if (removedScopes.length > 0) {
+                logWarn('Stripped wildcard non-patient scopes from untrusted (issuer, client_id)', {
+                    reason: 'wildcard_non_patient_scope_stripped',
+                    args: { iss: jwt_payload.iss, clientId, removedScopes }
+                });
+                scopes = scopes.filter((s) => !this.isWildcardNonPatientScope(s));
+                scope = scopes.join(' ');
+            }
+        }
+
         const isUser = scopes.some((s) => s.toLowerCase().startsWith('patient/'));
 
         return {scope, isUser, username, subject, clientId};
@@ -495,7 +543,11 @@ class AuthService {
                 .retry(EXTERNAL_REQUEST_RETRY_COUNT)
                 .timeout(this.requestTimeout);
             if (userInfoResponse && userInfoResponse.body) {
-                jwt_payload = userInfoResponse.body;
+                // Preserve the original token's iss if the userinfo endpoint's response body doesn't
+                // echo it back -- getFieldsFromToken's wildcard-non-patient-scope issuer check (see
+                // isWildcardNonPatientScope, DCON-4882) needs the real issuer to avoid incorrectly
+                // treating a legitimate, allowlisted issuer's token as untrusted.
+                jwt_payload = { iss: jwt_payload.iss, ...userInfoResponse.body };
                 const userInfo = this.getFieldsFromToken(jwt_payload);
                 if (cacheKey) {
                     AuthService.userInfoCache.set(cacheKey, userInfo);

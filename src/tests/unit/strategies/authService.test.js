@@ -57,6 +57,7 @@ describe('AuthService', () => {
         Object.defineProperty(mockConfigManager, 'authCidCheckIssuer', { get: () => '', configurable: true });
         Object.defineProperty(mockConfigManager, 'authCidCheckClientIds', { get: () => [], configurable: true });
         Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => false, configurable: true });
+        Object.defineProperty(mockConfigManager, 'allowedNonPatientScopeClients', { get: () => new Set(), configurable: true });
 
         mockWellKnownConfigManager = createMockInstance(WellKnownConfigurationManager);
         mockWellKnownConfigManager.getJwksUrlsAsync = jest.fn().mockResolvedValue([]);
@@ -491,6 +492,148 @@ describe('AuthService', () => {
             });
             const result = authService.getFieldsFromToken({ scope: 'short:user/*.read' });
             expect(result.scope).toBe('user/*.read');
+        });
+
+        // DCON-4882: wildcard non-patient scope restriction by (issuer, client_id) pair
+        describe('wildcard non-patient scope restriction (DCON-4882)', () => {
+            test('leaves scopes unchanged when allowlist is empty (unconfigured environments)', () => {
+                const result = authService.getFieldsFromToken({
+                    iss: 'https://untrusted.example.com',
+                    client_id: 'any-client',
+                    scope: 'patient/*.* user/*.* access/*.*'
+                });
+                expect(result.scope).toBe('patient/*.* user/*.* access/*.*');
+            });
+
+            test('strips wildcard user/ and access/ scopes for a client not on the allowlist', () => {
+                // Same Cognito pool (iss) that a trusted internal service uses, but a different
+                // client_id -- e.g. bwellapp end-user login vs. mcp-fhir-agent's service client
+                // sharing one pool. Only the pair is trusted, not the issuer alone.
+                Object.defineProperty(mockConfigManager, 'allowedNonPatientScopeClients', {
+                    get: () => new Set(['https://cognito-idp.us-east-1.amazonaws.com/us-east-1_nj7c9EeTG|trusted-service-client']),
+                    configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    iss: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_nj7c9EeTG',
+                    client_id: '5h2u1p2tvrq9q5sar7hvia08sr', // bwellapp's consumer client, not the trusted one
+                    scope: 'aws.cognito.signin.user.admin access/*.* patient/*.* user/*.*'
+                });
+                expect(result.scope).toBe('aws.cognito.signin.user.admin patient/*.*');
+                // patient/ scope is untouched, so a patient-scoped token is still isUser
+                expect(result.isUser).toBe(true);
+            });
+
+            test('passes wildcard scopes through unchanged for an allowlisted (iss, client_id) pair', () => {
+                Object.defineProperty(mockConfigManager, 'allowedNonPatientScopeClients', {
+                    get: () => new Set(['https://cognito-idp.us-east-1.amazonaws.com/us-east-1_nj7c9EeTG|trusted-service-client']),
+                    configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    iss: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_nj7c9EeTG',
+                    client_id: 'trusted-service-client', // same pool, the trusted internal service's client
+                    scope: 'patient/*.* user/*.* access/*.*'
+                });
+                expect(result.scope).toBe('patient/*.* user/*.* access/*.*');
+            });
+
+            test('preserves narrowly-scoped non-patient grants for a non-allowlisted client', () => {
+                Object.defineProperty(mockConfigManager, 'allowedNonPatientScopeClients', {
+                    get: () => new Set(['https://trusted.example.com|trusted-client']),
+                    configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    iss: 'https://untrusted.example.com',
+                    client_id: 'some-client',
+                    scope: 'patient/*.* user/Questionnaire.* access/walgreen.* access/*.*'
+                });
+                // only the true wildcard (access/*.*) is stripped; narrow grants survive
+                expect(result.scope).toBe('patient/*.* user/Questionnaire.* access/walgreen.*');
+            });
+
+            test('strips wildcard scopes when token has no iss/client_id and allowlist is non-empty', () => {
+                Object.defineProperty(mockConfigManager, 'allowedNonPatientScopeClients', {
+                    get: () => new Set(['https://trusted.example.com|trusted-client']),
+                    configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    scope: 'patient/*.* access/*.*'
+                });
+                expect(result.scope).toBe('patient/*.*');
+            });
+
+            test('is a no-op when the token has no wildcard non-patient scopes to strip', () => {
+                Object.defineProperty(mockConfigManager, 'allowedNonPatientScopeClients', {
+                    get: () => new Set(['https://trusted.example.com|trusted-client']),
+                    configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    iss: 'https://untrusted.example.com',
+                    client_id: 'some-client',
+                    scope: 'patient/Patient.read'
+                });
+                expect(result.scope).toBe('patient/Patient.read');
+            });
+
+            test('applies after AUTH_REMOVE_SCOPE_PREFIX stripping', () => {
+                Object.defineProperty(mockConfigManager, 'allowedNonPatientScopeClients', {
+                    get: () => new Set(['https://trusted.example.com|trusted-client']),
+                    configurable: true
+                });
+                Object.defineProperty(mockConfigManager, 'authRemoveScopePrefixes', {
+                    get: () => ['myapp:'], configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    iss: 'https://untrusted.example.com',
+                    client_id: 'some-client',
+                    scope: 'myapp:patient/*.* myapp:access/*.*'
+                });
+                expect(result.scope).toBe('patient/*.*');
+            });
+        });
+    });
+
+    describe('isWildcardNonPatientScope', () => {
+        test.each([
+            ['user/*.*', true],
+            ['access/*.*', true],
+            ['User/*.Read', true],
+            ['ACCESS/*.write', true],
+            ['user/Questionnaire.*', false],
+            ['access/walgreen.*', false],
+            ['patient/*.*', false],
+            ['admin/*.*', false],
+            ['', false]
+        ])('%s -> %s', (scope, expected) => {
+            expect(authService.isWildcardNonPatientScope(scope)).toBe(expected);
+        });
+
+        test('returns false for non-string input', () => {
+            expect(authService.isWildcardNonPatientScope(undefined)).toBe(false);
+            expect(authService.isWildcardNonPatientScope(null)).toBe(false);
         });
     });
 
