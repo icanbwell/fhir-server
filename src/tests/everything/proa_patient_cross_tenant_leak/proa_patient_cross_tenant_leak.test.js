@@ -102,6 +102,33 @@ describe('SEC-1580 cross-tenant isolation on $everything', () => {
         expect([403, 404]).toContain(resp.status);
     });
 
+    // ---- REACHABILITY CONTROL -------------------------------------------------
+    // This is the load-bearing control for every IDG-5 assertion below. Those assertions
+    // say "the PROA patient is NOT returned to a scoped caller". That statement is only
+    // meaningful if the patient is returned to SOMEONE -- otherwise the test would also
+    // pass against a dangling Person.link, a fixture that failed to persist, or a typo'd
+    // sourceAssigningAuthority, and would keep passing with every access check in the
+    // server deleted.
+    //
+    // Note the `|upstream_proa_source` suffix on the link targets in the person fixtures:
+    // ReferenceGlobalIdHandler derives a link target's _uuid as uuidv5(id|SAA) and defaults
+    // the SAA to the PARENT resource's when the reference omits it. Without the suffix these
+    // cross-owner links resolve to a uuid that does not exist and the traversal silently
+    // returns nothing. Verified: dropping the suffix makes the two IDG-5 tests below pass
+    // for the wrong reason.
+    test('reachability control: the PROA patient IS returned via Person.link to a full-access caller', async () => {
+        const request = await seed();
+        const resp = await request
+            .get(`/4_0_0/Person/${tenantAPersonResource.id}/$everything`)
+            .set({ ...getHeaders('user/*.read access/*.*'), prefer: 'global_id=false' });
+        expect(resp.status).toBe(200);
+        const ids = idsInEverything(resp);
+        // If either of these fails, the IDG-5 assertions below are vacuous -- fix the
+        // fixture link targets before trusting them.
+        expect(ids).toContain(sharedProaPatientNoConsentResource.id);
+        expect(ids).toContain(observationSharedNoConsentResource.id);
+    });
+
     // ---- Security assertions: correct = hidden.
     test('IDG-5: tenantA must NOT see the untagged PROA patient reachable only via Person.link', async () => {
         const request = await seed();
@@ -133,7 +160,9 @@ describe('SEC-1580 cross-tenant isolation on $everything', () => {
         const nonexistentId = 'thisPatientDoesNotExist000';
         const foreign = await request.get(`/4_0_0/Patient/${sharedProaPatientNoConsentResource.id}`).set(tenantBHeaders);
         const missing = await request.get(`/4_0_0/Patient/${nonexistentId}`).set(tenantBHeaders);
-        // Same status code either way: the server must not reveal "exists but forbidden".
+        // The foreign read must actually be denied (not 200) AND be indistinguishable from a
+        // nonexistent id. Pinning the status prevents a vacuous pass if both were ever 200.
+        expect([403, 404]).toContain(foreign.status);
         expect(foreign.status).toBe(missing.status);
     });
 });

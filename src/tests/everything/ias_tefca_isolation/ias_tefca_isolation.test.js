@@ -38,7 +38,11 @@ const tenantBHeaders = { ...getHeaders('user/*.read access/tenantB.*'), prefer: 
 async function seed() {
   const request = await createTestRequest();
   const resp = await request.post('/4_0_0/Person/1/$merge').send(all).set(getHeaders());
-  expect(resp).toHaveMergeResponse({ created: true });
+  // toHaveMergeResponse only validates entry 0 of the array (see customMatchers.js:591 --
+  // `checks[bodyItemIndex]` is undefined for index >= 1), so a fixture that silently failed
+  // to persist would still look seeded. Assert every entry explicitly.
+  expect(resp.body.length).toBe(all.length);
+  resp.body.forEach(r => expect(r).toEqual(expect.objectContaining({ created: true })));
   return request;
 }
 function ids(resp) {
@@ -54,6 +58,34 @@ describe('IAS/TEFCA connectionType=ias isolation', () => {
     const resp = await request.get(`/4_0_0/Person/${tenantAPerson.id}/$everything`).set(tenantAHeaders);
     expect(resp.status).toBe(200);
     expect(ids(resp)).toEqual(expect.arrayContaining([tenantAOwnPatient.id]));
+  });
+
+  // REACHABILITY CONTROL — load-bearing for both assertions below. They claim the IAS
+  // upstream records are NOT returned; that only means something if they ARE returned to
+  // someone. Note the `|tc_epic` suffix on the link target in the person fixture:
+  // ReferenceGlobalIdHandler derives a link's _uuid as uuidv5(id|sourceAssigningAuthority),
+  // defaulting to the PARENT's authority when omitted — so without the suffix the link
+  // dangles and these tests pass against a server with no access control at all.
+  test('reachability control: the IAS upstream records ARE returned to a full-access caller', async () => {
+    const request = await seed();
+    const resp = await request
+      .get(`/4_0_0/Person/${tenantAPerson.id}/$everything`)
+      .set({ ...getHeaders('user/*.read access/*.*'), prefer: 'global_id=false' });
+    expect(resp.status).toBe(200);
+    const got = ids(resp);
+    expect(got).toContain(iasUpstreamPatient.id);
+    expect(got).toContain(iasUpstreamObservation.id);
+  });
+
+  // Positive control for the by-id oracle test: prove the IAS patient is readable by a
+  // caller holding its tag, so tenantB's 404 below means "hidden", not "absent".
+  test('reachability control: the IAS patient IS readable by a tc_epic-scoped caller', async () => {
+    const request = await seed();
+    const resp = await request
+      .get(`/4_0_0/Patient/${iasUpstreamPatient.id}`)
+      .set({ ...getHeaders('user/*.read access/tc_epic.*'), prefer: 'global_id=false' });
+    expect(resp.status).toBe(200);
+    expect(resp.body.id).toBe(iasUpstreamPatient.id);
   });
 
   test('tenantA must NOT receive the IAS upstream patient/observation (no tag, no consent)', async () => {

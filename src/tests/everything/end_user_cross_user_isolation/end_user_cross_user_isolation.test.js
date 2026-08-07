@@ -24,15 +24,28 @@ const obsB = require('./fixtures/observation/obs_b.json');
 const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithCustomPayload, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-// Patient-scoped end-user token anchored to a bwell master Person id.
-function endUser(masterPersonId) {
+// End-user token shape. These claims and this scope string are COPIED FROM A REAL
+// staging end-user access token (Cognito pool us-east-1_zzOfrTtVr), not invented:
+//   scope = 'access/*.* user/*.* patient/*.*'
+//   claims: clientFhirPersonId, clientFhirPatientId, bwellFhirPersonId,
+//           bwellFhirPatientId, managingOrganization, client_key, username
+// The wildcard `access/*.*` matters: it means NO tenant access-tag filter applies to an
+// end-user request, so the ONLY thing separating two users is the patient-scope link
+// graph. Testing with a narrower `patient/*.*` would exercise a stricter configuration
+// than production actually issues. Verified empirically: both scope strings produce
+// identical isolation results here, but the real one is what we ship, so assert on it.
+const REAL_END_USER_SCOPE = 'access/*.* user/*.* patient/*.*';
+
+function endUser(masterPersonId, clientPersonId) {
   return getHeadersWithCustomPayload({
-    scope: 'patient/*.*',
+    scope: REAL_END_USER_SCOPE,
     username: 'end-user@example.com',
-    clientFhirPersonId: masterPersonId,
+    // real tokens carry DISTINCT client vs bwell (master) person ids
+    clientFhirPersonId: clientPersonId || masterPersonId,
     clientFhirPatientId: 'clientFhirPatient',
     bwellFhirPersonId: masterPersonId,
     bwellFhirPatientId: 'bwellFhirPatient',
+    managingOrganization: 'bwell_demo',
     token_use: 'access'
   });
 }
@@ -62,18 +75,46 @@ describe('End-user cross-user isolation (identical demographics, patient-scoped)
     expect(ids(resp)).not.toContain('euUserBObs001');
   });
 
+  // REACHABILITY CONTROL for every "A cannot see B" assertion below. Without this, an
+  // empty result caused by a broken fixture, a dangling Person.link, or a malformed query
+  // is indistinguishable from correct isolation, and the tests would pass with all access
+  // control removed. This proves B's data IS reachable -- by B.
+  test('reachability control: user B CAN see its own observation and patient', async () => {
+    const request = await seed();
+    const graph = await request.get('/4_0_0/Observation?patient=Patient/person.euMasterB').set(endUser('euMasterB', 'euClientB'));
+    expect(graph.status).toBe(200);
+    expect(ids(graph)).toContain('euUserBObs001');
+    const byId = await request.get('/4_0_0/Patient/euUserBPatient001').set(endUser('euMasterB', 'euClientB'));
+    expect(byId.status).toBe(200);
+  });
+
   test('user A must NOT reach user B\'s graph by substituting user B\'s person id', async () => {
     const request = await seed();
-    const resp = await request.get('/4_0_0/Observation?patient=Patient/person.euMasterB').set(endUser('euMasterA'));
-    expect([200, 401, 403, 404]).toContain(resp.status); // blocked, or empty — never B's data
+    const resp = await request.get('/4_0_0/Observation?patient=Patient/person.euMasterB').set(endUser('euMasterA', 'euClientA'));
+    // Deliberately NOT `expect([200,401,403,404]).toContain(status)` -- that admits every
+    // possible status and asserts nothing. Either the request is refused, or it succeeds
+    // and returns nothing of B's; a 5xx is a bug either way.
+    expect([200, 403, 404]).toContain(resp.status);
     expect(ids(resp)).not.toContain('euUserBObs001');
+    expect(ids(resp)).not.toContain('euUserBPatient001');
   });
 
   test('user A reading user B\'s Patient by id is indistinguishable from not-found', async () => {
     const request = await seed();
-    const foreign = await request.get('/4_0_0/Patient/euUserBPatient001').set(endUser('euMasterA'));
-    const missing = await request.get('/4_0_0/Patient/euNoSuchPatient999').set(endUser('euMasterA'));
+    const foreign = await request.get('/4_0_0/Patient/euUserBPatient001').set(endUser('euMasterA', 'euClientA'));
+    const missing = await request.get('/4_0_0/Patient/euNoSuchPatient999').set(endUser('euMasterA', 'euClientA'));
     expect([401, 403, 404]).toContain(foreign.status);
     expect(foreign.status).toBe(missing.status);
+    // status parity alone is a weak oracle check -- the body must not differ either
+    expect(JSON.stringify(foreign.body).replace(/euUserBPatient001/g, 'X'))
+      .toBe(JSON.stringify(missing.body).replace(/euNoSuchPatient999/g, 'X'));
+  });
+
+  test('user A\'s open Patient search must not return user B\'s patient', async () => {
+    const request = await seed();
+    const resp = await request.get('/4_0_0/Patient?_count=20').set(endUser('euMasterA', 'euClientA'));
+    expect(resp.status).toBe(200);
+    expect(ids(resp)).toContain('euUserAPatient001');   // positive half: search works
+    expect(ids(resp)).not.toContain('euUserBPatient001');
   });
 });

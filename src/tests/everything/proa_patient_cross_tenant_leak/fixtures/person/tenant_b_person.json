@@ -4,15 +4,41 @@
     "meta": {
         "source": "tenantB",
         "security": [
-            { "system": "https://www.icanbwell.com/owner", "code": "tenantB" },
-            { "system": "https://www.icanbwell.com/access", "code": "tenantB" }
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "tenantB"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "tenantB"
+            }
         ]
     },
-    "name": [ { "use": "official", "family": "Kent", "given": ["Bob"] } ],
+    "name": [
+        {
+            "use": "official",
+            "family": "Kent",
+            "given": [
+                "Bob"
+            ]
+        }
+    ],
     "gender": "male",
     "birthDate": "1991-03-14",
     "link": [
-        { "target": { "reference": "Patient/tenantBOwnPatient001", "type": "Patient" }, "assurance": "level4" },
-        { "target": { "reference": "Patient/sharedProaPatientNoConsent001", "type": "Patient" }, "assurance": "level4" }
+        {
+            "target": {
+                "reference": "Patient/tenantBOwnPatient001|tenantB",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        },
+        {
+            "target": {
+                "reference": "Patient/sharedProaPatientNoConsent001|upstream_proa_source",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        }
     ]
 }
