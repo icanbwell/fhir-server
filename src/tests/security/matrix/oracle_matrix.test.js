@@ -97,9 +97,9 @@ describe('SECURITY MATRIX — existence oracles', () => {
         const READS = {
             'read by id':        (id) => `/4_0_0/Patient/${id}`,
             'search by _id':     (id) => `/4_0_0/Patient?_id=${id}`,
-            '$everything':       (id) => `/4_0_0/Patient/${id}/$everything`,
-            '$summary':          (id) => `/4_0_0/Patient/${id}/$summary`,
-            '_history':          (id) => `/4_0_0/Patient/${id}/_history`,
+            $everything:       (id) => `/4_0_0/Patient/${id}/$everything`,
+            $summary:          (id) => `/4_0_0/Patient/${id}/$summary`,
+            _history:          (id) => `/4_0_0/Patient/${id}/_history`,
             'read a version':    (id) => `/4_0_0/Patient/${id}/_history/1`,
             'person $everything': (id) => `/4_0_0/Person/${id}/$everything`
         };

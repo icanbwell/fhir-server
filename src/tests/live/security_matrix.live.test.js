@@ -137,8 +137,8 @@ let ro, rw, gt;
         'read by id':            () => `/4_0_0/Patient/${E.FOREIGN_PATIENT_ID}`,
         'search by _id':         () => `/4_0_0/Patient?_id=${E.FOREIGN_PATIENT_ID}`,
         '$everything on patient': () => `/4_0_0/Patient/${E.FOREIGN_PATIENT_ID}/$everything`,
-        '$summary':              () => `/4_0_0/Patient/${E.FOREIGN_PATIENT_ID}/$summary`,
-        '_history':              () => `/4_0_0/Patient/${E.FOREIGN_PATIENT_ID}/_history`,
+        $summary:              () => `/4_0_0/Patient/${E.FOREIGN_PATIENT_ID}/$summary`,
+        _history:              () => `/4_0_0/Patient/${E.FOREIGN_PATIENT_ID}/_history`,
         'read a version':        () => `/4_0_0/Patient/${E.FOREIGN_PATIENT_ID}/_history/1`
     };
     for (const [label, build] of Object.entries(READS)) {

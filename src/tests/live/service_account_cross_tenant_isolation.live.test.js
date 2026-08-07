@@ -139,8 +139,8 @@ const rwReady = E.RUN_LIVE_ISOLATION && RW && B_TAG;
             resourceType: 'Patient', id: 'sa-live-own-001',
             meta: { security: [
                 { system: 'https://www.icanbwell.com/owner', code: A },
-                { system: 'https://www.icanbwell.com/access', code: A },
-            ] },
+                { system: 'https://www.icanbwell.com/access', code: A }
+            ] }
         });
         expect([200, 201]).toContain(r.status);
     }, 40000);
@@ -151,8 +151,8 @@ const rwReady = E.RUN_LIVE_ISOLATION && RW && B_TAG;
             meta: { security: [
                 { system: 'https://www.icanbwell.com/owner', code: A },
                 { system: 'https://www.icanbwell.com/access', code: A },
-                { system: 'https://www.icanbwell.com/access', code: B_TAG },
-            ] },
+                { system: 'https://www.icanbwell.com/access', code: B_TAG }
+            ] }
         });
         expect(r.status).toBe(403);
     }, 40000);
@@ -164,9 +164,9 @@ const rwReady = E.RUN_LIVE_ISOLATION && RW && B_TAG;
             resourceType: 'Patient', id: B_PATIENT,
             meta: { security: [
                 { system: 'https://www.icanbwell.com/owner', code: A },
-                { system: 'https://www.icanbwell.com/access', code: A },
+                { system: 'https://www.icanbwell.com/access', code: A }
             ] },
-            gender: 'unknown',
+            gender: 'unknown'
         });
         // Either rejected, or (multi-tenant id partitioning) it created A's own copy without
         // touching B's — never a 200 that modified tenant B's actual record.
@@ -179,9 +179,9 @@ const rwReady = E.RUN_LIVE_ISOLATION && RW && B_TAG;
             resourceType: 'Person', id: 'sa-live-linkforge-001',
             meta: { security: [
                 { system: 'https://www.icanbwell.com/owner', code: A },
-                { system: 'https://www.icanbwell.com/access', code: A },
+                { system: 'https://www.icanbwell.com/access', code: A }
             ] },
-            link: [{ target: { reference: `Patient/${B_PATIENT}` } }],
+            link: [{ target: { reference: `Patient/${B_PATIENT}` } }]
         });
         // A subsequent $everything on this person must not surface tenant-B data.
         const ev = await w.get(`/4_0_0/Person/sa-live-linkforge-001/$everything`);
