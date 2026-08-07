@@ -53,10 +53,11 @@ describe('Search operator injection', () => {
                 .send('identifier=MRN-AAA111')
                 .set(getHeadersFormUrlEncodedWithAdmin());
 
+            const expected1 = deepcopy(expectedSearch1);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMongoQuery(deepcopy(expectedSearch1));
+            expect(resp).toHaveMongoQuery(expected1);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(deepcopy(expectedSearch1));
+            expect(resp).toHaveResponse(expected1);
         });
 
         test('_search with a malformed/injected query drops the operator object instead of erroring', async () => {
@@ -78,10 +79,11 @@ describe('Search operator injection', () => {
                 .send('identifier[$gt]=')
                 .set(getHeadersFormUrlEncodedWithAdmin());
 
+            const expected2 = deepcopy(expectedSearch2);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMongoQuery(deepcopy(expectedSearch2));
+            expect(resp).toHaveMongoQuery(expected2);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(deepcopy(expectedSearch2));
+            expect(resp).toHaveResponse(expected2);
 
             // qs parses this into { birthdate: [ [ { $gt: '' } ] ] } -- the doubly-nested
             // array case a shallow strip check would miss, reaching FilterByDateTime and
@@ -91,10 +93,11 @@ describe('Search operator injection', () => {
                 .send('birthdate[0][0][$gt]=')
                 .set(getHeadersFormUrlEncodedWithAdmin());
 
+            const expected3 = deepcopy(expectedSearch3);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMongoQuery(deepcopy(expectedSearch3));
+            expect(resp).toHaveMongoQuery(expected3);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(deepcopy(expectedSearch3));
+            expect(resp).toHaveResponse(expected3);
         });
 
         test('_lastUpdated works for both a legitimate range and a malformed nested value', async () => {
@@ -117,8 +120,6 @@ describe('Search operator injection', () => {
                 .set(getHeadersFormUrlEncodedWithAdmin());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMongoQuery(deepcopy(expectedSearch4));
-            // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(deepcopy(expectedSearch4));
 
             resp = await request
@@ -126,10 +127,11 @@ describe('Search operator injection', () => {
                 .send('_lastUpdated[0][$gt]=2020-01-01')
                 .set(getHeadersFormUrlEncodedWithAdmin());
 
+            const expected5 = deepcopy(expectedSearch5);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMongoQuery(deepcopy(expectedSearch5));
+            expect(resp).toHaveMongoQuery(expected5);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(deepcopy(expectedSearch5));
+            expect(resp).toHaveResponse(expected5);
         });
     });
 });

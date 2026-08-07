@@ -110,7 +110,6 @@ class R4ArgsParser {
         // ---- end of backward compatibility mappings ---
 
         // ---- start of add range logic to args sent from the search form   ---
-        args._lastUpdated = stripOperatorObjects(args._lastUpdated);
         if (args._lastUpdated && Array.isArray(args._lastUpdated)) {
             const lastUpdatedArray = args._lastUpdated;
             const newUpdatedArray = [];
