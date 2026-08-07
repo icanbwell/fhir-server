@@ -83,9 +83,9 @@ describe('Search operator injection', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expected2);
 
-            // qs parses this into { birthdate: [ [ { $gt: '' } ] ] } -- the doubly-nested
-            // array case a shallow strip check would miss, reaching FilterByDateTime and
-            // throwing TypeError: value.match is not a function.
+            // qs parses this form-urlencoded body into { 'identifier[$gt]': '' } -- extended
+            // was removed from express.urlencoded's config, so the bracket key is flattened
+            // to a literal string that never matches the real 'identifier' search parameter.
             resp = await request
                 .post('/4_0_0/Patient/_search?_debug=1&_bundle=1')
                 .send('birthdate[0][0][$gt]=')

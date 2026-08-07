@@ -11,44 +11,6 @@ const { ConfigManager } = require('../../utils/configManager');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 
 /**
- * @param {*} value
- * @return {boolean} whether MongoDB would read this as an operator expression (`{ $gt: '' }`)
- */
-const isPlainObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
-
-/**
- * @param {*} value
- * @return {boolean} whether value is, or (at any depth of array nesting) contains, an operator object
- */
-const containsOperatorObject = (value) =>
-    isPlainObject(value) || (Array.isArray(value) && value.some(containsOperatorObject));
-
-/**
- * Removes values MongoDB would interpret as operator expressions. A POST _search body of
- * `url[$gt]=` parses into { $gt: '' }, `url[0][$gt]=` into [{ $gt: '' }], and
- * `url[0][0][$gt]=` into [[{ $gt: '' }]] -- recurses into arrays at any depth so an extra
- * pair of brackets can't smuggle an operator object past a shallow check.
- *
- * Returning undefined makes the caller's emptiness checks skip the parameter entirely, so
- * no ParsedArgsItem is created -- matching an equivalent GET, and avoiding filters that
- * dereference the value without a null guard (e.g. FilterByDateTime).
- * @param {*} value
- * @return {*} the value with operator objects removed, or undefined if nothing is left
- */
-const stripOperatorObjects = (value) => {
-    // bail out unless an operator object is actually present somewhere, so other inputs --
-    // notably an already-empty array -- keep their existing semantics unchanged
-    if (!containsOperatorObject(value)) {
-        return value;
-    }
-    if (isPlainObject(value)) {
-        return undefined;
-    }
-    const scalars = value.map(v => stripOperatorObjects(v)).filter(v => v !== undefined);
-    return scalars.length > 0 ? scalars : undefined;
-};
-
-/**
  * @classdesc This classes parses an array of args into structured ParsedArgsItem array
  */
 class R4ArgsParser {
@@ -188,10 +150,6 @@ class R4ArgsParser {
                 if (handlingType === STRICT_SEARCH_HANDLING && SPECIFIED_QUERY_PARAMS.indexOf(queryParameter) === -1) {
                     throw new BadRequestError(new Error(`${queryParameter} is not a parameter for ${resourceType}`));
                 }
-                // Deliberately not stripping operator objects here: these items have no
-                // propertyObj, and r4.js only builds a filter when propertyObj is set, so they
-                // never reach the mongo query. Some are legitimately objects -- $graph reads a
-                // GraphDefinition off parsedArgs.resource / parsedArgs.graph.
                 if (
                     (typeof queryParameterValue !== 'undefined'
                         && queryParameterValue !== null
@@ -227,12 +185,6 @@ class R4ArgsParser {
             ({ orQueryParameterValue, andQueryParameterValue, notQueryParameterValue, newModifiers } = convertGraphQLParameters(
                 queryParameterValue
             ));
-
-            // Must run after the GraphQL conversion: GraphQL legitimately supplies objects
-            // (identified by `searchType`) which convertGraphQLParameters turns into strings.
-            // Anything still an object here came straight from a request body.
-            orQueryParameterValue = stripOperatorObjects(orQueryParameterValue);
-            notQueryParameterValue = stripOperatorObjects(notQueryParameterValue);
 
             // Keep the pre-concat modifiers (from the colon-suffixed argName) separately: newModifiers
             // (e.g. 'contains', 'exact', 'missing') describes orQueryParameterValue/andQueryParameterValue,
