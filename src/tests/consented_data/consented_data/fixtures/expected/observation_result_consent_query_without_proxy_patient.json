@@ -3,102 +3,6 @@
     {
       "resource": {
         "resourceType": "Observation",
-        "id": "3158b5b8-3c3a-4438-9c81-211d824d174b",
-        "meta": {
-          "versionId": "1",
-          "lastUpdated": "2023-11-10T09:47:43.000Z",
-          "source": "/patients",
-          "security": [
-            {
-              "system": "https://www.icanbwell.com/owner",
-              "id": "0bb54f5c-269a-5ef4-9954-cdd73132c97b",
-              "code": "proa"
-            },
-            {
-              "system": "https://www.icanbwell.com/access",
-              "id": "e9e75a85-6909-50cd-8cbc-17a8ae372d6e",
-              "code": "proa"
-            },
-            {
-              "system": "https://www.icanbwell.com/vendor",
-              "id": "c731ab72-c59a-5208-a1b3-0ee84af33003",
-              "code": "proa"
-            },
-            {
-              "system": "https://www.icanbwell.com/connectionType",
-              "id": "2ddb7b9d-413a-59ba-abb6-65774d005ed9",
-              "code": "proa"
-            },
-            {
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "id": "c0ec2d9e-21a0-5089-83cf-1f18883bbd20",
-              "code": "proa"
-            }
-          ]
-        },
-        "identifier": [
-          {
-            "id": "sourceId",
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "3158b5b8-3c3a-4438-9c81-211d824d174b"
-          },
-          {
-            "id": "uuid",
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "3158b5b8-3c3a-4438-9c81-211d824d174b"
-          }
-        ],
-        "status": "final",
-        "code": {
-          "coding": [
-            {
-              "id": "62186514-8c23-5680-85fd-b6898c99eacb",
-              "system": "http://www.icanbwell.com/cql/library",
-              "code": "BMI001"
-            },
-            {
-              "id": "77b3739c-725f-5833-a93e-cce825fb7b4a",
-              "system": "http://www.icanbwell.com/cql/libraryVersion",
-              "code": "1.0.0"
-            },
-            {
-              "id": "977380c4-aca5-57a2-9eab-03eea0c1941d",
-              "system": "http://www.icanbwell.com/cql/rule",
-              "code": "InAgeCohort"
-            }
-          ]
-        },
-        "subject": {
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "proa"
-            }
-          ],
-          "reference": "Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc"
-        },
-        "effectivePeriod": {
-          "start": "2021-01-01T00:00:00.000Z",
-          "end": "2021-12-31T00:00:00.000Z"
-        },
-        "issued": "2021-01-01T12:00:00.000Z",
-        "valueBoolean": false
-      }
-    },
-    {
-      "resource": {
-        "resourceType": "Observation",
         "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
         "meta": {
           "versionId": "1",
@@ -193,7 +97,7 @@
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
-        "display": "db.Observation_4_0_0.find({'$or':[{'$and':[{'subject._uuid':{'$in':['Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6','Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc','Patient/7a81f87f-d358-593f-bf6f-908dbb0cb26b','Patient/person.33226ded-51e8-590e-8342-1197955a2af7']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':'proa'}}},{'subject._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}]}, {}).sort({'_uuid':1}).limit(100)"
+        "display": "db.Observation_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6','Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc','Patient/7a81f87f-d358-593f-bf6f-908dbb0cb26b','Patient/person.33226ded-51e8-590e-8342-1197955a2af7']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]}, {}).sort({'_uuid':1}).limit(100)"
       },
       {
         "system": "https://www.icanbwell.com/queryCollection",

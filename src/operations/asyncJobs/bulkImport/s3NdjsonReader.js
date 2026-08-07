@@ -1,8 +1,8 @@
-const { S3Client: S3, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client: S3, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
 const readline = require('readline');
-const { assertTypeEquals } = require('../../utils/assertType');
-const { ConfigManager } = require('../../utils/configManager');
-const { logInfo, logError } = require('../common/logging');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { ConfigManager } = require('../../../utils/configManager');
+const { logInfo, logError } = require('../../common/logging');
 
 class S3NdjsonReader {
     /**
@@ -143,6 +143,33 @@ class S3NdjsonReader {
             byteRangeEnd,
             linesRead: lineNumber
         });
+    }
+
+    /**
+     * Writes NDJSON data to S3. Validates the bucket against the same allow-list
+     * as readNdjsonAsync to prevent SSRF.
+     * @param {Object} params
+     * @param {string} params.filepath - S3 URI (s3://bucket/key)
+     * @param {string} params.data
+     * @returns {Promise<void>}
+     */
+    async writeNdjsonAsync({ filepath, data }) {
+        const { bucket, key } = this.parseS3Uri(filepath);
+
+        const allowedBuckets = this.configManager.bulkImportAllowedS3Buckets;
+        if (!allowedBuckets.length) {
+            throw new Error('Bulk import S3 bucket allowlist is not configured');
+        }
+        if (!allowedBuckets.includes(bucket)) {
+            throw new Error(`S3 bucket "${bucket}" is not in the allowed list`);
+        }
+
+        const region = this.configManager.awsRegion || 'us-east-1';
+        const s3 = new S3({ region });
+
+        await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: data }));
+
+        logInfo('S3 NDJSON writer finished', { filepath });
     }
 }
 
