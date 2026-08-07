@@ -547,7 +547,7 @@ class AuthService {
                 // echo it back -- getFieldsFromToken's wildcard-non-patient-scope issuer check (see
                 // isWildcardNonPatientScope, DCON-4882) needs the real issuer to avoid incorrectly
                 // treating a legitimate, allowlisted issuer's token as untrusted.
-                jwt_payload = { iss: jwt_payload.iss, ...userInfoResponse.body };
+                jwt_payload = { ...userInfoResponse.body, iss: jwt_payload.iss };
                 const userInfo = this.getFieldsFromToken(jwt_payload);
                 if (cacheKey) {
                     AuthService.userInfoCache.set(cacheKey, userInfo);
