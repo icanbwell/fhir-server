@@ -7,7 +7,13 @@ const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/
  * - Does not expose the unrestricted container to resolvers (privilege escalation risk)
  * - Strips stacktraces and exception details from formatError responses
  * - Converts CSRF errors to safe OperationOutcome responses
- * - Does not leak internal file paths or infrastructure details in error messages
+ * - Does not leak internal file paths or infrastructure details in error messages,
+ *   for errors thrown inside resolvers/data sources (the real path -- Apollo's
+ *   expressMiddleware handles these via `formatError` and responds HTTP 200; it
+ *   never reaches graphqlErrorFormatter's `next(err)` path). Modeled by wrapping the
+ *   original thrown error in a GraphQLError with a `path` (as Apollo does for
+ *   resolver errors), matching what `unwrapResolverError` from `@apollo/server/errors`
+ *   expects.
  *
  * Tests assert CORRECT (secure) behavior and FAIL on buggy code.
  */
@@ -106,7 +112,25 @@ jestGlobal.mock('../../../../fhir/classes/4_0_0/backbone_elements/operationOutco
 
 // --- Helpers ---
 
+const { GraphQLError } = require('graphql');
 const { ApolloServer } = require('@apollo/server');
+
+/**
+ * Wraps an original error (as thrown inside a resolver/data source) in a
+ * GraphQLError with a `path`, matching how Apollo Server actually reports
+ * resolver errors to `formatError`. `unwrapResolverError` (from
+ * `@apollo/server/errors`) only unwraps to `originalError` when the error has
+ * both a `path` and an `originalError` -- i.e. it came from field resolution,
+ * as opposed to a parse/validation-time GraphQLError.
+ * @param {Error} originalError
+ * @return {GraphQLError}
+ */
+function asResolverError (originalError) {
+    return new GraphQLError(originalError.message, {
+        path: ['someField'],
+        originalError
+    });
+}
 
 /**
  * Creates a mock container with all services that graphqlServerV2 expects.
@@ -373,9 +397,10 @@ describe('graphqlServerV2 - Security Tests', () => {
     });
 
     describe('formatError - Internal error message leakage (CRITICAL)', () => {
-        test('CRITICAL: internal error messages with file paths leak through formatError', async () => {
+        test('FIXED: internal error messages with file paths are redacted for real resolver errors', async () => {
             const config = await getApolloConfig(mockContainer);
             const internalMessage = 'Cannot read property \'meta\' of null at /app/src/operations/security/scopesManager.js:128';
+            const originalError = new Error(internalMessage);
             const formattedError = {
                 message: internalMessage,
                 extensions: {
@@ -384,18 +409,20 @@ describe('graphqlServerV2 - Security Tests', () => {
                 }
             };
 
-            const result = config.formatError(formattedError, new Error(internalMessage));
+            // Modeled the way Apollo actually calls formatError for a resolver throw:
+            // the second argument is a GraphQLError with `path` + `originalError` set,
+            // not the raw thrown error.
+            const result = config.formatError(formattedError, asResolverError(originalError));
 
-            // BUG: The message is NOT sanitized — file paths and internal state leak
-            // formatError only strips extensions.stacktrace and extensions.exception
-            expect(result.message).toBe(internalMessage);
-            expect(result.message).toContain('/app/src/operations');
-            expect(result.message).toContain('scopesManager.js:128');
+            expect(result.message).toBe('Internal server error');
+            expect(result.message).not.toContain('/app/src/operations');
+            expect(result.message).not.toContain('scopesManager.js:128');
         });
 
-        test('CRITICAL: database errors with query details leak through formatError', async () => {
+        test('FIXED: database errors with query details are redacted for real resolver errors', async () => {
             const config = await getApolloConfig(mockContainer);
             const dbMessage = 'MongoServerError: query timed out on collection Patient_4_0_0 filter={"_sourceAssigningAuthority":"tenant-abc"}';
+            const originalError = new Error(dbMessage);
             const formattedError = {
                 message: dbMessage,
                 extensions: {
@@ -404,17 +431,18 @@ describe('graphqlServerV2 - Security Tests', () => {
                 }
             };
 
-            const result = config.formatError(formattedError, new Error(dbMessage));
+            const result = config.formatError(formattedError, asResolverError(originalError));
 
-            // BUG: Collection names and query filters leak through to the client
-            expect(result.message).toContain('Patient_4_0_0');
-            expect(result.message).toContain('tenant-abc');
-            expect(result.message).toContain('_sourceAssigningAuthority');
+            expect(result.message).toBe('Internal server error');
+            expect(result.message).not.toContain('Patient_4_0_0');
+            expect(result.message).not.toContain('tenant-abc');
+            expect(result.message).not.toContain('_sourceAssigningAuthority');
         });
 
-        test('CRITICAL: connection string errors leak infrastructure details', async () => {
+        test('FIXED: connection string errors do not leak infrastructure details', async () => {
             const config = await getApolloConfig(mockContainer);
             const connMessage = 'MongoServerSelectionError: connection to mongodb+srv://admin:p4ssw0rd@cluster0.mongodb.net/fhir_prod timed out';
+            const originalError = new Error(connMessage);
             const formattedError = {
                 message: connMessage,
                 extensions: {
@@ -422,12 +450,42 @@ describe('graphqlServerV2 - Security Tests', () => {
                 }
             };
 
-            const result = config.formatError(formattedError, new Error(connMessage));
+            const result = config.formatError(formattedError, asResolverError(originalError));
 
-            // BUG: Connection strings with credentials leak through
-            expect(result.message).toContain('mongodb+srv://');
-            expect(result.message).toContain('admin:p4ssw0rd');
-            expect(result.message).toContain('cluster0.mongodb.net');
+            expect(result.message).toBe('Internal server error');
+            expect(result.message).not.toContain('mongodb+srv://');
+            expect(result.message).not.toContain('admin:p4ssw0rd');
+            expect(result.message).not.toContain('cluster0.mongodb.net');
+        });
+
+        test('4xx errors thrown inside a resolver remain descriptive (not redacted)', async () => {
+            const config = await getApolloConfig(mockContainer);
+            const message = 'Resource Patient/123 not found';
+            const originalError = new Error(message);
+            originalError.statusCode = 404;
+            const formattedError = {
+                message,
+                extensions: { code: 'NOT_FOUND' }
+            };
+
+            const result = config.formatError(formattedError, asResolverError(originalError));
+
+            expect(result.message).toBe(message);
+        });
+
+        test('GraphQL parse/validation errors (no path/originalError) are not touched by redaction', async () => {
+            const config = await getApolloConfig(mockContainer);
+            const message = 'Variable "$id" of required type "String!" was not provided.';
+            const formattedError = {
+                message,
+                extensions: { code: 'BAD_USER_INPUT' }
+            };
+            // A real parse/validation-time GraphQLError has no `path`/`originalError`.
+            const validationError = new GraphQLError(message, {});
+
+            const result = config.formatError(formattedError, validationError);
+
+            expect(result.message).toBe(message);
         });
     });
 
