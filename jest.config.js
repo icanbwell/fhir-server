@@ -79,7 +79,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/graphql/resolvers/graphqlResolver.crossTenant.test.js',
         '<rootDir>/src/tests/unit/graphqlv2/crossTenantPhiLeakage.test.js',
         '<rootDir>/src/tests/unit/middleware/errorInformationDisclosure.test.js',
-        '<rootDir>/src/tests/unit/operations/everything/patientEverything.consent.test.js',
         '<rootDir>/src/tests/unit/operations/export/bulkDataExportRunner.crossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/history/historyCrossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/merge/merge.crossTenant.test.js',
