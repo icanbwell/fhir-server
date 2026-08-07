@@ -1,6 +1,7 @@
 const { Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
 const { assertIsValid, assertTypeEquals } = require('./assertType');
 const { logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync } = require('../operations/common/systemEventLogging');
+const { logError } = require('../operations/common/logging');
 const { RethrownError } = require('./rethrownError');
 const { ConfigManager } = require('./configManager');
 const { recordKafkaRetryExhausted } = require('./metrics');
@@ -234,14 +235,26 @@ class KafkaClientV2 {
                 resolve(event);
             });
             consumer.on(consumer.events.CRASH, async (event) => {
-                // Log unconditionally — a crash after the join promise has already settled would
-                // otherwise vanish silently, since rejecting an already-settled promise is a no-op.
+                // logSystemErrorAsync unconditionally — a crash after the join promise has
+                // already settled would otherwise vanish silently, since rejecting an
+                // already-settled promise is a no-op.
                 await logSystemErrorAsync({
                     event: 'kafkaClientV2',
                     message: `Consumer crashed${label ? ` (${label})` : ''}`,
                     args: {},
                     error: event.payload.error
                 });
+                // logError only for a crash THIS listener is responsible for (before the join
+                // promise settles) -- once settled, the entrypoint's own post-join CRASH
+                // listener already logs every crash via logError with job-specific context, so
+                // logging here too would just be a second, differently-worded write for the
+                // same event, making it harder to correlate/alert on.
+                if (!settled) {
+                    logError(`Consumer crashed${label ? ` (${label})` : ''}`, {
+                        error: event.payload.error?.message,
+                        restart: event.payload.restart
+                    });
+                }
                 if (settled) {
                     return;
                 }
@@ -347,15 +360,26 @@ class KafkaClientV2 {
                 }
             });
         } catch (e) {
+            // consumer.run() resolves as soon as it has started the consumer's background
+            // fetch loop -- it does NOT block for the consumer's lifetime, so reaching this
+            // catch means subscribe()/run() itself failed to even start, not that consumption
+            // has finished. Disconnect here to clean up that failed setup. Disconnecting
+            // unconditionally in a `finally` instead (the previous behavior) tore down the
+            // consumer moments after every SUCCESSFUL run() call too, silently killing a
+            // healthy, just-started long-running consumer with no error or crash event.
+            logError('Error receiving message', {
+                clientId: this.clientId,
+                brokers: this.brokers,
+                error: e.message
+            });
             await logSystemErrorAsync({
                 event: 'kafkaClientV2',
                 message: 'Error receiving message',
                 args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl },
                 error: e
             });
-            throw e;
-        } finally {
             await consumer.disconnect();
+            throw e;
         }
     }
 
