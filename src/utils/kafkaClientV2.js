@@ -235,22 +235,26 @@ class KafkaClientV2 {
                 resolve(event);
             });
             consumer.on(consumer.events.CRASH, async (event) => {
-                // Log unconditionally — a crash after the join promise has already settled would
-                // otherwise vanish silently, since rejecting an already-settled promise is a no-op.
-                // logError (not just logSystemErrorAsync) because the latter's fhirLogger
-                // transport is a no-op whenever LOGLEVEL=DEBUG, and even outside that its
-                // AuditEvent-shaped JSON output isn't guaranteed to parse into a log
-                // aggregator's level/message fields the way logInfo/logError already reliably do.
-                logError(`Consumer crashed${label ? ` (${label})` : ''}`, {
-                    error: event.payload.error?.message,
-                    restart: event.payload.restart
-                });
+                // logSystemErrorAsync unconditionally — a crash after the join promise has
+                // already settled would otherwise vanish silently, since rejecting an
+                // already-settled promise is a no-op.
                 await logSystemErrorAsync({
                     event: 'kafkaClientV2',
                     message: `Consumer crashed${label ? ` (${label})` : ''}`,
                     args: {},
                     error: event.payload.error
                 });
+                // logError only for a crash THIS listener is responsible for (before the join
+                // promise settles) -- once settled, the entrypoint's own post-join CRASH
+                // listener already logs every crash via logError with job-specific context, so
+                // logging here too would just be a second, differently-worded write for the
+                // same event, making it harder to correlate/alert on.
+                if (!settled) {
+                    logError(`Consumer crashed${label ? ` (${label})` : ''}`, {
+                        error: event.payload.error?.message,
+                        restart: event.payload.restart
+                    });
+                }
                 if (settled) {
                     return;
                 }

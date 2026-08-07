@@ -63,16 +63,12 @@ jestObj.mock('../../../../createContainer', () => ({
     }))
 }));
 
-// Mock Sentry and its init dependency -- avoids exercising the real SDK on every isolateModules
-// require below, and avoids requiring the REAL errorHandler module (mocked further down),
-// which registers real process-level listeners as a require-time side effect.
-jestObj.mock('@sentry/node', () => ({
-    init: jestObj.fn()
+// Mock the shared Sentry/error-handler init -- avoids exercising the real SDK and requiring
+// the real errorHandler module (which registers real process-level listeners as a
+// require-time side effect) on every isolateModules require below.
+jestObj.mock('../../../../utils/initStandaloneEntrypointSentry', () => ({
+    initStandaloneEntrypointSentry: jestObj.fn()
 }));
-jestObj.mock('../../../../utils/getImageVersion', () => ({
-    getImageVersion: jestObj.fn(() => 'test-version')
-}));
-jestObj.mock('../../../../middleware/errorHandler', () => ({}));
 
 // Mock winstonInit
 jestObj.mock('../../../../winstonInit', () => ({

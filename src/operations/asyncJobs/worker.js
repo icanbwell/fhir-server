@@ -1,24 +1,10 @@
-const Sentry = require('@sentry/node');
-const { getImageVersion } = require('../../utils/getImageVersion');
+const { initStandaloneEntrypointSentry } = require('../../utils/initStandaloneEntrypointSentry');
 
 // This entrypoint runs standalone (node src/operations/asyncJobs/worker.js), so it never
-// loads src/index.js -- Sentry.init() there does not cover this process. Without this, errors
-// here (including a crashed/unhandled-rejected consumer) go completely unreported.
-Sentry.init({
-    release: getImageVersion(),
-    environment: process.env.ENVIRONMENT,
-    autoSessionTracking: false,
-    skipOpenTelemetrySetup: true,
-    tracesSampleRate: undefined,
-    tracesSampler: undefined,
-    tracePropagationTargets: []
-});
-
-// Registers process-level uncaughtException/unhandledRejection/warning handlers that log via
-// the proven-visible logInfo/logError and report to Sentry -- the same handlers src/index.js
-// wires up for the main FHIR server, applied here so a rejected receiveMessagesAsync() call
-// (or anything else) can no longer fail silently with zero log output.
-require('../../middleware/errorHandler');
+// loads src/index.js/server.js -- their Sentry.init()/error handlers do not cover this
+// process. Without this, errors here (including a crashed/unhandled-rejected consumer) go
+// completely unreported.
+initStandaloneEntrypointSentry();
 
 const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');

@@ -61,6 +61,10 @@ jestObj.mock('../../../operations/common/systemEventLogging', () => ({
     logSystemEventAsync: jestObj.fn().mockResolvedValue(undefined)
 }));
 
+jestObj.mock('../../../operations/common/logging', () => ({
+    logError: jestObj.fn()
+}));
+
 jestObj.mock('../../../utils/rethrownError', () => ({
     RethrownError: class RethrownError extends Error {
         constructor({ message, error, config }) {
@@ -88,6 +92,7 @@ const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
 const { KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
 const { recordKafkaRetryExhausted } = require('../../../utils/metrics');
 const { logTraceSystemEventAsync, logSystemErrorAsync, logSystemEventAsync } = require('../../../operations/common/systemEventLogging');
+const { logError } = require('../../../operations/common/logging');
 
 describe('KafkaClientV2', () => {
     let kafkaClient;
@@ -503,6 +508,9 @@ describe('KafkaClientV2', () => {
                 kafkaClient.waitForConsumerToJoinGroupAsync(consumer, { maxWait: 5000 })
             ).rejects.toThrow();
             expect(consumer.disconnect).toHaveBeenCalled();
+            // A pre-join crash is this listener's own responsibility -- no entrypoint-level
+            // CRASH listener exists yet to log it, so this is the only logError call site for it.
+            expect(logError).toHaveBeenCalled();
         });
 
         test('logs the crash error via logSystemErrorAsync', async () => {
@@ -561,6 +569,11 @@ describe('KafkaClientV2', () => {
                 expect.objectContaining({ error: laterCrashError })
             );
             expect(consumer.disconnect).not.toHaveBeenCalled();
+            // logError is deliberately NOT called here -- once the join has settled, the
+            // entrypoint's own post-join CRASH listener is the one responsible for logError
+            // (with job-specific context), so this listener logging it too would just be a
+            // second, differently-worded write for the same crash.
+            expect(logError).not.toHaveBeenCalled();
         });
 
         test('uses default maxWait of 10000', async () => {
