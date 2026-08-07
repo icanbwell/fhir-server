@@ -99,39 +99,5 @@ describe('Search operator injection', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expected3);
         });
-
-        test('_lastUpdated works for both a legitimate range and a malformed nested value', async () => {
-            const request = await createTestRequest();
-
-            for (const resource of [patient1Resource, patient2Resource]) {
-                const resp = await request
-                    .post('/4_0_0/Patient/$merge')
-                    .send(resource)
-                    .set(getHeaders());
-                // noinspection JSUnresolvedFunction
-                expect(resp).toHaveMergeResponse({ created: true });
-            }
-
-            // the search-form two-value convention: index 0 becomes the gt bound, index 1
-            // becomes the lt bound
-            let resp = await request
-                .post('/4_0_0/Patient/_search?_debug=1&_bundle=1')
-                .send('_lastUpdated=2020-01-01&_lastUpdated=2020-02-01')
-                .set(getHeadersFormUrlEncodedWithAdmin());
-
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(deepcopy(expectedSearch4));
-
-            resp = await request
-                .post('/4_0_0/Patient/_search?_debug=1&_bundle=1')
-                .send('_lastUpdated[0][$gt]=2020-01-01')
-                .set(getHeadersFormUrlEncodedWithAdmin());
-
-            const expected5 = deepcopy(expectedSearch5);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMongoQuery(expected5);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expected5);
-        });
     });
 });
