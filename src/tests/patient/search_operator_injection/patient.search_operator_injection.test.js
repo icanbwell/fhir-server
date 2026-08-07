@@ -4,8 +4,6 @@ const patient2Resource = require('./fixtures/patient/patient2.json');
 const expectedSearch1 = require('./fixtures/expected/expected_search1.json');
 const expectedSearch2 = require('./fixtures/expected/expected_search2.json');
 const expectedSearch3 = require('./fixtures/expected/expected_search3.json');
-const expectedSearch4 = require('./fixtures/expected/expected_search4.json');
-const expectedSearch5 = require('./fixtures/expected/expected_search5.json');
 
 const {
     commonBeforeEach,
