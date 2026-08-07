@@ -1,3 +1,25 @@
+const Sentry = require('@sentry/node');
+const { getImageVersion } = require('../../utils/getImageVersion');
+
+// This entrypoint runs standalone (node src/operations/asyncJobs/orchestrator.js), so it
+// never loads src/index.js -- Sentry.init() there does not cover this process. Without this,
+// errors here (including a crashed/unhandled-rejected consumer) go completely unreported.
+Sentry.init({
+    release: getImageVersion(),
+    environment: process.env.ENVIRONMENT,
+    autoSessionTracking: false,
+    skipOpenTelemetrySetup: true,
+    tracesSampleRate: undefined,
+    tracesSampler: undefined,
+    tracePropagationTargets: []
+});
+
+// Registers process-level uncaughtException/unhandledRejection/warning handlers that log via
+// the proven-visible logInfo/logError and report to Sentry -- the same handlers src/index.js
+// wires up for the main FHIR server, applied here so a rejected receiveMessagesAsync() call
+// (or anything else) can no longer fail silently with zero log output.
+require('../../middleware/errorHandler');
+
 const http = require('http');
 const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');
@@ -88,12 +110,15 @@ async function main() {
             // otherwise this handler's process.exit could cut that write off mid-flight.
             if (consumer) {
                 consumer.on(consumer.events.CRASH, async (event) => {
+                    // Log every crash, retriable or not -- a silent retriable crash gives no
+                    // evidence a self-heal was even attempted, let alone whether it succeeded.
+                    logError(`Async job orchestrator consumer crashed (${job.label})`, {
+                        error: event.payload.error?.message,
+                        restart: event.payload.restart
+                    });
                     if (event.payload.restart) {
                         return;
                     }
-                    logError(`Async job orchestrator consumer crashed, exiting (${job.label})`, {
-                        error: event.payload.error?.message
-                    });
                     await new Promise((resolve) => setImmediate(resolve));
                     process.exit(1);
                 });

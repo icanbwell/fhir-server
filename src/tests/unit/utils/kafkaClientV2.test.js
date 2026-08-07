@@ -583,7 +583,7 @@ describe('KafkaClientV2', () => {
     });
 
     describe('receiveMessagesAsync', () => {
-        test('subscribes and runs consumer with eachMessage handler', async () => {
+        test('subscribes and runs consumer with eachMessage handler, and does not disconnect a successfully-started long-running consumer', async () => {
             const consumer = {
                 connect: mockConsumerConnect,
                 disconnect: mockConsumerDisconnect,
@@ -600,7 +600,10 @@ describe('KafkaClientV2', () => {
             expect(mockConsumerConnect).toHaveBeenCalled();
             expect(mockConsumerSubscribe).toHaveBeenCalledWith({ topics: ['test-topic'], fromBeginning: true });
             expect(mockConsumerRun).toHaveBeenCalled();
-            expect(mockConsumerDisconnect).toHaveBeenCalled();
+            // consumer.run() resolves as soon as the background fetch loop starts, not when
+            // consumption "finishes" -- disconnecting here would tear down a healthy,
+            // just-started consumer moments after it starts (the actual production bug).
+            expect(mockConsumerDisconnect).not.toHaveBeenCalled();
         });
 
         test('fromBeginning defaults to false', async () => {
@@ -710,11 +713,12 @@ describe('KafkaClientV2', () => {
                 kafkaClient.receiveMessagesAsync({ consumer, topic: 'test', onMessageAsync: jestObj.fn() })
             ).rejects.toThrow('Run failed');
             expect(logSystemErrorAsync).toHaveBeenCalled();
-            // Should still disconnect in finally block
+            // Should still disconnect after a failed subscribe/run -- that's a genuine setup
+            // failure, unlike a successful run() resolving.
             expect(mockConsumerDisconnect).toHaveBeenCalled();
         });
 
-        test('disconnects consumer in finally block even after error', async () => {
+        test('disconnects consumer after a subscribe/run setup error', async () => {
             const consumer = {
                 connect: mockConsumerConnect,
                 disconnect: mockConsumerDisconnect,
