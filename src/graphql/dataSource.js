@@ -174,6 +174,16 @@ class FhirDataSource {
                     if (!resourceType) {
                         return [];
                     }
+                    // DCON-4846: getResources/getResourcesBundle gate their own root resourceType,
+                    // but a reference field (e.g. Patient.generalPractitioner) resolves through this
+                    // batch loader for the *referenced* resourceType, bypassing that gate entirely --
+                    // gate it here too so a CMS-partner/delegated-user caller can't pivot through a
+                    // reference to read a disallowed resource type.
+                    this.accessManager.verifyGraphQLReadAccess({
+                        requestInfo,
+                        resourceType,
+                        operation: 'search'
+                    });
                     /**
                      * @type {string[]}
                      */
@@ -394,6 +404,13 @@ class FhirDataSource {
      * @return {Promise<Resource[]>}
      */
     async getResources (parent, args, context, info, resourceType) {
+        // DCON-4846: REST search runs this same allowlist check (fhirOperationsManager.search) --
+        // GraphQL reads must too, or a CMS-partner/delegated-user caller could bypass it entirely
+        this.accessManager.verifyGraphQLReadAccess({
+            requestInfo: context.fhirRequestInfo,
+            resourceType,
+            operation: 'search'
+        });
         this.generateResourceProjections(info);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const args1 = {
@@ -486,6 +503,12 @@ class FhirDataSource {
      * @return {Promise<Bundle>}
      */
     async getResourcesBundle (parent, args, context, info, resourceType, useAggregationPipeline = false) {
+        // DCON-4846: see getResources -- same allowlist check REST search already enforces
+        this.accessManager.verifyGraphQLReadAccess({
+            requestInfo: context.fhirRequestInfo,
+            resourceType,
+            operation: 'search'
+        });
         this.createDataLoader(args);
         this.generateResourceProjections(info);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/

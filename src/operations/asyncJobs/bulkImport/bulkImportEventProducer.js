@@ -1,8 +1,8 @@
-const { generateUUID } = require('../../utils/uid.util');
-const { assertTypeEquals } = require('../../utils/assertType');
-const { KafkaClientV2 } = require('../../utils/kafkaClientV2');
-const { ConfigManager } = require('../../utils/configManager');
-const { logInfo, logError } = require('../common/logging');
+const { generateUUID } = require('../../../utils/uid.util');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
+const { ConfigManager } = require('../../../utils/configManager');
+const { logInfo, logError } = require('../../common/logging');
 
 class BulkImportEventProducer {
     /**

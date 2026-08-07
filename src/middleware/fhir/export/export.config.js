@@ -31,6 +31,16 @@ const routes = [
         args: [routeArgs.BASE],
         versions: [VERSIONS['4_0_0']],
         operation: 'export'
+    },
+    {
+        path: '/:base_version/Group/:id/$export',
+        method: 'GET',
+        corsOptions: {
+            methods: ['GET']
+        },
+        args: [routeArgs.BASE, routeArgs.ID],
+        versions: [VERSIONS['4_0_0']],
+        operation: 'export'
     }
 ];
 
