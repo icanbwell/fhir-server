@@ -1,0 +1,167 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "birthDate": "1985-06-15",
+                "gender": "female",
+                "id": "opinj-patient-2",
+                "identifier": [
+                    {
+                        "system": "http://example.org/mrn",
+                        "value": "MRN-BBB222"
+                    },
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "opinj-patient-2"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "3df26d69-ecc8-57c8-a626-0151c4cbc4ca"
+                    }
+                ],
+                "meta": {
+                    "source": "http://healthsystem1health.org/provider",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1",
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1",
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1",
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef"
+                        }
+                    ],
+                    "versionId": "1",
+                    "lastUpdated": "2026-08-07T10:22:13.261Z"
+                },
+                "name": [
+                    {
+                        "use": "usual",
+                        "text": "b",
+                        "family": "OPINJTWO",
+                        "given": [
+                            "BOB"
+                        ]
+                    }
+                ],
+                "resourceType": "Patient"
+            }
+        },
+        {
+            "resource": {
+                "birthDate": "1990-01-01",
+                "gender": "male",
+                "id": "opinj-patient-1",
+                "identifier": [
+                    {
+                        "system": "http://example.org/mrn",
+                        "value": "MRN-AAA111"
+                    },
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "opinj-patient-1"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "4635dd16-6263-5ecf-9800-5e000e4131c7"
+                    }
+                ],
+                "meta": {
+                    "source": "http://healthsystem1health.org/provider",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1",
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1",
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1",
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef"
+                        }
+                    ],
+                    "versionId": "1",
+                    "lastUpdated": "2026-08-07T10:22:13.194Z"
+                },
+                "name": [
+                    {
+                        "use": "usual",
+                        "text": "a",
+                        "family": "OPINJONE",
+                        "given": [
+                            "ALICE"
+                        ]
+                    }
+                ],
+                "resourceType": "Patient"
+            }
+        }
+    ],
+    "type": "searchset",
+    "timestamp": "2026-08-07T10:22:13.1313Z",
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/4_0_0/Patient/_search?_debug=1&_bundle=1"
+        },
+        {
+            "relation": "next",
+            "url": "http://localhost:3000/4_0_0/Patient/_search?_debug=1&_bundle=1&id%3Aabove=4635dd16-6263-5ecf-9800-5e000e4131c7"
+        }
+    ],
+    "resourceType": "Bundle",
+    "total": 0,
+    "id": "8fedb8d2-0db9-40d5-b2fe-61d72e5b8ee6",
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "db.Patient_4_0_0.find({'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}, {}).sort({'_uuid':1}).limit(100)"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": "Patient_4_0_0"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "{'limit':100,'sort':{'_uuid':1}}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "['meta.tag.system','meta.tag.code','_uuid']"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime",
+                "display": "0.007"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryDatabase",
+                "code": "fhir"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain",
+                "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Patient_4_0_0\",\"parsedQuery\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"indexFilterSet\":false,\"queryHash\":\"C3EC9C34\",\"planCacheShapeHash\":\"C3EC9C34\",\"planCacheKey\":\"317FB2A1\",\"optimizationTimeMillis\":0,\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"prunedSimilarIndexes\":false,\"winningPlan\":{\"isCached\":false,\"stage\":\"SORT\",\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"direction\":\"forward\"}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":2,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":2,\"executionStages\":{\"isCached\":false,\"stage\":\"SORT\",\"nReturned\":2,\"executionTimeMillisEstimate\":0,\"works\":6,\"advanced\":2,\"needTime\":3,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":2074,\"usedDisk\":false,\"spills\":0,\"spilledDataStorageSize\":0,\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"nReturned\":2,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":2,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"direction\":\"forward\",\"docsExamined\":2}},\"allPlansExecution\":[]},\"queryShapeHash\":\"ED32DA5AC288AA761075F82ED90BE5C8E5B115506DF2C8B261D24C0C8F19E1BB\",\"command\":{\"find\":\"Patient_4_0_0\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":120000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Vinay-KushwahaMacBook-Air\",\"port\":61242,\"version\":\"8.0.20\",\"gitVersion\":\"28927c60881a488fcbc5fd4d925b410f33258827\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600,\"internalQueryFrameworkControl\":\"trySbeRestricted\",\"internalQueryPlannerIgnoreIndexWithCollationForRegex\":1},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7671233068681658374\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7671233068681658374\"}}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple",
+                "display": "[{\"step\":{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"COLLSCAN\",\"friendlyStage\":\"for a collection scan\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"docsExamined\":2,\"nReturned\":2,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"SORT\",\"nReturned\":2,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":2,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":2},\"query\":\"db.Patient_4_0_0.find({'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}, {}).sort({'_uuid':1}).limit(100)\"}]"
+            }
+        ]
+    }
+}
