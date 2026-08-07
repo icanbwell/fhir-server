@@ -3,6 +3,7 @@ const { assertTypeEquals } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');
 const { CONSENT_OF_LINKED_PERSON_INDEX, PATIENT_REFERENCE_PREFIX, CONSENT_CATEGORY } = require('../../constants');
 const { ReferenceParser } = require('../../utils/referenceParser');
+const { dateQueryBuilder } = require('../../utils/querybuilder.util');
 
 class ProaConsentManager {
     /**
@@ -32,6 +33,7 @@ class ProaConsentManager {
      * @returns Consent resource list
      */
     async getConsentResources({ ownerTags, patientIds }) {
+        const currDate = new Date().toISOString();
         const query = {
             $and: [
                 { status: 'active' },
@@ -52,6 +54,30 @@ class ProaConsentManager {
                             code: { $in: ownerTags }
                         }
                     }
+                },
+                // Period start must not be in the future OR not exist
+                {
+                    $or: [
+                        { 'provision.period.start': { $exists: false } },
+                        {
+                            'provision.period.start': dateQueryBuilder({
+                                date: `le${currDate}`,
+                                type: 'dateTime'
+                            })
+                        }
+                    ]
+                },
+                // Period end must be in the future OR not exist
+                {
+                    $or: [
+                        { 'provision.period.end': { $exists: false } },
+                        {
+                            'provision.period.end': dateQueryBuilder({
+                                date: `ge${currDate}`,
+                                type: 'dateTime'
+                            })
+                        }
+                    ]
                 }
             ]
         };

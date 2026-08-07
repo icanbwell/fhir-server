@@ -3,6 +3,7 @@ const { MergeOperation } = require('../../../operations/merge/merge');
 const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
 const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
 const { DateColumnHandler } = require('../../../preSaveHandlers/handlers/dateColumnHandler');
+const { NotFoundError, BadRequestError } = require('../../../utils/httpErrors');
 
 /**
  method to match general practitioners to an id and remove from the provided list
@@ -1369,7 +1370,11 @@ module.exports = {
                     'Patient'
                 );
                 if (patients && patients.length === 0) {
-                    throw new Error(`Patient not found ${args.patientId}`);
+                    // Domain-level "not found" error: not an internal/implementation
+                    // detail leak, so it must carry an explicit 4xx statusCode
+                    // (see getSafeErrorMessage in graphqlErrorFormatter.js) to stay
+                    // descriptive instead of being redacted as a 500.
+                    throw new NotFoundError(`Patient not found ${args.patientId}`);
                 }
                 let patientToChange = patients[0];
                 /**
@@ -1418,7 +1423,9 @@ module.exports = {
                         'Practitioner'
                     );
                     if (practitioners && practitioners.length === 0) {
-                        throw new Error(`Practitioner not found ${args.practitionerId}`);
+                        // See NotFoundError comment above: descriptive 4xx, not an
+                        // internal-error leak.
+                        throw new NotFoundError(`Practitioner not found ${args.practitionerId}`);
                     }
                     patientToChange.generalPractitioner = [
                         { reference: `Practitioner/${practitioners[0].id}` }
@@ -1448,7 +1455,12 @@ module.exports = {
                     resourceType: 'Patient'
                 });
                 if (result && result[0].operationOutcome) {
-                    throw new Error(`Unable to update patient ${args.patientId}`);
+                    // Client-caused failure (e.g. missing access scope on the merge),
+                    // not an internal-error leak; use BadRequestError (4xx) so
+                    // getSafeErrorMessage doesn't redact this descriptive message.
+                    throw new BadRequestError(
+                        new Error(`Unable to update patient ${args.patientId}`)
+                    );
                 }
                 return patientToChange;
             }

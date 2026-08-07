@@ -49,8 +49,10 @@ describe('graphqlErrorFormatter', () => {
         graphqlErrorFormatter(err, {}, res, next);
 
         expect(res.status).toHaveBeenCalledWith(500);
+        // The underlying error message must be redacted for 5xx responses so
+        // internal implementation details are never leaked to GraphQL callers.
         expect(res.json).toHaveBeenCalledWith({
-            errors: [{ message: 'Something broke', extensions: { code: 'INTERNAL_SERVER_ERROR' } }]
+            errors: [{ message: 'Internal server error', extensions: { code: 'INTERNAL_SERVER_ERROR' } }]
         });
     });
 
