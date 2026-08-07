@@ -9,6 +9,46 @@ const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
 const { JWKS_REQUESTS_PER_MINUTE, JWT_EXPIRY_CLOCK_TOLERANCE } = require('../constants');
 
+/**
+ * Handles errors raised by jwks-rsa while resolving a signing key.
+ *
+ * Boundary (INC-322): a `SigningKeyNotFoundError` after a SUCCESSFUL JWKS fetch means
+ * the token's `kid` genuinely doesn't match any known key -- that is a real, permanent
+ * auth failure and must stay a 401. Any OTHER error here (network failure, timeout, DNS
+ * failure, etc.) means we couldn't reach/complete the JWKS lookup at all -- that's an
+ * infrastructure problem, not evidence the token is invalid, so it's marked
+ * transient/503 to keep it from being turned into a hard 401.
+ * @param {Error} err
+ * @param {(err: Error) => void} cb
+ */
+function handleSigningKeyError(err, cb) {
+    if (err instanceof jwksRsa.SigningKeyNotFoundError) {
+        logError('JWKS signing key not found', {
+            user: '',
+            args: {error: err.message}
+        });
+        return cb(new Error('No Signing Key found!'));
+    }
+    logError('JWKS signing key error', {
+        user: '',
+        args: {error: err.message, type: err.name}
+    });
+    // Build a new error object instead of mutating the caller-owned `err` in place --
+    // jwks-rsa/passport-jwt may hold onto or reuse that error instance elsewhere, and
+    // mutating it here could leak the isTransient/statusCode markers onto a shared
+    // object outside this function's control. `message` and `stack` are own but
+    // non-enumerable on native Error instances, so Object.assign alone won't copy
+    // them -- carry them over explicitly.
+    const transientError = Object.assign(Object.create(Object.getPrototypeOf(err)), err);
+    transientError.message = err.message;
+    transientError.stack = err.stack;
+    transientError.isTransient = true;
+    if (!transientError.statusCode) {
+        transientError.statusCode = 503;
+    }
+    return cb(transientError);
+}
+
 class MyJwtStrategy extends JwtStrategy {
     /**
      * Constructor for the JWT strategy
@@ -39,20 +79,7 @@ class MyJwtStrategy extends JwtStrategy {
                     getKeysInterceptor: async () => {
                         return await authService.getExternalJwksAsync();
                     },
-                    handleSigningKeyError: (err, cb) => {
-                        if (err instanceof jwksRsa.SigningKeyNotFoundError) {
-                            logError('JWKS signing key not found', {
-                                user: '',
-                                args: {error: err.message}
-                            });
-                            return cb(new Error('No Signing Key found!'));
-                        }
-                        logError('JWKS signing key error', {
-                            user: '',
-                            args: {error: err.message, type: err.name}
-                        });
-                        return cb(err);
-                    }
+                    handleSigningKeyError
                 }),
                 jwtFromRequest: ExtractJwt.fromExtractors([
                     ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -78,5 +105,6 @@ class MyJwtStrategy extends JwtStrategy {
 
 
 module.exports = {
-    MyJwtStrategy
+    MyJwtStrategy,
+    handleSigningKeyError
 };

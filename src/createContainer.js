@@ -104,6 +104,7 @@ const {MergeResourceValidator} = require('./operations/merge/validators/mergeRes
 const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
 const {PostSaveProcessor} = require('./dataLayer/postSaveProcessor');
 const {PostSaveHandlerFactory} = require('./dataLayer/postSaveHandlers/postSaveHandlerFactory');
+const {ConsentCacheInvalidationHandler} = require('./dataLayer/postSaveHandlers/handlers/consentCacheInvalidationHandler');
 const {ProfileUrlMapper} = require('./utils/profileMapper');
 const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const {PatientScopeManager} = require('./operations/security/patientScopeManager');
@@ -740,7 +741,8 @@ const createContainer = function () {
         patientDataViewControlManager: c.patientDataViewControlManager,
         auditLogger: c.auditLogger,
         postRequestProcessor: c.postRequestProcessor,
-        redisStreamManager: c.redisStreamManager
+        redisStreamManager: c.redisStreamManager,
+        redisManager: c.redisManager
     }));
 
     container.register('everythingRelatedResourceMapper', (c) => new EverythingRelatedResourcesMapper());
@@ -1167,7 +1169,11 @@ const createContainer = function () {
     container.register('postSaveProcessor', (c) => {
         const handlers = [
             c.changeEventProducer,
-            c.patientPersonDataChangeEventProducer
+            c.patientPersonDataChangeEventProducer,
+            new ConsentCacheInvalidationHandler({
+                redisManager: c.redisManager,
+                bwellPersonFinder: c.bwellPersonFinder
+            })
         ];
 
         // Add ClickHouse handler for Group resources if enabled
