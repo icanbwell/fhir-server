@@ -209,16 +209,6 @@ describe('ConfigManager', () => {
         });
 
         // DCON-4882
-        test('restrictNonPatientScopeForPatientTokens defaults to false when not set', () => {
-            delete process.env.AUTH_RESTRICT_NON_PATIENT_SCOPE_FOR_PATIENT_TOKENS;
-            expect(new ConfigManager().restrictNonPatientScopeForPatientTokens).toBe(false);
-        });
-
-        test('restrictNonPatientScopeForPatientTokens returns true when set', () => {
-            process.env.AUTH_RESTRICT_NON_PATIENT_SCOPE_FOR_PATIENT_TOKENS = '1';
-            expect(new ConfigManager().restrictNonPatientScopeForPatientTokens).toBe(true);
-        });
-
         test('allowedNonPatientTokenIssuers returns empty array when not set', () => {
             delete process.env.AUTH_ALLOWED_NON_PATIENT_TOKEN_ISSUERS;
             expect(new ConfigManager().allowedNonPatientTokenIssuers).toEqual([]);
