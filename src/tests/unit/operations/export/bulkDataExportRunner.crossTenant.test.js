@@ -237,64 +237,13 @@ describe('BulkDataExportRunner - Cross-Tenant PHI Leakage', () => {
     // and receive Tenant A's export status, including S3 URLs to download
     // Tenant A's complete NDJSON export files.
     // =========================================================================
-    describe('VULN-3: exportById must verify tenant ownership of ExportStatus', () => {
-        test('should reject access when caller scope does not match ExportStatus access tags', async () => {
-            // This tests the ExportByIdOperation class
-            const { ExportByIdOperation } = require('../../../../operations/export/exportById');
-            const { ScopesManager } = require('../../../../operations/security/scopesManager');
-            const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggingManager');
-
-            const mockScopesManager = createMockInstance(ScopesManager);
-            mockScopesManager.hasPatientScope = jest.fn().mockReturnValue(false);
-            mockScopesManager.getAccessCodesFromScopes = jest.fn().mockReturnValue(['tenantB']);
-
-            const mockFhirLoggingManager = createMockInstance(FhirLoggingManager);
-            mockFhirLoggingManager.logOperationSuccessAsync = jest.fn().mockResolvedValue(undefined);
-            mockFhirLoggingManager.logOperationFailureAsync = jest.fn().mockResolvedValue(undefined);
-
-            const mockDatabaseExportManager = createMockInstance(DatabaseExportManager);
-            // ExportStatus belongs to tenantA
-            mockDatabaseExportManager.getExportStatusResourceWithId = jest.fn().mockResolvedValue({
-                id: 'export-uuid-tenant-a',
-                resourceType: 'ExportStatus',
-                status: 'completed',
-                meta: {
-                    security: [
-                        { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
-                        { system: SecurityTagSystem.access, code: 'tenantA' }
-                    ]
-                },
-                output: [
-                    { type: 'Patient', url: 's3://bucket/exports/tenantA/export-uuid-tenant-a/Patient.ndjson' }
-                ],
-                scope: 'user/*.read access/tenantA.*',
-                user: 'tenantA-client'
-            });
-
-            const exportByIdOp = new ExportByIdOperation({
-                scopesManager: mockScopesManager,
-                fhirLoggingManager: mockFhirLoggingManager,
-                databaseExportManager: mockDatabaseExportManager
-            });
-
-            // TenantB tries to access TenantA's export status
-            const requestInfo = {
-                requestId: 'req-from-tenant-b',
-                scope: 'user/*.read access/tenantB.*',
-                user: 'tenantB-client'
-            };
-
-            // CORRECT behavior: This should throw a ForbiddenError or NotFoundError
-            // because tenantB does not have access to tenantA's export.
-            // Currently, it returns the resource without checking access tags.
-            await expect(
-                exportByIdOp.exportByIdAsync({
-                    requestInfo,
-                    args: { id: 'export-uuid-tenant-a' }
-                })
-            ).rejects.toThrow();
-        });
-    });
+    // VULN-3 (exportById tenant-ownership check) was fixed and now has real, non-quarantined
+    // coverage in src/tests/unit/operations/export/exportById.crossTenant.test.js, which uses
+    // the real ScopesManager instead of a mock -- see that file's history for why a mock here
+    // (which only ever exercised the deny path, and would default-deny any unmocked method
+    // regardless of whether the real fix existed) was insufficient to catch the actual
+    // regression. Removed the stale duplicate rather than leave two sources of truth for the
+    // same rule.
 
     // =========================================================================
     // VULNERABILITY 4: S3 path structure is predictable/enumerable.
