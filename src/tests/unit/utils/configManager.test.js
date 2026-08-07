@@ -218,6 +218,18 @@ describe('ConfigManager', () => {
             process.env.AUTH_RESTRICT_NON_PATIENT_SCOPE_FOR_PATIENT_TOKENS = '1';
             expect(new ConfigManager().restrictNonPatientScopeForPatientTokens).toBe(true);
         });
+
+        test('allowedNonPatientTokenIssuers returns empty array when not set', () => {
+            delete process.env.AUTH_ALLOWED_NON_PATIENT_TOKEN_ISSUERS;
+            expect(new ConfigManager().allowedNonPatientTokenIssuers).toEqual([]);
+        });
+
+        test('allowedNonPatientTokenIssuers splits comma-separated issuers', () => {
+            process.env.AUTH_ALLOWED_NON_PATIENT_TOKEN_ISSUERS = 'https://a.example.com, https://b.example.com';
+            expect(new ConfigManager().allowedNonPatientTokenIssuers).toEqual([
+                'https://a.example.com', 'https://b.example.com'
+            ]);
+        });
     });
 
     // ========== supportLegacyIds ==========

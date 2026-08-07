@@ -58,6 +58,7 @@ describe('AuthService', () => {
         Object.defineProperty(mockConfigManager, 'authCidCheckClientIds', { get: () => [], configurable: true });
         Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => false, configurable: true });
         Object.defineProperty(mockConfigManager, 'restrictNonPatientScopeForPatientTokens', { get: () => false, configurable: true });
+        Object.defineProperty(mockConfigManager, 'allowedNonPatientTokenIssuers', { get: () => [], configurable: true });
 
         mockWellKnownConfigManager = createMockInstance(WellKnownConfigurationManager);
         mockWellKnownConfigManager.getJwksUrlsAsync = jest.fn().mockResolvedValue([]);
@@ -720,6 +721,89 @@ describe('AuthService', () => {
     });
 
     describe('processUserInfo', () => {
+        // DCON-4882: reject tokens missing patient/person id claims from untrusted issuers
+        describe('non-patient token from untrusted issuer (DCON-4882)', () => {
+            test('is a no-op when the allowlist is empty (unconfigured environments)', () => {
+                const done = jest.fn();
+                authService.processUserInfo({
+                    username: 'svc', subject: undefined, isUser: false,
+                    jwt_payload: { iss: 'https://untrusted.example.com' },
+                    done, client_id: 'svc-client', scope: 'user/*.read'
+                });
+                expect(done).toHaveBeenCalledWith(
+                    null,
+                    expect.objectContaining({ id: 'svc-client' }),
+                    expect.any(Object)
+                );
+            });
+
+            test('rejects a token missing all patient/person id claims from a non-allowlisted issuer', () => {
+                Object.defineProperty(mockConfigManager, 'allowedNonPatientTokenIssuers', {
+                    get: () => ['https://trusted.example.com'], configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const done = jest.fn();
+                authService.processUserInfo({
+                    username: 'svc', subject: undefined, isUser: false,
+                    jwt_payload: { iss: 'https://untrusted.example.com' },
+                    done, client_id: 'svc-client', scope: 'user/*.* access/*.*'
+                });
+                expect(done).toHaveBeenCalledWith(null, false, { reason: 'non_patient_token_from_untrusted_issuer' });
+            });
+
+            test('passes through when the issuer is on the allowlist', () => {
+                Object.defineProperty(mockConfigManager, 'allowedNonPatientTokenIssuers', {
+                    get: () => ['https://trusted.example.com'], configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const done = jest.fn();
+                authService.processUserInfo({
+                    username: 'svc', subject: undefined, isUser: false,
+                    jwt_payload: { iss: 'https://trusted.example.com' },
+                    done, client_id: 'svc-client', scope: 'user/*.* access/*.*'
+                });
+                expect(done).toHaveBeenCalledWith(
+                    null,
+                    expect.objectContaining({ id: 'svc-client' }),
+                    expect.any(Object)
+                );
+            });
+
+            test('passes through when the token has a patient/person id claim, regardless of issuer', () => {
+                Object.defineProperty(mockConfigManager, 'allowedNonPatientTokenIssuers', {
+                    get: () => ['https://trusted.example.com'], configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const done = jest.fn();
+                authService.processUserInfo({
+                    username: 'testuser', subject: 'sub1', isUser: true,
+                    jwt_payload: {
+                        iss: 'https://untrusted.example.com',
+                        clientFhirPersonId: 'person-1',
+                        clientFhirPatientId: 'patient-1',
+                        bwellFhirPersonId: 'bwell-person-1',
+                        bwellFhirPatientId: 'bwell-patient-1',
+                        sub: 'subject-1'
+                    },
+                    done, client_id: 'client1', scope: 'patient/Patient.read'
+                });
+                expect(done).toHaveBeenCalledWith(
+                    null,
+                    expect.objectContaining({ id: 'client1' }),
+                    expect.any(Object)
+                );
+            });
+        });
+
         test('calls done with user info for non-user token', () => {
             const done = jest.fn();
             authService.processUserInfo({
