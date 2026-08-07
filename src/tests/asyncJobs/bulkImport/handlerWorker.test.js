@@ -300,6 +300,14 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         const errorOutput = taskResp.body.output.find((o) => o.type.text === 'error');
         expect(errorOutput).toBeDefined();
         expect(errorOutput.valueUri).toBe(errorWrite.filepath);
+
+        // The failing line's OperationOutcome must carry a source-line extension so a
+        // caller can map the error back to the exact line in the original NDJSON input.
+        const errorEntry = JSON.parse(errorWrite.data.trim().split('\n')[0]);
+        const extension = errorEntry.operationOutcome.issue[0].extension;
+        expect(extension).toEqual([
+            { url: 'https://www.icanbwell.com/source-line', valueInteger: 1 }
+        ]);
     });
 
     test('handleMessageAsync flushes postRequestProcessor and clears requestSpecificCache per range', async () => {

@@ -681,7 +681,7 @@ class BulkImportHandler {
                         // resourceType) — still record it so it lands in the error NDJSON and
                         // Task.output, not just a log line.
                         mergeResultEntries.push(
-                            MergeResultEntry.createFromError({ error: resourceError, resource })
+                            MergeResultEntry.createFromError({ error: resourceError, resource, lineNumber })
                         );
                         logError('Failed to buffer bulk import resource for write', {
                             taskId,

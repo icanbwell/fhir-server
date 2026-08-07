@@ -2,6 +2,9 @@ const { removeNull } = require('../../utils/nullRemover');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
+const Extension = require('../../fhir/classes/4_0_0/complex_types/extension');
+
+const SOURCE_LINE_EXTENSION_URL = 'https://www.icanbwell.com/source-line';
 
 class MergeResultEntry {
     /**
@@ -80,9 +83,10 @@ class MergeResultEntry {
      * Creates a MergeResultEntry from an error
      * @param {Error} error
      * @param {Resource} resource
+     * @param {number|undefined} [lineNumber] - source NDJSON line number, e.g. for bulk import errors
      * @return {MergeResultEntry}
      */
-    static createFromError ({ error, resource }) {
+    static createFromError ({ error, resource, lineNumber }) {
         /**
          * @type {OperationOutcome}
          */
@@ -98,7 +102,15 @@ class MergeResultEntry {
                     diagnostics: error.message,
                     expression: [
                         resource.resourceType
-                    ]
+                    ],
+                    extension: lineNumber === undefined
+                        ? undefined
+                        : [
+                            new Extension({
+                                url: SOURCE_LINE_EXTENSION_URL,
+                                valueInteger: lineNumber
+                            })
+                        ]
                 })
             ]
         });
