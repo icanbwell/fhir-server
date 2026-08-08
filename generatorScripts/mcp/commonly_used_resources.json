@@ -1,0 +1,18 @@
+{
+    "resourceTypes": [
+        "Patient",
+        "Observation",
+        "Condition",
+        "MedicationRequest",
+        "AllergyIntolerance",
+        "Immunization",
+        "Procedure",
+        "DiagnosticReport",
+        "Encounter",
+        "CarePlan",
+        "Coverage",
+        "DocumentReference",
+        "Practitioner",
+        "Organization"
+    ]
+}
