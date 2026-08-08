@@ -465,7 +465,8 @@ const createContainer = function () {
             [READ]: [
                 new PatientProxyQueryRewriter({
                     personToPatientIdsExpander: c.personToPatientIdsExpander,
-                    configManager: c.configManager
+                    configManager: c.configManager,
+                    requestSpecificCache: c.requestSpecificCache
                 })
             ]
         }
