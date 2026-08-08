@@ -1,7 +1,6 @@
 /**
  * Tests for PersonToPatientIdsExpander's owner-tag-verified Person->Patient capture, used to
- * build the PROA-safe cache consumed by DataSharingManager (see
- * docs/superpowers/specs/2026-08-08-proa-person-everything-caching-design.md).
+ * build the PROA-safe cache consumed by DataSharingManager
  */
 const { describe, test, expect, beforeEach } = require('@jest/globals');
 const { jest: jestGlobal } = require('@jest/globals');
