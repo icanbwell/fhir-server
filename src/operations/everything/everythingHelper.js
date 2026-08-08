@@ -776,7 +776,8 @@ class EverythingHelper {
                     useUuidProjection,
                     resourceMapper,
                     cachedStreamer,
-                    everythingChunkIndex
+                    everythingChunkIndex,
+                    scopedPersonIds
                 });
 
                 optionsForQueries = baseResult.options;
@@ -925,7 +926,8 @@ class EverythingHelper {
                     resourceMapper,
                     cachedStreamer,
                     everythingChunkIndex,
-                    personUuidsForCustomQuery
+                    personUuidsForCustomQuery,
+                    scopedPersonIds
                 });
 
                 if (!responseStreamer) {
@@ -1014,7 +1016,8 @@ class EverythingHelper {
                                 everythingRelatedResourceManager,
                                 resourceMapper,
                                 cachedStreamer,
-                                everythingChunkIndex
+                                everythingChunkIndex,
+                                scopedPersonIds
                             });
 
                             depthParallelProcess.push(result);
@@ -1138,7 +1141,8 @@ class EverythingHelper {
         applyPatientFilter = true,
         resourceMapper = new ResourceMapper(),
         cachedStreamer = null,
-        everythingChunkIndex
+        everythingChunkIndex,
+        scopedPersonIds
     }) {
 
         /**
@@ -1185,6 +1189,7 @@ class EverythingHelper {
                 addPersonOwnerToContext: requestInfo.isUser,
                 applyPatientFilter,
                 allowConsentedProaDataAccess: true,
+                useProxyPatientToPersonCache: Boolean(scopedPersonIds?.length),
                 everythingChunkIndex
             });
 
@@ -1451,6 +1456,7 @@ class EverythingHelper {
                     requestInfo.isUser &&
                     this.relatedResourceNeedingPatientScopeFilter[parentResourceType].includes(relatedResourceType),
                 allowConsentedProaDataAccess: true,
+                useProxyPatientToPersonCache: Boolean(scopedPersonIds?.length),
                 everythingChunkIndex
             });
 

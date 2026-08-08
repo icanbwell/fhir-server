@@ -5,6 +5,9 @@ const { QueryParameterValue } = require('../../operations/query/queryParameterVa
 const { isTrueWithFallback } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { RequestSpecificCache } = require('../../utils/requestSpecificCache');
+const { ReferenceParser } = require('../../utils/referenceParser');
+const { DATA_SHARING_PATIENT_TO_PERSON_DATA } = require('../../constants');
 
 const patientReferencePrefix = 'Patient/';
 const personProxyPrefix = 'person.';
@@ -15,13 +18,15 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * @typedef {object} PatientProxyQueryRewriterProps
      * @property {ConfigManager} configManager
      * @property {PersonToPatientIdsExpander} personToPatientIdsExpander
+     * @property {RequestSpecificCache} requestSpecificCache
      * constructor
      * @param {PatientProxyQueryRewriterProps} params
      */
     constructor (
         {
             personToPatientIdsExpander,
-            configManager
+            configManager,
+            requestSpecificCache
         }
     ) {
         super();
@@ -37,6 +42,75 @@ class PatientProxyQueryRewriter extends QueryRewriter {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {RequestSpecificCache}
+         */
+        this.requestSpecificCache = requestSpecificCache;
+        assertTypeEquals(requestSpecificCache, RequestSpecificCache);
+    }
+
+    /**
+     * Whether this request is the specific request shape
+     * (docs/superpowers/specs/2026-08-08-proa-person-everything-caching-design.md) that
+     * DataSharingManager.getValidatedPatientIdsMap's new cache-only branch requires:
+     * Person/proxy-patient $everything, with the PROA feature enabled.
+     *
+     * This is the producer-side eligibility check: it decides whether writeProaSafeCache
+     * actually runs. everythingHelper.js's two constructQueryAsync call sites compute the
+     * consumer-side `useProxyPatientToPersonCache` boolean independently and must match this
+     * condition exactly (method === 'GET' in particular) -- if they ever diverge, a request
+     * could ask DataSharingManager to read a cache that was never written.
+     * @param {FhirRequestInfo} requestInfo
+     * @return {boolean}
+     */
+    isProaCacheEligibleRequest (requestInfo) {
+        return Boolean(
+            this.configManager.enableConsentedProaDataAccess &&
+            // PersonToPatientIdsExpander's owner-tag verification (which produces
+            // ownerVerifiedPersonToLinkedPatients) only runs when this flag is on; without it,
+            // the map would always be empty and writing a "successfully populated but empty"
+            // cache would make dataSharingManager.js silently treat every patient as
+            // not-PROA-eligible instead of surfacing the misconfiguration. So when this flag is
+            // off, deliberately skip writing the cache at all -- that makes
+            // dataSharingManager.js's existing "cache entirely absent" assertFail throw loudly
+            // instead, which is the intended failure mode here, not a bug.
+            this.configManager.enableProxyPersonScopeCheckForEverything &&
+            requestInfo?.originalUrl?.includes('$everything') &&
+            requestInfo?.method === 'GET'
+        );
+    }
+
+    /**
+     * Writes the owner-tag-verified Person->Patient result to RequestSpecificCache, in the two
+     * shapes DataSharingManager.getValidatedPatientIdsMap needs to fully replace
+     * BwellPersonFinder.getImmediatePersonIdsOfPatientsAsync for this request.
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Map<string, Set<string>>} ownerVerifiedPersonToLinkedPatients
+     */
+    writeProaSafeCache ({ requestInfo, ownerVerifiedPersonToLinkedPatients }) {
+        const cache = this.requestSpecificCache.getMap({ requestId: requestInfo.requestId, name: DATA_SHARING_PATIENT_TO_PERSON_DATA });
+        if (cache.has('personToLinkedPatientsMap')) {
+            // Already populated by an earlier proxy-id group processed in this same request.
+            return;
+        }
+        /** @type {Map<string, string[]>} */
+        const personToLinkedPatientsMap = new Map();
+        /** @type {{[key: string]: string[]}} */
+        const patientReferenceToPersonUuid = {};
+        for (const [personUuid, patientRefsSet] of ownerVerifiedPersonToLinkedPatients) {
+            const patientRefs = Array.from(patientRefsSet);
+            personToLinkedPatientsMap.set(personUuid, patientRefs);
+            for (const patientRef of patientRefs) {
+                const { id: patientId } = ReferenceParser.parseReference(patientRef);
+                if (!patientReferenceToPersonUuid[patientId]) {
+                    patientReferenceToPersonUuid[patientId] = [];
+                }
+                patientReferenceToPersonUuid[patientId].push(personUuid);
+            }
+        }
+        cache.set('personToLinkedPatientsMap', personToLinkedPatientsMap);
+        cache.set('patientReferenceToPersonUuid', patientReferenceToPersonUuid);
     }
 
     /**
@@ -72,18 +146,22 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                 });
 
             if (queryParametersWithProxyPatientIds.length > 0) {
+                const captureOwnerVerifiedLinks = this.isProaCacheEligibleRequest(requestInfo);
+
                 /**
                  * @type {{[k: string]: string[]}}
                  */
-                const patientProxyMap = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
+                const rawResult = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
                     {
                         base_version,
                         ids: queryParametersWithProxyPatientIds,
                         includePatientPrefix,
                         toMap: true,
-                        requestInfo
+                        requestInfo,
+                        captureOwnerVerifiedLinks
                     }
                 );
+                const patientProxyMap = captureOwnerVerifiedLinks ? rawResult.plainMap : rawResult;
 
                  /** @type {{[k: string]: string}} */
                 const patientToPersonMap = {};
@@ -109,6 +187,13 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                     // assign the map here
                     parsedArg.patientToPersonMap = patientToPersonMap;
                 }
+
+                if (captureOwnerVerifiedLinks) {
+                    this.writeProaSafeCache({
+                        requestInfo,
+                        ownerVerifiedPersonToLinkedPatients: rawResult.ownerVerifiedPersonToLinkedPatients
+                    });
+                }
             }
         }
         return parsedArg;
@@ -126,7 +211,6 @@ class PatientProxyQueryRewriter extends QueryRewriter {
     async rewriteArgsAsync ({ base_version, parsedArgs, resourceType, requestInfo }) {
         assertIsValid(resourceType);
         assertIsValid(base_version);
-        // const foo = undefined[1];
         const cachePatientToPersonMap = isTrueWithFallback(parsedArgs._rewritePatientReference, this.configManager.rewritePatientReference);
         if (parsedArgs?.parsedArgItems) {
             parsedArgs.parsedArgItems = await Promise.all(
