@@ -707,7 +707,8 @@ describe('Export Tests', () => {
                         }
                     ]
                 },
-                resourceType: 'Patient'
+                resourceType: 'Patient',
+                searchParams: expect.any(URLSearchParams)
             });
 
             // Query again to check the status
@@ -1018,7 +1019,8 @@ describe('Export Tests', () => {
                                 }
                             ]
                         },
-                        resourceType: 'Patient'
+                        resourceType: 'Patient',
+                        searchParams: expect.any(URLSearchParams)
                     }
                 ],
                 [
@@ -1040,7 +1042,8 @@ describe('Export Tests', () => {
                                 }
                             ]
                         },
-                        resourceType: 'Person'
+                        resourceType: 'Person',
+                        searchParams: expect.any(URLSearchParams)
                     }
                 ]
             ]);
