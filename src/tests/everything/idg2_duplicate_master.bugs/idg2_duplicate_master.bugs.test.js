@@ -18,7 +18,7 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const bwell = c => [{system:'https://www.icanbwell.com/owner',code:'bwell'}];
 const ta = () => [
   {system:'https://www.icanbwell.com/owner',code:'tenanta'},
-  {system:'https://www.icanbwell.com/access',code:'tenanta'},
+  {system:'https://www.icanbwell.com/access',code:'tenanta'}
 ];
 const masterA = { resourceType:'Person', id:'idg2MasterA', meta:{source:'bwell',security:bwell()},
   link:[ {target:{reference:'Person/idg2ClientA|tenanta',type:'Person'},assurance:'level4'},

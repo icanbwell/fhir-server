@@ -45,7 +45,7 @@ function build() {
     trapP.meta.security = [
         { system: 'https://www.icanbwell.com/owner', code: 'proa2' },
         { system: 'https://www.icanbwell.com/access', code: 'proa2' },
-        { system: 'https://www.icanbwell.com/connectionType', code: 'proa' },
+        { system: 'https://www.icanbwell.com/connectionType', code: 'proa' }
     ];
     const trapO = deepcopy(proaObs); trapO.id = 'inc331trap-obs'; trapO.subject = { reference: 'Patient/inc331trap-proa2' };
     trapO.meta.security = [...trapP.meta.security];

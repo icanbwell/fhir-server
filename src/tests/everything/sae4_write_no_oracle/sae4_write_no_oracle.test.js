@@ -15,14 +15,14 @@ const foreignPatient = {
   resourceType:'Patient', id:'sae4ForeignB',
   meta:{ source:'tenantb', security:[
     {system:'https://www.icanbwell.com/owner',code:'tenantb'},
-    {system:'https://www.icanbwell.com/access',code:'tenantb'},
+    {system:'https://www.icanbwell.com/access',code:'tenantb'}
   ]},
-  birthDate:'1990-01-01', gender:'female',
+  birthDate:'1990-01-01', gender:'female'
 };
 function bodyFor(id, accessCode){
   return { resourceType:'Patient', id, meta:{ source:accessCode, security:[
     {system:'https://www.icanbwell.com/owner',code:accessCode},
-    {system:'https://www.icanbwell.com/access',code:accessCode},
+    {system:'https://www.icanbwell.com/access',code:accessCode}
   ]}, birthDate:'1990-01-01', gender:'female' };
 }
 const tenantAWrite = getHeaders('user/*.read user/*.write access/tenanta.*');

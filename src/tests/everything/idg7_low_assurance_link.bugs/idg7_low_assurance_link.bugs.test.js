@@ -16,15 +16,15 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const OWNER = 'tenanta';
 function sec(){ return [
   { system: 'https://www.icanbwell.com/owner', code: OWNER },
-  { system: 'https://www.icanbwell.com/access', code: OWNER },
+  { system: 'https://www.icanbwell.com/access', code: OWNER }
 ]; }
 const person = {
   resourceType:'Person', id:'idg7Person', meta:{source:OWNER,security:sec()},
   name:[{use:'official',family:'Kent',given:['Bob']}], gender:'male', birthDate:'1991-03-14',
   link:[
     { target:{reference:'Patient/idg7PatientHi',type:'Patient'}, assurance:'level4' }, // confirmed
-    { target:{reference:'Patient/idg7PatientLo',type:'Patient'}, assurance:'level1' }, // low-confidence guess
-  ],
+    { target:{reference:'Patient/idg7PatientLo',type:'Patient'}, assurance:'level1' } // low-confidence guess
+  ]
 };
 const patHi = { resourceType:'Patient', id:'idg7PatientHi', meta:{source:OWNER,security:sec()}, birthDate:'1991-03-14', gender:'male' };
 const patLo = { resourceType:'Patient', id:'idg7PatientLo', meta:{source:OWNER,security:sec()}, birthDate:'1991-03-14', gender:'male' };
