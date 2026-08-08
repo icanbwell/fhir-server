@@ -237,8 +237,9 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp).toHaveResponse(expectedPerson1Resources);
 
             // Calling the equivalent proxy patient id form directly against the Patient
-            // endpoint must apply the same sibling-person scoping as Person $everything
-            // (SEC-1580 F10) — it must not also return the sibling personTopLevel.
+            // endpoint must apply the same sibling-person scoping as Person $everything.
+            // It must not also return the sibling personTopLevel: the proxy patient form is
+            // an alias for the Person graph, not a wider one.
             resp = await request
                 .get('/4_0_0/Patient/person.person1/$everything')
                 .set(getHeaders());

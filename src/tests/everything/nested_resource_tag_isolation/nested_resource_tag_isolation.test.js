@@ -1,14 +1,15 @@
 /**
- * D-IDG5: the security review doc's "single most important review action" -- verify that every
- * resource surfaced through $everything/$graph reference expansion gets the same access-tag check
- * it would get if fetched directly, not just the resources reached via the direct patient graph.
+ * IDG-5. Target state: every resource surfaced through $everything/$graph reference expansion
+ * gets the same access-tag check it would get if fetched directly, not only the resources reached
+ * via the direct patient graph.
  *
  * Scenario (E.3): Patient/Observation are owned by tenantA. The Observation's `performer`
  * references a Practitioner owned (and access-tagged) ONLY by tenantB -- no relationship to
  * tenantA at all. A tenantA-only caller's $everything/$graph on the Patient walks the Observation
- * (fine, same tenant) and then follows `performer` to fetch the Practitioner (a forward-reference
- * expansion, not the direct patient graph) -- does that fetch get its own access-tag check, or
- * does reachability via the Observation's reference substitute for authorization?
+ * (same tenant, permitted) and then follows `performer` to fetch the Practitioner, which is a
+ * forward-reference expansion rather than the direct patient graph. The required behavior is that
+ * this fetch carries its own access-tag check, so reachability via a reference never substitutes
+ * for authorization.
  *
  * Contrast with src/tests/everything/delete_person_or_patient/delete_everything_cross_tag.test.js:
  * that file proves a foreign-tagged resource on the DIRECT patient graph can't be deleted via
@@ -69,7 +70,7 @@ function observationWithPerformer (id, ownerCode, patientId, practitionerId) {
     }, ownerCode);
 }
 
-describe('D-IDG5: nested cross-tenant resource must not leak via reference expansion', () => {
+describe('IDG-5: a resource reached only by reference expansion must still pass the access-tag check', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });

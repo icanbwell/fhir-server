@@ -24,6 +24,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          # full history so the security-language check can diff against the base ref
+          fetch-depth: 0
       - name: Use Node.js
         uses: actions/setup-node@v7
         with:
@@ -38,6 +40,9 @@ jobs:
       - name: Check GraphQL SDL snapshots
         run: |
           node generatorScripts/generateGraphqlSdl.js --check
+      - name: Check security test language
+        run: |
+          yarn run check:security_language
   build:
     runs-on: ubuntu-latest
     name: test (chunk ${{ matrix.chunk }})

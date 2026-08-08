@@ -1,7 +1,5 @@
 # QUAL-73: Systematic security test matrix for tenant and user isolation
 
-Related: SEC-1580, INC-331, INC-332, INC-322.
-
 ## Summary
 
 | | Count |
@@ -44,7 +42,7 @@ Every assertion that a record is withheld is paired with an assertion that the s
 | 7 | Naming another tenant's person id on a plain search executes the traversal. The tag filter still applies, so no unauthorized record is returned, but the caller can determine which of its own readable records are linked to that person. The owner check runs only for `$everything` on a GET | IDG-5 |
 | 8 | Narrowing a record's access tags withholds the current version but not version 1 | SAE-1 |
 | 9 | An end-user token carries a wildcard access scope, so no tenant filter applies and patient-scope expansion traverses into PROA and IAS records with no consent present. Needs a product decision on whether a user is entitled to their own upstream records | SAE-3 |
-| 10 | A token with `token_use: id`, an absent `token_use`, or `token_use: refresh` is accepted as an access token | INC-322 |
+| 10 | A token with `token_use: id`, an absent `token_use`, or `token_use: refresh` is accepted as an access token | AUTH-1 |
 | 11 | `_sort=$$$` returns 500 rather than a 4xx | SAE-4 |
 | 12 | Tenant A writing to tenant B's source id creates a second record sharing that id. B's read by that source id then returns 400, and an `_id` search stops returning it. The record persists and remains in an unfiltered listing, but source-id integrations would fail | SAE-5 |
 
@@ -96,11 +94,11 @@ Items to confirm on the first run:
 - Shard runtime. The 7 matrix files add roughly 3 to 4 minutes with `--runInBand`, distributed across 12 shards.
 - The `mongodb-memory-server` binary download succeeds. The workflow already retries `yarn install` for this reason.
 
-**Pre-existing item, not introduced here.** `test:jest_coverage` and `test:jest_functional` in `package.json` pass `--testPathIgnorePatterns` on the command line, which overrides the list in `jest.config.js`. Under those scripts every quarantined test runs and fails, including the 14 pre-existing SEC-1580 files and the new `findings.bugs`. `node.js.yml` does not use those scripts, so this PR is unaffected, but a coverage build will fail.
+**Pre-existing item, not introduced here.** `test:jest_coverage` and `test:jest_functional` in `package.json` pass `--testPathIgnorePatterns` on the command line, which overrides the list in `jest.config.js`. Under those scripts every quarantined test runs and fails, including the 14 pre-existing quarantined access-control files and the new `findings.bugs`. `node.js.yml` does not use those scripts, so this PR is unaffected, but a coverage build will fail.
 
 ## Follow-ups, not in this PR
 
 - Triage the ~153 pre-existing quarantined tests across 14 files. Several coverage gaps are covered by tests that do not execute. Their comment blocks also predate this work and use language that should be brought in line with it.
 - 12 areas have no test yet. 5 are blocked on product decisions: guardian and Health Circle access, the IDG-7 identity-match threshold, suppressed sensitive categories, whether an end user is entitled to their own upstream records with no consent present (gap 9), and the revocation timing bound.
-- Subscription and webhook delivery, the subject of INC-332, is not in this repository and needs a separate plan against the owning service.
+- Subscription and webhook delivery is not in this repository and needs a separate plan against the owning service.
 - `scripts/security/.env.example` previously contained two test-user email addresses as literal values, committed in `ae3d7111b`. This PR replaces them with empty placeholders. They remain in history and purging requires a branch rewrite.

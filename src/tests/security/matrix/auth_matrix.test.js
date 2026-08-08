@@ -2,13 +2,19 @@
 // SYSTEMATIC AUTH MATRIX — how the server behaves for every kind of bad or
 // missing credential, and what it says when it refuses.
 //
-// Two separate concerns:
-//   1. Fail closed. A request the server cannot authenticate or authorize must be
-//      refused. When the identity provider is unreachable the response must be
-//      retryable (5xx) rather than a rejection (401), and must never succeed. A
-//      transient outage reported as a valid rejection hides the outage.
-//   2. Say nothing useful. A refusal must not disclose tenant names, tag values,
-//      internal ids, stack traces, query fragments or database details.
+// Rules asserted here. The IDG/SAE/CL/CACHE/WPI identifiers used elsewhere in this
+// directory cover authorization once a caller is established; these cover the step
+// before that, establishing the caller at all.
+//   AUTH-1  Only a credential the server can verify as an access token grants access.
+//           A token that is unsigned, signed with an untrusted key, expired, issued by
+//           another issuer, or marked as a use other than `access` is not an access
+//           token and must be refused.
+//   AUTH-2  Fail closed, and fail retryably. A request the server cannot authenticate
+//           or authorize must be refused, and must never succeed. When the identity
+//           provider is unreachable the response must be retryable (5xx) rather than a
+//           rejection (401): a transient outage reported as a valid rejection hides it.
+//   AUTH-3  Say nothing useful. A refusal must not disclose tenant names, tag values,
+//           internal ids, stack traces, query fragments or database details.
 //
 // Covered: absent header, malformed header, non-JWT string, structurally valid
 // JWT signed with the wrong key, expired token, wrong issuer, alg:none, empty
@@ -40,6 +46,9 @@ function bogusJwt () {
     const header = b64({ alg: 'RS256', typ: 'JWT', kid: 'not-a-real-key' });
     const payload = b64({
         sub: 'attacker', scope: 'access/*.* user/*.read', token_use: 'access',
+        // FAKEPOOL is a placeholder, not a deployed pool id, but the issuer has to keep the
+        // pool-id shape for the issuer check to be exercised at all.
+        // security-language-ok: placeholder pool id, shape required by the issuer check
         iss: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_FAKEPOOL',
         exp: Math.floor(Date.now() / 1000) + 3600
     });
@@ -144,9 +153,9 @@ describe('SECURITY MATRIX — authentication and authorization failures', () => 
             assertNoInternalDetail(resp);
         });
 
-        // A token whose token_use is 'id' rather than 'access' is currently accepted.
+        // AUTH-1. The target state is that only `token_use: access` is accepted.
         // Tracked in findings.bugs/auth_findings.
-        test('a token with token_use other than access does not reach another tenant', async () => {
+        test('AUTH-1: a token with token_use other than access does not reach another tenant', async () => {
             const request = await seed();
             const headers = getHeadersWithCustomPayload({
                 scope: 'user/*.read access/tenanta.*',

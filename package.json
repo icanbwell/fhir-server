@@ -21,6 +21,7 @@
     "lint": "NODE_ENV=test yarn run test:lint",
     "test:failed": "NODE_ENV=test yarn run test:lint && yarn run test:jest --onlyFailures",
     "test:lint": "NODE_OPTIONS=\"${NODE_OPTIONS:-} --max-old-space-size=8096\" eslint \"src/**/*.js\"",
+    "check:security_language": "node scripts/security/check_test_language.js",
     "test:jest_cleanCache": "node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --clearCache --runInBand --forceExit .",
     "test:jest_shard1": "node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=1/5 .",
     "test:jest_shard2": "node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=2/5 .",
