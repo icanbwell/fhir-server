@@ -25,7 +25,7 @@ const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithCustomPaylo
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 // End-user token shape. These claims and this scope string are COPIED FROM A REAL
-// staging end-user access token (Cognito pool us-east-1_zzOfrTtVr), not invented:
+// staging end-user access token (issued by the end-user Cognito pool), not invented:
 //   scope = 'access/*.* user/*.* patient/*.*'
 //   claims: clientFhirPersonId, clientFhirPatientId, bwellFhirPersonId,
 //           bwellFhirPatientId, managingOrganization, client_key, username
