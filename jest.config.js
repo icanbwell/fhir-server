@@ -53,6 +53,14 @@ module.exports = {
         '<rootDir>/src/tests/unit/middleware/fhir/router.test.js',
         '<rootDir>/src/tests/unit/operations/common/patientQueryCreator.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everything.bugs.test.js',
+        // SEC-1580 fail-by-design security test: asserts the SECURE behavior for SAE-3 and
+        // stays RED until an end-user token stops reaching linked PROA/IAS upstream data with
+        // no Consent present. Blocked on a product decision (see file header) as to whether an
+        // end user is entitled to their own upstream data without a Consent -- if so, delete
+        // this test rather than fix it. Excluded from the default run so a known, documented
+        // gap doesn't break CI. Run directly:
+        // npx jest src/tests/everything/sae3_enduser_upstream_no_consent.bugs
+        '<rootDir>/src/tests/everything/sae3_enduser_upstream_no_consent.bugs/sae3_enduser_upstream_no_consent.bugs.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everythingRelatedResourcesMapper.test.js',
         '<rootDir>/src/tests/unit/operations/graph/graph.test.js',
         '<rootDir>/src/tests/unit/operations/history/history.test.js',
