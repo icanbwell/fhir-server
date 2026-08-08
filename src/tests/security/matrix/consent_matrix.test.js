@@ -138,13 +138,18 @@ describe('CONSENT MATRIX', () => {
     // The state table.
     // -----------------------------------------------------------------------
     describe('state table', () => {
-        // States the server already handles as specified. Four states that do not yet
-        // meet the target state (elapsed period, future period, a consent naming a
-        // different person, and a client-written consent) are covered in
-        // consent_findings.bugs so they stay tracked without turning this file red.
+        // States the server already handles as specified. Elapsed and future periods
+        // were fail-by-design gaps tracked in consent_findings.bugs; both are now
+        // enforced (SEC-1580 CL-1) and promoted here. Two states that do not yet meet
+        // the target state -- a consent naming a different authorizing actor, and a
+        // client-written self-granting consent -- are tracked in their own PRs
+        // (sec-1580/cl1-consent-actor-not-checked, sec-1580/sae6-consent-self-grant)
+        // so they stay tracked without turning this file red.
         const CASES = [
             { name: 'active, period covers now', unlocks: true, c: { status: 'active', period: CURRENT } },
             { name: 'active, no period at all', unlocks: true, c: { status: 'active' } },
+            { name: 'active, period already elapsed', unlocks: false, c: { status: 'active', period: PAST } },
+            { name: 'active, period not yet started', unlocks: false, c: { status: 'active', period: FUTURE } },
             { name: 'inactive — revoked', unlocks: false, c: { status: 'inactive', period: CURRENT } },
             { name: 'rejected', unlocks: false, c: { status: 'rejected', period: CURRENT } },
             { name: 'draft', unlocks: false, c: { status: 'draft', period: CURRENT } },

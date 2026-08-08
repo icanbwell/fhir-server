@@ -53,16 +53,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/middleware/fhir/router.test.js',
         '<rootDir>/src/tests/unit/operations/common/patientQueryCreator.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everything.bugs.test.js',
-        // SEC-1580 fail-by-design security tests: assert the SECURE behavior and stay RED
-        // until the underlying gap is fixed (then remove the entry). Excluded from the
-        // default run so a known, documented gap doesn't break CI — same policy as above.
-        '<rootDir>/src/tests/everything/idg7_low_assurance_link.bugs/idg7_low_assurance_link.bugs.test.js',
-        '<rootDir>/src/tests/everything/idg2_duplicate_master.bugs/idg2_duplicate_master.bugs.test.js',
-        // Security matrix findings. Each of these states the secure behaviour and stays
-        // red until the underlying issue is fixed. The matrix suites themselves
-        // (src/tests/security/matrix/*_matrix.test.js) all pass and DO run in CI.
-        // Run these directly: npx jest src/tests/security/matrix/findings.bugs
-        '<rootDir>/src/tests/security/matrix/findings.bugs/',
         '<rootDir>/src/tests/unit/operations/everything/everythingRelatedResourcesMapper.test.js',
         '<rootDir>/src/tests/unit/operations/graph/graph.test.js',
         '<rootDir>/src/tests/unit/operations/history/history.test.js',
