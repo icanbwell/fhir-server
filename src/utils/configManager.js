@@ -529,6 +529,17 @@ class ConfigManager {
     }
 
     /**
+     * whether to enable the /mcp (Model Context Protocol) endpoint
+     * @returns {boolean}
+     */
+    get enableMcp() {
+        if (env.ENABLE_MCP === null || env.ENABLE_MCP === undefined) {
+            return false;
+        }
+        return isTrue(env.ENABLE_MCP);
+    }
+
+    /**
      * returns the batch size used in dataloader to fetch resources
      * @returns {number}
      */

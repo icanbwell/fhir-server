@@ -432,53 +432,60 @@ function createApp({fnGetContainer}) {
 
     app.use('/admin', adminRouter);
 
-    // noinspection JSCheckFunctionSignatures
-    passport.use('mcpStrategy', container.jwt_strategy);
+    // Gated by ENABLE_MCP (default off): this is a new PHI-read surface, and McpServer's
+    // constructor does eager, boot-time work (assertTypeEquals(this.mcpToolHandler, McpToolHandler))
+    // that could break the entire app's boot -- not just /mcp -- if it were ever mis-wired. Keeping
+    // the whole block, including the `new McpServer(...)` construction, behind this flag ensures
+    // that when MCP is disabled, that constructor never runs at all.
+    if (configManager.enableMcp) {
+        // noinspection JSCheckFunctionSignatures
+        passport.use('mcpStrategy', container.jwt_strategy);
 
-    const mcpRouter = express.Router();
-    mcpRouter.use(cors(fhirServerConfig.server.corsOptions));
-    mcpRouter.use(passport.initialize());
-    mcpRouter.use(authenticateWithJsonFailure('mcpStrategy', {session: false}));
-    // Required, not optional: CMSManager's resource-type allowlist for CMS-partner tokens is only
-    // enforced for GraphQL via this same categorical block (app.js, see graphql/graphqlv2 routers
-    // below), not via a per-call OperationAccessManager.verifyAccess check -- McpToolHandler never
-    // calls that either, so without this line a CMS-partner token could search any resource type
-    // through MCP.
-    mcpRouter.use(forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]));
-    mcpRouter.use(express.json());
-    mcpRouter.use(function buildMcpRequestContext(req, res, next) {
-        // Mirrors graphqlServer.js/graphqlServerV2.js's getContext(), which sets req.container so
-        // graphqlPostRequestCleanup can read it inside res.once('finish', ...) below. Without this,
-        // req.container is always undefined for /mcp requests (McpServer only stores the container
-        // on `this`, not on req), so mcpRequestCleanup's `if (container1)` guard would silently skip
-        // every flush -- the exact audit-log-drop / PostRequestProcessor leak this exists to prevent.
-        req.container = container;
-        httpContext.set(MCP_REQUEST_INFO_CONTEXT_KEY, FhirRequestInfoBuilder.fromRequest(req));
-        next();
-    });
-    // Required, not optional: SearchBundleOperation only *queues* the PHI-read audit entry (via
-    // postRequestProcessor.add) against the current requestId -- nothing drains that queue
-    // automatically. REST (generic.controller.js) and GraphQL (graphqlPostRequestCleanup /
-    // graphqlV2PostRequestCleanup below) both flush it explicitly after the response is sent.
-    // Without this, every /mcp read silently never gets audited, and PostRequestProcessor /
-    // RequestSpecificCache leak one entry per request. See design doc §5.
-    mcpRouter.use(function mcpRequestCleanup(req, res, next) {
-        res.once('finish', async () => {
-            const container1 = req.container;
-            if (container1) {
-                const postRequestProcessor = container1.postRequestProcessor;
-                if (postRequestProcessor) {
-                    const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                    const requestSpecificCache = container1.requestSpecificCache;
-                    await postRequestProcessor.executeAsync({requestId});
-                    await requestSpecificCache.clearAsync({requestId});
-                }
-            }
+        const mcpRouter = express.Router();
+        mcpRouter.use(cors(fhirServerConfig.server.corsOptions));
+        mcpRouter.use(passport.initialize());
+        mcpRouter.use(authenticateWithJsonFailure('mcpStrategy', {session: false}));
+        // Required, not optional: CMSManager's resource-type allowlist for CMS-partner tokens is only
+        // enforced for GraphQL via this same categorical block (app.js, see graphql/graphqlv2 routers
+        // below), not via a per-call OperationAccessManager.verifyAccess check -- McpToolHandler never
+        // calls that either, so without this line a CMS-partner token could search any resource type
+        // through MCP.
+        mcpRouter.use(forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]));
+        mcpRouter.use(express.json());
+        mcpRouter.use(function buildMcpRequestContext(req, res, next) {
+            // Mirrors graphqlServer.js/graphqlServerV2.js's getContext(), which sets req.container so
+            // graphqlPostRequestCleanup can read it inside res.once('finish', ...) below. Without this,
+            // req.container is always undefined for /mcp requests (McpServer only stores the container
+            // on `this`, not on req), so mcpRequestCleanup's `if (container1)` guard would silently skip
+            // every flush -- the exact audit-log-drop / PostRequestProcessor leak this exists to prevent.
+            req.container = container;
+            httpContext.set(MCP_REQUEST_INFO_CONTEXT_KEY, FhirRequestInfoBuilder.fromRequest(req));
+            next();
         });
-        next();
-    });
-    mcpRouter.use(new McpServer(fnGetContainer).getRouter());
-    app.use('/mcp', mcpRouter);
+        // Required, not optional: SearchBundleOperation only *queues* the PHI-read audit entry (via
+        // postRequestProcessor.add) against the current requestId -- nothing drains that queue
+        // automatically. REST (generic.controller.js) and GraphQL (graphqlPostRequestCleanup /
+        // graphqlV2PostRequestCleanup below) both flush it explicitly after the response is sent.
+        // Without this, every /mcp read silently never gets audited, and PostRequestProcessor /
+        // RequestSpecificCache leak one entry per request. See design doc §5.
+        mcpRouter.use(function mcpRequestCleanup(req, res, next) {
+            res.once('finish', async () => {
+                const container1 = req.container;
+                if (container1) {
+                    const postRequestProcessor = container1.postRequestProcessor;
+                    if (postRequestProcessor) {
+                        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+                        const requestSpecificCache = container1.requestSpecificCache;
+                        await postRequestProcessor.executeAsync({requestId});
+                        await requestSpecificCache.clearAsync({requestId});
+                    }
+                }
+            });
+            next();
+        });
+        mcpRouter.use(new McpServer(fnGetContainer).getRouter());
+        app.use('/mcp', mcpRouter);
+    }
 
     // noinspection JSCheckFunctionSignatures
     passport.use('graphqlStrategy', container.jwt_strategy);
