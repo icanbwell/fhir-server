@@ -1,3 +1,11 @@
+const { initStandaloneEntrypointSentry } = require('../../utils/initStandaloneEntrypointSentry');
+
+// This entrypoint runs standalone (node src/operations/asyncJobs/worker.js), so it never
+// loads src/index.js/server.js -- their Sentry.init()/error handlers do not cover this
+// process. Without this, errors here (including a crashed/unhandled-rejected consumer) go
+// completely unreported.
+initStandaloneEntrypointSentry();
+
 const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');
 const { logInfo, logError } = require('../common/logging');
@@ -71,12 +79,15 @@ async function main() {
             // otherwise this handler's process.exit could cut that write off mid-flight.
             if (consumer) {
                 consumer.on(consumer.events.CRASH, async (event) => {
+                    // Log every crash, retriable or not -- a silent retriable crash gives no
+                    // evidence a self-heal was even attempted, let alone whether it succeeded.
+                    logError(`Async job worker consumer crashed (${job.label})`, {
+                        error: event.payload.error?.message,
+                        restart: event.payload.restart
+                    });
                     if (event.payload.restart) {
                         return;
                     }
-                    logError(`Async job worker consumer crashed, exiting (${job.label})`, {
-                        error: event.payload.error?.message
-                    });
                     await new Promise((resolve) => setImmediate(resolve));
                     process.exit(1);
                 });
