@@ -15,11 +15,13 @@ review tooling for that.
 
 For every PR:
 
+0. **Check for sensitive values first (§0)** — this one always applies, regardless of touch point.
 1. **Identify touch points** — does the diff touch any of: resource search/read, Person/Patient
    link traversal or expansion, resource write (create/update/merge/patch/remove), OAuth
    scope/token parsing, caching of anything derived from a request, or a join/lookup keyed by an
-   identifier shared across tenants (e.g. a source-system patient id, an internal UUID)? If none,
-   this checklist doesn't apply — say so and stop.
+   identifier shared across tenants (e.g. a source-system patient id, an internal UUID)? If none of
+   these apply, the *rest* of this checklist (§1 onward) doesn't apply — say so and stop; §0 still
+   applies regardless.
 2. **Walk the relevant checklist section(s) below** against the actual diff, not just the PR
    description. Read the surrounding code, not only the changed lines — regressions here are
    usually about what a change *removes or fails to add*, not what's visibly wrong in isolation.
@@ -36,6 +38,31 @@ Report findings as:
 |---|---|---|---|
 
 plus a "Checked, no issues found" list of the touch points reviewed.
+
+## 0. Sensitive values in the PR itself
+
+This repo is public. Run this check on **every** PR, regardless of whether it touches any of the
+access-control surface below — it's about what the PR *contains*, not what the code *does*.
+
+- Scan the diff, commit messages, and PR/issue description (not just the code) for a real, live
+  identifier that shouldn't be publicly visible: an OAuth/Cognito/Okta/Descope pool ID or
+  `client_id`, an API key, a secret or token, an internal hostname not already public elsewhere in
+  the repo, or any other environment-specific configuration value.
+- This applies even when the PR is *about* a security bug. Describing a real vulnerability with
+  real identifiers as evidence is itself a disclosure, independent of whether the code fix is
+  correct. Use a placeholder (`<pool-id>`, `<client-id>`) or a made-up example value instead, and
+  move real values to a private channel (Slack DM, an internal/private repo, a private Jira
+  project) if they're actually needed for the discussion.
+- This includes values copied in while investigating — from a decoded JWT, another repo's config,
+  or a Slack thread. A value already existing somewhere internal doesn't make it safe to paste
+  into this public repo.
+- If a real identifier already made it into a pushed commit or PR description, closing the PR or
+  deleting the branch does **not** remove it: GitHub retains PR commit history (via its internal
+  `refs/pull/<n>/head` ref) even after the source branch is deleted, and a closed PR's Commits tab
+  and direct commit URLs stay publicly visible. Treat this as urgent: scrub what's actually
+  editable (PR/issue body, comments) immediately, and escalate to a repo/org admin — they'll need
+  to decide whether the identifier itself should be rotated and whether to ask GitHub Support to
+  purge the specific commits from public view.
 
 ## 1. The data model (primer)
 
