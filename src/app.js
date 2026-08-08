@@ -15,6 +15,7 @@ const passport = require('passport');
 
 const {handleAlert} = require('./routeHandlers/alert');
 const {MyFHIRServer} = require('./routeHandlers/fhirServer');
+const {McpServer} = require('./routeHandlers/mcpServer');
 const validateContentTypeMiddleware = require('./middleware/contentType-validation.middleware.js')
 const {authenticateWithJsonFailure} = require('./middleware/fhir/authentication.middleware.js');
 const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
@@ -32,7 +33,7 @@ const cookieParser = require('cookie-parser');
 const {handleLivenessCheck} = require('./routeHandlers/probeChecker.js');
 const {handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut} = require('./routeHandlers/admin');
 const {getImageVersion} = require('./utils/getImageVersion');
-const {ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constants');
+const {ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE, MCP_REQUEST_INFO_CONTEXT_KEY} = require('./constants');
 const {generateUUID} = require('./utils/uid.util');
 const {logInfo, logError} = require('./operations/common/logging');
 const {generateNonce} = require('./utils/nonce');
@@ -430,6 +431,54 @@ function createApp({fnGetContainer}) {
         (req, res) => handleAdminPut(fnGetContainer, req, res));
 
     app.use('/admin', adminRouter);
+
+    // noinspection JSCheckFunctionSignatures
+    passport.use('mcpStrategy', container.jwt_strategy);
+
+    const mcpRouter = express.Router();
+    mcpRouter.use(cors(fhirServerConfig.server.corsOptions));
+    mcpRouter.use(passport.initialize());
+    mcpRouter.use(authenticateWithJsonFailure('mcpStrategy', {session: false}));
+    // Required, not optional: CMSManager's resource-type allowlist for CMS-partner tokens is only
+    // enforced for GraphQL via this same categorical block (app.js, see graphql/graphqlv2 routers
+    // below), not via a per-call OperationAccessManager.verifyAccess check -- McpToolHandler never
+    // calls that either, so without this line a CMS-partner token could search any resource type
+    // through MCP.
+    mcpRouter.use(forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]));
+    mcpRouter.use(express.json());
+    mcpRouter.use(function buildMcpRequestContext(req, res, next) {
+        // Mirrors graphqlServer.js/graphqlServerV2.js's getContext(), which sets req.container so
+        // graphqlPostRequestCleanup can read it inside res.once('finish', ...) below. Without this,
+        // req.container is always undefined for /mcp requests (McpServer only stores the container
+        // on `this`, not on req), so mcpRequestCleanup's `if (container1)` guard would silently skip
+        // every flush -- the exact audit-log-drop / PostRequestProcessor leak this exists to prevent.
+        req.container = container;
+        httpContext.set(MCP_REQUEST_INFO_CONTEXT_KEY, FhirRequestInfoBuilder.fromRequest(req));
+        next();
+    });
+    // Required, not optional: SearchBundleOperation only *queues* the PHI-read audit entry (via
+    // postRequestProcessor.add) against the current requestId -- nothing drains that queue
+    // automatically. REST (generic.controller.js) and GraphQL (graphqlPostRequestCleanup /
+    // graphqlV2PostRequestCleanup below) both flush it explicitly after the response is sent.
+    // Without this, every /mcp read silently never gets audited, and PostRequestProcessor /
+    // RequestSpecificCache leak one entry per request. See design doc §5.
+    mcpRouter.use(function mcpRequestCleanup(req, res, next) {
+        res.once('finish', async () => {
+            const container1 = req.container;
+            if (container1) {
+                const postRequestProcessor = container1.postRequestProcessor;
+                if (postRequestProcessor) {
+                    const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+                    const requestSpecificCache = container1.requestSpecificCache;
+                    await postRequestProcessor.executeAsync({requestId});
+                    await requestSpecificCache.clearAsync({requestId});
+                }
+            }
+        });
+        next();
+    });
+    mcpRouter.use(new McpServer(fnGetContainer).getRouter());
+    app.use('/mcp', mcpRouter);
 
     // noinspection JSCheckFunctionSignatures
     passport.use('graphqlStrategy', container.jwt_strategy);
