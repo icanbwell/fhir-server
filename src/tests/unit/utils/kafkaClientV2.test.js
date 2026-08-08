@@ -61,6 +61,10 @@ jestObj.mock('../../../operations/common/systemEventLogging', () => ({
     logSystemEventAsync: jestObj.fn().mockResolvedValue(undefined)
 }));
 
+jestObj.mock('../../../operations/common/logging', () => ({
+    logError: jestObj.fn()
+}));
+
 jestObj.mock('../../../utils/rethrownError', () => ({
     RethrownError: class RethrownError extends Error {
         constructor({ message, error, config }) {
@@ -88,6 +92,7 @@ const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
 const { KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
 const { recordKafkaRetryExhausted } = require('../../../utils/metrics');
 const { logTraceSystemEventAsync, logSystemErrorAsync, logSystemEventAsync } = require('../../../operations/common/systemEventLogging');
+const { logError } = require('../../../operations/common/logging');
 
 describe('KafkaClientV2', () => {
     let kafkaClient;
@@ -503,6 +508,9 @@ describe('KafkaClientV2', () => {
                 kafkaClient.waitForConsumerToJoinGroupAsync(consumer, { maxWait: 5000 })
             ).rejects.toThrow();
             expect(consumer.disconnect).toHaveBeenCalled();
+            // A pre-join crash is this listener's own responsibility -- no entrypoint-level
+            // CRASH listener exists yet to log it, so this is the only logError call site for it.
+            expect(logError).toHaveBeenCalled();
         });
 
         test('logs the crash error via logSystemErrorAsync', async () => {
@@ -561,6 +569,11 @@ describe('KafkaClientV2', () => {
                 expect.objectContaining({ error: laterCrashError })
             );
             expect(consumer.disconnect).not.toHaveBeenCalled();
+            // logError is deliberately NOT called here -- once the join has settled, the
+            // entrypoint's own post-join CRASH listener is the one responsible for logError
+            // (with job-specific context), so this listener logging it too would just be a
+            // second, differently-worded write for the same crash.
+            expect(logError).not.toHaveBeenCalled();
         });
 
         test('uses default maxWait of 10000', async () => {
@@ -583,7 +596,7 @@ describe('KafkaClientV2', () => {
     });
 
     describe('receiveMessagesAsync', () => {
-        test('subscribes and runs consumer with eachMessage handler', async () => {
+        test('subscribes and runs consumer with eachMessage handler, and does not disconnect a successfully-started long-running consumer', async () => {
             const consumer = {
                 connect: mockConsumerConnect,
                 disconnect: mockConsumerDisconnect,
@@ -600,7 +613,10 @@ describe('KafkaClientV2', () => {
             expect(mockConsumerConnect).toHaveBeenCalled();
             expect(mockConsumerSubscribe).toHaveBeenCalledWith({ topics: ['test-topic'], fromBeginning: true });
             expect(mockConsumerRun).toHaveBeenCalled();
-            expect(mockConsumerDisconnect).toHaveBeenCalled();
+            // consumer.run() resolves as soon as the background fetch loop starts, not when
+            // consumption "finishes" -- disconnecting here would tear down a healthy,
+            // just-started consumer moments after it starts (the actual production bug).
+            expect(mockConsumerDisconnect).not.toHaveBeenCalled();
         });
 
         test('fromBeginning defaults to false', async () => {
@@ -710,11 +726,12 @@ describe('KafkaClientV2', () => {
                 kafkaClient.receiveMessagesAsync({ consumer, topic: 'test', onMessageAsync: jestObj.fn() })
             ).rejects.toThrow('Run failed');
             expect(logSystemErrorAsync).toHaveBeenCalled();
-            // Should still disconnect in finally block
+            // Should still disconnect after a failed subscribe/run -- that's a genuine setup
+            // failure, unlike a successful run() resolving.
             expect(mockConsumerDisconnect).toHaveBeenCalled();
         });
 
-        test('disconnects consumer in finally block even after error', async () => {
+        test('disconnects consumer after a subscribe/run setup error', async () => {
             const consumer = {
                 connect: mockConsumerConnect,
                 disconnect: mockConsumerDisconnect,
