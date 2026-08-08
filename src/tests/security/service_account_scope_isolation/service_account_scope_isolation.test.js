@@ -1,5 +1,5 @@
 // ============================================================================
-// SEC-1580 CASE COVERAGE (FHIR Security Data Model Verification doc)
+// Verification case coverage (see the security specification)
 //   A1        read-only account reads its own tenant's resource
 //   A3        read-only cannot read another tenant (both directions) + search isolation
 //   SAE-4     foreign-vs-nonexistent id are indistinguishable (read path)

@@ -6,8 +6,7 @@
 //   1. Fail closed. A request the server cannot authenticate or authorize must be
 //      refused. When the identity provider is unreachable the response must be
 //      retryable (5xx) rather than a rejection (401), and must never succeed. A
-//      transient outage reported as a valid rejection hides the outage. See
-//      INC-322.
+//      transient outage reported as a valid rejection hides the outage.
 //   2. Say nothing useful. A refusal must not disclose tenant names, tag values,
 //      internal ids, stack traces, query fragments or database details.
 //
@@ -303,7 +302,7 @@ describe('SECURITY MATRIX — authentication and authorization failures', () => 
     // -----------------------------------------------------------------------
     // What happens when the identity provider cannot be reached.
     //
-    // The distinction that matters (INC-322): an outage must not be reported as
+    // The distinction that matters: an outage must not be reported as
     // a valid rejection. In process the auth layer is given a token directly and
     // the provider is never called, so this cannot be exercised here -- it needs
     // the deployed environment with the provider made unreachable.
@@ -313,7 +312,7 @@ describe('SECURITY MATRIX — authentication and authorization failures', () => 
     // and never 200. Requires the ability to block egress to the provider from
     // the running service, which is an infrastructure change, not a credential.
     // -----------------------------------------------------------------------
-    describe('identity provider unavailable (INC-322)', () => {
+    describe('identity provider unavailable', () => {
         test.skip('a provider outage returns a retryable error, not a rejection and not success', () => {
             // see TODO(live) above
         });

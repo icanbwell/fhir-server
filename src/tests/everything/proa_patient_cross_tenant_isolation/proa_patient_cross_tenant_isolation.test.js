@@ -1,5 +1,5 @@
 // ============================================================================
-// SEC-1580 CASE COVERAGE:
+// Verification case coverage:
 //   A2         tenant reads a resource explicitly access-tagged for it (different owner)
 //   A3 / SAE-1 tenant cannot read a resource tagged only for another tenant; never sees its data
 //   D-IDG5 / IDG-5  an untagged PROA patient reachable ONLY via Person.link is not returned
@@ -8,7 +8,7 @@
 // gated on service-account credentials.
 // ============================================================================
 // =============================================================================
-// SEC-1580 — Cross-tenant isolation on $everything / Person.link traversal.
+// Cross-tenant isolation on $everything / Person.link traversal.
 //
 // Scope covered here (see FHIR Server Security & Data Model Specification):
 //   SAE-1  A resource is visible to a caller holding at least one matching access tag.
@@ -72,7 +72,7 @@ async function seed () {
     return request;
 }
 
-describe('SEC-1580 cross-tenant isolation on $everything', () => {
+describe('Cross-tenant isolation on $everything', () => {
     beforeEach(async () => { await commonBeforeEach(); });
     afterEach(async () => { await commonAfterEach(); });
 

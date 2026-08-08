@@ -1,5 +1,5 @@
 // ============================================================================
-// SEC-1580 CASE COVERAGE — END-USER cross-user isolation (the "like-users" case)
+// Verification case coverage: end-user isolation (the "like-users" case)
 //   C8 / SAE-3  a patient-scoped end-user token reaches ONLY its own linked graph,
 //               never another end user's data — even when the two users have IDENTICAL
 //               demographics and live under the same client tenant.

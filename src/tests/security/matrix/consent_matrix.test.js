@@ -20,7 +20,7 @@
 //
 // Rules: CL-1 (validity period honored, not just status), CL-2 (revocation
 // lands on the next request), CACHE-2 (a per-request cached decision is keyed
-// per batch -- the INC-331 cause), SAE-6 (the consent lookup is itself scoped).
+// per batch), SAE-6 (the consent lookup is itself scoped).
 // =============================================================================
 const masterPersonResource = require('../../data_sharing/everything/fixtures/person/master_person.json');
 const masterPatientResource = require('../../data_sharing/everything/fixtures/patient/master_patient.json');
@@ -140,10 +140,10 @@ describe('CONSENT MATRIX', () => {
     describe('state table', () => {
         // States the server already handles as specified. Elapsed and future periods
         // were fail-by-design gaps tracked in consent_findings.bugs; both are now
-        // enforced (SEC-1580 CL-1) and promoted here. Two states that do not yet meet
+        // enforced (CL-1) and promoted here. Two states that do not yet meet
         // the target state -- a consent naming a different authorizing actor, and a
         // client-written self-granting consent -- are tracked in their own PRs
-        // (sec-1580/cl1-consent-actor-not-checked, sec-1580/sae6-consent-self-grant)
+        // (see the linked gap PRs)
         // so they stay tracked without turning this file red.
         const CASES = [
             { name: 'active, period covers now', unlocks: true, c: { status: 'active', period: CURRENT } },
@@ -246,7 +246,7 @@ describe('CONSENT MATRIX', () => {
     });
 
     // -----------------------------------------------------------------------
-    // CACHE-2 — the INC-331 mechanism. A cached decision must be kept separate
+    // CACHE-2. A cached decision must be kept separate
     // per batch when one request is processed in several batches. Batching keys
     // off the number of top-level ids asked for, so crossing a boundary means
     // asking for more ids than the batch size in a single request.

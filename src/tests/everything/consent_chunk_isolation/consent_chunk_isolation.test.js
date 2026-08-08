@@ -1,14 +1,14 @@
 // ============================================================================
-// INC-331 REGRESSION (mongo-only; NO ClickHouse) — spec IDG-6 / CACHE-2.
+// Consent chunk-scoping regression (mongo-only; no ClickHouse). Spec IDG-6 / CACHE-2.
 // The incident: $everything slices a person's linked patients into chunks of
 // everythingBatchSize (default 10); the consent-allowed-patient set was cached by
 // requestId and reused across chunks, so chunk 2+ lost patient scoping and returned ALL
-// proa/ias patients. Fixed in DCON-4598 (per-chunk cache keying).
+// proa/ias patients. Fixed in the upstream fix (per-chunk cache keying).
 //
 // This builds a client Person linked to 12 PROA patients (> batch size) under a valid
 // consent, plus an unrelated PROA "trap" patient from a different source (not linked, not
 // consented). Secure outcome: the client's own consented data returns, the trap NEVER
-// does. If the INC-331 bug regressed, the trap would leak and the security test FAILS.
+// does. If chunk scoping regressed, the trap resource would be returned and this FAILS.
 //
 // Runs in the standard mongo harness by neutralizing the forced consent-index hint the
 // same way the repo's own data_sharing/consented_data suites do:
@@ -55,7 +55,7 @@ function build() {
 const headers = { ...getHeaders('user/*.read access/client.*'), prefer: 'global_id=false' };
 const idsIn = resp => ((resp.body && resp.body.entry) || []).map(e => e.resource && e.resource.id).filter(Boolean);
 
-describe('INC-331 regression — consent set must be scoped per $everything chunk', () => {
+describe('Consent set must be scoped per $everything chunk', () => {
     const spy = jest.spyOn(DatabaseCursor.prototype, 'hint');
     beforeEach(async () => { spy.mockReturnThis(); await commonBeforeEach(); });
     afterEach(async () => { await commonAfterEach(); });

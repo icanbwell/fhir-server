@@ -1,5 +1,5 @@
 // ============================================================================
-// SEC-1580 CASE COVERAGE (IAS / TEFCA):
+// Verification case coverage (IAS / TEFCA):
 //   A1              tenant sees its own non-IAS data (positive control)
 //   D-IDG5 / IDG-5  IAS (connectionType=ias) record reachable only via Person.link, no tag/
 //                   consent, is not returned
@@ -11,11 +11,10 @@
 // IAS / TEFCA isolation parity (connectionType=ias).
 //
 // Context (Confluence: "TEFCA IAS on FHIR pilot with Epic", "EPIC IAS Integration",
-// "Task Lifecycle"; fhir-server release notes DCON-4598): IAS is b.well's TEFCA
+// "Task Lifecycle"; fhir-server release notes the upstream fix): IAS is b.well's TEFCA
 // Individual-Access path. IAS-sourced records are stored with connectionType=ias and
 // owned by the upstream source (e.g. tc_epic, cms_bluebutton), reached via Person.link.
-// Per DCON-4598 the INC-331 fix explicitly scopes "PROA/IAS patients across all
-// $everything chunks" — IAS rides the SAME consent-gated expansion path as PROA.
+// IAS rides the same consent-gated expansion path as PROA.
 //
 // This asserts the config-independent isolation floor: an IAS-connectionType upstream
 // record reachable ONLY via Person.link, carrying neither the caller's access tag nor a

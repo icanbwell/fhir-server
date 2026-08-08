@@ -2,7 +2,7 @@
 // SYSTEMATIC TRAVERSAL MATRIX — every shape a Person.link graph can take.
 //
 // Person.link is the mechanism that stitches one human's records together across
-// sources, and is referenced in INC-331. The link carries no field recording WHY
+// sources. The link carries no field recording WHY
 // two persons are linked, so one shape covers three different relationships:
 //   (a) same human, different tenant account  -> legitimate, must be followed
 //   (b) same human, duplicate or erroneous account -> a data-quality gap, must not be
@@ -278,7 +278,7 @@ describe('SECURITY MATRIX — Person.link traversal shapes', () => {
 
     // -----------------------------------------------------------------------
     // IDG-1: reachability must be by link, never by a shared identifier value.
-    // This is the general shape of the INC-331 bug.
+    // Reachability must follow a link, never a shared identifier value.
     // -----------------------------------------------------------------------
     describe('IDG-1: a shared identifier value is not a link', () => {
         const sharedIdentifier = { system: 'http://example.org/mrn', value: 'MRN-MATRIX-0001' };

@@ -1,5 +1,5 @@
 // ============================================================================
-// REGRESSION TEST (passes today) — SEC-1580 D-SAE4 / spec SAE-4 & SAE-5.
+// Regression test (passes today). Spec SAE-4 and SAE-5.
 // Gap: a write-by-identifier for a resource that exists but belongs to another tenant
 // returns a DIFFERENT result than a write to a genuinely nonexistent id — an existence
 // oracle. Combined with deterministic internal ids (SAE-5) this lets a caller probe
@@ -27,7 +27,7 @@ function bodyFor(id, accessCode){
 }
 const tenantAWrite = getHeaders('user/*.read user/*.write access/tenanta.*');
 
-describe('D-SAE4 (known bug) — write-by-id must not leak exists-vs-not-found', () => {
+describe('SAE-4: a write by id must not reveal whether the id already exists', () => {
   beforeEach(async()=>{ await commonBeforeEach(); });
   afterEach(async()=>{ await commonAfterEach(); });
 

@@ -44,3 +44,6 @@ generatorScripts/data/
 
 # Personal Claude working memory (local, not team-governed)
 CLAUDE.local.md
+
+# Local QA working notes. Never committed: contains findings for unfixed issues.
+.qa/

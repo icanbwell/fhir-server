@@ -1,5 +1,5 @@
 // ============================================================================
-// SEC-1580 CASE COVERAGE (skip-gated — requires the ClickHouse CI harness):
+// Verification case coverage (skip-gated: requires the ClickHouse CI harness):
 //   B4 / IDG-6   consent-driven PROA/IAS unlock is filtered by connectionType (and by the
 //                configured connection-type list); IAS gated only when configured
 //   (separation) a PROA connection to an org does not expose that org's IAS-sourced data
@@ -9,7 +9,7 @@
 // IAS consent-gating config + IAS/PROA same-connection-type separation.
 //
 // Facts established from source:
-//  - DCON-4598 (INC-331 fix) scopes "PROA/IAS patients across all $everything chunks":
+//  - The upstream fix scopes PROA/IAS patients across all $everything chunks:
 //    IAS rides the same consent-gated expansion path as PROA.
 //  - That path filters unlocked patients by connectionType against
 //    configManager.getConsentConnectionTypesList (dataSharingManager.js), which DEFAULTS
