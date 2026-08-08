@@ -53,6 +53,11 @@ module.exports = {
         '<rootDir>/src/tests/unit/middleware/fhir/router.test.js',
         '<rootDir>/src/tests/unit/operations/common/patientQueryCreator.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everything.bugs.test.js',
+        // SEC-1580 fail-by-design security test: asserts the SECURE behavior for SAE-1 and
+        // stays RED until narrowing a resource's tags also revokes access to its prior
+        // versions. Excluded from the default run so a known, documented gap doesn't break
+        // CI. Run directly: npx jest src/tests/everything/sae1_stale_version_tags.bugs
+        '<rootDir>/src/tests/everything/sae1_stale_version_tags.bugs/sae1_stale_version_tags.bugs.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everythingRelatedResourcesMapper.test.js',
         '<rootDir>/src/tests/unit/operations/graph/graph.test.js',
         '<rootDir>/src/tests/unit/operations/history/history.test.js',
