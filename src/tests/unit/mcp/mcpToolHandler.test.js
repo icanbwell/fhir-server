@@ -113,17 +113,27 @@ describe('McpToolHandler', () => {
             );
             expect(idNotItem).toBeDefined();
             expect(idNotItem.queryParameterValue.value).toEqual(['hidden-obs-1']);
+            // r4.js:81 requires propertyObj to be truthy for the item to be used when building the
+            // Mongo query -- confirm it's actually set, not just the value.
+            expect(idNotItem.propertyObj).toBeDefined();
         });
 
-        test('returns an error result when searchBundleAsync throws', async () => {
+        test('returns an error result when searchBundleAsync throws, masking internal details', async () => {
             const { handler, searchBundleOperation } = createHandler();
             jestGlobal.spyOn(httpContext, 'get').mockReturnValue({ user: 'test-user' });
+            // A plain Error (no .statusCode) is treated as an internal/unexpected failure (status
+            // 500) by convertErrorToOperationOutcome, the same HIPAA/HITRUST-safe mapping
+            // src/routeHandlers/handleError.js's handleServerError uses -- the raw message
+            // ('boom', which could carry internal details like a Mongo query/collection name in a
+            // real failure) must not reach the MCP client.
             searchBundleOperation.searchBundleAsync.mockRejectedValue(new Error('boom'));
 
             const result = await handler.handleSearchToolCall({ resourceType: 'Patient', args: {} });
 
             expect(result.isError).toBe(true);
-            expect(result.content[0].text).toBe('boom');
+            const operationOutcome = JSON.parse(result.content[0].text);
+            expect(operationOutcome.issue[0].details.text).toBe('Internal Server Error');
+            expect(result.content[0].text).not.toContain('boom');
         });
     });
 

@@ -12,6 +12,8 @@ const { MCP_REQUEST_INFO_CONTEXT_KEY } = require('../constants');
 const { ParsedArgsItem } = require('../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../operations/query/queryParameterValue');
 const { searchParameterQueries } = require('../searchParameters/searchParameters');
+const { logError } = require('../operations/common/logging');
+const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
 
 class McpToolHandler {
     /**
@@ -91,7 +93,16 @@ class McpToolHandler {
                     base_version: VERSIONS['4_0_0'],
                     raiseErrorForMissingUserOwner: false
                 });
-                const resourceExcludeIds = viewControlResourceToExcludeMap?.[resourceType] || [];
+                let resourceExcludeIds = viewControlResourceToExcludeMap?.[resourceType] || [];
+                // Merge with (rather than overwrite) any '_id:not' filter the caller already
+                // supplied in their own args/filters, mirroring dataSource.js:819-825 -- otherwise
+                // .add() below would replace the caller's own _id:not ParsedArgsItem outright.
+                if (parsedArgs['_id:not']) {
+                    const existingExcludeIds = Array.isArray(parsedArgs['_id:not'])
+                        ? parsedArgs['_id:not']
+                        : [parsedArgs['_id:not']];
+                    resourceExcludeIds = [...resourceExcludeIds, ...existingExcludeIds];
+                }
                 if (resourceExcludeIds.length > 0) {
                     // The bracket assignment alone is not read by R4SearchQueryCreator (it only
                     // iterates parsedArgs.parsedArgItems), so it must be paired with .add(...) of a
@@ -119,7 +130,18 @@ class McpToolHandler {
             });
             return { content: [{ type: 'text', text: JSON.stringify(bundle) }] };
         } catch (err) {
-            return { isError: true, content: [{ type: 'text', text: err.message || 'FHIR search failed.' }] };
+            logError(
+                `McpToolHandler.handleSearchToolCall: error searching resourceType=${resourceType}: ${err.message}`,
+                { error: err }
+            );
+            // Mirrors src/routeHandlers/handleError.js's handleServerError so /mcp gives the same
+            // HIPAA/HITRUST-safe error shape as REST/GraphQL: an error without a statusCode (an
+            // unexpected/internal failure) is masked to a generic message with no stack trace or
+            // internal details; a known error with a statusCode < 500 (e.g. ForbiddenError,
+            // NotFoundError from src/utils/httpErrors.js) keeps its client-safe FHIR `.issue`.
+            const status = err.statusCode || 500;
+            const operationOutcome = convertErrorToOperationOutcome({ error: err, internalError: status >= 500 });
+            return { isError: true, content: [{ type: 'text', text: JSON.stringify(operationOutcome) }] };
         }
     }
 }
