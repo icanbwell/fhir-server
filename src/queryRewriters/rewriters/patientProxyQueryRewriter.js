@@ -51,8 +51,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
     }
 
     /**
-     * Whether this request is the specific request shape
-     * (docs/superpowers/specs/2026-08-08-proa-person-everything-caching-design.md) that
+     * Whether this request is the specific request shape that
      * DataSharingManager.getValidatedPatientIdsMap's new cache-only branch requires:
      * Person/proxy-patient $everything, with the PROA feature enabled.
      *

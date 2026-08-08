@@ -130,8 +130,7 @@ class DataSharingManager {
      * @property {boolean} isUser whether request is with patient scope
      * @property {boolean} allowConsentedProaDataAccess whether to allow consented PROA data access
      * @property {number|undefined} everythingChunkIndex
-     * @property {boolean} useProxyPatientToPersonCache true when the original request
-     *   was Person/proxy-patient $everything (see docs/superpowers/specs/2026-08-08-proa-person-everything-caching-design.md)
+     * @property {boolean} useProxyPatientToPersonCache true when the original request was Person/proxy-patient $everything
      * @param {RewriteDataSharingQuery} param
      */
     async updateQueryConsideringDataSharing({
@@ -308,8 +307,7 @@ class DataSharingManager {
      * @property {string} resourceType Resource Type
      * @property {ParsedArgs} parsedArgs Args
      * @property {string[]} securityTags security Tags
-     * @property {boolean} useProxyPatientToPersonCache true when the original request
-     *   was Person/proxy-patient $everything (see docs/superpowers/specs/2026-08-08-proa-person-everything-caching-design.md)
+     * @property {boolean} useProxyPatientToPersonCache true when the original request was Person/proxy-patient $everything
      * @property {string} requestId Only required when useProxyPatientToPersonCache is
      *   true -- used to look up the RequestSpecificCache entry PatientProxyQueryRewriter wrote.
      * @param {ValidatedPatientIdsMap} param

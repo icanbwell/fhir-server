@@ -415,15 +415,11 @@ class PersonToPatientIdsExpander {
                         (s) => s.system === SecurityTagSystem.owner
                     )?.code;
                     if (ownerTag && securityTagsForOwnerCheck.includes(ownerTag)) {
-                        const linkedPatientRefs = person.link
-                            .filter(l => l.target && l.target[`${uuidKey}`] &&
-                                (l.target[`${uuidKey}`].startsWith(patientReferencePrefix) || l.target.type === 'Patient'))
-                            .map(l => {
-                                const target = l.target[`${uuidKey}`];
-                                return target.startsWith(patientReferencePrefix)
-                                    ? target
-                                    : `${patientReferencePrefix}${target}`;
-                            });
+                        // patientIdsToAdd (above) already scanned person.link with this exact
+                        // predicate and stripped the prefix -- reuse it instead of re-filtering.
+                        const linkedPatientRefs = patientIdsToAdd.map(
+                            (patientId) => `${patientReferencePrefix}${patientId}`
+                        );
                         if (linkedPatientRefs.length > 0) {
                             ownerVerifiedPersonToLinkedPatients.set(person._uuid, new Set(linkedPatientRefs));
                         }
