@@ -3,6 +3,7 @@ HL7 search-parameters.json bundle generate_search_parameters.py reads. Generated
 data (name/description/resourceType/inputSchema) -- no business logic lives in generated code.
 """
 
+import copy
 import json
 import re
 import sys
@@ -91,7 +92,8 @@ def to_snake_case(resource_type: str) -> str:
 
 
 def format_mcp_description(param: Dict[str, Any]) -> str:
-    text = (param.get("description") or param["code"]).replace("'", "\\'").replace("\n", " ").strip()
+    # Normalize all line endings (CRLF and LF) to spaces
+    text = (param.get("description") or param["code"]).replace("\r\n", " ").replace("\r", " ").replace("\n", " ").strip()
     suffix = f" ({param['type']}"
     if param.get("target"):
         suffix += f": {' | '.join(param['target'])}"
@@ -99,7 +101,9 @@ def format_mcp_description(param: Dict[str, Any]) -> str:
     syntax_hint = TYPE_VALUE_SYNTAX_HINTS.get(param["type"])
     if syntax_hint:
         suffix += f" {syntax_hint}"
-    return text + suffix
+    # Escape the entire assembled description (both text and suffix) for use in a single-quoted JS string
+    full_description = (text + suffix).replace("\\", "\\\\").replace("'", "\\'").replace("\r\n", " ").replace("\r", " ").replace("\n", " ")
+    return full_description
 
 
 def dedupe_by_code(params: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -142,10 +146,12 @@ GENERIC_SEARCH_CONVENTIONS = (
 
 
 def build_tool_description(resource_type: str) -> str:
-    return (
+    # Already escaped for safe insertion into single-quoted JS string
+    description = (
         f"Search FHIR {resource_type} resources using its supported search parameters. "
         f"{GENERIC_SEARCH_CONVENTIONS}"
     )
+    return description.replace("\\", "\\\\").replace("'", "\\'").replace("\r\n", " ").replace("\r", " ").replace("\n", " ")
 
 
 def main() -> int:
@@ -160,6 +166,8 @@ def main() -> int:
 
     for resource_type in commonly_used_resources:
         params = dedupe_by_code(COMMON_PARAMS + search_parameters_by_resource.get(resource_type, []))
+        # Copy dicts before mutating to avoid modifying COMMON_PARAMS across iterations
+        params = [copy.copy(param) for param in params]
         for param in params:
             param["mcp_description"] = format_mcp_description(param)
 
@@ -167,7 +175,7 @@ def main() -> int:
         rendered = template.render(
             resource_type=resource_type,
             tool_name=f"search_{file_name}",
-            tool_description=build_tool_description(resource_type).replace("'", "\\'"),
+            tool_description=build_tool_description(resource_type),
             params=params,
         )
         file_path = OUTPUT_DIR.joinpath(f"{file_name}.tool.js")

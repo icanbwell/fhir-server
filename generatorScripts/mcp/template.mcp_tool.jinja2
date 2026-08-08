@@ -7,7 +7,7 @@ const tool = {
     description: '{{ tool_description }}',
     inputSchema: z.object({
 {% for param in params %}
-        '{{ param.code }}': z.string().optional().describe('{{ param.mcp_description }}'){% if not loop.last %},{% endif %}
+        '{{ param.code }}': z.string().optional().describe('{{ param.mcp_description }}'),
 {% endfor %}
     }).passthrough()
 };
