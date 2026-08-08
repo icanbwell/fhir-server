@@ -1622,13 +1622,32 @@ class GraphHelper {
                         bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.concat(recursiveEntries);
                     }
                 }
+                // Derive security context for enrichment providers that need tenant filtering
+                const accessCodes = this.searchManager.scopesManager.getAccessCodesFromScopes(
+                    'read', requestInfo.user, requestInfo.scope
+                );
+                const hasFullAccess = accessCodes.includes('*');
+                const accessViaPatientScopes = this.searchManager.scopesManager.isAccessAllowedByPatientScopes({
+                    scope: requestInfo.scope, resourceType
+                });
+                const accessTags = this.searchManager.securityTagManager.getSecurityTagsFromScope({
+                    user: requestInfo.user,
+                    scope: requestInfo.scope,
+                    accessRequested: 'read',
+                    accessViaPatientScopes
+                });
+                const securityContext = { accessTags, ownerTags: [], hasFullAccess };
+
                 bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
                     {
                         entries: bundleEntriesForTopLevelResource,
                         parsedArgs,
                         enrichmentContext: {
                             userType: requestInfo.userType,
-                            actor: requestInfo.actor
+                            actor: requestInfo.actor,
+                            user: requestInfo.user,
+                            scope: requestInfo.scope,
+                            securityContext
                         }
                     }
                 );
