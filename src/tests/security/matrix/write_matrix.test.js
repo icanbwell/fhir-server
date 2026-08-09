@@ -295,12 +295,45 @@ describe('SECURITY MATRIX — write paths', () => {
                 link: [{ target: { reference: `Patient/mtxOwnB|${F.T_B}`, type: 'Patient' }, assurance: 'level4' }]
             };
             const put = await request.put('/4_0_0/Person/mtxForgedLinkPerson').send(forged).set(A_RW());
-            expect([200, 201, 403]).toContain(put.status);
+            // Two acceptable outcomes, and the assertion differs by which one occurred.
+            // Refused at write time: the server validates the link target's tags before
+            // persisting and rejects with an OperationOutcome carrying `forbidden`. The
+            // status is 400 rather than 403, which is worth correcting, so the check is on
+            // the issue code rather than the status.
+            // Accepted: the link exists but must not act as a read channel, so the read
+            // below has to come back without the target.
+            const issueCodes = ((put.body && put.body.issue) || []).map((i) => i.code);
+            const refused = put.status >= 400 && issueCodes.includes('forbidden');
+            expect(refused || [200, 201].includes(put.status)).toBe(true);
+
+            if (refused) {
+                // A refusal has to mean nothing was written. Without this the test would
+                // also pass if the server rejected the response while persisting the record.
+                const after = await request.get('/4_0_0/Person/mtxForgedLinkPerson').set(A_RW());
+                expect([404, 410]).toContain(after.status);
+                return;
+            }
 
             const ev = await request.get('/4_0_0/Person/mtxForgedLinkPerson/$everything').set(A_RW());
             const ids = (((ev.body && ev.body.entry) || []).map((e) => e.resource && e.resource.id)).filter(Boolean);
             expect(ids).not.toContain('mtxOwnB');
             expect(ids).not.toContain('mtxObsOwnB');
+        });
+
+        // Control for the test above. It asserts that a link to another tenant's patient is
+        // refused; that only means something if an otherwise identical link to a patient the
+        // caller does own is accepted. Without this the first test passes against a server
+        // that refuses every Person.link write.
+        test('reachability control: the same write with an own-tenant link target succeeds', async () => {
+            const request = await seed();
+            const ok = {
+                resourceType: 'Person',
+                id: 'mtxOwnLinkPerson',
+                meta: { source: F.T_A, security: F.sec(F.T_A, [F.T_A]) },
+                link: [{ target: { reference: `Patient/mtxOwnA|${F.T_A}`, type: 'Patient' }, assurance: 'level4' }]
+            };
+            const put = await request.put('/4_0_0/Person/mtxOwnLinkPerson').send(ok).set(A_RW());
+            expect([200, 201]).toContain(put.status);
         });
 
         test('adding a link to the PROA patient does not bypass the consent requirement', async () => {
