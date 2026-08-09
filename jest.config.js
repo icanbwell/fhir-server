@@ -53,11 +53,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/middleware/fhir/router.test.js',
         '<rootDir>/src/tests/unit/operations/common/patientQueryCreator.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everything.bugs.test.js',
-        // SEC-1580 fail-by-design security test: asserts the SECURE behavior for IDG-7 and
-        // stays RED until Person.link.assurance is honored during traversal. Excluded from
-        // the default run so a known, documented gap doesn't break CI. Run directly:
-        // npx jest src/tests/everything/idg7_low_assurance_link.bugs
-        '<rootDir>/src/tests/everything/idg7_low_assurance_link.bugs/idg7_low_assurance_link.bugs.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everythingRelatedResourcesMapper.test.js',
         '<rootDir>/src/tests/unit/operations/graph/graph.test.js',
         '<rootDir>/src/tests/unit/operations/history/history.test.js',
