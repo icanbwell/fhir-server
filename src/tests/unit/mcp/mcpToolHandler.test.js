@@ -53,7 +53,13 @@ describe('McpToolHandler', () => {
 
             const result = await handler.handleSearchToolCall({ resourceType: 'Patient', args: { name: 'Smith' } });
 
-            expect(r4ArgsParser.parseArgs).toHaveBeenCalledWith({ resourceType: 'Patient', args: { name: 'Smith' } });
+            // base_version must be injected before parsing -- none of the generated tool schemas
+            // expose it for callers to supply, and R4ArgsParser.parseArgs asserts it's present
+            // (see the comment in handleSearchToolCall for the bug this was fixed to catch).
+            expect(r4ArgsParser.parseArgs).toHaveBeenCalledWith({
+                resourceType: 'Patient',
+                args: { name: 'Smith', base_version: '4_0_0' }
+            });
             expect(patientDataViewControlManager.getConsentAsync).not.toHaveBeenCalled();
             expect(searchBundleOperation.searchBundleAsync).toHaveBeenCalledWith(
                 expect.objectContaining({ requestInfo: fhirRequestInfo, resourceType: 'Patient', useAggregationPipeline: false })

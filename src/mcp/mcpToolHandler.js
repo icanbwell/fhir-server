@@ -80,7 +80,19 @@ class McpToolHandler {
             };
         }
         try {
-            const parsedArgs = this.r4ArgsParser.parseArgs({ resourceType, args });
+            // Bug found by Task 10's integration tests: none of the generated tool schemas (Task 2/3)
+            // expose a `base_version` field for MCP clients to supply -- there is no way for a caller
+            // to ever provide one -- yet R4ArgsParser.parseArgs (via ParsedArgs's constructor,
+            // src/operations/query/parsedArgs.js:12) asserts args.base_version is set, throwing for
+            // every single /mcp search call otherwise. Every real invocation of this method 500'd
+            // (masked to a generic OperationOutcome by the catch block below) until this was added.
+            // VERSIONS['4_0_0'] is the only base_version this server's /mcp route ever runs under
+            // (mirrors the getConsentAsync call a few lines down, which already hardcodes the same
+            // constant for the same reason).
+            const parsedArgs = this.r4ArgsParser.parseArgs({
+                resourceType,
+                args: { ...args, base_version: VERSIONS['4_0_0'] }
+            });
 
             // Patient data-connection-view-control (consent-based) exclusion -- mirrors
             // src/graphqlv2/dataSource.js's getParsedArgsAsync. Deliberately re-fetched on every

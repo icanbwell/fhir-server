@@ -4,13 +4,14 @@
  * Regression tests for docs/resource-authorization.md §6d "Patient Data View Control consent".
  *
  * Doc claim under test, verified against the REAL implementation (never a stand-in class):
- *   - A patient can exclude specific resources from their own `$everything`/GraphQLv2 result via
- *     a `dataConnectionViewControl`-category Consent referencing the resource(s) to hide.
+ *   - A patient can exclude specific resources from their own `$everything`/GraphQLv2/`/mcp` result
+ *     via a `dataConnectionViewControl`-category Consent referencing the resource(s) to hide.
  *   - This is implemented by `PatientDataViewControlManager.getConsentAsync`
  *     (`src/utils/patientDataViewController.js`), gated by
  *     `configManager.clientsWithDataConnectionViewControl`.
- *   - The mechanism is scoped ONLY to `$everything` and GraphQLv2 — NOT REST search, NOT GraphQL
- *     v1. This is verified below by scanning the actual source tree for every call site of
+ *   - The mechanism is scoped ONLY to `$everything`, GraphQLv2, and `/mcp` (`McpToolHandler`,
+ *     added by the MCP endpoint plan to mirror `dataSource.js`'s exclusion) — NOT REST search, NOT
+ *     GraphQL v1. This is verified below by scanning the actual source tree for every call site of
  *     `PatientDataViewControlManager`/`getConsentAsync`, rather than trusting the doc's prose.
  *
  * Only true external collaborators (ConfigManager, SearchManager, R4ArgsParser, the
@@ -309,7 +310,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             return matches.sort();
         }
 
-        test('PatientDataViewControlManager is only referenced by its own definition, its IoC wiring, everythingHelper.js, and graphqlv2/dataSource.js', () => {
+        test('PatientDataViewControlManager is only referenced by its own definition, its IoC wiring, everythingHelper.js, graphqlv2/dataSource.js, and mcp/mcpToolHandler.js', () => {
             const srcDir = path.resolve(__dirname, '../../../../src');
 
             const referencingFiles = findFilesReferencing(srcDir, 'PatientDataViewControlManager');
@@ -317,12 +318,13 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             expect(referencingFiles).toEqual([
                 'createContainer.js',
                 'graphqlv2/dataSource.js',
+                'mcp/mcpToolHandler.js',
                 'operations/everything/everythingHelper.js',
                 'utils/patientDataViewController.js'
             ]);
         });
 
-        test('getConsentAsync is only called from everythingHelper.js and graphqlv2/dataSource.js — not from REST search or GraphQL v1', () => {
+        test('getConsentAsync is only called from everythingHelper.js, graphqlv2/dataSource.js, and mcp/mcpToolHandler.js — not from REST search or GraphQL v1', () => {
             const srcDir = path.resolve(__dirname, '../../../../src');
 
             const callSites = findFilesReferencing(srcDir, '.getConsentAsync(')
@@ -330,6 +332,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
 
             expect(callSites).toEqual([
                 'graphqlv2/dataSource.js',
+                'mcp/mcpToolHandler.js',
                 'operations/everything/everythingHelper.js'
             ]);
 
