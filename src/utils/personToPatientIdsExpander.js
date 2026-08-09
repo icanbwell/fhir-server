@@ -1,5 +1,5 @@
 const { FilterById } = require('../operations/query/filters/id');
-const { assertTypeEquals } = require('./assertType');
+const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { logWarn } = require('../operations/common/logging');
 const { PERSON_REFERENCE_PREFIX, HTTP_CONTEXT_KEYS } = require('../constants');
@@ -63,13 +63,19 @@ class PersonToPatientIdsExpander {
      * @param {string|string[]} ids
      * @param {boolean} includePatientPrefix
      * @param {boolean} toMap If return map of person to patient
-     * @param {FhirRequestInfo} requestInfo Whenever supplied, adds an access tag check for every
-     *   Person resolved during traversal (the top-level id and every id reached via Person.link),
-     *   not just the top-level id -- a caller must hold a matching access tag at every hop, since a
-     *   shared link graph (e.g. a Main Person hub) can span multiple tenants
+     * @param {FhirRequestInfo} requestInfo Required -- adds an access tag check for every Person
+     *   resolved during traversal (the top-level id and every id reached via Person.link), not
+     *   just the top-level id -- a caller must hold a matching access tag at every hop, since a
+     *   shared link graph (e.g. a Main Person hub) can span multiple tenants. Both real callers
+     *   (accessHistory.js, patientProxyQueryRewriter.js) are now guaranteed to supply a real
+     *   requestInfo from every entry point that can reach them (REST via fhirOperationsManager.js,
+     *   GraphQL v1 via context.fhirRequestInfo, GraphQL v2 via this.requestInfo -- all asserted
+     *   non-undefined at their own construction), so a missing requestInfo here means a new
+     *   caller was wired up without that guarantee, not a legitimate degraded-mode case.
      * @return {Promise<string|string[]|{[key: string]: string[]}>}
      */
     async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap, requestInfo }) {
+        assertIsValid(requestInfo !== undefined, 'requestInfo is required for getPatientProxyIdsAsync');
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version
@@ -205,17 +211,7 @@ class PersonToPatientIdsExpander {
      * and could otherwise resolve the claim to a different tenant's Person sharing the same source
      * id). This applies at EVERY level, including Person(s) reached via Person.link (level 2+): a
      * patient-scoped caller cannot traverse beyond their own Person at all, even to a Client Person
-     * reached from their own Main Person. Note this is a deliberate blanket restriction rather than
-     * a level-1-only fast path, and it trades away a previously-working case: it blocks the
-     * Main-Person -> Client-Person -> Patient hop that
-     * src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid (and the
-     * "REGRESSION" describe block in personToPatientIdsExpander.crossTenant.test.js) exercise,
-     * where the JWT id is the Main Person and the Client Person is only reachable via that hop --
-     * both are expected to fail under this restriction. A non-patient-scoped caller
-     * (hasPatientScope false) is unaffected and always goes through the normal access-tag check
-     * below, which reuses the same scopesManager.hasPatientScope value as its own
-     * accessViaPatientScopes input (guaranteed false there, since a patient-scoped caller never
-     * reaches that branch).
+     * reached from their own Main Person.
      *
      * @param {getPatientIdsFromPersonAsyncArgs}
      * @return {Promise<string[] | Map<string, Set<string>>>} Will return an array if toMap is false else return an map. By default toMap is false
