@@ -248,6 +248,7 @@ describe('/mcp endpoint', () => {
         const request = await createTestRequest(registerRealAuditLogger);
         const inRangeId = 'mcp-t3-patient-in-range';
         const outOfRangeId = 'mcp-t3-patient-out-of-range';
+        const inRangeOtherFamilyId = 'mcp-t3-patient-in-range-other-family';
 
         let resp = await request
             .post(`/4_0_0/Patient/${inRangeId}/$merge?validate=true`)
@@ -261,16 +262,29 @@ describe('/mcp endpoint', () => {
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
 
-        // Both patients match the ':contains' string filter; only one also satisfies the
-        // 'ge' date-comparator prefix on birthdate. Uses 'family' rather than 'name' here: 'name'
-        // is a composite HumanName search parameter whose ':contains' handling
-        // (src/operations/query/filters/contains.js's generic non-token branch, which regexes
-        // against the raw field path) is a pre-existing bug unrelated to /mcp -- it regexes
-        // against the top-level 'name' array-of-objects field directly instead of the
-        // family/given/text sub-paths FilterByString's nameQueryBuilder uses for the unmodified
-        // 'name' parameter, so 'name:contains' always matches zero documents regardless of data.
-        // 'family:contains' exercises the exact same date-comparator + string-modifier combination
-        // this test is a regression test for, without tripping over that separate, pre-existing bug.
+        // Same birthdate range as inRangeId, but a DIFFERENT family name -- makes the
+        // 'family:contains' filter load-bearing. Without this third Patient, the 'birthdate'
+        // filter alone would already produce the same pass/fail split as the assertions below, so
+        // a regression that silently dropped 'family:contains' entirely (e.g. removing
+        // .passthrough() from patient.tool.js, which makes zod strip unknown keys rather than
+        // error) would not have been caught.
+        resp = await request
+            .post(`/4_0_0/Patient/${inRangeOtherFamilyId}/$merge?validate=true`)
+            .send(makePatient(inRangeOtherFamilyId, { family: 'UnrelatedFamily', given: 'InRangeOtherFamily', birthDate: '2016-06-01' }))
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // All three patients could satisfy one filter or the other individually; only inRangeId
+        // satisfies BOTH the 'ge' date-comparator prefix on birthdate AND the ':contains' string
+        // filter. Uses 'family' rather than 'name' here: 'name' is a composite HumanName search
+        // parameter whose ':contains' handling (src/operations/query/filters/contains.js's generic
+        // non-token branch, which regexes against the raw field path) is a pre-existing bug
+        // unrelated to /mcp -- it regexes against the top-level 'name' array-of-objects field
+        // directly instead of the family/given/text sub-paths FilterByString's nameQueryBuilder
+        // uses for the unmodified 'name' parameter, so 'name:contains' always matches zero
+        // documents regardless of data. 'family:contains' exercises the exact same
+        // date-comparator + string-modifier combination this test is a regression test for,
+        // without tripping over that separate, pre-existing bug.
         const { rpc } = await callMcpTool(request, getFullAccessToken(), 'search_patient', {
             birthdate: 'ge2015-01-01',
             'family:contains': 'ComboSyntaxFamily'
@@ -280,11 +294,13 @@ describe('/mcp endpoint', () => {
         const ids = idsInBundle(bundleFromToolResult(rpc));
         expect(ids).toContain(inRangeId);
         expect(ids).not.toContain(outOfRangeId);
+        expect(ids).not.toContain(inRangeOtherFamilyId);
     });
 
     test('search_observation supports token (system|code) and reference (ResourceType/id) filter values (design doc §8.4)', async () => {
         const request = await createTestRequest(registerRealAuditLogger);
         const patientId = 'mcp-t4-patient';
+        const otherPatientId = 'mcp-t4-other-patient';
         const observationId = 'mcp-t4-observation';
         const otherObservationId = 'mcp-t4-other-observation';
         const loincSystem = 'http://loinc.org';
@@ -296,17 +312,28 @@ describe('/mcp endpoint', () => {
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
 
+        // A second Patient purely so the distractor Observation below can have a genuinely
+        // different subject -- the 'patient' reference filter can only be proven load-bearing
+        // against a distractor that shares the *code* but not the *patient*.
+        resp = await request
+            .post(`/4_0_0/Patient/${otherPatientId}/$merge?validate=true`)
+            .send(makePatient(otherPatientId, { family: 'TokenRefOtherFamily', given: 'Other', birthDate: '1980-01-01' }))
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
         resp = await request
             .post(`/4_0_0/Observation/${observationId}/$merge?validate=true`)
             .send(makeObservation(observationId, { patientId, system: loincSystem, code: loincCode }))
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
 
-        // A distractor Observation with a different code and no subject, to prove the filter is
-        // actually restricting -- not just returning every Observation in the DB.
+        // A distractor Observation with the SAME code but a DIFFERENT subject, so the 'patient'
+        // reference filter in the tool call below is actually load-bearing: an implementation that
+        // silently ignored 'patient' and matched on 'code' alone would still incorrectly include
+        // this Observation, and this assertion would catch that.
         resp = await request
             .post(`/4_0_0/Observation/${otherObservationId}/$merge?validate=true`)
-            .send(makeObservation(otherObservationId, { patientId, system: loincSystem, code: '1234-9' }))
+            .send(makeObservation(otherObservationId, { patientId: otherPatientId, system: loincSystem, code: loincCode }))
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
 
@@ -503,27 +530,27 @@ describe('/mcp endpoint', () => {
          * SearchBundleOperation queues its audit-log write as a task on postRequestProcessor whose
          * body itself just fires a bare (un-awaited) setImmediate() to do the actual
          * auditLogger.logAuditEntryAsync() call (src/operations/search/searchBundle.js, deliberately
-         * deferred "to prevent logging audit entry in MicroTask just after graphql request").
-         * postRequestProcessor.executeAsync's `await task()` therefore resolves as soon as that
-         * setImmediate is *scheduled*, not once the audit entry has actually been queued on
-         * auditLogger -- so a single waitTillDoneAsync + flushAsync can race the pending
-         * setImmediate and observe an empty queue. This pre-existing fire-and-forget pattern isn't
-         * something Task 9's mcpRequestCleanup (or any /mcp code) can control or is responsible for
-         * -- REST/GraphQL requests share the exact same mechanism and simply have enough incidental
-         * event-loop turnaround before their own equivalent assertions run for the setImmediate to
-         * have already fired. Poll for a bounded window instead of asserting immediately, so this
-         * test verifies the real end-to-end behavior without being tied to that incidental timing.
+         * deferred "to prevent logging audit entry in MicroTask just after graphql request"). That
+         * setImmediate only pushes onto AuditLogger's own in-memory queue -- flushAsync() is what
+         * actually persists it to Mongo (mirrors production's cron-based flush in
+         * cronTasksProcessor.js, not the per-request mcpRequestCleanup middleware). Deliberately
+         * does NOT call postRequestProcessor.waitTillDoneAsync() here: read
+         * PostRequestProcessor.waitTillDoneAsync (src/utils/postRequestProcessor.js) -- if no
+         * execution is already running for the given requestId it calls executeAsync() itself,
+         * which would drain the very postRequestProcessor queue that mcpRequestCleanup is
+         * responsible for draining, making this helper self-heal a missing mcpRequestCleanup and
+         * defeating the regression test below. This helper only polls the *persisted* AuditEvent
+         * count, waiting out the setImmediate's incidental event-loop delay with a real timer tick.
          * @returns {Promise<number>}
          */
         async function waitForAuditFlushAsync () {
             for (let attempt = 0; attempt < 20; attempt++) {
-                await postRequestProcessor.waitTillDoneAsync({ requestId });
                 await auditLogger.flushAsync();
                 const count = await auditEventCollection.countDocuments();
                 if (count > 0) {
                     return count;
                 }
-                await new Promise((resolve) => setImmediate(resolve));
+                await new Promise((resolve) => setTimeout(resolve, 50));
             }
             return auditEventCollection.countDocuments();
         }
@@ -540,8 +567,13 @@ describe('/mcp endpoint', () => {
         const patientUuid = resp.body.uuid;
         expect(patientUuid).toEqual(expect.any(String));
 
-        // Clear any audit events queued by the setup merge above so only the /mcp read's audit
-        // entry is left to inspect.
+        // Drain the SETUP merge's own audit-queue task before clearing the collection, so only the
+        // /mcp read's audit entry is left to inspect below. This is a REST request, not the /mcp
+        // response under test -- REST has its own equivalent post-response cleanup (independent of
+        // mcpRequestCleanup), so calling waitTillDoneAsync here is ordinary test bookkeeping, not a
+        // stand-in for the thing being regression-tested (see waitForAuditFlushAsync's doc comment
+        // for why that call is deliberately avoided for the /mcp response itself, below).
+        await postRequestProcessor.waitTillDoneAsync({ requestId });
         await waitForAuditFlushAsync();
         await auditEventCollection.deleteMany({});
 
@@ -551,10 +583,20 @@ describe('/mcp endpoint', () => {
         expect(rpc.result.isError).toBeUndefined();
         expect(idsInBundle(bundleFromToolResult(rpc))).toContain(patientId);
 
-        // This is the regression test for Task 9's mcpRequestCleanup middleware: without its
-        // res.once('finish', ...) flush of postRequestProcessor/requestSpecificCache, the audit
-        // entry SearchBundleOperation queued would never be drained and this would find nothing,
-        // no matter how long waitForAuditFlushAsync polled.
+        // Positive proof that Task 9's mcpRequestCleanup middleware (src/app.js) actually ran and
+        // drained postRequestProcessor's queue for this exact request -- checked BEFORE calling
+        // auditLogger.flushAsync() below, and without ever calling
+        // postRequestProcessor.waitTillDoneAsync() ourselves (see waitForAuditFlushAsync's doc
+        // comment for why that would self-heal a missing mcpRequestCleanup). SearchBundleOperation
+        // queues exactly one task per non-empty, non-AuditEvent read; nothing else drains the
+        // /mcp route's queue for this requestId (unlike REST, which has its own equivalent
+        // cleanup for REST requests only). If mcpRequestCleanup were removed from app.js, this
+        // queue would still contain that task here, and this assertion would fail.
+        expect(postRequestProcessor.getQueue({ requestId }).length).toBe(0);
+
+        // The audit entry itself is written to AuditLogger's queue via a setImmediate inside the
+        // task mcpRequestCleanup just drained (see waitForAuditFlushAsync's doc comment) and only
+        // reaches Mongo once flushed -- poll for it rather than asserting after a single flush.
         const auditLogCount = await waitForAuditFlushAsync();
         expect(auditLogCount).toBeGreaterThan(0);
 
