@@ -81,14 +81,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                         ids: queryParametersWithProxyPatientIds,
                         includePatientPrefix,
                         toMap: true,
-                        requestInfo,
-                        // SEC-1580 IDG-5: without this, naming a foreign tenant's person id via the
-                        // person.<id> proxy resolves and expands with no access-tag check at all,
-                        // confirming the person exists and serving whatever it's linked to. Mirrors
-                        // accessHistory.js's own call, which already sets this for the same reason,
-                        // and makes this path consistent with $everything's existing
-                        // enableProxyPersonScopeCheckForEverything protection (see configManager.js).
-                        addTopPersonAccessCheck: true
+                        requestInfo
                     }
                 );
 

@@ -1,5 +1,5 @@
 const { FilterById } = require('../operations/query/filters/id');
-const { assertTypeEquals, assertIsValid } = require('./assertType');
+const { assertTypeEquals } = require('./assertType');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { logWarn } = require('../operations/common/logging');
 const { PERSON_REFERENCE_PREFIX, HTTP_CONTEXT_KEYS } = require('../constants');
@@ -63,14 +63,13 @@ class PersonToPatientIdsExpander {
      * @param {string|string[]} ids
      * @param {boolean} includePatientPrefix
      * @param {boolean} toMap If return map of person to patient
-     * @param {FhirRequestInfo} requestInfo
-     * @param {boolean} addTopPersonAccessCheck if true, adds an access tag check for every Person
-     *   resolved during traversal (the top-level id and every id reached via Person.link), not just
-     *   the top-level id -- a caller must hold a matching access tag at every hop, since a shared
-     *   link graph (e.g. a Main Person hub) can span multiple tenants
+     * @param {FhirRequestInfo} requestInfo Whenever supplied, adds an access tag check for every
+     *   Person resolved during traversal (the top-level id and every id reached via Person.link),
+     *   not just the top-level id -- a caller must hold a matching access tag at every hop, since a
+     *   shared link graph (e.g. a Main Person hub) can span multiple tenants
      * @return {Promise<string|string[]|{[key: string]: string[]}>}
      */
-    async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap, requestInfo, addTopPersonAccessCheck = false }) {
+    async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap, requestInfo }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version
@@ -93,8 +92,7 @@ class PersonToPatientIdsExpander {
                 level: 1,
                 toMap,
                 returnOriginalPersonId: true, // return the passed personId not its uuid
-                requestInfo,
-                addTopPersonAccessCheck
+                requestInfo
             }
         );
         if (!toMap) {
@@ -194,26 +192,30 @@ class PersonToPatientIdsExpander {
      * @property {boolean} toMap If passed, will return a map of personId -> all related personIds
      * @property {boolean} returnOriginalPersonId If true then returns original personId passed. By default returns person _uuid
      * @property {boolean} addPersonOwnerToContext If true then add person owner to context
-     * @property {boolean} addTopPersonAccessCheck If true, applies the access tag check while
-     *   walking Person.link -- propagated through each recursive call so a caller can't bypass it
-     *   via a Person reached transitively. Applies at every level, including level 1, unless that
-     *   level-1 lookup is instead anchored by personIdFromJwtToken (see below).
-     * @property {string} [personIdFromJwtToken] The trusted person-id claim from the caller's JWT
-     *   (patientScopeManager's personIdFromJwtToken), present only when this traversal starts from
-     *   a patient-scoped caller's own identity. When set, level 1 skips the scope-derived
-     *   access-tag check entirely -- a patient-scoped token frequently carries no access/ codes at
-     *   all (see securityTagManager's accessViaPatientScopes short-circuit), which would make that
-     *   check a silent no-op anyway -- and instead verifies identity directly: the level-1 query
-     *   matches strictly on the Person's `_uuid` field, never falling back to a `_sourceId` match
-     *   the way the generic id filter would for a non-uuid value. Source ids are not guaranteed
-     *   unique across tenants, so a sourceId-based match here could otherwise resolve the claim to
-     *   a different tenant's Person that merely happens to share the same source id. This only
-     *   applies at level 1; Person(s) reached via Person.link (level 2+) always go through the
-     *   normal access-tag check below when addTopPersonAccessCheck is set, regardless of
-     *   personIdFromJwtToken. Callers whose level-1 personIds are NOT a trusted JWT claim (e.g.
-     *   accessHistory's $access-history id, or a person.<id> proxy-patient search parameter) leave
-     *   this unset, so the access-tag check runs at level 1 too, same as every other level.
-     * @property {FhirRequestInfo} requestInfo
+     * @property {FhirRequestInfo} [requestInfo] Whenever supplied, applies the access-scope check
+     *   -- propagated through each recursive call so a caller can't bypass it via a Person reached
+     *   transitively. Omit requestInfo to skip the check entirely (e.g. a caller with no
+     *   request/scope context to check against).
+     *
+     * A patient-scoped caller (requestInfo.scope carries a patient/ scope per
+     * scopesManager.hasPatientScope) is restricted to ONLY ever resolving their own Person -- i.e.
+     * personIds must match requestInfo.personIdFromJwtToken -- resolved strictly by the Person
+     * collection's `_uuid` field (never falling back to a `_sourceId` match the way the generic id
+     * filter would for a non-uuid value, since source ids are not guaranteed unique across tenants
+     * and could otherwise resolve the claim to a different tenant's Person sharing the same source
+     * id). This applies at EVERY level, including Person(s) reached via Person.link (level 2+): a
+     * patient-scoped caller cannot traverse beyond their own Person at all, even to a Client Person
+     * reached from their own Main Person. Note this is a deliberate blanket restriction rather than
+     * a level-1-only fast path, and it trades away a previously-working case: it blocks the
+     * Main-Person -> Client-Person -> Patient hop that
+     * src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid (and the
+     * "REGRESSION" describe block in personToPatientIdsExpander.crossTenant.test.js) exercise,
+     * where the JWT id is the Main Person and the Client Person is only reachable via that hop --
+     * both are expected to fail under this restriction. A non-patient-scoped caller
+     * (hasPatientScope false) is unaffected and always goes through the normal access-tag check
+     * below, which reuses the same scopesManager.hasPatientScope value as its own
+     * accessViaPatientScopes input (guaranteed false there, since a patient-scoped caller never
+     * reaches that branch).
      *
      * @param {getPatientIdsFromPersonAsyncArgs}
      * @return {Promise<string[] | Map<string, Set<string>>>} Will return an array if toMap is false else return an map. By default toMap is false
@@ -226,9 +228,7 @@ class PersonToPatientIdsExpander {
         toMap = false,
         returnOriginalPersonId = false,
         addPersonOwnerToContext = false,
-        requestInfo,
-        addTopPersonAccessCheck = false,
-        personIdFromJwtToken
+        requestInfo
     }) {
         /**
          * Final result to return
@@ -243,32 +243,27 @@ class PersonToPatientIdsExpander {
             projectionsMap.meta = 1
         }
 
-        if(addTopPersonAccessCheck) {
-            assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
-        }
+        const resourceType = 'Person';
+        const hasPatientScope = Boolean(requestInfo?.scope && this.scopesManager.hasPatientScope({ scope: requestInfo.scope }));
 
         /**
          * @type {import('mongodb').Document}
          */
-        let query;
+        let query = FilterById.getListFilter(personIds);
 
-        if (level === 1 && personIdFromJwtToken) {
-            // Trusted JWT identity anchor: resolve strictly by the Person collection's _uuid
-            // field. Do NOT reuse FilterById.getListFilter here -- for a non-uuid value it falls
-            // back to a _sourceId match, and source ids are not guaranteed unique across tenants,
-            // so that could resolve the claim to a different tenant's Person that merely happens
-            // to share the same source id. A scope-derived access-tag check is not applied here
-            // either, since it's frequently a no-op for patient-scoped callers anyway (see below).
-            query = { _uuid: { $in: personIds } };
+        if (hasPatientScope) {
+            // A patient-scoped caller must resolve to exactly their own Person --
+            // never anyone else's, regardless of entry point.
+            const jwtPersonId = requestInfo?.personIdFromJwtToken;
+            query = {
+                $and: [
+                    query,
+                    jwtPersonId ? { _uuid: jwtPersonId } : { _uuid: '__invalid__' }
+                ]
+            };
         } else {
-            query = FilterById.getListFilter(personIds);
-
             // Apply the caller's access-scope security tag filter to the requested Person so that
-            // linked patients are not resolved for a Person the caller cannot access. This runs at
-            // every level, including level 1, for any personIds not anchored by
-            // personIdFromJwtToken above -- e.g. accessHistory's $access-history id parameter, or
-            // a person.<id> proxy-patient search parameter -- since those come from user/URL
-            // input that must be checked just like a direct-by-id fetch would be.
+            // linked patients are not resolved for a Person the caller cannot access.
             //
             // NOTE: for a pure patient-scope token (no access/ scope at all -- the normal shape for a
             // plain patient-facing app), getSecurityTagsFromScope() below legitimately returns []
@@ -283,10 +278,8 @@ class PersonToPatientIdsExpander {
             // from a malicious/corrupted one -- doing so breaks that core feature. This gap is tracked by
             // the (quarantined) tests in personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js
             // pending a real fix (see jest.config.js).
-            if (requestInfo && addTopPersonAccessCheck) {
+            if (requestInfo) {
                 const { user, scope } = requestInfo;
-                const resourceType = 'Person';
-                const accessViaPatientScopes = this.scopesManager.isAccessAllowedByPatientScopes({ scope, resourceType });
 
                 /**
                  * @type {string[]}
@@ -295,7 +288,7 @@ class PersonToPatientIdsExpander {
                     accessRequested: 'read',
                     user,
                     scope,
-                    accessViaPatientScopes
+                    accessViaPatientScopes: hasPatientScope
                 });
 
                 query = this.securityTagManager.getQueryWithSecurityTags({
@@ -399,8 +392,7 @@ class PersonToPatientIdsExpander {
                     level: level + 1,
                     toMap,
                     returnOriginalPersonId: false, // always return _uuid map for it
-                    requestInfo,
-                    addTopPersonAccessCheck
+                    requestInfo
                 });
 
                 // add all patients to current person
@@ -421,8 +413,7 @@ class PersonToPatientIdsExpander {
                 databaseQueryManager,
                 level: level + 1,
                 toMap,
-                requestInfo,
-                addTopPersonAccessCheck
+                requestInfo
             });
             return patientIds.concat(patientIdsFromPersons);
         }

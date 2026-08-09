@@ -580,7 +580,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         });
 
         return await this.createOperation.createAsync(
@@ -613,7 +613,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         }
         );
         return await this.updateOperation.updateAsync(
@@ -859,7 +859,8 @@ class FhirOperationsManager {
             resourceType,
             headers: req.headers,
             operation: READ,
-            allowMultipleIds: false
+            allowMultipleIds: false,
+            requestInfo
         });
         /**
          * response streamer to use
@@ -910,7 +911,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         }
         );
         return await this.removeOperation.removeAsync(
@@ -942,7 +943,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         }
         );
         return await this.removeOperation.removeAsync(
@@ -975,7 +976,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.searchByVersionIdOperation.searchByVersionIdAsync(
@@ -1008,7 +1009,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
 
@@ -1042,7 +1043,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.historyByIdOperation.historyByIdAsync(
@@ -1074,7 +1075,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         }
         );
         return await this.patchOperation.patchAsync(
@@ -1106,7 +1107,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.validateOperation.validateAsync(
@@ -1142,7 +1143,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
 
