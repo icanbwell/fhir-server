@@ -1,0 +1,16 @@
+{
+    "resourceType": "Patient",
+    "id": "tenantAOwnPatient001",
+    "meta": {
+        "source": "tenantA",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "tenantA" },
+            { "system": "https://www.icanbwell.com/access", "code": "tenantA" }
+        ]
+    },
+    "birthDate": "1991-03-14",
+    "gender": "male",
+    "name": [
+        { "use": "official", "family": "Kent", "given": ["Bob"] }
+    ]
+}
