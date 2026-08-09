@@ -523,6 +523,152 @@ describe('/mcp endpoint', () => {
         }
     });
 
+    test('a patient-scoped caller whose client is NOT enrolled in data-connection-view-control still sees a Consent-hidden resource', async () => {
+        // The enrollment gate in PatientDataViewControlManager.getConsentAsync
+        // (src/utils/patientDataViewController.js) short-circuits -- returning an empty exclude map
+        // and skipping the Consent query entirely -- when the caller's person-owner is NOT in
+        // configManager.clientsWithDataConnectionViewControl. It reads that owner from
+        // httpContext('personOwnerFor-<personId>'), a key ONLY
+        // personToPatientIdsExpander.getPatientIdsAsync({addPersonOwnerToContext: true}) ever sets.
+        // McpToolHandler originally never primed it, so the key was always undefined on /mcp, the
+        // gate never fired, and the exclusion was applied to EVERY patient-scoped caller regardless
+        // of enrollment -- over-restrictive and a divergence from GraphQL v2 (which primes it in
+        // dataSource.js's getParsedArgsAsync). This is the inverse of the test above: identical
+        // setup, but with an enrolled-clients list that does NOT contain this person's owner
+        // ('client', from minimalSecurity()), so the Consent must NOT hide anything. Before the
+        // priming call was added this test failed -- hiddenObservationId was excluded anyway.
+        const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
+        process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'some-other-enrolled-client';
+        try {
+            const request = await createTestRequest(registerRealAuditLogger);
+            const personId = 'mcp-t11-person';
+            const patientId = 'mcp-t11-patient';
+            const visibleObservationId = 'mcp-t11-obs-visible';
+            const hiddenObservationId = 'mcp-t11-obs-hidden';
+
+            let resp = await request
+                .post(`/4_0_0/Person/${personId}/$merge?validate=true`)
+                .send(makePerson(personId, [patientId]))
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post(`/4_0_0/Patient/${patientId}/$merge?validate=true`)
+                .send(makePatient(patientId, { family: 'NotEnrolledFamily', given: 'Test', birthDate: '1985-01-01' }))
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post(`/4_0_0/Observation/${visibleObservationId}/$merge?validate=true`)
+                .send(makeObservation(visibleObservationId, { patientId, system: 'http://loinc.org', code: '1111-1' }))
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post(`/4_0_0/Observation/${hiddenObservationId}/$merge?validate=true`)
+                .send(makeObservation(hiddenObservationId, { patientId, system: 'http://loinc.org', code: '2222-2' }))
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const consentResource = {
+                resourceType: 'Consent',
+                id: 'mcp-t11-consent',
+                meta: { source: 'test', security: minimalSecurity() },
+                status: 'active',
+                scope: {
+                    coding: [{ system: 'http://terminology.hl7.org/CodeSystem/consentscope', code: 'patient-privacy' }]
+                },
+                category: [
+                    { coding: [{ system: 'http://www.icanbwell.com/consent-category', code: 'dataConnectionViewControl' }] }
+                ],
+                patient: { reference: `Patient/person.${personId}` },
+                provision: { data: [{ meaning: 'instance', reference: { reference: `Observation/${hiddenObservationId}` } }] }
+            };
+            resp = await request
+                .post('/4_0_0/Consent/mcp-t11-consent/$merge?validate=true')
+                .send(consentResource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const { rpc } = await callMcpTool(request, patientScopedToken(personId), 'search_observation', {
+                patient: `Patient/${patientId}`
+            });
+
+            expect(rpc.result.isError).toBeUndefined();
+            const ids = idsInBundle(bundleFromToolResult(rpc));
+            expect(ids).toContain(visibleObservationId);
+            expect(ids).toContain(hiddenObservationId);
+        } finally {
+            process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
+        }
+    });
+
+    test('query rewriters run for /mcp searches: proxy-patient and sourceAssigningAuthority reference forms both resolve', async () => {
+        // Regression test for McpToolHandler never calling queryRewriterManager.rewriteArgsAsync --
+        // the call both REST (src/operations/fhirOperationsManager.js's getParsedArgsAsync) and
+        // GraphQL v2 (src/graphqlv2/dataSource.js's getParsedArgsAsync) make between parsing and
+        // searching. Two rewriters are registered for READ (src/createContainer.js's
+        // 'queryRewriterManager'): PatientProxyQueryRewriter and ReferenceQueryRewriter.
+        //
+        // The `Patient/person.<personId>` proxy form is the load-bearing assertion here: it is
+        // meaningless to Mongo on its own (no stored reference ever literally equals
+        // 'Patient/person.<id>'), so it matches zero documents unless PatientProxyQueryRewriter
+        // expanded it to the Person's linked Patient ids. Mirrors the REST equivalent at
+        // src/tests/data_sharing/scenario_1/data_sharing_scenario_1.test.js's
+        // '/4_0_0/Observation?patient=Patient/person.<id>' searches.
+        const request = await createTestRequest(registerRealAuditLogger);
+        const personId = 'mcp-t12-person';
+        const patientId = 'mcp-t12-patient';
+        const observationId = 'mcp-t12-observation';
+        const unrelatedPatientId = 'mcp-t12-unrelated-patient';
+        const unrelatedObservationId = 'mcp-t12-unrelated-observation';
+
+        let resp = await request
+            .post(`/4_0_0/Person/${personId}/$merge?validate=true`)
+            .send(makePerson(personId, [patientId]))
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        for (const [pid, family] of [[patientId, 'RewriterFamily'], [unrelatedPatientId, 'RewriterUnrelatedFamily']]) {
+            resp = await request
+                .post(`/4_0_0/Patient/${pid}/$merge?validate=true`)
+                .send(makePatient(pid, { family, given: 'Test', birthDate: '1988-01-01' }))
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+        }
+
+        for (const [oid, pid] of [[observationId, patientId], [unrelatedObservationId, unrelatedPatientId]]) {
+            resp = await request
+                .post(`/4_0_0/Observation/${oid}/$merge?validate=true`)
+                .send(makeObservation(oid, { patientId: pid, system: 'http://loinc.org', code: '3333-3' }))
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+        }
+
+        // 1. Proxy-patient form -- only resolvable via PatientProxyQueryRewriter.
+        const { rpc: proxyRpc } = await callMcpTool(request, getFullAccessToken(), 'search_observation', {
+            patient: `Patient/person.${personId}`
+        });
+        expect(proxyRpc.result.isError).toBeUndefined();
+        const proxyIds = idsInBundle(bundleFromToolResult(proxyRpc));
+        expect(proxyIds).toContain(observationId);
+        // The unrelated Patient is not linked to this Person, so its Observation must not come back
+        // -- proves the expansion is scoped to the Person's links rather than matching everything.
+        expect(proxyIds).not.toContain(unrelatedObservationId);
+
+        // 2. `id|sourceAssigningAuthority` reference form -- the convention ReferenceQueryRewriter
+        // converts to its UUIDv5 form ('client' is the owner set by minimalSecurity()). Mirrors
+        // src/tests/group/group_reference_search.test.js's
+        // '?member=Patient/search-patient-1|test-owner'.
+        const { rpc: authorityRpc } = await callMcpTool(request, getFullAccessToken(), 'search_observation', {
+            patient: `Patient/${patientId}|client`
+        });
+        expect(authorityRpc.result.isError).toBeUndefined();
+        const authorityIds = idsInBundle(bundleFromToolResult(authorityRpc));
+        expect(authorityIds).toContain(observationId);
+        expect(authorityIds).not.toContain(unrelatedObservationId);
+    });
+
     test('a PHI read via /mcp is written to the audit log the same way REST/GraphQL reads are', async () => {
         const requestId = mockHttpContext();
         // This is the test registerRealAuditLogger exists for: proving a real audit entry actually

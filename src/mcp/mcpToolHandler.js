@@ -5,10 +5,12 @@ const { assertTypeEquals } = require('../utils/assertType');
 const { SearchBundleOperation } = require('../operations/search/searchBundle');
 const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
 const { PatientDataViewControlManager } = require('../utils/patientDataViewController');
+const { PatientScopeManager } = require('../operations/security/patientScopeManager');
+const { QueryRewriterManager } = require('../queryRewriters/queryRewriterManager');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { mcpToolsByResourceType } = require('./tools');
 const { genericFhirSearchTool, DEDICATED_RESOURCE_TYPES } = require('./genericFhirSearchTool');
-const { MCP_REQUEST_INFO_CONTEXT_KEY } = require('../constants');
+const { MCP_REQUEST_INFO_CONTEXT_KEY, OPERATIONS: { READ } } = require('../constants');
 const { ParsedArgsItem } = require('../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../operations/query/queryParameterValue');
 const { searchParameterQueries } = require('../searchParameters/searchParameters');
@@ -21,14 +23,26 @@ class McpToolHandler {
      * @param {SearchBundleOperation} params.searchBundleOperation
      * @param {R4ArgsParser} params.r4ArgsParser
      * @param {PatientDataViewControlManager} params.patientDataViewControlManager
+     * @param {PatientScopeManager} params.patientScopeManager
+     * @param {QueryRewriterManager} params.queryRewriterManager
      */
-    constructor ({ searchBundleOperation, r4ArgsParser, patientDataViewControlManager }) {
+    constructor ({
+        searchBundleOperation,
+        r4ArgsParser,
+        patientDataViewControlManager,
+        patientScopeManager,
+        queryRewriterManager
+    }) {
         this.searchBundleOperation = searchBundleOperation;
         assertTypeEquals(searchBundleOperation, SearchBundleOperation);
         this.r4ArgsParser = r4ArgsParser;
         assertTypeEquals(r4ArgsParser, R4ArgsParser);
         this.patientDataViewControlManager = patientDataViewControlManager;
         assertTypeEquals(patientDataViewControlManager, PatientDataViewControlManager);
+        this.patientScopeManager = patientScopeManager;
+        assertTypeEquals(patientScopeManager, PatientScopeManager);
+        this.queryRewriterManager = queryRewriterManager;
+        assertTypeEquals(queryRewriterManager, QueryRewriterManager);
     }
 
     /**
@@ -89,7 +103,7 @@ class McpToolHandler {
             // VERSIONS['4_0_0'] is the only base_version this server's /mcp route ever runs under
             // (mirrors the getConsentAsync call a few lines down, which already hardcodes the same
             // constant for the same reason).
-            const parsedArgs = this.r4ArgsParser.parseArgs({
+            let parsedArgs = this.r4ArgsParser.parseArgs({
                 resourceType,
                 args: { ...args, base_version: VERSIONS['4_0_0'] }
             });
@@ -100,6 +114,30 @@ class McpToolHandler {
             // request/tenant, unlike FhirDataSource which is constructed fresh per GraphQL request,
             // so caching this on instance state would leak one request's exclude-list into another.
             if (fhirRequestInfo.isUser) {
+                const { isUser, personIdFromJwtToken } = fhirRequestInfo;
+                // PatientDataViewControlManager.getConsentAsync reads the caller's person-owner out
+                // of httpContext (`personOwnerFor-<personId>`) to decide whether their client is
+                // enrolled in configManager.clientsWithDataConnectionViewControl. Nothing else on
+                // the /mcp path ever populates that key, so without this priming call the
+                // enrollment gate silently never fires and the Consent-exclusion query runs for
+                // every patient-scoped caller regardless of enrollment. Mirrors
+                // src/graphqlv2/dataSource.js's getParsedArgsAsync, which primes the same way right
+                // before its own getConsentAsync call. Unlike dataSource.js this is not guarded by
+                // a per-instance cache flag: McpToolHandler is a process-wide singleton, so any
+                // instance state would leak across requests/tenants (the underlying
+                // getLinkedPatientsAsync result is itself request-scoped-cached, so the repeat cost
+                // within a request is nil).
+                await this.patientScopeManager.getPatientIdsFromScopeAsync({
+                    base_version: VERSIONS['4_0_0'],
+                    isUser,
+                    personIdFromJwtToken,
+                    addPersonOwnerToContext: true,
+                    // Apply the caller's access-tag security filter while traversing Person.link so
+                    // a Person/Patient reachable only via a cross-tenant link on the caller's own
+                    // Person is not silently included.
+                    requestInfo: fhirRequestInfo
+                });
+
                 const { viewControlResourceToExcludeMap } = await this.patientDataViewControlManager.getConsentAsync({
                     requestInfo: fhirRequestInfo,
                     base_version: VERSIONS['4_0_0'],
@@ -126,13 +164,51 @@ class McpToolHandler {
                     parsedArgs.add(
                         new ParsedArgsItem({
                             queryParameter: '_id',
-                            queryParameterValue: new QueryParameterValue({ value: resourceExcludeIds, operator: '$and' }),
+                            queryParameterValue: new QueryParameterValue({
+                                value: resourceExcludeIds,
+                                // '$or', NOT '$and' (which src/graphqlv2/dataSource.js still uses --
+                                // the same bug, out of scope here). FilterById.filterByItems
+                                // (src/operations/query/filters/id.js) splits a mixed
+                                // uuid/source-id list into two sub-filters
+                                // ({_uuid: {$in: [...]}} and {id: {$in: [...]}}) and filter()
+                                // combines them with `{[operator]: [...]}`. With '$and' a single
+                                // document would have to match BOTH sub-filters at once --
+                                // impossible when the two lists name different resources -- and
+                                // since r4.js wraps this in $nor for the ':not' modifier,
+                                // $nor: [always-false] is always true, so NOTHING gets excluded.
+                                // A caller-supplied non-uuid '_id:not' value merged with uuid-form
+                                // consent excludes would therefore neutralize the whole exclusion.
+                                // '$or' gives the intended "exclude if the id matches in either
+                                // form" semantics.
+                                operator: '$or'
+                            }),
                             propertyObj: searchParameterQueries['Resource']['_id'],
                             modifiers: ['not']
                         })
                     );
                 }
             }
+
+            // See if any query rewriters want to rewrite the args -- the same call REST
+            // (src/operations/fhirOperationsManager.js's getParsedArgsAsync) and GraphQL v2
+            // (src/graphqlv2/dataSource.js's getParsedArgsAsync) both make after parsing and before
+            // searching. Two registered rewriters depend on it (src/createContainer.js's
+            // 'queryRewriterManager'): ReferenceQueryRewriter, which converts
+            // `id|sourceAssigningAuthority`-form reference/_id values to their UUIDv5 form, and
+            // PatientProxyQueryRewriter, which expands `Patient/person.<personId>` proxy-patient
+            // references. Without this, /mcp searches using either convention silently matched zero
+            // documents. Placed after the consent-exclusion block to match dataSource.js's ordering,
+            // so the '_id:not' item the exclusion adds is itself run through the rewriters (its
+            // '$or' operator is preserved by ReferenceQueryRewriter). Unlike dataSource.js, requestInfo
+            // is passed through (as REST does) so PatientProxyQueryRewriter applies the caller's
+            // access-tag filter when traversing Person.link.
+            parsedArgs = await this.queryRewriterManager.rewriteArgsAsync({
+                base_version: VERSIONS['4_0_0'],
+                parsedArgs,
+                resourceType,
+                operation: READ,
+                requestInfo: fhirRequestInfo
+            });
 
             const bundle = await this.searchBundleOperation.searchBundleAsync({
                 requestInfo: fhirRequestInfo,

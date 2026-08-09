@@ -1159,7 +1159,9 @@ const createContainer = function () {
     container.register('mcpToolHandler', (c) => new McpToolHandler({
         searchBundleOperation: c.searchBundleOperation,
         r4ArgsParser: c.r4ArgsParser,
-        patientDataViewControlManager: c.patientDataViewControlManager
+        patientDataViewControlManager: c.patientDataViewControlManager,
+        patientScopeManager: c.patientScopeManager,
+        queryRewriterManager: c.queryRewriterManager
     }));
 
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(

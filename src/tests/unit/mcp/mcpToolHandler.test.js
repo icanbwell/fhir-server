@@ -6,8 +6,16 @@ const { McpToolHandler } = require('../../../mcp/mcpToolHandler');
 const { SearchBundleOperation } = require('../../../operations/search/searchBundle');
 const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
 const { PatientDataViewControlManager } = require('../../../utils/patientDataViewController');
-const { MCP_REQUEST_INFO_CONTEXT_KEY } = require('../../../constants');
+const { PatientScopeManager } = require('../../../operations/security/patientScopeManager');
+const { QueryRewriterManager } = require('../../../queryRewriters/queryRewriterManager');
+const { MCP_REQUEST_INFO_CONTEXT_KEY, OPERATIONS: { READ } } = require('../../../constants');
 const { ParsedArgs } = require('../../../operations/query/parsedArgs');
+const { ParsedArgsItem } = require('../../../operations/query/parsedArgsItem');
+const { QueryParameterValue } = require('../../../operations/query/queryParameterValue');
+const { searchParameterQueries } = require('../../../searchParameters/searchParameters');
+const { FilterById } = require('../../../operations/query/filters/id');
+const { FilterParameters } = require('../../../operations/query/filters/filterParameters');
+const { FieldMapper } = require('../../../operations/query/filters/fieldMapper');
 
 function createPrototypedMock (RealClass) {
     return Object.create(RealClass.prototype);
@@ -22,8 +30,30 @@ function createHandler () {
     patientDataViewControlManager.getConsentAsync = jestGlobal.fn().mockResolvedValue({
         viewControlResourceToExcludeMap: {}
     });
-    const handler = new McpToolHandler({ searchBundleOperation, r4ArgsParser, patientDataViewControlManager });
-    return { handler, searchBundleOperation, r4ArgsParser, patientDataViewControlManager };
+    const patientScopeManager = createPrototypedMock(PatientScopeManager);
+    patientScopeManager.getPatientIdsFromScopeAsync = jestGlobal.fn().mockResolvedValue([]);
+    const queryRewriterManager = createPrototypedMock(QueryRewriterManager);
+    // Default pass-through: the real manager returns the (possibly rewritten) ParsedArgs, and
+    // handleSearchToolCall reassigns parsedArgs from the return value, so a mock that returned
+    // undefined would break every other assertion in this file.
+    queryRewriterManager.rewriteArgsAsync = jestGlobal.fn().mockImplementation(
+        async ({ parsedArgs }) => parsedArgs
+    );
+    const handler = new McpToolHandler({
+        searchBundleOperation,
+        r4ArgsParser,
+        patientDataViewControlManager,
+        patientScopeManager,
+        queryRewriterManager
+    });
+    return {
+        handler,
+        searchBundleOperation,
+        r4ArgsParser,
+        patientDataViewControlManager,
+        patientScopeManager,
+        queryRewriterManager
+    };
 }
 
 describe('McpToolHandler', () => {
@@ -43,7 +73,9 @@ describe('McpToolHandler', () => {
         });
 
         test('calls searchBundleAsync with parsed args and returns the bundle as JSON text', async () => {
-            const { handler, searchBundleOperation, r4ArgsParser, patientDataViewControlManager } = createHandler();
+            const {
+                handler, searchBundleOperation, r4ArgsParser, patientDataViewControlManager, queryRewriterManager
+            } = createHandler();
             const fhirRequestInfo = { user: 'test-user', isUser: false };
             jestGlobal.spyOn(httpContext, 'get').mockImplementation(
                 (key) => (key === MCP_REQUEST_INFO_CONTEXT_KEY ? fhirRequestInfo : undefined)
@@ -61,6 +93,17 @@ describe('McpToolHandler', () => {
                 args: { name: 'Smith', base_version: '4_0_0' }
             });
             expect(patientDataViewControlManager.getConsentAsync).not.toHaveBeenCalled();
+            // Both REST (fhirOperationsManager.getParsedArgsAsync) and GraphQL v2
+            // (dataSource.getParsedArgsAsync) run parsed args through the query rewriters before
+            // searching; /mcp must too or ReferenceQueryRewriter/PatientProxyQueryRewriter never fire.
+            expect(queryRewriterManager.rewriteArgsAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    base_version: '4_0_0',
+                    resourceType: 'Patient',
+                    operation: READ,
+                    requestInfo: fhirRequestInfo
+                })
+            );
             expect(searchBundleOperation.searchBundleAsync).toHaveBeenCalledWith(
                 expect.objectContaining({ requestInfo: fhirRequestInfo, resourceType: 'Patient', useAggregationPipeline: false })
             );
@@ -69,8 +112,12 @@ describe('McpToolHandler', () => {
         });
 
         test('excludes patient-data-connection-view-control-hidden ids for a patient-scoped caller', async () => {
-            const { handler, searchBundleOperation, r4ArgsParser, patientDataViewControlManager } = createHandler();
-            const fhirRequestInfo = { user: 'test-patient-user', isUser: true };
+            const {
+                handler, searchBundleOperation, r4ArgsParser, patientDataViewControlManager, patientScopeManager
+            } = createHandler();
+            const fhirRequestInfo = {
+                user: 'test-patient-user', isUser: true, personIdFromJwtToken: 'person-123'
+            };
             jestGlobal.spyOn(httpContext, 'get').mockImplementation(
                 (key) => (key === MCP_REQUEST_INFO_CONTEXT_KEY ? fhirRequestInfo : undefined)
             );
@@ -83,6 +130,21 @@ describe('McpToolHandler', () => {
 
             await handler.handleSearchToolCall({ resourceType: 'Observation', args: {} });
 
+            // getConsentAsync decides whether the caller's client is enrolled in
+            // configManager.clientsWithDataConnectionViewControl by reading
+            // httpContext('personOwnerFor-<personId>'), which ONLY
+            // personToPatientIdsExpander.getPatientIdsAsync({addPersonOwnerToContext: true}) ever
+            // populates. Without this priming call first, that key is always undefined on /mcp and
+            // the enrollment gate silently never fires (mirrors dataSource.js's own priming call).
+            expect(patientScopeManager.getPatientIdsFromScopeAsync).toHaveBeenCalledWith({
+                base_version: '4_0_0',
+                isUser: true,
+                personIdFromJwtToken: 'person-123',
+                addPersonOwnerToContext: true,
+                requestInfo: fhirRequestInfo
+            });
+            expect(patientScopeManager.getPatientIdsFromScopeAsync.mock.invocationCallOrder[0])
+                .toBeLessThan(patientDataViewControlManager.getConsentAsync.mock.invocationCallOrder[0]);
             expect(patientDataViewControlManager.getConsentAsync).toHaveBeenCalledWith(
                 expect.objectContaining({ requestInfo: fhirRequestInfo })
             );
@@ -122,6 +184,81 @@ describe('McpToolHandler', () => {
             // r4.js:81 requires propertyObj to be truthy for the item to be used when building the
             // Mongo query -- confirm it's actually set, not just the value.
             expect(idNotItem.propertyObj).toBeDefined();
+        });
+
+        test('regression: a mixed uuid/non-uuid _id:not list still actually excludes (operator is $or, not $and)', async () => {
+            // FilterById.filterByItems (src/operations/query/filters/id.js) splits a mixed list into
+            // TWO sub-filters -- {_uuid: {$in: [uuids]}} and {id: {$in: [sourceIds]}} -- and
+            // FilterById.filter() joins them with `{[queryParameterValue.operator]: [...]}`. With
+            // '$and' that means "a single document matches BOTH", which no real document can, and
+            // since r4.js wraps a ':not' item in $nor, `$nor: [always-false]` is always TRUE, so
+            // nothing would be excluded at all. A caller-supplied non-uuid '_id:not' value (allowed
+            // through by the tool schemas' .passthrough()) merged with uuid-form consent excludes is
+            // exactly that mix -- a real PHI-exposure path. Asserting on the built Mongo filter
+            // rather than just the operator string so the semantics, not the spelling, are pinned.
+            const { handler, searchBundleOperation, r4ArgsParser, patientDataViewControlManager } = createHandler();
+            const fhirRequestInfo = {
+                user: 'test-patient-user', isUser: true, personIdFromJwtToken: 'person-123'
+            };
+            jestGlobal.spyOn(httpContext, 'get').mockImplementation(
+                (key) => (key === MCP_REQUEST_INFO_CONTEXT_KEY ? fhirRequestInfo : undefined)
+            );
+            const consentHiddenUuid = '5f1e3b2a-1111-4c2b-9d3e-000000000001';
+            const parsedArgs = new ParsedArgs({ base_version: '4_0_0', parsedArgItems: [] });
+            // The caller's own '_id:not' filter, in NON-uuid (source-id) form.
+            parsedArgs.add(
+                new ParsedArgsItem({
+                    queryParameter: '_id',
+                    queryParameterValue: new QueryParameterValue({
+                        value: 'caller-excluded-source-id', operator: '$or'
+                    }),
+                    propertyObj: searchParameterQueries.Resource._id,
+                    modifiers: ['not']
+                })
+            );
+            parsedArgs['_id:not'] = ['caller-excluded-source-id'];
+            r4ArgsParser.parseArgs.mockReturnValue(parsedArgs);
+            // The consent-derived exclude, in uuid form.
+            patientDataViewControlManager.getConsentAsync.mockResolvedValue({
+                viewControlResourceToExcludeMap: { Observation: [consentHiddenUuid] }
+            });
+            searchBundleOperation.searchBundleAsync.mockResolvedValue({ resourceType: 'Bundle', entry: [] });
+
+            await handler.handleSearchToolCall({ resourceType: 'Observation', args: {} });
+
+            const idNotItems = parsedArgs.parsedArgItems.filter(
+                (item) => item.queryParameter === '_id' && item.modifiers.includes('not')
+            );
+            // .add() replaces the caller's item with the merged one rather than appending a second.
+            expect(idNotItems).toHaveLength(1);
+            const mergedItem = idNotItems[0];
+            expect(mergedItem.queryParameterValue.values).toEqual(
+                expect.arrayContaining([consentHiddenUuid, 'caller-excluded-source-id'])
+            );
+            expect(mergedItem.queryParameterValue.operator).toBe('$or');
+
+            // Build the real Mongo filter this item produces and confirm the two sub-filters are
+            // OR'd (satisfiable, so $nor actually excludes) rather than AND'd (unsatisfiable, so
+            // $nor would be vacuously true and exclude nothing).
+            const [builtFilter] = new FilterById(
+                new FilterParameters({
+                    propertyObj: searchParameterQueries.Resource._id,
+                    parsedArg: mergedItem,
+                    fieldMapper: new FieldMapper({ useHistoryTable: false }),
+                    fnUseAccessIndex: () => false,
+                    resourceType: 'Observation'
+                })
+            ).filter();
+            const subFilterGroups = builtFilter.$or;
+            expect(subFilterGroups).toHaveLength(1);
+            expect(subFilterGroups[0].$and).toBeUndefined();
+            expect(subFilterGroups[0].$or).toEqual(
+                expect.arrayContaining([
+                    { _uuid: { $in: [consentHiddenUuid] } },
+                    // FieldMapper maps the 'id' field to the stored '_sourceId' column.
+                    { _sourceId: { $in: ['caller-excluded-source-id'] } }
+                ])
+            );
         });
 
         test('returns an error result when searchBundleAsync throws, masking internal details', async () => {
