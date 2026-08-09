@@ -132,17 +132,21 @@ class PatientScopeManager {
                 level: 1,
                 addPersonOwnerToContext,
                 requestInfo,
-                // Only meaningful when requestInfo (user + scope) is actually available -- callers that
-                // can't supply it fall back to the pre-existing (unfiltered) behavior rather than
-                // throwing, since the expander asserts requestInfo is defined when this is true.
+                // Only meaningful for Person(s) reached via Person.link (level 2+) -- level 1 is
+                // always verified directly against personIdFromJwtToken below, regardless of
+                // requestInfo. Callers that can't supply requestInfo fall back to the pre-existing
+                // (unfiltered) behavior for level 2+ rather than throwing, since the expander
+                // asserts requestInfo is defined when this is true.
                 addTopPersonAccessCheck: Boolean(requestInfo),
-                // personIdFromJwtToken is a trusted claim established by authentication, not
-                // user-suppliable input -- there's nothing to re-check by gating it against the
-                // caller's own access/ scope tags (which may legitimately carry no relation to their
-                // own Person's access tag). Only Person(s) reached transitively via Person.link
-                // (level 2+) need the access-tag check; see personToPatientIdsExpander.js for the
-                // full reasoning.
-                skipAccessCheckAtTopLevel: true
+                // personIdFromJwtToken is a trusted claim established by authentication. Passing it
+                // through makes the expander verify level 1 by an exact match against the Person
+                // collection's _uuid field -- not the scope-derived access-tag check (frequently a
+                // no-op for patient-scoped callers, since they often carry no access/ codes) and not
+                // the generic id filter's _sourceId fallback (source ids aren't guaranteed unique
+                // across tenants). Only Person(s) reached transitively via Person.link (level 2+) go
+                // through the access-tag check; see personToPatientIdsExpander.js for the full
+                // reasoning.
+                personIdFromJwtToken
             });
         } catch (e) {
             throw new RethrownError({
