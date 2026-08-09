@@ -303,6 +303,7 @@ describe('/mcp endpoint', () => {
         const otherPatientId = 'mcp-t4-other-patient';
         const observationId = 'mcp-t4-observation';
         const otherObservationId = 'mcp-t4-other-observation';
+        const sameSubjectDifferentCodeObservationId = 'mcp-t4-same-subject-different-code';
         const loincSystem = 'http://loinc.org';
         const loincCode = '55284-4';
 
@@ -337,6 +338,18 @@ describe('/mcp endpoint', () => {
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
 
+        // A second distractor Observation with the SAME subject as the target but a DIFFERENT
+        // code, so the 'code' token filter is *also* load-bearing (not just 'patient'): an
+        // implementation that silently ignored 'code' and matched on 'patient' alone would
+        // incorrectly include this Observation, and this assertion would catch that. Together
+        // with otherObservationId above, dropping either filter independently now breaks a
+        // distinct assertion.
+        resp = await request
+            .post(`/4_0_0/Observation/${sameSubjectDifferentCodeObservationId}/$merge?validate=true`)
+            .send(makeObservation(sameSubjectDifferentCodeObservationId, { patientId, system: loincSystem, code: '1234-9' }))
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
         const { rpc } = await callMcpTool(request, getFullAccessToken(), 'search_observation', {
             code: `${loincSystem}|${loincCode}`,
             patient: `Patient/${patientId}`
@@ -346,6 +359,7 @@ describe('/mcp endpoint', () => {
         const ids = idsInBundle(bundleFromToolResult(rpc));
         expect(ids).toContain(observationId);
         expect(ids).not.toContain(otherObservationId);
+        expect(ids).not.toContain(sameSubjectDifferentCodeObservationId);
     });
 
     test('fhir_search rejects a resourceType that has a dedicated tool', async () => {
