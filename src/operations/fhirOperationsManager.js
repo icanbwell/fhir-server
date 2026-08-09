@@ -544,7 +544,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.searchByIdOperation.searchByIdAsync(
