@@ -16,6 +16,7 @@ const { searchParameterQueries } = require('../../../searchParameters/searchPara
 const { FilterById } = require('../../../operations/query/filters/id');
 const { FilterParameters } = require('../../../operations/query/filters/filterParameters');
 const { FieldMapper } = require('../../../operations/query/filters/fieldMapper');
+const { fhirBundleOutputSchema } = require('../../../mcp/fhirBundleOutputSchema');
 
 function createPrototypedMock (RealClass) {
     return Object.create(RealClass.prototype);
@@ -108,6 +109,9 @@ describe('McpToolHandler', () => {
                 expect.objectContaining({ requestInfo: fhirRequestInfo, resourceType: 'Patient', useAggregationPipeline: false })
             );
             expect(result.content[0].text).toBe(JSON.stringify(bundle));
+            // The tool declares outputSchema (fhirBundleOutputSchema), so the SDK requires
+            // structuredContent on every non-error result or tools/call throws a ProtocolError.
+            expect(result.structuredContent).toBe(bundle);
             expect(result.isError).toBeUndefined();
         });
 
@@ -318,6 +322,22 @@ describe('McpToolHandler', () => {
             const registeredNames = registerTool.mock.calls.map((call) => call[0]);
             expect(registeredNames).toContain('search_patient');
             expect(registeredNames).toContain('fhir_search');
+        });
+
+        test('declares the shared FHIR Bundle outputSchema on every registered tool', () => {
+            // Every tool returns a search-set Bundle (structuredContent, wired in
+            // handleSearchToolCall), so every registerTool call must declare the same outputSchema
+            // -- a tool that omits it would make the SDK drop any structuredContent it's given.
+            const { handler } = createHandler();
+            const registerTool = jestGlobal.fn();
+            const fakeServer = { registerTool };
+
+            handler.registerTools(fakeServer);
+
+            for (const call of registerTool.mock.calls) {
+                const [, config] = call;
+                expect(config.outputSchema).toBe(fhirBundleOutputSchema);
+            }
         });
     });
 });

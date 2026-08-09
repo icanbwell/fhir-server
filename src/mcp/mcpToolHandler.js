@@ -10,6 +10,7 @@ const { QueryRewriterManager } = require('../queryRewriters/queryRewriterManager
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { mcpToolsByResourceType } = require('./tools');
 const { genericFhirSearchTool, DEDICATED_RESOURCE_TYPES } = require('./genericFhirSearchTool');
+const { fhirBundleOutputSchema } = require('./fhirBundleOutputSchema');
 const { MCP_REQUEST_INFO_CONTEXT_KEY, OPERATIONS: { READ } } = require('../constants');
 const { ParsedArgsItem } = require('../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../operations/query/queryParameterValue');
@@ -53,13 +54,17 @@ class McpToolHandler {
         for (const toolDef of Object.values(mcpToolsByResourceType)) {
             server.registerTool(
                 toolDef.name,
-                { description: toolDef.description, inputSchema: toolDef.inputSchema },
+                { description: toolDef.description, inputSchema: toolDef.inputSchema, outputSchema: fhirBundleOutputSchema },
                 (args) => this.handleSearchToolCall({ resourceType: toolDef.resourceType, args })
             );
         }
         server.registerTool(
             genericFhirSearchTool.name,
-            { description: genericFhirSearchTool.description, inputSchema: genericFhirSearchTool.inputSchema },
+            {
+                description: genericFhirSearchTool.description,
+                inputSchema: genericFhirSearchTool.inputSchema,
+                outputSchema: fhirBundleOutputSchema
+            },
             ({ resourceType, filters }) => this.handleGenericSearchToolCall({ resourceType, filters: filters || {} })
         );
     }
@@ -216,7 +221,11 @@ class McpToolHandler {
                 resourceType,
                 useAggregationPipeline: false
             });
-            return { content: [{ type: 'text', text: JSON.stringify(bundle) }] };
+            // structuredContent is required whenever a tool declares outputSchema (see
+            // registerTools/fhirBundleOutputSchema) -- the SDK's tools/call handler throws a
+            // ProtocolError if it's absent on a non-error result. content is kept alongside it for
+            // MCP clients that only read unstructured text content.
+            return { content: [{ type: 'text', text: JSON.stringify(bundle) }], structuredContent: bundle };
         } catch (err) {
             logError(
                 `McpToolHandler.handleSearchToolCall: error searching resourceType=${resourceType}: ${err.message}`,
