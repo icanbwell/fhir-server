@@ -53,12 +53,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/middleware/fhir/router.test.js',
         '<rootDir>/src/tests/unit/operations/common/patientQueryCreator.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everything.bugs.test.js',
-        // SEC-1580 fail-by-design security test: asserts the SECURE behavior for IDG-5 and
-        // stays RED until naming a foreign person on a plain search stops confirming
-        // link-graph membership. Excluded from the default run so a known, documented gap
-        // doesn't break CI. Run directly:
-        // npx jest src/tests/everything/idg5_foreign_person_traversal.bugs
-        '<rootDir>/src/tests/everything/idg5_foreign_person_traversal.bugs/idg5_foreign_person_traversal.bugs.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everythingRelatedResourcesMapper.test.js',
         '<rootDir>/src/tests/unit/operations/graph/graph.test.js',
         '<rootDir>/src/tests/unit/operations/history/history.test.js',
