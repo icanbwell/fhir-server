@@ -264,28 +264,6 @@ class AuthService {
      * @return {void}
      */
     processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope}) {
-        // A token carrying none of the patient/person id claims is not anchored to a patient/person
-        // at all -- from any issuer not explicitly allowlisted for this, reject it outright rather
-        // than letting it through as an ordinary service/tenant-scoped token. Guards against an
-        // identity provider accidentally issuing an unanchored token to a party that isn't meant to
-        // hold one. Config-gated (empty allowlist -- unconfigured -- means no restriction). See
-        // DCON-4882.
-        const allowedNonPatientTokenIssuers = this.configManager.allowedNonPatientTokenIssuers;
-        if (
-            allowedNonPatientTokenIssuers.length > 0 &&
-            !this.hasPatientOrPersonIdClaim(jwt_payload) &&
-            !allowedNonPatientTokenIssuers.includes(jwt_payload.iss)
-        ) {
-            logWarn('Auth rejected', {
-                reason: 'non_patient_token_from_untrusted_issuer',
-                iss: jwt_payload.iss,
-                username,
-                subject
-            });
-            done(null, false, {reason: 'non_patient_token_from_untrusted_issuer'});
-            return;
-        }
-
         // A token that resolves to a completely empty scope (nothing on the JWT itself,
         // no groups, and userinfo enrichment -- if attempted -- found nothing either) is
         // authenticated but carries zero permissions; treat it as an auth failure (401),
@@ -413,18 +391,6 @@ class AuthService {
             }
         }
         return null;
-    }
-
-    /**
-     * Returns true if the raw JWT payload carries any patient/person id claim
-     * (this.requiredJWTFields). A real client-credentials grant has no authenticated end user
-     * behind it, so it structurally cannot carry these claims -- their presence means the token
-     * belongs to a real person. See DCON-4882.
-     * @param {Object} jwt_payload
-     * @returns {boolean}
-     */
-    hasPatientOrPersonIdClaim(jwt_payload) {
-        return Object.values(this.requiredJWTFields).some((field) => Boolean(jwt_payload[field]));
     }
 
     /**

@@ -1004,19 +1004,6 @@ class ConfigManager {
     }
 
     /**
-     * Issuers (JWT `iss`) allowed to present a token that carries no patient/person id claim
-     * (clientFhirPersonId, clientFhirPatientId, bwellFhirPersonId, bwellFhirPatientId). A token
-     * missing all four of these claims, from any issuer NOT in this list, is rejected outright --
-     * this guards against an identity provider accidentally issuing a token that isn't anchored to
-     * a patient/person at all. Empty (the default) means no restriction, so environments that do
-     * not set it are unchanged. See DCON-4882.
-     * @returns {string[]}
-     */
-    get allowedNonPatientTokenIssuers() {
-        return this._parseCommaSeparatedList(env.AUTH_ALLOWED_NON_PATIENT_TOKEN_ISSUERS, []);
-    }
-
-    /**
      * Allowlisted purposeOfUse codes parsed from CMS_ALLOWED_PURPOSE_OF_USE env var.
      * @returns {Set<string>}
      */

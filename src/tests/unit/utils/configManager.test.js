@@ -207,19 +207,6 @@ describe('ConfigManager', () => {
             process.env.AUTH_CID_CHECK_CLIENT_IDS = 'cid1,cid2';
             expect(new ConfigManager().authCidCheckClientIds).toEqual(['cid1', 'cid2']);
         });
-
-        // DCON-4882
-        test('allowedNonPatientTokenIssuers returns empty array when not set', () => {
-            delete process.env.AUTH_ALLOWED_NON_PATIENT_TOKEN_ISSUERS;
-            expect(new ConfigManager().allowedNonPatientTokenIssuers).toEqual([]);
-        });
-
-        test('allowedNonPatientTokenIssuers splits comma-separated issuers', () => {
-            process.env.AUTH_ALLOWED_NON_PATIENT_TOKEN_ISSUERS = 'https://a.example.com, https://b.example.com';
-            expect(new ConfigManager().allowedNonPatientTokenIssuers).toEqual([
-                'https://a.example.com', 'https://b.example.com'
-            ]);
-        });
     });
 
     // ========== supportLegacyIds ==========
