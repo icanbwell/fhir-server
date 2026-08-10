@@ -300,6 +300,17 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         const errorOutput = taskResp.body.output.find((o) => o.type.text === 'error');
         expect(errorOutput).toBeDefined();
         expect(errorOutput.valueUri).toBe(errorWrite.filepath);
+
+        // The failing line's OperationOutcome must carry a source-byte-offset extension so a
+        // caller can map the error back to the exact position in the original NDJSON input —
+        // a byte offset rather than a line number, since large files are split into
+        // independently-processed byte ranges and a per-range line counter can't identify a
+        // line's true position in the original file once a file has more than one range.
+        const errorEntry = JSON.parse(errorWrite.data.trim().split('\n')[0]);
+        const extension = errorEntry.operationOutcome.issue[0].extension;
+        expect(extension).toEqual([
+            { url: 'https://www.icanbwell.com/source-byte-offset', valueInteger: 0 }
+        ]);
     });
 
     test('handleMessageAsync flushes postRequestProcessor and clears requestSpecificCache per range', async () => {
