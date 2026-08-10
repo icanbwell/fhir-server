@@ -9,13 +9,22 @@
 // both owned by tenant A. Querying from masterA must return masterA's own patient's data,
 // NOT masterB's (that hop is same-owner and should be a dead end).
 //
+// masterA/masterB also carry an access=tenanta tag (in addition to owner=bwell): IDG-5
+// (#2481) added a top-Person access-tag check to the proxy-patient expansion, so a Person
+// with no access tag at all now fails that check and the whole traversal returns empty --
+// masking this test's own assertions rather than exercising the same-owner-hop logic they're
+// meant to cover.
+//
 // Asserts the SECURE outcome; if the same-owner hop is followed, masterB's Observation
 // is returned and this FAILS. *.bugs, excluded from default CI.
 // ============================================================================
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-const bwell = c => [{system:'https://www.icanbwell.com/owner',code:'bwell'}];
+const bwell = () => [
+  {system:'https://www.icanbwell.com/owner',code:'bwell'},
+  {system:'https://www.icanbwell.com/access',code:'tenanta'}
+];
 const ta = () => [
   {system:'https://www.icanbwell.com/owner',code:'tenanta'},
   {system:'https://www.icanbwell.com/access',code:'tenanta'}
