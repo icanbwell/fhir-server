@@ -14,7 +14,7 @@ const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
 const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
 const { generateUUID } = require('../../../utils/uid.util');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
-const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../../constants');
+const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING } = require('../../../constants');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
@@ -166,9 +166,12 @@ class BulkImportHandler {
      * not a scoped user search) but still restricts the match to the importing resource's own
      * owner tenant -- otherwise this existence check would be a cross-tenant oracle: a match
      * belonging to a different tenant would silently suppress this tenant's create and leak
-     * that a same-identifier resource exists elsewhere. Every resource has exactly one owner
-     * tag by the time this runs (applyDefaultSecurityTagsIfMissing guarantees it), so this is
-     * never an unscoped/empty filter.
+     * that a same-identifier resource exists elsewhere.
+     *
+     * Requires a resolved ownerCode and parses with strict search-parameter handling: an
+     * unrecognized/mistyped query parameter (e.g. "identifer=...") would otherwise silently
+     * drop out of the filter entirely, collapsing the query to "any resource of this type
+     * owned by this tenant" -- a fail-open match that would wrongly skip the create.
      * @param {Object} params
      * @param {string} params.resourceType
      * @param {string} params.ifNoneExist - a FHIR search-query string, e.g.
@@ -178,9 +181,19 @@ class BulkImportHandler {
      * @returns {Promise<Object|null>}
      */
     async findExistingResourceForIfNoneExistAsync({ resourceType, ifNoneExist, ownerCode }) {
+        if (!ifNoneExist || !ifNoneExist.trim()) {
+            throw new Error('ifNoneExist is empty');
+        }
+        if (!ownerCode) {
+            throw new Error('Cannot resolve an owner tag to scope the ifNoneExist existence check');
+        }
+
         const base_version = '4_0_0';
         const args = querystring.parse(ifNoneExist);
         args.base_version = base_version;
+        // Strict handling: an unrecognized search parameter must throw rather than silently
+        // no-op out of the query (see class docstring above).
+        args.handling = STRICT_SEARCH_HANDLING;
         const parsedArgs = this.r4ArgsParser.parseArgs({ resourceType, args });
         const { query } = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
             base_version,
@@ -200,7 +213,10 @@ class BulkImportHandler {
             ]
         };
 
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType,
+            base_version
+        });
         return databaseQueryManager.findOneAsync({ query: scopedQuery });
     }
 
@@ -785,6 +801,13 @@ class BulkImportHandler {
             mergeResultEntries.length = 0;
             hasFlushedThisAttempt = false;
 
+            // ifNoneExist criteria "claimed" by a resource already queued for insert in this
+            // attempt but not yet flushed to Mongo. findExistingResourceForIfNoneExistAsync
+            // only sees committed state, so two wrapped lines with the same match criteria
+            // landing in the same unflushed batch would otherwise both pass the existence
+            // check and both get created.
+            const claimedIfNoneExistKeys = new Set();
+
             try {
                 for await (const { lineNumber, byteOffset, resource, parseError } of this.s3NdjsonReader.readNdjsonAsync({
                     filepath,
@@ -825,14 +848,29 @@ class BulkImportHandler {
                             });
 
                             let existingResource = null;
+                            let ifNoneExistKey = null;
                             if (isIfNoneExistWrapper) {
-                                const ownerTag = (fhirResource.meta?.security || [])
-                                    .find((tag) => tag.system === SecurityTagSystem.owner);
-                                existingResource = await this.findExistingResourceForIfNoneExistAsync({
-                                    resourceType: fhirResource.resourceType,
-                                    ifNoneExist: resource.ifNoneExist,
-                                    ownerCode: ownerTag?.code
-                                });
+                                const securityTags = fhirResource.meta?.security || [];
+                                // Mirrors OwnerColumnHandler's own fallback rule -- a resource
+                                // may arrive with only an access tag and no owner tag yet
+                                // (OwnerColumnHandler backfills the owner from the first access
+                                // tag, but only later during preSave, after this check runs).
+                                const ownerCode = securityTags.find((tag) => tag.system === SecurityTagSystem.owner)?.code ||
+                                    securityTags.find((tag) => tag.system === SecurityTagSystem.access)?.code;
+
+                                ifNoneExistKey = `${fhirResource.resourceType}|${ownerCode}|${resource.ifNoneExist}`;
+                                if (claimedIfNoneExistKeys.has(ifNoneExistKey)) {
+                                    // Another line earlier in this same unflushed batch already
+                                    // claimed this criteria -- treat as a match without a redundant
+                                    // (and stale, since the earlier insert isn't committed yet) query.
+                                    existingResource = true;
+                                } else {
+                                    existingResource = await this.findExistingResourceForIfNoneExistAsync({
+                                        resourceType: fhirResource.resourceType,
+                                        ifNoneExist: resource.ifNoneExist,
+                                        ownerCode
+                                    });
+                                }
                             }
 
                             if (existingResource) {
@@ -866,6 +904,12 @@ class BulkImportHandler {
                                     doc: fhirResource,
                                     contextData
                                 });
+                                // Only claim the criteria once the insert is actually queued --
+                                // if insertOneAsync had thrown instead, nothing was created, so a
+                                // later duplicate line in this batch must still be free to try.
+                                if (ifNoneExistKey) {
+                                    claimedIfNoneExistKeys.add(ifNoneExistKey);
+                                }
                             }
                         } catch (resourceError) {
                             failed++;
