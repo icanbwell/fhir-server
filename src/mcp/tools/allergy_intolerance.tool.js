@@ -8,8 +8,8 @@ const tool = {
     inputSchema: z.object({
         _id: z.string().optional().describe('The logical resource id. (token) Format: \'system|code\', or bare \'code\' to match any system.'),
         _lastUpdated: z.string().optional().describe('When the resource was last updated. (date) Prefix the value with a comparator for a range match: eq, ne, gt, lt, ge, le, sa, eb, ap (e.g. \'ge2020-01-01\'). Omit the prefix for an exact match.'),
-        _count: z.string().optional().describe('Number of results to return per page. (number) Prefix the value with a comparator for a range match: eq, ne, gt, lt, ge, le, sa, eb, ap (e.g. \'ge5\'). Omit the prefix for an exact match.'),
-        _sort: z.string().optional().describe('Comma-separated fields to sort by; prefix a field with \'-\' for descending. (string) Case-insensitive; matches values starting with the given text by default. Append \':exact\' to the parameter name for an exact match, or \':contains\' for a substring match anywhere in the value.'),
+        _count: z.string().optional().describe('Number of results to return per page. A plain positive integer -- comparator prefixes are not supported. (number)'),
+        _sort: z.string().optional().describe('Comma-separated fields to sort by; prefix a field with \'-\' for descending. Literal field names only -- \':exact\'/\':contains\' modifiers are not supported. (string)'),
         asserter: z.string().optional().describe('Source of the information about the allergy (reference: Practitioner | Patient | PractitionerRole | RelatedPerson) Format: \'ResourceType/id\', or bare \'id\' to match against any of this parameter\'s allowed target types.'),
         category: z.string().optional().describe('food | medication | environment | biologic (token) Format: \'system|code\', or bare \'code\' to match any system.'),
         'clinical-status': z.string().optional().describe('active | inactive | resolved (token) Format: \'system|code\', or bare \'code\' to match any system.'),

@@ -20,11 +20,21 @@ OUTPUT_DIR = SCRIPT_DIR.parent.parent.joinpath("src", "mcp", "tools")
 
 # Every resource supports these generically via R4ArgsParser/SearchManager, regardless of whether
 # search-parameters.json lists them per-resource.
+#
+# _count/_sort are marked no_syntax_hint: unlike ordinary search filters, they're control
+# parameters SearchManager.handleCountOption/handleSortQuery consume directly rather than routing
+# through the generic type-based query builders -- so the comparator-prefix ('ge5') and
+# ':exact'/':contains' modifier syntax that TYPE_VALUE_SYNTAX_HINTS's 'number'/'string' entries
+# describe for ordinary parameters does not apply to them (handleCountOption does a plain
+# Number(parsedArgs._count), so 'ge5' silently becomes NaN; handleSortQuery reads '_sort' as a
+# literal field-name list, so a ':exact'-modified key is never recognized). Their own description
+# text below is already accurate on its own -- the bug this avoids is format_mcp_description()
+# appending a *wrong* hint on top of an already-correct description.
 COMMON_PARAMS: List[Dict[str, Any]] = [
     {"code": "_id", "type": "token", "description": "The logical resource id.", "target": []},
     {"code": "_lastUpdated", "type": "date", "description": "When the resource was last updated.", "target": []},
-    {"code": "_count", "type": "number", "description": "Number of results to return per page.", "target": []},
-    {"code": "_sort", "type": "string", "description": "Comma-separated fields to sort by; prefix a field with '-' for descending.", "target": []},
+    {"code": "_count", "type": "number", "description": "Number of results to return per page. A plain positive integer -- comparator prefixes are not supported.", "target": [], "no_syntax_hint": True},
+    {"code": "_sort", "type": "string", "description": "Comma-separated fields to sort by; prefix a field with '-' for descending. Literal field names only -- ':exact'/':contains' modifiers are not supported.", "target": [], "no_syntax_hint": True},
 ]
 
 # How to actually *write* a filter value for each FHIR SearchParameter.type, verified against this
@@ -98,7 +108,7 @@ def format_mcp_description(param: Dict[str, Any]) -> str:
     if param.get("target"):
         suffix += f": {' | '.join(param['target'])}"
     suffix += ")"
-    syntax_hint = TYPE_VALUE_SYNTAX_HINTS.get(param["type"])
+    syntax_hint = None if param.get("no_syntax_hint") else TYPE_VALUE_SYNTAX_HINTS.get(param["type"])
     if syntax_hint:
         suffix += f" {syntax_hint}"
     # Escape the entire assembled description (both text and suffix) for use in a single-quoted JS string

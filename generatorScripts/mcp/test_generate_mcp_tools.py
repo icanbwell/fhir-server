@@ -49,6 +49,26 @@ def test_format_mcp_description_falls_back_gracefully_for_unmapped_type():
     assert result == "Something unusual (special)"
 
 
+def test_format_mcp_description_respects_no_syntax_hint_opt_out():
+    # _count/_sort are control parameters SearchManager consumes directly, not ordinary filters --
+    # the generic 'number'/'string' TYPE_VALUE_SYNTAX_HINTS entries describe syntax (comparator
+    # prefixes, ':exact'/':contains' modifiers) that doesn't apply to them and would silently
+    # mislead a caller (see COMMON_PARAMS' comment). no_syntax_hint must suppress that lookup.
+    param = {
+        "code": "_count", "type": "number", "description": "A plain positive integer.",
+        "target": [], "no_syntax_hint": True
+    }
+    result = generate_mcp_tools.format_mcp_description(param)
+    assert result == "A plain positive integer. (number)"
+    assert "comparator" not in result
+
+
+def test_common_params_count_and_sort_opt_out_of_syntax_hints():
+    common_by_code = {p["code"]: p for p in generate_mcp_tools.COMMON_PARAMS}
+    assert common_by_code["_count"]["no_syntax_hint"] is True
+    assert common_by_code["_sort"]["no_syntax_hint"] is True
+
+
 def test_build_tool_description_mentions_modifiers_and_comma_or():
     result = generate_mcp_tools.build_tool_description("Patient")
     assert "Patient" in result
