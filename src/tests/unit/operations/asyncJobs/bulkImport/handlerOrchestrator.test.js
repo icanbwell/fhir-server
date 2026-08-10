@@ -57,21 +57,52 @@ function createMockConfigManager(overrides = {}) {
 }
 
 /**
- * Creates a BulkImportHandler with mock dependencies.
+ * Creates a mock Task resource with a working clone() (needed by
+ * updateOrchestratorTaskStatusAsync).
+ * @param {Object} [overrides]
+ */
+function createMockTask(overrides = {}) {
+    const task = {
+        resourceType: 'Task',
+        id: 'task-abc-123',
+        status: 'requested',
+        meta: { lastUpdated: '2026-01-01T00:00:00.000Z' },
+        ...overrides
+    };
+    task.clone = jestGlobal.fn(() => ({ ...task }));
+    return task;
+}
+
+/**
+ * Creates a BulkImportHandler with mock dependencies. Defaults simulate the happy path
+ * (Task found, S3 HEAD succeeds via the outer beforeEach's mockSend, events published) so
+ * individual tests only need to override what's actually relevant to them.
  * @param {Object} [configOverrides] - ConfigManager overrides
+ * @param {Object} [depsOverrides] - Constructor dependency overrides (e.g. databaseQueryFactory)
  * @returns {BulkImportHandler}
  */
-function createHandler(configOverrides = {}) {
+function createHandler(configOverrides = {}, depsOverrides = {}) {
     return new BulkImportHandler({
         configManager: createMockConfigManager(configOverrides),
         kafkaClientV2: {},
-        bulkImportEventProducer: {},
-        databaseQueryFactory: { createQuery: jestGlobal.fn() },
-        databaseUpdateFactory: { createDatabaseUpdateManager: jestGlobal.fn() },
+        bulkImportEventProducer: {
+            publishImportEventsAsync: jestGlobal.fn().mockResolvedValue(1)
+        },
+        databaseQueryFactory: {
+            createQuery: jestGlobal.fn(() => ({
+                findOneAsync: jestGlobal.fn().mockResolvedValue(createMockTask())
+            }))
+        },
+        databaseUpdateFactory: {
+            createDatabaseUpdateManager: jestGlobal.fn(() => ({
+                updateOneAsync: jestGlobal.fn().mockResolvedValue(undefined)
+            }))
+        },
         fastDatabaseBulkInserter: {},
         s3NdjsonReader: {},
         postRequestProcessor: {},
-        requestSpecificCache: {}
+        requestSpecificCache: {},
+        ...depsOverrides
     });
 }
 
@@ -101,6 +132,9 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
     beforeEach(() => {
         jestGlobal.clearAllMocks();
         mockSend.mockReset();
+        // Default happy-path S3 HEAD response (10 MB) -- the headS3FilesAsync describe
+        // block below overrides this per-test via its own nested beforeEach/tests.
+        mockSend.mockResolvedValue({ ContentLength: 10 * 1024 * 1024 });
         handler = createHandler();
     });
 
@@ -486,6 +520,101 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
                 expect.objectContaining({
                     scope: 'system/*.*',
                     user: 'admin/superuser'
+                })
+            );
+        });
+    });
+
+    // =========================================================================
+    // handleTaskCreatedAsync: byte-range splitting and publishing
+    // =========================================================================
+    describe('handleTaskCreatedAsync range publishing', () => {
+        test('HEADs S3 inputs, publishes range messages, and logs the count', async () => {
+            const publishImportEventsAsync = jestGlobal.fn().mockResolvedValue(3);
+            handler = createHandler({}, {
+                bulkImportEventProducer: { publishImportEventsAsync }
+            });
+
+            const message = {
+                key: 'task-abc-123',
+                value: createTaskCreatedMessage({
+                    taskId: 'task-abc-123',
+                    inputs: [{ url: 's3://allowed-bucket/data/patients.ndjson' }],
+                    requestId: 'req-001',
+                    scope: 'system/*.read',
+                    user: 'practitioner/dr-smith'
+                }),
+                headers: []
+            };
+
+            await handler.handleMessageAsync(message);
+
+            expect(publishImportEventsAsync).toHaveBeenCalledWith({
+                taskId: 'task-abc-123',
+                inputs: [{ url: 's3://allowed-bucket/data/patients.ndjson', fileSize: 10 * 1024 * 1024 }],
+                requestId: 'req-001',
+                scope: 'system/*.read',
+                user: 'practitioner/dr-smith'
+            });
+            expect(logInfo).toHaveBeenCalledWith(
+                'Orchestrator published byte-range messages',
+                expect.objectContaining({ taskId: 'task-abc-123', messageCount: 3 })
+            );
+        });
+
+        test('logs and returns without publishing when the Task cannot be found', async () => {
+            const publishImportEventsAsync = jestGlobal.fn().mockResolvedValue(1);
+            handler = createHandler({}, {
+                bulkImportEventProducer: { publishImportEventsAsync },
+                databaseQueryFactory: {
+                    createQuery: jestGlobal.fn(() => ({
+                        findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                    }))
+                }
+            });
+
+            const message = {
+                key: 'task-missing',
+                value: createTaskCreatedMessage({ taskId: 'task-missing' }),
+                headers: []
+            };
+
+            await handler.handleMessageAsync(message);
+
+            expect(logError).toHaveBeenCalledWith(
+                'Task not found for orchestrator message',
+                { taskId: 'task-missing' }
+            );
+            expect(publishImportEventsAsync).not.toHaveBeenCalled();
+        });
+
+        test('marks the Task failed and does not publish when S3 validation fails', async () => {
+            mockSend.mockRejectedValue(Object.assign(new Error('NotFound'), { name: 'NotFound' }));
+            const publishImportEventsAsync = jestGlobal.fn().mockResolvedValue(1);
+            const updateOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
+            handler = createHandler({}, {
+                bulkImportEventProducer: { publishImportEventsAsync },
+                databaseUpdateFactory: {
+                    createDatabaseUpdateManager: jestGlobal.fn(() => ({ updateOneAsync }))
+                }
+            });
+
+            const message = {
+                key: 'task-bad-s3',
+                value: createTaskCreatedMessage({ taskId: 'task-bad-s3' }),
+                headers: []
+            };
+
+            await handler.handleMessageAsync(message);
+
+            expect(logError).toHaveBeenCalledWith(
+                'S3 validation failed for import task',
+                expect.objectContaining({ taskId: 'task-bad-s3' })
+            );
+            expect(publishImportEventsAsync).not.toHaveBeenCalled();
+            expect(updateOneAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    doc: expect.objectContaining({ status: 'failed' })
                 })
             );
         });
