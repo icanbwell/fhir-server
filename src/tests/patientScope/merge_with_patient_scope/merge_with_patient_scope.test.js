@@ -30,6 +30,18 @@ const person_payload = {
 };
 const headers = getHeadersWithCustomPayload(person_payload);
 
+// Patient-scoped self-lookup (personToPatientIdsExpander.js) now resolves a caller's own Person
+// strictly by _uuid, not by the plain source id the JWT's clientFhirPersonId/bwellFhirPersonId
+// claims would carry here otherwise. Build headers whose claims carry the real _uuid Mongo
+// assigned to the merged person1 fixture, mirroring a real client-issued identity token.
+function personScopedHeaders (personUuid) {
+    return getHeadersWithCustomPayload({
+        ...person_payload,
+        clientFhirPersonId: personUuid,
+        bwellFhirPersonId: personUuid
+    });
+}
+
 class MockConfigManager extends ConfigManager {
     get enableReturnBundle () {
         return true;
@@ -77,7 +89,7 @@ describe('Patient Scope merge Tests', () => {
             resp = await request
                 .post('/4_0_0/Condition/1/$merge?validate=true')
                 .send(condition1Resource)
-                .set(headers);
+                .set(personScopedHeaders(resp.body.uuid));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
         });
@@ -177,6 +189,7 @@ describe('Patient Scope merge Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
+            const personHeaders = personScopedHeaders(resp.body.uuid);
             await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             const condition1WithDifferentPatientId = deepcopy(condition1Resource);
@@ -210,7 +223,7 @@ describe('Patient Scope merge Tests', () => {
             resp = await request
                 .post('/4_0_0/Condition/1/$merge?validate=true')
                 .send(bundle)
-                .set(headers);
+                .set(personHeaders);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(200);
             const body = resp.body;
@@ -365,31 +378,32 @@ describe('Patient Scope merge Tests', () => {
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
+        const personHeaders = personScopedHeaders(resp.body.uuid);
         await postRequestProcessor.waitTillDoneAsync({ requestId });
 
         resp = await request
             .post('/4_0_0/Linkage/$merge')
             .send(linkageResource)
-            .set(headers);
+            .set(personHeaders);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
             .post('/4_0_0/PaymentNotice/$merge')
             .send(paymentNoticeResource)
-            .set(headers);
+            .set(personHeaders);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
             .get('/4_0_0/Linkage?_debug=true')
-            .set(headers);
+            .set(personHeaders);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedLinkageResource);
 
         resp = await request
             .get('/4_0_0/PaymentNotice?_debug=true')
-            .set(headers);
+            .set(personHeaders);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expctedPaymentNoticeResource);
     });

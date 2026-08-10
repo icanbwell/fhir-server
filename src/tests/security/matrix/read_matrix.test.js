@@ -35,14 +35,23 @@ const CALLER = {
 // two users. Testing a narrower scope would exercise a stricter configuration
 // than production issues.
 const REAL_END_USER_SCOPE = 'access/*.* user/*.* patient/*.*';
+
+// Populated by seed() with the real _uuid Mongo assigns each Person fixture. A patient-scoped
+// caller's identity claim (clientFhirPersonId) is matched strictly against Person._uuid (see
+// personToPatientIdsExpander.js's hasPatientScope branch), exactly like a real client-issued
+// identity token would carry -- never the fixture's plain source id -- so endUser() must resolve
+// through this map rather than passing the source id straight through.
+const personUuidBySourceId = {};
+
 function endUser (masterPersonId, clientPersonId) {
+    const clientId = clientPersonId || masterPersonId;
     return {
         ...getHeadersWithCustomPayload({
             scope: REAL_END_USER_SCOPE,
             username: 'matrix-end-user@example.com',
-            clientFhirPersonId: clientPersonId || masterPersonId,
+            clientFhirPersonId: personUuidBySourceId[clientId] || clientId,
             clientFhirPatientId: 'clientFhirPatient',
-            bwellFhirPersonId: masterPersonId,
+            bwellFhirPersonId: personUuidBySourceId[masterPersonId] || masterPersonId,
             bwellFhirPatientId: 'bwellFhirPatient',
             managingOrganization: F.T_A,
             token_use: 'access'
@@ -62,6 +71,9 @@ async function seed () {
     // failed to persist would still look seeded. Validate every entry.
     expect(resp.body.length).toBe(F.ALL.length);
     resp.body.forEach((r) => expect(r).toEqual(expect.objectContaining({ created: true })));
+    resp.body
+        .filter((r) => r.resourceType === 'Person')
+        .forEach((r) => { personUuidBySourceId[r.id] = r.uuid; });
     return request;
 }
 
