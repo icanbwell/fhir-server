@@ -22,12 +22,15 @@ class MockConfigManager extends ConfigManager {
     }
 }
 
+// Person/person1's _uuid (generateUUIDv5('person1|client')) -- a patient-scoped caller's
+// identity is now matched strictly against the Person collection's _uuid field, so the JWT
+// must carry the actual uuid rather than the raw source id.
 const person_payload = {
     scope: 'patient/Observation.read user/*.* access/*.*',
     username: 'patient-123@example.com',
-    clientFhirPersonId: 'person1',
+    clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',
     clientFhirPatientId: 'clientFhirPatient',
-    bwellFhirPersonId: 'person1',
+    bwellFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',
     bwellFhirPatientId: 'bwellFhirPatient',
     token_use: 'access'
 };
@@ -96,10 +99,10 @@ describe('Observation Tests', () => {
                         severity: 'error',
                         code: 'forbidden',
                         details: {
-                            text: "user person1 with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                            text: "user 7b99904f-2f85-51a3-9398-e2eed6854639 with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
                         },
                         diagnostics:
-                            "user person1 with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                            "user 7b99904f-2f85-51a3-9398-e2eed6854639 with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
                     }
                 ]
             });
@@ -162,10 +165,10 @@ describe('Observation Tests', () => {
                         severity: 'error',
                         code: 'forbidden',
                         details: {
-                            text: "user person1 with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                            text: "user 7b99904f-2f85-51a3-9398-e2eed6854639 with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
                         },
                         diagnostics:
-                            "user person1 with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                            "user 7b99904f-2f85-51a3-9398-e2eed6854639 with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
                     }
                 ]
             });
