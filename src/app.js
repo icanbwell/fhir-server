@@ -21,6 +21,7 @@ const {authenticateWithJsonFailure} = require('./middleware/fhir/authentication.
 const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
 const {AUTH_USER_TYPES} = require('./constants');
 const forbidForUserTypes = require('./middleware/forbidForUserTypes.middleware');
+const createPostRequestCleanupMiddleware = require('./middleware/postRequestCleanup.middleware');
 const {graphqlErrorFormatter} = require('./middleware/graphql/graphqlErrorFormatter');
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
 const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
@@ -468,21 +469,7 @@ function createApp({fnGetContainer}) {
         // graphqlV2PostRequestCleanup below) both flush it explicitly after the response is sent.
         // Without this, every /mcp read silently never gets audited, and PostRequestProcessor /
         // RequestSpecificCache leak one entry per request. See design doc §5.
-        mcpRouter.use(function mcpRequestCleanup(req, res, next) {
-            res.once('finish', async () => {
-                const container1 = req.container;
-                if (container1) {
-                    const postRequestProcessor = container1.postRequestProcessor;
-                    if (postRequestProcessor) {
-                        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                        const requestSpecificCache = container1.requestSpecificCache;
-                        await postRequestProcessor.executeAsync({requestId});
-                        await requestSpecificCache.clearAsync({requestId});
-                    }
-                }
-            });
-            next();
-        });
+        mcpRouter.use(createPostRequestCleanupMiddleware());
         mcpRouter.use(new McpServer(fnGetContainer).getRouter());
         app.use('/mcp', mcpRouter);
     }
@@ -505,31 +492,7 @@ function createApp({fnGetContainer}) {
         router.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
         router.use(handleSecurityPolicyGraphql);
-        router.use(function graphqlPostRequestCleanup(req, res, next) {
-            res.once('finish', async () => {
-                const req1 = req;
-                /**
-                 * @type {SimpleContainer}
-                 */
-                const container1 = req1.container;
-                if (container1) {
-                    /**
-                     * @type {PostRequestProcessor}
-                     */
-                    const postRequestProcessor = container1.postRequestProcessor;
-                    if (postRequestProcessor) {
-                        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                        /**
-                         * @type {RequestSpecificCache}
-                         */
-                        const requestSpecificCache = container1.requestSpecificCache;
-                        await postRequestProcessor.executeAsync({requestId});
-                        await requestSpecificCache.clearAsync({requestId});
-                    }
-                }
-            });
-            next();
-        });
+        router.use(createPostRequestCleanupMiddleware());
 
         const routerv2 = express.Router();
         routerv2.use(function markGraphqlV2Route(req, res, next) { req.isGraphQLRoute = true; next(); });
@@ -540,31 +503,7 @@ function createApp({fnGetContainer}) {
         routerv2.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
         routerv2.use(handleSecurityPolicyGraphql);
-        routerv2.use(function graphqlV2PostRequestCleanup(req, res, next) {
-            res.once('finish', async () => {
-                const req1 = req;
-                /**
-                 * @type {SimpleContainer}
-                 */
-                const container1 = req1.container;
-                if (container1) {
-                    /**
-                     * @type {PostRequestProcessor}
-                     */
-                    const postRequestProcessor = container1.postRequestProcessor;
-                    if (postRequestProcessor) {
-                        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                        /**
-                         * @type {RequestSpecificCache}
-                         */
-                        const requestSpecificCache = container1.requestSpecificCache;
-                        await postRequestProcessor.executeAsync({requestId});
-                        await requestSpecificCache.clearAsync({requestId});
-                    }
-                }
-            });
-            next();
-        });
+        routerv2.use(createPostRequestCleanupMiddleware());
 
         Promise.all([
             isTrue(process.env.ENABLE_GRAPHQL) ? graphql(fnGetContainer) : Promise.resolve(),
