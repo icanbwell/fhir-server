@@ -710,7 +710,7 @@ async function handleAdminDelete (
                                 )
                             ]
                         });
-                        return res.json(operationOutcome.toJSON());
+                        return res.status(403).json(operationOutcome.toJSON());
                     }
 
                     /**
@@ -779,7 +779,7 @@ async function handleAdminDelete (
                                 )
                             ]
                         });
-                        return res.json(operationOutcome.toJSON());
+                        return res.status(403).json(operationOutcome.toJSON());
                     }
                     /**
                      * @type {AdminPersonPatientDataManager}
