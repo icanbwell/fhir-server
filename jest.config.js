@@ -53,11 +53,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/middleware/fhir/router.test.js',
         '<rootDir>/src/tests/unit/operations/common/patientQueryCreator.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everything.bugs.test.js',
-        // SEC-1580 fail-by-design security test: asserts the SECURE behavior for SAE-4 and
-        // stays RED until a malformed _sort value returns a 4xx instead of a raw 500.
-        // Excluded from the default run so a known, documented gap doesn't break CI. Run
-        // directly: npx jest src/tests/everything/sae4_malformed_sort_crashes_500.bugs
-        '<rootDir>/src/tests/everything/sae4_malformed_sort_crashes_500.bugs/sae4_malformed_sort_crashes_500.bugs.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everythingRelatedResourcesMapper.test.js',
         '<rootDir>/src/tests/unit/operations/graph/graph.test.js',
         '<rootDir>/src/tests/unit/operations/history/history.test.js',
