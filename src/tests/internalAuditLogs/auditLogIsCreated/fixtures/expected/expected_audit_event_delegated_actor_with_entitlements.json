@@ -30,10 +30,10 @@
     "agent": [
         {
             "who": {
-                "reference": "Patient/person.person1",
+                "reference": "Patient/person.5f3ca115-8630-5e55-a97d-4d6ee26c0adc",
                 "_sourceAssigningAuthority": "bwell",
-                "_uuid": "Patient/fa7cb5b3-b6fd-5996-9674-5291f076dca5",
-                "_sourceId": "Patient/person.person1"
+                "_uuid": "Patient/person.5f3ca115-8630-5e55-a97d-4d6ee26c0adc",
+                "_sourceId": "Patient/person.5f3ca115-8630-5e55-a97d-4d6ee26c0adc"
             },
             "altId": "unique-identifier-123",
             "requestor": false,
