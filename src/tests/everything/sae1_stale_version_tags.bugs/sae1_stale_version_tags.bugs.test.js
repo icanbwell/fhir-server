@@ -80,6 +80,7 @@ describe('D-SAE1 (fail-by-design) — narrowing tags must revoke history, not ju
         await request.post('/4_0_0/Person/1/$merge').send([sharedAB]).set(getHeaders());
         await request.put('/4_0_0/Patient/sae1SharedAB').send(narrowed).set(headersRW);
         const hist = await request.get('/4_0_0/Patient/sae1SharedAB/_history').set(headersA);
+        expect([200, 403, 404]).toContain(hist.status);
         expect(ids(hist)).toEqual([]);
     });
 });
