@@ -431,9 +431,11 @@ red flag under `review.md`'s checklist, since `_uuid`/`id` are deterministic and
 Findings from an adversarial review of this surface against `review.md`'s checklist, verified
 directly against source (not assumed from the checklist, and not taken on faith from a single
 pass). These are gaps between what the sections above document as the *intended* composition and
-what the code actually enforces — two have since been fixed, two remain open, and one suspected
-finding was investigated and does not reproduce (kept here, marked as such, so it isn't
+what the code actually enforces — ten have since been fixed, four remain open, and three suspected
+findings were investigated and do not reproduce (kept here, marked as such, so they aren't
 re-discovered and re-reported from scratch later).
+
+### Fixed
 
 - **FIXED — a patient-scoped write to an EXISTING resource could set an arbitrary access tag
   (§1, §4).** `ScopesManager.isAccessTagChangeAllowedByScopes`
@@ -484,6 +486,123 @@ re-discovered and re-reported from scratch later).
   at every recursion level, consistent with how the sibling `$everything`-scope-check condition on
   the same line already behaved (it doesn't depend on recursion-level state, so it was already
   reapplied at every hop).
+- **FIXED — ordinary search and GraphQL v2 never requested the §5 access-tag re-check on `Person.link`
+  traversal at all, for a tenant/service-account caller (§1, §5).** The previous fix (immediately
+  above) only closed the gap for callers of `PersonToPatientIdsExpander` that already passed
+  `addTopPersonAccessCheck: true` (`accessHistory.js`). `PatientScopeManager.getPatientIdsByPersonIdAsync`
+  — the path used by ordinary search (`SearchManager.constructQueryAsync`,
+  `src/operations/search/searchManager.js`) and GraphQL v2 (`src/graphqlv2/dataSource.js`) — never
+  requested the check at all, at any level, so a tenant/service-account caller whose own Person had a
+  stray `Person.link` into another tenant's Person/Patient (data corruption, matching error, or
+  intentional manipulation) could reach that tenant's data through plain search or GraphQL v2 with no
+  re-check anywhere in the traversal. Fixed by threading `requestInfo`/`addTopPersonAccessCheck` from
+  `PatientScopeManager` into the expander for both call sites, plus `canWriteResourceAsync`
+  (`src/operations/security/patientScopeManager.js`). An earlier version of this fix added a
+  same-owner-tag fallback for pure-`patient/`-scope callers (see the Open finding below); that fallback
+  was reverted (`e5b649607`) because bwell's master-Person → client-Person linking is *intentionally*
+  cross-tenant (`Person.link` connecting a Main Person owned by one tenant to Client Person records
+  owned by others is the legitimate identity-matching model, not a leak), confirmed against the
+  real, currently-passing `src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid`
+  fixture. Covered by `src/tests/unit/utils/personToPatientIdsExpander.crossTenant.test.js`.
+- **FIXED — a caller could add a `Person.link` into a tenant they cannot access, then reach that
+  tenant's data via link traversal (§1, §2, §4).** `ResourceValidator.validatePatientReference`
+  (`src/operations/common/resourceValidator.js`) skips patient-reference validation entirely for
+  non-`user`-scoped (access-scoped/service-account) callers on array-reference fields — intentional
+  for most such fields (ingestion pipelines need to freely maintain them) — but this applied to
+  `Person.link` too, so a caller holding only an access tag for its own tenant could link a Person it
+  owns into another tenant's Person/Patient with no ownership check on the *target* at all, letting
+  every mechanism in §5 (which treats a link as fully authoritative once reached) traverse straight
+  into that tenant's data. The bug also had a create-path variant (the check only ran when diffing
+  against a `currentResource`, so a brand-new Person created with the cross-tenant link already
+  inlined skipped it entirely) and a response-code side channel (an early version of the fix let a
+  403-vs-404 distinction leak whether the target existed in another tenant, an existence-oracle
+  pattern flagged elsewhere in this doc — see the closing paragraph of §11). Fixed by
+  `validateNewPersonLinkTargetsBelongToCallersTenant` (`resourceValidator.js:132`), called for every
+  `Person.link` addition on create, update, and merge: it resolves each new link target and rejects
+  with a uniform not-found error (`resourceValidator.js:181`) if the reference can't be resolved at
+  all, a forbidden-shaped rejection (`resourceValidator.js:197`) only if a match exists but none are
+  accessible to the caller, and an ambiguous-match rejection (`resourceValidator.js:209`) if more than
+  one accessible resource shares a bare id — fail-closed on ambiguity rather than guessing. Covered by
+  `src/tests/merge/merge_person_link_cross_tenant/merge_person_link_cross_tenant.test.js` and
+  `src/tests/unit/operations/common/resourceValidator.test.js`. Deliberately scoped to `Person.link`
+  only, not a blanket fix for every array-reference field on a non-`user` scope — see the tripwire
+  comment left in `resourceValidator.test.js` guarding against that distinction being lost later.
+- **FIXED — CMS-partner/delegated-user resource-type allowlist was enforced on REST but not on
+  GraphQL, on two separate code paths (§4, §11).** REST search gates CMS-partner and delegated-user
+  callers through `OperationAccessManager.verifyAccess`, but neither GraphQL v1's root resolvers
+  (`getResources`/`getResourcesBundle`, `src/graphql/dataSource.js`) nor v2's equivalents
+  (`src/graphqlv2/dataSource.js`) called it — a CMS-partner token allowlisted to `Patient`-only could
+  read any resource type (e.g. `Practitioner`) over GraphQL. A second, independent bypass survived
+  even after gating just those root entry points: every reference-typed field
+  (`Patient.generalPractitioner`, `Observation.subject`, etc.) resolves through the shared
+  `getResourcesInBatch` DataLoader, which called `searchBundleAsync` directly — so a caller
+  allowlisted to `Patient` only could still reach `Practitioner` via
+  `{ Patient(id:"p1") { generalPractitioner { id } } }`. Fixed by adding
+  `OperationAccessManager.verifyGraphQLReadAccess` (`src/utils/operationAccessManager.js:43`) and
+  calling it from all three GraphQL entry points in both API versions
+  (`src/graphql/dataSource.js:182,409,507`; `src/graphqlv2/dataSource.js:225,485,539`). Covered by
+  `src/tests/unit/graphql/dataSource.test.js`, `src/tests/unit/graphqlv2/dataSource.test.js`, and
+  `src/tests/unit/utils/operationAccessManager.test.js`.
+- **FIXED — `DataSharingManager`'s per-request `allowedPatientIds` cache ignored `securityTags`,
+  letting one tenant's PROA consent result leak into a later query for a different tenant within the
+  same `$everything` request (§6a, review.md §D).** `getDataSharingManagerCache`
+  (`src/operations/search/dataSharingManager.js:113`) keyed its cache purely on `requestId` (plus
+  chunk index); a `$everything` request that queries multiple resource types with different
+  effective `securityTags` per call (e.g. one tenant's data-sharing scope for one type, another's for
+  the next) reused the first call's `allowedPatientIds`/`patientIdToImmediatePersonUuid` for every
+  subsequent call regardless of `securityTags` — a "no restriction" vs. "no matches" failure shape
+  the same class review.md §D warns about generally. Fixed by folding a sorted `securityTags` suffix
+  into the cache-map name (`dataSharingManager.js:115-116`), so different tags get an independent
+  cache entry and a fresh consent check. Covered by
+  `src/tests/unit/operations/search/proaConsentVulnerabilities.test.js` (Vulnerability 3).
+- **FIXED — Consent `provision.period` expiry was never checked in the PROA/CMS data-sharing consent
+  queries (§6a, §6b).** `ProaConsentManager.getConsentResources`
+  (`src/operations/search/proaConsentManager.js`) and `CmsConsentManager.getConsentResources`
+  (`src/operations/search/cmsConsentManager.js`) only checked `status: 'active'` and
+  `provision.type: 'permit'` — never `provision.period.start`/`.end`. A Consent whose grant window
+  had lapsed but whose `status` was never flipped to `inactive`/`rejected` kept widening the query and
+  granting PHI access indefinitely past the authorized consent period. Fixed by adding symmetric
+  period-bound clauses (absent-or-in-range) to both managers' queries
+  (`proaConsentManager.js:61-76`, `cmsConsentManager.js:52-66`), matching the convention already used
+  in `delegatedAccessRulesManager.js`. Covered by `proaConsentManager.test.js`/`cmsConsentManager.test.js`
+  and `proaConsentVulnerabilities.test.js` (Vulnerabilities 1 & 2).
+- **FIXED — no cache-invalidation trigger existed for the `$everything` cache on a `Consent` write, so
+  stale PHI could be served for up to the Redis TTL (~600s) after consent was revoked (§6, §9,
+  review.md §D).** `PatientEverythingCacheKeyGenerator` had no working `getGenerationForId`, so its
+  cache key never changed when a Consent was created, updated, or removed; invalidation only happened
+  via the manual `/admin/invalidateCache` endpoint. Fixed by a new post-save handler,
+  `ConsentCacheInvalidationHandler`
+  (`src/dataLayer/postSaveHandlers/handlers/consentCacheInvalidationHandler.js`), registered for
+  every write path, which bumps a `Patient:<uuid>:Everything:Generation` Redis counter on any
+  `Consent` write and now also best-effort bumps the counter for the immediate client Person(s) *and*
+  the bwell master Person at the top of the link graph (via `BwellPersonFinder`) — closing a
+  follow-up gap where a master-Person-keyed proxy `$everything` cache kept serving pre-revocation PHI
+  even after the first cut of this fix bumped only the immediate client Person. Covered by
+  `consentCacheInvalidationHandler.test.js` and `proaConsentVulnerabilities.test.js`
+  (Vulnerabilities 4 & 5).
+- **FIXED — the ClickHouse-backed Group member roster (used by `Group/[id]/$export`) had no
+  fail-closed tenant check, a mechanism §1/§2 don't otherwise cover since it isn't a Mongo
+  `meta.security` query (§1, §2).** `getCurrentMembersWithCountAsync`/`getActiveMembersPageAsync`/
+  `getActiveMemberCountAsync` (`src/dataLayer/providers/mongoWithClickHouseStorageProvider.js:139,190,228`)
+  is the roster path `bulkDataExportRunner.js` uses for a Group export; a caller whose request
+  produced no resolvable access/owner tags (malformed scope, an upstream bug) got an unrestricted
+  ClickHouse roster query — another tenant's Group members — instead of an error. Fixed by
+  `_assertTenantScope` (`mongoWithClickHouseStorageProvider.js:82`), which throws `ForbiddenError`
+  before any ClickHouse query runs unless the caller has an access tag, an owner tag, or full access,
+  and `_normalizeTenantContext` (`:61`), which treats a malformed/omitted `securityContext` as
+  empty-restricted rather than unrestricted. Covered by
+  `mongoWithClickHouseStorageProvider.test.js` and `src/tests/group/group_clickhouse_id_and_tenant.test.js`.
+- **FIXED — `ExportStatus` read denial used `ForbiddenError` (403), letting the response distinguish
+  "exists, not mine" from "doesn't exist" — the existence-oracle pattern §11's closing paragraph warns
+  about generally (§1, §11).** `exportById.js` now throws `NotFoundError` (not `ForbiddenError`) on
+  denial (`src/operations/export/exportById.js:73,86`), and gates access with
+  `ScopesManager.isAccessToResourceAllowedByAccessTagOnly` (`:80`) rather than an owner+access check —
+  `ExportStatus` is always created under a hardcoded platform-level owner tag regardless of the
+  triggering tenant, so an owner+access check had also been incorrectly rejecting legitimate tenants
+  polling their own export status. Covered by `src/tests/unit/operations/export/exportById.crossTenant.test.js`.
+
+### Open
+
 - **Open — link traversal never checks `assurance` (§5).** No code path in
   `personToPatientIdsExpander.js` reads `Person.link.assurance` (FHIR's match-confidence field for
   a link); every link is treated as fully authoritative regardless of confidence. Severity depends
@@ -496,6 +615,33 @@ re-discovered and re-reported from scratch later).
   `DataSharingManager.updateQueryForDelegatedAccessSensitiveData`, it does not also fold in the
   hardcoded `unclassified` code, so an `unclassified`-tagged *section* inside an otherwise-visible
   Composition is not stripped.
+- **Open — a caller with a *pure* `patient/` scope (no `access/` scope) gets no re-check at all
+  during `Person.link` traversal into another tenant (§1, §5).** `ScopesManager.getSecurityTagsFromScope`
+  returns `[]` for a token with no access code — correct for a plain patient-facing app, which has no
+  tenant/access identity to check against — but `[]` means "no filter," not "deny," so the
+  `addTopPersonAccessCheck` re-check added by the two FIXED findings above is a no-op for exactly this
+  caller type at every recursion level. If such a caller's own top-level Person has a stray
+  `Person.link` into another tenant's Person/Patient, that resource is still returned. A same-owner-tag
+  fallback was tried and reverted (see the FIXED finding above) because it produced false-positive
+  denials for the legitimate cross-tenant master-Person → client-Person linking model. Left
+  intentionally unfixed pending a real trust signal this data model doesn't currently have — `assurance`
+  (the Open finding above) is unused as a trust boundary anywhere else, so leaning on it here would be
+  inventing a guarantee rather than closing the gap. Tracked by the quarantined
+  `src/tests/unit/utils/personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js` (excluded in
+  `jest.config.js`).
+- **Open — `$everything`-cache Consent-write invalidation does not enumerate every intermediate Person
+  in a link graph deeper than master → client → Patient (§6, §9, review.md §D).**
+  `ConsentCacheInvalidationHandler` (`src/dataLayer/postSaveHandlers/handlers/consentCacheInvalidationHandler.js`)
+  bumps the Everything-cache generation for the immediate client Person(s) and the bwell master Person
+  via an up-graph walk, but bwell's topology can in principle have intermediate Persons between those
+  two hops; the handler doesn't walk or bump those. An `$everything` cache primed under such an
+  intermediate Person's key would not be invalidated by a Consent write on the underlying Patient,
+  and could keep serving pre-revocation PHI for the remainder of the cache TTL. Self-documented as a
+  residual gap in the handler's own class comment; acceptable per that comment because the
+  master/client two-hop case covers the realistic proxy-token shapes today, but not exhaustive.
+
+### Investigated, does not reproduce
+
 - **Investigated, does not reproduce — conditional update/delete matching a cross-tenant resource
   via a shared clinical identifier (§5).** A pre-existing test
   (`src/tests/unit/operations/update/conditionalCrossTenant.test.js`) claimed that since the
@@ -515,11 +661,30 @@ re-discovered and re-reported from scratch later).
   entirely and asserted against their own fabricated mock return value, the same category of error
   as the confirmed-fabricated `delegatedAccessScopeManager.test.js`; they've been corrected and the
   file re-enabled in `jest.config.js`.
+- **Investigated, does not reproduce — "W-chain" self-granted delegated-access consent combined with
+  a link-graft to reach cross-tenant data (§5, §6c, §10).** The hypothesized exploit (a delegated
+  actor self-granting a Consent, then grafting a `Person.link` to widen the identity graph it's
+  applied against) is entirely gated by the same `Person.link` write path covered by the DCON-4844
+  FIXED finding above — once that landed, the link-graft half of the chain can't get a cross-tenant
+  target past validation, which is a sufficient fix for the whole chain. The control test built to
+  exercise this (`consentSelfGrantLinkGraft.test.js`) had its own fixture bugs (a mis-resolved
+  `_uuid` from bare-id reference enrichment, a missing `connectionType` tag) that were masking
+  whether it exercised anything real; fixed test-side only, no separate production-code change was
+  needed.
+- **Investigated, does not reproduce — nested/forward-reference expansion in `$everything`/`$graph`
+  leaking a cross-tenant tag onto an otherwise-correctly-filtered result (§5, §9).** Both
+  `everythingHelper.js` and `graphHelpers.js` route nested and forward-reference fetches back through
+  the same `SearchManager.constructQueryAsync` access-tag filter used everywhere else in this
+  document — already correctly blocked on `main` prior to any code change here. The control test
+  (`nested_resource_tag_leak.test.js`) had an invalid `GraphDefinition.path` and an over-broad
+  `not.toContain` assertion that could false-fail on an unrelated reference string; both fixed
+  test-side, confirming (rather than closing) that traversal is safe here.
 
-Regression tests for both FIXED findings are in `src/tests/unit/resourceAuthorization/` (see
-`12_knownGap_patientScopedWriteTagBypass.test.js` and
+Regression tests for the two original FIXED findings above are in `src/tests/unit/resourceAuthorization/`
+(see `12_knownGap_patientScopedWriteTagBypass.test.js` and
 `12_knownGap_accessHistoryLinkTraversalLeak.test.js` — no longer `test.failing`, now plain
-regression tests). Neither fix was caught missing by CI originally:
+regression tests); later FIXED/Open findings above cite their own test files inline instead. Neither
+of the original two fixes was caught missing by CI originally:
 `src/tests/unit/operations/security/scopesManager.crossTenant.test.js`,
 `scopesManager.writeBypass.test.js`, and `patientScopeWriteBypass.test.js` already encoded the
 first finding's correct expected behavior (for the `isCreate`-aware version of the fix) and now
