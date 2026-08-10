@@ -365,31 +365,44 @@ describe('SECURITY MATRIX — read paths', () => {
 
     // -----------------------------------------------------------------------
     // History and old versions. A version written before a tag change can
-    // still carry the older, wider tags.
+    // still carry the older, wider tags, so a tenant-scoped access code can
+    // still match a stale tag on an old version even after the current
+    // version's tags have been narrowed away from that tenant (SEC-1580
+    // SAE-1). Rather than re-evaluating each historical version against the
+    // resource's current tags, history reads (both _history and a specific
+    // _history/{vid}) require a non-tenant-specific access scope
+    // (access/*.read or access/*.*) -- a tenant scope alone is never enough,
+    // even for a tenant's own record.
     // -----------------------------------------------------------------------
     describe('_history and old versions', () => {
-        test('tenantA can read its own history', async () => {
+        test('tenantA cannot read even its own history with a tenant-scoped access code', async () => {
             const request = await seed();
             const resp = await request.get('/4_0_0/Patient/mtxOwnA/_history').set(CALLER.tenantA.headers());
+            expect(resp.status).toBe(403);
+        });
+
+        test('a wildcard-scoped caller can read history regardless of owning tenant', async () => {
+            const request = await seed();
+            const resp = await request.get('/4_0_0/Patient/mtxOwnA/_history').set(CALLER.wildcard.headers());
             expect([200, 404]).toContain(resp.status);
         });
 
         test('tenantA cannot read tenantB\'s history', async () => {
             const request = await seed();
             const resp = await request.get('/4_0_0/Patient/mtxOwnB/_history').set(CALLER.tenantA.headers());
-            expect([200, 403, 404]).toContain(resp.status);
+            expect(resp.status).toBe(403);
             expect(JSON.stringify(resp.body || {})).not.toContain('"gender"');
         });
 
         test('tenantA cannot read a specific old version of tenantB\'s patient', async () => {
             const request = await seed();
             const resp = await request.get('/4_0_0/Patient/mtxOwnB/_history/1').set(CALLER.tenantA.headers());
-            expect([403, 404]).toContain(resp.status);
+            expect(resp.status).toBe(403);
         });
 
         // Narrowing the current version's tags shuts tenantA out of the current read.
-        // Whether the earlier version stays readable is covered as a finding in
-        // history_version_tags.bugs -- it currently does.
+        // Whether the earlier version stays readable is covered by the _history describe
+        // block above -- it no longer does.
         test('narrowing a resource\'s access tag hides the current version', async () => {
             const request = await seed();
             const before = await request.get('/4_0_0/Patient/mtxSharedAB').set(CALLER.tenantA.headers());
