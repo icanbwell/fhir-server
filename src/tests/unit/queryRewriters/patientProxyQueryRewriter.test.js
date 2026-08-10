@@ -26,17 +26,13 @@ function createMockExpander(patientProxyMap = {}) {
  * Creates a mock ConfigManager.
  * @param {boolean} rewritePatientReference
  * @param {boolean} enableConsentedProaDataAccess
- * @param {boolean} enableProxyPersonScopeCheckForEverything defaults to true so existing
- *   callers that only care about enableConsentedProaDataAccess keep their prior behavior;
- *   pass false explicitly to exercise the Fix-2 "config coupling" scenario.
  * @returns {Object}
  */
 function createMockConfigManager(
     rewritePatientReference = false,
-    enableConsentedProaDataAccess = false,
-    enableProxyPersonScopeCheckForEverything = true
+    enableConsentedProaDataAccess = false
 ) {
-    return { rewritePatientReference, enableConsentedProaDataAccess, enableProxyPersonScopeCheckForEverything };
+    return { rewritePatientReference, enableConsentedProaDataAccess };
 }
 
 /**
@@ -552,17 +548,18 @@ describe('PatientProxyQueryRewriter', () => {
             );
         });
 
-        test('does not write to the cache when enableConsentedProaDataAccess is on but enableProxyPersonScopeCheckForEverything is off', async () => {
-            // Fix 2: these two config flags are independent. Without
-            // enableProxyPersonScopeCheckForEverything, PersonToPatientIdsExpander's owner-tag
-            // verification never runs, so writing a "successfully populated but empty" cache
-            // here would make dataSharingManager.js silently treat every patient as
-            // not-PROA-eligible. Instead the cache must simply not be written, so
-            // dataSharingManager.js's "cache entirely absent" throw fires loudly instead.
+        test('does not write to the cache for a patient-scoped caller, even on an $everything GET with PROA on', async () => {
+            // PersonToPatientIdsExpander computes the scope-derived securityTags its owner-tag
+            // verification needs only on its non-patient-scoped branch; a patient-scoped caller
+            // is filtered by its own Person _uuid instead, so ownerVerifiedPersonToLinkedPatients
+            // comes back empty. Writing a "successfully populated but empty" cache here would
+            // make dataSharingManager.js silently treat every patient as not-PROA-eligible.
+            // Instead the cache must simply not be written, so dataSharingManager.js's "cache
+            // entirely absent" throw fires loudly instead.
             const mockExpanderWithoutOwnerData = createMockExpander({
                 'person-uuid-1': ['patient-1-uuid', 'person.person-uuid-1']
             });
-            const configManager = createMockConfigManager(true, true, false);
+            const configManager = createMockConfigManager(true, true);
             const rewriterWithCache = new PatientProxyQueryRewriter({
                 personToPatientIdsExpander: mockExpanderWithoutOwnerData,
                 configManager,
@@ -572,7 +569,8 @@ describe('PatientProxyQueryRewriter', () => {
             const requestInfo = {
                 requestId: 'req-3',
                 originalUrl: '/4_0_0/Person/person-uuid-1/$everything',
-                method: 'GET'
+                method: 'GET',
+                isUser: true
             };
 
             await rewriterWithCache.rewriteQueryParametersAsync({
