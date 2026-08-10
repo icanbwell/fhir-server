@@ -1,4 +1,3 @@
-const async = require('async');
 const superagent = require('superagent');
 const {LRUCache} = require('lru-cache');
 const {
@@ -149,7 +148,17 @@ class AuthService {
                     error: error,
                     args: {jwksUrl}
                 });
-                return {keys: []};
+                // Do NOT return {keys: []} here: an empty keyset is indistinguishable
+                // downstream from "this JWKS endpoint legitimately has no keys" (a
+                // permanent condition), when the truth is "we couldn't reach it right
+                // now" (transient infrastructure failure, e.g. Redis eviction/outage).
+                // Mark the error as transient/retriable and rethrow so callers (and
+                // ultimately the auth middleware) surface a 503, not a 401 (INC-322).
+                error.isTransient = true;
+                if (!error.statusCode) {
+                    error.statusCode = 503;
+                }
+                throw error;
             } finally {
                 AuthService.jwksFetchInFlight.delete(jwksUrl);
             }
@@ -160,6 +169,13 @@ class AuthService {
 
     /**
      * Fetches external JWKS URLs and retrieves the keys from them.
+     *
+     * Uses Promise.allSettled (not a fail-fast aggregator like async.map) so that one
+     * dead JWKS provider among several configured ones doesn't take down auth for
+     * tokens signed by a different, healthy provider. Keys are collected from every
+     * URL that succeeded; a transient/503 error is only thrown when EVERY URL failed,
+     * i.e. there are truly zero usable external keys (INC-322: an infrastructure
+     * outage must not look like "no external keys configured").
      * @returns {Promise<Object[]>}
      */
     async getExternalJwksAsync() {
@@ -168,22 +184,54 @@ class AuthService {
         }
         let extJwksUrls = this.configManager.externalAuthJwksUrls;
         if (extJwksUrls.length === 0 && this.configManager.externalAuthWellKnownUrls.length > 0) {
+            // getJwksUrlsAsync() throws a transient/503-marked error if EVERY configured
+            // well-known URL failed to resolve (INC-322) -- let that propagate below
+            // rather than treating a total well-known outage the same as "no well-known
+            // URLs configured at all" (which legitimately resolves to []).
             extJwksUrls = await this.wellKnownConfigurationManager.getJwksUrlsAsync();
         }
         if (extJwksUrls.length > 0) {
-            try {
-                const keysArray = await async.map(
-                    extJwksUrls,
+            const results = await Promise.allSettled(
+                extJwksUrls.map(
                     async (extJwksUrl) => (await this.getJwksByUrlAsync(extJwksUrl.trim())).keys
+                )
+            );
+            const keysArray = [];
+            const failures = [];
+            results.forEach((result, index) => {
+                if (result.status === 'fulfilled') {
+                    keysArray.push(result.value);
+                } else {
+                    failures.push({url: extJwksUrls[index], error: result.reason});
+                }
+            });
+            if (failures.length > 0) {
+                logError(
+                    `Failed to fetch keys from ${failures.length} of ${extJwksUrls.length} external jwk url(s)`,
+                    {
+                        args: {
+                            failures: failures.map((f) => ({
+                                url: f.url,
+                                error: f.error && f.error.message
+                            }))
+                        }
+                    }
                 );
-                return keysArray.flat(2);
-            } catch (error) {
-                logError(`Error while fetching keys from external jwk urls: ${error.message}`, {
-                    error: error,
-                    args: {extJwksUrls: extJwksUrls}
-                });
-                return [];
             }
+            // Only treat this as a total outage (and surface 503) when every configured
+            // URL failed. If at least one provider is healthy, use the keys it returned --
+            // that redundancy is the whole point of allowing multiple configured providers.
+            if (failures.length === extJwksUrls.length) {
+                const error = failures[0].error instanceof Error
+                    ? failures[0].error
+                    : new Error('Failed to fetch keys from any external jwk url');
+                error.isTransient = true;
+                if (!error.statusCode) {
+                    error.statusCode = 503;
+                }
+                throw error;
+            }
+            return keysArray.flat(2);
         }
         return [];
     }
@@ -216,6 +264,19 @@ class AuthService {
      * @return {void}
      */
     processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+        // A token that resolves to a completely empty scope (nothing on the JWT itself,
+        // no groups, and userinfo enrichment -- if attempted -- found nothing either) is
+        // authenticated but carries zero permissions; treat it as an auth failure (401),
+        // not a successful login with an empty grant. Without this, such a token would
+        // reach FHIR resource authorization normally and get a 403 there instead --
+        // this codebase's convention (see create_without_access/remove_without_access
+        // integration tests) is that a total absence of scope is 401, while a present
+        // but insufficient/mismatched scope is 403.
+        if (!scope) {
+            logWarn('Auth rejected', {reason: 'no_scope', username, subject});
+            done(null, false, {reason: 'no_scope'});
+            return;
+        }
         const context = {};
         if (username) {
             context.username = username;
@@ -550,7 +611,15 @@ class AuthService {
                         reason: 'userinfo_endpoint_error',
                         error: error
                     });
-                    done(null, false, { reason: 'userinfo_endpoint_error' });
+                    // A failure to reach the userinfo endpoint is an infrastructure
+                    // problem, not proof the token is invalid. Pass it through passport's
+                    // done(err) signature (-> self.error() -> real error, not a fail())
+                    // so it surfaces as a 503, not a 401 (INC-322).
+                    error.isTransient = true;
+                    if (!error.statusCode) {
+                        error.statusCode = 503;
+                    }
+                    done(error);
                 });
             } else {
                 logDebug(`JWT result`, {

@@ -762,12 +762,14 @@ class MergeManager {
      * @param {Object} resourceToMerge
      * @param {string} resourceType
      * @param {FhirRequestInfo} requestInfo
+     * @param {string} [base_version] the FHIR version of the resource being merged
      * @returns {Promise<MergeResultEntry|null>}
      */
     async preMergeChecksAsync ({
         requestInfo,
         resourceToMerge,
-        resourceType
+        resourceType,
+        base_version
     }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         try {
@@ -801,7 +803,8 @@ class MergeManager {
             const forbiddenError = await this.scopesValidator.isScopesValidAsync({
                 requestInfo,
                 resourceType: resourceToMerge.resourceType,
-                accessRequested: 'write'
+                accessRequested: 'write',
+                base_version
             });
 
             if (forbiddenError) {
@@ -834,12 +837,14 @@ class MergeManager {
      * run any pre-checks on multiple resources before merge
      * @param {FhirRequestInfo} requestInfo
      * @param {Object[]} resourcesToMerge
+     * @param {string} [base_version] the FHIR version of the resources being merged
      * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], validResources: Object[]}>}
      */
     async preMergeChecksMultipleAsync (
         {
             requestInfo,
-            resourcesToMerge
+            resourcesToMerge,
+            base_version
         }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         assertIsValid(Array.isArray(resourcesToMerge), 'resourcesToMerge should be an array');
@@ -860,7 +865,8 @@ class MergeManager {
                     {
                         requestInfo,
                         resourceToMerge: r,
-                        resourceType: r.resourceType
+                        resourceType: r.resourceType,
+                        base_version
                     }
                 );
                 if (mergeResult) {
