@@ -31,110 +31,16 @@ const {
 } = require('../common');
 const { AUTH_USER_TYPES } = require('../../constants');
 const { AuditLogger } = require('../../utils/auditLogger');
-
-/**
- * Extracts the JSON-RPC envelope out of an MCP SSE response body
- * (`event: message\ndata: {...}\n\n`). supertest does not parse SSE into `resp.body`, so the
- * envelope must be pulled out of `resp.text` by hand.
- * @param {import('supertest').Response} resp
- * @returns {{jsonrpc: string, id: number, result?: Object, error?: Object}}
- */
-function parseMcpRpcResponse (resp) {
-    const match = resp.text && resp.text.match(/^data: (.+)$/m);
-    if (!match) {
-        throw new Error(
-            `Expected an SSE 'data:' line in the /mcp response but found none. status=${resp.status} text=${resp.text}`
-        );
-    }
-    return JSON.parse(match[1]);
-}
-
-/**
- * Issues a JSON-RPC tools/call request against /mcp and returns both the raw supertest response
- * and the parsed JSON-RPC envelope.
- * @param {import('supertest').Test} request
- * @param {string} bearerToken
- * @param {string} name
- * @param {Object} [args]
- * @returns {Promise<{resp: import('supertest').Response, rpc: Object}>}
- */
-async function callMcpTool (request, bearerToken, name, args) {
-    const resp = await request
-        .post('/mcp')
-        .set({
-            'Content-Type': 'application/json',
-            Accept: 'application/json, text/event-stream',
-            Authorization: `Bearer ${bearerToken}`
-        })
-        .send({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args || {} } });
-    return { resp, rpc: parseMcpRpcResponse(resp) };
-}
-
-/**
- * Parses the FHIR Bundle a tool call result carries as JSON text in content[0].text.
- * @param {Object} rpc parsed JSON-RPC envelope from parseMcpRpcResponse
- * @returns {Object} FHIR Bundle
- */
-function bundleFromToolResult (rpc) {
-    return JSON.parse(rpc.result.content[0].text);
-}
-
-/**
- * @param {Object} bundle FHIR searchset Bundle
- * @returns {string[]} ids of every resource in the bundle
- */
-function idsInBundle (bundle) {
-    return (bundle.entry || []).map((e) => e.resource.id);
-}
-
-function minimalSecurity (owner = 'client') {
-    return [
-        { system: 'https://www.icanbwell.com/access', code: owner },
-        { system: 'https://www.icanbwell.com/owner', code: owner }
-    ];
-}
-
-function makePatient (id, { family, given, birthDate }) {
-    return {
-        resourceType: 'Patient',
-        id,
-        meta: { source: 'test', security: minimalSecurity() },
-        name: [{ use: 'official', family, given: [given] }],
-        birthDate,
-        gender: 'unknown'
-    };
-}
-
-function makeLocation (id, name) {
-    return {
-        resourceType: 'Location',
-        id,
-        meta: { source: 'test', security: minimalSecurity() },
-        status: 'active',
-        name
-    };
-}
-
-function makeObservation (id, { patientId, system, code }) {
-    return {
-        resourceType: 'Observation',
-        id,
-        meta: { source: 'test', security: minimalSecurity() },
-        status: 'final',
-        code: { coding: [{ system, code, display: 'Test code' }] },
-        subject: { reference: `Patient/${patientId}` }
-    };
-}
-
-function makePerson (id, linkedPatientIds) {
-    return {
-        resourceType: 'Person',
-        id,
-        meta: { source: 'test', security: minimalSecurity() },
-        active: true,
-        link: linkedPatientIds.map((patientId) => ({ target: { reference: `Patient/${patientId}` } }))
-    };
-}
+const {
+    callMcpTool,
+    bundleFromToolResult,
+    idsInBundle,
+    minimalSecurity,
+    makePatient,
+    makeLocation,
+    makeObservation,
+    makePerson
+} = require('./mcpTestHelpers');
 
 /**
  * A patient-scoped JWT payload whose clientFhirPersonId/bwellFhirPersonId is the given
