@@ -365,7 +365,7 @@ class PersonToPatientIdsExpander {
             }
 
             if (addPersonOwnerToContext && person.meta && person.meta.security && person.meta.security.length > 0) {
-                // PatientDataViewControlManager.getConsentAsync reads this key back as
+                // The consent-enrollment gate's getConsentAsync reads this key back as
                 // `personOwnerFor-<personIdFromJwtToken>` -- the raw JWT claim, never the resolved
                 // _uuid. `personId` above is only reassigned to the raw id when
                 // `returnOriginalPersonId && toMap` (the gate controlling this function's *return
