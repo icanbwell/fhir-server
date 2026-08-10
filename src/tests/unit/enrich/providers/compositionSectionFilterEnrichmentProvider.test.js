@@ -7,7 +7,7 @@ jestObj.mock('../../../../utils/compositionSectionFilter', () => ({
 
 const { CompositionSectionFilterEnrichmentProvider } = require('../../../../enrich/providers/compositionSectionFilterEnrichmentProvider');
 const { filterCompositionSensitiveSections } = require('../../../../utils/compositionSectionFilter');
-const { AUTH_USER_TYPES } = require('../../../../constants');
+const { AUTH_USER_TYPES, SENSITIVE_CATEGORY } = require('../../../../constants');
 
 describe('CompositionSectionFilterEnrichmentProvider', () => {
     let provider;
@@ -43,7 +43,7 @@ describe('CompositionSectionFilterEnrichmentProvider', () => {
             expect(result).toBeNull();
         });
 
-        test('returns Set from deniedSensitiveCategories', () => {
+        test('returns Set from deniedSensitiveCategories, plus the hardcoded unclassified code', () => {
             const enrichmentContext = {
                 actor: {
                     _filteringRules: {
@@ -58,10 +58,11 @@ describe('CompositionSectionFilterEnrichmentProvider', () => {
             expect(result.has('ETH')).toBe(true);
             expect(result.has('PSY')).toBe(true);
             expect(result.has('SDV')).toBe(true);
-            expect(result.size).toBe(3);
+            expect(result.has(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE)).toBe(true);
+            expect(result.size).toBe(4);
         });
 
-        test('returns empty Set when deniedSensitiveCategories is empty array', () => {
+        test('returns a Set containing only the hardcoded unclassified code when deniedSensitiveCategories is empty array (DCON-4892)', () => {
             const enrichmentContext = {
                 actor: {
                     _filteringRules: {
@@ -73,10 +74,11 @@ describe('CompositionSectionFilterEnrichmentProvider', () => {
             const result = provider.getDeniedSensitiveCategorySet(enrichmentContext);
 
             expect(result).toBeInstanceOf(Set);
-            expect(result.size).toBe(0);
+            expect(result.size).toBe(1);
+            expect(result.has(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE)).toBe(true);
         });
 
-        test('returns empty Set when deniedSensitiveCategories is undefined', () => {
+        test('returns a Set containing only the hardcoded unclassified code when deniedSensitiveCategories is undefined (DCON-4892)', () => {
             const enrichmentContext = {
                 actor: {
                     _filteringRules: {}
@@ -86,7 +88,24 @@ describe('CompositionSectionFilterEnrichmentProvider', () => {
             const result = provider.getDeniedSensitiveCategorySet(enrichmentContext);
 
             expect(result).toBeInstanceOf(Set);
-            expect(result.size).toBe(0);
+            expect(result.size).toBe(1);
+            expect(result.has(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE)).toBe(true);
+        });
+
+        test('always folds in the hardcoded unclassified code regardless of what the grantor Consent denies -- mirrors DataSharingManager.updateQueryForDelegatedAccessSensitiveData (DCON-4892)', () => {
+            const enrichmentContext = {
+                actor: {
+                    _filteringRules: {
+                        deniedSensitiveCategories: ['some-other-category']
+                    }
+                }
+            };
+
+            const result = provider.getDeniedSensitiveCategorySet(enrichmentContext);
+
+            // 'unclassified' is present even though the grantor's Consent never mentioned it.
+            expect(result.has(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE)).toBe(true);
+            expect(result.has('some-other-category')).toBe(true);
         });
     });
 
@@ -159,6 +178,7 @@ describe('CompositionSectionFilterEnrichmentProvider', () => {
             const passedSet = filterCompositionSensitiveSections.mock.calls[0][1];
             expect(passedSet.has('ETH')).toBe(true);
             expect(passedSet.has('PSY')).toBe(true);
+            expect(passedSet.has(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE)).toBe(true);
         });
 
         test('does NOT call filterCompositionSensitiveSections for non-Composition resources', async () => {
