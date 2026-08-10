@@ -452,18 +452,6 @@ class ConfigManager {
     }
 
     /**
-     * Specifies resource types that are allowed to be returned via the data-sharing consent
-     * mechanism when they reference the proxy patient (Patient/person.<personUuid>) of a
-     * consented person instead of a real source patient. '*' allows all resource types.
-     * @return {string[]}
-     */
-    get getProxyPatientConsentedResourceTypes() {
-        return env.PROXY_PATIENT_CONSENTED_RESOURCE_TYPES
-            ? env.PROXY_PATIENT_CONSENTED_RESOURCE_TYPES.split(',')
-            : [];
-    }
-
-    /**
      * Specifies maximum buffer when streaming data
      * https://nodejs.org/docs/latest-v18.x/api/stream.html#buffering
      * @returns {number}

@@ -1,6 +1,6 @@
 // Tests for extending the data-sharing-consent + connectionType mechanism to resources that
 // reference the PROXY patient (Patient/person.<clientPersonUuid>) instead of a real source
-// patient — starting with CareTeam.
+// patient (e.g. CareTeam).
 //
 // Data set: client person c12345 (uuid 33226ded-51e8-590e-8342-1197955a2af7) linked to a client
 // patient and a proa patient. A proa Observation references the proa patient. A CareTeam carries
@@ -14,7 +14,6 @@ const proaObservationResource = require('./fixtures/observation/proa_observation
 const proxyCareTeamResource = require('./fixtures/careteam/proxy_careteam.json');
 const consentGivenResource = require('./fixtures/consent/consent_given.json');
 
-const { ConfigManager } = require('../../../utils/configManager');
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -26,19 +25,6 @@ const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 const deepcopy = require('deepcopy');
 
 const headers = getHeaders('user/*.read access/client.*');
-
-class MockConfigManagerWithCareTeamAllowed extends ConfigManager {
-    /**
-     * @returns {string[]}
-     */
-    get getProxyPatientConsentedResourceTypes () {
-        return ['CareTeam'];
-    }
-}
-
-// NOTE: createTestRequest builds the express app (and its container) only once per test file,
-// so all tests in this file share MockConfigManagerWithCareTeamAllowed. Tests needing a
-// different config (wildcard allowlist, default/empty allowlist) live in sibling test files.
 
 describe('Proxy-patient consented resources in $everything', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
@@ -52,9 +38,8 @@ describe('Proxy-patient consented resources in $everything', () => {
         await commonAfterEach();
     });
 
-    test('CareTeam referencing proxy patient is returned in Person $everything when consent given and resource type allowlisted', async () => {
+    test('CareTeam referencing proxy patient is returned in Person $everything when consent given', async () => {
         const request = await createTestRequest((c) => {
-            c.register('configManager', () => new MockConfigManagerWithCareTeamAllowed());
             return c;
         });
 
@@ -81,7 +66,6 @@ describe('Proxy-patient consented resources in $everything', () => {
 
     test('CareTeam referencing proxy patient is NOT returned when no consent exists', async () => {
         const request = await createTestRequest((c) => {
-            c.register('configManager', () => new MockConfigManagerWithCareTeamAllowed());
             return c;
         });
 
@@ -105,7 +89,6 @@ describe('Proxy-patient consented resources in $everything', () => {
 
     test('CareTeam referencing proxy patient is NOT returned when consent is owned by another client', async () => {
         const request = await createTestRequest((c) => {
-            c.register('configManager', () => new MockConfigManagerWithCareTeamAllowed());
             return c;
         });
 
@@ -134,7 +117,6 @@ describe('Proxy-patient consented resources in $everything', () => {
 
     test('CareTeam referencing another person\'s proxy patient is NOT returned', async () => {
         const request = await createTestRequest((c) => {
-            c.register('configManager', () => new MockConfigManagerWithCareTeamAllowed());
             return c;
         });
 
