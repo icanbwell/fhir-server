@@ -54,7 +54,7 @@
         }
     ],
     "patient": {
-        "reference": "Patient/person.person1",
+        "reference": "Patient/person.5f3ca115-8630-5e55-a97d-4d6ee26c0adc",
         "display": "Data sharing relationship grantor"
     },
     "provision": {
