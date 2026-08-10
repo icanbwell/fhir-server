@@ -14,7 +14,6 @@ const proaObservationResource = require('./fixtures/observation/proa_observation
 const consentGivenResource = require('./fixtures/consent/consent_given.json');
 const consentDeniedResource = require('./fixtures/consent/consent_denied.json');
 
-const expectedClientPatientObservation = require('./fixtures/expected/client_patient_observation.json');
 const expectedClientPatientObservation1 = require('./fixtures/expected/client_patient_observation_1.json');
 const expectedClientPatientObservation2 = require('./fixtures/expected/client_patient_observation_2.json');
 const expectedClientProaObservation = require('./fixtures/expected/client_and_proa_observation.json');
@@ -63,11 +62,11 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_debug=true&_bundle=1')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345&_debug=true&_bundle=1')
                 .set(headers);
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedClientPatientObservation);
+            expect(resp).toHaveResponse(expectedClientPatientObservation1);
         });
 
         test('Ref of master person: Get Client patient data only, no proa data as consent denied provided', async () => {
@@ -85,11 +84,11 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_debug=true&_bundle=1')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345&_debug=true&_bundle=1')
                 .set(headers);
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedClientPatientObservation);
+            expect(resp).toHaveResponse(expectedClientPatientObservation1);
         });
 
         // Plain (non-$everything) search intentionally stopped including PROA-consented data as
@@ -113,11 +112,11 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_debug=true&_bundle=1')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345&_debug=true&_bundle=1')
                 .set(headers);
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedClientPatientObservation);
+            expect(resp).toHaveResponse(expectedClientPatientObservation1);
         });
 
         // Same DCON-2773 behavior change as above: plain search no longer varies with consent
@@ -139,7 +138,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345')
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
@@ -153,7 +152,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse([{ created: true }, { updated: true }]);
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345')
                 .set(headers);
             const respIds1 = resp.body.map(item => item.id);
 

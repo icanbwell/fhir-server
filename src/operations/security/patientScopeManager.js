@@ -131,18 +131,14 @@ class PatientScopeManager {
                 totalProcessedPersonIds: new Set(),
                 level: 1,
                 addPersonOwnerToContext,
-                requestInfo,
-                // Only meaningful when requestInfo (user + scope) is actually available -- callers that
-                // can't supply it fall back to the pre-existing (unfiltered) behavior rather than
-                // throwing, since the expander asserts requestInfo is defined when this is true.
-                addTopPersonAccessCheck: Boolean(requestInfo),
-                // personIdFromJwtToken is a trusted claim established by authentication, not
-                // user-suppliable input -- there's nothing to re-check by gating it against the
-                // caller's own access/ scope tags (which may legitimately carry no relation to their
-                // own Person's access tag). Only Person(s) reached transitively via Person.link
-                // (level 2+) need the access-tag check; see personToPatientIdsExpander.js for the
-                // full reasoning.
-                skipAccessCheckAtTopLevel: true
+                // The expander reads scope/personIdFromJwtToken directly off requestInfo (not as
+                // separate arguments), so requestInfo.personIdFromJwtToken must be populated here
+                // even if the caller only passed a minimal {user, scope} shim -- merge in the
+                // already-validated personIdFromJwtToken above to guarantee that, regardless of
+                // what shape of requestInfo was actually supplied. Callers that can't supply
+                // requestInfo fall back to the pre-existing (unfiltered) behavior, since the
+                // expander only applies any scope-based check when requestInfo is present.
+                requestInfo: requestInfo ? { ...requestInfo, personIdFromJwtToken } : requestInfo
             });
         } catch (e) {
             throw new RethrownError({
