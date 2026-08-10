@@ -521,6 +521,34 @@ describe('ScopesManager', () => {
         });
     });
 
+    describe('hasHistoryAccess', () => {
+        test('should throw when resourceType is missing', () => {
+            expect(() => {
+                scopesManager.hasHistoryAccess({ scope: 'access/*.*' });
+            }).toThrow();
+        });
+
+        test('should return true for access/*.*', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.*' })).toBe(true);
+        });
+
+        test('should return true for access/*.read', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.read' })).toBe(true);
+        });
+
+        test('should return false for a tenant-scoped access code, even a wildcard write scope', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/tenanta.*' })).toBe(false);
+        });
+
+        test('should return false for access/*.write (not a read grant)', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.write' })).toBe(false);
+        });
+
+        test('should return false when scope is empty', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: '' })).toBe(false);
+        });
+    });
+
     describe('doesResourceHaveMetaSource', () => {
         test('should return falsy for null resource', () => {
             expect(scopesManager.doesResourceHaveMetaSource(null)).toBeFalsy();

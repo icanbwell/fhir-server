@@ -472,6 +472,32 @@ class ScopesManager {
         }
         return false;
     }
+
+    /**
+     * Whether the given scope may read a resource's history (_history,
+     * _history/{id}, or a specific _history/{vid}).
+     *
+     * A historical version keeps the access tags it had at write time, so a
+     * tenant-scoped access code can still match a stale, no-longer-current
+     * tag on an old version after the current version's tags have been
+     * narrowed away from that tenant (SEC-1580 SAE-1). Rather than
+     * re-evaluating each version against the resource's current tags,
+     * history access requires a non-tenant-specific access scope
+     * (access/*.read or access/*.*) -- a tenant-scoped access code is never
+     * sufficient, even for that tenant's own record.
+     * @typedef {Object} HasHistoryAccessParams
+     * @property {string} resourceType
+     * @property {string} scope
+     *
+     * @param {HasHistoryAccessParams}
+     * @return {boolean}
+     */
+    hasHistoryAccess ({ resourceType, scope }) {
+        assertIsValid(resourceType, 'resourceType is required');
+
+        const accessCodes = this.getAccessCodesFromScopes('read', '', scope);
+        return accessCodes.includes('*');
+    }
 }
 
 module.exports = {

@@ -1,0 +1,17 @@
+{
+    "resourceType": "Patient",
+    "id": "sharedProaPatientNoConsent001",
+    "meta": {
+        "source": "upstream_proa_source",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "upstream_proa_source" },
+            { "system": "https://www.icanbwell.com/access", "code": "upstream_proa_source" },
+            { "system": "https://www.icanbwell.com/connectionType", "code": "proa" }
+        ]
+    },
+    "birthDate": "1991-03-14",
+    "gender": "male",
+    "name": [
+        { "use": "official", "family": "Kent", "given": ["Bob"] }
+    ]
+}
