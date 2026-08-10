@@ -1,23 +1,23 @@
 // ============================================================================
-// FAIL-BY-DESIGN security test — SEC-1580 SAE-3 (mongo-only; no ClickHouse).
-// Gap: an end-user token carries a wildcard access scope (`access/*.*`), so no
-// tenant filter applies to it, and patient-scope expansion walks the person's
-// links into PROA/IAS upstream records with no Consent present at all.
+// SEC-1580 SAE-3 (mongo-only; no ClickHouse) — resolved by product decision.
 //
-// NOTE (product decision needed, same caveat as the source finding this was
-// extracted from): the user may be entitled to their own upstream data, in
-// which case consent should govern client access only and this test should be
-// deleted rather than fixed. Until that's decided it stays here as the strict
-// reading: no Consent, no upstream data, for any caller type including the
-// person's own end-user token.
+// Finding: an end-user token carries a wildcard access scope (`access/*.*`),
+// so no tenant filter applies to it, and both patient-scope resource search
+// (e.g. Observation?patient=Patient/person.<id>) and $everything expansion
+// walk the person's links into PROA/IAS upstream records with no Consent
+// present at all.
+//
+// Product decision: a person's own end-user token IS entitled to its own
+// upstream (PROA/IAS) data without a Consent record -- Consent governs
+// third-party client access, not the person's own access to their own linked
+// records. This file asserts that confirmed behavior rather than documenting
+// a gap.
 //
 // Setup: personA links to its own patient plus a PROA patient and an IAS
-// patient (upstream sources), each with its own Observation. A service-account
-// caller with no Consent correctly gets none of the upstream data (control).
-// An end-user token scoped to personA itself must be held to the same rule.
-//
-// Asserts the SECURE outcome; if the end user reaches the upstream data, this
-// FAILS. *.bugs, excluded from default CI.
+// patient (upstream sources), each with its own Observation. A client
+// service-account caller with no Consent still correctly gets none of the
+// upstream data (control) -- the relevant distinction is end-user vs.
+// service-account, not presence/absence of a Consent for the end user.
 // ============================================================================
 const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithCustomPayload, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -77,7 +77,7 @@ const ids = (resp) => {
     return [];
 };
 
-describe('D-SAE3 (fail-by-design) — an end user reaches linked upstream data with no Consent', () => {
+describe('D-SAE3 — a person\'s own end-user token reaches linked upstream data without a Consent, by design', () => {
     beforeEach(async () => { await commonBeforeEach(); });
     afterEach(async () => { await commonAfterEach(); });
 
@@ -97,22 +97,25 @@ describe('D-SAE3 (fail-by-design) — an end user reaches linked upstream data w
         expect(ids(resp)).not.toContain('sae3Proa');
     });
 
-    test('SECURE (fails until SAE-3 enforced): an end user gets no upstream records without a Consent', async () => {
+    test('EXPECTED: a patient-scope end user gets all linked Observations, including upstream PROA/IAS, without a Consent', async () => {
         const request = await createTestRequest();
         await request.post('/4_0_0/Person/1/$merge').send(all).set(getHeaders());
         const resp = await request.get('/4_0_0/Observation?patient=Patient/person.sae3PersonA').set(endUserHeaders);
         expect(resp.status).toBe(200);
         const got = ids(resp);
-        expect(got).not.toContain('sae3ObsProa');
-        expect(got).not.toContain('sae3ObsIas');
+        expect(got).toContain('sae3ObsOwnA');
+        expect(got).toContain('sae3ObsProa');
+        expect(got).toContain('sae3ObsIas');
     });
 
-    test('SECURE (fails until SAE-3 enforced): the same holds on $everything for an end user', async () => {
+    test('EXPECTED: a patient-scope end user gets all linked resources, including upstream PROA/IAS, on $everything without a Consent', async () => {
         const request = await createTestRequest();
         await request.post('/4_0_0/Person/1/$merge').send(all).set(getHeaders());
         const resp = await request.get('/4_0_0/Person/sae3PersonA/$everything').set(endUserHeaders);
+        expect(resp.status).toBe(200);
         const got = ids(resp);
-        expect(got).not.toContain('sae3Proa');
-        expect(got).not.toContain('sae3Ias');
+        expect(got).toContain('sae3OwnA');
+        expect(got).toContain('sae3Proa');
+        expect(got).toContain('sae3Ias');
     });
 });
