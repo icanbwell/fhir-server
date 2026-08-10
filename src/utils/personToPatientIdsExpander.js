@@ -21,6 +21,75 @@ const personProxyPrefix = 'person.';
 const patientReferencePlusPersonProxyPrefix = `${patientReferencePrefix}${personProxyPrefix}`;
 const maximumRecursionDepth = 4;
 
+/**
+ * DCON-4894 helper: resolves the configured Person.link assurance minimum, falling back to
+ * DEFAULT_ASSURANCE_MINIMUM_LEVEL (and logging a warning) if it is not a recognized
+ * identity-assuranceLevel code -- an unrecognized minimum would otherwise rank 0 (same as a
+ * missing assurance), silently making both the dry-run logging and the enforcement gate a no-op.
+ * @param {string} configuredMinimumLevel
+ * @return {string}
+ */
+function resolvePersonLinkAssuranceMinimumLevel (configuredMinimumLevel) {
+    if (isRecognizedAssuranceLevel(configuredMinimumLevel)) {
+        return configuredMinimumLevel;
+    }
+    logWarn(
+        'configManager.personLinkAssuranceMinimumLevel is not a recognized identity-assuranceLevel code; falling back to the default',
+        { configuredMinimumLevel, fallbackMinimumLevel: DEFAULT_ASSURANCE_MINIMUM_LEVEL }
+    );
+    return DEFAULT_ASSURANCE_MINIMUM_LEVEL;
+}
+
+/**
+ * DCON-4894 helper: classifies each Person.link entry by whether its target is actually a
+ * Patient/Person -- the only target types ever followed by patientIdsToAdd/
+ * personResourceWithPersonReferenceLink below (Practitioner/RelatedPerson targets are legal per
+ * FHIR R4 but never followed) -- and whether it meets the given assurance minimum. Computed once
+ * per link so both the dry-run logging and the enforcement gate can reuse the same result instead
+ * of each independently recomputing meetsMinimumAssurance.
+ * @param {Object[]} links
+ * @param {string} minimumLevel
+ * @param {string} uuidKey
+ * @return {{link: Object, targetUuid: (string|undefined), isPatientOrPersonTarget: boolean, passesAssurance: boolean}[]}
+ */
+function classifyPersonLinksByAssurance ({ links, minimumLevel, uuidKey }) {
+    return links.map(l => {
+        const targetUuid = l.target && l.target[`${uuidKey}`];
+        const isPatientOrPersonTarget = !!targetUuid && !!l.target && (
+            targetUuid.startsWith(patientReferencePrefix) || l.target.type === 'Patient' ||
+            targetUuid.startsWith(personReferencePrefix) || l.target.type === 'Person'
+        );
+        return {
+            link: l,
+            targetUuid,
+            isPatientOrPersonTarget,
+            passesAssurance: meetsMinimumAssurance({ assurance: l.assurance, minimumLevel })
+        };
+    });
+}
+
+/**
+ * DCON-4894 helper: logs a dry-run warning for every classified link that is actually followable
+ * (Patient/Person target) but below the configured assurance minimum. Purely observational --
+ * does not change which links are followed.
+ * @param {ReturnType<typeof classifyPersonLinksByAssurance>} linkAssuranceInfo
+ * @param {string} personId
+ * @param {string} minimumLevel
+ */
+function logBelowMinimumAssuranceLinks ({ linkAssuranceInfo, personId, minimumLevel }) {
+    linkAssuranceInfo
+        .filter(info => info.isPatientOrPersonTarget && !info.passesAssurance)
+        .forEach(info => {
+            const targetId = info.targetUuid
+                .replace(patientReferencePrefix, '')
+                .replace(personReferencePrefix, '');
+            logWarn(
+                'Person.link followed below configured assurance minimum (dry-run, no enforcement)',
+                { personId, targetId, assurance: info.link.assurance, minimumLevel }
+            );
+        });
+}
+
 class PersonToPatientIdsExpander {
     /**
      * constructor
@@ -357,52 +426,15 @@ class PersonToPatientIdsExpander {
                 let linksToFollow = person.link;
                 if (this.configManager.logPersonLinkAssuranceBelowMinimum ||
                     this.configManager.enforcePersonLinkAssuranceMinimum) {
-                    let minimumLevel = this.configManager.personLinkAssuranceMinimumLevel;
-                    if (!isRecognizedAssuranceLevel(minimumLevel)) {
-                        // An unrecognized minimum ranks 0 (same as a missing assurance), which
-                        // would make meetsMinimumAssurance true for every link -- silently
-                        // turning both the logging and the enforcement gate into a no-op with no
-                        // error. Fall back to the documented default and say so, rather than let
-                        // a typo'd env var quietly disable this check.
-                        logWarn(
-                            'configManager.personLinkAssuranceMinimumLevel is not a recognized ' +
-                            'identity-assuranceLevel code; falling back to the default',
-                            { configuredMinimumLevel: minimumLevel, fallbackMinimumLevel: DEFAULT_ASSURANCE_MINIMUM_LEVEL }
-                        );
-                        minimumLevel = DEFAULT_ASSURANCE_MINIMUM_LEVEL;
-                    }
-
-                    const linkAssuranceInfo = person.link.map(l => {
-                        const targetUuid = l.target && l.target[`${uuidKey}`];
-                        const isPatientOrPersonTarget = !!targetUuid && !!l.target && (
-                            targetUuid.startsWith(patientReferencePrefix) || l.target.type === 'Patient' ||
-                            targetUuid.startsWith(personReferencePrefix) || l.target.type === 'Person'
-                        );
-                        return {
-                            link: l,
-                            targetUuid,
-                            isPatientOrPersonTarget,
-                            passesAssurance: meetsMinimumAssurance({ assurance: l.assurance, minimumLevel })
-                        };
+                    const minimumLevel = resolvePersonLinkAssuranceMinimumLevel(
+                        this.configManager.personLinkAssuranceMinimumLevel
+                    );
+                    const linkAssuranceInfo = classifyPersonLinksByAssurance({
+                        links: person.link, minimumLevel, uuidKey
                     });
 
                     if (this.configManager.logPersonLinkAssuranceBelowMinimum) {
-                        linkAssuranceInfo
-                            .filter(info => info.isPatientOrPersonTarget && !info.passesAssurance)
-                            .forEach(info => {
-                                const targetId = info.targetUuid
-                                    .replace(patientReferencePrefix, '')
-                                    .replace(personReferencePrefix, '');
-                                logWarn(
-                                    'Person.link followed below configured assurance minimum (dry-run, no enforcement)',
-                                    {
-                                        personId,
-                                        targetId,
-                                        assurance: info.link.assurance,
-                                        minimumLevel
-                                    }
-                                );
-                            });
+                        logBelowMinimumAssuranceLinks({ linkAssuranceInfo, personId, minimumLevel });
                     }
 
                     // DCON-4894 Commit B: when on, a Person.link below the configured assurance
