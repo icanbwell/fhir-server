@@ -36,8 +36,8 @@ const BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL = 'https://www.icanbwell.com/bul
  * src/operations/asyncJobs/worker.js (topic fhir_server.bulk_import.events) route into this
  * same handler; handleMessageAsync dispatches on the CloudEvent "type" rather than the topic,
  * since a single job's messages can arrive on more than one topic:
- * - TaskCreated: validates S3 inputs and will publish ImportRangeRequested events (byte-range
- *   splitting is a follow-up — see the TODO in handleTaskCreatedAsync).
+ * - TaskCreated: HEADs each S3 input to validate it and get its size, splits it into byte
+ *   ranges, and publishes an ImportRangeRequested event per range.
  * - ImportRangeRequested: reads a byte range's NDJSON, merges resources, writes result/error
  *   output to S3, and records completion on the Task.
  */
@@ -273,40 +273,33 @@ class BulkImportHandler {
             user
         });
 
-        // TODO: S3 HEAD validation and byte-range splitting will be added in a follow-up PR.
-        // The orchestrator will:
-        // 1. Load the Task resource
-        // 2. HEAD each S3 file to get sizes and validate
-        // 3. Split files into byte ranges
-        // 4. Publish ImportRangeRequested events for each range
-        //
-        // const task = await this.loadTaskAsync(taskId);
-        // if (!task) {
-        //     logError('Task not found for orchestrator message', { taskId });
-        //     return;
-        // }
-        //
-        // let inputsWithSizes;
-        // try {
-        //     inputsWithSizes = await this.headS3FilesAsync(inputs);
-        // } catch (e) {
-        //     logError('S3 validation failed for import task', { taskId, error: e.message });
-        //     await this.updateOrchestratorTaskStatusAsync(task, 'failed', e.message);
-        //     return;
-        // }
-        //
-        // const messageCount = await this.bulkImportEventProducer.publishImportEventsAsync({
-        //     taskId,
-        //     inputs: inputsWithSizes,
-        //     requestId,
-        //     scope,
-        //     user
-        // });
-        //
-        // logInfo('Orchestrator published byte-range messages', {
-        //     taskId,
-        //     messageCount
-        // });
+        const task = await this.loadTaskAsync(taskId);
+        if (!task) {
+            logError('Task not found for orchestrator message', { taskId });
+            return;
+        }
+
+        let inputsWithSizes;
+        try {
+            inputsWithSizes = await this.headS3FilesAsync(inputs);
+        } catch (e) {
+            logError('S3 validation failed for import task', { taskId, error: e.message });
+            await this.updateOrchestratorTaskStatusAsync(task, 'failed', e.message);
+            return;
+        }
+
+        const messageCount = await this.bulkImportEventProducer.publishImportEventsAsync({
+            taskId,
+            inputs: inputsWithSizes,
+            requestId,
+            scope,
+            user
+        });
+
+        logInfo('Orchestrator published byte-range messages', {
+            taskId,
+            messageCount
+        });
     }
 
     // ── ImportRangeRequested (worker side, topic fhir_server.bulk_import.events) ───────────
@@ -652,7 +645,7 @@ class BulkImportHandler {
 
         try {
             try {
-                for await (const { lineNumber, resource } of this.s3NdjsonReader.readNdjsonAsync({
+                for await (const { lineNumber, byteOffset, resource } of this.s3NdjsonReader.readNdjsonAsync({
                     filepath,
                     byteRangeStart,
                     byteRangeEnd,
@@ -681,12 +674,13 @@ class BulkImportHandler {
                         // resourceType) — still record it so it lands in the error NDJSON and
                         // Task.output, not just a log line.
                         mergeResultEntries.push(
-                            MergeResultEntry.createFromError({ error: resourceError, resource })
+                            MergeResultEntry.createFromError({ error: resourceError, resource, sourceByteOffset: byteOffset })
                         );
                         logError('Failed to buffer bulk import resource for write', {
                             taskId,
                             filepath,
                             lineNumber,
+                            byteOffset,
                             error: resourceError.message
                         });
                     }
