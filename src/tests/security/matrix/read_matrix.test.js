@@ -402,7 +402,7 @@ describe('SECURITY MATRIX — read paths', () => {
 
         // Narrowing the current version's tags shuts tenantA out of the current read.
         // Whether the earlier version stays readable is covered by the _history describe
-        // block above (and by src/tests/everything/sae1_stale_version_tags) -- it no longer does.
+        // block above -- it no longer does.
         test('narrowing a resource\'s access tag hides the current version', async () => {
             const request = await seed();
             const before = await request.get('/4_0_0/Patient/mtxSharedAB').set(CALLER.tenantA.headers());
