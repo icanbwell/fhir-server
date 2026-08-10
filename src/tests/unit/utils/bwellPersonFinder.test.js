@@ -266,6 +266,61 @@ describe('BwellPersonFinder', () => {
         });
     });
 
+    describe('getPersonIdsInLinkPathToBwellPersonAsync', () => {
+        test('should return every Person visited (client Person then master Person) in visit order for a 2-hop path', async () => {
+            const clientPersonId = 'client-person-uuid';
+            const masterPersonId = 'master-person-uuid';
+
+            const clientPerson = {
+                _uuid: clientPersonId,
+                meta: {
+                    security: [
+                        { system: SecurityTagSystem.owner, code: 'other' }
+                    ]
+                }
+            };
+            const masterPerson = {
+                _uuid: masterPersonId,
+                meta: {
+                    security: [
+                        { system: SecurityTagSystem.access, code: 'bwell' },
+                        { system: SecurityTagSystem.owner, code: 'bwell' }
+                    ]
+                }
+            };
+
+            // First call (from the patient) finds the immediate client Person
+            const firstCursor = createMockCursor([clientPerson]);
+            // Second (recursive) call (from the client Person) finds the master Person
+            const secondCursor = createMockCursor([masterPerson]);
+
+            mockDatabaseQueryManager.findAsync
+                .mockResolvedValueOnce(firstCursor)
+                .mockResolvedValueOnce(secondCursor);
+
+            const result = await bwellPersonFinder.getPersonIdsInLinkPathToBwellPersonAsync({
+                patientId: 'test-patient-id'
+            });
+
+            expect(result).toEqual([clientPersonId, masterPersonId]);
+            expect(mockDatabaseQueryFactory.createQuery).toHaveBeenCalledWith({
+                resourceType: 'Person',
+                base_version: '4_0_0'
+            });
+        });
+
+        test('should return [] when no Person links to the patient at all', async () => {
+            const mockCursor = createMockCursor([]);
+            mockDatabaseQueryManager.findAsync.mockResolvedValue(mockCursor);
+
+            const result = await bwellPersonFinder.getPersonIdsInLinkPathToBwellPersonAsync({
+                patientId: 'test-patient-id'
+            });
+
+            expect(result).toEqual([]);
+        });
+    });
+
     describe('getImmediatePersonIdHelperAsync', () => {
         test('should return object with expected properties when references is empty', async () => {
             const result = await bwellPersonFinder.getImmediatePersonIdHelperAsync({

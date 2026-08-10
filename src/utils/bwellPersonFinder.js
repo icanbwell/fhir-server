@@ -45,6 +45,37 @@ class BwellPersonFinder {
     }
 
     /**
+     * Walks the link graph from the given patient up to (and including) the bwell master
+     * Person, returning the `_uuid` of every Person visited along the way, in visit order.
+     * Unlike getBwellPersonIdAsync (which only returns the final master-Person id), this
+     * captures every intermediate Person hop so callers can invalidate caches keyed under
+     * any of them, not just the two endpoints.
+     * @param {string} patientId
+     * @return {Promise<string[]>} ids of every Person visited (in visit order), or [] if no
+     * Person links to the patient at all.
+     */
+    async getPersonIdsInLinkPathToBwellPersonAsync ({ patientId }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Person',
+            base_version: '4_0_0'
+        });
+
+        /**
+         * @type {string[]}
+         */
+        const path = [];
+
+        await this.searchForBwellPersonAsync({
+            currentSubject: `${PATIENT_REFERENCE_PREFIX}${patientId}`,
+            databaseQueryManager,
+            visitedSubjects: new Set(),
+            path
+        });
+
+        return path;
+    }
+
+    /**
      * finds immediate person Ids associated with patientsIds
      * @param {{ patientReferences: import('../operations/query/filters/searchFilterFromReference').IReferences; asObject: boolean, securityTags?: string[] }} options List of patient and proxy-patient References
      * @returns {Promise<Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]>, Map<string, string[]>>} Returns map with key as patientId and value as next level persons-id & person to linked patients map
@@ -230,9 +261,13 @@ class BwellPersonFinder {
      * @param {string} currentSubject
      * @param {DatabaseQueryManager} databaseQueryManager for performing queries
      * @param {Set} visitedSubjects subjects that have already been visited (to avoid infinite loops)
+     * @param {string[]} [path] optional accumulator. If provided, the `_uuid` of every Person
+     * visited while walking towards the bwell master Person is pushed onto it (in visit order,
+     * including the master Person itself once found). Callers that only need the final
+     * master-Person id (e.g. getBwellPersonIdAsync) can omit this.
      * @return {Promise<string>}
      */
-    async searchForBwellPersonAsync ({ currentSubject, databaseQueryManager, visitedSubjects }) {
+    async searchForBwellPersonAsync ({ currentSubject, databaseQueryManager, visitedSubjects, path }) {
         if (visitedSubjects.has(currentSubject)) {
             return null;
         }
@@ -251,12 +286,19 @@ class BwellPersonFinder {
             const nextPersonId = nextPerson._uuid;
             if (this.isBwellPerson(nextPerson)) {
                 foundPersonId = nextPersonId;
+                if (path) {
+                    path.push(nextPersonId);
+                }
             } else {
+                if (path) {
+                    path.push(nextPersonId);
+                }
                 // recurse through to next layer of linked Persons (depth search)
                 foundPersonId = await this.searchForBwellPersonAsync({
                     currentSubject: `Person/${nextPersonId}`,
                     databaseQueryManager,
-                    visitedSubjects
+                    visitedSubjects,
+                    path
                 });
             }
         }
