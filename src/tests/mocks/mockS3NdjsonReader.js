@@ -9,6 +9,7 @@ class MockS3NdjsonReader extends S3NdjsonReader {
          * @type {Array<Object>}
          */
         this.linesToYield = [];
+        this.failReadsRemaining = 0;
     }
 
     /**
@@ -19,8 +20,21 @@ class MockS3NdjsonReader extends S3NdjsonReader {
         this.linesToYield = resources;
     }
 
+    /**
+     * Makes the next `count` calls to readNdjsonAsync() throw before yielding anything,
+     * simulating a transient S3/stream failure. Calls after that yield normally.
+     * @param {number} count
+     */
+    setFailNextReads(count) {
+        this.failReadsRemaining = count;
+    }
+
     async *readNdjsonAsync({ filepath, byteRangeStart, byteRangeEnd, fileSize }) {
         this.readCalls.push({ filepath, byteRangeStart, byteRangeEnd, fileSize });
+        if (this.failReadsRemaining > 0) {
+            this.failReadsRemaining--;
+            throw new Error('Simulated transient S3 read failure');
+        }
         for (let i = 0; i < this.linesToYield.length; i++) {
             // byteOffset is arbitrary here (this mock doesn't read real bytes) but must be
             // distinct per line and independent of byteRangeStart to mirror the real
@@ -45,6 +59,7 @@ class MockS3NdjsonReader extends S3NdjsonReader {
         this.readCalls = [];
         this.writeCalls = [];
         this.linesToYield = [];
+        this.failReadsRemaining = 0;
     }
 }
 

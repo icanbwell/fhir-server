@@ -495,6 +495,40 @@ class BulkImportHandler {
     }
 
     /**
+     * Retries reading+processing an entire byte range on transient S3/stream failures.
+     * A read can fail partway through the stream after some resources were already
+     * buffered or even flushed to Mongo -- fn() is expected to reset its own accumulators
+     * and reprocess the WHOLE range from the start on each attempt. Before retrying, this
+     * clears requestId's buffered-but-unflushed inserts so a failed attempt's partial
+     * buffer doesn't get double-inserted alongside the retry's own. Reprocessing
+     * already-flushed resources is safe: the underlying MongoDB writes for a range are
+     * idempotent merges (the same guarantee already relied on for Kafka redelivery of a
+     * whole range -- see recordRangeCompletionAsync).
+     * @param {Object} params
+     * @param {() => Promise<void>} params.fn
+     * @param {string} params.requestId
+     * @param {number} [params.attempts]
+     * @returns {Promise<void>}
+     */
+    async readRangeWithRetryAsync({ fn, requestId, attempts = 3 }) {
+        let lastError;
+        for (let attempt = 1; attempt <= attempts; attempt++) {
+            try {
+                await fn();
+                return;
+            } catch (e) {
+                lastError = e;
+                logError('S3 NDJSON range read attempt failed', { requestId, attempt, attempts, error: e.message });
+                if (attempt < attempts) {
+                    await this.requestSpecificCache.clearAsync({ requestId });
+                    await new Promise((resolve) => setTimeout(resolve, 200 * attempt));
+                }
+            }
+        }
+        throw lastError;
+    }
+
+    /**
      * Writes this range's merge-result (and error, if any) NDJSON to S3, appends
      * Task.output entries pointing at them, and records a completion marker so
      * isTaskFullyComplete() can detect when every range of every file is done.
@@ -643,58 +677,74 @@ class BulkImportHandler {
             sinceLastFlush = 0;
         };
 
+        const readAndProcessRangeAsync = async () => {
+            // Reset accumulators -- a retry reprocesses the WHOLE range from the start, so
+            // a partial attempt's counts/entries must not carry over into the next one.
+            linesRead = 0;
+            sinceLastFlush = 0;
+            created = 0;
+            updated = 0;
+            failed = 0;
+            mergeResultEntries.length = 0;
+
+            for await (const { lineNumber, byteOffset, resource } of this.s3NdjsonReader.readNdjsonAsync({
+                filepath,
+                byteRangeStart,
+                byteRangeEnd,
+                fileSize
+            })) {
+                linesRead++;
+                sinceLastFlush++;
+
+                try {
+                    const fhirResource = FhirResourceWriteSerializer.serialize({
+                        obj: this.applyDefaultSecurityTagsIfMissing(resource)
+                    });
+                    const contextData = buildContextDataForHybridStorage(
+                        fhirResource.resourceType, fhirResource, requestInfo
+                    );
+                    await this.fastDatabaseBulkInserter.insertOneAsync({
+                        base_version,
+                        requestInfo,
+                        resourceType: fhirResource.resourceType,
+                        doc: fhirResource,
+                        contextData
+                    });
+                } catch (resourceError) {
+                    failed++;
+                    // Failed before reaching the bulk inserter (e.g. missing/unsupported
+                    // resourceType) — still record it so it lands in the error NDJSON and
+                    // Task.output, not just a log line.
+                    mergeResultEntries.push(
+                        MergeResultEntry.createFromError({ error: resourceError, resource, sourceByteOffset: byteOffset })
+                    );
+                    logError('Failed to buffer bulk import resource for write', {
+                        taskId,
+                        filepath,
+                        lineNumber,
+                        byteOffset,
+                        error: resourceError.message
+                    });
+                }
+
+                if (sinceLastFlush >= batchSize) {
+                    await flushBatchAsync();
+                    // Rate control: yield between batches so a single range doesn't
+                    // monopolize the event loop or MongoDB's write capacity.
+                    await new Promise((resolve) => setTimeout(resolve, batchDelayMs));
+                }
+            }
+            if (sinceLastFlush > 0) {
+                await flushBatchAsync();
+            }
+        };
+
         try {
             try {
-                for await (const { lineNumber, byteOffset, resource } of this.s3NdjsonReader.readNdjsonAsync({
-                    filepath,
-                    byteRangeStart,
-                    byteRangeEnd,
-                    fileSize
-                })) {
-                    linesRead++;
-                    sinceLastFlush++;
-
-                    try {
-                        const fhirResource = FhirResourceWriteSerializer.serialize({
-                            obj: this.applyDefaultSecurityTagsIfMissing(resource)
-                        });
-                        const contextData = buildContextDataForHybridStorage(
-                            fhirResource.resourceType, fhirResource, requestInfo
-                        );
-                        await this.fastDatabaseBulkInserter.insertOneAsync({
-                            base_version,
-                            requestInfo,
-                            resourceType: fhirResource.resourceType,
-                            doc: fhirResource,
-                            contextData
-                        });
-                    } catch (resourceError) {
-                        failed++;
-                        // Failed before reaching the bulk inserter (e.g. missing/unsupported
-                        // resourceType) — still record it so it lands in the error NDJSON and
-                        // Task.output, not just a log line.
-                        mergeResultEntries.push(
-                            MergeResultEntry.createFromError({ error: resourceError, resource, sourceByteOffset: byteOffset })
-                        );
-                        logError('Failed to buffer bulk import resource for write', {
-                            taskId,
-                            filepath,
-                            lineNumber,
-                            byteOffset,
-                            error: resourceError.message
-                        });
-                    }
-
-                    if (sinceLastFlush >= batchSize) {
-                        await flushBatchAsync();
-                        // Rate control: yield between batches so a single range doesn't
-                        // monopolize the event loop or MongoDB's write capacity.
-                        await new Promise((resolve) => setTimeout(resolve, batchDelayMs));
-                    }
-                }
-                if (sinceLastFlush > 0) {
-                    await flushBatchAsync();
-                }
+                await this.readRangeWithRetryAsync({
+                    fn: readAndProcessRangeAsync,
+                    requestId: requestInfo.requestId
+                });
             } catch (e) {
                 logError('Error reading S3 NDJSON range', {
                     taskId,

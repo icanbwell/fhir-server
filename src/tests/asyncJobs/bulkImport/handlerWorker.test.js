@@ -486,6 +486,127 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         writeSpy.mockRestore();
     });
 
+    test('readRangeWithRetryAsync retries transient failures and succeeds', async () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const fn = jest.fn()
+            .mockRejectedValueOnce(new Error('transient read failure'))
+            .mockResolvedValueOnce(undefined);
+
+        await handler.readRangeWithRetryAsync({ fn, requestId: 'req-retry-success' });
+
+        expect(fn).toHaveBeenCalledTimes(2);
+    });
+
+    test('readRangeWithRetryAsync throws after exhausting retries', async () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const fn = jest.fn().mockRejectedValue(new Error('persistent read failure'));
+
+        await expect(handler.readRangeWithRetryAsync({
+            fn,
+            requestId: 'req-retry-exhausted',
+            attempts: 2
+        })).rejects.toThrow('persistent read failure');
+        expect(fn).toHaveBeenCalledTimes(2);
+    });
+
+    test('readRangeWithRetryAsync clears requestSpecificCache between failed attempts', async () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const clearSpy = jest.spyOn(container.requestSpecificCache, 'clearAsync');
+        const fn = jest.fn()
+            .mockRejectedValueOnce(new Error('transient read failure'))
+            .mockResolvedValueOnce(undefined);
+
+        await handler.readRangeWithRetryAsync({ fn, requestId: 'req-retry-clears-cache' });
+
+        // Clears the failed attempt's buffered-but-unflushed inserts before retrying with
+        // the same requestId, so a partial buffer can't get double-inserted alongside the
+        // retry's own.
+        expect(clearSpy).toHaveBeenCalledWith({ requestId: 'req-retry-clears-cache' });
+
+        clearSpy.mockRestore();
+    });
+
+    test('handleMessageAsync retries a transient S3 read failure and still completes the range', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-read-retry' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-read-retry', name: [{ family: 'Retry' }] }
+        ]);
+        container.s3NdjsonReader.setFailNextReads(1);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-read-retry-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-read-retry' }),
+            headers: []
+        });
+
+        await request
+            .get('/4_0_0/Patient/bulk-import-read-retry')
+            .set(getHeaders())
+            .expect(200);
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-read-retry')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+
+        // First read call failed, second succeeded -- the whole range is reprocessed from
+        // the start on retry, not resumed mid-stream.
+        expect(container.s3NdjsonReader.getReadCalls()).toHaveLength(2);
+    });
+
+    test('handleMessageAsync marks the Task failed after exhausting S3 read retries', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-read-exhausted' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-read-exhausted', name: [{ family: 'Exhausted' }] }
+        ]);
+        container.s3NdjsonReader.setFailNextReads(3);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-read-exhausted-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-read-exhausted' }),
+            headers: []
+        });
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-read-exhausted')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('failed');
+        expect(container.s3NdjsonReader.getReadCalls()).toHaveLength(3);
+    });
+
     test('handleMessageAsync propagates a persistent S3 write failure instead of silently dropping the range', async () => {
         const request = await createTestRequest();
 
