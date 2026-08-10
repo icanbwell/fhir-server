@@ -319,6 +319,50 @@ describe('BwellPersonFinder', () => {
 
             expect(result).toEqual([]);
         });
+
+        test('should visit every branch of a branching link graph, not stop after the first branch reaches a master Person', async () => {
+            // A Patient shared across two tenants (review.md §E's normal case) is linked-to by
+            // two distinct client Persons, each routing through its own distinct intermediate
+            // Person to a (shared) bwell master Person:
+            //   Patient -> C1 -> D1 -> M
+            //           -> C2 -> D2 -> M
+            // Before the fix, the while loop in searchForBwellPersonAsync stopped as soon as the
+            // C1 branch resolved to M, so D2/C2's branch was never visited or pushed onto path.
+            const nonMasterMeta = { security: [{ system: SecurityTagSystem.owner, code: 'other' }] };
+            const c1 = { _uuid: 'client-person-1', meta: nonMasterMeta };
+            const c2 = { _uuid: 'client-person-2', meta: nonMasterMeta };
+            const d1 = { _uuid: 'intermediate-person-1', meta: nonMasterMeta };
+            const d2 = { _uuid: 'intermediate-person-2', meta: nonMasterMeta };
+            const masterPerson = {
+                _uuid: 'master-person-uuid',
+                meta: {
+                    security: [
+                        { system: SecurityTagSystem.access, code: 'bwell' },
+                        { system: SecurityTagSystem.owner, code: 'bwell' }
+                    ]
+                }
+            };
+
+            mockDatabaseQueryManager.findAsync
+                .mockResolvedValueOnce(createMockCursor([c1, c2])) // from the Patient
+                .mockResolvedValueOnce(createMockCursor([d1])) // from C1
+                .mockResolvedValueOnce(createMockCursor([masterPerson])) // from D1
+                .mockResolvedValueOnce(createMockCursor([d2])) // from C2
+                .mockResolvedValueOnce(createMockCursor([masterPerson])); // from D2
+
+            const result = await bwellPersonFinder.getPersonIdsInLinkPathToBwellPersonAsync({
+                patientId: 'test-patient-id'
+            });
+
+            // Every Person on every branch must be present -- not just the first branch found.
+            expect(result).toEqual(
+                expect.arrayContaining(['client-person-1', 'intermediate-person-1', 'client-person-2', 'intermediate-person-2', 'master-person-uuid'])
+            );
+            expect(result.filter((id) => id === 'client-person-1')).toHaveLength(1);
+            expect(result.filter((id) => id === 'client-person-2')).toHaveLength(1);
+            expect(result.filter((id) => id === 'intermediate-person-1')).toHaveLength(1);
+            expect(result.filter((id) => id === 'intermediate-person-2')).toHaveLength(1);
+        });
     });
 
     describe('getImmediatePersonIdHelperAsync', () => {

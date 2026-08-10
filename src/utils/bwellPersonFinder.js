@@ -32,6 +32,18 @@ class BwellPersonFinder {
      * @return {Promise<string>}
      */
     async getBwellPersonIdAsync ({ patientId }) {
+        return await this._walkFromPatientAsync({ patientId });
+    }
+
+    /**
+     * Shared setup for getBwellPersonIdAsync and getPersonIdsInLinkPathToBwellPersonAsync: builds
+     * the Person query manager and kicks off the recursive walk from the given patient. `path` is
+     * forwarded as-is (undefined for getBwellPersonIdAsync, an accumulator array for the other).
+     * @param {string} patientId
+     * @param {string[]} [path]
+     * @return {Promise<string>}
+     */
+    async _walkFromPatientAsync ({ patientId, path }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: '4_0_0'
@@ -40,7 +52,8 @@ class BwellPersonFinder {
         return await this.searchForBwellPersonAsync({
             currentSubject: `${PATIENT_REFERENCE_PREFIX}${patientId}`,
             databaseQueryManager,
-            visitedSubjects: new Set()
+            visitedSubjects: new Set(),
+            path
         });
     }
 
@@ -55,22 +68,12 @@ class BwellPersonFinder {
      * Person links to the patient at all.
      */
     async getPersonIdsInLinkPathToBwellPersonAsync ({ patientId }) {
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({
-            resourceType: 'Person',
-            base_version: '4_0_0'
-        });
-
         /**
          * @type {string[]}
          */
         const path = [];
 
-        await this.searchForBwellPersonAsync({
-            currentSubject: `${PATIENT_REFERENCE_PREFIX}${patientId}`,
-            databaseQueryManager,
-            visitedSubjects: new Set(),
-            path
-        });
+        await this._walkFromPatientAsync({ patientId, path });
 
         return path;
     }
@@ -280,26 +283,31 @@ class BwellPersonFinder {
 
         const linkedPersons = await databaseQueryManager.findAsync({ query: { [resourceReferenceKey]: currentSubject } });
 
-        // iterate over linked Persons (breadth search)
-        while (!foundPersonId && (await linkedPersons.hasNext())) {
+        // Iterate over linked Persons (breadth search). getBwellPersonIdAsync (path undefined)
+        // keeps its original behavior: stop at the first candidate that resolves to a master
+        // Person, since it only needs any one master id. getPersonIdsInLinkPathToBwellPersonAsync
+        // (path provided) must NOT stop early -- a Patient can legitimately be linked-to by more
+        // than one Person (e.g. two client Persons sharing the same Patient across tenants,
+        // review.md §E), each potentially routing through its own distinct intermediate Person(s)
+        // to a master. Stopping at the first match would silently skip every sibling branch's
+        // intermediate Persons, which is exactly what this accumulator exists to capture.
+        while ((path ? true : !foundPersonId) && (await linkedPersons.hasNext())) {
             const nextPerson = await linkedPersons.nextObject();
             const nextPersonId = nextPerson._uuid;
+            if (path) {
+                path.push(nextPersonId);
+            }
             if (this.isBwellPerson(nextPerson)) {
-                foundPersonId = nextPersonId;
-                if (path) {
-                    path.push(nextPersonId);
-                }
+                foundPersonId = foundPersonId || nextPersonId;
             } else {
-                if (path) {
-                    path.push(nextPersonId);
-                }
                 // recurse through to next layer of linked Persons (depth search)
-                foundPersonId = await this.searchForBwellPersonAsync({
+                const recursedPersonId = await this.searchForBwellPersonAsync({
                     currentSubject: `Person/${nextPersonId}`,
                     databaseQueryManager,
                     visitedSubjects,
                     path
                 });
+                foundPersonId = foundPersonId || recursedPersonId;
             }
         }
 
