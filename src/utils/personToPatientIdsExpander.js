@@ -9,6 +9,7 @@ const { FhirRequestInfo } = require('./fhirRequestInfo');
 const { ScopesManager } = require('../operations/security/scopesManager');
 const { SecurityTagManager } = require('../operations/common/securityTagManager');
 const { ConfigManager } = require('./configManager');
+const { meetsMinimumAssurance } = require('./personLinkAssuranceLevel');
 
 const patientReferencePrefix = 'Patient/';
 const personReferencePrefix = 'Person/';
@@ -335,6 +336,36 @@ class PersonToPatientIdsExpander {
 
             if (person && person.link && person.link.length > 0 && !totalProcessedPersonIds.has(personId)) {
                 const linkedPatients = personToLinkedPatient.get(personId) || new Set();
+
+                // DCON-4894 Commit A: dry-run logging only (gated behind
+                // logPersonLinkAssuranceBelowMinimum, which defaults to false). Logs every
+                // Person.link followed whose `assurance` (FHIR's match-confidence field, ranked
+                // 1-4 via meetsMinimumAssurance/rankPersonLinkAssurance, with any missing/
+                // unrecognized value ranking 0) does not meet the configured minimum. This is
+                // purely observational -- it does not change which links are followed/returned.
+                if (this.configManager.logPersonLinkAssuranceBelowMinimum) {
+                    const minimumLevel = this.configManager.personLinkAssuranceMinimumLevel;
+                    person.link.forEach(l => {
+                        const targetUuid = l.target && l.target[`${uuidKey}`];
+                        if (!targetUuid) {
+                            return;
+                        }
+                        if (!meetsMinimumAssurance({ assurance: l.assurance, minimumLevel })) {
+                            const targetId = targetUuid
+                                .replace(patientReferencePrefix, '')
+                                .replace(personReferencePrefix, '');
+                            logWarn(
+                                'Person.link followed below configured assurance minimum (dry-run, no enforcement)',
+                                {
+                                    personId,
+                                    targetId,
+                                    assurance: l.assurance,
+                                    minimumLevel
+                                }
+                            );
+                        }
+                    });
+                }
 
                 const patientIdsToAdd = person.link
                     .filter(l => l.target && l.target[`${uuidKey}`] &&

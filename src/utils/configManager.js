@@ -1265,6 +1265,30 @@ class ConfigManager {
         return isTrue(env.ENABLE_DELEGATED_ACCESS_DETECTION);
     }
 
+    /**
+     * Minimum FHIR R4 `identity-assuranceLevel` (`level1`-`level4`) a `Person.link` must carry
+     * to be considered trustworthy enough to follow during Person.link traversal
+     * (personToPatientIdsExpander.js). Used by both the dry-run logging
+     * (logPersonLinkAssuranceBelowMinimum) and the enforcement gate
+     * (enforcePersonLinkAssuranceMinimum) below.
+     * @return {string}
+     */
+    get personLinkAssuranceMinimumLevel() {
+        return env.PERSON_LINK_ASSURANCE_MINIMUM_LEVEL || 'level2';
+    }
+
+    /**
+     * When true, logs a warning every time a `Person.link` below
+     * personLinkAssuranceMinimumLevel is followed during traversal, without changing traversal
+     * behavior. Meant to be observed in a real environment (to see whether real Person.link data
+     * is populated meaningfully enough) before enforcePersonLinkAssuranceMinimum is ever
+     * considered. Defaults to false.
+     * @return {boolean}
+     */
+    get logPersonLinkAssuranceBelowMinimum() {
+        return isTrue(env.LOG_PERSON_LINK_ASSURANCE_BELOW_MINIMUM);
+    }
+
     get dataSharingAccessCodes() {
         return this._parseCommaSeparatedList(
             env.DATA_SHARING_ACCESS_CONSENT_CODES,
