@@ -4,6 +4,26 @@
  * Shared helpers for /mcp integration tests -- extracted from mcpEndpoint.integration.test.js so
  * per-tool test files (see dedicated_tools/) don't each hand-duplicate the SSE/JSON-RPC parsing.
  */
+const { generateUUIDv5 } = require('../../utils/uid.util');
+
+/**
+ * A patient-scoped caller's identity (SEC-1580 IDG-5, #2481) is now matched strictly against
+ * the Person collection's _uuid field, never falling back to _sourceId -- so a JWT's
+ * clientFhirPersonId/bwellFhirPersonId claim must carry the Person's real _uuid, not the raw
+ * FHIR `id` used to create it in a test fixture. UuidColumnHandler computes
+ * _uuid = generateUUIDv5(`${id}|${sourceAssigningAuthority}`) for any non-uuid id, and
+ * SourceAssigningAuthorityColumnHandler falls back to the first owner security tag's code when
+ * no explicit sourceAssigningAuthority tag is present -- which for every Person built with
+ * minimalSecurity()'s default owner is 'client'. This mirrors that derivation so tests can use
+ * readable ids (e.g. 'mcp-t6-person') while still presenting a JWT identity the traversal will
+ * actually resolve.
+ * @param {string} personId the raw FHIR `id` a test Person was created with
+ * @param {string} [owner] the owner tag used when creating the Person (minimalSecurity()'s default is 'client')
+ * @returns {string}
+ */
+function personUuid (personId, owner = 'client') {
+    return generateUUIDv5(`${personId}|${owner}`);
+}
 
 /**
  * Extracts the JSON-RPC envelope out of an MCP SSE response body
@@ -270,6 +290,7 @@ module.exports = {
     bundleFromToolResult,
     idsInBundle,
     minimalSecurity,
+    personUuid,
     makePatient,
     makeLocation,
     makeObservation,

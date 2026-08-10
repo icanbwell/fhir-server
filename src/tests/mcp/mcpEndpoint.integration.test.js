@@ -36,6 +36,7 @@ const {
     bundleFromToolResult,
     idsInBundle,
     minimalSecurity,
+    personUuid,
     makePatient,
     makeLocation,
     makeObservation,
@@ -44,8 +45,10 @@ const {
 
 /**
  * A patient-scoped JWT payload whose clientFhirPersonId/bwellFhirPersonId is the given
- * personId. Full user/access grants are included alongside the patient scope so that scope
- * *narrowing* (not an outright access denial) is what's under test -- mirrors
+ * personId's Person._uuid (SEC-1580 IDG-5, #2481, tightened this to an exact _uuid match with
+ * no _sourceId fallback -- see personUuid's doc comment in mcpTestHelpers.js). Full user/access
+ * grants are included alongside the patient scope so that scope *narrowing* (not an outright
+ * access denial) is what's under test -- mirrors
  * src/tests/graphqlv2/observation/observation.test.js's getGraphQLHeadersWithPerson usage and
  * src/tests/patientScope/search_with_clientfhirpersonid's jwt_payload shape.
  */
@@ -53,9 +56,9 @@ function patientScopedToken (personId, overrides = {}) {
     return getHeadersWithCustomPayload({
         scope: 'patient/*.read user/*.* access/*.*',
         username: `${personId}@example.com`,
-        clientFhirPersonId: personId,
+        clientFhirPersonId: personUuid(personId),
         clientFhirPatientId: 'clientFhirPatient',
-        bwellFhirPersonId: personId,
+        bwellFhirPersonId: personUuid(personId),
         bwellFhirPatientId: 'bwellFhirPatient',
         token_use: 'access',
         ...overrides
@@ -392,7 +395,8 @@ describe('/mcp endpoint', () => {
             // person, mirroring src/tests/graphqlv2/observation/observation.test.js's
             // "GraphQL id equals and not equals test with patient data view control" and the
             // exact reference format PatientDataViewControlManager.getConsentAsync
-            // (src/utils/patientDataViewController.js) expects: `Patient/person.<personId>`.
+            // (src/utils/patientDataViewController.js) expects: `Patient/person.<personIdFromJwtToken>`
+            // -- which is now the Person's _uuid, not the raw id (see personUuid's doc comment).
             const consentResource = {
                 resourceType: 'Consent',
                 id: 'mcp-t8-consent',
@@ -404,7 +408,7 @@ describe('/mcp endpoint', () => {
                 category: [
                     { coding: [{ system: 'http://www.icanbwell.com/consent-category', code: 'dataConnectionViewControl' }] }
                 ],
-                patient: { reference: `Patient/person.${personId}` },
+                patient: { reference: `Patient/person.${personUuid(personId)}` },
                 // 'meaning' is required by the Consent schema on every provision.data entry (FHIR
                 // R4 Consent.provision.data.meaning is 1..1) -- mirrors
                 // src/tests/graphqlv2/observation/fixtures/consent/consent1.json.
@@ -487,7 +491,7 @@ describe('/mcp endpoint', () => {
                 category: [
                     { coding: [{ system: 'http://www.icanbwell.com/consent-category', code: 'dataConnectionViewControl' }] }
                 ],
-                patient: { reference: `Patient/person.${personId}` },
+                patient: { reference: `Patient/person.${personUuid(personId)}` },
                 provision: { data: [{ meaning: 'instance', reference: { reference: `Observation/${hiddenObservationId}` } }] }
             };
             resp = await request
