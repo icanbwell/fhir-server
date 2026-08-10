@@ -840,7 +840,7 @@ class FhirDataSource {
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
-                base_version, parsedArgs, resourceType, operation: READ
+                base_version, parsedArgs, resourceType, operation: READ, requestInfo: this.requestInfo
             }
         );
         headers = {
