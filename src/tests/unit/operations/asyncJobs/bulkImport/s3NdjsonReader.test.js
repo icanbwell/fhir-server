@@ -230,18 +230,44 @@ describe('S3NdjsonReader', () => {
         });
     });
 
-    describe('readNdjsonAsync retryable classification', () => {
-        test('marks an invalid-JSON line error as non-retryable -- it would fail identically on every attempt', async () => {
-            const badText = '{"resourceType":"Patient","id":"p1"}\nnot-json\n';
+    describe('readNdjsonAsync per-line error handling', () => {
+        test('skips an invalid-JSON line (yielding a parseError) instead of aborting the rest of the range', async () => {
+            const badText = '{"resourceType":"Patient","id":"p1"}\nnot-json\n{"resourceType":"Patient","id":"p2"}\n';
             const badFileSize = Buffer.byteLength(badText, 'utf8');
             serveFileFromMockS3(badText);
 
-            await expect(collect(reader.readNdjsonAsync({
+            const results = await collect(reader.readNdjsonAsync({
                 filepath: 's3://allowed-bucket/file.ndjson',
                 byteRangeStart: 0,
                 byteRangeEnd: badFileSize,
                 fileSize: badFileSize
-            }))).rejects.toMatchObject({ retryable: false });
+            }));
+
+            expect(results).toHaveLength(3);
+            expect(results[0]).toMatchObject({ resource: { id: 'p1' }, parseError: null });
+            expect(results[1].resource).toBeNull();
+            expect(results[1].parseError).toBeInstanceOf(Error);
+            expect(results[1].parseError.message).toMatch(/Invalid JSON at line 2/);
+            expect(results[2]).toMatchObject({ resource: { id: 'p2' }, parseError: null });
+        });
+
+        test('skips a line exceeding the max size (yielding a parseError) instead of aborting the rest of the range', async () => {
+            const oversizedLine = JSON.stringify({ resourceType: 'Patient', id: 'p1', extra: 'x'.repeat(20 * 1024 * 1024) });
+            const text = `${oversizedLine}\n{"resourceType":"Patient","id":"p2"}\n`;
+            const fileSizeForTest = Buffer.byteLength(text, 'utf8');
+            serveFileFromMockS3(text);
+
+            const results = await collect(reader.readNdjsonAsync({
+                filepath: 's3://allowed-bucket/file.ndjson',
+                byteRangeStart: 0,
+                byteRangeEnd: fileSizeForTest,
+                fileSize: fileSizeForTest
+            }));
+
+            expect(results).toHaveLength(2);
+            expect(results[0].resource).toBeNull();
+            expect(results[0].parseError.message).toMatch(/exceeds maximum size/);
+            expect(results[1]).toMatchObject({ resource: { id: 'p2' }, parseError: null });
         });
     });
 });

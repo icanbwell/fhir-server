@@ -313,6 +313,48 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         ]);
     });
 
+    test('handleMessageAsync skips an invalid NDJSON line and records it in the error output without failing the range', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-bad-line' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-before-bad-line', name: [{ family: 'Before' }] },
+            { __parseError: 'Invalid JSON at line 2 in "s3://allowed-bucket/Patient.ndjson": Unexpected token' },
+            { resourceType: 'Patient', id: 'bulk-import-after-bad-line', name: [{ family: 'After' }] }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-bad-line-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-bad-line' }),
+            headers: []
+        });
+
+        // The bad line doesn't abort the range -- both surrounding valid resources are
+        // still written.
+        await request.get('/4_0_0/Patient/bulk-import-before-bad-line').set(getHeaders()).expect(200);
+        await request.get('/4_0_0/Patient/bulk-import-after-bad-line').set(getHeaders()).expect(200);
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-bad-line')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+
+        const errorWrite = container.s3NdjsonReader.getWriteCalls()
+            .find((c) => c.filepath.includes('/output/errors/'));
+        expect(errorWrite).toBeDefined();
+        expect(errorWrite.data).toContain('Invalid JSON at line 2');
+    });
+
     test('handleMessageAsync flushes postRequestProcessor and clears requestSpecificCache per range', async () => {
         const request = await createTestRequest();
 

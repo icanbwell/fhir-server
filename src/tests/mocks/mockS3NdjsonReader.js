@@ -53,7 +53,15 @@ class MockS3NdjsonReader extends S3NdjsonReader {
             // byteOffset is arbitrary here (this mock doesn't read real bytes) but must be
             // distinct per line and independent of byteRangeStart to mirror the real
             // reader's guarantee that it's a stable, range-independent identifier.
-            yield { lineNumber: i + 1, byteOffset: i * 100, resource: this.linesToYield[i] };
+            const entry = this.linesToYield[i];
+            // A { __parseError: 'message' } entry simulates a real reader's per-line
+            // skip-and-report behavior (too-large line, malformed JSON) -- see
+            // s3NdjsonReader.readNdjsonAsync.
+            if (entry && entry.__parseError) {
+                yield { lineNumber: i + 1, byteOffset: i * 100, resource: null, parseError: new Error(entry.__parseError) };
+                continue;
+            }
+            yield { lineNumber: i + 1, byteOffset: i * 100, resource: entry, parseError: null };
         }
     }
 

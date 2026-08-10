@@ -719,7 +719,7 @@ class BulkImportHandler {
             hasFlushedThisAttempt = false;
 
             try {
-                for await (const { lineNumber, byteOffset, resource } of this.s3NdjsonReader.readNdjsonAsync({
+                for await (const { lineNumber, byteOffset, resource, parseError } of this.s3NdjsonReader.readNdjsonAsync({
                     filepath,
                     byteRangeStart,
                     byteRangeEnd,
@@ -728,35 +728,53 @@ class BulkImportHandler {
                     linesRead++;
                     sinceLastFlush++;
 
-                    try {
-                        const fhirResource = FhirResourceWriteSerializer.serialize({
-                            obj: this.applyDefaultSecurityTagsIfMissing(resource)
-                        });
-                        const contextData = buildContextDataForHybridStorage(
-                            fhirResource.resourceType, fhirResource, requestInfo
-                        );
-                        await this.fastDatabaseBulkInserter.insertOneAsync({
-                            base_version,
-                            requestInfo,
-                            resourceType: fhirResource.resourceType,
-                            doc: fhirResource,
-                            contextData
-                        });
-                    } catch (resourceError) {
+                    if (parseError) {
                         failed++;
-                        // Failed before reaching the bulk inserter (e.g. missing/unsupported
-                        // resourceType) — still record it so it lands in the error NDJSON and
-                        // Task.output, not just a log line.
+                        // A single bad line (too large, unparseable) doesn't abort the range --
+                        // record it the same way a per-resource write failure is recorded, so
+                        // it lands in the error NDJSON and Task.output instead of silently
+                        // failing the whole import.
                         mergeResultEntries.push(
-                            MergeResultEntry.createFromError({ error: resourceError, resource, sourceByteOffset: byteOffset })
+                            MergeResultEntry.createFromError({ error: parseError, resource: {}, sourceByteOffset: byteOffset })
                         );
-                        logError('Failed to buffer bulk import resource for write', {
+                        logError('Invalid NDJSON line skipped', {
                             taskId,
                             filepath,
                             lineNumber,
                             byteOffset,
-                            error: resourceError.message
+                            error: parseError.message
                         });
+                    } else {
+                        try {
+                            const fhirResource = FhirResourceWriteSerializer.serialize({
+                                obj: this.applyDefaultSecurityTagsIfMissing(resource)
+                            });
+                            const contextData = buildContextDataForHybridStorage(
+                                fhirResource.resourceType, fhirResource, requestInfo
+                            );
+                            await this.fastDatabaseBulkInserter.insertOneAsync({
+                                base_version,
+                                requestInfo,
+                                resourceType: fhirResource.resourceType,
+                                doc: fhirResource,
+                                contextData
+                            });
+                        } catch (resourceError) {
+                            failed++;
+                            // Failed before reaching the bulk inserter (e.g. missing/unsupported
+                            // resourceType) — still record it so it lands in the error NDJSON and
+                            // Task.output, not just a log line.
+                            mergeResultEntries.push(
+                                MergeResultEntry.createFromError({ error: resourceError, resource, sourceByteOffset: byteOffset })
+                            );
+                            logError('Failed to buffer bulk import resource for write', {
+                                taskId,
+                                filepath,
+                                lineNumber,
+                                byteOffset,
+                                error: resourceError.message
+                            });
+                        }
                     }
 
                     if (sinceLastFlush >= batchSize) {

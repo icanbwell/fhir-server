@@ -58,7 +58,7 @@ class S3NdjsonReader {
      * @param {number} params.byteRangeStart
      * @param {number} params.byteRangeEnd
      * @param {number} params.fileSize - total file size from HEAD
-     * @returns {AsyncGenerator<{ lineNumber: number, byteOffset: number, resource: Object }, void, void>}
+     * @returns {AsyncGenerator<{ lineNumber: number, byteOffset: number, resource: Object|null, parseError: Error|null }, void, void>}
      */
     async *readNdjsonAsync({ filepath, byteRangeStart, byteRangeEnd, fileSize }) {
         if (!Number.isFinite(fileSize) || fileSize <= 0) {
@@ -130,29 +130,43 @@ class S3NdjsonReader {
             }
 
             lineNumber++;
+            // lineNumber resets to 1 at the start of every byte range, so it only
+            // identifies a line within THIS range, not within the original file once a
+            // file is split into multiple ranges. byteOffset is the line's absolute start
+            // position in the full file (bytesRead already includes byteRangeStart), so it
+            // stays correct regardless of how the file was split.
+            const byteOffset = bytesRead - lineBytes;
 
+            // A single bad line (too large, unparseable) must not abort the rest of the
+            // range -- skip it and let the caller record it in the error output, the same
+            // way a per-resource write failure is handled.
             if (Buffer.byteLength(line, 'utf8') > maxLineSizeBytes) {
-                throw nonRetryableError(
-                    `Line ${lineNumber} in "${filepath}" exceeds maximum size of ` +
-                    `${this.configManager.bulkImportMaxLineSizeMb} MB`
-                );
+                yield {
+                    lineNumber,
+                    byteOffset,
+                    resource: null,
+                    parseError: new Error(
+                        `Line ${lineNumber} in "${filepath}" exceeds maximum size of ` +
+                        `${this.configManager.bulkImportMaxLineSizeMb} MB`
+                    )
+                };
+                continue;
             }
 
             let parsed;
             try {
                 parsed = JSON.parse(line);
             } catch (e) {
-                throw nonRetryableError(
-                    `Invalid JSON at line ${lineNumber} in "${filepath}": ${e.message}`
-                );
+                yield {
+                    lineNumber,
+                    byteOffset,
+                    resource: null,
+                    parseError: new Error(`Invalid JSON at line ${lineNumber} in "${filepath}": ${e.message}`)
+                };
+                continue;
             }
 
-            // lineNumber resets to 1 at the start of every byte range, so it only
-            // identifies a line within THIS range, not within the original file once a
-            // file is split into multiple ranges. byteOffset is the line's absolute start
-            // position in the full file (bytesRead already includes byteRangeStart), so it
-            // stays correct regardless of how the file was split.
-            yield { lineNumber, byteOffset: bytesRead - lineBytes, resource: parsed };
+            yield { lineNumber, byteOffset, resource: parsed, parseError: null };
         }
 
         logInfo('S3 NDJSON reader finished', {
