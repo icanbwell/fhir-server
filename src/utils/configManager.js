@@ -58,16 +58,6 @@ class ConfigManager {
     }
 
     /**
-     * When enabled, the proxy-person to patient expansion applies the caller's
-     * access-scope security tag filter to the requested Person before resolving
-     * its linked patients. Currently only applied to $everything GET requests.
-     * @return {boolean}
-     */
-    get enableProxyPersonScopeCheckForEverything() {
-        return isTrueWithFallback(env.ENABLE_PROXY_PERSON_SCOPE_CHECK_FOR_EVERYTHING, true);
-    }
-
-    /**
      * current environment value
      * @return {string|null}
      */

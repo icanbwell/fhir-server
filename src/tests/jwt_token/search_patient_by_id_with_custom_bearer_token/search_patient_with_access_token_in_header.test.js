@@ -56,13 +56,24 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            resp = await request.get('/4_0_0/Patient').set(headers);
+            // Patient-scoped self-lookup (personToPatientIdsExpander.js) now resolves a caller's
+            // own Person strictly by _uuid, not by the plain source id the JWT's
+            // clientFhirPersonId/bwellFhirPersonId claims carry above -- rebuild headers with the
+            // real _uuid Mongo assigned to the merged person1 fixture, mirroring a real
+            // client-issued identity token.
+            const patientHeaders = getHeadersWithCustomPayload({
+                ...payload,
+                clientFhirPersonId: resp.body.uuid,
+                bwellFhirPersonId: resp.body.uuid
+            });
+
+            resp = await request.get('/4_0_0/Patient').set(patientHeaders);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(1);
 
             resp = await request
                 .get('/4_0_0/Patient/00100000000')
-                .set(headers);
+                .set(patientHeaders);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedSinglePatientResource);

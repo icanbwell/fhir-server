@@ -96,8 +96,7 @@ class AccessHistoryOperation {
             base_version,
             requestInfo,
             ids: idList,
-            includePatientPrefix: false,
-            addTopPersonAccessCheck: true
+            includePatientPrefix: false
         });
 
         // Extract the resolved Person UUID from the proxy patient entry

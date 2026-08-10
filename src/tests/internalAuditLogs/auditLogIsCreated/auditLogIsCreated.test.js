@@ -30,13 +30,20 @@ const moment = require('moment-timezone');
 const { AuditLogger } = require('../../../utils/auditLogger');
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
+// A real client-issued identity token carries the Person's _uuid, not its plain source id --
+// and since IDG-5 a patient-scoped caller's own-Person lookup resolves strictly by _uuid, so the
+// source id would no longer resolve at all. person1's _uuid is uuidv5('person1|healthsystem1')
+// (its sourceAssigningAuthority comes from its owner tag). Consent/consent1.json's proxy-patient
+// reference is written against this same uuid so delegated-access consent matching still lines up.
+const PERSON1_UUID = '5f3ca115-8630-5e55-a97d-4d6ee26c0adc';
+
 const headers = {
     ...getHeadersWithCustomPayload({
         scope: 'patient/*.* user/*.* access/*.*',
         username: 'patient-123@example.com',
-        clientFhirPersonId: person.id,
+        clientFhirPersonId: PERSON1_UUID,
         clientFhirPatientId: patient.id,
-        bwellFhirPersonId: person.id,
+        bwellFhirPersonId: PERSON1_UUID,
         bwellFhirPatientId: patient.id,
         sub: 'unique-identifier-123',
         token_use: 'access'
@@ -524,9 +531,9 @@ describe('InternalAuditLog Tests', () => {
                 ...getHeadersWithCustomPayload({
                     scope: 'patient/*.* user/*.* access/*.*',
                     username: 'patient-123@example.com',
-                    clientFhirPersonId: person.id,
+                    clientFhirPersonId: PERSON1_UUID,
                     clientFhirPatientId: patient.id,
-                    bwellFhirPersonId: person.id,
+                    bwellFhirPersonId: PERSON1_UUID,
                     bwellFhirPatientId: patient.id,
                     sub: 'unique-identifier-123',
                     token_use: 'access',
@@ -612,9 +619,9 @@ describe('InternalAuditLog Tests', () => {
                 ...getHeadersWithCustomPayload({
                     scope: 'patient/*.* user/*.* access/*.*',
                     username: 'patient-123@example.com',
-                    clientFhirPersonId: person.id,
+                    clientFhirPersonId: PERSON1_UUID,
                     clientFhirPatientId: patient.id,
-                    bwellFhirPersonId: person.id,
+                    bwellFhirPersonId: PERSON1_UUID,
                     bwellFhirPatientId: patient.id,
                     sub: 'unique-identifier-123',
                     token_use: 'access',
