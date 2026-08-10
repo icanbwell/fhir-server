@@ -13,6 +13,8 @@
         "Coverage",
         "DocumentReference",
         "Practitioner",
-        "Organization"
+        "Organization",
+        "Person",
+        "MedicationDispense"
     ]
 }

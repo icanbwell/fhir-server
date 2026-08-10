@@ -145,6 +145,19 @@ function makeMedicationRequest (id, { patientId, code }) {
     };
 }
 
+function makeMedicationDispense (id, { patientId, code }) {
+    return {
+        resourceType: 'MedicationDispense',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'completed',
+        medicationCodeableConcept: {
+            coding: [{ system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code, display: 'Test medication' }]
+        },
+        subject: { reference: `Patient/${patientId}` }
+    };
+}
+
 function makeAllergyIntolerance (id, { patientId, code }) {
     return {
         resourceType: 'AllergyIntolerance',
@@ -263,6 +276,7 @@ module.exports = {
     makePerson,
     makeCondition,
     makeMedicationRequest,
+    makeMedicationDispense,
     makeAllergyIntolerance,
     makeImmunization,
     makeProcedure,

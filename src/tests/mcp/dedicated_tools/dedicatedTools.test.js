@@ -29,8 +29,10 @@ const {
     idsInBundle,
     makePatient,
     makeObservation,
+    makePerson,
     makeCondition,
     makeMedicationRequest,
+    makeMedicationDispense,
     makeAllergyIntolerance,
     makeImmunization,
     makeProcedure,
@@ -228,6 +230,26 @@ describe('/mcp dedicated tools', () => {
             request,
             makeOrganization('mcp-tool-organization', 'Test Organization'),
             'search_organization'
+        );
+    });
+
+    test('search_person finds a created Person by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-person-patient');
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makePerson('mcp-tool-person', [patientId]),
+            'search_person'
+        );
+    });
+
+    test('search_medication_dispense finds a created MedicationDispense by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-meddispense-patient');
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeMedicationDispense('mcp-tool-medication-dispense', { patientId, code: '206765' }),
+            'search_medication_dispense'
         );
     });
 });

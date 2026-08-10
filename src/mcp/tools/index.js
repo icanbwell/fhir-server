@@ -14,6 +14,8 @@ const { tool: coverageTool } = require('./coverage.tool');
 const { tool: document_referenceTool } = require('./document_reference.tool');
 const { tool: practitionerTool } = require('./practitioner.tool');
 const { tool: organizationTool } = require('./organization.tool');
+const { tool: personTool } = require('./person.tool');
+const { tool: medication_dispenseTool } = require('./medication_dispense.tool');
 
 module.exports = {
     mcpToolsByResourceType: {
@@ -30,6 +32,8 @@ module.exports = {
         Coverage: coverageTool,
         DocumentReference: document_referenceTool,
         Practitioner: practitionerTool,
-        Organization: organizationTool
+        Organization: organizationTool,
+        Person: personTool,
+        MedicationDispense: medication_dispenseTool
     }
 };
