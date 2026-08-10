@@ -313,6 +313,48 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         ]);
     });
 
+    test('handleMessageAsync skips an invalid NDJSON line and records it in the error output without failing the range', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-bad-line' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-before-bad-line', name: [{ family: 'Before' }] },
+            { __parseError: 'Invalid JSON at line 2 in "s3://allowed-bucket/Patient.ndjson": Unexpected token' },
+            { resourceType: 'Patient', id: 'bulk-import-after-bad-line', name: [{ family: 'After' }] }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-bad-line-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-bad-line' }),
+            headers: []
+        });
+
+        // The bad line doesn't abort the range -- both surrounding valid resources are
+        // still written.
+        await request.get('/4_0_0/Patient/bulk-import-before-bad-line').set(getHeaders()).expect(200);
+        await request.get('/4_0_0/Patient/bulk-import-after-bad-line').set(getHeaders()).expect(200);
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-bad-line')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+
+        const errorWrite = container.s3NdjsonReader.getWriteCalls()
+            .find((c) => c.filepath.includes('/output/errors/'));
+        expect(errorWrite).toBeDefined();
+        expect(errorWrite.data).toContain('Invalid JSON at line 2');
+    });
+
     test('handleMessageAsync flushes postRequestProcessor and clears requestSpecificCache per range', async () => {
         const request = await createTestRequest();
 
@@ -484,6 +526,230 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         expect(writeSpy).toHaveBeenCalledTimes(2);
 
         writeSpy.mockRestore();
+    });
+
+    test('readRangeWithRetryAsync retries transient failures and succeeds', async () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const fn = jest.fn()
+            .mockRejectedValueOnce(new Error('transient read failure'))
+            .mockResolvedValueOnce(undefined);
+
+        await handler.readRangeWithRetryAsync({ fn, requestId: 'req-retry-success' });
+
+        expect(fn).toHaveBeenCalledTimes(2);
+    });
+
+    test('readRangeWithRetryAsync throws after exhausting retries', async () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const fn = jest.fn().mockRejectedValue(new Error('persistent read failure'));
+
+        await expect(handler.readRangeWithRetryAsync({
+            fn,
+            requestId: 'req-retry-exhausted',
+            attempts: 2
+        })).rejects.toThrow('persistent read failure');
+        expect(fn).toHaveBeenCalledTimes(2);
+    });
+
+    test('readRangeWithRetryAsync clears requestSpecificCache between failed attempts', async () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const clearSpy = jest.spyOn(container.requestSpecificCache, 'clearAsync');
+        const fn = jest.fn()
+            .mockRejectedValueOnce(new Error('transient read failure'))
+            .mockResolvedValueOnce(undefined);
+
+        await handler.readRangeWithRetryAsync({ fn, requestId: 'req-retry-clears-cache' });
+
+        // Clears the failed attempt's buffered-but-unflushed inserts before retrying with
+        // the same requestId, so a partial buffer can't get double-inserted alongside the
+        // retry's own.
+        expect(clearSpy).toHaveBeenCalledWith({ requestId: 'req-retry-clears-cache' });
+
+        clearSpy.mockRestore();
+    });
+
+    test('readRangeWithRetryAsync does not retry once a batch has already been flushed', async () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const clearSpy = jest.spyOn(container.requestSpecificCache, 'clearAsync');
+        const partiallyFlushedError = new Error('mid-stream failure after a flush');
+        partiallyFlushedError.bulkImportRangePartiallyFlushed = true;
+        const fn = jest.fn().mockRejectedValue(partiallyFlushedError);
+
+        // Not every flushed resourceType is an idempotent Mongo upsert (e.g. ClickHouse/
+        // Kafka-ClickPipe sinks do an unconditional insert/produce), so retrying after a
+        // flush risks duplicate rows/events -- must fail on the first attempt, not retry.
+        await expect(handler.readRangeWithRetryAsync({
+            fn,
+            requestId: 'req-partially-flushed',
+            attempts: 3
+        })).rejects.toThrow('mid-stream failure after a flush');
+
+        expect(fn).toHaveBeenCalledTimes(1);
+        expect(clearSpy).not.toHaveBeenCalled();
+
+        clearSpy.mockRestore();
+    });
+
+    test('readRangeWithRetryAsync does not retry a deterministic (non-retryable) error', async () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const clearSpy = jest.spyOn(container.requestSpecificCache, 'clearAsync');
+        const validationError = new Error('Invalid JSON at line 3');
+        validationError.retryable = false;
+        const fn = jest.fn().mockRejectedValue(validationError);
+
+        // Fails identically on every attempt -- retrying would just waste time/backoff for
+        // the same eventual outcome.
+        await expect(handler.readRangeWithRetryAsync({
+            fn,
+            requestId: 'req-non-retryable',
+            attempts: 3
+        })).rejects.toThrow('Invalid JSON at line 3');
+
+        expect(fn).toHaveBeenCalledTimes(1);
+        expect(clearSpy).not.toHaveBeenCalled();
+
+        clearSpy.mockRestore();
+    });
+
+    test('handleMessageAsync marks Task failed without retrying or duplicating already-flushed resources', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-partial-flush' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const originalBatchSize = process.env.BULK_IMPORT_BATCH_SIZE;
+        process.env.BULK_IMPORT_BATCH_SIZE = '1';
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-partial-flush-1', name: [{ family: 'Flushed' }] },
+            { resourceType: 'Patient', id: 'bulk-import-partial-flush-2', name: [{ family: 'NeverFlushed' }] }
+        ]);
+        // First resource flushes (batch size 1) before the stream fails on the second.
+        container.s3NdjsonReader.setFailAfterYielding(1);
+
+        try {
+            await handler.handleMessageAsync({
+                key: 'import-consumer-partial-flush-0',
+                value: makeCloudEvent({ taskId: 'import-consumer-partial-flush' }),
+                headers: []
+            });
+        } finally {
+            if (originalBatchSize === undefined) {
+                delete process.env.BULK_IMPORT_BATCH_SIZE;
+            } else {
+                process.env.BULK_IMPORT_BATCH_SIZE = originalBatchSize;
+            }
+        }
+
+        // Only one read call -- the partial-flush failure must not trigger a retry.
+        expect(container.s3NdjsonReader.getReadCalls()).toHaveLength(1);
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-partial-flush')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('failed');
+
+        // The already-flushed resource is durably in Mongo exactly once (not duplicated by
+        // a retry that never happened).
+        await request
+            .get('/4_0_0/Patient/bulk-import-partial-flush-1')
+            .set(getHeaders())
+            .expect(200);
+    });
+
+    test('handleMessageAsync retries a transient S3 read failure and still completes the range', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-read-retry' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-read-retry', name: [{ family: 'Retry' }] }
+        ]);
+        container.s3NdjsonReader.setFailNextReads(1);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-read-retry-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-read-retry' }),
+            headers: []
+        });
+
+        await request
+            .get('/4_0_0/Patient/bulk-import-read-retry')
+            .set(getHeaders())
+            .expect(200);
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-read-retry')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+
+        // First read call failed, second succeeded -- the whole range is reprocessed from
+        // the start on retry, not resumed mid-stream.
+        expect(container.s3NdjsonReader.getReadCalls()).toHaveLength(2);
+    });
+
+    test('handleMessageAsync marks the Task failed after exhausting S3 read retries', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-read-exhausted' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-read-exhausted', name: [{ family: 'Exhausted' }] }
+        ]);
+        container.s3NdjsonReader.setFailNextReads(3);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-read-exhausted-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-read-exhausted' }),
+            headers: []
+        });
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-read-exhausted')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('failed');
+        expect(container.s3NdjsonReader.getReadCalls()).toHaveLength(3);
     });
 
     test('handleMessageAsync propagates a persistent S3 write failure instead of silently dropping the range', async () => {
