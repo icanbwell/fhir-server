@@ -535,6 +535,109 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         clearSpy.mockRestore();
     });
 
+    test('readRangeWithRetryAsync does not retry once a batch has already been flushed', async () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const clearSpy = jest.spyOn(container.requestSpecificCache, 'clearAsync');
+        const partiallyFlushedError = new Error('mid-stream failure after a flush');
+        partiallyFlushedError.bulkImportRangePartiallyFlushed = true;
+        const fn = jest.fn().mockRejectedValue(partiallyFlushedError);
+
+        // Not every flushed resourceType is an idempotent Mongo upsert (e.g. ClickHouse/
+        // Kafka-ClickPipe sinks do an unconditional insert/produce), so retrying after a
+        // flush risks duplicate rows/events -- must fail on the first attempt, not retry.
+        await expect(handler.readRangeWithRetryAsync({
+            fn,
+            requestId: 'req-partially-flushed',
+            attempts: 3
+        })).rejects.toThrow('mid-stream failure after a flush');
+
+        expect(fn).toHaveBeenCalledTimes(1);
+        expect(clearSpy).not.toHaveBeenCalled();
+
+        clearSpy.mockRestore();
+    });
+
+    test('readRangeWithRetryAsync does not retry a deterministic (non-retryable) error', async () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const clearSpy = jest.spyOn(container.requestSpecificCache, 'clearAsync');
+        const validationError = new Error('Invalid JSON at line 3');
+        validationError.retryable = false;
+        const fn = jest.fn().mockRejectedValue(validationError);
+
+        // Fails identically on every attempt -- retrying would just waste time/backoff for
+        // the same eventual outcome.
+        await expect(handler.readRangeWithRetryAsync({
+            fn,
+            requestId: 'req-non-retryable',
+            attempts: 3
+        })).rejects.toThrow('Invalid JSON at line 3');
+
+        expect(fn).toHaveBeenCalledTimes(1);
+        expect(clearSpy).not.toHaveBeenCalled();
+
+        clearSpy.mockRestore();
+    });
+
+    test('handleMessageAsync marks Task failed without retrying or duplicating already-flushed resources', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-partial-flush' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const originalBatchSize = process.env.BULK_IMPORT_BATCH_SIZE;
+        process.env.BULK_IMPORT_BATCH_SIZE = '1';
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-partial-flush-1', name: [{ family: 'Flushed' }] },
+            { resourceType: 'Patient', id: 'bulk-import-partial-flush-2', name: [{ family: 'NeverFlushed' }] }
+        ]);
+        // First resource flushes (batch size 1) before the stream fails on the second.
+        container.s3NdjsonReader.setFailAfterYielding(1);
+
+        try {
+            await handler.handleMessageAsync({
+                key: 'import-consumer-partial-flush-0',
+                value: makeCloudEvent({ taskId: 'import-consumer-partial-flush' }),
+                headers: []
+            });
+        } finally {
+            if (originalBatchSize === undefined) {
+                delete process.env.BULK_IMPORT_BATCH_SIZE;
+            } else {
+                process.env.BULK_IMPORT_BATCH_SIZE = originalBatchSize;
+            }
+        }
+
+        // Only one read call -- the partial-flush failure must not trigger a retry.
+        expect(container.s3NdjsonReader.getReadCalls()).toHaveLength(1);
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-partial-flush')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('failed');
+
+        // The already-flushed resource is durably in Mongo exactly once (not duplicated by
+        // a retry that never happened).
+        await request
+            .get('/4_0_0/Patient/bulk-import-partial-flush-1')
+            .set(getHeaders())
+            .expect(200);
+    });
+
     test('handleMessageAsync retries a transient S3 read failure and still completes the range', async () => {
         const request = await createTestRequest();
 

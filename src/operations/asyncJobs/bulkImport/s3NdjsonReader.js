@@ -4,6 +4,19 @@ const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { logInfo, logError } = require('../../common/logging');
 
+/**
+ * Marks an error as deterministic (bad input/config, not a transient S3/network issue) so
+ * callers like BulkImportHandler.readRangeWithRetryAsync can skip retrying it -- it would
+ * fail identically on every attempt.
+ * @param {string} message
+ * @returns {Error}
+ */
+function nonRetryableError (message) {
+    const error = new Error(message);
+    error.retryable = false;
+    return error;
+}
+
 class S3NdjsonReader {
     /**
      * @typedef {Object} ConstructorParams
@@ -23,7 +36,7 @@ class S3NdjsonReader {
     parseS3Uri(uri) {
         const match = uri.match(/^s3:\/\/([^/]+)\/(.+)$/);
         if (!match) {
-            throw new Error(`Invalid S3 URI: "${uri}"`);
+            throw nonRetryableError(`Invalid S3 URI: "${uri}"`);
         }
         return { bucket: match[1], key: match[2] };
     }
@@ -49,23 +62,23 @@ class S3NdjsonReader {
      */
     async *readNdjsonAsync({ filepath, byteRangeStart, byteRangeEnd, fileSize }) {
         if (!Number.isFinite(fileSize) || fileSize <= 0) {
-            throw new Error(`Invalid fileSize ${fileSize} for "${filepath}"`);
+            throw nonRetryableError(`Invalid fileSize ${fileSize} for "${filepath}"`);
         }
         if (!Number.isFinite(byteRangeStart) || byteRangeStart < 0) {
-            throw new Error(`Invalid byteRangeStart ${byteRangeStart} for "${filepath}"`);
+            throw nonRetryableError(`Invalid byteRangeStart ${byteRangeStart} for "${filepath}"`);
         }
         if (!Number.isFinite(byteRangeEnd) || byteRangeEnd <= byteRangeStart) {
-            throw new Error(`Invalid byteRangeEnd ${byteRangeEnd} for "${filepath}"`);
+            throw nonRetryableError(`Invalid byteRangeEnd ${byteRangeEnd} for "${filepath}"`);
         }
 
         const { bucket, key } = this.parseS3Uri(filepath);
 
         const allowedBuckets = this.configManager.bulkImportAllowedS3Buckets;
         if (!allowedBuckets.length) {
-            throw new Error('Bulk import S3 bucket allowlist is not configured');
+            throw nonRetryableError('Bulk import S3 bucket allowlist is not configured');
         }
         if (!allowedBuckets.includes(bucket)) {
-            throw new Error(`S3 bucket "${bucket}" is not in the allowed list`);
+            throw nonRetryableError(`S3 bucket "${bucket}" is not in the allowed list`);
         }
 
         const region = this.configManager.awsRegion || 'us-east-1';
@@ -119,7 +132,7 @@ class S3NdjsonReader {
             lineNumber++;
 
             if (Buffer.byteLength(line, 'utf8') > maxLineSizeBytes) {
-                throw new Error(
+                throw nonRetryableError(
                     `Line ${lineNumber} in "${filepath}" exceeds maximum size of ` +
                     `${this.configManager.bulkImportMaxLineSizeMb} MB`
                 );
@@ -129,7 +142,7 @@ class S3NdjsonReader {
             try {
                 parsed = JSON.parse(line);
             } catch (e) {
-                throw new Error(
+                throw nonRetryableError(
                     `Invalid JSON at line ${lineNumber} in "${filepath}": ${e.message}`
                 );
             }

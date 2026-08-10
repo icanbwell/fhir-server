@@ -99,6 +99,16 @@ describe('S3NdjsonReader', () => {
             await expect(gen.next()).rejects.toThrow(/Invalid fileSize/);
         });
 
+        test('marks a validation error as non-retryable -- it would fail identically on every attempt', async () => {
+            const gen = reader.readNdjsonAsync({
+                filepath: 's3://allowed-bucket/file.ndjson',
+                byteRangeStart: 0,
+                byteRangeEnd: 100,
+                fileSize: 0
+            });
+            await expect(gen.next()).rejects.toMatchObject({ retryable: false });
+        });
+
         test('throws for negative fileSize', async () => {
             const gen = reader.readNdjsonAsync({
                 filepath: 's3://allowed-bucket/file.ndjson',
@@ -217,6 +227,21 @@ describe('S3NdjsonReader', () => {
             // large files into more than one range.
             expect(results.map((r) => r.lineNumber)).toEqual([1, 2]);
             expect(results.map((r) => r.byteOffset)).toEqual([line1Bytes, line1Bytes + line2Bytes]);
+        });
+    });
+
+    describe('readNdjsonAsync retryable classification', () => {
+        test('marks an invalid-JSON line error as non-retryable -- it would fail identically on every attempt', async () => {
+            const badText = '{"resourceType":"Patient","id":"p1"}\nnot-json\n';
+            const badFileSize = Buffer.byteLength(badText, 'utf8');
+            serveFileFromMockS3(badText);
+
+            await expect(collect(reader.readNdjsonAsync({
+                filepath: 's3://allowed-bucket/file.ndjson',
+                byteRangeStart: 0,
+                byteRangeEnd: badFileSize,
+                fileSize: badFileSize
+            }))).rejects.toMatchObject({ retryable: false });
         });
     });
 });
