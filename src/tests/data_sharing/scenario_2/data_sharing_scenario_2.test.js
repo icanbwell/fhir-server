@@ -66,7 +66,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345')
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
@@ -90,7 +90,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345')
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
@@ -114,7 +114,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345')
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
@@ -124,7 +124,11 @@ describe('Data sharing test cases for different scenarios', () => {
             ]));
         });
 
-        test('Ref of master person: Get client_1 patient data only as client_1 header provided', async () => {
+        // SEC-1580: the master person carries only the bwell access tag, and no Person in this
+        // fixture set carries a client_1 access tag, so a client_1-scoped caller has no valid
+        // proxy-person entry point into this graph at all -- the master person hub is no longer
+        // traversable just because a linked leaf patient happens to also carry a client_1 tag.
+        test('Ref of master person: Get no client_1 patient data, as master person is not tagged for client_1', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -144,8 +148,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .set(client_1Headers);
             const respIds = resp.body.map(item => item.id);
 
-            expect(respIds.length).toEqual(1);
-            expect(respIds).toEqual([clientObservation1Resource.id]);
+            expect(respIds.length).toEqual(0);
         });
 
         test('Ref of client person: Get client only, when consent not provided', async () => {
@@ -460,7 +463,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c123456')
                 .set(client1Headers);
             const respIds = resp.body.map(item => item.id);
 

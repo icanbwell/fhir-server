@@ -1,25 +1,52 @@
 {
   "for": {
+    "reference": "Patient/person.4a12829a-9c25-5953-881d-d5d15daa3f25",
     "extension": [
       {
         "id": "sourceId",
         "url": "https://www.icanbwell.com/sourceId",
-        "valueString": "Patient/person.bwellPerson1"
+        "valueString": "Patient/person.4a12829a-9c25-5953-881d-d5d15daa3f25"
       },
       {
         "id": "uuid",
         "url": "https://www.icanbwell.com/uuid",
-        "valueString": "Patient/97991b55-75fd-5b75-afb8-8bb26f22dbbe"
+        "valueString": "Patient/person.4a12829a-9c25-5953-881d-d5d15daa3f25"
       },
       {
         "id": "sourceAssigningAuthority",
         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
         "valueString": "mps-api"
       }
-    ],
-    "reference": "Patient/person.bwellPerson1"
+    ]
   },
   "id": "Task1",
+  "intent": "plan",
+  "meta": {
+    "versionId": "1",
+    "source": "mps",
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api",
+        "id": "1a4bfc4f-9d3c-5307-8e5f-689394b94919"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "mps-api",
+        "id": "920d19e8-4e27-5d48-8752-3ee6360b78d1"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "mps-api",
+        "id": "a90205f7-2df4-5243-9986-d26a4031e964"
+      }
+    ]
+  },
+  "resourceType": "Task",
+  "status": "draft",
   "identifier": [
     {
       "id": "sourceId",
@@ -31,32 +58,5 @@
       "system": "https://www.icanbwell.com/uuid",
       "value": "553fd2a4-e82d-54ed-b52a-9b74d05d4f82"
     }
-  ],
-  "meta": {
-    "profile": [
-      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
-    ],
-    "security": [
-      {
-        "code": "mps-api",
-        "id": "1a4bfc4f-9d3c-5307-8e5f-689394b94919",
-        "system": "https://www.icanbwell.com/access"
-      },
-      {
-        "code": "mps-api",
-        "id": "920d19e8-4e27-5d48-8752-3ee6360b78d1",
-        "system": "https://www.icanbwell.com/owner"
-      },
-      {
-        "code": "mps-api",
-        "id": "a90205f7-2df4-5243-9986-d26a4031e964",
-        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-      }
-    ],
-    "source": "mps",
-    "versionId": "1"
-  },
-  "resourceType": "Task",
-  "intent": "plan",
-  "status": "draft"
+  ]
 }

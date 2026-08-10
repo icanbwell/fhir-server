@@ -97,7 +97,7 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for a specific person
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.33226ded-51e8-590e-8342-1197955a2af7')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedClintObservationCopy]);
@@ -124,7 +124,7 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for a specific person — consent no longer widens plain search
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid')
+                .get('/4_0_0/Observation?patient=Patient/person.33226ded-51e8-590e-8342-1197955a2af7&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedClintObservationCopy]);
@@ -151,7 +151,7 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for a specific person, client have access to read both proa and client resources
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid')
+                .get('/4_0_0/Observation?patient=Patient/person.33226ded-51e8-590e-8342-1197955a2af7&_sort=_uuid')
                 .set(headers);
 
             // noinspection JSUnresolvedFunction
@@ -178,7 +178,7 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for a specific person
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid')
+                .get('/4_0_0/Observation?patient=Patient/person.33226ded-51e8-590e-8342-1197955a2af7&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedClintObservationCopy]);
@@ -268,8 +268,12 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse([]);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424).
-        test('Consent has provided, it should return all consented data when searching with proxy-patient with master person id', async () => {
+        // SEC-1580: the master person carries only the bwell access tag, so it's no longer a
+        // usable proxy-patient entry point for a client- or client-1-scoped caller -- neither
+        // tenant can resolve anything through this shared hub anymore, consent notwithstanding.
+        // (Renamed from "...it should return all consented data when searching with proxy-patient
+        // with master person id" -- that was the pre-fix, hub-bypass behavior this closes off.)
+        test('Consent has provided, but master person id is no longer a valid proxy-patient entry point', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -293,18 +297,20 @@ describe('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid&_rewritePatientReference=0')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedClintObservation]);
+            expect(resp).toHaveResponse([]);
 
-            // Should return only client-1's own resource (xyz was only reachable via consent)
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid&_rewritePatientReference=0')
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedXyzObservationJson]);
+            expect(resp).toHaveResponse([]);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424).
-        test('Only one client Consent has provided, it should return only consented data when searching with proxy-patient with master person id', async () => {
+        // SEC-1580: same reasoning as the test above -- master person id is no longer a valid
+        // proxy-patient entry point for either tenant, regardless of which one has consent.
+        // (Renamed from "...it should return only consented data when searching with proxy-patient
+        // with master person id".)
+        test('Only one client Consent has provided, but master person id is no longer a valid proxy-patient entry point', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -328,14 +334,13 @@ describe('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid&_rewritePatientReference=0')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedClintObservation]);
+            expect(resp).toHaveResponse([]);
 
-            // Should return only client-1's own resource
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid&_rewritePatientReference=0')
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedXyzObservationJson]);
+            expect(resp).toHaveResponse([]);
         });
 
         // Same DCON-2773 behavior change as above (see PR #2424).
