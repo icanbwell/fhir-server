@@ -54,13 +54,19 @@ const all = [ownA, proaPatient, iasPatient, obsOwnA, obsProa, obsIas, personA];
 
 const serviceHeadersA = { ...getHeaders('user/*.read access/tenanta.*'), prefer: 'global_id=false' };
 const wildcardHeaders = { ...getHeaders('user/*.read access/*.*'), prefer: 'global_id=false' };
+// Patient-scoped self-lookup (personToPatientIdsExpander.js) now resolves a caller's own Person
+// strictly by _uuid, not by the plain source id clientFhirPersonId/bwellFhirPersonId would carry
+// here otherwise -- use personA's real _uuid (uuidv5('sae3PersonA|tenanta'), since its
+// sourceAssigningAuthority falls back to its owner tag), mirroring a real client-issued identity
+// token.
+const SAE3_PERSON_A_UUID = '70c03606-e670-5000-9250-6b35420367ec';
 const endUserHeaders = {
     ...getHeadersWithCustomPayload({
         scope: 'access/*.* user/*.* patient/*.*',
         username: 'sae3-end-user@example.com',
-        clientFhirPersonId: 'sae3PersonA',
+        clientFhirPersonId: SAE3_PERSON_A_UUID,
         clientFhirPatientId: 'sae3ClientPatient',
-        bwellFhirPersonId: 'sae3PersonA',
+        bwellFhirPersonId: SAE3_PERSON_A_UUID,
         bwellFhirPatientId: 'sae3BwellPatient',
         managingOrganization: 'tenanta',
         token_use: 'access'
