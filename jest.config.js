@@ -66,7 +66,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/validate/validate.test.js',
         '<rootDir>/src/tests/unit/routeHandlers/fhirServer.test.js',
         '<rootDir>/src/tests/unit/utils/accessLogger.test.js',
-        '<rootDir>/src/tests/unit/utils/bwellPersonFinder.test.js',
         '<rootDir>/src/tests/unit/utils/clickHouseClientManager.test.js',
         '<rootDir>/src/tests/unit/utils/delegatedAccessRulesManager.test.js',
         '<rootDir>/src/tests/unit/utils/filterGraphResources.test.js',
