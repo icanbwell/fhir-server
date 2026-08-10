@@ -367,7 +367,23 @@ class PersonToPatientIdsExpander {
                     });
                 }
 
-                const patientIdsToAdd = person.link
+                // DCON-4894 Commit B: enforcement gate (gated behind
+                // enforcePersonLinkAssuranceMinimum, which defaults to false in code regardless
+                // of environment configuration). When on, a Person.link below the configured
+                // assurance minimum is excluded from being followed at all -- it contributes
+                // neither to patientIdsToAdd nor to personResourceWithPersonReferenceLink below,
+                // so it is never returned and (if it targets a Person) never recursed into.
+                // Commit A's logging above fires unconditionally (regardless of this flag) so
+                // operators can see what's actively being excluded once enforcement is on, not
+                // just what would have been excluded.
+                const linksToFollow = this.configManager.enforcePersonLinkAssuranceMinimum
+                    ? person.link.filter(l => meetsMinimumAssurance({
+                        assurance: l.assurance,
+                        minimumLevel: this.configManager.personLinkAssuranceMinimumLevel
+                    }))
+                    : person.link;
+
+                const patientIdsToAdd = linksToFollow
                     .filter(l => l.target && l.target[`${uuidKey}`] &&
                         (l.target[`${uuidKey}`].startsWith(patientReferencePrefix) || l.target.type === 'Patient'))
                     .map(l => {
@@ -381,7 +397,7 @@ class PersonToPatientIdsExpander {
 
                 patientIds = patientIds.concat(patientIdsToAdd);
 
-                const personResourceWithPersonReferenceLink = person.link
+                const personResourceWithPersonReferenceLink = linksToFollow
                     .filter(l => l.target && l.target[`${uuidKey}`] &&
                         (l.target[`${uuidKey}`].startsWith(personReferencePrefix) || l.target.type === 'Person'))
                     .map(l => {

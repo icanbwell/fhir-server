@@ -1289,6 +1289,22 @@ class ConfigManager {
         return isTrue(env.LOG_PERSON_LINK_ASSURANCE_BELOW_MINIMUM);
     }
 
+    /**
+     * When true, excludes a `Person.link` below personLinkAssuranceMinimumLevel from being
+     * followed during traversal (personToPatientIdsExpander.js), instead of merely logging it.
+     *
+     * Do NOT enable this in any real environment without first running with
+     * logPersonLinkAssuranceBelowMinimum=true there long enough to confirm real Person.link data
+     * actually clears the configured minimum -- enabling this blind risks silently dropping
+     * legitimate links (e.g. the intentional cross-tenant Main-Person-to-Client-Person linking
+     * this data model relies on) if real assurance data turns out to be sparse or absent.
+     * Defaults to false, in code, regardless of environment configuration.
+     * @return {boolean}
+     */
+    get enforcePersonLinkAssuranceMinimum() {
+        return isTrue(env.ENFORCE_PERSON_LINK_ASSURANCE_MINIMUM);
+    }
+
     get dataSharingAccessCodes() {
         return this._parseCommaSeparatedList(
             env.DATA_SHARING_ACCESS_CONSENT_CODES,

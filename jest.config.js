@@ -87,8 +87,10 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/search/proaConsentVulnerabilities.test.js',
         '<rootDir>/src/tests/unit/operations/subscription/subscription.crossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/subscription/webhookPhiLeakage.test.js',
-        '<rootDir>/src/tests/unit/strategies/jwtCacheThunderingHerd.test.js',
-        '<rootDir>/src/tests/unit/utils/personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js'
+        '<rootDir>/src/tests/unit/strategies/jwtCacheThunderingHerd.test.js'
+        // personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js entry removed here:
+        // DCON-4894 closed this gap (Person.link assurance enforcement) and the test now
+        // passes against current main -- see the file's updated top-of-file comment.
     ],
     setupFiles: [
         '<rootDir>/jest/patchClickHouseClient.js',
