@@ -148,13 +148,9 @@ class SearchByVersionIdOperation {
             throw forbiddenError;
         }
 
-        // A historical version keeps the access tags it had at write time, so a tenant-scoped
-        // access code can still match an old version's now-stale tags after the current version
-        // has been narrowed away from that tenant (SEC-1580 SAE-1). Until history re-evaluates
-        // each version against the resource's current tags, only a caller with a
-        // non-tenant-specific access scope (access/*.read or access/*.*) may read a specific
-        // historical version.
-        if (!this.scopesManager.getAccessCodesFromScopes('read', user, scope).includes('*')) {
+        // SEC-1580 SAE-1: see ScopesManager.hasHistoryAccess for why a tenant-scoped access
+        // code is never sufficient to read a specific historical version.
+        if (!this.scopesManager.hasHistoryAccess({ resourceType, scope })) {
             const forbiddenError = new ForbiddenError(
                 `user ${user} with scopes [${scope}] failed access check to ${resourceType}'s ` +
                     'history: history access requires a non-tenant-specific access scope (access/*.read or access/*.*)'
