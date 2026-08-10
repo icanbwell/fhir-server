@@ -235,13 +235,24 @@ describe('getPersonIdsInLinkPathToBwellPersonAsync', () => {
         const clientPersonId = 'client-person-uuid-1';
         const masterPersonId = 'master-person-uuid-1';
 
+        // isBwellPerson() unconditionally dereferences person.meta.security, so every doc
+        // walked needs a meta.security array (empty is fine for non-master Persons) — see
+        // src/tests/unit/utils/bwellPersonFinder.test.js's existing fixtures for this pattern.
+        // The master Person is recognized by meta.security access+owner tags coded
+        // BwellMasterPersonCode ('bwell'), not by an `identifier` entry.
         const clientPersonDoc = {
             _uuid: clientPersonId,
+            meta: { security: [] },
             link: [{ target: { _uuid: `Patient/${patientId}`, type: 'Patient' } }]
         };
         const masterPersonDoc = {
             _uuid: masterPersonId,
-            identifier: [{ system: 'https://www.icanbwell.com/sourceAssigningAuthority', value: 'bwell' }],
+            meta: {
+                security: [
+                    { system: SecurityTagSystem.access, code: 'bwell' },
+                    { system: SecurityTagSystem.owner, code: 'bwell' }
+                ]
+            },
             link: [{ target: { _uuid: `Person/${clientPersonId}`, type: 'Person' } }]
         };
 
@@ -259,7 +270,11 @@ describe('getPersonIdsInLinkPathToBwellPersonAsync', () => {
                 });
             })
         };
-        const mockDatabaseQueryFactory = { createQuery: jest.fn().mockReturnValue(mockDatabaseQueryManager) };
+        // BwellPersonFinder's constructor asserts databaseQueryFactory instanceof
+        // DatabaseQueryFactory (assertTypeEquals) — a plain object literal fails that check.
+        // Build the mock off the real prototype, matching the sibling test file's existing helper.
+        const mockDatabaseQueryFactory = Object.create(DatabaseQueryFactory.prototype);
+        mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
 
         const finder = new BwellPersonFinder({ databaseQueryFactory: mockDatabaseQueryFactory });
 
@@ -272,7 +287,8 @@ describe('getPersonIdsInLinkPathToBwellPersonAsync', () => {
         const mockDatabaseQueryManager = {
             findAsync: jest.fn().mockResolvedValue({ hasNext: async () => false, nextObject: async () => null })
         };
-        const mockDatabaseQueryFactory = { createQuery: jest.fn().mockReturnValue(mockDatabaseQueryManager) };
+        const mockDatabaseQueryFactory = Object.create(DatabaseQueryFactory.prototype);
+        mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
         const finder = new BwellPersonFinder({ databaseQueryFactory: mockDatabaseQueryFactory });
 
         const path = await finder.getPersonIdsInLinkPathToBwellPersonAsync({ patientId: 'patient-with-no-person' });
@@ -282,8 +298,10 @@ describe('getPersonIdsInLinkPathToBwellPersonAsync', () => {
 });
 ```
 
-(Add the necessary `require`/`jest.mock` boilerplate matching the rest of the existing file — this
-file is currently in `jest.config.js`'s ignore list for an unrelated reason; see Step 6.)
+(Add the necessary `require`/`jest.mock` boilerplate matching the rest of the existing file —
+`DatabaseQueryFactory` and `SecurityTagSystem` in particular, needed by the mock construction and
+`meta.security` tags above; this file is currently in `jest.config.js`'s ignore list for an
+unrelated reason; see Step 6.)
 
 - [ ] **Step 3: Run test to verify it fails**
 
@@ -768,6 +786,18 @@ get enforcePersonLinkAssuranceMinimum () {
 //    findAsync is called a second time for the recursion step) -- i.e. default
 //    behavior is completely unchanged from before this task.
 //
+// 3. POSITIVE case, enforcement on -- this is the one prior reverts got bitten by, so it
+//    is not optional. configManager.enforcePersonLinkAssuranceMinimum = true, minimum =
+//    'level2'. A Person resolves with a legitimate cross-tenant Person-target link (the
+//    Main-Person -> Client-Person shape this plan's Global Constraints call out as
+//    intentional) whose assurance is 'level2' (at the minimum, not above it -- proves the
+//    comparison is inclusive). Assert this link IS included in personIdsToRecurse (the
+//    mock's second-level findAsync IS called) and any Patient-target link reachable
+//    through it is NOT silently dropped. This guards against an enforcement
+//    implementation that (buggily) excludes every link whenever the flag is on --
+//    exactly the over-blocking failure mode of the two prior reverts, just reached via
+//    missing/insufficient assurance data instead of an owner-tag mismatch.
+//
 // Write the real test bodies, not this description -- follow the exact mock shape
 // (hasNext/nextObject cursor, FilterById query capture) already used in
 // personToPatientIdsExpander.crossTenant.test.js so assertions land on real captured
@@ -777,7 +807,8 @@ get enforcePersonLinkAssuranceMinimum () {
 - [ ] **Step 3: Run test to verify it fails**
 
 Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/personToPatientIdsExpander.assuranceEnforcement.test.js`
-Expected: FAIL — case 1's exclusion doesn't happen yet (current code always follows every link).
+Expected: FAIL — case 1's exclusion doesn't happen yet (current code always follows every link);
+case 3 passes vacuously today (nothing is excluded pre-fix) but must still pass post-fix.
 
 - [ ] **Step 4: Implement the enforcement**
 
@@ -824,7 +855,8 @@ import needed).
 - [ ] **Step 5: Run test to verify it passes**
 
 Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/personToPatientIdsExpander.assuranceEnforcement.test.js`
-Expected: PASS (both cases).
+Expected: PASS (all three cases, including case 3's positive check that a legitimate
+at-minimum-assurance cross-tenant link is still followed under enforcement).
 
 - [ ] **Step 6: Run the quarantined pure-scope test with enforcement enabled**
 
@@ -860,6 +892,19 @@ Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/personToPatien
 Expected: PASS, no regressions — with `enforcePersonLinkAssuranceMinimum` still defaulted to
 `false` in these suites' config, so none of this should change any existing assertion; only the
 new/updated tests above exercise the flag turned on.
+
+`crossTenant.test.js` is the regression fixture that exists specifically because two prior fixes
+in this exact area were reverted for breaking the legitimate Main-Person -> Client-Person
+cross-tenant link (see this plan's Global Constraints) — its `Person.link` entries have no
+`assurance` field today, which ranks `0` and would fail any real minimum once enforcement is on.
+Running it only at the `false` default (as above) never actually exercises that regression guard
+under enforcement. Before considering `enforcePersonLinkAssuranceMinimum` for enablement in any
+real environment, additionally: temporarily set `personLinkAssuranceMinimumLevel` to `level2` and
+`enforcePersonLinkAssuranceMinimum` to `true` in a throwaway local run of this same suite (or add
+an equivalent case within it) with its legitimate cross-tenant link's `assurance` populated at or
+above the minimum, and confirm it still passes. Do not commit `enforcePersonLinkAssuranceMinimum:
+true` as this suite's default — it must keep testing the flag-off default behavior on every CI
+run.
 
 - [ ] **Step 9: Commit**
 
