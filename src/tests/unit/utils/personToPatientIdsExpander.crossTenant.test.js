@@ -4,19 +4,20 @@
  * requested the top-person access-tag check (addTopPersonAccessCheck), including at
  * recursion depths beyond the top-level Person.
  *
- * This coverage is scoped to callers whose scope legitimately carries its own access/ code
- * (e.g. a combined "patient/... access/tenant.read" scope) -- they are protected by the
- * existing scope-derived security-tag query filter (getSecurityTagsFromScope /
- * getQueryWithSecurityTags).
+ * IDG-5 changed the mechanism entirely for a patient-scoped caller: instead of applying the
+ * caller's access-tag filter at every recursion level, getPatientIdsFromPersonAsync now
+ * requires every level's Person._uuid to equal requestInfo.personIdFromJwtToken. Since that
+ * value never changes across recursion, a patient-scoped caller's self-lookup can only ever
+ * match the top-level Person and never any Person reached via Person.link -- not just
+ * cross-tenant ones. This closes the cross-tenant leak covered below as a side effect, but it
+ * also means the (intentionally cross-tenant) Main-Person-to-Client-Person traversal used by
+ * MPS-style identity matching no longer works for a patient-scoped caller either -- see the
+ * former "REGRESSION" test below, now inverted to assert the new (more restrictive) behavior.
  *
  * A pure patient-scope caller (e.g. "patient/Person.read" with no access/ scope at all -- the
  * normal shape for a plain patient-facing app token) never carries an access/ scope by design
- * (see ScopesManager.isAccessToResourceAllowedBySecurityTags), so that mechanism is a
- * guaranteed no-op for them: this is a known, currently-unprotected gap, tracked separately in
- * the (quarantined) personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js -- see that
- * file for why a simple owner-tag same-tenant check cannot be used to close it (it would break
- * the legitimate cross-tenant Main-Person-to-Client-Person linking feature; see the regression
- * test below).
+ * (see ScopesManager.isAccessToResourceAllowedBySecurityTags); that mechanism is unrelated to
+ * this file, since hasPatientScope callers no longer use the access-tag filter at all.
  */
 const { describe, test, expect, beforeEach } = require('@jest/globals');
 const { jest: jestGlobal } = require('@jest/globals');
@@ -96,6 +97,31 @@ function extractRequiredAccessCodes (query) {
 }
 
 /**
+ * Walks a (possibly $and-nested) mongo query looking for a direct `{_uuid: 'xyz'}` equality
+ * clause -- the shape getPatientIdsFromPersonAsync's hasPatientScope branch adds. Returns
+ * undefined if the query has no such clause.
+ * @param {Object} query
+ * @return {string|undefined}
+ */
+function extractRequiredUuidEquality (query) {
+    if (!query || typeof query !== 'object') {
+        return undefined;
+    }
+    if (typeof query._uuid === 'string') {
+        return query._uuid;
+    }
+    if (Array.isArray(query.$and)) {
+        for (const subQuery of query.$and) {
+            const found = extractRequiredUuidEquality(subQuery);
+            if (found !== undefined) {
+                return found;
+            }
+        }
+    }
+    return undefined;
+}
+
+/**
  * Returns whether `doc` carries the given access tag on meta.security.
  */
 function docHasAccessCode (doc, code) {
@@ -136,15 +162,25 @@ describe('PersonToPatientIdsExpander — Cross-Tenant Boundary', () => {
         mockDatabaseQueryManager.findAsync = jestGlobal.fn(async ({ query }) => {
             const docsForThisCall = docsInCallOrder[callIndex] || [];
             callIndex += 1;
-            const requiredAccessCodes = extractRequiredAccessCodes(query);
-            if (requiredAccessCodes.length === 0) {
-                return createCursor(docsForThisCall);
+
+            let matchingDocs = docsForThisCall;
+
+            // Simulate the hasPatientScope branch's {_uuid: personIdFromJwtToken} clause: a real
+            // Mongo query would only ever return the doc(s) whose own _uuid matches exactly.
+            const requiredUuid = extractRequiredUuidEquality(query);
+            if (requiredUuid !== undefined) {
+                matchingDocs = matchingDocs.filter((doc) => doc._uuid === requiredUuid);
             }
-            // Simulate what a real MongoDB query with this filter would return: only docs
-            // carrying at least one of the required access codes.
-            const matchingDocs = docsForThisCall.filter(
-                (doc) => requiredAccessCodes.some((code) => docHasAccessCode(doc, code))
-            );
+
+            // Simulate what a real MongoDB query with an access-tag filter would return: only
+            // docs carrying at least one of the required access codes.
+            const requiredAccessCodes = extractRequiredAccessCodes(query);
+            if (requiredAccessCodes.length > 0) {
+                matchingDocs = matchingDocs.filter(
+                    (doc) => requiredAccessCodes.some((code) => docHasAccessCode(doc, code))
+                );
+            }
+
             return createCursor(matchingDocs);
         });
     }
@@ -181,16 +217,18 @@ describe('PersonToPatientIdsExpander — Cross-Tenant Boundary', () => {
         });
     }
 
-    describe('BUG: Person expansion follows links across tenant boundaries', () => {
-        const callerAccessCodes = ['alpha_health'];
-        const requestInfo = { user: 'alpha-test-user', scope: 'patient/Person.read access/alpha_health.read' };
+    describe('a patient-scoped caller never follows Person.link, cross-tenant or not', () => {
+        const requestInfo = {
+            user: 'alpha-test-user',
+            scope: 'patient/Person.read access/alpha_health.read',
+            personIdFromJwtToken: 'person-alpha-uuid'
+        };
 
-        test('should NOT include patients from a different tenant reached via a direct Person.link, when addTopPersonAccessCheck is requested', async () => {
-            // PersonAlpha (tenant alpha) has a link to PersonBeta (tenant beta).
-            // This should NOT happen in clean data, but if it does (data corruption,
-            // migration error, or intentional manipulation), a caller that asked for the
-            // top-person access check must not have the cross-tenant Person/Patient silently
-            // included.
+        test('should NOT include patients from a different tenant reached via a direct Person.link', async () => {
+            // PersonAlpha (tenant alpha) has a link to PersonBeta (tenant beta). Even though
+            // PersonAlpha's own _uuid correctly matches the caller's JWT identity at level 1,
+            // the SAME identity is required at level 2 too -- so PersonBeta (a different
+            // Person, with a different _uuid) can never match, regardless of tenant.
             const personAlpha = {
                 _uuid: 'person-alpha-uuid',
                 _sourceId: 'alpha-bob',
@@ -223,29 +261,28 @@ describe('PersonToPatientIdsExpander — Cross-Tenant Boundary', () => {
 
             mockFindAsyncSequence([[personAlpha], [personBeta]]);
 
-            const expander = createExpander(callerAccessCodes);
+            const expander = createExpander(['alpha_health']);
 
             const result = await expander.getPatientIdsFromPersonAsync({
                 databaseQueryManager: mockDatabaseQueryManager,
                 personIds: ['person-alpha-uuid'],
                 totalProcessedPersonIds: new Set(),
                 level: 1,
-                requestInfo,
-                addTopPersonAccessCheck: true
+                requestInfo
             });
 
             expect(result).toContain('patient-alpha-uuid');
             expect(result).not.toContain('patient-beta-uuid');
-            // The recursive lookup for personBeta must have been issued with the caller's
-            // access-tag filter applied -- not just the top-level lookup.
+            // The recursive lookup for personBeta is still issued (the link is followed to
+            // *attempt* a lookup), but it must be gated by the caller's own uuid, not by an
+            // access-tag filter.
             expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledTimes(2);
             const secondCallQuery = mockDatabaseQueryManager.findAsync.mock.calls[1][0].query;
-            expect(extractRequiredAccessCodes(secondCallQuery)).toEqual(callerAccessCodes);
+            expect(extractRequiredUuidEquality(secondCallQuery)).toEqual('person-alpha-uuid');
         });
 
-        test('should NOT include patients from a different tenant reached transitively (Person -> Person -> Person), i.e. the check must propagate through every recursion level', async () => {
-            // alpha -> beta -> gamma; gamma is two hops away from the top-level person and
-            // belongs to a third, unrelated tenant.
+        test('should NOT include patients reached transitively (Person -> Person -> Person), i.e. the check must propagate through every recursion level', async () => {
+            // alpha -> beta -> gamma; gamma is two hops away from the top-level person.
             const personAlpha = {
                 _uuid: 'person-alpha-uuid',
                 meta: { security: [{ system: SecurityTagSystem.access, code: 'alpha_health' }] },
@@ -253,8 +290,6 @@ describe('PersonToPatientIdsExpander — Cross-Tenant Boundary', () => {
             };
             const personBeta = {
                 _uuid: 'person-beta-uuid',
-                // Beta is (implausibly, but per the attack scenario) still readable by alpha,
-                // e.g. a shared plan -- this is what lets the traversal reach it at all.
                 meta: { security: [{ system: SecurityTagSystem.access, code: 'alpha_health' }] },
                 link: [{ target: { _uuid: 'Person/person-gamma-uuid', type: 'Person' } }]
             };
@@ -266,40 +301,45 @@ describe('PersonToPatientIdsExpander — Cross-Tenant Boundary', () => {
 
             mockFindAsyncSequence([[personAlpha], [personBeta], [personGamma]]);
 
-            const expander = createExpander(callerAccessCodes);
+            const expander = createExpander(['alpha_health']);
 
             const result = await expander.getPatientIdsFromPersonAsync({
                 databaseQueryManager: mockDatabaseQueryManager,
                 personIds: ['person-alpha-uuid'],
                 totalProcessedPersonIds: new Set(),
                 level: 1,
-                requestInfo,
-                addTopPersonAccessCheck: true
+                requestInfo
             });
 
             expect(result).not.toContain('patient-gamma-uuid');
-            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledTimes(3);
-            const thirdCallQuery = mockDatabaseQueryManager.findAsync.mock.calls[2][0].query;
-            expect(extractRequiredAccessCodes(thirdCallQuery)).toEqual(callerAccessCodes);
+            // personBeta's _uuid never matches the caller's own uuid, so its lookup returns
+            // nothing and recursion stops there -- personGamma's lookup is never even issued.
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledTimes(2);
+            const secondCallQuery = mockDatabaseQueryManager.findAsync.mock.calls[1][0].query;
+            expect(extractRequiredUuidEquality(secondCallQuery)).toEqual('person-alpha-uuid');
         });
     });
 
-    describe('REGRESSION: legitimate cross-tenant multi-Person-link traversal (MPS-style identity matching) must not be denied', () => {
+    describe('formerly-legitimate cross-tenant multi-Person-link traversal (MPS-style identity matching) is now also denied', () => {
         // This data model's Main-Person-to-Client-Person linking is *intentionally*
         // cross-tenant: a Main Person (e.g. owned by "bwell") legitimately links to Client
         // Person records owned by OTHER tenants (e.g. "mps-api"), each representing the same
-        // real human's account at a different source system. This is exercised end-to-end by
-        // src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid (a plain
-        // "patient/Task.read admin/*.read" token, no access/ scope, whose Main Person links to
-        // a Client Person owned by a different tenant, and still needs to see that Person's
-        // Task via the proxy-patient reference). A same-owner-tenant equality check was
-        // considered as a fix for the pure-patient-scope gap tracked in
-        // personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js and rejected specifically
-        // because it would deny this legitimate traversal. This test guards against
-        // reintroducing that regression.
-        const requestInfo = { user: 'bwell-patient-user', scope: 'patient/Task.read admin/*.read' };
+        // real human's account at a different source system. Before IDG-5, this traversal
+        // worked for a patient-scoped caller anchored at the Main Person (see
+        // src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid). IDG-5's
+        // per-level _uuid check means it no longer does: only the Main Person's own direct
+        // Patient.link remains reachable, and this Person.link hop is never followed. This is
+        // the same restriction as above (see the describe block's title) -- it isn't specific
+        // to same-tenant vs. cross-tenant, so this test only guards against silently
+        // re-introducing hop-following in a way that's scoped to be tenant-aware instead of an
+        // unconditional block.
+        const requestInfo = {
+            user: 'bwell-patient-user',
+            scope: 'patient/Task.read admin/*.read',
+            personIdFromJwtToken: 'main-person-uuid'
+        };
 
-        test('should include a Patient reached via a Person.link to a Person owned by a different tenant', async () => {
+        test('should NOT include a Patient reached via a Person.link to a Person owned by a different tenant', async () => {
             const mainPerson = {
                 _uuid: 'main-person-uuid',
                 meta: { security: [{ system: SecurityTagSystem.owner, code: 'bwell' }] },
@@ -314,8 +354,8 @@ describe('PersonToPatientIdsExpander — Cross-Tenant Boundary', () => {
             };
 
             // No access/ scope on this token, so getSecurityTagsFromScope() legitimately
-            // returns [] and the query filter is a no-op at every level -- exactly like
-            // production behavior for this caller type.
+            // returns [] -- irrelevant here since hasPatientScope's _uuid check is what gates
+            // this now, not the access-tag filter.
             mockFindAsyncSequence([[mainPerson], [clientPerson]]);
 
             const expander = createExpander([]);
@@ -325,11 +365,10 @@ describe('PersonToPatientIdsExpander — Cross-Tenant Boundary', () => {
                 personIds: ['main-person-uuid'],
                 totalProcessedPersonIds: new Set(),
                 level: 1,
-                requestInfo,
-                addTopPersonAccessCheck: true
+                requestInfo
             });
 
-            expect(result).toContain('mps-patient-uuid');
+            expect(result).not.toContain('mps-patient-uuid');
         });
     });
 });
