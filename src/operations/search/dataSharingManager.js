@@ -228,21 +228,14 @@ class DataSharingManager {
                 patientIdToConnectionTypeMap,
                 allowedConnectionTypesList
             });
-            // Proxy-patient references are only admitted for allowlisted resource types, and
-            // never for the Patient resource itself (the proxy patient has no document).
-            const proxyPatientConsentedResourceTypes = this.configManager.getProxyPatientConsentedResourceTypes;
+            // Proxy-patient references are never admitted for the Patient resource itself
+            // (the proxy patient has no document).
             /**
-             * Persons whose proxy-patient references may enter the consented branch for this
-             * resource type. Empty set when not allowlisted, so the reference rebuild below
-             * drops proxy references exactly as before.
+             * Persons whose proxy-patient references may enter the consented branch.
              * @type {Set<string>}
              */
             const consentedProxyPersonUuids =
-                resourceType !== 'Patient' &&
-                (proxyPatientConsentedResourceTypes.includes('*') ||
-                    proxyPatientConsentedResourceTypes.includes(resourceType))
-                    ? consentedPersonUuids
-                    : new Set();
+                resourceType !== 'Patient' ? consentedPersonUuids : new Set();
             if ((allowedPatientIds.size > 0 || consentedProxyPersonUuids.size > 0) && allowedConnectionTypesList.length) {
                 queryWithConsentedData = this.getConnectionTypeFilteredQuery({
                     base_version,
@@ -445,9 +438,8 @@ class DataSharingManager {
                             newQueryParameterValues.push(`Patient/${ref.id}`);
                         } else if (ref.id.startsWith(PERSON_PROXY_PREFIX)) {
                             // Proxy-patient reference: kept only when the person behind the
-                            // proxy has a valid consent and this resource type is allowlisted
-                            // (consentedProxyPersonUuids is empty otherwise). Only the uuid
-                            // form (person.<personUuid>) is supported; other forms fail closed.
+                            // proxy has a valid consent (consentedProxyPersonUuids is empty
+                            // otherwise).
                             const personUuid = ref.id.replace(PERSON_PROXY_PREFIX, '');
                             if (consentedProxyPersonUuids.has(personUuid)) {
                                 newQueryParameterValues.push(`Patient/${ref.id}`);
