@@ -35,17 +35,24 @@ const obsA = { resourceType:'Observation', id:'idg2ObsA', meta:{source:'tenanta'
 const obsB = { resourceType:'Observation', id:'idg2ObsB', meta:{source:'tenanta',security:ta()}, status:'final', code:{coding:[{system:'http://loinc.org',code:'1'}]}, subject:{reference:'Patient/idg2PatB'} };
 
 const headers = { ...getHeaders('user/*.read access/tenanta.*'), prefer:'global_id=false' };
-const ids = r => (Array.isArray(r.body)?r.body:[]).map(x=>x&&x.id).filter(Boolean);
+const ids = r => {
+  const b = r && r.body;
+  if (!b) return [];
+  if (Array.isArray(b)) return b.map(x=>x&&x.id).filter(Boolean);
+  if (b.entry) return b.entry.map(e=>e.resource&&e.resource.id).filter(Boolean);
+  if (b.id) return [b.id];
+  return [];
+};
 const all = [masterA,masterB,clientA,clientB,patA,patB,obsA,obsB];
 
 describe('D-IDG2 (fail-by-design) — same-owner duplicate-master link is a dead end', () => {
   beforeEach(async()=>{ await commonBeforeEach(); });
   afterEach(async()=>{ await commonAfterEach(); });
 
-  test('control: masterA reaches its own patient A data', async () => {
+  test('control: ClientA reaches its own patient A data', async () => {
     const request = await createTestRequest();
     await request.post('/4_0_0/Person/1/$merge').send(all).set(getHeaders());
-    const r = await request.get('/4_0_0/Observation?patient=Patient/person.idg2MasterA').set(headers);
+    const r = await request.get('/4_0_0/Observation?patient=Patient/person.idg2ClientA').set(headers);
     expect(ids(r)).toContain('idg2ObsA');
   });
 
@@ -54,5 +61,15 @@ describe('D-IDG2 (fail-by-design) — same-owner duplicate-master link is a dead
     await request.post('/4_0_0/Person/1/$merge').send(all).set(getHeaders());
     const r = await request.get('/4_0_0/Observation?patient=Patient/person.idg2MasterA').set(headers);
     expect(ids(r)).not.toContain('idg2ObsB');
+  });
+
+  test('masterA cannot be reached via ClientA (traversal must not go upward from client to master)', async () => {
+    const request = await createTestRequest();
+    await request.post('/4_0_0/Person/1/$merge').send(all).set(getHeaders());
+    const r = await request.get(`/4_0_0/Person/${clientA.id}/$everything`).set(headers);
+    const found = ids(r);
+    expect(found).not.toContain('idg2MasterA');
+    expect(found).not.toContain('idg2MasterB');
+    expect(found).not.toContain('idg2ObsB');
   });
 });
