@@ -380,6 +380,22 @@ class ScopesManager {
     }
 
     /**
+     * Returns whether scope contains an admin/ scope whose action segment is the given action or
+     * the wildcard '*'. getAdminScopes() alone (used to gate admin routes generally) never looks
+     * at the action segment, so an admin/*.read-only caller passes that check identically to one
+     * holding admin/*.write.
+     * @param {string|undefined} scope
+     * @param {'read'|'write'} action
+     * @return {boolean}
+     */
+    hasAdminScopeForAction ({ scope, action }) {
+        return this.getAdminScopes({ scope }).some((adminScope) => {
+            const scopeAction = adminScope.split('.')[1];
+            return scopeAction === '*' || scopeAction === action;
+        });
+    }
+
+    /**
      * Gets patient scopes from the passed in scope string
      * @param {string|undefined} scope
      * @returns {string[]}

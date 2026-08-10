@@ -377,6 +377,55 @@ describe('ScopesManager', () => {
         });
     });
 
+    describe('hasAdminScopeForAction', () => {
+        test('returns false for undefined scope', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: undefined, action: 'write' })).toBe(false);
+        });
+
+        test('returns false when scope has no admin/ entry at all', () => {
+            expect(scopesManager.hasAdminScopeForAction({
+                scope: 'user/Patient.write access/*.write', action: 'write'
+            })).toBe(false);
+        });
+
+        test('a read-only admin scope (admin/*.read) satisfies a read check but not a write check', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.read', action: 'read' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.read', action: 'write' })).toBe(false);
+        });
+
+        test('a read-only, resource-scoped admin scope (admin/Patient.read) behaves the same way', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.read', action: 'read' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.read', action: 'write' })).toBe(false);
+        });
+
+        test('a write-only admin scope (admin/*.write) satisfies a write check but not a read check', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.write', action: 'write' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.write', action: 'read' })).toBe(false);
+        });
+
+        test('a resource-scoped admin write (admin/Patient.write) satisfies write but not read', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.write', action: 'write' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.write', action: 'read' })).toBe(false);
+        });
+
+        test('the admin wildcard action (admin/*.*) satisfies both read and write checks', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.*', action: 'read' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.*', action: 'write' })).toBe(true);
+        });
+
+        test('returns true when a write admin scope is mixed in with a read-only one', () => {
+            expect(scopesManager.hasAdminScopeForAction({
+                scope: 'admin/Patient.read admin/AuditEvent.write', action: 'write'
+            })).toBe(true);
+        });
+
+        test('does not confuse a non-admin write scope for an admin write scope', () => {
+            expect(scopesManager.hasAdminScopeForAction({
+                scope: 'admin/Patient.read user/Patient.write', action: 'write'
+            })).toBe(false);
+        });
+    });
+
     describe('getPatientScopes', () => {
         test('should return empty array for undefined scope', () => {
             expect(scopesManager.getPatientScopes({ scope: undefined })).toEqual([]);
