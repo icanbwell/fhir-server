@@ -160,7 +160,8 @@ describe('§12 known gap — $access-history link traversal drops the access-tag
         };
 
         const mockScopesManager = {
-            isAccessAllowedByPatientScopes: jestGlobal.fn().mockReturnValue(false)
+            isAccessAllowedByPatientScopes: jestGlobal.fn().mockReturnValue(false),
+            hasPatientScope: jestGlobal.fn().mockReturnValue(false)
         };
 
         const mockSecurityTagManager = {

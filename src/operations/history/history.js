@@ -205,6 +205,24 @@ class BaseHistoryOperationProcessor {
             throw forbiddenError;
         }
 
+        // SEC-1580 SAE-1: see ScopesManager.hasHistoryAccess for why a tenant-scoped access
+        // code is never sufficient to read history.
+        if (!this.scopesManager.hasHistoryAccess({ resourceType, scope })) {
+            const forbiddenError = new ForbiddenError(
+                `user ${user} with scopes [${scope}] failed access check to ${resourceType}'s ` +
+                    'history: history access requires a non-tenant-specific access scope (access/*.read or access/*.*)'
+            );
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs?.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: forbiddenError
+            });
+            throw forbiddenError;
+        }
+
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             parsedArgs,

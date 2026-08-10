@@ -194,6 +194,9 @@ class SearchManager {
      * @param {boolean} applyPatientFilter
      * @param {boolean} addPersonOwnerToContext
      * @param {boolean} allowConsentedProaDataAccess
+     * @param {boolean} useProxyPatientToPersonCache true when the original request was
+     *   Person/proxy-patient $everything -- signals DataSharingManager.getValidatedPatientIdsMap
+     *   to use the RequestSpecificCache-backed path instead of BwellPersonFinder.
      * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
     async constructQueryAsync (
@@ -213,6 +216,7 @@ class SearchManager {
             applyPatientFilter = true,
             addPersonOwnerToContext = false,
             allowConsentedProaDataAccess = false,
+            useProxyPatientToPersonCache,
             actor,
             everythingChunkIndex
         }
@@ -320,7 +324,8 @@ class SearchManager {
                         requestId,
                         isUser,
                         allowConsentedProaDataAccess,
-                        everythingChunkIndex
+                        everythingChunkIndex,
+                        useProxyPatientToPersonCache
                     });
                 }
             }
