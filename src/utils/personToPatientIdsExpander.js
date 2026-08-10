@@ -63,18 +63,24 @@ class PersonToPatientIdsExpander {
      * @param {string|string[]} ids
      * @param {boolean} includePatientPrefix
      * @param {boolean} toMap If return map of person to patient
-     * @param {FhirRequestInfo} requestInfo
-     * @param {boolean} addTopPersonAccessCheck if true, adds an access tag check for every Person
-     *   resolved during traversal (the top-level id and every id reached via Person.link), not just
-     *   the top-level id -- a caller must hold a matching access tag at every hop, since a shared
-     *   link graph (e.g. a Main Person hub) can span multiple tenants
+     * @param {FhirRequestInfo} requestInfo Required -- adds an access tag check for every Person
+     *   resolved during traversal (the top-level id and every id reached via Person.link), not
+     *   just the top-level id -- a caller must hold a matching access tag at every hop, since a
+     *   shared link graph (e.g. a Main Person hub) can span multiple tenants. Both real callers
+     *   (accessHistory.js, patientProxyQueryRewriter.js) are now guaranteed to supply a real
+     *   requestInfo from every entry point that can reach them (REST via fhirOperationsManager.js,
+     *   GraphQL v1 via context.fhirRequestInfo, GraphQL v2 via this.requestInfo -- all asserted
+     *   non-undefined at their own construction), so a missing requestInfo here means a new
+     *   caller was wired up without that guarantee, not a legitimate degraded-mode case.
      * @param {boolean} captureOwnerVerifiedLinks see getPatientIdsFromPersonAsync's JSDoc. Only
      *   meaningful when toMap is true; changes this function's return shape (see below).
      * @return {Promise<string|string[]|{[key: string]: string[]}|{plainMap: {[key: string]: string[]}, ownerVerifiedPersonToLinkedPatients: Map<string, Set<string>>}>}
      *   Returns {plainMap, ownerVerifiedPersonToLinkedPatients} when toMap and
      *   captureOwnerVerifiedLinks are both true; otherwise unchanged existing behavior.
      */
-    async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap, requestInfo, addTopPersonAccessCheck = false, captureOwnerVerifiedLinks = false }) {
+    async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap, requestInfo, captureOwnerVerifiedLinks = false }) {
+        assertIsValid(requestInfo !== undefined, 'requestInfo is required for getPatientProxyIdsAsync');
+
         // captureOwnerVerifiedLinks only makes sense with toMap: true, because that's the only
         // case that returns the {personToLinkedPatient, ownerVerifiedPersonToLinkedPatients}
         // shape. If both flags are not set correctly, throw rather than silently returning
@@ -106,7 +112,6 @@ class PersonToPatientIdsExpander {
                 toMap,
                 returnOriginalPersonId: true, // return the passed personId not its uuid
                 requestInfo,
-                addTopPersonAccessCheck,
                 captureOwnerVerifiedLinks
             }
         );
@@ -214,12 +219,20 @@ class PersonToPatientIdsExpander {
      * @property {boolean} toMap If passed, will return a map of personId -> all related personIds
      * @property {boolean} returnOriginalPersonId If true then returns original personId passed. By default returns person _uuid
      * @property {boolean} addPersonOwnerToContext If true then add person owner to context
-     * @property {boolean} addTopPersonAccessCheck If true, applies the access tag check at every
-     *   recursion level while walking Person.link, not just the initial lookup -- propagated through
-     *   each recursive call so a caller can't bypass it via a Person reached transitively
-     * @property {boolean} skipAccessCheckAtTopLevel If true (and addTopPersonAccessCheck is also
-     *   true), the access tag check is skipped for level 1 (the personIds passed into the initial
-     *   call) and only applied from level 2 onward (i.e. to Person(s) reached via Person.link).
+     * @property {FhirRequestInfo} [requestInfo] Whenever supplied, applies the access-scope check
+     *   -- propagated through each recursive call so a caller can't bypass it via a Person reached
+     *   transitively. Omit requestInfo to skip the check entirely (e.g. a caller with no
+     *   request/scope context to check against).
+     *
+     * A patient-scoped caller (requestInfo.scope carries a patient/ scope per
+     * scopesManager.hasPatientScope) is restricted to ONLY ever resolving their own Person -- i.e.
+     * personIds must match requestInfo.personIdFromJwtToken -- resolved strictly by the Person
+     * collection's `_uuid` field (never falling back to a `_sourceId` match the way the generic id
+     * filter would for a non-uuid value, since source ids are not guaranteed unique across tenants
+     * and could otherwise resolve the claim to a different tenant's Person sharing the same source
+     * id). This applies at EVERY level, including Person(s) reached via Person.link (level 2+): a
+     * patient-scoped caller cannot traverse beyond their own Person at all, even to a Client Person
+     * reached from their own Main Person.
      * @property {boolean} captureOwnerVerifiedLinks If true, additionally computes (from the same
      *   query/documents already being read -- no new Mongo round trip) which visited Persons have
      *   an owner tag (SecurityTagSystem.owner) matching the caller's securityTags, and returns that
@@ -229,7 +242,6 @@ class PersonToPatientIdsExpander {
      *   docs/superpowers/specs/2026-08-08-proa-person-everything-caching-design.md §2 for why PROA
      *   consent-sharing eligibility needs the owner check specifically. Only meaningful when
      *   `toMap` is true; when true, changes this function's return shape (see below).
-     * @property {FhirRequestInfo} requestInfo
      *
      * @param {getPatientIdsFromPersonAsyncArgs}
      * @return {Promise<string[] | Map<string, Set<string>> | {personToLinkedPatient: Map<string, Set<string>>, ownerVerifiedPersonToLinkedPatients: Map<string, Set<string>>}>}
@@ -247,8 +259,6 @@ class PersonToPatientIdsExpander {
         returnOriginalPersonId = false,
         addPersonOwnerToContext = false,
         requestInfo,
-        addTopPersonAccessCheck = false,
-        skipAccessCheckAtTopLevel = false,
         captureOwnerVerifiedLinks = false
     }) {
         /**
@@ -263,7 +273,7 @@ class PersonToPatientIdsExpander {
          * tag matches securityTagsForOwnerCheck. Always keyed by _uuid (never
          * returnOriginalPersonId) so it matches BwellPersonFinder.getImmediatePersonIdsOfPatientsAsync's
          * personToLinkedPatientsMap shape exactly. Populated only when captureOwnerVerifiedLinks is
-         * true and the security-check block below actually runs.
+         * true and the access-scope branch below actually computed securityTags.
          * @type {Map<string, Set<string>>}
          */
         const ownerVerifiedPersonToLinkedPatients = new Map();
@@ -274,88 +284,76 @@ class PersonToPatientIdsExpander {
             projectionsMap.meta = 1
         }
 
-        if(addTopPersonAccessCheck) {
-            assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
-        }
-
-        let query = FilterById.getListFilter(personIds);
-
-        // Apply the caller's access-scope security tag filter to the requested Person so that
-        // linked patients are not resolved for a Person the caller cannot access.
-        //
-        // NOTE: for a pure patient-scope token (no access/ scope at all -- the normal shape for a
-        // plain patient-facing app), getSecurityTagsFromScope() below legitimately returns []
-        // (accessViaPatientScopes short-circuits the "no access codes" error), which makes
-        // getQueryWithSecurityTags() a complete no-op: no filter is added at all (see review.md §D,
-        // "no restriction" must not be indistinguishable from "no matches"). That means this check
-        // does NOT protect a pure patient-scope caller from a cross-tenant Person.link today. An
-        // owner-tag same-tenant check was evaluated as a fallback for that case and rejected: this
-        // data model's Main-Person-to-Client-Person links are *intentionally* cross-tenant by design
-        // (see review.md §1 and e.g. src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid),
-        // so "different owner tag" cannot be used to distinguish a legitimate identity-matched link
-        // from a malicious/corrupted one -- doing so breaks that core feature. This gap is tracked by
-        // the (quarantined) tests in personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js
-        // pending a real fix (see jest.config.js).
-        //
-        // When skipAccessCheckAtTopLevel is set (patientScopeManager's ordinary-search / GraphQL v2 /
-        // patient-scoped-write callers), addTopPersonAccessCheck's filter is only applied from level 2
-        // onward (i.e. to Person(s) reached by following Person.link), never to the level-1 personIds
-        // passed into the initial call. Those level-1 ids come from a trusted JWT claim
-        // (personIdFromJwtToken) established by authentication, not from following a link or from
-        // user-suppliable input -- there is nothing to re-check there, and the caller's own access/
-        // scope (which may legitimately be unrelated to their own Person's access tag, e.g. a
-        // service-level access code alongside patient scopes) must not gate whether their own asserted
-        // identity resolves. What the fix must close is a *stray/malicious Person.link from that
-        // trusted anchor into another tenant* -- i.e. level 2+. Callers whose level-1 personIds are
-        // NOT a trusted JWT claim (e.g. accessHistory's $access-history id, which is user/URL
-        // supplied) leave skipAccessCheckAtTopLevel false, so the check still runs at level 1 too.
-        // The $everything path is separate: its top-level personId also comes from the request URL,
-        // so its existing top-level check (level-independent, unchanged here) is still required.
+        const resourceType = 'Person';
+        const hasPatientScope = Boolean(requestInfo?.scope && this.scopesManager.hasPatientScope({ scope: requestInfo.scope }));
 
         /**
-         * securityTags used for the existing access-tag check, captured here (rather than only
-         * inside the `if` block below) so captureOwnerVerifiedLinks can reuse the same value for
-         * its owner-tag check without a second computation. null when the security-check
-         * condition below never fires (e.g. enableProxyPersonScopeCheckForEverything is off) --
-         * captureOwnerVerifiedLinks intentionally produces an empty ownerVerifiedPersonToLinkedPatients
-         * in that case rather than a partially-checked one.
+         * securityTags used for the access-tag check below, captured here (rather than only inside
+         * that branch) so captureOwnerVerifiedLinks can reuse the same value for its owner-tag
+         * check without a second computation. Stays null when securityTags are never computed --
+         * i.e. when requestInfo is absent, or when the caller is patient-scoped (that branch gates
+         * on the caller's own Person _uuid instead of on access tags, so there is no scope-derived
+         * tag set to compare an owner tag against). captureOwnerVerifiedLinks intentionally
+         * produces an empty ownerVerifiedPersonToLinkedPatients in those cases rather than a
+         * partially-checked one.
          * @type {string[]|null}
          */
         let securityTagsForOwnerCheck = null;
 
-        if (
-            requestInfo &&
-            (
-                (
-                    this.configManager.enableProxyPersonScopeCheckForEverything &&
-                    requestInfo.originalUrl?.includes('$everything') &&
-                    requestInfo.method === 'GET'
-                ) ||
-                (addTopPersonAccessCheck && (!skipAccessCheckAtTopLevel || level > 1))
-            )
-        ) {
-            const { user, scope } = requestInfo;
-            const resourceType = 'Person';
-            const accessViaPatientScopes = this.scopesManager.isAccessAllowedByPatientScopes({ scope, resourceType });
+        /**
+         * @type {import('mongodb').Document}
+         */
+        let query = FilterById.getListFilter(personIds);
 
-            /**
-             * @type {string[]}
-             */
-            const securityTags = this.securityTagManager.getSecurityTagsFromScope({
-                accessRequested: 'read',
-                user,
-                scope,
-                accessViaPatientScopes
-            });
-            securityTagsForOwnerCheck = securityTags;
+        if (hasPatientScope) {
+            // A patient-scoped caller must resolve to exactly their own Person --
+            // never anyone else's, regardless of entry point.
+            const jwtPersonId = requestInfo?.personIdFromJwtToken;
+            query = {
+                $and: [
+                    query,
+                    jwtPersonId ? { _uuid: jwtPersonId } : { _uuid: '__invalid__' }
+                ]
+            };
+        } else {
+            // Apply the caller's access-scope security tag filter to the requested Person so that
+            // linked patients are not resolved for a Person the caller cannot access.
+            //
+            // NOTE: for a pure patient-scope token (no access/ scope at all -- the normal shape for a
+            // plain patient-facing app), getSecurityTagsFromScope() below legitimately returns []
+            // (accessViaPatientScopes short-circuits the "no access codes" error), which makes
+            // getQueryWithSecurityTags() a complete no-op: no filter is added at all (see review.md §D,
+            // "no restriction" must not be indistinguishable from "no matches"). That means this check
+            // does NOT protect a pure patient-scope caller from a cross-tenant Person.link today. An
+            // owner-tag same-tenant check was evaluated as a fallback for that case and rejected: this
+            // data model's Main-Person-to-Client-Person links are *intentionally* cross-tenant by design
+            // (see review.md §1 and e.g. src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid),
+            // so "different owner tag" cannot be used to distinguish a legitimate identity-matched link
+            // from a malicious/corrupted one -- doing so breaks that core feature. This gap is tracked by
+            // the (quarantined) tests in personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js
+            // pending a real fix (see jest.config.js).
+            if (requestInfo) {
+                const { user, scope } = requestInfo;
 
-            query = this.securityTagManager.getQueryWithSecurityTags({
-                resourceType,
-                securityTags,
-                query,
-                useAccessIndex: this.configManager.useAccessIndex,
-                useHistoryTable: false
-            });
+                /**
+                 * @type {string[]}
+                 */
+                const securityTags = this.securityTagManager.getSecurityTagsFromScope({
+                    accessRequested: 'read',
+                    user,
+                    scope,
+                    accessViaPatientScopes: hasPatientScope
+                });
+                securityTagsForOwnerCheck = securityTags;
+
+                query = this.securityTagManager.getQueryWithSecurityTags({
+                    resourceType,
+                    securityTags,
+                    query,
+                    useAccessIndex: this.configManager.useAccessIndex,
+                    useHistoryTable: false
+                });
+            }
         }
 
         const personResourceCursor = await databaseQueryManager.findAsync(
@@ -462,8 +460,6 @@ class PersonToPatientIdsExpander {
                     toMap,
                     returnOriginalPersonId: false, // always return _uuid map for it
                     requestInfo,
-                    addTopPersonAccessCheck,
-                    skipAccessCheckAtTopLevel,
                     captureOwnerVerifiedLinks
                 });
 
@@ -498,9 +494,7 @@ class PersonToPatientIdsExpander {
                 databaseQueryManager,
                 level: level + 1,
                 toMap,
-                requestInfo,
-                addTopPersonAccessCheck,
-                skipAccessCheckAtTopLevel
+                requestInfo
             });
             return patientIds.concat(patientIdsFromPersons);
         }

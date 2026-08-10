@@ -139,7 +139,7 @@ describe('PersonToPatientIdsExpander — owner-verified Person->Patient capture'
         expect(result).toBeInstanceOf(Map);
     });
 
-    test('fail-closed: ownerVerifiedPersonToLinkedPatients is empty when security check does not run', async () => {
+    test('fail-closed: ownerVerifiedPersonToLinkedPatients is empty for a patient-scoped caller', async () => {
         const personWithMatchingOwnerTag = {
             _uuid: 'person-uuid',
             meta: { security: [{ system: SecurityTagSystem.owner, code: 'tenant_a' }] },
@@ -148,12 +148,17 @@ describe('PersonToPatientIdsExpander — owner-verified Person->Patient capture'
         mockFindAsyncSequence([[personWithMatchingOwnerTag]]);
         const expander = createExpander();
 
-        // Use a requestInfo that does NOT satisfy the $everything+GET condition:
-        // missing $everything in the URL
-        const nonEverythingRequestInfo = {
+        // A patient-scoped caller takes the branch that filters on the caller's own Person
+        // _uuid rather than on scope-derived access tags, so no securityTags are ever computed
+        // and there is nothing to match an owner tag against. (Before IDG-5 this same
+        // fail-closed state was reached instead by a non-$everything URL, because the whole
+        // access-scope check was gated to $everything GETs behind a config flag; that check is
+        // unconditional now, so a patient-scoped caller is the remaining path that produces it.)
+        const patientScopedRequestInfo = {
             user: 'test-user',
-            scope: 'access/tenant_a.read',
-            originalUrl: '/4_0_0/Person/person-uuid',
+            scope: 'patient/Person.read access/tenant_a.read',
+            personIdFromJwtToken: 'person-uuid',
+            originalUrl: '/4_0_0/Person/person-uuid/$everything',
             method: 'GET'
         };
 
@@ -163,11 +168,11 @@ describe('PersonToPatientIdsExpander — owner-verified Person->Patient capture'
             databaseQueryManager: mockDatabaseQueryManager,
             level: 1,
             toMap: true,
-            requestInfo: nonEverythingRequestInfo,
+            requestInfo: patientScopedRequestInfo,
             captureOwnerVerifiedLinks: true
         });
 
-        // Even though the person's owner tag would match, the security check never ran,
+        // Even though the person's owner tag would match, no securityTags were computed,
         // so ownerVerifiedPersonToLinkedPatients must be empty (fail-closed)
         expect(result.ownerVerifiedPersonToLinkedPatients.size).toBe(0);
     });

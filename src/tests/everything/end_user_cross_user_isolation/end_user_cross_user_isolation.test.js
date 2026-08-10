@@ -6,9 +6,12 @@
 //   SAE-4       reading the other user's resource by id is indistinguishable from not-found.
 //
 // Models the Bob Kent scenario faithfully: each user is a bwell master Person -> client
-// Person -> Patient (+Observation); both users share name/DOB/gender and tenant. The token
-// is anchored (clientFhirPersonId/bwellFhirPersonId) to user A's master Person; the only
-// thing that may separate the users is the patient-scope link graph.
+// Person -> Patient (+Observation); both users share name/DOB/gender and tenant. A real
+// end-user token's clientFhirPersonId is the CLIENT Person (the leaf directly linked to the
+// Patient), not the master hub -- since IDG-5, patient-scoped self-lookup no longer follows
+// Person.link at all, so anchoring at the master would make the user's own graph
+// unreachable. bwellFhirPersonId still carries the master Person id. The only thing that
+// may separate the users is the patient-scope link graph.
 // MOCKED-INTEGRATION. LIVE validation on the real staging Bob Kent identities is blocked
 // (service accounts denied) — plan Section 5.2.
 // ============================================================================
@@ -36,14 +39,21 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 // identical isolation results here, but the real one is what we ship, so assert on it.
 const REAL_END_USER_SCOPE = 'access/*.* user/*.* patient/*.*';
 
+// Populated by seed() with the real _uuid Mongo assigns each Person fixture. Patient-scoped
+// self-lookup (personToPatientIdsExpander.js) resolves a caller's own Person strictly by
+// _uuid, so endUser() must resolve through this map rather than passing the fixture's plain
+// source id straight through, exactly like a real client-issued identity token would carry.
+const personUuidBySourceId = {};
+
 function endUser(masterPersonId, clientPersonId) {
+  const clientId = clientPersonId || masterPersonId;
   return getHeadersWithCustomPayload({
     scope: REAL_END_USER_SCOPE,
     username: 'end-user@example.com',
     // real tokens carry DISTINCT client vs bwell (master) person ids
-    clientFhirPersonId: clientPersonId || masterPersonId,
+    clientFhirPersonId: personUuidBySourceId[clientId] || clientId,
     clientFhirPatientId: 'clientFhirPatient',
-    bwellFhirPersonId: masterPersonId,
+    bwellFhirPersonId: personUuidBySourceId[masterPersonId] || masterPersonId,
     bwellFhirPatientId: 'bwellFhirPatient',
     managingOrganization: 'bwell_demo',
     token_use: 'access'
@@ -54,6 +64,9 @@ async function seed() {
   const request = await createTestRequest();
   const resp = await request.post('/4_0_0/Person/1/$merge').send(all).set(getHeaders());
   expect(resp).toHaveMergeResponse({ created: true });
+  resp.body
+    .filter((r) => r.resourceType === 'Person')
+    .forEach((r) => { personUuidBySourceId[r.id] = r.uuid; });
   return request;
 }
 const ids = r => (Array.isArray(r.body) ? r.body : []).map(x => x && x.id).filter(Boolean);
@@ -64,14 +77,20 @@ describe('End-user cross-user isolation (identical demographics, patient-scoped)
 
   test('positive control: user A sees its OWN observation via its own graph', async () => {
     const request = await seed();
-    const resp = await request.get('/4_0_0/Observation?patient=Patient/person.euMasterA').set(endUser('euMasterA'));
+    // Anchored at euClientA (the client Person, directly linked to the Patient), not
+    // euMasterA (the master hub) -- since IDG-5, patient-scoped self-lookup no longer
+    // follows Person.link at all, so neither the caller's own identity claim nor the
+    // `patient=` query param can resolve through euMasterA any more; both must reference
+    // euClientA directly. This matches how a real end-user token is actually shaped (see
+    // the file-level comment above).
+    const resp = await request.get('/4_0_0/Observation?patient=Patient/person.euClientA').set(endUser('euMasterA', 'euClientA'));
     expect(resp.status).toBe(200);
     expect(ids(resp)).toContain('euUserAObs001');
   });
 
   test('user A must NOT receive user B\'s observation from its own graph query', async () => {
     const request = await seed();
-    const resp = await request.get('/4_0_0/Observation?patient=Patient/person.euMasterA').set(endUser('euMasterA'));
+    const resp = await request.get('/4_0_0/Observation?patient=Patient/person.euClientA').set(endUser('euMasterA', 'euClientA'));
     expect(ids(resp)).not.toContain('euUserBObs001');
   });
 
@@ -81,7 +100,8 @@ describe('End-user cross-user isolation (identical demographics, patient-scoped)
   // control removed. This proves B's data IS reachable -- by B.
   test('reachability control: user B CAN see its own observation and patient', async () => {
     const request = await seed();
-    const graph = await request.get('/4_0_0/Observation?patient=Patient/person.euMasterB').set(endUser('euMasterB', 'euClientB'));
+    // Same euClientB (not euMasterB) anchoring as the positive control above.
+    const graph = await request.get('/4_0_0/Observation?patient=Patient/person.euClientB').set(endUser('euMasterB', 'euClientB'));
     expect(graph.status).toBe(200);
     expect(ids(graph)).toContain('euUserBObs001');
     const byId = await request.get('/4_0_0/Patient/euUserBPatient001').set(endUser('euMasterB', 'euClientB'));

@@ -60,23 +60,32 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * consumer-side `useProxyPatientToPersonCache` boolean independently and must match this
      * condition exactly (method === 'GET' in particular) -- if they ever diverge, a request
      * could ask DataSharingManager to read a cache that was never written.
+     *
+     * The last clause guards the same hazard the old
+     * configManager.enableProxyPersonScopeCheckForEverything check did, re-expressed against the
+     * condition that actually governs it now. Previously, PersonToPatientIdsExpander only
+     * computed the scope-derived securityTags its owner-tag verification needs when that flag
+     * gated the access-scope check on to $everything GETs, so "flag off" meant "verification
+     * cannot run". IDG-5 made that access-scope check unconditional and removed the flag, which
+     * left the old clause reading `undefined` -- a permanently-false gate that silently disabled
+     * this cache. What remains true is the underlying precondition: the expander computes those
+     * securityTags only on its non-patient-scoped branch. A patient-scoped caller is filtered by
+     * its own Person _uuid instead, so there is no scope-derived tag set to match an owner tag
+     * against and ownerVerifiedPersonToLinkedPatients comes back empty. Writing a "successfully
+     * populated but empty" cache in that case would make dataSharingManager.js silently treat
+     * every patient as not-PROA-eligible; skipping the write instead lets its "cache entirely
+     * absent" assertFail throw loudly, which is the intended failure mode. requestInfo.isUser is
+     * the same patient-scope determination the expander's hasPatientScope makes -- see
+     * ScopesManager.hasPatientScope's JSDoc on why the two must always agree.
      * @param {FhirRequestInfo} requestInfo
      * @return {boolean}
      */
     isProaCacheEligibleRequest (requestInfo) {
         return Boolean(
             this.configManager.enableConsentedProaDataAccess &&
-            // PersonToPatientIdsExpander's owner-tag verification (which produces
-            // ownerVerifiedPersonToLinkedPatients) only runs when this flag is on; without it,
-            // the map would always be empty and writing a "successfully populated but empty"
-            // cache would make dataSharingManager.js silently treat every patient as
-            // not-PROA-eligible instead of surfacing the misconfiguration. So when this flag is
-            // off, deliberately skip writing the cache at all -- that makes
-            // dataSharingManager.js's existing "cache entirely absent" assertFail throw loudly
-            // instead, which is the intended failure mode here, not a bug.
-            this.configManager.enableProxyPersonScopeCheckForEverything &&
             requestInfo?.originalUrl?.includes('$everything') &&
-            requestInfo?.method === 'GET'
+            requestInfo?.method === 'GET' &&
+            !requestInfo?.isUser
         );
     }
 

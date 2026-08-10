@@ -452,25 +452,30 @@ class ScopesManager {
         if (!this.patientFilterManager.canAccessResourceWithPatientScope({ resourceType })) {
             return false;
         }
+        // Same case-insensitive prefix match as hasPatientScope/authService.js's isUser -- see the
+        // comment on hasPatientScope below for why these must always agree.
         const scopes = this.parseScopes(scope);
-        if (scopes.some(s => s.includes('patient/'))) {
-            return true;
-        }
-        return false;
+        return scopes.some(s => s.toLowerCase().startsWith('patient/'));
     }
 
     /**
      * returns whether the scope has a patient scope
+     *
+     * Uses the same case-insensitive prefix match as authService.js's isUser derivation
+     * (scopes.some(s => s.toLowerCase().startsWith('patient/'))), rather than a case-sensitive
+     * substring check -- the two must agree on what counts as "patient-scoped", since isUser (and
+     * the personIdFromJwtToken claim it gates) and hasPatientScope (used to decide whether
+     * personToPatientIdsExpander applies the patient-scope self-only restriction) need to reach
+     * the same answer for the same scope string. A mismatch here would mean isUser is true (with
+     * personIdFromJwtToken correctly set) while hasPatientScope is false for the same request,
+     * silently skipping the restriction instead of applying it.
      * @param {string} scope
      * @return {boolean}
      */
     hasPatientScope ({ scope }) {
         assertIsValid(scope);
         const scopes = this.parseScopes(scope);
-        if (scopes.some(s => s.includes('patient/'))) {
-            return true;
-        }
-        return false;
+        return scopes.some(s => s.toLowerCase().startsWith('patient/'));
     }
 
     /**

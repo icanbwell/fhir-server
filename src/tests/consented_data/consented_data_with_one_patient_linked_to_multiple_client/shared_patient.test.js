@@ -92,25 +92,25 @@ describe('Consent Based Data Access Test With Shared Patient', () => {
         expect(resp).toHaveResourceCount(14);
 
         resp = await request
-            .get(`/4_0_0/Patient/?id=person.${masterPersonResource.id}&_rewritePatientReference=0`)
+            .get(`/4_0_0/Patient/?id=person.${client1personResource.id}&_rewritePatientReference=0`)
             .set(client1Headers);
         expect(resp).toHaveResponse(expectedClient1PatientResource);
 
         resp = await request
-            .get(`/4_0_0/Patient/?id=person.${masterPersonResource.id}&_rewritePatientReference=0`)
+            .get(`/4_0_0/Patient/?id=person.${client2PersonResource.id}&_rewritePatientReference=0`)
             .set(client2Headers);
         expect(resp).toHaveResponse(expectedClient2PatientResource);
 
         resp = await request
             .get(
-                `/4_0_0/Observation/?subject=Patient/person.${masterPersonResource.id}&_rewritePatientReference=0`
+                `/4_0_0/Observation/?subject=Patient/person.${client1personResource.id}&_rewritePatientReference=0`
             )
             .set(client1Headers);
         expect(resp).toHaveResponse(expectedClient1ObservationResource);
 
         resp = await request
             .get(
-                `/4_0_0/Observation/?subject=Patient/person.${masterPersonResource.id}&_rewritePatientReference=0`
+                `/4_0_0/Observation/?subject=Patient/person.${client2PersonResource.id}&_rewritePatientReference=0`
             )
             .set(client2Headers);
         expect(resp).toHaveResponse(expectedClient2ObservationResource);
@@ -127,7 +127,7 @@ describe('Consent Based Data Access Test With Shared Patient', () => {
         // now it should return consented resources
         resp = await request
             .get(
-                `/4_0_0/Observation/?subject=Patient/person.${masterPersonResource.id}&_rewritePatientReference=0`
+                `/4_0_0/Observation/?subject=Patient/person.${client1personResource.id}&_rewritePatientReference=0`
             )
             .set(client1Headers);
         expect(resp).toHaveResponse(expectedClient1ConsentedObservationResource);
@@ -135,7 +135,7 @@ describe('Consent Based Data Access Test With Shared Patient', () => {
         // now it should return consented resources
         resp = await request
             .get(
-                `/4_0_0/Patient/?id=person.${masterPersonResource.id}&_rewritePatientReference=0&_bundle=1&_debug=1`
+                `/4_0_0/Patient/?id=person.${client1personResource.id}&_rewritePatientReference=0&_bundle=1&_debug=1`
             )
             .set(client1Headers);
         expect(resp).toHaveMongoQuery(expectedClient1ConsentPatientResource);
@@ -144,7 +144,7 @@ describe('Consent Based Data Access Test With Shared Patient', () => {
         // now it should return consented resources
         resp = await request
             .get(
-                `/4_0_0/Observation/?subject=Patient/person.${masterPersonResource.id}&_rewritePatientReference=0`
+                `/4_0_0/Observation/?subject=Patient/person.${client2PersonResource.id}&_rewritePatientReference=0`
             )
             .set(client2Headers);
         expect(resp).toHaveResponse(expectedClient2ConsentedObservationResource);
