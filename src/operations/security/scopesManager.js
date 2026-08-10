@@ -380,6 +380,22 @@ class ScopesManager {
     }
 
     /**
+     * Returns whether scope contains an admin/ scope whose action segment is the given action or
+     * the wildcard '*'. getAdminScopes() alone (used to gate admin routes generally) never looks
+     * at the action segment, so an admin/*.read-only caller passes that check identically to one
+     * holding admin/*.write.
+     * @param {string|undefined} scope
+     * @param {'read'|'write'} action
+     * @return {boolean}
+     */
+    hasAdminScopeForAction ({ scope, action }) {
+        return this.getAdminScopes({ scope }).some((adminScope) => {
+            const scopeAction = adminScope.split('.')[1];
+            return scopeAction === '*' || scopeAction === action;
+        });
+    }
+
+    /**
      * Gets patient scopes from the passed in scope string
      * @param {string|undefined} scope
      * @returns {string[]}
@@ -436,25 +452,56 @@ class ScopesManager {
         if (!this.patientFilterManager.canAccessResourceWithPatientScope({ resourceType })) {
             return false;
         }
+        // Same case-insensitive prefix match as hasPatientScope/authService.js's isUser -- see the
+        // comment on hasPatientScope below for why these must always agree.
         const scopes = this.parseScopes(scope);
-        if (scopes.some(s => s.includes('patient/'))) {
-            return true;
-        }
-        return false;
+        return scopes.some(s => s.toLowerCase().startsWith('patient/'));
     }
 
     /**
      * returns whether the scope has a patient scope
+     *
+     * Uses the same case-insensitive prefix match as authService.js's isUser derivation
+     * (scopes.some(s => s.toLowerCase().startsWith('patient/'))), rather than a case-sensitive
+     * substring check -- the two must agree on what counts as "patient-scoped", since isUser (and
+     * the personIdFromJwtToken claim it gates) and hasPatientScope (used to decide whether
+     * personToPatientIdsExpander applies the patient-scope self-only restriction) need to reach
+     * the same answer for the same scope string. A mismatch here would mean isUser is true (with
+     * personIdFromJwtToken correctly set) while hasPatientScope is false for the same request,
+     * silently skipping the restriction instead of applying it.
      * @param {string} scope
      * @return {boolean}
      */
     hasPatientScope ({ scope }) {
         assertIsValid(scope);
         const scopes = this.parseScopes(scope);
-        if (scopes.some(s => s.includes('patient/'))) {
-            return true;
-        }
-        return false;
+        return scopes.some(s => s.toLowerCase().startsWith('patient/'));
+    }
+
+    /**
+     * Whether the given scope may read a resource's history (_history,
+     * _history/{id}, or a specific _history/{vid}).
+     *
+     * A historical version keeps the access tags it had at write time, so a
+     * tenant-scoped access code can still match a stale, no-longer-current
+     * tag on an old version after the current version's tags have been
+     * narrowed away from that tenant (SEC-1580 SAE-1). Rather than
+     * re-evaluating each version against the resource's current tags,
+     * history access requires a non-tenant-specific access scope
+     * (access/*.read or access/*.*) -- a tenant-scoped access code is never
+     * sufficient, even for that tenant's own record.
+     * @typedef {Object} HasHistoryAccessParams
+     * @property {string} resourceType
+     * @property {string} scope
+     *
+     * @param {HasHistoryAccessParams}
+     * @return {boolean}
+     */
+    hasHistoryAccess ({ resourceType, scope }) {
+        assertIsValid(resourceType, 'resourceType is required');
+
+        const accessCodes = this.getAccessCodesFromScopes('read', '', scope);
+        return accessCodes.includes('*');
     }
 }
 
