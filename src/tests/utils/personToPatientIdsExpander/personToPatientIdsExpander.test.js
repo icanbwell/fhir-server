@@ -9,7 +9,8 @@ const {
     getHeaders,
     createTestRequest,
     getTestContainer,
-    mockHttpContext
+    mockHttpContext,
+    getTestRequestInfo
 } = require('../../common');
 const { describe, test, beforeEach, afterEach, expect } = require('@jest/globals');
 
@@ -36,7 +37,8 @@ describe('personToPatientIdsExpanders Test', () => {
         let result = await personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version: '4_0_0',
             ids: 'person.00701751-032e-5b40-94c1-7265c0d547fe',
-            includePatientPrefix: true
+            includePatientPrefix: true,
+            requestInfo: getTestRequestInfo({ requestId })
         });
         expect(result).toEqual('person.00701751-032e-5b40-94c1-7265c0d547fe');
 
@@ -49,7 +51,8 @@ describe('personToPatientIdsExpanders Test', () => {
         result = await personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version: '4_0_0',
             ids: 'person.00701751-032e-5b40-94c1-7265c0d547fe',
-            includePatientPrefix: true
+            includePatientPrefix: true,
+            requestInfo: getTestRequestInfo({ requestId })
         });
         expect(result.length).toEqual(2);
         expect(result).toEqual([
@@ -72,7 +75,8 @@ describe('personToPatientIdsExpanders Test', () => {
         result = await personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version: '4_0_0',
             ids: 'person.00701751-032e-5b40-94c1-7265c0d547fe',
-            includePatientPrefix: true
+            includePatientPrefix: true,
+            requestInfo: getTestRequestInfo({ requestId })
         });
         expect(result.length).toEqual(6);
         expect(result.sort()).toEqual([

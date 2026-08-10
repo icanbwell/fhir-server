@@ -366,7 +366,14 @@ describe('Export Tests', () => {
 
             expect(exportStatusPutResponseViaPatientScope).toHaveResponse(
                 {
-                    message: "Missing scopes for admin/*.read in patient/*.*"
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        {
+                            severity: 'error',
+                            code: 'exception',
+                            diagnostics: 'user with scopes [patient/*.*] failed access check to [admin/*.write]'
+                        }
+                    ]
                 }
             );
         });
