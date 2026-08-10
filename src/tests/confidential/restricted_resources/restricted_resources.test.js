@@ -27,6 +27,18 @@ const person_payload = {
 };
 const headers = getHeadersWithCustomPayload(person_payload);
 
+// Patient-scoped self-lookup (personToPatientIdsExpander.js) now resolves a caller's own Person
+// strictly by _uuid, not by the plain source id the JWT's clientFhirPersonId/bwellFhirPersonId
+// claims would carry here otherwise. Build headers whose claims carry the real _uuid Mongo
+// assigned to the merged person1 fixture, mirroring a real client-issued identity token.
+function personScopedHeaders (personUuid) {
+    return getHeadersWithCustomPayload({
+        ...person_payload,
+        clientFhirPersonId: personUuid,
+        bwellFhirPersonId: personUuid
+    });
+}
+
 describe('Observation Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -47,6 +59,7 @@ describe('Observation Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
+            const personHeaders = personScopedHeaders(resp.body.uuid);
 
             // add the resources to FHIR server
             resp = await request
@@ -72,7 +85,7 @@ describe('Observation Tests', () => {
 
             // ACT & ASSERT
             // search using patient scope and make sure we get the right Observation back
-            resp = await request.get('/4_0_0/Observation/?_bundle=1&_total=accurate').set(headers);
+            resp = await request.get('/4_0_0/Observation/?_bundle=1&_total=accurate').set(personHeaders);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
             // Number of resources returned in this case is 2 as 1 of them has restricted tag
@@ -90,6 +103,7 @@ describe('Observation Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
+            const personHeaders = personScopedHeaders(resp.body.uuid);
 
             // add the resources to FHIR server
             resp = await request
@@ -108,9 +122,9 @@ describe('Observation Tests', () => {
 
             // ACT & ASSERT
             // search using patient scope and make sure we get the right Observation back
-            await request.get('/4_0_0/Observation/1').set(headers).expect(200);
+            await request.get('/4_0_0/Observation/1').set(personHeaders).expect(200);
 
-            await request.get('/4_0_0/Observation/2').set(headers).expect(404);
+            await request.get('/4_0_0/Observation/2').set(personHeaders).expect(404);
         });
 
         test('restricted resources are not updated with patient scope', async () => {
