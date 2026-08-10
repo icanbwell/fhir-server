@@ -101,9 +101,34 @@ def to_snake_case(resource_type: str) -> str:
     return re.sub(r"(?<!^)(?=[A-Z])", "_", resource_type).lower()
 
 
-def format_mcp_description(param: Dict[str, Any]) -> str:
+MULTIPLE_RESOURCES_BULLET_RE = re.compile(r"\*\s*\[([A-Za-z]+)\]\([^)]*\):\s*(.*)")
+
+
+def narrow_multiple_resources_description(description: str, resource_type: str) -> str:
+    # A search parameter shared across resource types (identifier, code, patient, date, focus,
+    # etc.) carries HL7's raw description verbatim: "Multiple Resources: \r\n\r\n* [TypeA](url):
+    # descA\r\n* [TypeB](url): descB\r\n...", one bullet per resource type it applies to. Copying
+    # that whole block into e.g. condition.tool.js's 'identifier' field means every MCP client
+    # reads ~29 other resource types' descriptions to find the one bullet (Condition's) that's
+    # actually relevant to the tool it's calling -- pure token bloat with no benefit, since the
+    # tool's own resourceType is already fixed. Narrow to just the current resource type's own
+    # bullet; fall back to the untouched description if the format doesn't match (e.g. a
+    # single-resource description, or an HL7 format change) rather than silently dropping content.
+    if not description.startswith("Multiple Resources:"):
+        return description
+    for line in description.split("\r\n"):
+        match = MULTIPLE_RESOURCES_BULLET_RE.match(line.strip())
+        if match and match.group(1) == resource_type:
+            return match.group(2)
+    return description
+
+
+def format_mcp_description(param: Dict[str, Any], resource_type: str) -> str:
+    raw_description = narrow_multiple_resources_description(
+        param.get("description") or param["code"], resource_type
+    )
     # Normalize all line endings (CRLF and LF) to spaces
-    text = (param.get("description") or param["code"]).replace("\r\n", " ").replace("\r", " ").replace("\n", " ").strip()
+    text = raw_description.replace("\r\n", " ").replace("\r", " ").replace("\n", " ").strip()
     suffix = f" ({param['type']}"
     if param.get("target"):
         suffix += f": {' | '.join(param['target'])}"
@@ -189,7 +214,7 @@ def main() -> int:
         # Copy dicts before mutating to avoid modifying COMMON_PARAMS across iterations
         params = [copy.copy(param) for param in params]
         for param in params:
-            param["mcp_description"] = format_mcp_description(param)
+            param["mcp_description"] = format_mcp_description(param, resource_type)
 
         file_name = to_snake_case(resource_type)
         rendered = template.render(
