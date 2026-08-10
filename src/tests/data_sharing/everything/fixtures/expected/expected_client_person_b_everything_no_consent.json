@@ -1,0 +1,396 @@
+{
+  "entry": [
+    {
+      "id": "624fa318-ffa8-4c5d-8a27-3c216bc280323",
+      "resource": {
+        "id": "624fa318-ffa8-4c5d-8a27-3c216bc280323",
+        "link": [
+          {
+            "id": "624fa318-ffa8-4c5d-8a27-3c216bc280324",
+            "target": {
+              "reference": "Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324",
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "client2"
+                }
+              ]
+            }
+          },
+          {
+            "id": "cb3bcfe2-e3ed-47a0-89cc-5e8332579d1a",
+            "target": {
+              "reference": "Patient/cb3bcfe2-e3ed-47a0-89cc-5e8332579d1a",
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/cb3bcfe2-e3ed-47a0-89cc-5e8332579d1a"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Patient/cb3bcfe2-e3ed-47a0-89cc-5e8332579d1a"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "client2"
+                }
+              ]
+            }
+          }
+        ],
+        "meta": {
+          "source": "test",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client2",
+              "id": "bb5d0704-9de7-52df-ac8d-efc5b07dc647"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client2",
+              "id": "18393a00-dc69-5300-85d1-e62573be197c"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client2",
+              "id": "f2210c92-42d9-5336-af1a-77bfe8998ccf"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "Family",
+            "given": [
+              "First"
+            ]
+          }
+        ],
+        "resourceType": "Person",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "624fa318-ffa8-4c5d-8a27-3c216bc280323"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "624fa318-ffa8-4c5d-8a27-3c216bc280323"
+          }
+        ]
+      }
+    },
+    {
+      "id": "624fa318-ffa8-4c5d-8a27-3c216bc280324",
+      "resource": {
+        "birthDate": "2001-08-08",
+        "gender": "male",
+        "id": "624fa318-ffa8-4c5d-8a27-3c216bc280324",
+        "meta": {
+          "source": "test",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client2",
+              "id": "bb5d0704-9de7-52df-ac8d-efc5b07dc647"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client2",
+              "id": "18393a00-dc69-5300-85d1-e62573be197c"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client2",
+              "id": "f2210c92-42d9-5336-af1a-77bfe8998ccf"
+            }
+          ],
+          "versionId": "1"
+        },
+        "multipleBirthBoolean": false,
+        "name": [
+          {
+            "given": [
+              "given1"
+            ],
+            "family": "family"
+          }
+        ],
+        "resourceType": "Patient",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "1234567890",
+            "use": "home"
+          }
+        ],
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "624fa318-ffa8-4c5d-8a27-3c216bc280324"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "624fa318-ffa8-4c5d-8a27-3c216bc280324"
+          }
+        ]
+      }
+    },
+    {
+      "id": "624fa318-ffa8-4c5d-8a27-3c216bc280325",
+      "resource": {
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "718-7",
+              "display": "Hemoglobin [Mass/volume] in Blood",
+              "id": "51f12959-eab9-5413-98f8-d0ad613bd460"
+            },
+            {
+              "system": "http://loinc.org",
+              "code": "718-7",
+              "display": "Hemoglobin",
+              "id": "51f12959-eab9-5413-98f8-d0ad613bd460"
+            },
+            {
+              "system": "http://loinc.org",
+              "code": "718-7",
+              "display": "in Blood",
+              "id": "51f12959-eab9-5413-98f8-d0ad613bd460"
+            },
+            {
+              "system": "http://loinc.org",
+              "code": "718-7",
+              "display": "Hemoglobin [Mass/volume] in Blood",
+              "id": "51f12959-eab9-5413-98f8-d0ad613bd460"
+            }
+          ],
+          "text": "Hello"
+        },
+        "effectivePeriod": {
+          "start": "2013-04-05T10:30:10+01:00",
+          "end": "2013-04-05T10:30:10+01:00"
+        },
+        "focus": [
+          {
+            "reference": "Binary/624fa318-ffa8-4c5d-8a27-3c216bc28032",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Binary/624fa318-ffa8-4c5d-8a27-3c216bc28032"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Binary/624fa318-ffa8-4c5d-8a27-3c216bc28032"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "client2"
+              }
+            ]
+          }
+        ],
+        "id": "624fa318-ffa8-4c5d-8a27-3c216bc280325",
+        "identifier": [
+          {
+            "use": "official",
+            "system": "http://www.bmc.nl/zorgportal/identifiers/observations",
+            "value": "6327"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "624fa318-ffa8-4c5d-8a27-3c216bc280325"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "624fa318-ffa8-4c5d-8a27-3c216bc280325"
+          }
+        ],
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+                "code": "L",
+                "display": "Low",
+                "id": "724ce193-68e0-577c-af2c-bb30576762fe"
+              }
+            ]
+          }
+        ],
+        "issued": "2013-04-05T14:30:10.000Z",
+        "meta": {
+          "source": "https://www.icanbwell.com",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client2",
+              "id": "bb5d0704-9de7-52df-ac8d-efc5b07dc647"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client2",
+              "id": "18393a00-dc69-5300-85d1-e62573be197c"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client2",
+              "id": "f2210c92-42d9-5336-af1a-77bfe8998ccf"
+            }
+          ],
+          "versionId": "1"
+        },
+        "performer": [
+          {
+            "reference": "Practitioner/59bc7758-b169-48d8-8f70-297fa5db1ae6",
+            "display": "A. Langeveld",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Practitioner/59bc7758-b169-48d8-8f70-297fa5db1ae6"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Practitioner/59bc7758-b169-48d8-8f70-297fa5db1ae6"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "client2"
+              }
+            ]
+          },
+          {
+            "reference": "Patient/0edf0234-7de6-5c86-ac23-3136e9f131e2",
+            "display": "A. Langeveld",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Patient/0edf0234-7de6-5c86-ac23-3136e9f131e2"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Patient/0edf0234-7de6-5c86-ac23-3136e9f131e2"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "client2"
+              }
+            ]
+          }
+        ],
+        "referenceRange": [
+          {
+            "low": {
+              "value": 7.5,
+              "unit": "g/dl",
+              "system": "http://unitsofmeasure.org",
+              "code": "g/dL"
+            },
+            "high": {
+              "value": 10,
+              "unit": "g/dl",
+              "system": "http://unitsofmeasure.org",
+              "code": "g/dL"
+            }
+          }
+        ],
+        "resourceType": "Observation",
+        "status": "cancelled",
+        "subject": {
+          "reference": "Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324",
+          "display": "P. van de Heuvel",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "client2"
+            }
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">code g/dL</div>"
+        },
+        "valueQuantity": {
+          "value": 7.2,
+          "comparator": "<=",
+          "unit": "g/dl",
+          "system": "http://unitsofmeasure.org",
+          "code": "g/dL"
+        }
+      }
+    }
+  ],
+  "type": "searchset",
+  "resourceType": "Bundle",
+  "total": 3,
+  "meta": {
+    "tag": [
+      {
+        "system": "https://www.icanbwell.com/query",
+        "display": "db.Patient_4_0_0.find({'$and':[{'_uuid':{'$in':['624fa318-ffa8-4c5d-8a27-3c216bc280324','cb3bcfe2-e3ed-47a0-89cc-5e8332579d1a','person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0})  | db.Account_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.AdverseEvent_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.AllergyIntolerance_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Appointment_4_0_0.find({'$and':[{'participant.actor._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.AppointmentResponse_4_0_0.find({'$and':[{'actor._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.BiologicallyDerivedProduct_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}],'collection.source._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}}, {'_id':0}) | db.Basic_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.BodyStructure_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.CarePlan_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.CareTeam_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.ChargeItem_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Claim_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.ClaimResponse_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.ClinicalImpression_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Communication_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.CommunicationRequest_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Composition_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Condition_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Consent_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Contract_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Coverage_4_0_0.find({'$and':[{'beneficiary._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.CoverageEligibilityRequest_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.CoverageEligibilityResponse_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.DetectedIssue_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Device_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.DeviceRequest_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.DeviceUseStatement_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.DiagnosticReport_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.DocumentManifest_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.DocumentReference_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Encounter_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.EnrollmentRequest_4_0_0.find({'$and':[{'candidate._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.EpisodeOfCare_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.ExplanationOfBenefit_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.FamilyMemberHistory_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Flag_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Goal_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Group_4_0_0.find({'$and':[{'member.entity._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.GuidanceResponse_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.ImagingStudy_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Immunization_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.ImmunizationEvaluation_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.ImmunizationRecommendation_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Invoice_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Linkage_4_0_0.find({'$and':[{'item.resource._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.List_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.MeasureReport_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Media_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.MedicationAdministration_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.MedicationDispense_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.MedicationRequest_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.MedicationStatement_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.MolecularSequence_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.NutritionOrder_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Observation_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Patient_4_0_0.find({'$and':[{'link.other._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.PaymentNotice_4_0_0.find({'$and':[{'request._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Person_4_0_0.find({'$and':[{'link.target._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}},{'_uuid':'624fa318-ffa8-4c5d-8a27-3c216bc280323'}]}, {'_id':0}) | db.Procedure_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Provenance_4_0_0.find({'$and':[{'target._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.QuestionnaireResponse_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.RelatedPerson_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.RequestGroup_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.ResearchSubject_4_0_0.find({'$and':[{'individual._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.RiskAssessment_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Schedule_4_0_0.find({'$and':[{'actor._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.ServiceRequest_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Specimen_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.SupplyDelivery_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.SupplyRequest_4_0_0.find({'$and':[{'requester._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Task_4_0_0.find({'$and':[{'for._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.VisionPrescription_4_0_0.find({'$and':[{'patient._uuid':{'$in':['Patient/624fa318-ffa8-4c5d-8a27-3c216bc280324','Patient/person.624fa318-ffa8-4c5d-8a27-3c216bc280323']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Subscription_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/client_person_id','valueString':'624fa318-ffa8-4c5d-8a27-3c216bc280323'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'624fa318-ffa8-4c5d-8a27-3c216bc280324'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'client2'}}}]}, {'_id':0}) | db.SubscriptionStatus_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/client_person_id','valueString':'624fa318-ffa8-4c5d-8a27-3c216bc280323'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'624fa318-ffa8-4c5d-8a27-3c216bc280324'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'client2'}}}]}, {'_id':0}) | db.SubscriptionTopic_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}},{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/client_person_id','value':'624fa318-ffa8-4c5d-8a27-3c216bc280323'}}},{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/source_patient_id','value':'624fa318-ffa8-4c5d-8a27-3c216bc280324'}}},{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/service_slug','value':'client2'}}}]}, {'_id':0}) | db.Binary_4_0_0.find({'$and':[{'_uuid':'624fa318-ffa8-4c5d-8a27-3c216bc28032'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0}) | db.Practitioner_4_0_0.find({'$and':[{'_uuid':'59bc7758-b169-48d8-8f70-297fa5db1ae6'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]}, {'_id':0})"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryCollection",
+        "code": "Patient_4_0_0|Account_4_0_0|AdverseEvent_4_0_0|AllergyIntolerance_4_0_0|Appointment_4_0_0|AppointmentResponse_4_0_0|BiologicallyDerivedProduct_4_0_0|Basic_4_0_0|BodyStructure_4_0_0|CarePlan_4_0_0|CareTeam_4_0_0|ChargeItem_4_0_0|Claim_4_0_0|ClaimResponse_4_0_0|ClinicalImpression_4_0_0|Communication_4_0_0|CommunicationRequest_4_0_0|Composition_4_0_0|Condition_4_0_0|Consent_4_0_0|Contract_4_0_0|Coverage_4_0_0|CoverageEligibilityRequest_4_0_0|CoverageEligibilityResponse_4_0_0|DetectedIssue_4_0_0|Device_4_0_0|DeviceRequest_4_0_0|DeviceUseStatement_4_0_0|DiagnosticReport_4_0_0|DocumentManifest_4_0_0|DocumentReference_4_0_0|Encounter_4_0_0|EnrollmentRequest_4_0_0|EpisodeOfCare_4_0_0|ExplanationOfBenefit_4_0_0|FamilyMemberHistory_4_0_0|Flag_4_0_0|Goal_4_0_0|Group_4_0_0|GuidanceResponse_4_0_0|ImagingStudy_4_0_0|Immunization_4_0_0|ImmunizationEvaluation_4_0_0|ImmunizationRecommendation_4_0_0|Invoice_4_0_0|Linkage_4_0_0|List_4_0_0|MeasureReport_4_0_0|Media_4_0_0|MedicationAdministration_4_0_0|MedicationDispense_4_0_0|MedicationRequest_4_0_0|MedicationStatement_4_0_0|MolecularSequence_4_0_0|NutritionOrder_4_0_0|Observation_4_0_0|Patient_4_0_0|PaymentNotice_4_0_0|Person_4_0_0|Procedure_4_0_0|Provenance_4_0_0|QuestionnaireResponse_4_0_0|RelatedPerson_4_0_0|RequestGroup_4_0_0|ResearchSubject_4_0_0|RiskAssessment_4_0_0|Schedule_4_0_0|ServiceRequest_4_0_0|Specimen_4_0_0|SupplyDelivery_4_0_0|SupplyRequest_4_0_0|Task_4_0_0|VisionPrescription_4_0_0|Subscription_4_0_0|SubscriptionStatus_4_0_0|SubscriptionTopic_4_0_0|Binary_4_0_0|Practitioner_4_0_0"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptions",
+        "display": "[{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}}]"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryFields",
+        "display": "[]"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  }
+}

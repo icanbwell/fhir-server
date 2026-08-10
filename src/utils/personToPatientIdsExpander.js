@@ -72,10 +72,23 @@ class PersonToPatientIdsExpander {
      *   GraphQL v1 via context.fhirRequestInfo, GraphQL v2 via this.requestInfo -- all asserted
      *   non-undefined at their own construction), so a missing requestInfo here means a new
      *   caller was wired up without that guarantee, not a legitimate degraded-mode case.
-     * @return {Promise<string|string[]|{[key: string]: string[]}>}
+     * @param {boolean} captureOwnerVerifiedLinks see getPatientIdsFromPersonAsync's JSDoc. Only
+     *   meaningful when toMap is true; changes this function's return shape (see below).
+     * @return {Promise<string|string[]|{[key: string]: string[]}|{plainMap: {[key: string]: string[]}, ownerVerifiedPersonToLinkedPatients: Map<string, Set<string>>}>}
+     *   Returns {plainMap, ownerVerifiedPersonToLinkedPatients} when toMap and
+     *   captureOwnerVerifiedLinks are both true; otherwise unchanged existing behavior.
      */
-    async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap, requestInfo }) {
+    async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap, requestInfo, captureOwnerVerifiedLinks = false }) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is required for getPatientProxyIdsAsync');
+
+        // captureOwnerVerifiedLinks only makes sense with toMap: true, because that's the only
+        // case that returns the {personToLinkedPatient, ownerVerifiedPersonToLinkedPatients}
+        // shape. If both flags are not set correctly, throw rather than silently returning
+        // wrong data.
+        if (captureOwnerVerifiedLinks && !toMap) {
+            throw new Error('captureOwnerVerifiedLinks may only be combined with toMap: true');
+        }
+
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version
@@ -90,7 +103,7 @@ class PersonToPatientIdsExpander {
         /** @type {Set<string>} */
         const unvisitedPersonIds = new Set(personIds);
         // 2. Get that Person resource from the database
-        let patientIds = await this.getPatientIdsFromPersonAsync(
+        const rawResult = await this.getPatientIdsFromPersonAsync(
             {
                 personIds,
                 totalProcessedPersonIds: new Set(),
@@ -98,9 +111,15 @@ class PersonToPatientIdsExpander {
                 level: 1,
                 toMap,
                 returnOriginalPersonId: true, // return the passed personId not its uuid
-                requestInfo
+                requestInfo,
+                captureOwnerVerifiedLinks
             }
         );
+        const ownerVerifiedPersonToLinkedPatients = captureOwnerVerifiedLinks
+            ? rawResult.ownerVerifiedPersonToLinkedPatients
+            : undefined;
+        let patientIds = captureOwnerVerifiedLinks ? rawResult.personToLinkedPatient : rawResult;
+
         if (!toMap) {
             if (patientIds && patientIds.length > 0) {
                 // Also include the proxy patient ID for resources that are associated with the proxy patient directly
@@ -140,7 +159,9 @@ class PersonToPatientIdsExpander {
                     plainMap[`${pId}`] = [proxyPatient];
                 }
             });
-            return plainMap;
+            return captureOwnerVerifiedLinks
+                ? { plainMap, ownerVerifiedPersonToLinkedPatients }
+                : plainMap;
         }
     }
 
@@ -212,9 +233,22 @@ class PersonToPatientIdsExpander {
      * id). This applies at EVERY level, including Person(s) reached via Person.link (level 2+): a
      * patient-scoped caller cannot traverse beyond their own Person at all, even to a Client Person
      * reached from their own Main Person.
+     * @property {boolean} captureOwnerVerifiedLinks If true, additionally computes (from the same
+     *   query/documents already being read -- no new Mongo round trip) which visited Persons have
+     *   an owner tag (SecurityTagSystem.owner) matching the caller's securityTags, and returns that
+     *   as a second map alongside the existing result. This is a materially different, narrower
+     *   check than the existing access-tag filter above: owner declares the single authoritative
+     *   tenant for a resource, while access declares who may merely read it. See
+     *   docs/superpowers/specs/2026-08-08-proa-person-everything-caching-design.md §2 for why PROA
+     *   consent-sharing eligibility needs the owner check specifically. Only meaningful when
+     *   `toMap` is true; when true, changes this function's return shape (see below).
      *
      * @param {getPatientIdsFromPersonAsyncArgs}
-     * @return {Promise<string[] | Map<string, Set<string>>>} Will return an array if toMap is false else return an map. By default toMap is false
+     * @return {Promise<string[] | Map<string, Set<string>> | {personToLinkedPatient: Map<string, Set<string>>, ownerVerifiedPersonToLinkedPatients: Map<string, Set<string>>}>}
+     *   Returns an array if toMap is false. Returns a bare Map if toMap is true and
+     *   captureOwnerVerifiedLinks is false/omitted (unchanged existing behavior for all current
+     *   callers). Returns {personToLinkedPatient, ownerVerifiedPersonToLinkedPatients} if toMap and
+     *   captureOwnerVerifiedLinks are both true.
      */
     async getPatientIdsFromPersonAsync({
         personIds,
@@ -224,7 +258,8 @@ class PersonToPatientIdsExpander {
         toMap = false,
         returnOriginalPersonId = false,
         addPersonOwnerToContext = false,
-        requestInfo
+        requestInfo,
+        captureOwnerVerifiedLinks = false
     }) {
         /**
          * Final result to return
@@ -233,14 +268,37 @@ class PersonToPatientIdsExpander {
          */
         const personToLinkedPatient = new Map();
 
+        /**
+         * person._uuid -> Set of full "Patient/<uuid>" reference strings, for Persons whose owner
+         * tag matches securityTagsForOwnerCheck. Always keyed by _uuid (never
+         * returnOriginalPersonId) so it matches BwellPersonFinder.getImmediatePersonIdsOfPatientsAsync's
+         * personToLinkedPatientsMap shape exactly. Populated only when captureOwnerVerifiedLinks is
+         * true and the access-scope branch below actually computed securityTags.
+         * @type {Map<string, Set<string>>}
+         */
+        const ownerVerifiedPersonToLinkedPatients = new Map();
+
         const projectionsMap = { id: 1, link: 1, _id: 0, _uuid: 1, _sourceId: 1 }
 
-        if(addPersonOwnerToContext) {
+        if(addPersonOwnerToContext || captureOwnerVerifiedLinks) {
             projectionsMap.meta = 1
         }
 
         const resourceType = 'Person';
         const hasPatientScope = Boolean(requestInfo?.scope && this.scopesManager.hasPatientScope({ scope: requestInfo.scope }));
+
+        /**
+         * securityTags used for the access-tag check below, captured here (rather than only inside
+         * that branch) so captureOwnerVerifiedLinks can reuse the same value for its owner-tag
+         * check without a second computation. Stays null when securityTags are never computed --
+         * i.e. when requestInfo is absent, or when the caller is patient-scoped (that branch gates
+         * on the caller's own Person _uuid instead of on access tags, so there is no scope-derived
+         * tag set to compare an owner tag against). captureOwnerVerifiedLinks intentionally
+         * produces an empty ownerVerifiedPersonToLinkedPatients in those cases rather than a
+         * partially-checked one.
+         * @type {string[]|null}
+         */
+        let securityTagsForOwnerCheck = null;
 
         /**
          * @type {import('mongodb').Document}
@@ -286,6 +344,7 @@ class PersonToPatientIdsExpander {
                     scope,
                     accessViaPatientScopes: hasPatientScope
                 });
+                securityTagsForOwnerCheck = securityTags;
 
                 query = this.securityTagManager.getQueryWithSecurityTags({
                     resourceType,
@@ -296,11 +355,6 @@ class PersonToPatientIdsExpander {
                 });
             }
         }
-
-        /**
-         * Stores linked person to all base person
-         * @type {Map<string, Set<string>>}
-         */
 
         const personResourceCursor = await databaseQueryManager.findAsync(
             {
@@ -353,6 +407,22 @@ class PersonToPatientIdsExpander {
 
                 // finally update the sets
                 personToLinkedPatient.set(personId, linkedPatients);
+
+                if (captureOwnerVerifiedLinks && securityTagsForOwnerCheck !== null) {
+                    const ownerTag = person.meta?.security?.find(
+                        (s) => s.system === SecurityTagSystem.owner
+                    )?.code;
+                    if (ownerTag && securityTagsForOwnerCheck.includes(ownerTag)) {
+                        // patientIdsToAdd (above) already scanned person.link with this exact
+                        // predicate and stripped the prefix -- reuse it instead of re-filtering.
+                        const linkedPatientRefs = patientIdsToAdd.map(
+                            (patientId) => `${patientReferencePrefix}${patientId}`
+                        );
+                        if (linkedPatientRefs.length > 0) {
+                            ownerVerifiedPersonToLinkedPatients.set(person._uuid, new Set(linkedPatientRefs));
+                        }
+                    }
+                }
             }
 
             if (addPersonOwnerToContext && person.meta && person.meta.security && person.meta.security.length > 0) {
@@ -367,37 +437,52 @@ class PersonToPatientIdsExpander {
             }
         }
 
+        const buildToMapReturn = () => captureOwnerVerifiedLinks
+            ? { personToLinkedPatient, ownerVerifiedPersonToLinkedPatients }
+            : personToLinkedPatient;
+
         if (level === maximumRecursionDepth) {
             const message = `Maximum recursion depth of ${maximumRecursionDepth} reached while recursively fetching patient ids from person links`;
             logWarn(message, { patientIds, personIdsToRecurse, totalProcessedPersonIds: [...totalProcessedPersonIds] });
             if (toMap) {
-                return personToLinkedPatient;
+                return buildToMapReturn();
             }
             return patientIds;
         }
         if (level < maximumRecursionDepth && personIdsToRecurse.length !== 0) {
             // avoid infinite loop
             if (toMap === true) {
-                /**
-                * @type {Map<string, Set<string>>}
-                */
-                const linkedPeronToPatientIdsMap = await this.getPatientIdsFromPersonAsync({
+                const recursiveResult = await this.getPatientIdsFromPersonAsync({
                     personIds: personIdsToRecurse,
                     totalProcessedPersonIds: new Set([...totalProcessedPersonIds, ...personIds]),
                     databaseQueryManager,
                     level: level + 1,
                     toMap,
                     returnOriginalPersonId: false, // always return _uuid map for it
-                    requestInfo
+                    requestInfo,
+                    captureOwnerVerifiedLinks
                 });
+
+                /**
+                * @type {Map<string, Set<string>>}
+                */
+                const linkedPeronToPatientIdsMap = captureOwnerVerifiedLinks
+                    ? recursiveResult.personToLinkedPatient
+                    : recursiveResult;
 
                 // add all patients to current person
                 for (const [linkedPerson, linkedPatients] of linkedPeronToPatientIdsMap) {
                     personToLinkedPatient.set(linkedPerson, linkedPatients);
                 }
 
+                if (captureOwnerVerifiedLinks) {
+                    for (const [personUuid, patientRefs] of recursiveResult.ownerVerifiedPersonToLinkedPatients) {
+                        ownerVerifiedPersonToLinkedPatients.set(personUuid, patientRefs);
+                    }
+                }
+
                 // finally return the result
-                return personToLinkedPatient;
+                return buildToMapReturn();
             }
 
             /**
@@ -414,7 +499,7 @@ class PersonToPatientIdsExpander {
             return patientIds.concat(patientIdsFromPersons);
         }
 
-        return toMap === true ? personToLinkedPatient : patientIds;
+        return toMap === true ? buildToMapReturn() : patientIds;
     }
 }
 
