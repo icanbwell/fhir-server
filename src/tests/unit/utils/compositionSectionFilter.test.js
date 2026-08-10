@@ -318,4 +318,55 @@ describe('filterCompositionSensitiveSections', () => {
             expect(resource.section).toHaveLength(2);
         });
     });
+
+    describe('hardcoded unclassified category (DCON-4892)', () => {
+        test('removes a section tagged with the hardcoded unclassified code even when it is not in the denied set', () => {
+            const resource = {
+                resourceType: 'Composition',
+                _uuid: 'comp-1',
+                section: [
+                    {
+                        id: 'section-unclassified',
+                        code: { coding: [{ system: SYSTEM, code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE }] }
+                    },
+                    {
+                        id: 'section-visible',
+                        code: { coding: [{ system: SYSTEM, code: 'not-denied' }] }
+                    }
+                ]
+            };
+
+            // Only a different, Consent-derived category is denied -- 'unclassified' is NOT in this set.
+            filterCompositionSensitiveSections(resource, new Set(['restricted']));
+
+            expect(resource.section).toHaveLength(1);
+            expect(resource.section[0].id).toBe('section-visible');
+        });
+
+        test('removes a Consent-denied category alongside the hardcoded unclassified code in the same Composition', () => {
+            const resource = {
+                resourceType: 'Composition',
+                _uuid: 'comp-1',
+                section: [
+                    {
+                        id: 'section-unclassified',
+                        code: { coding: [{ system: SYSTEM, code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE }] }
+                    },
+                    {
+                        id: 'section-restricted',
+                        code: { coding: [{ system: SYSTEM, code: 'restricted' }] }
+                    },
+                    {
+                        id: 'section-visible',
+                        code: { coding: [{ system: SYSTEM, code: 'not-denied' }] }
+                    }
+                ]
+            };
+
+            filterCompositionSensitiveSections(resource, new Set(['restricted']));
+
+            expect(resource.section).toHaveLength(1);
+            expect(resource.section[0].id).toBe('section-visible');
+        });
+    });
 });

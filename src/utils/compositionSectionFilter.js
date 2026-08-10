@@ -6,7 +6,10 @@ function shouldRemoveSection({ section, deniedSensitiveCategorySet }) {
         return false;
     }
     return section.code.coding.some(
-        (c) => c?.system === SENSITIVE_CATEGORY.SYSTEM && deniedSensitiveCategorySet.has(c?.code)
+        (c) =>
+            c?.system === SENSITIVE_CATEGORY.SYSTEM &&
+            (deniedSensitiveCategorySet.has(c?.code) ||
+                c?.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE)
     );
 }
 
@@ -16,7 +19,9 @@ function filterSections({ sections, deniedSensitiveCategorySet, compositionUuid,
         const section = sections[i];
         const currentPath = `${path}section[${i}]`;
         if (shouldRemoveSection({ section, deniedSensitiveCategorySet })) {
-            logInfo(`Dropping section ${section?.id} from Composition/${compositionUuid} at ${currentPath}`);
+            logInfo(
+                `Dropping section ${section?.id} from Composition/${compositionUuid} at ${currentPath}`
+            );
             continue;
         }
         if (section.section) {

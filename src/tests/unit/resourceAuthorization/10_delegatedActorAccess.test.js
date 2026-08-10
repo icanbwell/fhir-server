@@ -15,9 +15,9 @@
  *      composed with the REAL DelegatedAccessRulesManager (only its DB/tracer collaborators are
  *      stubbed) so the request-scoped `actor._filteringRules` cache is exercised for real.
  *   6. Content-level filtering - CompositionSectionFilterEnrichmentProvider, composed with the REAL
- *      filterCompositionSensitiveSections util, proving the documented (imperfect) current
- *      behavior that an `unclassified`-only section is NOT stripped here (unlike step 5's
- *      query-level filter, which always excludes `unclassified`).
+ *      filterCompositionSensitiveSections util, proving that an `unclassified`-only section IS
+ *      stripped here too, mirroring step 5's query-level filter (which always excludes
+ *      `unclassified` regardless of the grantor's Consent-derived denylist). See DCON-4892.
  *
  * IMPORTANT: `src/tests/unit/operations/security/delegatedAccessScopeManager.test.js` is excluded
  * from CI (see jest.config.js testPathIgnorePatterns) because it asserts against an inline
@@ -30,13 +30,19 @@ const { describe, test, it, expect, beforeEach, jest } = require('@jest/globals'
 
 const { AuthService } = require('../../../strategies/authService');
 const { ConfigManager } = require('../../../utils/configManager');
-const { WellKnownConfigurationManager } = require('../../../utils/wellKnownConfiguration/wellKnownConfigurationManager');
+const {
+    WellKnownConfigurationManager
+} = require('../../../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 
 const { DelegatedAccessManager } = require('../../../utils/delegatedAccessManager');
-const { DelegatedAccessScopeManager } = require('../../../operations/security/delegatedAccessScopeManager');
+const {
+    DelegatedAccessScopeManager
+} = require('../../../operations/security/delegatedAccessScopeManager');
 const { DelegatedAccessRulesManager } = require('../../../utils/delegatedAccessRulesManager');
 const { DataSharingManager } = require('../../../operations/search/dataSharingManager');
-const { CompositionSectionFilterEnrichmentProvider } = require('../../../enrich/providers/compositionSectionFilterEnrichmentProvider');
+const {
+    CompositionSectionFilterEnrichmentProvider
+} = require('../../../enrich/providers/compositionSectionFilterEnrichmentProvider');
 
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
 const { CustomTracer } = require('../../../utils/customTracer');
@@ -77,11 +83,11 @@ jest.mock('../../../utils/querybuilder.util', () => ({
     dateQueryBuilder: jest.fn().mockReturnValue({ $lte: '2026-01-01' })
 }));
 
-function createMockInstance (ClassType) {
+function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
 }
 
-function createCursor (consentResources) {
+function createCursor(consentResources) {
     return {
         maxTimeMS: jest.fn(),
         hint: jest.fn(),
@@ -106,22 +112,60 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             AuthService.userInfoCache = undefined;
 
             mockConfigManager = createMockInstance(ConfigManager);
-            Object.defineProperty(mockConfigManager, 'externalRequestTimeoutSec', { get: () => 30, configurable: true });
-            Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', { get: () => [], configurable: true });
-            Object.defineProperty(mockConfigManager, 'externalAuthWellKnownUrls', { get: () => [], configurable: true });
-            Object.defineProperty(mockConfigManager, 'authCustomScope', { get: () => [], configurable: true });
-            Object.defineProperty(mockConfigManager, 'authCustomGroup', { get: () => [], configurable: true });
-            Object.defineProperty(mockConfigManager, 'authCustomUserName', { get: () => [], configurable: true });
-            Object.defineProperty(mockConfigManager, 'authCustomSubject', { get: () => [], configurable: true });
-            Object.defineProperty(mockConfigManager, 'authCustomClientId', { get: () => [], configurable: true });
-            Object.defineProperty(mockConfigManager, 'authRemoveScopePrefixes', { get: () => [], configurable: true });
-            Object.defineProperty(mockConfigManager, 'authCidCheckIssuer', { get: () => '', configurable: true });
-            Object.defineProperty(mockConfigManager, 'authCidCheckClientIds', { get: () => [], configurable: true });
-            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+            Object.defineProperty(mockConfigManager, 'externalRequestTimeoutSec', {
+                get: () => 30,
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', {
+                get: () => [],
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManager, 'externalAuthWellKnownUrls', {
+                get: () => [],
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManager, 'authCustomScope', {
+                get: () => [],
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManager, 'authCustomGroup', {
+                get: () => [],
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManager, 'authCustomUserName', {
+                get: () => [],
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManager, 'authCustomSubject', {
+                get: () => [],
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManager, 'authCustomClientId', {
+                get: () => [],
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManager, 'authRemoveScopePrefixes', {
+                get: () => [],
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManager, 'authCidCheckIssuer', {
+                get: () => '',
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManager, 'authCidCheckClientIds', {
+                get: () => [],
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', {
+                get: () => true,
+                configurable: true
+            });
 
             mockWellKnownConfigManager = createMockInstance(WellKnownConfigurationManager);
             mockWellKnownConfigManager.getJwksUrlsAsync = jest.fn().mockResolvedValue([]);
-            mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest.fn().mockResolvedValue(null);
+            mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest
+                .fn()
+                .mockResolvedValue(null);
 
             authService = new AuthService({
                 configManager: mockConfigManager,
@@ -190,7 +234,10 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
         });
 
         test('gated by configManager.enableDelegatedAccessDetection: `act` claim is ignored entirely when the flag is off', () => {
-            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => false, configurable: true });
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', {
+                get: () => false,
+                configurable: true
+            });
             AuthService.jwksCache = undefined;
             AuthService.userInfoCache = undefined;
             authService = new AuthService({
@@ -230,7 +277,11 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
         test('processForDelegatedActor extracts only reference and sub from a valid act claim', () => {
             const result = authService.processForDelegatedActor({
                 jwt_payload: {
-                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub', extraField: 'ignored' }
+                    act: {
+                        reference: 'RelatedPerson/rp-1',
+                        sub: 'delegate-sub',
+                        extraField: 'ignored'
+                    }
                 }
             });
             expect(result.failure).toBe(false);
@@ -249,43 +300,55 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             delegatedAccessManager = new DelegatedAccessManager();
         });
 
-        test.each(DELEGATED_ACCESS.ALLOWED_OPERATIONS)('allows read operation "%s" for a delegated user', (operation) => {
-            expect(() => delegatedAccessManager.verifyAccess({
-                requestInfo: { userType: AUTH_USER_TYPES.delegatedUser },
-                resourceType: 'Patient',
-                operation
-            })).not.toThrow();
-        });
-
-        test.each(['create', 'update', 'delete', 'patch', 'merge', 'mutation'])('throws a 403 Forbidden for write operation "%s"', (operation) => {
-            // Note: ForbiddenError's own base-class constructor (ServerError) calls
-            // Object.setPrototypeOf(this, ServerError.prototype), which resets the prototype
-            // chain so `instanceof ForbiddenError` does NOT hold for its own instances - hence
-            // asserting on statusCode/message here rather than `toThrow(ForbiddenError)`.
-            expect(() => delegatedAccessManager.verifyAccess({
-                requestInfo: { userType: AUTH_USER_TYPES.delegatedUser },
-                resourceType: 'Patient',
-                operation
-            })).toThrow(new RegExp(`does not have access to ${operation.toUpperCase()} method`));
-
-            try {
-                delegatedAccessManager.verifyAccess({
-                    requestInfo: { userType: AUTH_USER_TYPES.delegatedUser },
-                    resourceType: 'Patient',
-                    operation
-                });
-                throw new Error('expected verifyAccess to throw');
-            } catch (e) {
-                expect(e.statusCode).toBe(403);
+        test.each(DELEGATED_ACCESS.ALLOWED_OPERATIONS)(
+            'allows read operation "%s" for a delegated user',
+            (operation) => {
+                expect(() =>
+                    delegatedAccessManager.verifyAccess({
+                        requestInfo: { userType: AUTH_USER_TYPES.delegatedUser },
+                        resourceType: 'Patient',
+                        operation
+                    })
+                ).not.toThrow();
             }
-        });
+        );
+
+        test.each(['create', 'update', 'delete', 'patch', 'merge', 'mutation'])(
+            'throws a 403 Forbidden for write operation "%s"',
+            (operation) => {
+                // Note: ForbiddenError's own base-class constructor (ServerError) calls
+                // Object.setPrototypeOf(this, ServerError.prototype), which resets the prototype
+                // chain so `instanceof ForbiddenError` does NOT hold for its own instances - hence
+                // asserting on statusCode/message here rather than `toThrow(ForbiddenError)`.
+                expect(() =>
+                    delegatedAccessManager.verifyAccess({
+                        requestInfo: { userType: AUTH_USER_TYPES.delegatedUser },
+                        resourceType: 'Patient',
+                        operation
+                    })
+                ).toThrow(new RegExp(`does not have access to ${operation.toUpperCase()} method`));
+
+                try {
+                    delegatedAccessManager.verifyAccess({
+                        requestInfo: { userType: AUTH_USER_TYPES.delegatedUser },
+                        resourceType: 'Patient',
+                        operation
+                    });
+                    throw new Error('expected verifyAccess to throw');
+                } catch (e) {
+                    expect(e.statusCode).toBe(403);
+                }
+            }
+        );
 
         test('a non-delegated user is unaffected (can perform any operation as far as this manager is concerned)', () => {
-            expect(() => delegatedAccessManager.verifyAccess({
-                requestInfo: { userType: 'user' },
-                resourceType: 'Patient',
-                operation: 'create'
-            })).not.toThrow();
+            expect(() =>
+                delegatedAccessManager.verifyAccess({
+                    requestInfo: { userType: 'user' },
+                    resourceType: 'Patient',
+                    operation: 'create'
+                })
+            ).not.toThrow();
         });
     });
 
@@ -385,8 +448,14 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
 
         beforeEach(() => {
             mockConfigManagerForRules = createMockInstance(ConfigManager);
-            Object.defineProperty(mockConfigManagerForRules, 'mongoTimeout', { get: () => 30000, configurable: true });
-            Object.defineProperty(mockConfigManagerForRules, 'dataSharingAccessCodes', { get: () => ['dataSharingAccess'], configurable: true });
+            Object.defineProperty(mockConfigManagerForRules, 'mongoTimeout', {
+                get: () => 30000,
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManagerForRules, 'dataSharingAccessCodes', {
+                get: () => ['dataSharingAccess'],
+                configurable: true
+            });
 
             mockDatabaseQueryFactory = createMockInstance(DatabaseQueryFactory);
             mockDatabaseQueryFactory.createQuery = jest.fn();
@@ -433,10 +502,12 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
 
         test('MORE THAN ONE active Consent found -> throws ForbiddenError (ambiguous, fails closed)', async () => {
             mockDatabaseQueryFactory.createQuery.mockReturnValue({
-                findAsync: jest.fn().mockResolvedValue(createCursor([
-                    { _uuid: 'consent-1', meta: { versionId: '1' } },
-                    { _uuid: 'consent-2', meta: { versionId: '1' } }
-                ]))
+                findAsync: jest.fn().mockResolvedValue(
+                    createCursor([
+                        { _uuid: 'consent-1', meta: { versionId: '1' } },
+                        { _uuid: 'consent-2', meta: { versionId: '1' } }
+                    ])
+                )
             });
 
             await expect(
@@ -451,22 +522,32 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
 
         test('a single Consent with deny provisions excludes those sensitivity-category codes PLUS unclassified', async () => {
             mockDatabaseQueryFactory.createQuery.mockReturnValue({
-                findAsync: jest.fn().mockResolvedValue(createCursor([{
-                    _uuid: 'consent-1',
-                    meta: { versionId: '1' },
-                    provision: {
-                        period: { start: '2024-01-01' },
-                        provision: [
-                            {
-                                type: 'deny',
-                                securityLabel: [
-                                    { system: SENSITIVE_CATEGORY.SYSTEM, code: 'mental-health' },
-                                    { system: SENSITIVE_CATEGORY.SYSTEM, code: 'substance-abuse' }
+                findAsync: jest.fn().mockResolvedValue(
+                    createCursor([
+                        {
+                            _uuid: 'consent-1',
+                            meta: { versionId: '1' },
+                            provision: {
+                                period: { start: '2024-01-01' },
+                                provision: [
+                                    {
+                                        type: 'deny',
+                                        securityLabel: [
+                                            {
+                                                system: SENSITIVE_CATEGORY.SYSTEM,
+                                                code: 'mental-health'
+                                            },
+                                            {
+                                                system: SENSITIVE_CATEGORY.SYSTEM,
+                                                code: 'substance-abuse'
+                                            }
+                                        ]
+                                    }
                                 ]
                             }
-                        ]
-                    }
-                }]))
+                        }
+                    ])
+                )
             });
 
             const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
@@ -477,18 +558,26 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             });
 
             const excludedCodes = result.$and[1]['meta.security'].$not.$elemMatch.code.$in;
-            expect(excludedCodes).toEqual(expect.arrayContaining(['mental-health', 'substance-abuse', 'unclassified']));
-            expect(result.$and[1]['meta.security'].$not.$elemMatch.system).toBe(SENSITIVE_CATEGORY.SYSTEM);
+            expect(excludedCodes).toEqual(
+                expect.arrayContaining(['mental-health', 'substance-abuse', 'unclassified'])
+            );
+            expect(result.$and[1]['meta.security'].$not.$elemMatch.system).toBe(
+                SENSITIVE_CATEGORY.SYSTEM
+            );
         });
 
         test('`unclassified` is ALWAYS in the exclusion set, even when the Consent denies nothing', async () => {
             mockDatabaseQueryFactory.createQuery.mockReturnValue({
-                findAsync: jest.fn().mockResolvedValue(createCursor([{
-                    _uuid: 'consent-1',
-                    meta: { versionId: '1' },
-                    provision: { period: { start: '2024-01-01' } }
-                    // no nested `provision.provision` deny entries at all
-                }]))
+                findAsync: jest.fn().mockResolvedValue(
+                    createCursor([
+                        {
+                            _uuid: 'consent-1',
+                            meta: { versionId: '1' },
+                            provision: { period: { start: '2024-01-01' } }
+                            // no nested `provision.provision` deny entries at all
+                        }
+                    ])
+                )
             });
 
             const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
@@ -506,11 +595,13 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
         });
 
         test('getFilteringRulesAsync is cached on the request-scoped actor object: a second call with the SAME actor does not re-fetch', async () => {
-            const cursor = createCursor([{
-                _uuid: 'consent-1',
-                meta: { versionId: '1' },
-                provision: { period: { start: '2024-01-01' } }
-            }]);
+            const cursor = createCursor([
+                {
+                    _uuid: 'consent-1',
+                    meta: { versionId: '1' },
+                    provision: { period: { start: '2024-01-01' } }
+                }
+            ]);
             const findAsync = jest.fn().mockResolvedValue(cursor);
             mockDatabaseQueryFactory.createQuery.mockReturnValue({ findAsync });
 
@@ -538,9 +629,26 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
         });
 
         test('a fresh actor object (new request) DOES re-fetch, even with the same personIdFromJwtToken', async () => {
-            const findAsync = jest.fn()
-                .mockResolvedValueOnce(createCursor([{ _uuid: 'consent-1', meta: { versionId: '1' }, provision: { period: { start: '2024-01-01' } } }]))
-                .mockResolvedValueOnce(createCursor([{ _uuid: 'consent-1', meta: { versionId: '1' }, provision: { period: { start: '2024-01-01' } } }]));
+            const findAsync = jest
+                .fn()
+                .mockResolvedValueOnce(
+                    createCursor([
+                        {
+                            _uuid: 'consent-1',
+                            meta: { versionId: '1' },
+                            provision: { period: { start: '2024-01-01' } }
+                        }
+                    ])
+                )
+                .mockResolvedValueOnce(
+                    createCursor([
+                        {
+                            _uuid: 'consent-1',
+                            meta: { versionId: '1' },
+                            provision: { period: { start: '2024-01-01' } }
+                        }
+                    ])
+                );
             mockDatabaseQueryFactory.createQuery.mockReturnValue({ findAsync });
 
             await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
@@ -571,11 +679,16 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
 
         beforeEach(() => {
             mockConfigManager = createMockInstance(ConfigManager);
-            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
-            provider = new CompositionSectionFilterEnrichmentProvider({ configManager: mockConfigManager });
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', {
+                get: () => true,
+                configurable: true
+            });
+            provider = new CompositionSectionFilterEnrichmentProvider({
+                configManager: mockConfigManager
+            });
         });
 
-        function buildComposition ({ id, section }) {
+        function buildComposition({ id, section }) {
             return { resourceType: 'Composition', _uuid: id, section };
         }
 
@@ -585,7 +698,9 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 section: [
                     {
                         id: 'denied-section',
-                        code: { coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: 'mental-health' }] }
+                        code: {
+                            coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: 'mental-health' }]
+                        }
                     },
                     {
                         id: 'kept-section',
@@ -608,18 +723,28 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             expect(result.section[0].id).toBe('kept-section');
         });
 
-        test('KNOWN INCONSISTENCY (doc §12 Low): a section tagged ONLY `unclassified`, with no matching Consent-denied category, is NOT stripped', async () => {
-            // Unlike step 5's query-level exclusion (which always ANDs in the hardcoded
+        test('DCON-4892 fix: a section tagged ONLY `unclassified`, with no matching Consent-denied category, IS stripped', async () => {
+            // Mirroring step 5's query-level exclusion (which always ANDs in the hardcoded
             // `unclassified` code regardless of what the Consent denies), this enrichment-time
-            // filter only strips sections matching a code the grantor's Consent explicitly denied.
-            // This test documents/proves that CURRENT behavior - it is not asserting the "correct"
-            // or ideal behavior, which per the doc would require also folding in `unclassified`.
+            // filter now also strips sections tagged with the hardcoded `unclassified` code, even
+            // though the grantor's Consent only explicitly denies an unrelated category.
             const composition = buildComposition({
                 id: 'comp-2',
                 section: [
                     {
                         id: 'unclassified-section',
-                        code: { coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE }] }
+                        code: {
+                            coding: [
+                                {
+                                    system: SENSITIVE_CATEGORY.SYSTEM,
+                                    code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        id: 'kept-section',
+                        code: { coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: 'general' }] }
                     }
                 ]
             });
@@ -636,16 +761,23 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             });
 
             expect(result.section).toHaveLength(1);
-            expect(result.section[0].id).toBe('unclassified-section');
+            expect(result.section[0].id).toBe('kept-section');
         });
 
-        test('KNOWN INCONSISTENCY: unclassified-only section survives even when the Consent denies NOTHING at all', async () => {
+        test('DCON-4892 fix: unclassified-only section is stripped even when the Consent denies NOTHING at all', async () => {
             const composition = buildComposition({
                 id: 'comp-3',
                 section: [
                     {
                         id: 'unclassified-section',
-                        code: { coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE }] }
+                        code: {
+                            coding: [
+                                {
+                                    system: SENSITIVE_CATEGORY.SYSTEM,
+                                    code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+                                }
+                            ]
+                        }
                     }
                 ]
             });
@@ -660,7 +792,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 enrichmentContext
             });
 
-            expect(result.section).toHaveLength(1);
+            expect(result.section).toBeUndefined();
         });
 
         test('recurses into `contained` resources, stripping denied sections there too', async () => {
@@ -669,7 +801,9 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 section: [
                     {
                         id: 'contained-denied',
-                        code: { coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: 'mental-health' }] }
+                        code: {
+                            coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: 'mental-health' }]
+                        }
                     }
                 ]
             });
@@ -677,7 +811,12 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 ...buildComposition({
                     id: 'parent-comp',
                     section: [
-                        { id: 'parent-kept', code: { coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: 'general' }] } }
+                        {
+                            id: 'parent-kept',
+                            code: {
+                                coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: 'general' }]
+                            }
+                        }
                     ]
                 }),
                 contained: [containedComposition]
@@ -698,10 +837,20 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
         });
 
         test('does nothing when enableDelegatedAccessDetection is false, even for a delegatedUser with denied categories', async () => {
-            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => false, configurable: true });
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', {
+                get: () => false,
+                configurable: true
+            });
             const composition = buildComposition({
                 id: 'comp-4',
-                section: [{ id: 's1', code: { coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: 'mental-health' }] } }]
+                section: [
+                    {
+                        id: 's1',
+                        code: {
+                            coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: 'mental-health' }]
+                        }
+                    }
+                ]
             });
             const enrichmentContext = {
                 userType: AUTH_USER_TYPES.delegatedUser,
@@ -720,7 +869,14 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
         test('does nothing for a non-delegated userType', async () => {
             const composition = buildComposition({
                 id: 'comp-5',
-                section: [{ id: 's1', code: { coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: 'mental-health' }] } }]
+                section: [
+                    {
+                        id: 's1',
+                        code: {
+                            coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: 'mental-health' }]
+                        }
+                    }
+                ]
             });
             const enrichmentContext = {
                 userType: 'user',
