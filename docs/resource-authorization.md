@@ -98,7 +98,7 @@ flowchart TD
     PersonCheck -- yes --> PersonNarrow["Narrow result set to only the requested Person id(s)"]
     PersonCheck -- no --> CompCheck
     PersonNarrow --> CompCheck{"§10: delegated actor and resource is a Composition?"}
-    CompCheck -- yes --> SectionStrip["Strip Consent-denied-category sections, not the hardcoded unclassified code (enrichment-time, not exclusion)"]
+    CompCheck -- yes --> SectionStrip["Strip Consent-denied-category sections, plus the hardcoded unclassified code (enrichment-time, not exclusion)"]
     CompCheck -- no --> Returned(["Resource returned"])
     SectionStrip --> Returned
 ```
@@ -356,7 +356,7 @@ sequenceDiagram
             DARM-->>DSM: deniedSensitiveCategories[]
             DSM-->>SM: AND NOT(denied categories, unclassified)
             SM-->>C: filtered Bundle
-            Enrich->>Enrich: strip Consent-denied-category sections<br/>(not the hardcoded unclassified code)<br/>from any returned Composition
+            Enrich->>Enrich: strip Consent-denied-category sections<br/>plus the hardcoded unclassified code<br/>from any returned Composition
         end
     end
 ```
@@ -396,11 +396,12 @@ sequenceDiagram
    (`src/enrich/providers/compositionSectionFilterEnrichmentProvider.js`) reuses the actor's
    Consent-derived denied-category set (same lookup as step 5, read from the cached
    `actor._filteringRules`) to strip individual `section`s (recursively, including into
-   `contained` resources) out of an already-*returned* `Composition`. Unlike step 5's query-level
-   exclusion, this does **not** also fold in the hardcoded `unclassified` code — a `Composition`
-   section tagged `unclassified` is not stripped here, only sections matching a code the grantor's
-   Consent explicitly denied. The Composition itself still passed every gate above; only some of
-   its sections are removed. This is the one mechanism in this document that shapes resource
+   `contained` resources) out of an already-*returned* `Composition`. Like step 5's query-level
+   exclusion, this **also** folds in the hardcoded `unclassified` code — `getDeniedSensitiveCategorySet`
+   adds it to the denylist it builds before stripping, so a `Composition` section tagged
+   `unclassified` is stripped here too, not only sections matching a code the grantor's Consent
+   explicitly denied. The Composition itself still passed every gate above; only some of its
+   sections are removed. This is the one mechanism in this document that shapes resource
    *content* rather than deciding whether the resource is returned at all.
 
 Full detail: `readme/delegatedActorAccess.md`.
@@ -528,6 +529,16 @@ aren't re-discovered and re-reported from scratch later).
   `src/tests/unit/operations/common/resourceValidator.test.js`. Deliberately scoped to `Person.link`
   only, not a blanket fix for every array-reference field on a non-`user` scope — see the tripwire
   comment left in `resourceValidator.test.js` guarding against that distinction being lost later.
+
+  **Residual, not fully closed:** only the *HTTP status code* side channel was closed — both
+  outcomes are wrapped in `NotValidatedError`, whose constructor (`httpErrors.js:97`) hardcodes
+  `statusCode: 400` regardless of which branch produced the `OperationOutcome`, so there is no
+  longer a 403-vs-404 distinction. The *response body* still leaks the same information:
+  `resourceValidator.js:178` returns `issue.code: 'not-found'` when zero matches exist anywhere,
+  vs. `resourceValidator.js:194`'s `issue.code: 'forbidden'` when a match exists but is
+  inaccessible — the same existence-oracle pattern §11's closing paragraph warns about, just moved
+  from the status code into the body. Closing this fully would mean returning an identical body
+  (not just an identical status code) for both outcomes.
 - **FIXED — CMS-partner/delegated-user resource-type allowlist was enforced on REST but not on
   GraphQL, on two separate code paths (§4, §11).** REST search gates CMS-partner and delegated-user
   callers through `OperationAccessManager.verifyAccess`, but neither GraphQL v1's root resolvers
@@ -606,7 +617,7 @@ aren't re-discovered and re-reported from scratch later).
   §5).** These were the same underlying gap surfacing at two layers, not two separate bugs: the
   `addTopPersonAccessCheck` re-check added by the two FIXED findings above operates on the
   scope-derived query filter, which is a complete no-op for a caller with no `access/` scope at all
-  (`ScopesManager.getSecurityTagsFromScope` legitimately returns `[]` for a pure `patient/` scope) —
+  (`SecurityTagManager.getSecurityTagsFromScope` legitimately returns `[]` for a pure `patient/` scope) —
   so that caller type had no re-check to bind to, regardless of what a linked Person's `assurance`
   said. A same-owner-tag fallback was tried and reverted (`e5b649607`) because it produced
   false-positive denials for the legitimate cross-tenant master-Person → client-Person linking model,
@@ -710,7 +721,7 @@ aren't re-discovered and re-reported from scratch later).
 Regression tests for the two original FIXED findings above are in `src/tests/unit/resourceAuthorization/`
 (see `12_knownGap_patientScopedWriteTagBypass.test.js` and
 `12_knownGap_accessHistoryLinkTraversalLeak.test.js` — no longer `test.failing`, now plain
-regression tests); later FIXED/Open findings above cite their own test files inline instead. Neither
+regression tests); later FIXED findings above cite their own test files inline instead. Neither
 of the original two fixes was caught missing by CI originally:
 `src/tests/unit/operations/security/scopesManager.crossTenant.test.js`,
 `scopesManager.writeBypass.test.js`, and `patientScopeWriteBypass.test.js` already encoded the
