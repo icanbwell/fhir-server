@@ -616,7 +616,7 @@ re-discovered and re-reported from scratch later).
   hardcoded `unclassified` code, so an `unclassified`-tagged *section* inside an otherwise-visible
   Composition is not stripped.
 - **Open — a caller with a *pure* `patient/` scope (no `access/` scope) gets no re-check at all
-  during `Person.link` traversal into another tenant (§1, §5).** `ScopesManager.getSecurityTagsFromScope`
+  during `Person.link` traversal into another tenant (§1, §5).** `SecurityTagManager.getSecurityTagsFromScope`
   returns `[]` for a token with no access code — correct for a plain patient-facing app, which has no
   tenant/access identity to check against — but `[]` means "no filter," not "deny," so the
   `addTopPersonAccessCheck` re-check added by the two FIXED findings above is a no-op for exactly this
