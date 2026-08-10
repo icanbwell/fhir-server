@@ -83,10 +83,19 @@ class SearchParametersManager {
          * @type {Record<string, SearchParameterDefinition>}
          */
         const searchParametersForResource = this.getSearchParametersForResource({ resourceType });
-        if (searchParametersForResource) {
+        // Use hasOwnProperty rather than bare bracket access: the search-parameter maps are plain
+        // objects, so a query parameter literally named `constructor`, `toString`, `valueOf`,
+        // `hasOwnProperty` etc. would otherwise resolve to the inherited Object.prototype member.
+        // That value is truthy, so callers skip their `!propertyObj` unknown-parameter branch and
+        // then dereference `propertyObj.fields`, throwing a TypeError -> HTTP 500 on what is really
+        // just an unrecognized search parameter.
+        if (searchParametersForResource &&
+            Object.prototype.hasOwnProperty.call(searchParametersForResource, queryParameter)) {
             propertyObj = searchParametersForResource[`${queryParameter}`];
         }
-        if (!propertyObj) {
+        if (!propertyObj &&
+            this.combinedSearchParameters.Resource &&
+            Object.prototype.hasOwnProperty.call(this.combinedSearchParameters.Resource, queryParameter)) {
             const searchParametersInheritedFromResource = this.combinedSearchParameters.Resource[`${queryParameter}`];
             propertyObj = searchParametersInheritedFromResource;
         }
