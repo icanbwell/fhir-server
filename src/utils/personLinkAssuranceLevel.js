@@ -23,6 +23,15 @@ const ASSURANCE_LEVEL_RANK = {
 };
 
 /**
+ * Single source of truth for the default minimum, shared by configManager.js's
+ * personLinkAssuranceMinimumLevel getter and by the fallback validation callers of this module
+ * perform when a configured minimum turns out not to be a recognized level (see
+ * isRecognizedAssuranceLevel below) -- keeping both in one place avoids the two drifting apart.
+ * @type {string}
+ */
+const DEFAULT_ASSURANCE_MINIMUM_LEVEL = 'level2';
+
+/**
  * Returns the ordered rank of a `Person.link.assurance` value.
  * @param {string|undefined|null} assurance
  * @return {number} 0 for missing/unrecognized values, 1-4 for `level1`-`level4`
@@ -32,6 +41,20 @@ function rankPersonLinkAssurance (assurance) {
         return 0;
     }
     return ASSURANCE_LEVEL_RANK[assurance] || 0;
+}
+
+/**
+ * Returns whether a value is one of the recognized `identity-assuranceLevel` codes
+ * (`level1`-`level4`). Intended for validating a *configured minimum* (e.g. from an env var)
+ * before using it -- an unrecognized minimum ranks 0 via rankPersonLinkAssurance, which would
+ * silently make meetsMinimumAssurance true for every link (including one with no assurance at
+ * all), turning both the dry-run logging and the enforcement gate into a no-op with no warning.
+ * Callers should fall back to DEFAULT_ASSURANCE_MINIMUM_LEVEL (and log) when this returns false.
+ * @param {string|undefined|null} level
+ * @return {boolean}
+ */
+function isRecognizedAssuranceLevel (level) {
+    return Object.prototype.hasOwnProperty.call(ASSURANCE_LEVEL_RANK, level);
 }
 
 /**
@@ -49,5 +72,7 @@ function meetsMinimumAssurance ({ assurance, minimumLevel }) {
 
 module.exports = {
     rankPersonLinkAssurance,
-    meetsMinimumAssurance
+    meetsMinimumAssurance,
+    isRecognizedAssuranceLevel,
+    DEFAULT_ASSURANCE_MINIMUM_LEVEL
 };

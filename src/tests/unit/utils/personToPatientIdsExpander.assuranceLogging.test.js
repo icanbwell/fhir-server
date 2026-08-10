@@ -157,4 +157,63 @@ describe('PersonToPatientIdsExpander — DCON-4894 dry-run assurance logging (Co
         expect(resultWithLogging).toContain('patient-no-assurance-uuid');
         expect(resultWithLogging).toContain('patient-strong-link-uuid');
     });
+
+    test('does not log a below-minimum warning for a link whose target is not a Patient/Person (never followed either way)', async () => {
+        const personWithNonFollowableLink = {
+            id: 'person-top-2',
+            _uuid: 'person-top-2-uuid',
+            _sourceId: 'person-top-2',
+            meta: { security: [{ system: SecurityTagSystem.access, code: 'clientA' }] },
+            link: [
+                // Legal per FHIR R4 (Person.link.target is Patient|Practitioner|RelatedPerson|Person)
+                // but never followed by patientIdsToAdd/personResourceWithPersonReferenceLink below --
+                // must not be treated as a below-minimum "link followed" warning even though its
+                // assurance (missing) ranks 0.
+                { target: { _uuid: 'Practitioner/practitioner-1', type: 'Practitioner' } }
+            ]
+        };
+        const expander = createExpander({ logPersonLinkAssuranceBelowMinimum: true });
+        const mockDatabaseQueryManager = {
+            findAsync: jestGlobal.fn(async () => makeFakeCursor([personWithNonFollowableLink]))
+        };
+
+        const result = await expander.getPatientIdsFromPersonAsync({
+            personIds: ['person-top-2'],
+            totalProcessedPersonIds: new Set(),
+            databaseQueryManager: mockDatabaseQueryManager,
+            level: 1,
+            toMap: false
+        });
+
+        expect(logWarn).not.toHaveBeenCalled();
+        // Only the top person's own proxy-person id is returned -- the Practitioner-target link
+        // never contributes a patient/person id either way, with or without this fix.
+        expect(result).toEqual(['person.person-top-2-uuid']);
+    });
+
+    test('falls back to the default minimum (and warns about it) when the configured minimum is not a recognized level', async () => {
+        // 'level0' is not a recognized identity-assuranceLevel code. Without a fallback, ranking
+        // it would return 0, making meetsMinimumAssurance true for every link (including the
+        // no-assurance one) -- silently disabling the below-minimum warning entirely. Confirm
+        // instead that: (a) a warning about the bad config is logged, and (b) the below-minimum
+        // links are still identified using the real default ('level2'), not silently let through.
+        const expander = createExpander({
+            logPersonLinkAssuranceBelowMinimum: true,
+            personLinkAssuranceMinimumLevel: 'level0'
+        });
+
+        await runExpansion(expander);
+
+        const loggedContexts = logWarn.mock.calls.map((call) => call[1]);
+        const loggedMessages = logWarn.mock.calls.map((call) => call[0]);
+
+        expect(loggedMessages).toContainEqual(expect.stringContaining('not a recognized'));
+        // The two below-'level2' links are still flagged despite the bad configured value.
+        expect(loggedContexts).toContainEqual(
+            expect.objectContaining({ targetId: 'patient-weak-link-uuid', minimumLevel: 'level2' })
+        );
+        expect(loggedContexts).toContainEqual(
+            expect.objectContaining({ targetId: 'patient-no-assurance-uuid', minimumLevel: 'level2' })
+        );
+    });
 });

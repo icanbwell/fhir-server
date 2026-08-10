@@ -1,6 +1,7 @@
 const {isTrue, isTrueWithFallback} = require('./isTrue');
 const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
+const { DEFAULT_ASSURANCE_MINIMUM_LEVEL } = require('./personLinkAssuranceLevel');
 
 const env = process.env;
 
@@ -1274,7 +1275,7 @@ class ConfigManager {
      * @return {string}
      */
     get personLinkAssuranceMinimumLevel() {
-        return env.PERSON_LINK_ASSURANCE_MINIMUM_LEVEL || 'level2';
+        return env.PERSON_LINK_ASSURANCE_MINIMUM_LEVEL || DEFAULT_ASSURANCE_MINIMUM_LEVEL;
     }
 
     /**

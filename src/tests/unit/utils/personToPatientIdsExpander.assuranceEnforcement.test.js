@@ -136,4 +136,28 @@ describe('PersonToPatientIdsExpander — DCON-4894 assurance enforcement (Commit
         expect(patientIds).toContain('patient-other-uuid');
         expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledTimes(2);
     });
+
+    test('still enforces using the real default minimum when the configured minimum is not a recognized level', async () => {
+        // If an unrecognized configured minimum (e.g. a typo'd env var) were used as-is, it would
+        // rank 0 -- the same rank as a missing assurance -- making every link "meet" it and
+        // silently turning enforcement into a no-op that grants everything. Confirm enforcement
+        // still excludes the below-('level2')-minimum links despite the bad configured value.
+        const expander = createExpander({
+            enforcePersonLinkAssuranceMinimum: true,
+            personLinkAssuranceMinimumLevel: 'not-a-real-level'
+        });
+        const mockDatabaseQueryManager = createMockDatabaseQueryManager([[topPerson], [otherPerson]]);
+
+        const patientIds = await expander.getPatientIdsFromPersonAsync({
+            personIds: ['person-top'],
+            totalProcessedPersonIds: new Set(),
+            databaseQueryManager: mockDatabaseQueryManager,
+            level: 1,
+            toMap: false
+        });
+
+        expect(patientIds).not.toContain('patient-no-assurance-uuid');
+        expect(patientIds).not.toContain('patient-other-uuid');
+        expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledTimes(1);
+    });
 });

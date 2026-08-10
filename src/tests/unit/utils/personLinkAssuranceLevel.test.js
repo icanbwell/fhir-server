@@ -1,5 +1,10 @@
 const { describe, test, expect } = require('@jest/globals');
-const { rankPersonLinkAssurance, meetsMinimumAssurance } = require('../../../utils/personLinkAssuranceLevel');
+const {
+    rankPersonLinkAssurance,
+    meetsMinimumAssurance,
+    isRecognizedAssuranceLevel,
+    DEFAULT_ASSURANCE_MINIMUM_LEVEL
+} = require('../../../utils/personLinkAssuranceLevel');
 
 describe('personLinkAssuranceLevel', () => {
     describe('rankPersonLinkAssurance', () => {
@@ -59,6 +64,32 @@ describe('personLinkAssuranceLevel', () => {
 
         test('returns true at the lowest minimum (level1) when assurance is exactly level1', () => {
             expect(meetsMinimumAssurance({ assurance: 'level1', minimumLevel: 'level1' })).toBe(true);
+        });
+    });
+
+    describe('isRecognizedAssuranceLevel', () => {
+        test.each(['level1', 'level2', 'level3', 'level4'])('returns true for %s', (level) => {
+            expect(isRecognizedAssuranceLevel(level)).toBe(true);
+        });
+
+        test('returns false for an unrecognized string', () => {
+            expect(isRecognizedAssuranceLevel('level0')).toBe(false);
+        });
+
+        test('returns false for a case-mismatched value', () => {
+            expect(isRecognizedAssuranceLevel('Level2')).toBe(false);
+        });
+
+        test('returns false for undefined/null/empty', () => {
+            expect(isRecognizedAssuranceLevel(undefined)).toBe(false);
+            expect(isRecognizedAssuranceLevel(null)).toBe(false);
+            expect(isRecognizedAssuranceLevel('')).toBe(false);
+        });
+    });
+
+    describe('DEFAULT_ASSURANCE_MINIMUM_LEVEL', () => {
+        test('is itself a recognized level', () => {
+            expect(isRecognizedAssuranceLevel(DEFAULT_ASSURANCE_MINIMUM_LEVEL)).toBe(true);
         });
     });
 });
