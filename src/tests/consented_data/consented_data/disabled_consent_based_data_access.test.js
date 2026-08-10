@@ -69,7 +69,7 @@ describe('Disabled Consent Based Data Access Test', () => {
 
         // Get Observation for a specific person, client have access to read both proa and client resources
         resp = await request
-            .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid')
+            .get('/4_0_0/Observation?patient=Patient/person.33226ded-51e8-590e-8342-1197955a2af7&_sort=_uuid')
             .set(headers);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse([expectedClintObservationCopy]);

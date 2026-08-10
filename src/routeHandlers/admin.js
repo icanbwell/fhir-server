@@ -15,6 +15,22 @@ const { AdminExportManager } = require('../admin/adminExportManager');
 const { logError } = require('../operations/common/logging');
 const { FhirRequestInfoBuilder } = require('../utils/fhirRequestInfoBuilder');
 const { isTrue } = require('../utils/isTrue');
+const { ForbiddenError } = require('../utils/httpErrors');
+
+/**
+ * Every admin operation, read or write, calls this with its own required action. Throws (rather
+ * than directly writing a response) so the enclosing handler's own catch block - which every
+ * handler below already has, formatting any thrown error into the standard 403 OperationOutcome
+ * response via error.statusCode
+ * @param {ScopesManager} scopesManager
+ * @param {string} scope
+ * @param {'read'|'write'} action
+ */
+function assertAdminScope ({ scopesManager, scope, action }) {
+    if (!scopesManager.hasAdminScopeForAction({ scope, action })) {
+        throw new ForbiddenError('user with scopes [' + scope + '] failed access check to [admin/*.' + action + ']');
+    }
+}
 
 /**
  * shows indexes
@@ -113,6 +129,7 @@ async function handleAdminGet (
         if (adminScopes.length > 0) {
             switch (operation) {
                 case 'searchLogResults': {
+                    assertAdminScope({ scopesManager, scope, action: 'read' });
                     logInfo('', { 'req.query': req.query });
                     const id = req.query.id;
                     if (id) {
@@ -136,6 +153,7 @@ async function handleAdminGet (
                 }
 
                 case 'showPersonToPersonLink': {
+                    assertAdminScope({ scopesManager, scope, action: 'read' });
                     logInfo('', { 'req.query': req.query });
                     const bwellPersonId = req.query.bwellPersonId;
                     if (bwellPersonId) {
@@ -154,6 +172,7 @@ async function handleAdminGet (
                 }
 
                 case 'indexes': {
+                    assertAdminScope({ scopesManager, scope, action: 'read' });
                     return await showIndexesAsync(
                         {
                             req,
@@ -165,6 +184,7 @@ async function handleAdminGet (
                 }
 
                 case 'indexProblems': {
+                    assertAdminScope({ scopesManager, scope, action: 'read' });
                     return await showIndexesAsync(
                         {
                             req,
@@ -176,6 +196,7 @@ async function handleAdminGet (
                 }
 
                 case 'synchronizeIndexes': {
+                    assertAdminScope({ scopesManager, scope, action: 'write' });
                     return await synchronizeIndexesAsync(
                         {
                             req,
@@ -186,6 +207,7 @@ async function handleAdminGet (
                 }
 
                 case 'runPersonMatch': {
+                    assertAdminScope({ scopesManager, scope, action: 'read' });
                     logInfo('', { 'req.query': req.query });
                     const sourceId = req.query.sourceId;
                     const sourceType = req.query.sourceType;
@@ -207,11 +229,13 @@ async function handleAdminGet (
                 }
 
                 case 'ExportStatus': {
+                    assertAdminScope({ scopesManager, scope, action: 'read' });
                     logInfo('', { 'req.query': req.query, 'req.params.id': req.params.id });
                     return res.json(await adminExportManager.getExportStatus({ req, res }))
                 }
 
                 case 'getCacheKeys': {
+                    assertAdminScope({ scopesManager, scope, action: 'read' });
                     const resourceType = req.query.resourceType;
                     const resourceId = req.query.resourceId;
                     if (resourceType && resourceId) {
@@ -243,6 +267,7 @@ async function handleAdminGet (
                 }
 
                 case 'runPersonOneToNMatch': {
+                    assertAdminScope({ scopesManager, scope, action: 'read' });
                     logInfo('', { 'req.query': req.query });
                     const id = req.query.id;
                     const resourceType = req.query.resourceType;
@@ -337,6 +362,7 @@ async function handleAdminPost (
         if (adminScopes.length > 0) {
             switch (operation) {
                 case 'createPersonToPersonLink': {
+                    assertAdminScope({ scopesManager, scope, action: 'write' });
                     logInfo('', { 'req.body': req.body });
                     const bwellPersonId = req.body.bwellPersonId;
                     const externalPersonId = req.body.externalPersonId;
@@ -358,6 +384,7 @@ async function handleAdminPost (
                 }
 
                 case 'removePersonToPersonLink': {
+                    assertAdminScope({ scopesManager, scope, action: 'write' });
                     logInfo('', { 'req.body': req.body });
                     const bwellPersonId = req.body.bwellPersonId;
                     const externalPersonId = req.body.externalPersonId;
@@ -379,6 +406,7 @@ async function handleAdminPost (
                 }
 
                 case 'createPersonToPatientLink': {
+                    assertAdminScope({ scopesManager, scope, action: 'write' });
                     logInfo('', { 'req.body': req.body });
                     const externalPersonId = req.body.externalPersonId;
                     const patientId = req.body.patientId;
@@ -400,6 +428,7 @@ async function handleAdminPost (
                 }
 
                 case 'removePersonToPatientLink': {
+                    assertAdminScope({ scopesManager, scope, action: 'write' });
                     logInfo('', { 'req.body': req.body });
                     const personId = req.body.personId;
                     const patientId = req.body.patientId;
@@ -421,6 +450,7 @@ async function handleAdminPost (
                 }
 
                 case 'updatePatientReference': {
+                    assertAdminScope({ scopesManager, scope, action: 'write' });
                     logInfo('', { 'req.body': req.body });
                     const patientId = req.body.patientId;
                     const resourceType = req.body.resourceType;
@@ -443,6 +473,7 @@ async function handleAdminPost (
                     });
                 }
                 case 'triggerExport': {
+                    assertAdminScope({ scopesManager, scope, action: 'write' });
                     if (req.params.id) {
                         return res.json(await adminExportManager.triggerExportJob({ req, res }));
                     }
@@ -451,6 +482,7 @@ async function handleAdminPost (
                     }
                 }
                 case 'invalidateCache': {
+                    assertAdminScope({ scopesManager, scope, action: 'write' });
                     const resourceType = req.body.resourceType;
                     const resourceId = req.body.resourceId;
                     const cacheKeys = req.body.cacheKeys;
@@ -489,6 +521,7 @@ async function handleAdminPost (
                 }
 
                 case 'runMatchWithPayload': {
+                    assertAdminScope({ scopesManager, scope, action: 'read' });
                     logInfo('', { operation: 'runMatchWithPayload' });
                     const parameters = req.body;
                     const personMatchManager = container.personMatchManager;
@@ -560,30 +593,21 @@ async function handleAdminPut(
          * @type {string|undefined}
          */
         const scope = scopesManager.getScopeFromRequest({ req });
-        /**
-         * @type {string[]}
-         */
-        const adminScopes = scopesManager.getAdminScopes({ scope });
+        assertAdminScope({ scopesManager, scope, action: 'write' });
 
-        if (adminScopes.length > 0) {
-            switch (operation) {
-                case 'ExportStatus': {
-                    logInfo('', { 'req.query': req.query, 'req.param.id': req.params.id });
-                    if (req.params.id) {
-                        return res.json(await adminExportManager.updateExportStatus({ req, res }));
-                    }
-                    else {
-                        return res.status(400).json({ message: 'ExportStatusId was not passed' })
-                    }
+        switch (operation) {
+            case 'ExportStatus': {
+                logInfo('', { 'req.query': req.query, 'req.param.id': req.params.id });
+                if (req.params.id) {
+                    return res.json(await adminExportManager.updateExportStatus({ req, res }));
                 }
-                default: {
-                    return res.json({ message: 'Invalid Path' });
+                else {
+                    return res.status(400).json({ message: 'ExportStatusId was not passed' })
                 }
             }
-        } else {
-            return res.status(403).json({
-                message: `Missing scopes for admin/*.read in ${scope}`
-            });
+            default: {
+                return res.json({ message: 'Invalid Path' });
+            }
         }
     }
     catch (error) {
@@ -636,135 +660,72 @@ async function handleAdminDelete (
          * @type {string|undefined}
          */
         const scope = scopesManager.getScopeFromRequest({ req });
-        /**
-         * @type {string[]}
-         */
-        const adminScopes = scopesManager.getAdminScopes({ scope });
+        assertAdminScope({ scopesManager, scope, action: 'write' });
 
-        if (adminScopes.length > 0) {
-            switch (operation) {
-                case 'deletePerson': {
-                    logInfo('', { 'req.query': req.query });
-                    const personId = req.query.personId;
-                    if (personId) {
-                        /**
-                         * @type {AdminPersonPatientLinkManager}
-                         */
-                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
-                        const json = await adminPersonPatientLinkManager.deletePersonAsync({
+        switch (operation) {
+            case 'deletePerson': {
+                logInfo('', { 'req.query': req.query });
+                const personId = req.query.personId;
+                if (personId) {
+                    /**
+                     * @type {AdminPersonPatientLinkManager}
+                     */
+                    const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
+                    const json = await adminPersonPatientLinkManager.deletePersonAsync({
+                        req,
+                        requestId: req.id,
+                        personId
+                    });
+                    return res.json(json);
+                }
+                return res.json({
+                    message: `No personId: ${personId} passed`
+                });
+            }
+
+            case 'deletePatientDataGraph': {
+                logInfo('', { 'req.query': req.query });
+                const patientId = req.query.id;
+                const sync = req.query.sync;
+                if (patientId) {
+                    /**
+                     * @type {string[]}
+                     */
+                    const scopes = scopesManager.parseScopes(scope);
+                    const resourceType = 'Patient';
+                    const accessRequested = 'write';
+
+                    const { success } = scopeChecker(resourceType, accessRequested, scopes);
+                    if (!success) {
+                        const errorMessage = 'user with scopes [' + scopes +
+                            '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                        const operationOutcome = new OperationOutcome({
+                            issue: [
+                                new OperationOutcomeIssue(
+                                    {
+                                        severity: 'error',
+                                        code: 'forbidden',
+                                        diagnostics: errorMessage
+                                    }
+                                )
+                            ]
+                        });
+                        return res.status(403).json(operationOutcome.toJSON());
+                    }
+
+                    /**
+                     * @type {AdminPersonPatientDataManager}
+                     */
+                    const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
+                    if (sync) {
+                        const json = await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                             req,
-                            requestId: req.id,
-                            personId
+                            res,
+                            patientId,
+                            responseStreamer: null
                         });
                         return res.json(json);
-                    }
-                    return res.json({
-                        message: `No personId: ${personId} passed`
-                    });
-                }
-
-                case 'deletePatientDataGraph': {
-                    logInfo('', { 'req.query': req.query });
-                    const patientId = req.query.id;
-                    const sync = req.query.sync;
-                    if (patientId) {
-                        /**
-                         * @type {string[]}
-                         */
-                        const scopes = scopesManager.parseScopes(scope);
-                        const resourceType = 'Patient';
-                        const accessRequested = 'write';
-
-                        const { success } = scopeChecker(resourceType, accessRequested, scopes);
-                        if (!success) {
-                            const errorMessage = 'user with scopes [' + scopes +
-                                '] failed access check to [' + resourceType + '.' + accessRequested + ']';
-                            const operationOutcome = new OperationOutcome({
-                                issue: [
-                                    new OperationOutcomeIssue(
-                                        {
-                                            severity: 'error',
-                                            code: 'forbidden',
-                                            diagnostics: errorMessage
-                                        }
-                                    )
-                                ]
-                            });
-                            return res.json(operationOutcome.toJSON());
-                        }
-
-                        /**
-                         * @type {AdminPersonPatientDataManager}
-                         */
-                        const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
-                        if (sync) {
-                            const json = await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
-                                req,
-                                res,
-                                patientId,
-                                responseStreamer: null
-                            });
-                            return res.json(json);
-                        } else {
-                            /**
-                             * @type {FhirResponseStreamer}
-                             */
-                            const responseStreamer = new FhirResponseStreamer({
-                                response: res,
-                                requestId: req.id,
-                                bundleType: 'batch-response'
-                            });
-                            await responseStreamer.startAsync();
-                            await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
-                                req,
-                                res,
-                                patientId,
-                                responseStreamer
-                            });
-                            await responseStreamer.writeAsync({
-                                content: '<div>Finished</div>\n'
-                            });
-                            await responseStreamer.endAsync();
-                            return;
-                        }
-                    }
-                    return res.json({
-                        message: `No id: ${patientId} passed`
-                    });
-                }
-
-                case 'deletePersonDataGraph': {
-                    logInfo('', { 'req.query': req.query });
-                    const personId = req.query.id;
-                    if (personId) {
-                        /**
-                         * @type {string[]}
-                         */
-                        const scopes = scopesManager.parseScopes(scope);
-                        const resourceType = 'Patient';
-                        const accessRequested = 'write';
-
-                        const { success } = scopeChecker(resourceType, accessRequested, scopes);
-                        if (!success) {
-                            const errorMessage = 'user with scopes [' + scopes +
-                                '] failed access check to [' + resourceType + '.' + accessRequested + ']';
-                            const operationOutcome = new OperationOutcome({
-                                issue: [
-                                    new OperationOutcomeIssue(
-                                        {
-                                            severity: 'error',
-                                            code: 'forbidden',
-                                            diagnostics: errorMessage
-                                        }
-                                    )
-                                ]
-                            });
-                            return res.json(operationOutcome.toJSON());
-                        }
-                        /**
-                         * @type {AdminPersonPatientDataManager}
-                         */
-                        const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
+                    } else {
                         /**
                          * @type {FhirResponseStreamer}
                          */
@@ -773,30 +734,84 @@ async function handleAdminDelete (
                             requestId: req.id,
                             bundleType: 'batch-response'
                         });
-
                         await responseStreamer.startAsync();
-                        await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
+                        await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                             req,
                             res,
-                            personId,
+                            patientId,
                             responseStreamer
+                        });
+                        await responseStreamer.writeAsync({
+                            content: '<div>Finished</div>\n'
                         });
                         await responseStreamer.endAsync();
                         return;
                     }
-                    return res.json({
-                        message: `No id: ${personId} passed`
-                    });
                 }
-
-                default: {
-                    return res.json({ message: 'Invalid Path' });
-                }
+                return res.json({
+                    message: `No id: ${patientId} passed`
+                });
             }
-        } else {
-            return res.status(403).json({
-                message: `Missing scopes for admin/*.read in ${scope}`
-            });
+
+            case 'deletePersonDataGraph': {
+                logInfo('', { 'req.query': req.query });
+                const personId = req.query.id;
+                if (personId) {
+                    /**
+                     * @type {string[]}
+                     */
+                    const scopes = scopesManager.parseScopes(scope);
+                    const resourceType = 'Patient';
+                    const accessRequested = 'write';
+
+                    const { success } = scopeChecker(resourceType, accessRequested, scopes);
+                    if (!success) {
+                        const errorMessage = 'user with scopes [' + scopes +
+                            '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                        const operationOutcome = new OperationOutcome({
+                            issue: [
+                                new OperationOutcomeIssue(
+                                    {
+                                        severity: 'error',
+                                        code: 'forbidden',
+                                        diagnostics: errorMessage
+                                    }
+                                )
+                            ]
+                        });
+                        return res.status(403).json(operationOutcome.toJSON());
+                    }
+                    /**
+                     * @type {AdminPersonPatientDataManager}
+                     */
+                    const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
+                    /**
+                     * @type {FhirResponseStreamer}
+                     */
+                    const responseStreamer = new FhirResponseStreamer({
+                        response: res,
+                        requestId: req.id,
+                        bundleType: 'batch-response'
+                    });
+
+                    await responseStreamer.startAsync();
+                    await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
+                        req,
+                        res,
+                        personId,
+                        responseStreamer
+                    });
+                    await responseStreamer.endAsync();
+                    return;
+                }
+                return res.json({
+                    message: `No id: ${personId} passed`
+                });
+            }
+
+            default: {
+                return res.json({ message: 'Invalid Path' });
+            }
         }
     } catch (error) {
         logError(`Error in handleAdminDelete`, {
