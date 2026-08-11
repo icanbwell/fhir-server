@@ -345,13 +345,15 @@ describe('DataSharingManager', () => {
             expect(result).toEqual(query);
         });
 
-        it('DCON-4962: short-circuits before resolving patients when allowConsentedProaDataAccess is false, even though enableConsentedProaDataAccess is true', async () => {
-            // Only the $everything operation passes allowConsentedProaDataAccess: true.
-            // Search, searchById, and GraphQL all call constructQueryAsync without it,
-            // so it defaults to false -- this must be a true no-op for them, not just an
-            // expansion that happens to compute to nothing.
+        it('DCON-4962: still resolves and validates patients (duplicate-patient 400 guard) when allowConsentedProaDataAccess is false, but skips the PROA query-expansion itself', async () => {
+            // Search, searchById, and GraphQL never pass allowConsentedProaDataAccess: true
+            // (only everythingHelper.js does), so this exercises their path. Patient
+            // resolution/validation -- including validatePatientIdsAsync's duplicate-patient
+            // 400 guard -- is NOT part of the PROA-only expansion and must still run
+            // regardless of allowConsentedProaDataAccess; only the actual consent-based query
+            // expansion is $everything-only.
             const getValidatedPatientIdsMapSpy = jest.spyOn(dataSharingManager, 'getValidatedPatientIdsMap');
-            const getPatientIDToConnectionTypeMapSpy = jest.spyOn(dataSharingManager, 'getPatientIDToConnectionTypeMap');
+            const getPatientIdsWithConsentSpy = jest.spyOn(mockProaConsentManager, 'getPatientIdsWithConsent');
 
             mockParsedArgs.parsedArgItems = [{
                 propertyObj: { target: ['Patient'] },
@@ -360,6 +362,15 @@ describe('DataSharingManager', () => {
                 queryParameterValue: { values: ['Patient/patient-1'] },
                 modifiers: []
             }];
+            // getValidatedPatientIdsMap -> getPatientsList queries Mongo for the referenced
+            // Patient(s) to run the duplicate-patient check; a single, non-duplicate match.
+            const mockCursor = {
+                hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false),
+                nextObject: jest.fn().mockResolvedValue({ id: 'patient-1', _sourceId: 'patient-1', _uuid: 'patient-uuid-1' })
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            });
 
             const query = { resourceType: 'Observation' };
             const result = await dataSharingManager.updateQueryConsideringDataSharing({
@@ -375,9 +386,9 @@ describe('DataSharingManager', () => {
             });
 
             expect(result).toEqual(query);
-            expect(getValidatedPatientIdsMapSpy).not.toHaveBeenCalled();
-            expect(getPatientIDToConnectionTypeMapSpy).not.toHaveBeenCalled();
-            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).not.toHaveBeenCalled();
+            expect(getValidatedPatientIdsMapSpy).toHaveBeenCalled();
+            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).toHaveBeenCalled();
+            expect(getPatientIdsWithConsentSpy).not.toHaveBeenCalled();
         });
     });
 
