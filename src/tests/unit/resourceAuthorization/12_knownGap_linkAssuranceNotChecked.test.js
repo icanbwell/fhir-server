@@ -1,32 +1,29 @@
 'use strict';
 
 /**
- * Regression test tracking a KNOWN, DOCUMENTED gap from docs/resource-authorization.md §12
- * "Known gaps in the current implementation" — the "Medium — link traversal never checks
- * `assurance`" finding.
+ * Regression test tracking docs/resource-authorization.md §12 "Known gaps in the current
+ * implementation" — the "Open — link traversal never checks `assurance`" finding.
  *
- * Unlike the other §12 findings covered in this directory (see
- * 12_knownGap_patientScopedWriteTagBypass.test.js and
- * 12_knownGap_accessHistoryLinkTraversalLeak.test.js), this one is NOT expressed as a
- * `test.failing`. Those two findings have a clearly documented CORRECT behavior elsewhere in the
- * codebase (a doc comment on the very function that skips the check, or the caller's own access
- * grant) that the code fails to implement, so "assert the correct behavior, watch it fail" is an
- * honest test. This finding is different: nothing in this codebase specifies what threshold of
- * `Person.link.assurance` (FHIR's match-confidence code: level1/level2/level3/level4) should or
- * should not be traversed. Inventing a specific policy (e.g. "level1 links must be excluded") and
- * asserting it as `test.failing` would fabricate a requirement this repo has never stated, which is
- * exactly the mistake this task was set up to avoid repeating (see the removed
- * delegatedAccessScopeManager.test.js precedent).
+ * DCON-4894 added assurance-awareness to personToPatientIdsExpander.js in two sequential,
+ * separately-committed changes:
+ *   - Commit A: dry-run logging (configManager.logPersonLinkAssuranceBelowMinimum, default
+ *     false) that logs a warning whenever a followed Person.link's `assurance` value doesn't
+ *     meet the configured configManager.personLinkAssuranceMinimumLevel (default 'level2'),
+ *     without changing which links are followed.
+ *   - Commit B: an enforcement gate (configManager.enforcePersonLinkAssuranceMinimum, default
+ *     false in code regardless of environment configuration) that, only once explicitly turned
+ *     on, excludes a below-minimum link from being followed at all.
  *
- * So instead this file documents the verified, narrower fact from §12: no code path in
- * personToPatientIdsExpander.js reads `link.assurance` at all, so every link is followed
- * identically regardless of its assurance level. Both assertions below are plain `test(...)` and
- * currently PASS — they document the current (gap-having) behavior, not a fix. If someone adds
- * assurance-aware filtering, the second test's expectation (that assurance has zero effect) will
- * correctly break, which is the intended signal to come update/remove this file.
+ * Both flags default to false, and Commit B's flag is intentionally meant to stay off until
+ * Commit A's logging has been observed in a real environment (see
+ * personToPatientIdsExpander.assuranceLogging.test.js and
+ * personToPatientIdsExpander.assuranceEnforcement.test.js for coverage of both). So under the
+ * code-level defaults exercised below, traversal behavior is unchanged from before DCON-4894:
+ * every link is still followed regardless of its assurance level. What IS no longer true is the
+ * original narrower claim this file made -- that no code path reads `link.assurance` at all --
+ * so that assertion has been removed rather than kept passing artificially. The still-accurate
+ * behavioral claim (every link followed identically under default configuration) is kept below.
  */
-const fs = require('fs');
-const path = require('path');
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 
 jestGlobal.mock('../../../utils/assertType', () => ({
@@ -49,17 +46,7 @@ function makeFakeCursor (docs) {
     };
 }
 
-describe('§12 known gap — link traversal never checks Person.link.assurance', () => {
-    test('source file does not reference `assurance` anywhere', () => {
-        const sourcePath = path.join(__dirname, '../../../utils/personToPatientIdsExpander.js');
-        const source = fs.readFileSync(sourcePath, 'utf8');
-
-        // This is the actual verified claim from §12: the field is never read. If this ever
-        // fails, someone added assurance-handling code and this whole file (including the
-        // behavioral test below) should be revisited/removed rather than "fixed" to keep passing.
-        expect(source).not.toMatch(/assurance/i);
-    });
-
+describe('§12 known gap — link traversal never checks Person.link.assurance (under default config)', () => {
     describe('behavioral demonstration', () => {
         /** @type {PersonToPatientIdsExpander} */
         let expander;
@@ -106,7 +93,11 @@ describe('§12 known gap — link traversal never checks Person.link.assurance',
             };
             const mockConfigManager = {
                 enableProxyPersonScopeCheckForEverything: false,
-                useAccessIndex: false
+                useAccessIndex: false,
+                // Explicitly false, matching the code-level defaults added by DCON-4894:
+                // dry-run logging and enforcement both stay off unless an operator opts in.
+                logPersonLinkAssuranceBelowMinimum: false,
+                enforcePersonLinkAssuranceMinimum: false
             };
 
             expander = new PersonToPatientIdsExpander({
@@ -117,7 +108,7 @@ describe('§12 known gap — link traversal never checks Person.link.assurance',
             });
         });
 
-        test('a level1 (weakest) link and a level4 (strongest) link are both followed identically', async () => {
+        test('a level1 (weakest) link and a level4 (strongest) link are both followed identically under default configuration', async () => {
             const patientIds = await expander.getPatientIdsFromPersonAsync({
                 personIds: ['person-top'],
                 totalProcessedPersonIds: new Set(),
@@ -126,9 +117,13 @@ describe('§12 known gap — link traversal never checks Person.link.assurance',
                 toMap: false
             });
 
-            // Documents the gap: both links are followed with no distinction whatsoever based on
-            // assurance. This is the CURRENT (gap-having) behavior, so it is a plain assertion,
-            // not a test.failing.
+            // Documents the out-of-the-box behavior: with both DCON-4894 flags at their default
+            // (false), both links are still followed with no distinction whatsoever based on
+            // assurance. This is a plain assertion (not a test.failing) because it IS the correct
+            // and intended default behavior -- enforcement is opt-in only, pending real-world
+            // observation of the dry-run logging (see personToPatientIdsExpander.assuranceLogging
+            // .test.js and personToPatientIdsExpander.assuranceEnforcement.test.js for the
+            // opt-in-on behavior).
             expect(patientIds).toContain('patient-weak-link-uuid');
             expect(patientIds).toContain('patient-strong-link-uuid');
         });
