@@ -160,6 +160,7 @@ fix-lint:
 generate:
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/generate_services.py" && \
 	yarn eslint --fix "src/profiles.js"
+	$(MAKE) mcp
 
 .PHONY:shell
 shell: ## Brings up the bash shell in dev docker
@@ -213,6 +214,11 @@ searchParameters:
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/searchParameters/generate_search_parameters.py" && \
 	yarn eslint --fix "src/middleware/fhir/resources/**/*.js" && \
 	yarn eslint --fix "src/searchParameters/*.js"
+
+.PHONY:mcp
+mcp:
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/mcp/generate_mcp_tools.py" && \
+	yarn eslint --fix "src/mcp/tools/*.js"
 
 .PHONY:fastSerializers
 fastSerializers:

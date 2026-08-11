@@ -15,6 +15,7 @@ process.env.ENABLE_EVENTS_KAFKA = '0';
 process.env.ENABLE_BULK_EXPORT_KAFKA_EVENTS = '1';
 process.env.ENABLE_GRAPHQL = '1';
 process.env.ENABLE_GRAPHQLV2 = '1';
+process.env.ENABLE_MCP = '1';
 process.env.ENABLE_KAFKA_HEALTHCHECK = '0';
 process.env.ENVIRONMENT = "local";
 process.env.HOST_SERVER = "http://localhost:3000";
