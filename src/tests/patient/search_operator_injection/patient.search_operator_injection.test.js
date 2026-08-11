@@ -9,6 +9,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     getFullAccessTokenWithAdmin,
     createTestRequest
 } = require('../../common');
@@ -96,6 +97,70 @@ describe('Search operator injection', () => {
             expect(resp).toHaveMongoQuery(expected3);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expected3);
+        });
+    });
+
+    describe('Patient GET _sort allowlist', () => {
+        test('_sort=gender is a real search-parameter field, so it is applied', async () => {
+            const request = await createTestRequest();
+
+            for (const resource of [patient1Resource, patient2Resource]) {
+                const resp = await request
+                    .post('/4_0_0/Patient/$merge')
+                    .send(resource)
+                    .set(getHeaders());
+                // noinspection JSUnresolvedFunction
+                expect(resp).toHaveMergeResponse({ created: true });
+            }
+
+            // patient1Resource is male, patient2Resource is female (see fixtures)
+            const response = await request
+                .get('/4_0_0/Patient?_sort=gender')
+                .set(getHeaders());
+
+            expect(response.status).toBe(200);
+            const genders = response.body.entry
+                .map(e => e.resource.gender)
+                .filter(g => g === 'male' || g === 'female');
+            expect(genders).toEqual(['female', 'male']);
+        });
+
+        test('_sort=maritalStatus is not a registered search-parameter field, so it is dropped instead of rejecting the request', async () => {
+            const request = await createTestRequest();
+
+            for (const resource of [patient1Resource, patient2Resource]) {
+                const resp = await request
+                    .post('/4_0_0/Patient/$merge')
+                    .send(resource)
+                    .set(getHeaders());
+                // noinspection JSUnresolvedFunction
+                expect(resp).toHaveMergeResponse({ created: true });
+            }
+
+            const response = await request
+                .get('/4_0_0/Patient?_sort=maritalStatus&_bundle=1')
+                .set(getHeaders());
+
+            expect(response.status).toBe(200);
+            expect(response.body.entry.length).toBe(2);
+        });
+
+        test('_sort=$$$ (malformed value) is dropped instead of crashing or rejecting the request (SEC-1580 SAE-4)', async () => {
+            const request = await createTestRequest();
+
+            const resp = await request
+                .post('/4_0_0/Patient/$merge')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const response = await request
+                .get('/4_0_0/Patient?_sort=$$$&_bundle=1')
+                .set(getHeaders());
+
+            expect(response.status).toBe(200);
+            expect(response.body.entry.length).toBe(1);
         });
     });
 });

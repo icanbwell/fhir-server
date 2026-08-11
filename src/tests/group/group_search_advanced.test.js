@@ -120,7 +120,7 @@ describe('Group Advanced Search', () => {
         expect(response.body.link.some(l => l.relation === 'next')).toBe(true);
     }, 60000);
 
-    test('Search with sorting', async () => {
+    test('Search with sorting on an unregistered field (name)', async () => {
         const memberRef = `Patient/search-sort-${Date.now()}`;
 
         await createGroup({
@@ -156,12 +156,65 @@ describe('Group Advanced Search', () => {
 
         expect(response.status).toBe(200);
         expect(response.body.entry).toBeDefined();
+        expect(response.body.entry.length).toBe(3);
+    }, 30000);
 
-        if (response.body.entry && response.body.entry.length >= 2) {
-            const names = response.body.entry.map(e => e.resource.name);
-            const sortedNames = [...names].sort();
-            expect(names).toEqual(sortedNames);
-        }
+    test('Search with sorting on a real search-parameter field (type)', async () => {
+        const memberRef = `Patient/search-sort-type-${Date.now()}`;
+
+        await createGroup({
+            type: 'practitioner',
+            actual: true,
+            name: 'Sort Type Group Practitioner',
+            member: [{ entity: { reference: memberRef } }]
+        });
+
+        await createGroup({
+            type: 'animal',
+            actual: true,
+            name: 'Sort Type Group Animal',
+            member: [{ entity: { reference: memberRef } }]
+        });
+
+        const request = getSharedRequest();
+        const response = await request
+            .get('/4_0_0/Group')
+            .query({
+                'member.entity.reference': memberRef,
+                _sort: 'type'
+            })
+            .set(getTestHeadersWithExternalStorage());
+
+        expect(response.status).toBe(200);
+        expect(response.body.entry).toBeDefined();
+        const types = response.body.entry
+            .map(e => e.resource.type)
+            .filter(t => t === 'practitioner' || t === 'animal');
+        expect(types).toEqual(['animal', 'practitioner']);
+    }, 30000);
+
+    test('Search with a malformed sort value ($$$) → dropped, not crashing', async () => {
+        const memberRef = `Patient/search-sort-malformed-${Date.now()}`;
+
+        await createGroup({
+            type: 'person',
+            actual: true,
+            name: 'Malformed Sort Group',
+            member: [{ entity: { reference: memberRef } }]
+        });
+
+        const request = getSharedRequest();
+        const response = await request
+            .get('/4_0_0/Group')
+            .query({
+                'member.entity.reference': memberRef,
+                _sort: '$$$'
+            })
+            .set(getTestHeadersWithExternalStorage());
+
+        expect(response.status).toBe(200);
+        expect(response.body.entry).toBeDefined();
+        expect(response.body.entry.length).toBe(1);
     }, 30000);
 
     test('Filter by member inactive flag', async () => {
