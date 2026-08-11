@@ -257,5 +257,35 @@ describe('MergeResultEntry', () => {
             expect(result.created).toBe(false);
             expect(result.updated).toBe(false);
         });
+
+        test('adds a source-byte-offset extension with the byte offset when provided', () => {
+            const error = new Error('Bad NDJSON line');
+            const resource = {
+                resourceType: 'Patient',
+                id: 'p1',
+                _uuid: 'u1',
+                _sourceAssigningAuthority: 'a1'
+            };
+
+            const result = MergeResultEntry.createFromError({ error, resource, sourceByteOffset: 4096 });
+            const extension = result.operationOutcome.issue[0].extension;
+
+            expect(extension).toHaveLength(1);
+            expect(extension[0].url).toBe('https://www.icanbwell.com/source-byte-offset');
+            expect(extension[0].valueInteger).toBe(4096);
+        });
+
+        test('omits the extension when sourceByteOffset is not provided', () => {
+            const error = new Error('fail');
+            const resource = {
+                resourceType: 'Patient',
+                id: 'p1',
+                _uuid: 'u1',
+                _sourceAssigningAuthority: 'a1'
+            };
+
+            const result = MergeResultEntry.createFromError({ error, resource });
+            expect(result.operationOutcome.issue[0].extension).toBeUndefined();
+        });
     });
 });

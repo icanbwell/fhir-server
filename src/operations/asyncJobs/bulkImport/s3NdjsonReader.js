@@ -4,6 +4,19 @@ const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { logInfo, logError } = require('../../common/logging');
 
+/**
+ * Marks an error as deterministic (bad input/config, not a transient S3/network issue) so
+ * callers like BulkImportHandler.readRangeWithRetryAsync can skip retrying it -- it would
+ * fail identically on every attempt.
+ * @param {string} message
+ * @returns {Error}
+ */
+function nonRetryableError (message) {
+    const error = new Error(message);
+    error.retryable = false;
+    return error;
+}
+
 class S3NdjsonReader {
     /**
      * @typedef {Object} ConstructorParams
@@ -23,7 +36,7 @@ class S3NdjsonReader {
     parseS3Uri(uri) {
         const match = uri.match(/^s3:\/\/([^/]+)\/(.+)$/);
         if (!match) {
-            throw new Error(`Invalid S3 URI: "${uri}"`);
+            throw nonRetryableError(`Invalid S3 URI: "${uri}"`);
         }
         return { bucket: match[1], key: match[2] };
     }
@@ -45,27 +58,27 @@ class S3NdjsonReader {
      * @param {number} params.byteRangeStart
      * @param {number} params.byteRangeEnd
      * @param {number} params.fileSize - total file size from HEAD
-     * @returns {AsyncGenerator<{ lineNumber: number, resource: Object }, void, void>}
+     * @returns {AsyncGenerator<{ lineNumber: number, byteOffset: number, resource: Object|null, parseError: Error|null }, void, void>}
      */
     async *readNdjsonAsync({ filepath, byteRangeStart, byteRangeEnd, fileSize }) {
         if (!Number.isFinite(fileSize) || fileSize <= 0) {
-            throw new Error(`Invalid fileSize ${fileSize} for "${filepath}"`);
+            throw nonRetryableError(`Invalid fileSize ${fileSize} for "${filepath}"`);
         }
         if (!Number.isFinite(byteRangeStart) || byteRangeStart < 0) {
-            throw new Error(`Invalid byteRangeStart ${byteRangeStart} for "${filepath}"`);
+            throw nonRetryableError(`Invalid byteRangeStart ${byteRangeStart} for "${filepath}"`);
         }
         if (!Number.isFinite(byteRangeEnd) || byteRangeEnd <= byteRangeStart) {
-            throw new Error(`Invalid byteRangeEnd ${byteRangeEnd} for "${filepath}"`);
+            throw nonRetryableError(`Invalid byteRangeEnd ${byteRangeEnd} for "${filepath}"`);
         }
 
         const { bucket, key } = this.parseS3Uri(filepath);
 
         const allowedBuckets = this.configManager.bulkImportAllowedS3Buckets;
         if (!allowedBuckets.length) {
-            throw new Error('Bulk import S3 bucket allowlist is not configured');
+            throw nonRetryableError('Bulk import S3 bucket allowlist is not configured');
         }
         if (!allowedBuckets.includes(bucket)) {
-            throw new Error(`S3 bucket "${bucket}" is not in the allowed list`);
+            throw nonRetryableError(`S3 bucket "${bucket}" is not in the allowed list`);
         }
 
         const region = this.configManager.awsRegion || 'us-east-1';
@@ -117,24 +130,43 @@ class S3NdjsonReader {
             }
 
             lineNumber++;
+            // lineNumber resets to 1 at the start of every byte range, so it only
+            // identifies a line within THIS range, not within the original file once a
+            // file is split into multiple ranges. byteOffset is the line's absolute start
+            // position in the full file (bytesRead already includes byteRangeStart), so it
+            // stays correct regardless of how the file was split.
+            const byteOffset = bytesRead - lineBytes;
 
+            // A single bad line (too large, unparseable) must not abort the rest of the
+            // range -- skip it and let the caller record it in the error output, the same
+            // way a per-resource write failure is handled.
             if (Buffer.byteLength(line, 'utf8') > maxLineSizeBytes) {
-                throw new Error(
-                    `Line ${lineNumber} in "${filepath}" exceeds maximum size of ` +
-                    `${this.configManager.bulkImportMaxLineSizeMb} MB`
-                );
+                yield {
+                    lineNumber,
+                    byteOffset,
+                    resource: null,
+                    parseError: new Error(
+                        `Line ${lineNumber} in "${filepath}" exceeds maximum size of ` +
+                        `${this.configManager.bulkImportMaxLineSizeMb} MB`
+                    )
+                };
+                continue;
             }
 
             let parsed;
             try {
                 parsed = JSON.parse(line);
             } catch (e) {
-                throw new Error(
-                    `Invalid JSON at line ${lineNumber} in "${filepath}": ${e.message}`
-                );
+                yield {
+                    lineNumber,
+                    byteOffset,
+                    resource: null,
+                    parseError: new Error(`Invalid JSON at line ${lineNumber} in "${filepath}": ${e.message}`)
+                };
+                continue;
             }
 
-            yield { lineNumber, resource: parsed };
+            yield { lineNumber, byteOffset, resource: parsed, parseError: null };
         }
 
         logInfo('S3 NDJSON reader finished', {
