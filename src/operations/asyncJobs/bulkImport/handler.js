@@ -968,6 +968,21 @@ class BulkImportHandler {
                 if (currentTask && currentTask.status !== 'completed') {
                     await this.updateTaskStatusAsync(currentTask, 'failed', e.message, requestInfo);
                 }
+                // mergeResultEntries only ever gains entries once a batch actually commits
+                // (flushBatchAsync) or a per-line failure is recorded -- so on a partially-
+                // flushed range (bulkImportRangePartiallyFlushed), these resources are already
+                // durably persisted even though the range as a whole failed. This range won't
+                // be redelivered once the Task is 'failed', so without this the flushed
+                // resources would never get an AuditEvent.
+                this.queueAuditEntriesForRangeAsync({
+                    requestInfo,
+                    base_version,
+                    mergeResultEntries,
+                    taskId,
+                    filepath,
+                    rangeIndex,
+                    totalRanges
+                });
                 return;
             }
 
@@ -1012,8 +1027,21 @@ class BulkImportHandler {
             // flushAsync() is what actually writes them via the bulk inserter. In the main
             // FHIR server this runs on a periodic cron (see cronTasksProcessor.js), but this
             // process never starts that cron (only src/index.js does), so nothing would ever
-            // persist these without flushing explicitly here.
-            await this.auditLogger.flushAsync();
+            // persist these without flushing explicitly here. Guarded because it can throw
+            // (e.g. a transient Mongo write failure) -- the range's writes and Task completion
+            // have already succeeded by this point, so an audit-flush hiccup must not skip
+            // the cache cleanup below or propagate out and cause this already-completed range
+            // to be redelivered/reprocessed.
+            try {
+                await this.auditLogger.flushAsync();
+            } catch (auditFlushError) {
+                logError('Failed to flush AuditEvents for bulk import range', {
+                    taskId,
+                    filepath,
+                    rangeIndex,
+                    error: auditFlushError.message
+                });
+            }
             await this.requestSpecificCache.clearAsync({ requestId: requestInfo.requestId });
         }
     }
