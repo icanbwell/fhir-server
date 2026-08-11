@@ -76,16 +76,21 @@ access-control surface below — it's about what the PR *contains*, not what the
   tree rather than hanging off a Main Person.
 - **Patient** — one `Patient` resource per data source (health system, payor, pharmacy, lab).
   Patients belong to a *source*, never directly to a client.
+- **Main Patient** — a placeholder `Patient` a Main Person may link to directly. It carries no
+  PHI/clinical data of its own — it's an anchor record, not a source-of-truth clinical record —
+  which is what distinguishes this hop from a Main Person reaching a *real* source Patient.
 - **Clinical/other resources** — reference a Patient (or, via the `Patient/person.<id>`
   proxy-patient convention, a Person).
 - **Link** — `Person.link` connects Main Person → Client Person → Patient (or, for an
   Independent Person, Independent Person → Patient directly), via an `assurance` (match
   confidence) field only — it does not carry a relationship-type/category. These are the *only*
-  hops the data model defines as legitimate. A Main Person is currently constrained to link to a
-  single Client Person (a known identity-model gap, not a security boundary, and it may be lifted
-  later) — but a link that skips a tier (Main → Patient directly) or connects two resources of the
-  *same* tier (Main ↔ Main, Client ↔ Client) is never an intentional relationship. It's a
-  duplicate-record data-quality defect and must not be treated as an authorized identity match.
+  hops the data model defines as legitimate, plus one exception: a Main Person may also link
+  directly to its own placeholder Main Patient (see above), which carries no PHI. A Main Person is
+  currently constrained to link to a single Client Person (a known identity-model gap, not a
+  security boundary, and it may be lifted later) — but a link that skips a tier to reach a *real*
+  source Patient (one carrying PHI), or connects two resources of the *same* tier (Main ↔ Main,
+  Client ↔ Client), is never an intentional relationship. It's a duplicate-record data-quality
+  defect and must not be treated as an authorized identity match.
 - **Owner tag** (`meta.security`, system `.../owner`) — exactly one per resource; declares the
   authoritative tenant.
 - **Access tag(s)** (`meta.security`, system `.../access`) — one or more; declare which
@@ -140,10 +145,11 @@ resource one the caller is authorized for" is worth a closer look.
   sharing an attribute is not the same as one being an authorized extension of the other, and
   code should not treat it as license to combine their data without confirming that's deliberate.
 - Concretely, the *only* legitimate `Person.link` hops are Main Person → Client Person → Patient,
-  and Independent Person → Patient (see §1). A link between two resources of the *same* tier (e.g.
-  two Main Persons, or two Client Persons) — even when they share an owner tag — is always a
-  duplicate-record defect, never an authorized identity match, and traversal must treat it as a
-  dead end rather than following it.
+  Independent Person → Patient, and Main Person → its own placeholder Main Patient, which carries
+  no PHI (see §1). A link between two resources of the *same* tier (e.g. two Main Persons, or two
+  Client Persons), or a Main Person linking directly to a *real* source Patient that carries PHI,
+  is always a duplicate-record defect, never an authorized identity match, and traversal must
+  treat it as a dead end rather than following it.
 
 ### C. Write path (create / update / merge / patch / remove)
 
