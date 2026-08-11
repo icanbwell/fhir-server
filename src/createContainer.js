@@ -83,6 +83,7 @@ const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {PersonMatchManager} = require('./admin/personMatchManager');
 const {OAuthClientCredentialsHelper} = require('./utils/oauthClientCredentialsHelper');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
+const {McpToolHandler} = require('./mcp/mcpToolHandler');
 const {K8sClient} = require('./utils/k8sClient');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
@@ -1155,6 +1156,14 @@ const createContainer = function () {
         fhirTypesManager: c.fhirTypesManager,
         configManager: c.configManager,
         searchParametersManager: c.searchParametersManager
+    }));
+
+    container.register('mcpToolHandler', (c) => new McpToolHandler({
+        searchBundleOperation: c.searchBundleOperation,
+        r4ArgsParser: c.r4ArgsParser,
+        patientDataViewControlManager: c.patientDataViewControlManager,
+        patientScopeManager: c.patientScopeManager,
+        queryRewriterManager: c.queryRewriterManager
     }));
 
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(

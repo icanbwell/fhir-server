@@ -192,7 +192,7 @@ CMS-partner token (normally locked to `Patient`-only GET searches on REST) searc
 specific mechanism. `src/graphqlv2/dataSource.js`'s `getParsedArgsAsync` and
 `src/operations/everything/everythingHelper.js` both call
 `patientDataViewControlManager.getConsentAsync(...)` and merge the returned per-resource-type
-exclude-id map into `parsedArgs['_id:not']` **before** calling `searchBundleAsync` — this exclusion
+exclude-id map into the parsed args **before** calling `searchBundleAsync` — this exclusion
 lives in the *callers* of `SearchBundleOperation`, not inside `SearchBundleOperation`/`SearchManager`/
 `R4ArgsParser` themselves, so it is not inherited "for free" by anything that calls
 `searchBundleAsync` directly. Concretely: a patient uses a connected app whose OAuth client is in
@@ -206,6 +206,24 @@ would return it, since `McpToolHandler` skips that step — a real PHI exposure 
 `searchBundleAsync` — see implementation plan Task 6 for the exact merge logic and the singleton-
 caching pitfall to avoid (`McpToolHandler` is shared across requests, unlike `FhirDataSource`, so the
 consent result must be re-fetched per call, not cached on instance state).
+
+**Correction found during implementation (2026-08-08):** the merge mechanism described above (and
+originally specified in the implementation plan's Task 6) as a bare `parsedArgs['_id:not'] = ids`
+bracket assignment is **inert** against the real query builder. `R4SearchQueryCreator.buildR4SearchQuery`
+(`src/operations/query/r4.js:80`) only reads `parsedArgs.parsedArgItems`, which is populated
+exclusively by `ParsedArgs.add()` (`src/operations/query/parsedArgs.js`) — a bracket assignment on a
+key `add()` was never called for creates an ordinary, unread own property. `dataSource.js` itself
+does not stop at the bracket assignment: immediately after it (`dataSource.js:827-838`) it also calls
+`parsedArgs.add(new ParsedArgsItem({queryParameter: '_id', queryParameterValue: new
+QueryParameterValue({value: resourceExcludeIds, operator: '$and'}), propertyObj:
+searchParameterQueries['Resource']['_id'], modifiers: ['not']}))` — that `.add()` call is what
+actually registers a real, query-builder-visible exclusion. The shipped `McpToolHandler`
+(`src/mcp/mcpToolHandler.js`) performs both the bracket assignment (for parity/readability) **and**
+the `.add(new ParsedArgsItem(...))` call, mirroring `dataSource.js` in full, and merges with any
+caller-supplied `_id:not` filter the same way `dataSource.js:819-825` does. This was caught by a
+regression test asserting against `parsedArgs.parsedArgItems` directly (the real thing the query
+builder reads) rather than the cosmetic bracket property, before any code shipped — see
+`src/tests/unit/mcp/mcpToolHandler.test.js`.
 
 **Third gap found during review: the post-response audit-log flush.** `SearchBundleOperation`
 (`src/operations/search/searchBundle.js`) does not write the PHI-access audit entry synchronously —
