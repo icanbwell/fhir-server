@@ -77,8 +77,8 @@ async function truncateClickHouse() {
 /**
  * Runs a full Group export cycle and returns { body, s3Client }.
  */
-async function runGroupExport(request, groupId, { scope } = {}) {
-    const headers = scope ? getHeaders(scope) : getHeaders();
+async function runGroupExport(request, groupId, { scope, headers: customHeaders } = {}) {
+    const headers = customHeaders || (scope ? getHeaders(scope) : getHeaders());
 
     let resp = await request
         .get(`/4_0_0/Group/${groupId}/$export`)
@@ -221,7 +221,7 @@ describe('Group Export Tests', () => {
 
         await syncMaterializedViews();
 
-        const result = await runGroupExport(request, createResp.body.id);
+        const result = await runGroupExport(request, createResp.body.id, { headers: externalHeaders });
         expect(result.body.errors).toHaveLength(0);
 
         const patients = exportedResources(result, 'Patient');
@@ -270,7 +270,7 @@ describe('Group Export Tests', () => {
 
         await syncMaterializedViews();
 
-        const result = await runGroupExport(request, createResp.body.id);
+        const result = await runGroupExport(request, createResp.body.id, { headers: externalHeaders });
         expect(result.body.errors).toHaveLength(0);
 
         // No Patient output, and the owned non-member Patient must not appear anywhere.
@@ -467,14 +467,14 @@ describe('Group Export Tests', () => {
         await syncMaterializedViews();
 
         // Export tenant A's Group as tenant A: only tenant A member, no tenant B leak
-        const resultA = await runGroupExport(request, groupA.body.id, { scope: 'user/*.* access/tenantA.*' });
+        const resultA = await runGroupExport(request, groupA.body.id, { headers: tenantAHeaders });
         expect(resultA.body.errors).toHaveLength(0);
         const exportedIds = exportedResources(resultA, 'Patient').map(p => p.id);
         expect(exportedIds).toContain('tenantA-patient');
         expect(exportedIds).not.toContain('tenantB-patient');
 
         // Tenant A cannot see tenant B's Group -> empty export, no leak
-        const resultCross = await runGroupExport(request, groupB.body.id, { scope: 'user/*.* access/tenantA.*' });
+        const resultCross = await runGroupExport(request, groupB.body.id, { headers: tenantAHeaders });
         expect(exportedResources(resultCross, 'Patient')).toHaveLength(0);
     }, 60000);
 
