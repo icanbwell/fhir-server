@@ -24,17 +24,15 @@ const { logDebug, logError } = require('../../../operations/common/logging');
  *
  * Proxy-Person coverage: if the Consent's `patient` reference is a direct Patient reference,
  * this handler also (best-effort, via the existing BwellPersonFinder traversals) bumps the
- * ClientPerson:<uuid>:Everything:Generation key for both (a) the Person(s) immediately linked
- * to the patient and (b) the bwell master Person at the top of the link graph. In bwell's
- * master -> client -> Patient topology those are the two Persons a proxy $everything cache is
- * realistically keyed under (the JWT person is usually the master Person or a direct client
- * Person), so revoking consent now invalidates the master-Person-keyed cache too, not just the
- * immediate client Person's.
+ * ClientPerson:<uuid>:Everything:Generation key for (a) the Person(s) immediately linked to
+ * the patient and (b) every Person visited while walking up the link graph to the bwell master
+ * Person, including the master Person itself - not just the two endpoints. This covers link
+ * graphs deeper than master -> client -> Patient: any intermediate Person an $everything cache
+ * could realistically be keyed under (the JWT person the caller authenticated as) is bumped,
+ * not only the immediate client Person or the top-of-graph master Person.
  *
- * Residual gap: it still does not enumerate every intermediate Person in link graphs deeper
- * than master -> client -> Patient; an $everything cache primed under such an intermediate
- * Person key would not be invalidated. The traversal also adds a bounded per-Consent-write DB
- * cost (the up-graph walk), which is acceptable on this low-frequency write path.
+ * The traversal adds a bounded per-Consent-write DB cost (the up-graph walk), which is
+ * acceptable on this low-frequency write path.
  */
 class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
     /**
@@ -127,13 +125,12 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
 
             // Best-effort: also bump the ClientPerson-keyed cache for any Person(s) the proxy
             // $everything path could be primed under. That cache is keyed on the Person the caller
-            // authenticated as (ClientPerson:<jwtPersonUuid>), which in bwell's
-            // master -> client -> Patient topology is usually either an immediate client Person
-            // (one hop from the patient) OR the bwell master Person (top of the link graph). We bump
-            // both, so a master-Person token's cache is invalidated too - not just the immediate
-            // client Person's, which was the residual gap in the first cut of this handler.
-            // Uses existing BwellPersonFinder traversals; the union is deduped so a Person that is
-            // both immediate and master is bumped once.
+            // authenticated as (ClientPerson:<jwtPersonUuid>), which in bwell's link graph could be
+            // the immediate client Person (one hop from the patient), the bwell master Person (top
+            // of the graph), or any intermediate Person in between. We bump all of them, so a token
+            // for any Person along the path is invalidated, not just the two endpoints.
+            // Uses existing BwellPersonFinder traversals; the union is deduped so a Person visited
+            // by both traversals is bumped once.
             try {
                 /**
                  * @type {Set<string>}
@@ -150,11 +147,15 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
                     }
                 }
 
-                // Walk up the link graph to the bwell master Person, the common JWT-person for the
-                // proxy $everything path and the one the single-hop lookup missed.
-                const bwellPersonUuid = await this.bwellPersonFinder.getBwellPersonIdAsync({ patientId: patientUuid });
-                if (bwellPersonUuid) {
-                    personUuidsToBump.add(bwellPersonUuid);
+                // Walk up the link graph to the bwell master Person, adding every Person visited
+                // along the way (not just the master Person at the top) - this is the common
+                // JWT-person for the proxy $everything path, and covers link graphs deeper than
+                // master -> client -> Patient that the single-hop lookup above misses.
+                const personIdsInLinkPath = await this.bwellPersonFinder.getPersonIdsInLinkPathToBwellPersonAsync({ patientId: patientUuid });
+                for (const personUuid of personIdsInLinkPath) {
+                    if (personUuid) {
+                        personUuidsToBump.add(personUuid);
+                    }
                 }
 
                 for (const personUuid of personUuidsToBump) {
