@@ -144,7 +144,7 @@ describe('Search operator injection', () => {
 
             expect(response.status).toBe(200);
             expect(response.body.entry.length).toBe(2);
-            expect(response).toHaveMongoQuery(expectedSortFallback);
+            expect(response).toHaveMongoQuery(deepcopy(expectedSortFallback));
         });
 
         test('_sort=$$$ (malformed value) is dropped instead of crashing or rejecting the request (SEC-1580 SAE-4)', async () => {
@@ -163,7 +163,7 @@ describe('Search operator injection', () => {
 
             expect(response.status).toBe(200);
             expect(response.body.entry.length).toBe(1);
-            expect(response).toHaveMongoQuery(expectedSortFallback);
+            expect(response).toHaveMongoQuery(deepcopy(expectedSortFallback));
         });
     });
 });
