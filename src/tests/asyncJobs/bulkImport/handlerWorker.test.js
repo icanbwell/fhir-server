@@ -212,6 +212,115 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             });
     });
 
+    test('handleMessageAsync creates an AuditEvent for a bulk-imported resource', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-audit' })
+            .set(getHeaders())
+            .expect(202);
+
+        // The default test container swaps in a no-op MockAuditLogger (see
+        // src/tests/mocks/mockAuditLogger.js) so unrelated tests don't pay for real audit
+        // writes -- override it back to the real AuditLogger here, the same way
+        // auditLogIsCreated.test.js does, since this test needs to observe real behavior.
+        const { AuditLogger } = require('../../../utils/auditLogger');
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer((c) => {
+            c.register('auditLogger', (cc) => new AuditLogger({
+                postRequestProcessor: cc.postRequestProcessor,
+                databaseBulkInserter: cc.fastDatabaseBulkInserter,
+                preSaveManager: cc.preSaveManager,
+                configManager: cc.configManager
+            }));
+            return c;
+        });
+        const handler = container.bulkImportHandler;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-audit-check', name: [{ family: 'Audited' }] }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-audit-0',
+            value: makeCloudEvent({
+                taskId: 'import-consumer-audit',
+                user: 'bulk-import-service-account',
+                scope: 'user/*.write'
+            }),
+            headers: []
+        });
+
+        await request.get('/4_0_0/Patient/bulk-import-audit-check').set(getHeaders()).expect(200);
+
+        // AuditLogger.logAuditEntryAsync only buffers in-memory; flushAsync() is what
+        // actually persists via the bulk inserter. In production this is called explicitly
+        // in handleImportRangeRequestedAsync's finally block (no cron runs in this process,
+        // unlike the main FHIR server) -- flushing again here is just to be safe against timing.
+        await container.auditLogger.flushAsync();
+
+        const auditEventDb = await container.mongoDatabaseManager.getAuditDbAsync();
+        const auditEvents = await auditEventDb.collection('AuditEvent_4_0_0').find({}).toArray();
+
+        // entity[].what.reference uses the resource's internal _uuid, not its plain id, so
+        // match on the resourceType prefix rather than the exact reference.
+        const patientCreateAudit = auditEvents.find((a) =>
+            a.action === 'C' &&
+            a.entity?.some((e) => e.what?.reference?.startsWith('Patient/'))
+        );
+        expect(patientCreateAudit).toBeDefined();
+        // originalUrl is threaded through as '$import' (there's no real HTTP request for this
+        // Kafka-driven write) -- confirms this AuditEvent came from the bulk import path.
+        expect(patientCreateAudit.entity[0].detail).toContainEqual(
+            { type: 'requestUrl', valueString: '$import' }
+        );
+    });
+
+    test('handleMessageAsync creates an error AuditEvent for a per-resource write failure', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-audit-error' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { AuditLogger } = require('../../../utils/auditLogger');
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer((c) => {
+            c.register('auditLogger', (cc) => new AuditLogger({
+                postRequestProcessor: cc.postRequestProcessor,
+                databaseBulkInserter: cc.fastDatabaseBulkInserter,
+                preSaveManager: cc.preSaveManager,
+                configManager: cc.configManager
+            }));
+            return c;
+        });
+        const handler = container.bulkImportHandler;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { id: 'missing-resource-type' }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-audit-error-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-audit-error' }),
+            headers: []
+        });
+
+        await container.auditLogger.flushAsync();
+
+        const auditEventDb = await container.mongoDatabaseManager.getAuditDbAsync();
+        const auditEvents = await auditEventDb.collection('AuditEvent_4_0_0').find({}).toArray();
+
+        // logErrorAuditEntryAsync's AuditEvents use action 'E' (execute) and a
+        // "Security Alert"/"RESTful Operation" type rather than entity.what -- see
+        // AuditLogger.createErrorAuditEntry.
+        const errorAudit = auditEvents.find((a) => a.action === 'E' && a.outcomeDesc?.includes('missing-resource-type'));
+        expect(errorAudit).toBeDefined();
+    });
+
     test('handleMessageAsync flushes across multiple batches without dropping resources', async () => {
         process.env.BULK_IMPORT_BATCH_SIZE = '2';
         const request = await createTestRequest();
@@ -838,5 +947,119 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         expect(taskResp.body.status).toBe('completed');
 
         readSpy.mockRestore();
+    });
+
+    test('handleMessageAsync completes the range and clears the request cache even when AuditLogger.flushAsync throws', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-audit-flush-error' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        jest.spyOn(container.auditLogger, 'flushAsync').mockRejectedValueOnce(
+            new Error('Simulated transient AuditEvent flush failure')
+        );
+        const clearAsyncSpy = jest.spyOn(container.requestSpecificCache, 'clearAsync');
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-audit-flush-error', name: [{ family: 'Flushed' }] }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-audit-flush-error-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-audit-flush-error' }),
+            headers: []
+        });
+
+        // A transient audit-flush failure must not be mistaken for the range itself failing --
+        // the resource write and Task completion already succeeded by the time flushAsync runs.
+        await request
+            .get('/4_0_0/Patient/bulk-import-audit-flush-error')
+            .set(getHeaders())
+            .expect(200);
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-audit-flush-error')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+
+        // Cache cleanup must still run after the guarded flushAsync rejection, not get skipped.
+        expect(clearAsyncSpy).toHaveBeenCalled();
+    });
+
+    test('handleMessageAsync still logs an AuditEvent for the already-flushed resource when a later batch fails the range', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-audit-partial-flush' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { AuditLogger } = require('../../../utils/auditLogger');
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer((c) => {
+            c.register('auditLogger', (cc) => new AuditLogger({
+                postRequestProcessor: cc.postRequestProcessor,
+                databaseBulkInserter: cc.fastDatabaseBulkInserter,
+                preSaveManager: cc.preSaveManager,
+                configManager: cc.configManager
+            }));
+            return c;
+        });
+        const handler = container.bulkImportHandler;
+
+        const originalBatchSize = process.env.BULK_IMPORT_BATCH_SIZE;
+        process.env.BULK_IMPORT_BATCH_SIZE = '1';
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-audit-partial-flush', name: [{ family: 'Flushed' }] },
+            { resourceType: 'Patient', id: 'bulk-import-audit-partial-flush-2', name: [{ family: 'NeverFlushed' }] }
+        ]);
+        // First resource flushes (batch size 1) before the stream fails on the second --
+        // mirrors the "marks Task failed without retrying or duplicating already-flushed
+        // resources" scenario above, but here asserting the AuditEvent side effect.
+        container.s3NdjsonReader.setFailAfterYielding(1);
+
+        try {
+            await handler.handleMessageAsync({
+                key: 'import-consumer-audit-partial-flush-0',
+                value: makeCloudEvent({ taskId: 'import-consumer-audit-partial-flush' }),
+                headers: []
+            });
+        } finally {
+            if (originalBatchSize === undefined) {
+                delete process.env.BULK_IMPORT_BATCH_SIZE;
+            } else {
+                process.env.BULK_IMPORT_BATCH_SIZE = originalBatchSize;
+            }
+        }
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-audit-partial-flush')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('failed');
+
+        await container.auditLogger.flushAsync();
+
+        const auditEventDb = await container.mongoDatabaseManager.getAuditDbAsync();
+        const auditEvents = await auditEventDb.collection('AuditEvent_4_0_0').find({}).toArray();
+
+        // The resource that was already durably committed before the stream failed must
+        // still get an AuditEvent -- this range will never be redelivered once the Task is
+        // 'failed', so this is the only chance to record it.
+        const patientCreateAudit = auditEvents.find((a) =>
+            a.action === 'C' &&
+            a.entity?.some((e) => e.what?.reference?.startsWith('Patient/'))
+        );
+        expect(patientCreateAudit).toBeDefined();
     });
 });

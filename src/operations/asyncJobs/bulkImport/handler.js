@@ -19,6 +19,8 @@ const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
 const { logInfo, logError } = require('../../common/logging');
 const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
+const { AuditLogger } = require('../../../utils/auditLogger');
+const { groupByLambda } = require('../../../utils/list.util');
 
 /**
  * Extension URL used to record a marker on the Task each time a byte-range finishes
@@ -54,6 +56,7 @@ class BulkImportHandler {
      * @property {S3NdjsonReader} s3NdjsonReader
      * @property {PostRequestProcessor} postRequestProcessor
      * @property {RequestSpecificCache} requestSpecificCache
+     * @property {AuditLogger} auditLogger
      *
      * @param {ConstructorParams}
      */
@@ -66,7 +69,8 @@ class BulkImportHandler {
         fastDatabaseBulkInserter,
         s3NdjsonReader,
         postRequestProcessor,
-        requestSpecificCache
+        requestSpecificCache,
+        auditLogger
     }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -94,6 +98,9 @@ class BulkImportHandler {
 
         this.requestSpecificCache = requestSpecificCache;
         assertTypeEquals(requestSpecificCache, RequestSpecificCache);
+
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
     }
 
     /**
@@ -816,6 +823,21 @@ class BulkImportHandler {
                 if (currentTask && currentTask.status !== 'completed') {
                     await this.updateTaskStatusAsync(currentTask, 'failed', e.message, requestInfo);
                 }
+                // mergeResultEntries only ever gains entries once a batch actually commits
+                // (flushBatchAsync) or a per-line failure is recorded -- so on a partially-
+                // flushed range (bulkImportRangePartiallyFlushed), these resources are already
+                // durably persisted even though the range as a whole failed. This range won't
+                // be redelivered once the Task is 'failed', so without this the flushed
+                // resources would never get an AuditEvent.
+                this.queueAuditEntriesForRangeAsync({
+                    requestInfo,
+                    base_version,
+                    mergeResultEntries,
+                    taskId,
+                    filepath,
+                    rangeIndex,
+                    totalRanges
+                });
                 return;
             }
 
@@ -838,6 +860,16 @@ class BulkImportHandler {
                 mergeResultEntries,
                 requestInfo
             });
+
+            this.queueAuditEntriesForRangeAsync({
+                requestInfo,
+                base_version,
+                mergeResultEntries,
+                taskId,
+                filepath,
+                rangeIndex,
+                totalRanges
+            });
         } finally {
             // FastDatabaseBulkInserter defers history writes onto postRequestProcessor's
             // queue rather than writing them inline — without this, history writes for
@@ -845,8 +877,94 @@ class BulkImportHandler {
             // entries are also only ever freed by an explicit clearAsync, so skipping this
             // would leak one entry per Kafka message in this long-running consumer.
             await this.postRequestProcessor.executeAsync({ requestId: requestInfo.requestId });
+            // AuditLogger.logAuditEntryAsync only buffers AuditEvent docs in-memory --
+            // flushAsync() is what actually writes them via the bulk inserter. In the main
+            // FHIR server this runs on a periodic cron (see cronTasksProcessor.js), but this
+            // process never starts that cron (only src/index.js does), so nothing would ever
+            // persist these without flushing explicitly here. Guarded because it can throw
+            // (e.g. a transient Mongo write failure) -- the range's writes and Task completion
+            // have already succeeded by this point, so an audit-flush hiccup must not skip
+            // the cache cleanup below or propagate out and cause this already-completed range
+            // to be redelivered/reprocessed.
+            try {
+                await this.auditLogger.flushAsync();
+            } catch (auditFlushError) {
+                logError('Failed to flush AuditEvents for bulk import range', {
+                    taskId,
+                    filepath,
+                    rangeIndex,
+                    error: auditFlushError.message
+                });
+            }
             await this.requestSpecificCache.clearAsync({ requestId: requestInfo.requestId });
         }
+    }
+
+    /**
+     * Queues AuditEvent entries for every resource this range created/updated/failed,
+     * grouped by resourceType, mirroring MergeManager.logAuditEntriesForMergeResults --
+     * the same pattern the $merge operation uses. Deferred via postRequestProcessor so it
+     * runs alongside the other end-of-range cleanup in the finally block below.
+     * @param {Object} params
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {import('../../common/mergeResultEntry').MergeResultEntry[]} params.mergeResultEntries
+     * @param {string} params.taskId
+     * @param {string} params.filepath
+     * @param {number} params.rangeIndex
+     * @param {number} params.totalRanges
+     * @returns {void}
+     */
+    queueAuditEntriesForRangeAsync({
+        requestInfo, base_version, mergeResultEntries, taskId, filepath, rangeIndex, totalRanges
+    }) {
+        this.postRequestProcessor.add({
+            requestId: requestInfo.requestId,
+            fnTask: async () => {
+                const args = { taskId, filepath, rangeIndex, totalRanges };
+                const groupByResourceType = groupByLambda(mergeResultEntries, (entry) => entry.resourceType);
+
+                for (const [resourceType, entriesForResourceType] of Object.entries(groupByResourceType)) {
+                    const failedItems = entriesForResourceType.filter((r) => r.issue);
+
+                    if (resourceType !== 'AuditEvent') {
+                        // we don't log success (create/update) audits on AuditEvent itself
+                        const createdItems = entriesForResourceType.filter((r) => r.created === true);
+                        const updatedItems = entriesForResourceType.filter((r) => r.updated === true);
+                        if (createdItems.length > 0) {
+                            await this.auditLogger.logAuditEntryAsync({
+                                requestInfo,
+                                base_version,
+                                resourceType,
+                                operation: 'create',
+                                args,
+                                ids: createdItems.map((r) => r._uuid)
+                            });
+                        }
+                        if (updatedItems.length > 0) {
+                            await this.auditLogger.logAuditEntryAsync({
+                                requestInfo,
+                                base_version,
+                                resourceType,
+                                operation: 'update',
+                                args,
+                                ids: updatedItems.map((r) => r._uuid)
+                            });
+                        }
+                    }
+                    // error audits are logged for all resource types, including AuditEvent,
+                    // to match mergeManager's logAuditEntriesForMergeResults.
+                    for (const entry of failedItems) {
+                        await this.auditLogger.logErrorAuditEntryAsync({
+                            requestInfo,
+                            resourceType,
+                            errorCode: 400,
+                            errorMessage: `${resourceType}/${entry.id}: bulk import failure`
+                        });
+                    }
+                }
+            }
+        });
     }
 }
 

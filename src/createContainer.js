@@ -1251,7 +1251,8 @@ const createContainer = function () {
         fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
         s3NdjsonReader: c.s3NdjsonReader,
         postRequestProcessor: c.postRequestProcessor,
-        requestSpecificCache: c.requestSpecificCache
+        requestSpecificCache: c.requestSpecificCache,
+        auditLogger: c.auditLogger
     }));
 
     // Routes messages on kafkaBulkImportTaskCreatedTopic to their handler by CloudEvent
