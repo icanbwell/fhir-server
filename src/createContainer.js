@@ -498,7 +498,8 @@ const createContainer = function () {
                 dataSharingManager: c.dataSharingManager,
                 searchQueryBuilder: c.searchQueryBuilder,
                 patientScopeManager: c.patientScopeManager,
-                patientQueryCreator: c.patientQueryCreator
+                patientQueryCreator: c.patientQueryCreator,
+                searchParametersManager: c.searchParametersManager
             }
         )
     );
