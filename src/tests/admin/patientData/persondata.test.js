@@ -61,7 +61,17 @@ describe('Person Tests', () => {
                 .delete('/admin/deletePersonDataGraph?id=person1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp.body.message).toBe('Missing scopes for admin/*.read in user/*.read user/*.write access/*.*');
+            expect(resp.status).toBe(403);
+            expect(resp.body).toEqual({
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'exception',
+                        diagnostics: 'user with scopes [user/*.read user/*.write access/*.*] failed access check to [admin/*.write]'
+                    }
+                ]
+            });
         });
         test('personData $everything works with admin permissions', async () => {
             const request = await createTestRequest();

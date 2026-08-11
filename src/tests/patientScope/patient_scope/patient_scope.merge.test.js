@@ -159,21 +159,12 @@ describe('Patient scope resource testcases', () => {
     test('Patient everything test', async () => {
         const request = await createTestRequest();
 
-        const person1_payload = {
-            scope: 'patient/*.*',
-            username: 'patient-123@example.com',
-            clientFhirPersonId: 'person1',
-            clientFhirPatientId: 'clientFhirPatient',
-            bwellFhirPersonId: 'person1',
-            bwellFhirPatientId: 'bwellFhirPatient',
-            token_use: 'access'
-        };
-        const headers1 = getHeadersWithCustomPayload(person1_payload);
-
         // Add resources
         let resp = await request.post('/4_0_0/Person/$merge').send(PersonResource1).set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
+
+        const clientPersonId = resp.body.uuid;
 
         resp = await request.post('/4_0_0/Person/$merge').send(PersonResource2).set(getHeaders());
         // noinspection JSUnresolvedFunction
@@ -182,6 +173,25 @@ describe('Patient scope resource testcases', () => {
         resp = await request.post('/4_0_0/Person/$merge').send(BwellPersonResource).set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
+
+        // Patient-scoped self-lookup (personToPatientIdsExpander.js) now resolves a caller's own
+        // Person strictly by _uuid -- and, since IDG-5, no longer follows Person.link to another
+        // Person at all for a patient-scoped caller. clientFhirPersonId must therefore be
+        // Person "1" (the client-owned Person, directly linked to Patient/1 and Patient/2 that
+        // every resource below targets), not bwellPerson (the master hub, only reachable via a
+        // Person.link hop from Person "1" -- and no longer reachable the other way around
+        // either). bwellFhirPersonId still carries the master hub id, matching how a real
+        // token's distinct client-vs-master claims are shaped.
+        const person1_payload = {
+            scope: 'patient/*.*',
+            username: 'patient-123@example.com',
+            clientFhirPersonId: clientPersonId,
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: resp.body.uuid,
+            bwellFhirPatientId: 'bwellFhirPatient',
+            token_use: 'access'
+        };
+        const headers1 = getHeadersWithCustomPayload(person1_payload);
 
         // resp = await request.post('/4_0_0/Account/$merge').send(AccountResource1).set(headers1);
         // // noinspection JSUnresolvedFunction

@@ -1,6 +1,7 @@
 const {isTrue, isTrueWithFallback} = require('./isTrue');
 const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
+const { DEFAULT_ASSURANCE_MINIMUM_LEVEL } = require('./personLinkAssuranceLevel');
 
 const env = process.env;
 
@@ -54,16 +55,6 @@ class ConfigManager {
 
     get doNotRequirePersonOrPatientIdForPatientScope() {
         return isTrue(env.DO_NOT_REQUIRE_PERSON_OR_PATIENT_FOR_PATIENT_SCOPE);
-    }
-
-    /**
-     * When enabled, the proxy-person to patient expansion applies the caller's
-     * access-scope security tag filter to the requested Person before resolving
-     * its linked patients. Currently only applied to $everything GET requests.
-     * @return {boolean}
-     */
-    get enableProxyPersonScopeCheckForEverything() {
-        return isTrueWithFallback(env.ENABLE_PROXY_PERSON_SCOPE_CHECK_FOR_EVERYTHING, true);
     }
 
     /**
@@ -1263,6 +1254,46 @@ class ConfigManager {
 
     get enableDelegatedAccessDetection() {
         return isTrue(env.ENABLE_DELEGATED_ACCESS_DETECTION);
+    }
+
+    /**
+     * Minimum FHIR R4 `identity-assuranceLevel` (`level1`-`level4`) a `Person.link` must carry
+     * to be considered trustworthy enough to follow during Person.link traversal
+     * (personToPatientIdsExpander.js). Used by both the dry-run logging
+     * (logPersonLinkAssuranceBelowMinimum) and the enforcement gate
+     * (enforcePersonLinkAssuranceMinimum) below.
+     * @return {string}
+     */
+    get personLinkAssuranceMinimumLevel() {
+        return env.PERSON_LINK_ASSURANCE_MINIMUM_LEVEL || DEFAULT_ASSURANCE_MINIMUM_LEVEL;
+    }
+
+    /**
+     * When true, logs a warning every time a `Person.link` below
+     * personLinkAssuranceMinimumLevel is followed during traversal, without changing traversal
+     * behavior. Meant to be observed in a real environment (to see whether real Person.link data
+     * is populated meaningfully enough) before enforcePersonLinkAssuranceMinimum is ever
+     * considered. Defaults to false.
+     * @return {boolean}
+     */
+    get logPersonLinkAssuranceBelowMinimum() {
+        return isTrue(env.LOG_PERSON_LINK_ASSURANCE_BELOW_MINIMUM);
+    }
+
+    /**
+     * When true, excludes a `Person.link` below personLinkAssuranceMinimumLevel from being
+     * followed during traversal (personToPatientIdsExpander.js), instead of merely logging it.
+     *
+     * Do NOT enable this in any real environment without first running with
+     * logPersonLinkAssuranceBelowMinimum=true there long enough to confirm real Person.link data
+     * actually clears the configured minimum -- enabling this blind risks silently dropping
+     * legitimate links (e.g. the intentional cross-tenant Main-Person-to-Client-Person linking
+     * this data model relies on) if real assurance data turns out to be sparse or absent.
+     * Defaults to false, in code, regardless of environment configuration.
+     * @return {boolean}
+     */
+    get enforcePersonLinkAssuranceMinimum() {
+        return isTrue(env.ENFORCE_PERSON_LINK_ASSURANCE_MINIMUM);
     }
 
     get dataSharingAccessCodes() {

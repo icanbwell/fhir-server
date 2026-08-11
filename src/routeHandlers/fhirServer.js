@@ -144,7 +144,6 @@ class MyFHIRServer {
         // Enable the body parser
         this.app.use(
             express.urlencoded({
-                extended: true,
                 limit: this.configManager.payloadLimit,
                 parameterLimit: 50000
             })

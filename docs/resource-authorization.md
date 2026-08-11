@@ -98,7 +98,7 @@ flowchart TD
     PersonCheck -- yes --> PersonNarrow["Narrow result set to only the requested Person id(s)"]
     PersonCheck -- no --> CompCheck
     PersonNarrow --> CompCheck{"§10: delegated actor and resource is a Composition?"}
-    CompCheck -- yes --> SectionStrip["Strip Consent-denied-category sections, not the hardcoded unclassified code (enrichment-time, not exclusion)"]
+    CompCheck -- yes --> SectionStrip["Strip Consent-denied-category sections, plus the hardcoded unclassified code (enrichment-time, not exclusion)"]
     CompCheck -- no --> Returned(["Resource returned"])
     SectionStrip --> Returned
 ```
@@ -356,7 +356,7 @@ sequenceDiagram
             DARM-->>DSM: deniedSensitiveCategories[]
             DSM-->>SM: AND NOT(denied categories, unclassified)
             SM-->>C: filtered Bundle
-            Enrich->>Enrich: strip Consent-denied-category sections<br/>(not the hardcoded unclassified code)<br/>from any returned Composition
+            Enrich->>Enrich: strip Consent-denied-category sections<br/>plus the hardcoded unclassified code<br/>from any returned Composition
         end
     end
 ```
@@ -396,11 +396,12 @@ sequenceDiagram
    (`src/enrich/providers/compositionSectionFilterEnrichmentProvider.js`) reuses the actor's
    Consent-derived denied-category set (same lookup as step 5, read from the cached
    `actor._filteringRules`) to strip individual `section`s (recursively, including into
-   `contained` resources) out of an already-*returned* `Composition`. Unlike step 5's query-level
-   exclusion, this does **not** also fold in the hardcoded `unclassified` code — a `Composition`
-   section tagged `unclassified` is not stripped here, only sections matching a code the grantor's
-   Consent explicitly denied. The Composition itself still passed every gate above; only some of
-   its sections are removed. This is the one mechanism in this document that shapes resource
+   `contained` resources) out of an already-*returned* `Composition`. Like step 5's query-level
+   exclusion, this **also** folds in the hardcoded `unclassified` code — `getDeniedSensitiveCategorySet`
+   adds it to the denylist it builds before stripping, so a `Composition` section tagged
+   `unclassified` is stripped here too, not only sections matching a code the grantor's Consent
+   explicitly denied. The Composition itself still passed every gate above; only some of its
+   sections are removed. This is the one mechanism in this document that shapes resource
    *content* rather than deciding whether the resource is returned at all.
 
 Full detail: `readme/delegatedActorAccess.md`.
@@ -431,9 +432,11 @@ red flag under `review.md`'s checklist, since `_uuid`/`id` are deterministic and
 Findings from an adversarial review of this surface against `review.md`'s checklist, verified
 directly against source (not assumed from the checklist, and not taken on faith from a single
 pass). These are gaps between what the sections above document as the *intended* composition and
-what the code actually enforces — two have since been fixed, two remain open, and one suspected
-finding was investigated and does not reproduce (kept here, marked as such, so it isn't
-re-discovered and re-reported from scratch later).
+what the code actually enforces — thirteen have since been fixed, none remain open, and three
+suspected findings were investigated and do not reproduce (kept here, marked as such, so they
+aren't re-discovered and re-reported from scratch later).
+
+### Fixed
 
 - **FIXED — a patient-scoped write to an EXISTING resource could set an arbitrary access tag
   (§1, §4).** `ScopesManager.isAccessTagChangeAllowedByScopes`
@@ -470,8 +473,8 @@ re-discovered and re-reported from scratch later).
   requirement here and was reverted in `a5ded4a4a` because it broke legitimate patient-scoped
   writes — re-adding it repeats that regression. (Tests that assert this method alone should
   enforce tenant isolation, in isolation from the ANDed ownership check, produce a false positive;
-  see the "Open" finding below and the note on `merge.crossTenant.test.js`/
-  `mergeCrossTenantWrite.test.js` for the same failure shape elsewhere.)
+  see the pure-`patient/`-scope FIXED finding further below and the note on
+  `merge.crossTenant.test.js`/`mergeCrossTenantWrite.test.js` for the same failure shape elsewhere.)
 - **FIXED — `$access-history` link traversal dropped the access-tag check past the first hop (§5).**
   `PersonToPatientIdsExpander.getPatientIdsFromPersonAsync`
   (`src/utils/personToPatientIdsExpander.js`) applies the caller's access-tag filter only when
@@ -484,18 +487,199 @@ re-discovered and re-reported from scratch later).
   at every recursion level, consistent with how the sibling `$everything`-scope-check condition on
   the same line already behaved (it doesn't depend on recursion-level state, so it was already
   reapplied at every hop).
-- **Open — link traversal never checks `assurance` (§5).** No code path in
-  `personToPatientIdsExpander.js` reads `Person.link.assurance` (FHIR's match-confidence field for
-  a link); every link is treated as fully authoritative regardless of confidence. Severity depends
-  on whether this system's identity-matching pipeline populates `assurance` meaningfully — not
-  verifiable from this codebase alone.
-- **Open — delegated-actor Composition section filter is narrower than the query-level filter (§9,
-  §10).** `CompositionSectionFilterEnrichmentProvider.getDeniedSensitiveCategorySet`
-  (`src/enrich/providers/compositionSectionFilterEnrichmentProvider.js:27`) strips only
-  Consent-derived denied-category sections; unlike the query-level exclusion in
-  `DataSharingManager.updateQueryForDelegatedAccessSensitiveData`, it does not also fold in the
-  hardcoded `unclassified` code, so an `unclassified`-tagged *section* inside an otherwise-visible
-  Composition is not stripped.
+- **FIXED — ordinary search and GraphQL v2 never requested the §5 access-tag re-check on `Person.link`
+  traversal at all, for a tenant/service-account caller (§1, §5).** The previous fix (immediately
+  above) only closed the gap for callers of `PersonToPatientIdsExpander` that already passed
+  `addTopPersonAccessCheck: true` (`accessHistory.js`). `PatientScopeManager.getPatientIdsByPersonIdAsync`
+  — the path used by ordinary search (`SearchManager.constructQueryAsync`,
+  `src/operations/search/searchManager.js`) and GraphQL v2 (`src/graphqlv2/dataSource.js`) — never
+  requested the check at all, at any level, so a tenant/service-account caller whose own Person had a
+  stray `Person.link` into another tenant's Person/Patient (data corruption, matching error, or
+  intentional manipulation) could reach that tenant's data through plain search or GraphQL v2 with no
+  re-check anywhere in the traversal. Fixed by threading `requestInfo`/`addTopPersonAccessCheck` from
+  `PatientScopeManager` into the expander for both call sites, plus `canWriteResourceAsync`
+  (`src/operations/security/patientScopeManager.js`). An earlier version of this fix added a
+  same-owner-tag fallback for pure-`patient/`-scope callers (see the pure-`patient/`-scope FIXED
+  finding further below); that fallback was reverted (`e5b649607`) because bwell's master-Person →
+  client-Person linking is *intentionally*
+  cross-tenant (`Person.link` connecting a Main Person owned by one tenant to Client Person records
+  owned by others is the legitimate identity-matching model, not a leak), confirmed against the
+  real, currently-passing `src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid`
+  fixture. Covered by `src/tests/unit/utils/personToPatientIdsExpander.crossTenant.test.js`.
+- **FIXED — a caller could add a `Person.link` into a tenant they cannot access, then reach that
+  tenant's data via link traversal (§1, §2, §4).** `ResourceValidator.validatePatientReference`
+  (`src/operations/common/resourceValidator.js`) skips patient-reference validation entirely for
+  non-`user`-scoped (access-scoped/service-account) callers on array-reference fields — intentional
+  for most such fields (ingestion pipelines need to freely maintain them) — but this applied to
+  `Person.link` too, so a caller holding only an access tag for its own tenant could link a Person it
+  owns into another tenant's Person/Patient with no ownership check on the *target* at all, letting
+  every mechanism in §5 (which treats a link as fully authoritative once reached) traverse straight
+  into that tenant's data. The bug also had a create-path variant (the check only ran when diffing
+  against a `currentResource`, so a brand-new Person created with the cross-tenant link already
+  inlined skipped it entirely) and a response-code side channel (an early version of the fix let a
+  403-vs-404 distinction leak whether the target existed in another tenant, an existence-oracle
+  pattern flagged elsewhere in this doc — see the closing paragraph of §11). Fixed by
+  `validateNewPersonLinkTargetsBelongToCallersTenant` (`resourceValidator.js:132`), called for every
+  `Person.link` addition on create, update, and merge: it resolves each new link target and rejects
+  with a uniform not-found error (`resourceValidator.js:181`) if the reference can't be resolved at
+  all, a forbidden-shaped rejection (`resourceValidator.js:197`) only if a match exists but none are
+  accessible to the caller, and an ambiguous-match rejection (`resourceValidator.js:209`) if more than
+  one accessible resource shares a bare id — fail-closed on ambiguity rather than guessing. Covered by
+  `src/tests/merge/merge_person_link_cross_tenant/merge_person_link_cross_tenant.test.js` and
+  `src/tests/unit/operations/common/resourceValidator.test.js`. Deliberately scoped to `Person.link`
+  only, not a blanket fix for every array-reference field on a non-`user` scope — see the tripwire
+  comment left in `resourceValidator.test.js` guarding against that distinction being lost later.
+
+  **Residual, not fully closed:** only the *HTTP status code* side channel was closed — both
+  outcomes are wrapped in `NotValidatedError`, whose constructor (`httpErrors.js:97`) hardcodes
+  `statusCode: 400` regardless of which branch produced the `OperationOutcome`, so there is no
+  longer a 403-vs-404 distinction. The *response body* still leaks the same information:
+  `resourceValidator.js:178` returns `issue.code: 'not-found'` when zero matches exist anywhere,
+  vs. `resourceValidator.js:194`'s `issue.code: 'forbidden'` when a match exists but is
+  inaccessible — the same existence-oracle pattern §11's closing paragraph warns about, just moved
+  from the status code into the body. Closing this fully would mean returning an identical body
+  (not just an identical status code) for both outcomes.
+- **FIXED — CMS-partner/delegated-user resource-type allowlist was enforced on REST but not on
+  GraphQL, on two separate code paths (§4, §11).** REST search gates CMS-partner and delegated-user
+  callers through `OperationAccessManager.verifyAccess`, but neither GraphQL v1's root resolvers
+  (`getResources`/`getResourcesBundle`, `src/graphql/dataSource.js`) nor v2's equivalents
+  (`src/graphqlv2/dataSource.js`) called it — a CMS-partner token allowlisted to `Patient`-only could
+  read any resource type (e.g. `Practitioner`) over GraphQL. A second, independent bypass survived
+  even after gating just those root entry points: every reference-typed field
+  (`Patient.generalPractitioner`, `Observation.subject`, etc.) resolves through the shared
+  `getResourcesInBatch` DataLoader, which called `searchBundleAsync` directly — so a caller
+  allowlisted to `Patient` only could still reach `Practitioner` via
+  `{ Patient(id:"p1") { generalPractitioner { id } } }`. Fixed by adding
+  `OperationAccessManager.verifyGraphQLReadAccess` (`src/utils/operationAccessManager.js:43`) and
+  calling it from all three GraphQL entry points in both API versions
+  (`src/graphql/dataSource.js:182,409,507`; `src/graphqlv2/dataSource.js:225,485,539`). Covered by
+  `src/tests/unit/graphql/dataSource.test.js`, `src/tests/unit/graphqlv2/dataSource.test.js`, and
+  `src/tests/unit/utils/operationAccessManager.test.js`.
+- **FIXED — `DataSharingManager`'s per-request `allowedPatientIds` cache ignored `securityTags`,
+  letting one tenant's PROA consent result leak into a later query for a different tenant within the
+  same `$everything` request (§6a, review.md §D).** `getDataSharingManagerCache`
+  (`src/operations/search/dataSharingManager.js:113`) keyed its cache purely on `requestId` (plus
+  chunk index); a `$everything` request that queries multiple resource types with different
+  effective `securityTags` per call (e.g. one tenant's data-sharing scope for one type, another's for
+  the next) reused the first call's `allowedPatientIds`/`patientIdToImmediatePersonUuid` for every
+  subsequent call regardless of `securityTags` — a "no restriction" vs. "no matches" failure shape
+  the same class review.md §D warns about generally. Fixed by folding a sorted `securityTags` suffix
+  into the cache-map name (`dataSharingManager.js:115-116`), so different tags get an independent
+  cache entry and a fresh consent check. Covered by
+  `src/tests/unit/operations/search/proaConsentVulnerabilities.test.js` (Vulnerability 3).
+- **FIXED — Consent `provision.period` expiry was never checked in the PROA/CMS data-sharing consent
+  queries (§6a, §6b).** `ProaConsentManager.getConsentResources`
+  (`src/operations/search/proaConsentManager.js`) and `CmsConsentManager.getConsentResources`
+  (`src/operations/search/cmsConsentManager.js`) only checked `status: 'active'` and
+  `provision.type: 'permit'` — never `provision.period.start`/`.end`. A Consent whose grant window
+  had lapsed but whose `status` was never flipped to `inactive`/`rejected` kept widening the query and
+  granting PHI access indefinitely past the authorized consent period. Fixed by adding symmetric
+  period-bound clauses (absent-or-in-range) to both managers' queries
+  (`proaConsentManager.js:61-76`, `cmsConsentManager.js:52-66`), matching the convention already used
+  in `delegatedAccessRulesManager.js`. Covered by `proaConsentManager.test.js`/`cmsConsentManager.test.js`
+  and `proaConsentVulnerabilities.test.js` (Vulnerabilities 1 & 2).
+- **FIXED — no cache-invalidation trigger existed for the `$everything` cache on a `Consent` write, so
+  stale PHI could be served for up to the Redis TTL (~600s) after consent was revoked (§6, §9,
+  review.md §D).** `PatientEverythingCacheKeyGenerator` had no working `getGenerationForId`, so its
+  cache key never changed when a Consent was created, updated, or removed; invalidation only happened
+  via the manual `/admin/invalidateCache` endpoint. Fixed by a new post-save handler,
+  `ConsentCacheInvalidationHandler`
+  (`src/dataLayer/postSaveHandlers/handlers/consentCacheInvalidationHandler.js`), registered for
+  every write path, which bumps a `Patient:<uuid>:Everything:Generation` Redis counter on any
+  `Consent` write and now also best-effort bumps the counter for the immediate client Person(s) *and*
+  the bwell master Person at the top of the link graph (via `BwellPersonFinder`) — closing a
+  follow-up gap where a master-Person-keyed proxy `$everything` cache kept serving pre-revocation PHI
+  even after the first cut of this fix bumped only the immediate client Person. Covered by
+  `consentCacheInvalidationHandler.test.js` and `proaConsentVulnerabilities.test.js`
+  (Vulnerabilities 4 & 5).
+- **FIXED — the ClickHouse-backed Group member roster (used by `Group/[id]/$export`) had no
+  fail-closed tenant check, a mechanism §1/§2 don't otherwise cover since it isn't a Mongo
+  `meta.security` query (§1, §2).** `getCurrentMembersWithCountAsync`/`getActiveMembersPageAsync`/
+  `getActiveMemberCountAsync` (`src/dataLayer/providers/mongoWithClickHouseStorageProvider.js:139,190,228`)
+  is the roster path `bulkDataExportRunner.js` uses for a Group export; a caller whose request
+  produced no resolvable access/owner tags (malformed scope, an upstream bug) got an unrestricted
+  ClickHouse roster query — another tenant's Group members — instead of an error. Fixed by
+  `_assertTenantScope` (`mongoWithClickHouseStorageProvider.js:82`), which throws `ForbiddenError`
+  before any ClickHouse query runs unless the caller has an access tag, an owner tag, or full access,
+  and `_normalizeTenantContext` (`:61`), which treats a malformed/omitted `securityContext` as
+  empty-restricted rather than unrestricted. Covered by
+  `mongoWithClickHouseStorageProvider.test.js` and `src/tests/group/group_clickhouse_id_and_tenant.test.js`.
+- **FIXED — `ExportStatus` read denial used `ForbiddenError` (403), letting the response distinguish
+  "exists, not mine" from "doesn't exist" — the existence-oracle pattern §11's closing paragraph warns
+  about generally (§1, §11).** `exportById.js` now throws `NotFoundError` (not `ForbiddenError`) on
+  denial (`src/operations/export/exportById.js:73,86`), and gates access with
+  `ScopesManager.isAccessToResourceAllowedByAccessTagOnly` (`:80`) rather than an owner+access check —
+  `ExportStatus` is always created under a hardcoded platform-level owner tag regardless of the
+  triggering tenant, so an owner+access check had also been incorrectly rejecting legitimate tenants
+  polling their own export status. Covered by `src/tests/unit/operations/export/exportById.crossTenant.test.js`.
+- **FIXED — link traversal never checked `Person.link.assurance`, which was also the root cause of a
+  pure-`patient/`-scope caller getting no re-check at all on cross-tenant `Person.link` traversal (§1,
+  §5).** These were the same underlying gap surfacing at two layers, not two separate bugs: the
+  `addTopPersonAccessCheck` re-check added by the two FIXED findings above operates on the
+  scope-derived query filter, which is a complete no-op for a caller with no `access/` scope at all
+  (`SecurityTagManager.getSecurityTagsFromScope` legitimately returns `[]` for a pure `patient/` scope) —
+  so that caller type had no re-check to bind to, regardless of what a linked Person's `assurance`
+  said. A same-owner-tag fallback was tried and reverted (`e5b649607`) because it produced
+  false-positive denials for the legitimate cross-tenant master-Person → client-Person linking model,
+  and an unrelated tag-match requirement had already been tried and reverted once before that
+  (`8542592a5`/`a5ded4a4a`) for the same reason on the write path. Fixed by gating the *decision to
+  follow a `Person.link` at all* on its `assurance` value, inside the traversal loop itself,
+  independent of caller scope type — which protects a pure-`patient/`-scope caller exactly as much as
+  a tenant/service-account caller, because the check runs before any scope-derived query is built.
+
+  New helper `src/utils/personLinkAssuranceLevel.js` (`rankPersonLinkAssurance`/`meetsMinimumAssurance`)
+  ranks FHIR R4's `identity-assuranceLevel` codes `level1`–`level4` as 1–4, with any missing/unrecognized
+  value ranking `0` (never treated as trusted). Shipped as two separate, sequential commits inside
+  `PersonToPatientIdsExpander.getPatientIdsFromPersonAsync`
+  (`src/utils/personToPatientIdsExpander.js:341-368,371-384`), given real `Person.link.assurance`
+  population has never been measured and two related heuristics were already reverted for breaking
+  legitimate traffic: **(a)** dry-run logging, gated by `configManager.logPersonLinkAssuranceBelowMinimum`
+  (default `false`) — logs every below-minimum link followed, with zero change to traversal behavior;
+  **(b)** enforcement, gated by a separate `configManager.enforcePersonLinkAssuranceMinimum` (default
+  `false` in code regardless of environment configuration) — excludes a below-minimum link from being
+  followed at all once turned on. Both flags read `configManager.personLinkAssuranceMinimumLevel`
+  (default `'level2'`); all three getters live at `configManager.js:1276,1288,1304`. **Operational
+  note:** enforcement is intentionally opt-in — it should not be turned on in any real environment
+  until the dry-run logging has actually been observed there long enough to confirm real `Person.link`
+  data clears the configured minimum, per the same caution that produced the two reverts above.
+
+  Covered by `personLinkAssuranceLevel.test.js`, `personToPatientIdsExpander.assuranceLogging.test.js`
+  (asserts traversal results are byte-for-byte identical with logging on vs. off), and
+  `personToPatientIdsExpander.assuranceEnforcement.test.js`. The pure-scope gap's tracking test,
+  `personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js`, is de-quarantined (removed from
+  `jest.config.js`'s `testPathIgnorePatterns`) with a new regression case proving a legitimate
+  cross-tenant link with sufficient assurance still passes through — confirming the fix gates on
+  assurance, not on tenant boundary, and doesn't resurrect the reverted same-owner-tenant heuristic.
+  The dedicated tracking test for the `assurance`-blind-spot half of this finding,
+  `src/tests/unit/resourceAuthorization/12_knownGap_linkAssuranceNotChecked.test.js`, had its
+  "no code path reads `assurance`" assertion removed (no longer true) while keeping its
+  under-default-configuration behavioral assertion (still true — default config is unchanged).
+- **FIXED — delegated-actor Composition section filter didn't fold in the hardcoded `unclassified`
+  code (§9, §10).** `shouldRemoveSection` (`src/utils/compositionSectionFilter.js:4-13`) now also
+  removes a section whose coding carries `SENSITIVE_CATEGORY.UNCLASSIFIED_CODE`, alongside the
+  existing Consent-derived `deniedSensitiveCategorySet` check — both still gated on
+  `SENSITIVE_CATEGORY.SYSTEM` — matching the fold-in `DataSharingManager.updateQueryForDelegatedAccessSensitiveData`
+  already does at the query level (§10 step 5). Two pre-existing tests in
+  `src/tests/unit/resourceAuthorization/10_delegatedActorAccess.test.js` had explicitly documented
+  this as a "KNOWN INCONSISTENCY" and asserted the buggy (section survives) behavior as expected;
+  both were updated to assert the corrected behavior instead. Covered by
+  `src/tests/unit/utils/compositionSectionFilter.test.js` and `10_delegatedActorAccess.test.js`.
+- **FIXED — `$everything`-cache Consent-write invalidation didn't enumerate every intermediate Person
+  in a link graph deeper than master → client → Patient (§6, §9, review.md §D).**
+  `BwellPersonFinder.searchForBwellPersonAsync` (`src/utils/bwellPersonFinder.js:270`) now accepts an
+  optional `path` accumulator that records every Person `_uuid` visited while walking to the bwell
+  master Person, exposed via a new `getPersonIdsInLinkPathToBwellPersonAsync({patientId})`
+  (`bwellPersonFinder.js:57`); the existing `getBwellPersonIdAsync` omits `path` and is unaffected.
+  `ConsentCacheInvalidationHandler.afterSaveAsync` (`consentCacheInvalidationHandler.js:154`) now
+  calls the new method and bumps the Redis generation counter for every id it returns, not just the
+  two endpoints. `src/tests/unit/utils/bwellPersonFinder.test.js` was previously excluded in
+  `jest.config.js`'s `testPathIgnorePatterns` for an unrelated tracked bug (`isBwellPerson` throwing
+  on a null `meta`, from DCON-4775); confirmed the whole file now passes cleanly and removed its
+  exclusion entry as part of this fix. Covered by new cases in `bwellPersonFinder.test.js` and a
+  3+-hop test added to `consentCacheInvalidationHandler.test.js`.
+
+### Investigated, does not reproduce
+
 - **Investigated, does not reproduce — conditional update/delete matching a cross-tenant resource
   via a shared clinical identifier (§5).** A pre-existing test
   (`src/tests/unit/operations/update/conditionalCrossTenant.test.js`) claimed that since the
@@ -515,11 +699,30 @@ re-discovered and re-reported from scratch later).
   entirely and asserted against their own fabricated mock return value, the same category of error
   as the confirmed-fabricated `delegatedAccessScopeManager.test.js`; they've been corrected and the
   file re-enabled in `jest.config.js`.
+- **Investigated, does not reproduce — "W-chain" self-granted delegated-access consent combined with
+  a link-graft to reach cross-tenant data (§5, §6c, §10).** The hypothesized exploit (a delegated
+  actor self-granting a Consent, then grafting a `Person.link` to widen the identity graph it's
+  applied against) is entirely gated by the same `Person.link` write path covered by the DCON-4844
+  FIXED finding above — once that landed, the link-graft half of the chain can't get a cross-tenant
+  target past validation, which is a sufficient fix for the whole chain. The control test built to
+  exercise this (`consentSelfGrantLinkGraft.test.js`) had its own fixture bugs (a mis-resolved
+  `_uuid` from bare-id reference enrichment, a missing `connectionType` tag) that were masking
+  whether it exercised anything real; fixed test-side only, no separate production-code change was
+  needed.
+- **Investigated, does not reproduce — nested/forward-reference expansion in `$everything`/`$graph`
+  leaking a cross-tenant tag onto an otherwise-correctly-filtered result (§5, §9).** Both
+  `everythingHelper.js` and `graphHelpers.js` route nested and forward-reference fetches back through
+  the same `SearchManager.constructQueryAsync` access-tag filter used everywhere else in this
+  document — already correctly blocked on `main` prior to any code change here. The control test
+  (`nested_resource_tag_leak.test.js`) had an invalid `GraphDefinition.path` and an over-broad
+  `not.toContain` assertion that could false-fail on an unrelated reference string; both fixed
+  test-side, confirming (rather than closing) that traversal is safe here.
 
-Regression tests for both FIXED findings are in `src/tests/unit/resourceAuthorization/` (see
-`12_knownGap_patientScopedWriteTagBypass.test.js` and
+Regression tests for the two original FIXED findings above are in `src/tests/unit/resourceAuthorization/`
+(see `12_knownGap_patientScopedWriteTagBypass.test.js` and
 `12_knownGap_accessHistoryLinkTraversalLeak.test.js` — no longer `test.failing`, now plain
-regression tests). Neither fix was caught missing by CI originally:
+regression tests); later FIXED findings above cite their own test files inline instead. Neither
+of the original two fixes was caught missing by CI originally:
 `src/tests/unit/operations/security/scopesManager.crossTenant.test.js`,
 `scopesManager.writeBypass.test.js`, and `patientScopeWriteBypass.test.js` already encoded the
 first finding's correct expected behavior (for the `isCreate`-aware version of the fix) and now

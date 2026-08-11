@@ -377,6 +377,55 @@ describe('ScopesManager', () => {
         });
     });
 
+    describe('hasAdminScopeForAction', () => {
+        test('returns false for undefined scope', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: undefined, action: 'write' })).toBe(false);
+        });
+
+        test('returns false when scope has no admin/ entry at all', () => {
+            expect(scopesManager.hasAdminScopeForAction({
+                scope: 'user/Patient.write access/*.write', action: 'write'
+            })).toBe(false);
+        });
+
+        test('a read-only admin scope (admin/*.read) satisfies a read check but not a write check', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.read', action: 'read' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.read', action: 'write' })).toBe(false);
+        });
+
+        test('a read-only, resource-scoped admin scope (admin/Patient.read) behaves the same way', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.read', action: 'read' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.read', action: 'write' })).toBe(false);
+        });
+
+        test('a write-only admin scope (admin/*.write) satisfies a write check but not a read check', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.write', action: 'write' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.write', action: 'read' })).toBe(false);
+        });
+
+        test('a resource-scoped admin write (admin/Patient.write) satisfies write but not read', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.write', action: 'write' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.write', action: 'read' })).toBe(false);
+        });
+
+        test('the admin wildcard action (admin/*.*) satisfies both read and write checks', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.*', action: 'read' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.*', action: 'write' })).toBe(true);
+        });
+
+        test('returns true when a write admin scope is mixed in with a read-only one', () => {
+            expect(scopesManager.hasAdminScopeForAction({
+                scope: 'admin/Patient.read admin/AuditEvent.write', action: 'write'
+            })).toBe(true);
+        });
+
+        test('does not confuse a non-admin write scope for an admin write scope', () => {
+            expect(scopesManager.hasAdminScopeForAction({
+                scope: 'admin/Patient.read user/Patient.write', action: 'write'
+            })).toBe(false);
+        });
+    });
+
     describe('getPatientScopes', () => {
         test('should return empty array for undefined scope', () => {
             expect(scopesManager.getPatientScopes({ scope: undefined })).toEqual([]);
@@ -469,6 +518,34 @@ describe('ScopesManager', () => {
 
         test('should return false when no patient/ scope is present', () => {
             expect(scopesManager.hasPatientScope({ scope: 'user/Patient.read' })).toBe(false);
+        });
+    });
+
+    describe('hasHistoryAccess', () => {
+        test('should throw when resourceType is missing', () => {
+            expect(() => {
+                scopesManager.hasHistoryAccess({ scope: 'access/*.*' });
+            }).toThrow();
+        });
+
+        test('should return true for access/*.*', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.*' })).toBe(true);
+        });
+
+        test('should return true for access/*.read', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.read' })).toBe(true);
+        });
+
+        test('should return false for a tenant-scoped access code, even a wildcard write scope', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/tenanta.*' })).toBe(false);
+        });
+
+        test('should return false for access/*.write (not a read grant)', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.write' })).toBe(false);
+        });
+
+        test('should return false when scope is empty', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: '' })).toBe(false);
         });
     });
 
