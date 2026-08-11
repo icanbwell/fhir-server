@@ -120,48 +120,113 @@ describe('Group Advanced Search', () => {
         expect(response.body.link.some(l => l.relation === 'next')).toBe(true);
     }, 60000);
 
-    test('Search with sorting', async () => {
+    test('Search with sorting on an unregistered field (name)', async () => {
         const memberRef = `Patient/search-sort-${Date.now()}`;
+        const runId = Date.now();
+        const names = [`Charlie Group ${runId}`, `Alpha Group ${runId}`, `Beta Group ${runId}`];
 
-        await createGroup({
-            type: 'person',
-            actual: true,
-            name: 'Charlie Group',
-            member: [{ entity: { reference: memberRef } }]
-        });
-
-        await createGroup({
-            type: 'person',
-            actual: true,
-            name: 'Alpha Group',
-            member: [{ entity: { reference: memberRef } }]
-        });
-
-        await createGroup({
-            type: 'person',
-            actual: true,
-            name: 'Beta Group',
-            member: [{ entity: { reference: memberRef } }]
-        });
-
+        for (const name of names) {
+            await createGroup({
+                type: 'person',
+                actual: true,
+                name,
+                member: [{ entity: { reference: memberRef } }]
+            });
+        }
 
         const request = getSharedRequest();
         const response = await request
             .get('/4_0_0/Group')
             .query({
                 'member.entity.reference': memberRef,
-                _sort: 'name'
+                _sort: 'name',
+                _debug: 1
             })
-            .set(getTestHeadersWithExternalStorage());
+            .set(getTestHeadersWithExternalStorage({ admin: true }));
 
         expect(response.status).toBe(200);
         expect(response.body.entry).toBeDefined();
+        const ownEntries = response.body.entry.filter(e => names.includes(e.resource.name));
+        expect(ownEntries.length).toBe(3);
+        const queryOptionsTag = response.body.meta.tag.find(
+            t => t.system === 'https://www.icanbwell.com/queryOptions'
+        );
+        const queryOptions = JSON.parse(queryOptionsTag.display.replace(/'/g, '"'));
+        expect(queryOptions.sort).toStrictEqual({ _uuid: 1 });
+    }, 30000);
 
-        if (response.body.entry && response.body.entry.length >= 2) {
-            const names = response.body.entry.map(e => e.resource.name);
-            const sortedNames = [...names].sort();
-            expect(names).toEqual(sortedNames);
-        }
+    test('Search with sorting on a real search-parameter field (type)', async () => {
+        const uniqueCode = `sort-type-test-${Date.now()}`;
+        const codeField = { coding: [{ system: 'http://test-system.com/group-code', code: uniqueCode }] };
+
+        await createGroup({
+            type: 'practitioner',
+            actual: true,
+            code: codeField,
+            name: 'Sort Type Group Practitioner'
+        });
+
+        await createGroup({
+            type: 'animal',
+            actual: true,
+            code: codeField,
+            name: 'Sort Type Group Animal'
+        });
+
+        const request = getSharedRequest();
+        const response = await request
+            .get('/4_0_0/Group')
+            .query({
+                code: uniqueCode,
+                _sort: 'type',
+                _debug: 1
+            })
+            .set(getTestHeadersWithExternalStorage({ admin: true }));
+
+        expect(response.status).toBe(200);
+        expect(response.body.entry).toBeDefined();
+        const ownEntries = response.body.entry.filter(e =>
+            e.resource.code && e.resource.code.coding &&
+            e.resource.code.coding.some(c => c.code === uniqueCode)
+        );
+        expect(ownEntries.map(e => e.resource.type)).toEqual(['animal', 'practitioner']);
+        const queryOptionsTag = response.body.meta.tag.find(
+            t => t.system === 'https://www.icanbwell.com/queryOptions'
+        );
+        const queryOptions = JSON.parse(queryOptionsTag.display.replace(/'/g, '"'));
+        expect(queryOptions.sort).toStrictEqual({ type: 1, _uuid: 1 });
+    }, 30000);
+
+    test('Search with a malformed sort value ($$$) → dropped, not crashing', async () => {
+        const memberRef = `Patient/search-sort-malformed-${Date.now()}`;
+        const uniqueName = `Malformed Sort Group ${Date.now()}`;
+
+        await createGroup({
+            type: 'person',
+            actual: true,
+            name: uniqueName,
+            member: [{ entity: { reference: memberRef } }]
+        });
+
+        const request = getSharedRequest();
+        const response = await request
+            .get('/4_0_0/Group')
+            .query({
+                'member.entity.reference': memberRef,
+                _sort: '$$$',
+                _debug: 1
+            })
+            .set(getTestHeadersWithExternalStorage({ admin: true }));
+
+        expect(response.status).toBe(200);
+        expect(response.body.entry).toBeDefined();
+        const ownEntries = response.body.entry.filter(e => e.resource.name === uniqueName);
+        expect(ownEntries.length).toBe(1);
+        const queryOptionsTag = response.body.meta.tag.find(
+            t => t.system === 'https://www.icanbwell.com/queryOptions'
+        );
+        const queryOptions = JSON.parse(queryOptionsTag.display.replace(/'/g, '"'));
+        expect(queryOptions.sort).toStrictEqual({ _uuid: 1 });
     }, 30000);
 
     test('Filter by member inactive flag', async () => {
