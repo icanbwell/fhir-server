@@ -34,7 +34,8 @@ const { SearchParameterDefinition } = require('../../../../searchParameters/sear
 jest.mock('../../../../operations/common/logging', () => ({
     logError: jest.fn(),
     logInfo: jest.fn(),
-    logDebug: jest.fn()
+    logDebug: jest.fn(),
+    logWarn: jest.fn()
 }));
 
 jest.mock('../../../../operations/common/systemEventLogging', () => ({
