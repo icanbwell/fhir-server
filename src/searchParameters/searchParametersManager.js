@@ -119,9 +119,6 @@ class SearchParametersManager {
      * @return {Set<string>}
      */
     getAllowedFieldsForResource ({ resourceType }) {
-        if (!this.allowedFieldsForResourceByType) {
-            this.allowedFieldsForResourceByType = new Map();
-        }
         const cached = this.allowedFieldsForResourceByType.get(resourceType);
         if (cached) {
             return cached;

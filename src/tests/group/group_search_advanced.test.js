@@ -9,15 +9,6 @@ const {
     getTestHeadersWithExternalStorage,
     waitForData
 } = require('./groupTestSetup');
-const { getHeadersWithAdmin } = require('../common');
-const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
-
-function getTestHeadersWithExternalStorageAndAdmin () {
-    return {
-        ...getHeadersWithAdmin(),
-        [USE_EXTERNAL_STORAGE_HEADER]: 'true'
-    };
-}
 
 describe('Group Advanced Search', () => {
     // Test constants
@@ -151,7 +142,7 @@ describe('Group Advanced Search', () => {
                 _sort: 'name',
                 _debug: 1
             })
-            .set(getTestHeadersWithExternalStorageAndAdmin());
+            .set(getTestHeadersWithExternalStorage({ admin: true }));
 
         expect(response.status).toBe(200);
         expect(response.body.entry).toBeDefined();
@@ -190,7 +181,7 @@ describe('Group Advanced Search', () => {
                 _sort: 'type',
                 _debug: 1
             })
-            .set(getTestHeadersWithExternalStorageAndAdmin());
+            .set(getTestHeadersWithExternalStorage({ admin: true }));
 
         expect(response.status).toBe(200);
         expect(response.body.entry).toBeDefined();
@@ -225,7 +216,7 @@ describe('Group Advanced Search', () => {
                 _sort: '$$$',
                 _debug: 1
             })
-            .set(getTestHeadersWithExternalStorageAndAdmin());
+            .set(getTestHeadersWithExternalStorage({ admin: true }));
 
         expect(response.status).toBe(200);
         expect(response.body.entry).toBeDefined();

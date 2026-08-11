@@ -4,8 +4,7 @@ const patient2Resource = require('./fixtures/patient/patient2.json');
 const expectedSearch1 = require('./fixtures/expected/expected_search1.json');
 const expectedSearch2 = require('./fixtures/expected/expected_search2.json');
 const expectedSearch3 = require('./fixtures/expected/expected_search3.json');
-const expectedSortMaritalStatus = require('./fixtures/expected/expected_sort_maritalstatus.json');
-const expectedSortDollar = require('./fixtures/expected/expected_sort_dollar.json');
+const expectedSortFallback = require('./fixtures/expected/expected_sort_fallback.json');
 
 const {
     commonBeforeEach,
@@ -145,7 +144,7 @@ describe('Search operator injection', () => {
 
             expect(response.status).toBe(200);
             expect(response.body.entry.length).toBe(2);
-            expect(response).toHaveMongoQuery(expectedSortMaritalStatus);
+            expect(response).toHaveMongoQuery(expectedSortFallback);
         });
 
         test('_sort=$$$ (malformed value) is dropped instead of crashing or rejecting the request (SEC-1580 SAE-4)', async () => {
@@ -164,7 +163,7 @@ describe('Search operator injection', () => {
 
             expect(response.status).toBe(200);
             expect(response.body.entry.length).toBe(1);
-            expect(response).toHaveMongoQuery(expectedSortDollar);
+            expect(response).toHaveMongoQuery(expectedSortFallback);
         });
     });
 });

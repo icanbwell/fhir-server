@@ -88,6 +88,7 @@ describe('SearchManager', () => {
         mockPatientScopeManager = Object.create(PatientScopeManager.prototype);
         mockPatientQueryCreator = Object.create(PatientQueryCreator.prototype);
         mockSearchParametersManager = Object.create(SearchParametersManager.prototype);
+        mockSearchParametersManager.allowedFieldsForResourceByType = new Map();
 
         searchManager = new SearchManager({
             databaseQueryFactory: mockDatabaseQueryFactory,
