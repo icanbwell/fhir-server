@@ -53,7 +53,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/middleware/fhir/router.test.js',
         '<rootDir>/src/tests/unit/operations/common/patientQueryCreator.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everything.bugs.test.js',
-        '<rootDir>/src/tests/everything/sae5_cross_tenant_write_breaks_source_id.bugs/sae5_cross_tenant_write_breaks_source_id.bugs.test.js',
         '<rootDir>/src/tests/unit/operations/everything/everythingRelatedResourcesMapper.test.js',
         '<rootDir>/src/tests/unit/operations/graph/graph.test.js',
         '<rootDir>/src/tests/unit/operations/history/history.test.js',
