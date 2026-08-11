@@ -147,6 +147,16 @@ class DataSharingManager {
         useProxyPatientToPersonCache
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
+
+        // PROA consented-data-access expansion is $everything-only: only everythingHelper.js
+        // sets allowConsentedProaDataAccess to a truthy value. Search, searchById, and GraphQL
+        // callers leave it false, in which case this whole method is a no-op below --
+        // short-circuit here instead of paying for patient/connection-type resolution that
+        // gets discarded.
+        if (!allowConsentedProaDataAccess || !this.configManager.enableConsentedProaDataAccess) {
+            return query;
+        }
+
         let everythingCacheMap;
         if (requestId) {
             everythingCacheMap = this.getDataSharingManagerCache({ requestId, everythingChunkIndex, securityTags });
@@ -202,39 +212,39 @@ class DataSharingManager {
          */
         let queryWithConsentedData;
 
-        // Case when consented proa data access is enabled.
-        if (allowConsentedProaDataAccess && this.configManager.enableConsentedProaDataAccess) {
-            if (everythingCacheMap?.has('allowedPatientIds')) {
-                allowedPatientIds = everythingCacheMap.get('allowedPatientIds');
-            } else {
-                // Filter Patients which have provided consent to view data.
-                allowedPatientIds = await this.proaConsentManager.getPatientIdsWithConsent({
-                    patientIdToImmediatePersonUuid,
-                    securityTags,
-                    personToLinkedPatientsMap
-                });
-                if (requestId) {
-                    everythingCacheMap.set('allowedPatientIds', allowedPatientIds);
-                }
-            }
-            allowedConnectionTypesList = this.configManager.getConsentConnectionTypesList;
-            this.filterPatientsByConnectionType({
-                allowedPatientIds,
-                patientIdToConnectionTypeMap,
-                allowedConnectionTypesList
+        // The caller-and-config gate that used to guard this block is now checked by the
+        // early return above, so reaching this point already means consented PROA data
+        // access applies.
+        if (everythingCacheMap?.has('allowedPatientIds')) {
+            allowedPatientIds = everythingCacheMap.get('allowedPatientIds');
+        } else {
+            // Filter Patients which have provided consent to view data.
+            allowedPatientIds = await this.proaConsentManager.getPatientIdsWithConsent({
+                patientIdToImmediatePersonUuid,
+                securityTags,
+                personToLinkedPatientsMap
             });
-            if (allowedPatientIds.size > 0 && allowedConnectionTypesList.length) {
-                queryWithConsentedData = this.getConnectionTypeFilteredQuery({
-                    base_version,
-                    resourceType,
-                    allowedPatientIds,
-                    parsedArgs,
-                    allowedConnectionTypesList,
-                    useHistoryTable,
-                    patientsList,
-                    isUser
-                });
+            if (requestId) {
+                everythingCacheMap.set('allowedPatientIds', allowedPatientIds);
             }
+        }
+        allowedConnectionTypesList = this.configManager.getConsentConnectionTypesList;
+        this.filterPatientsByConnectionType({
+            allowedPatientIds,
+            patientIdToConnectionTypeMap,
+            allowedConnectionTypesList
+        });
+        if (allowedPatientIds.size > 0 && allowedConnectionTypesList.length) {
+            queryWithConsentedData = this.getConnectionTypeFilteredQuery({
+                base_version,
+                resourceType,
+                allowedPatientIds,
+                parsedArgs,
+                allowedConnectionTypesList,
+                useHistoryTable,
+                patientsList,
+                isUser
+            });
         }
 
         if (queryWithConsentedData) {

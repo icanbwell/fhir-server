@@ -344,6 +344,41 @@ describe('DataSharingManager', () => {
 
             expect(result).toEqual(query);
         });
+
+        it('DCON-4962: short-circuits before resolving patients when allowConsentedProaDataAccess is false, even though enableConsentedProaDataAccess is true', async () => {
+            // Only the $everything operation passes allowConsentedProaDataAccess: true.
+            // Search, searchById, and GraphQL all call constructQueryAsync without it,
+            // so it defaults to false -- this must be a true no-op for them, not just an
+            // expansion that happens to compute to nothing.
+            const getValidatedPatientIdsMapSpy = jest.spyOn(dataSharingManager, 'getValidatedPatientIdsMap');
+            const getPatientIDToConnectionTypeMapSpy = jest.spyOn(dataSharingManager, 'getPatientIDToConnectionTypeMap');
+
+            mockParsedArgs.parsedArgItems = [{
+                propertyObj: { target: ['Patient'] },
+                references: [{ resourceType: 'Patient', id: 'patient-1' }],
+                queryParameter: 'patient',
+                queryParameterValue: { values: ['Patient/patient-1'] },
+                modifiers: []
+            }];
+
+            const query = { resourceType: 'Observation' };
+            const result = await dataSharingManager.updateQueryConsideringDataSharing({
+                base_version: '4_0_0',
+                resourceType: 'Observation',
+                parsedArgs: mockParsedArgs,
+                securityTags: ['client-abc'],
+                query,
+                useHistoryTable: false,
+                requestId: 'req-1',
+                isUser: false,
+                allowConsentedProaDataAccess: false
+            });
+
+            expect(result).toEqual(query);
+            expect(getValidatedPatientIdsMapSpy).not.toHaveBeenCalled();
+            expect(getPatientIDToConnectionTypeMapSpy).not.toHaveBeenCalled();
+            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).not.toHaveBeenCalled();
+        });
     });
 
     describe('updateQueryConsideringCmsDataSharing', () => {
