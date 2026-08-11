@@ -4,6 +4,8 @@ const patient2Resource = require('./fixtures/patient/patient2.json');
 const expectedSearch1 = require('./fixtures/expected/expected_search1.json');
 const expectedSearch2 = require('./fixtures/expected/expected_search2.json');
 const expectedSearch3 = require('./fixtures/expected/expected_search3.json');
+const expectedSortMaritalStatus = require('./fixtures/expected/expected_sort_maritalstatus.json');
+const expectedSortDollar = require('./fixtures/expected/expected_sort_dollar.json');
 
 const {
     commonBeforeEach,
@@ -115,7 +117,7 @@ describe('Search operator injection', () => {
 
             // patient1Resource is male, patient2Resource is female (see fixtures)
             const response = await request
-                .get('/4_0_0/Patient?_sort=gender')
+                .get('/4_0_0/Patient?_sort=gender&_bundle=1')
                 .set(getHeaders());
 
             expect(response.status).toBe(200);
@@ -138,11 +140,12 @@ describe('Search operator injection', () => {
             }
 
             const response = await request
-                .get('/4_0_0/Patient?_sort=maritalStatus&_bundle=1')
-                .set(getHeaders());
+                .get('/4_0_0/Patient?_sort=maritalStatus&_bundle=1&_debug=1')
+                .set(getHeadersWithAdmin());
 
             expect(response.status).toBe(200);
             expect(response.body.entry.length).toBe(2);
+            expect(response).toHaveMongoQuery(expectedSortMaritalStatus);
         });
 
         test('_sort=$$$ (malformed value) is dropped instead of crashing or rejecting the request (SEC-1580 SAE-4)', async () => {
@@ -156,11 +159,12 @@ describe('Search operator injection', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             const response = await request
-                .get('/4_0_0/Patient?_sort=$$$&_bundle=1')
-                .set(getHeaders());
+                .get('/4_0_0/Patient?_sort=$$$&_bundle=1&_debug=1')
+                .set(getHeadersWithAdmin());
 
             expect(response.status).toBe(200);
             expect(response.body.entry.length).toBe(1);
+            expect(response).toHaveMongoQuery(expectedSortDollar);
         });
     });
 });

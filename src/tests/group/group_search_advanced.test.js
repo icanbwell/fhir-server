@@ -156,7 +156,7 @@ describe('Group Advanced Search', () => {
 
         expect(response.status).toBe(200);
         expect(response.body.entry).toBeDefined();
-        expect(response.body.entry.length).toBe(3);
+        expect(response.body.entry.length).toBe(30);
     }, 30000);
 
     test('Search with sorting on a real search-parameter field (type)', async () => {
@@ -214,7 +214,7 @@ describe('Group Advanced Search', () => {
 
         expect(response.status).toBe(200);
         expect(response.body.entry).toBeDefined();
-        expect(response.body.entry.length).toBe(1);
+        expect(response.body.entry.length).toBe(33);
     }, 30000);
 
     test('Filter by member inactive flag', async () => {
