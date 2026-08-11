@@ -465,7 +465,8 @@ const createContainer = function () {
             [READ]: [
                 new PatientProxyQueryRewriter({
                     personToPatientIdsExpander: c.personToPatientIdsExpander,
-                    configManager: c.configManager
+                    configManager: c.configManager,
+                    requestSpecificCache: c.requestSpecificCache
                 })
             ]
         }
@@ -1250,7 +1251,8 @@ const createContainer = function () {
         fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
         s3NdjsonReader: c.s3NdjsonReader,
         postRequestProcessor: c.postRequestProcessor,
-        requestSpecificCache: c.requestSpecificCache
+        requestSpecificCache: c.requestSpecificCache,
+        auditLogger: c.auditLogger
     }));
 
     // Routes messages on kafkaBulkImportTaskCreatedTopic to their handler by CloudEvent

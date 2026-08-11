@@ -3,27 +3,17 @@
  */
 // Load the rest of the modules
 const cluster = require('cluster');
-const Sentry = require('@sentry/node');
+const { initSentry } = require('./utils/initSentry');
 const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
-const { getImageVersion } = require('./utils/getImageVersion');
 const { BaseSerializer } = require('./fhir/writeSerializers/4_0_0/customSerializers');
 const { fhirSchemaValidator } = require('./utils/fhirSchemaValidator');
 
-Sentry.init({
-    release: getImageVersion(),
-    environment: process.env.ENVIRONMENT,
-    autoSessionTracking: false,
-    skipOpenTelemetrySetup: true,
-    tracesSampleRate: undefined,
-    tracesSampler: undefined,
-    tracePropagationTargets: []
-});
-
-// Validate that OpenTelemetry setup is correct
-Sentry.validateOpenTelemetrySetup();
+// Validates OpenTelemetry setup, which only this entrypoint (loaded via
+// --require=./src/otel_instrumentation.js) actually attempts.
+initSentry({ validateOpenTelemetry: true });
 
 const main = async function () {
     try {

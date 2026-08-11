@@ -592,7 +592,7 @@ describe('Person $access-history Tests', () => {
         expect(resp.status).toBe(403);
     });
 
-    test('$access-history returns 403 for patient scope accessing another person', async () => {
+    test('$access-history returns 404 for patient scope accessing another person', async () => {
         const request = sharedRequest;
 
         let resp = await request
@@ -617,7 +617,13 @@ describe('Person $access-history Tests', () => {
                 })
             );
 
-        expect(resp.status).toBe(403);
+        // 404, not 403: since IDG-5 a patient-scoped caller's Person lookup resolves only their
+        // own Person (by _uuid), so another user's Person never resolves here at all and the
+        // operation reports not-found before reaching accessHistory.js's own "your own Person
+        // resource" ForbiddenError. This matches the 404 that the sibling "Person not accessible
+        // via given scope" test above already asserts for a service account with a non-matching
+        // access tag, and is the non-leaking answer -- a 403 would confirm the Person exists.
+        expect(resp.status).toBe(404);
     });
 
     test('$access-history groups multiple accessors correctly', async () => {

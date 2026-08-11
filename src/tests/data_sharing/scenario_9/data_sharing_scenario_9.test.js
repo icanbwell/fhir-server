@@ -59,7 +59,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345')
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
@@ -83,7 +83,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345')
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
@@ -110,7 +110,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345')
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
@@ -137,7 +137,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345')
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
@@ -151,7 +151,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse([{ created: true }, { updated: true }]);
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345')
                 .set(headers);
             const respIds1 = resp.body.map(item => item.id);
 

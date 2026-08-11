@@ -63,6 +63,13 @@ jestObj.mock('../../../../createContainer', () => ({
     }))
 }));
 
+// Mock the shared Sentry/error-handler init -- avoids exercising the real SDK and requiring
+// the real errorHandler module (which registers real process-level listeners as a
+// require-time side effect) on every isolateModules require below.
+jestObj.mock('../../../../utils/initStandaloneEntrypointSentry', () => ({
+    initStandaloneEntrypointSentry: jestObj.fn()
+}));
+
 // Mock winstonInit
 jestObj.mock('../../../../winstonInit', () => ({
     initialize: jestObj.fn()
@@ -284,13 +291,13 @@ describe('asyncJobs/orchestrator', () => {
             await crashHandler({ payload: { error: new Error('Consumer crashed'), restart: false } });
 
             expect(logError).toHaveBeenCalledWith(
-                'Async job orchestrator consumer crashed, exiting (bulk-import-orchestrator)',
-                { error: 'Consumer crashed' }
+                'Async job orchestrator consumer crashed (bulk-import-orchestrator)',
+                { error: 'Consumer crashed', restart: false }
             );
             expect(processExitSpy).toHaveBeenCalledWith(1);
         });
 
-        test('does not exit when kafkajs reports the crash is retriable', async () => {
+        test('logs but does not exit when kafkajs reports the crash is retriable', async () => {
             jestObj.isolateModules(() => {
                 require('../../../../operations/asyncJobs/orchestrator');
             });
@@ -302,9 +309,11 @@ describe('asyncJobs/orchestrator', () => {
             const [, crashHandler] = mockConsumer.on.mock.calls.find(([event]) => event === 'consumer.crash');
             await crashHandler({ payload: { error: new Error('Transient error'), restart: true } });
 
-            expect(logError).not.toHaveBeenCalledWith(
-                'Async job orchestrator consumer crashed, exiting (bulk-import-orchestrator)',
-                expect.anything()
+            // A retriable crash must still be logged -- silently returning here would give no
+            // evidence a self-heal was even attempted, let alone whether it actually succeeded.
+            expect(logError).toHaveBeenCalledWith(
+                'Async job orchestrator consumer crashed (bulk-import-orchestrator)',
+                { error: 'Transient error', restart: true }
             );
             expect(processExitSpy).not.toHaveBeenCalledWith(1);
         });
