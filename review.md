@@ -71,12 +71,21 @@ access-control surface below — it's about what the PR *contains*, not what the
 - **Client Person** — one `Person` resource per tenant/client a human has an account with (e.g.
   one for their Samsung account, one for their Walgreens account). Carries an owner tag for that
   tenant.
+- **Independent Person** — a `Person` resource created directly from a PROA/IAS connection,
+  outside the Main→Client hierarchy. It links straight to a source Patient in its own, separate
+  tree rather than hanging off a Main Person.
 - **Patient** — one `Patient` resource per data source (health system, payor, pharmacy, lab).
   Patients belong to a *source*, never directly to a client.
 - **Clinical/other resources** — reference a Patient (or, via the `Patient/person.<id>`
   proxy-patient convention, a Person).
-- **Link** — `Person.link` connects Main Person → Client Person → Patient, via an `assurance`
-  (match confidence) field only — it does not carry a relationship-type/category.
+- **Link** — `Person.link` connects Main Person → Client Person → Patient (or, for an
+  Independent Person, Independent Person → Patient directly), via an `assurance` (match
+  confidence) field only — it does not carry a relationship-type/category. These are the *only*
+  hops the data model defines as legitimate. A Main Person is currently constrained to link to a
+  single Client Person (a known identity-model gap, not a security boundary, and it may be lifted
+  later) — but a link that skips a tier (Main → Patient directly) or connects two resources of the
+  *same* tier (Main ↔ Main, Client ↔ Client) is never an intentional relationship. It's a
+  duplicate-record data-quality defect and must not be treated as an authorized identity match.
 - **Owner tag** (`meta.security`, system `.../owner`) — exactly one per resource; declares the
   authoritative tenant.
 - **Access tag(s)** (`meta.security`, system `.../access`) — one or more; declare which
@@ -130,6 +139,11 @@ resource one the caller is authorized for" is worth a closer look.
   actually defines — not an incidental attribute the two records happen to share. Two records
   sharing an attribute is not the same as one being an authorized extension of the other, and
   code should not treat it as license to combine their data without confirming that's deliberate.
+- Concretely, the *only* legitimate `Person.link` hops are Main Person → Client Person → Patient,
+  and Independent Person → Patient (see §1). A link between two resources of the *same* tier (e.g.
+  two Main Persons, or two Client Persons) — even when they share an owner tag — is always a
+  duplicate-record defect, never an authorized identity match, and traversal must treat it as a
+  dead end rather than following it.
 
 ### C. Write path (create / update / merge / patch / remove)
 
