@@ -38,6 +38,7 @@ const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProdu
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 const { StorageProviderFactory } = require('../../../dataLayer/providers/storageProviderFactory');
 const { hasExternalStorageMemberTag } = require('../../../utils/clickHouseGroupPreSave');
+const { isTrue } = require('../../../utils/isTrue');
 
 // Access-tag security codes are used verbatim as a path segment of the S3 export key
 // (`exports/<tags>/<exportStatusId>/...`). They come from the JWT scope string via
@@ -666,17 +667,35 @@ class BulkDataExportRunner {
         }
 
         const hasExternalMembers = hasExternalStorageMemberTag(groupDoc);
+
+        // Check if useExternalStorage header was provided in the original export request
+        const useExternalStorageValue = this.exportStatusResource.extension?.find(
+            ext => ext.id === 'useExternalStorage'
+        )?.valueString;
+        const useExternalStorage = isTrue(useExternalStorageValue);
+
         const clickHouseGroupsEnabled =
             this.searchManager.configManager.enableClickHouse &&
             this.searchManager.configManager.mongoWithClickHouseResources.includes('Group');
 
         // Roster lives in ClickHouse but ClickHouse is off: the inline member[] was stripped,
         // so falling through would silently export nothing. Fail loudly instead.
-        if (hasExternalMembers && !clickHouseGroupsEnabled) {
+        if (hasExternalMembers && useExternalStorage && !clickHouseGroupsEnabled) {
             throw new Error(
                 `Group ${groupId} has externally-stored membership but ClickHouse is disabled; ` +
                 'cannot resolve members for export.'
             );
+        }
+
+        // If Group has external members but header not provided, fall back to inline members
+        if (hasExternalMembers && !useExternalStorage) {
+            logInfo(`Group ${groupId} has external storage tag but useExternalStorage header not provided; falling back to inline members`, {
+                groupId,
+                operation: 'export'
+            });
+            return (groupDoc.member || [])
+                .map(m => m?.entity?.reference)
+                .filter(ref => ref && ref.startsWith('Patient/'));
         }
 
         if (!hasExternalMembers) {
@@ -686,7 +705,7 @@ class BulkDataExportRunner {
                 .filter(ref => ref && ref.startsWith('Patient/'));
         }
 
-        // Hybrid Group: page the ClickHouse roster with the caller tenant scope.
+        // Hybrid Group with header: page the ClickHouse roster with the caller tenant scope.
         const securityContext = this.getExportSecurityContext();
         const groupProvider = this.storageProviderFactory.createProvider({
             resourceType: 'Group',
