@@ -55,6 +55,14 @@ class SearchParametersManager {
                 this.combinedSearchParameters[resourceType] = searchParameters;
             }
         }
+
+        /**
+         * memoized result of getAllowedFieldsForResource(), keyed by resourceType, search
+         * parameter definitions never change at runtime, so this is safe to cache for the
+         * lifetime of this (singleton) instance
+         * @type {Map<string, Set<string>>}
+         */
+        this.allowedFieldsForResourceByType = new Map();
     }
 
     /**
@@ -99,6 +107,38 @@ class SearchParametersManager {
      */
     getAllSearchParameters () {
         return Object.entries(this.combinedSearchParameters);
+    }
+
+    /**
+     * Returns every Mongo field path declared on this resource's own search-parameter
+     * definitions, plus the generic `Resource` bucket's (the same resourceType-then-Resource
+     * fallback rule as getPropertyObject/getFieldNameForSearchParameter, but returning the full
+     * set of field paths for a resource instead of looking up one search parameter by name).
+     * Memoized per resourceType since these definitions never change at runtime.
+     * @param {string} resourceType
+     * @return {Set<string>}
+     */
+    getAllowedFieldsForResource ({ resourceType }) {
+        if (!this.allowedFieldsForResourceByType) {
+            this.allowedFieldsForResourceByType = new Map();
+        }
+        const cached = this.allowedFieldsForResourceByType.get(resourceType);
+        if (cached) {
+            return cached;
+        }
+        const allowedFields = new Set();
+        for (const searchResourceType of [resourceType, 'Resource']) {
+            const searchParametersForResource = this.getSearchParametersForResource({ resourceType: searchResourceType });
+            if (searchParametersForResource) {
+                for (const propertyObj of Object.values(searchParametersForResource)) {
+                    for (const field of propertyObj.fields) {
+                        allowedFields.add(field);
+                    }
+                }
+            }
+        }
+        this.allowedFieldsForResourceByType.set(resourceType, allowedFields);
+        return allowedFields;
     }
 
     /**

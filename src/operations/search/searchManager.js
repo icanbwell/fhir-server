@@ -721,27 +721,19 @@ class SearchManager {
 
     /**
      * builds the set of Mongo field paths that are valid `_sort` targets for a resourceType --
-     * every field path already declared on that resource's search-parameter definitions (covers
-     * legitimate nested dotted paths, e.g. meta.lastUpdated under the generic Resource bucket),
-     * plus the configured default sort tie-breaker field, which is a raw system field with no
-     * search-parameter definition of its own but is already used directly as a _sort value today
+     * every field path already declared on that resource's search-parameter definitions (via
+     * SearchParametersManager.getAllowedFieldsForResource, which applies the same
+     * resourceType-then-Resource fallback rule as the rest of the search-parameter lookups, and
+     * covers legitimate nested dotted paths, e.g. meta.lastUpdated under the generic Resource
+     * bucket), plus the configured default sort tie-breaker field, which is a raw system field
+     * with no search-parameter definition of its own but is already used directly as a _sort
+     * value today.
      * @param {string} resourceType
      * @return {Set<string>}
      */
     getAllowedSortFields ({ resourceType }) {
-        const allowedFields = new Set([this.configManager.defaultSortId]);
-        for (const searchResourceType of [resourceType, 'Resource']) {
-            const searchParametersForResource = this.searchParametersManager.getSearchParametersForResource(
-                { resourceType: searchResourceType }
-            );
-            if (searchParametersForResource) {
-                for (const propertyObj of Object.values(searchParametersForResource)) {
-                    for (const field of propertyObj.fields) {
-                        allowedFields.add(field);
-                    }
-                }
-            }
-        }
+        const allowedFields = new Set(this.searchParametersManager.getAllowedFieldsForResource({ resourceType }));
+        allowedFields.add(this.configManager.defaultSortId);
         return allowedFields;
     }
 
