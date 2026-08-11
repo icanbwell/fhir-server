@@ -221,7 +221,13 @@ When `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled and the user is a `delegated
 The denied categories come from the Consent's nested `deny` provisions (`securityLabel` entries), pre-loaded onto `actor._filteringRules.deniedSensitiveCategories` by `DataSharingManager`.
 
 **Behavior:**
-- Only sections with sensitivity codes in the Consent's denied list are removed
+- Sections with sensitivity codes in the Consent's denied list are removed
+- The hardcoded `unclassified` sensitivity code is **always** folded into the denied set as well,
+  regardless of what the grantor's Consent actually denies — mirroring the query-level exclusion in
+  `DataSharingManager.updateQueryForDelegatedAccessSensitiveData`. This fold-in happens in
+  `CompositionSectionFilterEnrichmentProvider.getDeniedSensitiveCategorySet`, not in the shared
+  `filterCompositionSensitiveSections`/`shouldRemoveSection` utility itself, which stays a pure
+  denylist-membership check.
 - If a section has multiple `code.coding` entries and **any** matches a denied code, the section is removed
 - Filtering is recursive — nested sections (`section.section`) are checked at every level
 - If a parent section itself is sensitive, the entire section (including all children) is removed
