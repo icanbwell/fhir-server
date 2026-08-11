@@ -68,6 +68,7 @@ const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
 const { BwellPersonFinder } = require('../../../utils/bwellPersonFinder');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 const { DelegatedAccessRulesManager } = require('../../../utils/delegatedAccessRulesManager');
+const { SearchParametersManager } = require('../../../searchParameters/searchParametersManager');
 const { AUTH_USER_TYPES } = require('../../../constants');
 
 function createMockInstance (ClassType) {
@@ -140,7 +141,8 @@ describe('Resource Authorization §6b — CMS partner data-sharing consent', () 
                 dataSharingManager: mockDataSharingManager,
                 searchQueryBuilder: mockSearchQueryBuilder,
                 patientScopeManager: mockPatientScopeManager,
-                patientQueryCreator: mockPatientQueryCreator
+                patientQueryCreator: mockPatientQueryCreator,
+                searchParametersManager: createMockInstance(SearchParametersManager)
             });
         });
 
