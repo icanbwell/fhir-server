@@ -771,16 +771,14 @@ class BulkDataExportRunner {
             );
         }
 
-        // If Group has external members but header not provided, return inline members (empty for migrated Groups)
+        // If Group has external members but header not provided, return empty array (opt-in security)
         if (hasExternalMembers && !useExternalStorage) {
             logInfo(`Group ${groupId} has members in ClickHouse but useExternalStorage header not provided; returning empty roster (opt-in required)`, {
                 groupId,
                 operation: 'export',
                 hasClickHouseMembers: true
             });
-            return (groupDoc.member || [])
-                .map(m => m?.entity?.reference)
-                .filter(ref => ref && ref.startsWith('Patient/'));
+            return [];
         }
 
         if (!hasExternalMembers) {
