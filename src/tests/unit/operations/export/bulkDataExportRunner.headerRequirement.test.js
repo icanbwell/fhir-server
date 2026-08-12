@@ -144,8 +144,8 @@ describe('BulkDataExportRunner - useExternalStorage Header Requirement', () => {
             );
         });
 
-        test('WITHOUT header: should fall back to inline members when Group has external storage tag', async () => {
-            // Setup: Group with external storage tag AND inline members
+        test('WITHOUT header: should return empty array when Group has external storage tag (security)', async () => {
+            // Setup: Group with external storage tag AND inline members (stale in MongoDB)
             mockGroupDoc = {
                 id: 'test-group',
                 meta: {
@@ -173,7 +173,7 @@ describe('BulkDataExportRunner - useExternalStorage Header Requirement', () => {
                 query: {}
             });
 
-            expect(result).toEqual(['Patient/inline-1', 'Patient/inline-2']);
+            expect(result).toEqual([]);
             expect(mockGroupProvider.getActiveMembersPageAsync).not.toHaveBeenCalled();
             expect(logInfo).toHaveBeenCalledWith(
                 expect.stringContaining('useExternalStorage header not provided'),
@@ -211,8 +211,8 @@ describe('BulkDataExportRunner - useExternalStorage Header Requirement', () => {
             expect(mockGroupProvider.getActiveMembersPageAsync).not.toHaveBeenCalled();
         });
 
-        test('WITH header "false": should fall back to inline members even when Group has external storage tag', async () => {
-            // Setup: Group with external storage tag AND inline members
+        test('WITH header "false": should return empty array when Group has external storage tag (security)', async () => {
+            // Setup: Group with external storage tag AND inline members (stale in MongoDB)
             mockGroupDoc = {
                 id: 'test-group',
                 meta: {
@@ -244,7 +244,7 @@ describe('BulkDataExportRunner - useExternalStorage Header Requirement', () => {
                 query: {}
             });
 
-            expect(result).toEqual(['Patient/inline-1', 'Patient/inline-2']);
+            expect(result).toEqual([]);
             expect(mockGroupProvider.getActiveMembersPageAsync).not.toHaveBeenCalled();
             expect(logInfo).toHaveBeenCalledWith(
                 expect.stringContaining('useExternalStorage header not provided'),
@@ -252,8 +252,8 @@ describe('BulkDataExportRunner - useExternalStorage Header Requirement', () => {
             );
         });
 
-        test('WITH header "0": should fall back to inline members even when Group has external storage tag', async () => {
-            // Setup: Group with external storage tag AND inline members
+        test('WITH header "0": should return empty array when Group has external storage tag (security)', async () => {
+            // Setup: Group with external storage tag AND inline members (stale in MongoDB)
             mockGroupDoc = {
                 id: 'test-group',
                 meta: {
@@ -284,7 +284,7 @@ describe('BulkDataExportRunner - useExternalStorage Header Requirement', () => {
                 query: {}
             });
 
-            expect(result).toEqual(['Patient/zero-test']);
+            expect(result).toEqual([]);
             expect(mockGroupProvider.getActiveMembersPageAsync).not.toHaveBeenCalled();
         });
 
