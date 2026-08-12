@@ -545,7 +545,7 @@ describe('Group Export Tests', () => {
 
         await syncMaterializedViews();
 
-        const result = await runGroupExport(request, createResp.body.id, { query: '_type=Patient&_elements=id' });
+        const result = await runGroupExport(request, createResp.body.id, { headers: externalHeaders, query: '_type=Patient&_elements=id' });
         expect(result.body.errors).toHaveLength(0);
 
         const patients = exportedResources(result, 'Patient');
@@ -600,7 +600,7 @@ describe('Group Export Tests', () => {
 
         await syncMaterializedViews();
 
-        const result = await runGroupExport(request, createResp.body.id);
+        const result = await runGroupExport(request, createResp.body.id, { headers: externalHeaders });
         expect(result.body.errors).toHaveLength(0);
 
         const patients = exportedResources(result, 'Patient');
@@ -723,7 +723,7 @@ describe('Group Export Tests', () => {
 
         await syncMaterializedViews();
 
-        const result = await runGroupExport(request, createResp.body.id, { query: '_type=Patient&_elements=id,gender' });
+        const result = await runGroupExport(request, createResp.body.id, { headers: externalHeaders, query: '_type=Patient&_elements=id,gender' });
         expect(result.body.errors).toHaveLength(0);
 
         const patients = exportedResources(result, 'Patient');
@@ -782,7 +782,7 @@ describe('Group Export Tests', () => {
         // which propagates and marks the ExportStatus entered-in-error (never completed).
         let resp = await request
             .get('/4_0_0/Group/' + createResp.body.id + '/$export?_type=Patient&_elements=notARealField')
-            .set(getHeaders())
+            .set(externalHeaders)
             .expect(202);
         const exportStatusId = resp.headers['content-location'].split('/').pop();
 
