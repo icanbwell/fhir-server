@@ -79,8 +79,8 @@ async function truncateClickHouse() {
  * `query` is an optional query string (e.g. '_type=Patient&_elements=id') appended
  * to the kickoff URL; it is preserved into ExportStatus.request and parsed by the runner.
  */
-async function runGroupExport(request, groupId, { scope, query } = {}) {
-    const headers = scope ? getHeaders(scope) : getHeaders();
+async function runGroupExport(request, groupId, { scope, headers: customHeaders, query } = {}) {
+    const headers = customHeaders || (scope ? getHeaders(scope) : getHeaders());
 
     let resp = await request
         .get(`/4_0_0/Group/${groupId}/$export${query ? `?${query}` : ''}`)
@@ -223,13 +223,116 @@ describe('Group Export Tests', () => {
 
         await syncMaterializedViews();
 
-        const result = await runGroupExport(request, createResp.body.id);
+        const result = await runGroupExport(request, createResp.body.id, { headers: externalHeaders });
         expect(result.body.errors).toHaveLength(0);
 
         const patients = exportedResources(result, 'Patient');
         const exportedIds = patients.map(p => p.id).sort();
         expect(exportedIds).toEqual(memberIds.slice().sort());
         expect(exportedIds).not.toContain('grp-nonmember');
+    }, 60000);
+
+    test('ClickHouse Group export WITHOUT useExternalStorage header returns empty (opt-in behavior)', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
+            return c;
+        });
+
+        const externalHeaders = { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
+
+        const memberIds = ['no-header-p1', 'no-header-p2', 'no-header-p3'];
+        for (const id of memberIds) {
+            await request
+                .post('/4_0_0/Patient/$merge')
+                .send({ resourceType: 'Patient', id, meta: { source: 'http://test.com', security: bwellTags } })
+                .set(getHeaders())
+                .expect(200);
+        }
+
+        // Create ClickHouse-backed Group WITH header (members will be stripped from MongoDB)
+        const createResp = await request
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                meta: {
+                    source: 'http://export-test.com/Group',
+                    security: bwellTags
+                },
+                type: 'person',
+                actual: true,
+                member: memberIds.map(id => ({ entity: { reference: `Patient/${id}` } }))
+            })
+            .set(externalHeaders)  // Use header to migrate to ClickHouse
+            .expect(201);
+
+        // Confirm members were stripped (migrated to ClickHouse)
+        expect(createResp.body.member).toBeUndefined();
+
+        await syncMaterializedViews();
+
+        // Export WITHOUT header (opt-in not provided)
+        const result = await runGroupExport(request, createResp.body.id);  // No headers parameter
+
+        // Export completes successfully (no errors)
+        expect(result.body.errors).toHaveLength(0);
+
+        // But returns empty Patient list (ClickHouse data not accessible without header)
+        const patients = exportedResources(result, 'Patient');
+        expect(patients).toHaveLength(0);
+
+        // Verify this is opt-in behavior: members exist in ClickHouse but aren't returned
+        // This prevents unauthorized access to ClickHouse data
+    }, 60000);
+
+    test('ClickHouse Group export WITH useExternalStorage=false header returns empty (explicit opt-out)', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
+            return c;
+        });
+
+        const externalHeadersTrue = { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
+        const externalHeadersFalse = { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'false' };
+
+        const memberIds = ['false-header-p1', 'false-header-p2'];
+        for (const id of memberIds) {
+            await request
+                .post('/4_0_0/Patient/$merge')
+                .send({ resourceType: 'Patient', id, meta: { source: 'http://test.com', security: bwellTags } })
+                .set(getHeaders())
+                .expect(200);
+        }
+
+        // Create ClickHouse-backed Group WITH header=true (members stripped)
+        const createResp = await request
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                meta: {
+                    source: 'http://export-test.com/Group',
+                    security: bwellTags
+                },
+                type: 'person',
+                actual: true,
+                member: memberIds.map(id => ({ entity: { reference: `Patient/${id}` } }))
+            })
+            .set(externalHeadersTrue)
+            .expect(201);
+
+        expect(createResp.body.member).toBeUndefined();
+
+        await syncMaterializedViews();
+
+        // Export WITH header explicitly set to 'false'
+        const result = await runGroupExport(request, createResp.body.id, { headers: externalHeadersFalse });
+
+        // Export completes successfully
+        expect(result.body.errors).toHaveLength(0);
+
+        // Returns empty (same as header absent - explicit opt-out)
+        const patients = exportedResources(result, 'Patient');
+        expect(patients).toHaveLength(0);
+
+        // Verify explicit false has same effect as absent header
     }, 60000);
 
     test('Owned hybrid Group whose roster has zero Patient members exports nothing (no tenant-wide fallback)', async () => {
@@ -272,7 +375,7 @@ describe('Group Export Tests', () => {
 
         await syncMaterializedViews();
 
-        const result = await runGroupExport(request, createResp.body.id);
+        const result = await runGroupExport(request, createResp.body.id, { headers: externalHeaders });
         expect(result.body.errors).toHaveLength(0);
 
         // No Patient output, and the owned non-member Patient must not appear anywhere.
@@ -442,7 +545,7 @@ describe('Group Export Tests', () => {
 
         await syncMaterializedViews();
 
-        const result = await runGroupExport(request, createResp.body.id, { query: '_type=Patient&_elements=id' });
+        const result = await runGroupExport(request, createResp.body.id, { headers: externalHeaders, query: '_type=Patient&_elements=id' });
         expect(result.body.errors).toHaveLength(0);
 
         const patients = exportedResources(result, 'Patient');
@@ -497,7 +600,7 @@ describe('Group Export Tests', () => {
 
         await syncMaterializedViews();
 
-        const result = await runGroupExport(request, createResp.body.id);
+        const result = await runGroupExport(request, createResp.body.id, { headers: externalHeaders });
         expect(result.body.errors).toHaveLength(0);
 
         const patients = exportedResources(result, 'Patient');
@@ -620,7 +723,7 @@ describe('Group Export Tests', () => {
 
         await syncMaterializedViews();
 
-        const result = await runGroupExport(request, createResp.body.id, { query: '_type=Patient&_elements=id,gender' });
+        const result = await runGroupExport(request, createResp.body.id, { headers: externalHeaders, query: '_type=Patient&_elements=id,gender' });
         expect(result.body.errors).toHaveLength(0);
 
         const patients = exportedResources(result, 'Patient');
@@ -679,7 +782,7 @@ describe('Group Export Tests', () => {
         // which propagates and marks the ExportStatus entered-in-error (never completed).
         let resp = await request
             .get('/4_0_0/Group/' + createResp.body.id + '/$export?_type=Patient&_elements=notARealField')
-            .set(getHeaders())
+            .set(externalHeaders)
             .expect(202);
         const exportStatusId = resp.headers['content-location'].split('/').pop();
 
@@ -796,14 +899,14 @@ describe('Group Export Tests', () => {
         await syncMaterializedViews();
 
         // Export tenant A's Group as tenant A: only tenant A member, no tenant B leak
-        const resultA = await runGroupExport(request, groupA.body.id, { scope: 'user/*.* access/tenantA.*' });
+        const resultA = await runGroupExport(request, groupA.body.id, { headers: tenantAHeaders });
         expect(resultA.body.errors).toHaveLength(0);
         const exportedIds = exportedResources(resultA, 'Patient').map(p => p.id);
         expect(exportedIds).toContain('tenantA-patient');
         expect(exportedIds).not.toContain('tenantB-patient');
 
         // Tenant A cannot see tenant B's Group -> empty export, no leak
-        const resultCross = await runGroupExport(request, groupB.body.id, { scope: 'user/*.* access/tenantA.*' });
+        const resultCross = await runGroupExport(request, groupB.body.id, { headers: tenantAHeaders });
         expect(exportedResources(resultCross, 'Patient')).toHaveLength(0);
     }, 60000);
 
