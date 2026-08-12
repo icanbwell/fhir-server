@@ -1,4 +1,5 @@
 const { S3Client: S3, HeadObjectCommand } = require('@aws-sdk/client-s3');
+const querystring = require('querystring');
 const moment = require('moment-timezone');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -13,7 +14,7 @@ const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
 const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
 const { generateUUID } = require('../../../utils/uid.util');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
-const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../../constants');
+const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING } = require('../../../constants');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
@@ -21,6 +22,8 @@ const { logInfo, logError } = require('../../common/logging');
 const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
 const { AuditLogger } = require('../../../utils/auditLogger');
 const { groupByLambda } = require('../../../utils/list.util');
+const { R4ArgsParser } = require('../../query/r4ArgsParser');
+const { SearchQueryBuilder } = require('../../search/searchQueryBuilder');
 
 /**
  * Extension URL used to record a marker on the Task each time a byte-range finishes
@@ -57,6 +60,8 @@ class BulkImportHandler {
      * @property {PostRequestProcessor} postRequestProcessor
      * @property {RequestSpecificCache} requestSpecificCache
      * @property {AuditLogger} auditLogger
+     * @property {R4ArgsParser} r4ArgsParser
+     * @property {SearchQueryBuilder} searchQueryBuilder
      *
      * @param {ConstructorParams}
      */
@@ -70,7 +75,9 @@ class BulkImportHandler {
         s3NdjsonReader,
         postRequestProcessor,
         requestSpecificCache,
-        auditLogger
+        auditLogger,
+        r4ArgsParser,
+        searchQueryBuilder
     }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -101,6 +108,12 @@ class BulkImportHandler {
 
         this.auditLogger = auditLogger;
         assertTypeEquals(auditLogger, AuditLogger);
+
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+        this.searchQueryBuilder = searchQueryBuilder;
+        assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
     }
 
     /**
@@ -144,6 +157,67 @@ class BulkImportHandler {
         return databaseQueryManager.findOneAsync({
             query: { id: taskId }
         });
+    }
+
+    /**
+     * Checks whether a resource matching an `ifNoneExist` search query already exists, for
+     * the `{ ifNoneExist, resource }` NDJSON line wrapper's conditional-create semantics.
+     * Bypasses SearchManager's user-scope filtering (bulk import runs as a service principal,
+     * not a scoped user search) but still restricts the match to the importing resource's own
+     * owner tenant -- otherwise this existence check would be a cross-tenant oracle: a match
+     * belonging to a different tenant would silently suppress this tenant's create and leak
+     * that a same-identifier resource exists elsewhere.
+     *
+     * Requires a resolved ownerCode and parses with strict search-parameter handling: an
+     * unrecognized/mistyped query parameter (e.g. "identifer=...") would otherwise silently
+     * drop out of the filter entirely, collapsing the query to "any resource of this type
+     * owned by this tenant" -- a fail-open match that would wrongly skip the create.
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {string} params.ifNoneExist - a FHIR search-query string, e.g.
+     *   "identifier=http://example.com|12345", the same format as the If-None-Exist header.
+     * @param {string} params.ownerCode - the owner-tag code from the importing resource's own
+     *   meta.security; the existence check is restricted to resources owned by this tenant.
+     * @returns {Promise<Object|null>}
+     */
+    async findExistingResourceForIfNoneExistAsync({ resourceType, ifNoneExist, ownerCode }) {
+        if (!ifNoneExist || !ifNoneExist.trim()) {
+            throw new Error('ifNoneExist is empty');
+        }
+        if (!ownerCode) {
+            throw new Error('Cannot resolve an owner tag to scope the ifNoneExist existence check');
+        }
+
+        const base_version = '4_0_0';
+        const args = querystring.parse(ifNoneExist);
+        args.base_version = base_version;
+        // Strict handling: an unrecognized search parameter must throw rather than silently
+        // no-op out of the query (see class docstring above).
+        args.handling = STRICT_SEARCH_HANDLING;
+        const parsedArgs = this.r4ArgsParser.parseArgs({ resourceType, args });
+        const { query } = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
+            base_version,
+            parsedArgs,
+            resourceType,
+            operation: 'read'
+        });
+
+        const scopedQuery = {
+            $and: [
+                query,
+                {
+                    'meta.security': {
+                        $elemMatch: { system: SecurityTagSystem.owner, code: ownerCode }
+                    }
+                }
+            ]
+        };
+
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType,
+            base_version
+        });
+        return databaseQueryManager.findOneAsync({ query: scopedQuery });
     }
 
     // ── TaskCreated (orchestrator side, topic fhir_server.bulk_import.requested) ───────────
@@ -691,6 +765,7 @@ class BulkImportHandler {
         let created = 0;
         let updated = 0;
         let failed = 0;
+        let skipped = 0;
         const mergeResultEntries = [];
 
         // Set once this attempt's first flush actually writes to Mongo (and possibly
@@ -722,8 +797,16 @@ class BulkImportHandler {
             created = 0;
             updated = 0;
             failed = 0;
+            skipped = 0;
             mergeResultEntries.length = 0;
             hasFlushedThisAttempt = false;
+
+            // ifNoneExist criteria "claimed" by a resource already queued for insert in this
+            // attempt but not yet flushed to Mongo. findExistingResourceForIfNoneExistAsync
+            // only sees committed state, so two wrapped lines with the same match criteria
+            // landing in the same unflushed batch would otherwise both pass the existence
+            // check and both get created.
+            const claimedIfNoneExistKeys = new Set();
 
             try {
                 for await (const { lineNumber, byteOffset, resource, parseError } of this.s3NdjsonReader.readNdjsonAsync({
@@ -752,27 +835,89 @@ class BulkImportHandler {
                             error: parseError.message
                         });
                     } else {
+                        // Duplicate-prevention wrapper: { ifNoneExist, resource } instead of a
+                        // plain resource line. A real FHIR resource never has a top-level
+                        // "ifNoneExist" field, so this check doesn't collide with plain lines.
+                        const isIfNoneExistWrapper = resource && typeof resource.ifNoneExist === 'string' &&
+                            resource.resource && typeof resource.resource === 'object';
+                        const innerResource = isIfNoneExistWrapper ? resource.resource : resource;
+
                         try {
                             const fhirResource = FhirResourceWriteSerializer.serialize({
-                                obj: this.applyDefaultSecurityTagsIfMissing(resource)
+                                obj: this.applyDefaultSecurityTagsIfMissing(innerResource)
                             });
-                            const contextData = buildContextDataForHybridStorage(
-                                fhirResource.resourceType, fhirResource, requestInfo
-                            );
-                            await this.fastDatabaseBulkInserter.insertOneAsync({
-                                base_version,
-                                requestInfo,
-                                resourceType: fhirResource.resourceType,
-                                doc: fhirResource,
-                                contextData
-                            });
+
+                            let existingResource = null;
+                            let ifNoneExistKey = null;
+                            if (isIfNoneExistWrapper) {
+                                const securityTags = fhirResource.meta?.security || [];
+                                // Mirrors OwnerColumnHandler's own fallback rule -- a resource
+                                // may arrive with only an access tag and no owner tag yet
+                                // (OwnerColumnHandler backfills the owner from the first access
+                                // tag, but only later during preSave, after this check runs).
+                                const ownerCode = securityTags.find((tag) => tag.system === SecurityTagSystem.owner)?.code ||
+                                    securityTags.find((tag) => tag.system === SecurityTagSystem.access)?.code;
+
+                                ifNoneExistKey = `${fhirResource.resourceType}|${ownerCode}|${resource.ifNoneExist}`;
+                                if (claimedIfNoneExistKeys.has(ifNoneExistKey)) {
+                                    // Another line earlier in this same unflushed batch already
+                                    // claimed this criteria -- treat as a match without a redundant
+                                    // (and stale, since the earlier insert isn't committed yet) query.
+                                    existingResource = true;
+                                } else {
+                                    existingResource = await this.findExistingResourceForIfNoneExistAsync({
+                                        resourceType: fhirResource.resourceType,
+                                        ifNoneExist: resource.ifNoneExist,
+                                        ownerCode
+                                    });
+                                }
+                            }
+
+                            if (existingResource) {
+                                skipped++;
+                                mergeResultEntries.push(new MergeResultEntry({
+                                    id: fhirResource.id,
+                                    uuid: fhirResource._uuid,
+                                    sourceAssigningAuthority: fhirResource._sourceAssigningAuthority,
+                                    resourceType: fhirResource.resourceType,
+                                    created: false,
+                                    updated: false,
+                                    issue: null,
+                                    operationOutcome: null
+                                }));
+                                logInfo('Skipped bulk import resource: matched existing via ifNoneExist', {
+                                    taskId,
+                                    filepath,
+                                    lineNumber,
+                                    byteOffset,
+                                    resourceType: fhirResource.resourceType,
+                                    ifNoneExist: resource.ifNoneExist
+                                });
+                            } else {
+                                const contextData = buildContextDataForHybridStorage(
+                                    fhirResource.resourceType, fhirResource, requestInfo
+                                );
+                                await this.fastDatabaseBulkInserter.insertOneAsync({
+                                    base_version,
+                                    requestInfo,
+                                    resourceType: fhirResource.resourceType,
+                                    doc: fhirResource,
+                                    contextData
+                                });
+                                // Only claim the criteria once the insert is actually queued --
+                                // if insertOneAsync had thrown instead, nothing was created, so a
+                                // later duplicate line in this batch must still be free to try.
+                                if (ifNoneExistKey) {
+                                    claimedIfNoneExistKeys.add(ifNoneExistKey);
+                                }
+                            }
                         } catch (resourceError) {
                             failed++;
                             // Failed before reaching the bulk inserter (e.g. missing/unsupported
                             // resourceType) — still record it so it lands in the error NDJSON and
                             // Task.output, not just a log line.
                             mergeResultEntries.push(
-                                MergeResultEntry.createFromError({ error: resourceError, resource, sourceByteOffset: byteOffset })
+                                MergeResultEntry.createFromError({ error: resourceError, resource: innerResource, sourceByteOffset: byteOffset })
                             );
                             logError('Failed to buffer bulk import resource for write', {
                                 taskId,
@@ -849,7 +994,8 @@ class BulkImportHandler {
                 linesRead,
                 created,
                 updated,
-                failed
+                failed,
+                skipped
             });
 
             await this.recordRangeCompletionAsync({

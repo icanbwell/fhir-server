@@ -55,6 +55,10 @@ make searchParameters
 - Tests use Jest with MongoDB Memory Server (no external DB required)
 - Logs are `SILENT` by default; change `LOGLEVEL` in `jest/setEnvVars.js` to `DEBUG` or `SILLY` for troubleshooting
 - Tests run with `--runInBand` (serial) due to shared in-memory MongoDB
+- `make tests`/`yarn test` runs the full suite in one Node process with `--max-old-space-size=20240`
+  (20GB), tuned for CI/large machines since a long single-process `--runInBand` run across ~1000+
+  files accumulates heap. On a memory-constrained dev machine, override with e.g.
+  `JEST_MAX_OLD_SPACE_SIZE=6144 make tests` to avoid OOM/thrashing against other running apps.
 - Test timeout is 60 seconds
 - Custom matchers in `src/tests/customMatchers.js`: `toHaveResponse`, `toHaveMongoQuery`, etc. Use `toHaveMongoQuery` before `toHaveResponse` as it modifies the result
 - Global setup/teardown: `src/tests/jestGlobalSetup.js` / `src/tests/jestGlobalTeardown.js`

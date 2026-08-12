@@ -219,6 +219,7 @@ module.exports = {
         SYSTEM_GENERATED_REQUEST_ID: 'systemGeneratedRequestId'
     },
     RESPONSE_NONCE: 'responseNonce',
+    MCP_REQUEST_INFO_CONTEXT_KEY: 'mcpFhirRequestInfo',
     ACCESS_LOGS_COLLECTION_NAME: 'access-logs',
     ACCESS_LOGS_ENTRY_DATA: 'access-logs-entry-data',
     PATIENT_REFERENCE_PREFIX: 'Patient/',
