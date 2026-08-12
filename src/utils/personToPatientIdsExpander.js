@@ -541,10 +541,26 @@ class PersonToPatientIdsExpander {
             }
 
             if (addPersonOwnerToContext && person.meta && person.meta.security && person.meta.security.length > 0) {
+                // The consent-enrollment gate's getConsentAsync reads this key back as
+                // `personOwnerFor-<personIdFromJwtToken>` -- the raw JWT claim, never the resolved
+                // _uuid. `personId` above is only reassigned to the raw id when
+                // `returnOriginalPersonId && toMap` (the gate controlling this function's *return
+                // value* shape for map-wanting callers, unrelated to this write), so for every other
+                // caller -- including both McpToolHandler and graphqlv2/dataSource.js, neither of
+                // which sets toMap -- `personId` here is `person._uuid`, which only equals
+                // personIdFromJwtToken when the caller's JWT person id happens to already be a bwell
+                // uuid. Resolving the raw id independently of that gate keeps the write key correct
+                // for every caller, not just ones that opted into the map return shape. Without this,
+                // the write/read keys silently diverge and the enrollment gate never fires: an
+                // unknown owner falls through `if (userOwnerFromContext && ...)` as "no restriction",
+                // so the consent exclusion applies unconditionally regardless of
+                // configManager.clientsWithDataConnectionViewControl (review.md SS D: don't conflate
+                // "owner unknown" with "owner known and applicable").
+                const rawPersonId = personIds.find((id) => id === person._uuid || id === person._sourceId) ?? personId;
                 person.meta.security.forEach((security) => {
                     if (security.system === SecurityTagSystem.owner) {
                         httpContext.set(
-                            `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personId}`,
+                            `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${rawPersonId}`,
                             security.code
                         );
                     }

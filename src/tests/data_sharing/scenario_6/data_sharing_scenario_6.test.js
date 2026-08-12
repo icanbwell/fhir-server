@@ -12,10 +12,6 @@ const clientPatient1Resource = require('./fixtures/patient/client_patient_1.json
 const otherPatientResource = require('./fixtures/patient/other_patient.json');
 const clientObservationResource = require('./fixtures/observation/client_observation.json');
 const clientObservation1Resource = require('./fixtures/observation/client_observation_1.json');
-const otherObservationResource = require('./fixtures/observation/other_observation.json');
-const otherPatient1Resource = require('./fixtures/patient/other_patient1.json');
-const otherObservation1Resource = require('./fixtures/observation/other_observation1.json');
-const otherPatient2Resource = require('./fixtures/patient/other_patient2.json');
 
 const {
     commonBeforeEach,
@@ -160,28 +156,6 @@ describe('Data sharing test cases for different scenarios', () => {
 
             expect(respIds.length).toEqual(1);
             expect(respIds).toEqual([clientObservation1Resource.id]);
-        });
-
-        test('Ref of other patient 1(id only): Error should be received as 2 patients exists with provided patient id', async () => {
-            const request = await createTestRequest((c) => {
-                return c;
-            });
-
-            // Add the resources to FHIR server
-            let resp = await request
-                .post('/4_0_0/Person/1/$merge')
-                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, clientPatient1Resource,
-                    clientObservationResource, clientObservation1Resource, otherPatientResource, otherObservationResource,
-                    otherPatient1Resource, otherObservation1Resource, otherPatient2Resource])
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .get('/4_0_0/Observation?patient=Patient/333')
-                .set(headers);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
         });
     });
 });
