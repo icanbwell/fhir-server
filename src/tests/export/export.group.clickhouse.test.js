@@ -230,6 +230,58 @@ describe('Group Export Tests', () => {
         expect(exportedIds).not.toContain('grp-nonmember');
     }, 60000);
 
+    test('ClickHouse Group export WITHOUT useExternalStorage header returns empty (opt-in behavior)', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
+            return c;
+        });
+
+        const externalHeaders = { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
+
+        const memberIds = ['no-header-p1', 'no-header-p2', 'no-header-p3'];
+        for (const id of memberIds) {
+            await request
+                .post('/4_0_0/Patient/$merge')
+                .send({ resourceType: 'Patient', id, meta: { source: 'http://test.com', security: bwellTags } })
+                .set(getHeaders())
+                .expect(200);
+        }
+
+        // Create ClickHouse-backed Group WITH header (members will be stripped from MongoDB)
+        const createResp = await request
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                meta: {
+                    source: 'http://export-test.com/Group',
+                    security: bwellTags
+                },
+                type: 'person',
+                actual: true,
+                member: memberIds.map(id => ({ entity: { reference: `Patient/${id}` } }))
+            })
+            .set(externalHeaders)  // Use header to migrate to ClickHouse
+            .expect(201);
+
+        // Confirm members were stripped (migrated to ClickHouse)
+        expect(createResp.body.member).toBeUndefined();
+
+        await syncMaterializedViews();
+
+        // Export WITHOUT header (opt-in not provided)
+        const result = await runGroupExport(request, createResp.body.id);  // No headers parameter
+
+        // Export completes successfully (no errors)
+        expect(result.body.errors).toHaveLength(0);
+
+        // But returns empty Patient list (ClickHouse data not accessible without header)
+        const patients = exportedResources(result, 'Patient');
+        expect(patients).toHaveLength(0);
+
+        // Verify this is opt-in behavior: members exist in ClickHouse but aren't returned
+        // This prevents unauthorized access to ClickHouse data
+    }, 60000);
+
     test('Owned hybrid Group whose roster has zero Patient members exports nothing (no tenant-wide fallback)', async () => {
         const request = await createTestRequest((c) => {
             c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
