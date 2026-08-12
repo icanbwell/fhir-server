@@ -18,6 +18,13 @@
  * everythingHelper.js, kafkaClient.js). Each call site has the function-return
  * scope containing all data needed — no scatter, no synchronization burden.
  *
+ * BAI-229 extends the same pattern to bulk $import: three more choke points
+ * (BulkImportHandler.handleTaskCreatedAsync + headS3FilesAsync,
+ * BulkImportHandler.handleImportRangeRequestedAsync, S3NdjsonReader.readNdjsonAsync).
+ * `recordImportResourceOutcomes` reuses `tallyMergeOutcomes` unchanged — a bulk-import
+ * byte range produces the same `MergeResultEntry[]` shape a merge does, so the
+ * per-resource-type tally logic (and its disjointness guarantee) applies as-is.
+ *
  * # Why finally for emission, not by construction
  *
  * Some boundaries (mergeAsync, executeMerge) have a try/catch that rethrows or
@@ -204,6 +211,33 @@ const kafkaRetryExhaustedCounter = meter.createCounter('fhir_kafka_retry_exhaust
     description: 'Kafka producer retry-loop exhaustion. Increments only when the retry loop runs out without success.'
 });
 
+const importOperationsTriggeredCounter = meter.createCounter('fhir_import_operations_triggered_total', {
+    description: 'Bulk $import operations triggered — one per TaskCreated event the orchestrator begins processing (Task found, before S3 validation).'
+});
+
+const importResourcesProcessedCounter = meter.createCounter('fhir_import_resources_processed_total', {
+    description: 'Bulk-imported resources successfully written, by resource_type and outcome (created/updated).'
+});
+
+const importResourcesFailedCounter = meter.createCounter('fhir_import_resources_failed_total', {
+    description: 'Bulk-imported resources that failed to write, by resource_type.'
+});
+
+const importRangeDurationHistogram = meter.createHistogram('fhir_import_range_duration_seconds', {
+    description: 'Wall-clock duration of processing a single bulk-import byte range (ImportRangeRequested), success or failure.',
+    unit: 's'
+});
+
+const importS3ReadThroughputHistogram = meter.createHistogram('fhir_import_s3_read_throughput_bytes_per_second', {
+    description: 'Effective S3 read throughput for a bulk-import byte range: bytes read divided by read duration. Recorded even on partial/aborted reads.',
+    unit: 'By/s'
+});
+
+const importFileSizeHistogram = meter.createHistogram('fhir_import_file_size_bytes', {
+    description: 'Size (bytes) of each S3 input file validated for bulk import.',
+    unit: 'By'
+});
+
 /**
  * Tally `entries` and emit fhir_merge_outcome_total once per (outcome,
  * resource_type) tuple.
@@ -304,6 +338,70 @@ function recordKafkaRetryExhausted (topic, errorCode) {
     });
 }
 
+/**
+ * Emit fhir_import_operations_triggered_total once per TaskCreated event the
+ * orchestrator begins processing.
+ */
+function recordImportOperationTriggered () {
+    importOperationsTriggeredCounter.add(1);
+}
+
+/**
+ * Tally a bulk-import byte range's `MergeResultEntry[]` (identical shape to a merge's
+ * mergeResults) and emit fhir_import_resources_processed_total (created/updated) or
+ * fhir_import_resources_failed_total (error), once per (outcome, resource_type) tuple.
+ * Reuses `tallyMergeOutcomes` unchanged -- see module docstring.
+ * @param {Array<{created?: boolean, updated?: boolean, issue?: any, resourceType?: string}>} entries
+ */
+function recordImportResourceOutcomes (entries) {
+    const tallies = tallyMergeOutcomes(entries);
+    for (const [key, count] of tallies) {
+        const sep = key.indexOf('|');
+        const outcome = key.substring(0, sep);
+        const resourceType = key.substring(sep + 1);
+        if (outcome === OUTCOME.ERROR) {
+            importResourcesFailedCounter.add(count, {
+                [LABEL.RESOURCE_TYPE]: resourceType
+            });
+        } else {
+            importResourcesProcessedCounter.add(count, {
+                [LABEL.OUTCOME]: outcome,
+                [LABEL.RESOURCE_TYPE]: resourceType
+            });
+        }
+    }
+}
+
+/**
+ * Emit fhir_import_range_duration_seconds for a single bulk-import byte range.
+ * @param {number} durationSeconds
+ */
+function recordImportRangeDuration (durationSeconds) {
+    importRangeDurationHistogram.record(durationSeconds);
+}
+
+/**
+ * Emit fhir_import_s3_read_throughput_bytes_per_second for a single bulk-import S3 read.
+ * No-op when durationSeconds is not positive (e.g. failure before any time elapsed) to
+ * avoid a divide-by-zero / Infinity data point.
+ * @param {number} bytesRead
+ * @param {number} durationSeconds
+ */
+function recordImportS3ReadThroughput (bytesRead, durationSeconds) {
+    if (!(durationSeconds > 0)) {
+        return;
+    }
+    importS3ReadThroughputHistogram.record(bytesRead / durationSeconds);
+}
+
+/**
+ * Emit fhir_import_file_size_bytes for a single S3 input file validated for bulk import.
+ * @param {number} fileSizeBytes
+ */
+function recordImportFileSize (fileSizeBytes) {
+    importFileSizeHistogram.record(fileSizeBytes);
+}
+
 module.exports = {
     // Instruments — exported so integration tests can spy on `.add` / `.record`.
     mergeOutcomeCounter,
@@ -311,6 +409,12 @@ module.exports = {
     bundleSizeHistogram,
     everythingEmptyCounter,
     kafkaRetryExhaustedCounter,
+    importOperationsTriggeredCounter,
+    importResourcesProcessedCounter,
+    importResourcesFailedCounter,
+    importRangeDurationHistogram,
+    importS3ReadThroughputHistogram,
+    importFileSizeHistogram,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -318,6 +422,11 @@ module.exports = {
     recordInboundBundleSize,
     recordOutboundEverything,
     recordKafkaRetryExhausted,
+    recordImportOperationTriggered,
+    recordImportResourceOutcomes,
+    recordImportRangeDuration,
+    recordImportS3ReadThroughput,
+    recordImportFileSize,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,

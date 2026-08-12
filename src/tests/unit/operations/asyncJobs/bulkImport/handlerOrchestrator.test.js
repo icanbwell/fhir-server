@@ -35,6 +35,11 @@ jestGlobal.mock('@aws-sdk/client-s3', () => ({
 
 const { BulkImportHandler } = require('../../../../../operations/asyncJobs/bulkImport/handler');
 const { logInfo, logError } = require('../../../../../operations/common/logging');
+const metrics = require('../../../../../utils/metrics');
+// Spied once (module-scope singleton instrument) -- the outer beforeEach's
+// clearAllMocks() resets call history between tests without re-wrapping.
+jestGlobal.spyOn(metrics.importOperationsTriggeredCounter, 'add');
+jestGlobal.spyOn(metrics.importFileSizeHistogram, 'record');
 
 /**
  * Creates a mock ConfigManager with standard bulk import settings.
@@ -234,6 +239,26 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
                 url: 's3://another-allowed-bucket/data.ndjson',
                 fileSize: 1024 * 1024
             });
+        });
+
+        test('BAI-229: records fhir_import_file_size_bytes once per successfully HEAD-ed file', async () => {
+            const inputs = [
+                { url: 's3://allowed-bucket/path/to/file.ndjson' },
+                { url: 's3://another-allowed-bucket/data.ndjson' }
+            ];
+
+            await handler.headS3FilesAsync(inputs);
+
+            expect(metrics.importFileSizeHistogram.record).toHaveBeenCalledTimes(2);
+            expect(metrics.importFileSizeHistogram.record).toHaveBeenCalledWith(1024 * 1024);
+        });
+
+        test('BAI-229: does not record file size for a rejected (disallowed-bucket) file', async () => {
+            const inputs = [{ url: 's3://evil-bucket/stolen-data.ndjson' }];
+
+            await expect(handler.headS3FilesAsync(inputs)).rejects.toThrow();
+
+            expect(metrics.importFileSizeHistogram.record).not.toHaveBeenCalled();
         });
 
         test('rejects S3 URIs from disallowed buckets', async () => {
@@ -560,6 +585,31 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
                 'Orchestrator published byte-range messages',
                 expect.objectContaining({ taskId: 'task-abc-123', messageCount: 3 })
             );
+            expect(metrics.importOperationsTriggeredCounter.add).toHaveBeenCalledTimes(1);
+            expect(metrics.importOperationsTriggeredCounter.add).toHaveBeenCalledWith(1);
+        });
+
+        test('BAI-229: still records operations_triggered when S3 validation later fails', async () => {
+            mockSend.mockRejectedValue(Object.assign(new Error('NotFound'), { name: 'NotFound' }));
+            handler = createHandler({}, {
+                databaseUpdateFactory: {
+                    createDatabaseUpdateManager: jestGlobal.fn(() => ({
+                        updateOneAsync: jestGlobal.fn().mockResolvedValue(undefined)
+                    }))
+                }
+            });
+
+            const message = {
+                key: 'task-bad-s3',
+                value: createTaskCreatedMessage({ taskId: 'task-bad-s3' }),
+                headers: []
+            };
+
+            await handler.handleMessageAsync(message);
+
+            // The operation was triggered (Task found) even though S3 validation failed
+            // afterward -- "triggered" tracks activity, not eventual success.
+            expect(metrics.importOperationsTriggeredCounter.add).toHaveBeenCalledTimes(1);
         });
 
         test('logs and returns without publishing when the Task cannot be found', async () => {
@@ -586,6 +636,7 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
                 { taskId: 'task-missing' }
             );
             expect(publishImportEventsAsync).not.toHaveBeenCalled();
+            expect(metrics.importOperationsTriggeredCounter.add).not.toHaveBeenCalled();
         });
 
         test('marks the Task failed and does not publish when S3 validation fails', async () => {

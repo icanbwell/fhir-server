@@ -27,11 +27,22 @@ const {
     recordInboundBundleSize,
     recordOutboundEverything,
     recordKafkaRetryExhausted,
+    recordImportOperationTriggered,
+    recordImportResourceOutcomes,
+    recordImportRangeDuration,
+    recordImportS3ReadThroughput,
+    recordImportFileSize,
     mergeOutcomeCounter,
     validationFailureCounter,
     bundleSizeHistogram,
     everythingEmptyCounter,
     kafkaRetryExhaustedCounter,
+    importOperationsTriggeredCounter,
+    importResourcesProcessedCounter,
+    importResourcesFailedCounter,
+    importRangeDurationHistogram,
+    importS3ReadThroughputHistogram,
+    importFileSizeHistogram,
     LABEL,
     OUTCOME,
     VALIDATION_STAGE,
@@ -369,6 +380,95 @@ describe('metrics.js', () => {
             expect(kafkaRetryExhaustedCounter.add).toHaveBeenCalledWith(1, expect.objectContaining({
                 [LABEL.ERROR_CODE]: '0'
             }));
+        });
+    });
+
+    describe('recordImportOperationTriggered', () => {
+        test('emits counter with no labels', () => {
+            recordImportOperationTriggered();
+            expect(importOperationsTriggeredCounter.add).toHaveBeenCalledWith(1);
+        });
+
+        test('emits once per call', () => {
+            recordImportOperationTriggered();
+            recordImportOperationTriggered();
+            expect(importOperationsTriggeredCounter.add).toHaveBeenCalledTimes(2);
+        });
+    });
+
+    describe('recordImportResourceOutcomes', () => {
+        test('routes created/updated tallies to the processed counter, by outcome and resource_type', () => {
+            recordImportResourceOutcomes([
+                { created: true, resourceType: 'Patient' },
+                { created: true, resourceType: 'Patient' },
+                { updated: true, resourceType: 'Observation' }
+            ]);
+            expect(importResourcesProcessedCounter.add).toHaveBeenCalledTimes(2);
+            expect(importResourcesProcessedCounter.add).toHaveBeenCalledWith(2, {
+                [LABEL.OUTCOME]: OUTCOME.CREATED,
+                [LABEL.RESOURCE_TYPE]: 'Patient'
+            });
+            expect(importResourcesProcessedCounter.add).toHaveBeenCalledWith(1, {
+                [LABEL.OUTCOME]: OUTCOME.UPDATED,
+                [LABEL.RESOURCE_TYPE]: 'Observation'
+            });
+        });
+
+        test('routes error tallies to the failed counter, by resource_type only', () => {
+            recordImportResourceOutcomes([
+                { issue: { severity: 'error' }, resourceType: 'Condition' },
+                { issue: { severity: 'error' }, resourceType: 'Condition' }
+            ]);
+            expect(importResourcesFailedCounter.add).toHaveBeenCalledTimes(1);
+            expect(importResourcesFailedCounter.add).toHaveBeenCalledWith(2, {
+                [LABEL.RESOURCE_TYPE]: 'Condition'
+            });
+        });
+
+        test('does not emit for entries with no outcome (e.g. skipped ifNoneExist matches)', () => {
+            recordImportResourceOutcomes([
+                { created: false, updated: false, issue: null, resourceType: 'Patient' }
+            ]);
+            expect(importResourcesProcessedCounter.add).not.toHaveBeenCalled();
+            expect(importResourcesFailedCounter.add).not.toHaveBeenCalled();
+        });
+
+        test('does not emit for empty or null entries', () => {
+            recordImportResourceOutcomes([]);
+            recordImportResourceOutcomes(null);
+            expect(importResourcesProcessedCounter.add).not.toHaveBeenCalled();
+            expect(importResourcesFailedCounter.add).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('recordImportRangeDuration', () => {
+        test('records the histogram with the given duration', () => {
+            recordImportRangeDuration(12.5);
+            expect(importRangeDurationHistogram.record).toHaveBeenCalledWith(12.5);
+        });
+    });
+
+    describe('recordImportS3ReadThroughput', () => {
+        test('records bytes-per-second when duration is positive', () => {
+            recordImportS3ReadThroughput(1000, 2);
+            expect(importS3ReadThroughputHistogram.record).toHaveBeenCalledWith(500);
+        });
+
+        test('does not record when duration is zero', () => {
+            recordImportS3ReadThroughput(1000, 0);
+            expect(importS3ReadThroughputHistogram.record).not.toHaveBeenCalled();
+        });
+
+        test('does not record when duration is negative', () => {
+            recordImportS3ReadThroughput(1000, -1);
+            expect(importS3ReadThroughputHistogram.record).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('recordImportFileSize', () => {
+        test('records the histogram with the given file size', () => {
+            recordImportFileSize(2048);
+            expect(importFileSizeHistogram.record).toHaveBeenCalledWith(2048);
         });
     });
 
