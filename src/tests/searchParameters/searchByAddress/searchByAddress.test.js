@@ -12,6 +12,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersWithAdmin,
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -40,7 +41,7 @@ describe('Person Tests', () => {
             // search by address, were address line has been passed as address query parameter
             resp = await request
                 .get('/4_0_0/Person/?address=1%20Main%20St.&_debug=1&_bundle=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources1);
         });
@@ -57,7 +58,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }]);
 
             // search by address, were country name has been passed as address query parameter
-            resp = await request.get('/4_0_0/Person/?address=Berea&_debug=1&_bundle=1').set(getHeaders());
+            resp = await request.get('/4_0_0/Person/?address=Berea&_debug=1&_bundle=1').set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources2);
         });
@@ -108,7 +109,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }]);
 
             // search by address, were [postal code] has been passed as address query parameter
-            resp = await request.get('/4_0_0/Person?address:exact=Berea&_debug=1&_bundle=1').set(getHeaders());
+            resp = await request.get('/4_0_0/Person?address:exact=Berea&_debug=1&_bundle=1').set(getHeadersWithAdmin());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources5);
         });

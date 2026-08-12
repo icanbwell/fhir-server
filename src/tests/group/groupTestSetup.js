@@ -13,10 +13,11 @@
  *   });
  */
 
-const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getHeadersWithAdmin } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { withNockSuspended } = require('../testContainerUtils');
 
 // Set env vars
 // These are read lazily by ConfigManager getters, not at import time.
@@ -27,8 +28,68 @@ process.env.CLICKHOUSE_DATABASE = 'fhir';
 process.env.LOGLEVEL = 'SILENT';
 process.env.STREAM_RESPONSE = '0';
 
+/**
+ * supertest methods that start a new HTTP request.
+ * @type {string[]}
+ */
+const HTTP_VERBS = ['get', 'post', 'put', 'patch', 'delete', 'del', 'head', 'options'];
+
+/**
+ * Runs a supertest request's actual HTTP round trip with nock suspended.
+ *
+ * Why: nock (v14, via @mswjs/interceptors) is active in every test because
+ * ../common requires it, and importing it patches http.ClientRequest. Every
+ * supertest request to the in-process server is therefore wrapped in a
+ * MockHttpSocket "passthrough" that shares the real socket's underlying
+ * _handle -- confirmed by inspecting `req.socket.constructor.name`, which is
+ * MockHttpSocket while nock is active (even with nock.enableNetConnect()) and
+ * only plain Socket after nock.restore(). Under the socket churn of the Group
+ * suite that shared fd intermittently reads as invalid, and the real socket's
+ * event forwarding re-emits it as an unhandled `read EINVAL` that aborts
+ * whichever suite is running (see MockHttpSocket.ts passthrough handlers).
+ *
+ * Suspending nock for the duration of the round trip keeps these requests on
+ * real, un-intercepted sockets. This mirrors what jest/patchClickHouseManager.js
+ * already does for ClickHouse I/O; supertest traffic was never covered by it.
+ *
+ * Only `then` needs wrapping: superagent defers the request until the Test is
+ * awaited, its chainable helpers (`set`/`send`/`query`) return the same object,
+ * and `catch`/`finally` delegate to `then`.
+ *
+ * @param {import('supertest').Test} test
+ * @returns {import('supertest').Test}
+ */
+function runWithNockSuspended(test) {
+    const originalThen = test.then.bind(test);
+    test.then = (onFulfilled, onRejected) =>
+        withNockSuspended(() => originalThen()).then(onFulfilled, onRejected);
+    return test;
+}
+
+/**
+ * Wraps a supertest agent so every request it starts runs with nock suspended.
+ *
+ * @param {import('supertest').SuperTest} agent
+ * @returns {import('supertest').SuperTest}
+ */
+function wrapAgentWithNockSuspended(agent) {
+    return new Proxy(agent, {
+        get(target, prop, receiver) {
+            const value = Reflect.get(target, prop, receiver);
+            if (typeof value !== 'function') {
+                return value;
+            }
+            if (HTTP_VERBS.includes(prop)) {
+                return (...args) => runWithNockSuspended(value.apply(target, args));
+            }
+            return value.bind(target);
+        }
+    });
+}
+
 // Shared singleton instances
 let sharedRequest = null;
+let sharedRequestWithNockSuspended = null;
 let sharedClickHouseManager = null;
 let isSetupComplete = false;
 let setupPromise = null;
@@ -61,6 +122,16 @@ async function setupGroupTests() {
 
             // Create shared request (server instance)
             sharedRequest = await createTestRequest();
+
+            // Warm the JWKS cache while nock is still intercepting. Requests handed to
+            // tests run with nock suspended (see wrapAgentWithNockSuspended), so a JWKS
+            // cache miss would try to reach the mocked auth host over the real network
+            // and fail auth. AuthService caches JWKS in a static LRU for 24h and every
+            // lookup funnels through it (jwt.bearer.strategy passes getJwksByUrlAsync as
+            // jwks-rsa's fetcher), so one warm-up covers the whole jest process.
+            await sharedRequest.get('/4_0_0/Group?_count=1').set(getHeaders());
+
+            sharedRequestWithNockSuspended = wrapAgentWithNockSuspended(sharedRequest);
 
             // Create shared ClickHouse manager pointed at the container started by jestGlobalSetup.
             const configManager = new ConfigManager();
@@ -97,6 +168,7 @@ async function teardownGroupTests() {
         await commonAfterEach();
 
         sharedRequest = null;
+        sharedRequestWithNockSuspended = null;
         isSetupComplete = false;
         setupPromise = null;
     } catch (error) {
@@ -216,10 +288,10 @@ async function syncClickHouseMaterializedViews() {
  * @throws {Error} If setup not complete
  */
 function getSharedRequest() {
-    if (!sharedRequest) {
+    if (!sharedRequestWithNockSuspended) {
         throw new Error('Shared request not initialized. Call setupGroupTests() in beforeAll first.');
     }
-    return sharedRequest;
+    return sharedRequestWithNockSuspended;
 }
 
 /**
@@ -245,10 +317,12 @@ function getTestHeaders() {
 /**
  * Helper to get headers with the useExternalStorage flag enabled
  * Used by tests that exercise ClickHouse member storage paths
+ * @param {{admin?: boolean}} [options] - pass { admin: true } for requests that also need
+ *   admin scope
  */
-function getTestHeadersWithExternalStorage() {
+function getTestHeadersWithExternalStorage ({ admin = false } = {}) {
     return {
-        ...getHeaders(),
+        ...(admin ? getHeadersWithAdmin() : getHeaders()),
         [USE_EXTERNAL_STORAGE_HEADER]: 'true'
     };
 }

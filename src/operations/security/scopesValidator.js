@@ -65,15 +65,18 @@ class ScopesValidator {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {("read"|"write")} accessRequested
+     * @param {string} [base_version] the FHIR version of the resource being requested,
+     *  used to scope the delegated-actor consent check to the correct version
      * @returns {Promise<ForbiddenError|undefined>}
      */
-    async isScopesValidAsync({requestInfo, resourceType, accessRequested}) {
+    async isScopesValidAsync({requestInfo, resourceType, accessRequested, base_version}) {
         // eslint-disable-next-line no-useless-catch
         try {
             if (this.configManager.enableDelegatedAccessDetection && requestInfo.userType === AUTH_USER_TYPES.delegatedUser) {
                 const isAllowed = await this.delegatedAccessScopeManager.isAccessAllowedAsync({
                     actor: requestInfo.actor,
-                    personIdFromJwtToken: requestInfo.personIdFromJwtToken
+                    personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                    base_version
                 });
                 if (!isAllowed) {
                     return new ForbiddenError(
@@ -158,7 +161,9 @@ class ScopesValidator {
         // eslint-disable-next-line no-useless-catch
         try {
             // Verify if scopes are valid
-            const forbiddenError = await this.isScopesValidAsync({requestInfo, resourceType, accessRequested});
+            const forbiddenError = await this.isScopesValidAsync({
+                requestInfo, resourceType, accessRequested, base_version: parsedArgs?.base_version
+            });
 
             if (forbiddenError) {
                 await this.fhirLoggingManager.logOperationFailureAsync({
@@ -196,7 +201,9 @@ class ScopesValidator {
             accessRequested
         }
     ) {
-        const forbiddenError = await this.isScopesValidAsync({requestInfo, resourceType, accessRequested});
+        const forbiddenError = await this.isScopesValidAsync({
+            requestInfo, resourceType, accessRequested, base_version: parsedArgs?.base_version
+        });
         return !forbiddenError;
     }
 
@@ -255,6 +262,7 @@ class ScopesValidator {
                 resourceType: updatedResource.resourceType,
                 user,
                 scope,
+                isCreate: !currentResource,
                 ignoreRemovals
             })
         ) {
@@ -349,6 +357,25 @@ class ScopesValidator {
         } catch (e) {
             throw e;
         }
+    }
+
+    /**
+     * Returns whether the given scope string carries an admin scope broad enough to unlock
+     * _explain/_debug/_setIndexHint.
+     *
+     * Deliberately stricter than admin.js's own "any admin/ scope" check (a separate,
+     * pre-existing pattern this does not touch): _explain/_debug/_setIndexHint are a
+     * cross-cutting, not-resource-scoped capability (query-plan disclosure and index
+     * selection apply to every resource type), so a caller holding a narrow admin grant for
+     * one specific capability (e.g. admin/AuditEvent.write) should not thereby unlock it. The
+     * scope's resource segment must be a wildcard, e.g. admin/*.read or admin/*.*.
+     * @param {string|null} scope
+     * @return {boolean}
+     */
+    isAdminScope({scope}) {
+        return this.scopesManager.getAdminScopes({scope}).some(
+            (adminScope) => adminScope.split('/')[1]?.split('.')[0] === '*'
+        );
     }
 }
 

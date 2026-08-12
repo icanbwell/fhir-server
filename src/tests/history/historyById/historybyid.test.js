@@ -5,7 +5,7 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 const expectedObservationResourceWithCountAndNextUrlQuery = require('./fixtures/expected/expected_observation_count_and_next.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest, getTestContainer } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const deepcopy = require('deepcopy');
 
@@ -52,7 +52,7 @@ describe('Observation Tests', () => {
             // search by token system and code and make sure we get the right Observation back
             const resp = await request
                 .get('/4_0_0/Observation/007ae95f-1ce4-43af-a881-7eeff3fd264e/_history?_debug=1')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             expect(resp.body.link).toEqual([
                 {
@@ -109,7 +109,7 @@ describe('Observation Tests', () => {
             // search by token system and code and make sure we get the right Observation back
             const resp = await request
                 .get('/4_0_0/Observation/007ae95f-1ce4-43af-a881-7eeff3fd264e/_history?_debug=1&_count=1&_lastUpdated=lt2023-02-18T01:12:00.000Z')
-                .set(getHeaders());
+                .set(getHeadersWithAdmin());
 
             expect(resp.body.link).toEqual([
                 {

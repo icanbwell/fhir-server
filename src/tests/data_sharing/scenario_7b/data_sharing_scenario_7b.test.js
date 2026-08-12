@@ -2,7 +2,7 @@
 // Client person is further linked with 1 client patient.
 // Client-1 person is further linked with 3 client-1 patient.
 // All patients further have observations resources linked with.
-// Here note that even if consent is provided, normal & hipaa data of 'client-1' is not fetched from 'client' as they do not have
+// Here note that even if consent is provided, data of 'client-1' is not fetched from 'client' as they do not have
 // the same immediate client person.
 
 const masterPersonResource = require('./fixtures/person/master_person.json');
@@ -14,7 +14,7 @@ const clientObservationResource = require('./fixtures/observation/client_observa
 
 const client1PersonResource = require('./fixtures/person/client_1_person.json');
 const client1PatientResource = require('./fixtures/patient/client_1_patient.json');
-const hipaaObservationResource = require('./fixtures/observation/hipaa_observation.json');
+const client1Observation2Resource = require('./fixtures/observation/client_1_observation2.json');
 
 const client1Patient1Resource = require('./fixtures/patient/client_1_patient1.json');
 const client1ObservationResource = require('./fixtures/observation/client_1_observation.json');
@@ -46,7 +46,7 @@ describe('Data sharing test cases for different scenarios', () => {
     });
 
     describe('Data Sharing Scenario - 7b', () => {
-        test('Ref of master person: Get Client patient data only, no hipaa data as no no linking with client person', async () => {
+        test('Ref of master person: Get Client patient data only, no client-1 data as no no linking with client person', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -56,14 +56,14 @@ describe('Data sharing test cases for different scenarios', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource,
-                    hipaaObservationResource, client1Patient1Resource, client1ObservationResource, client1Patient2Resource,
+                    client1Observation2Resource, client1Patient1Resource, client1ObservationResource, client1Patient2Resource,
                     client1Observation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c12345')
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
@@ -81,20 +81,20 @@ describe('Data sharing test cases for different scenarios', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource,
-                    hipaaObservationResource, client1Patient1Resource, client1ObservationResource,
+                    client1Observation2Resource, client1Patient1Resource, client1ObservationResource,
                     client1Patient2Resource, client1Observation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .get('/4_0_0/Observation?patient=Patient/person.c123456')
                 .set(client1Headers);
             const respIds = resp.body.map(item => item.id);
 
             expect(respIds.length).toEqual(3);
             expect(respIds).toEqual(expect.arrayContaining(
-                [hipaaObservationResource.id, client1ObservationResource.id, client1Observation1Resource.id]
+                [client1Observation2Resource.id, client1ObservationResource.id, client1Observation1Resource.id]
             ));
         });
 
@@ -107,7 +107,7 @@ describe('Data sharing test cases for different scenarios', () => {
             let resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
-                    clientObservationResource, client1PersonResource, client1PatientResource, hipaaObservationResource,
+                    clientObservationResource, client1PersonResource, client1PatientResource, client1Observation2Resource,
                     client1Patient1Resource, client1ObservationResource, client1Patient2Resource, client1Observation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -132,7 +132,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource,
-                    hipaaObservationResource, client1Patient1Resource, client1ObservationResource, client1Patient2Resource,
+                    client1Observation2Resource, client1Patient1Resource, client1ObservationResource, client1Patient2Resource,
                     client1Observation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -157,7 +157,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource,
-                    hipaaObservationResource, client1Patient1Resource, client1ObservationResource,
+                    client1Observation2Resource, client1Patient1Resource, client1ObservationResource,
                     client1Patient2Resource, client1Observation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -181,7 +181,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource,
-                    hipaaObservationResource, client1Patient1Resource, client1ObservationResource,
+                    client1Observation2Resource, client1Patient1Resource, client1ObservationResource,
                     client1Patient2Resource, client1Observation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -206,7 +206,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource,
-                    hipaaObservationResource, client1Patient1Resource, client1ObservationResource,
+                    client1Observation2Resource, client1Patient1Resource, client1ObservationResource,
                     client1Patient2Resource, client1Observation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -219,7 +219,7 @@ describe('Data sharing test cases for different scenarios', () => {
 
             expect(respIds.length).toEqual(3);
             expect(respIds).toEqual(expect.arrayContaining(
-                [hipaaObservationResource.id, client1ObservationResource.id, client1Observation1Resource.id]
+                [client1Observation2Resource.id, client1ObservationResource.id, client1Observation1Resource.id]
             ));
         });
 
@@ -233,7 +233,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource,
-                    hipaaObservationResource, client1Patient1Resource, client1ObservationResource,
+                    client1Observation2Resource, client1Patient1Resource, client1ObservationResource,
                     client1Patient2Resource, client1Observation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -247,7 +247,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds.length).toEqual(0);
         });
 
-        test('Ref of client-1 patient: Get client-1 patient observation(hipaa) only, as client-1 header provided', async () => {
+        test('Ref of client-1 patient: Get client-1 patient observation only, as client-1 header provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -257,7 +257,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource,
-                    hipaaObservationResource, client1Patient1Resource, client1ObservationResource,
+                    client1Observation2Resource, client1Patient1Resource, client1ObservationResource,
                     client1Patient2Resource, client1Observation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -269,7 +269,7 @@ describe('Data sharing test cases for different scenarios', () => {
             const respIds = resp.body.map(item => item.id);
 
             expect(respIds.length).toEqual(1);
-            expect(respIds).toEqual([hipaaObservationResource.id]);
+            expect(respIds).toEqual([client1Observation2Resource.id]);
         });
 
         test('Ref of client-1 patient 1: Get client-1 patient 1 observation only, as client-1 header provided', async () => {
@@ -282,7 +282,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource,
-                    hipaaObservationResource, client1Patient1Resource, client1ObservationResource,
+                    client1Observation2Resource, client1Patient1Resource, client1ObservationResource,
                     client1Patient2Resource, client1Observation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -307,7 +307,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     clientObservationResource, client1PersonResource, client1PatientResource,
-                    hipaaObservationResource, client1Patient1Resource, client1ObservationResource,
+                    client1Observation2Resource, client1Patient1Resource, client1ObservationResource,
                     client1Patient2Resource, client1Observation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

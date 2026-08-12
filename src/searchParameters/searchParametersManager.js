@@ -55,6 +55,14 @@ class SearchParametersManager {
                 this.combinedSearchParameters[resourceType] = searchParameters;
             }
         }
+
+        /**
+         * memoized result of getAllowedFieldsForResource(), keyed by resourceType, search
+         * parameter definitions never change at runtime, so this is safe to cache for the
+         * lifetime of this (singleton) instance
+         * @type {Map<string, Set<string>>}
+         */
+        this.allowedFieldsForResourceByType = new Map();
     }
 
     /**
@@ -83,10 +91,19 @@ class SearchParametersManager {
          * @type {Record<string, SearchParameterDefinition>}
          */
         const searchParametersForResource = this.getSearchParametersForResource({ resourceType });
-        if (searchParametersForResource) {
+        // Use hasOwnProperty rather than bare bracket access: the search-parameter maps are plain
+        // objects, so a query parameter literally named `constructor`, `toString`, `valueOf`,
+        // `hasOwnProperty` etc. would otherwise resolve to the inherited Object.prototype member.
+        // That value is truthy, so callers skip their `!propertyObj` unknown-parameter branch and
+        // then dereference `propertyObj.fields`, throwing a TypeError -> HTTP 500 on what is really
+        // just an unrecognized search parameter.
+        if (searchParametersForResource &&
+            Object.prototype.hasOwnProperty.call(searchParametersForResource, queryParameter)) {
             propertyObj = searchParametersForResource[`${queryParameter}`];
         }
-        if (!propertyObj) {
+        if (!propertyObj &&
+            this.combinedSearchParameters.Resource &&
+            Object.prototype.hasOwnProperty.call(this.combinedSearchParameters.Resource, queryParameter)) {
             const searchParametersInheritedFromResource = this.combinedSearchParameters.Resource[`${queryParameter}`];
             propertyObj = searchParametersInheritedFromResource;
         }
@@ -99,6 +116,35 @@ class SearchParametersManager {
      */
     getAllSearchParameters () {
         return Object.entries(this.combinedSearchParameters);
+    }
+
+    /**
+     * Returns every Mongo field path declared on this resource's own search-parameter
+     * definitions, plus the generic `Resource` bucket's (the same resourceType-then-Resource
+     * fallback rule as getPropertyObject/getFieldNameForSearchParameter, but returning the full
+     * set of field paths for a resource instead of looking up one search parameter by name).
+     * Memoized per resourceType since these definitions never change at runtime.
+     * @param {string} resourceType
+     * @return {Set<string>}
+     */
+    getAllowedFieldsForResource ({ resourceType }) {
+        const cached = this.allowedFieldsForResourceByType.get(resourceType);
+        if (cached) {
+            return cached;
+        }
+        const allowedFields = new Set();
+        for (const searchResourceType of [resourceType, 'Resource']) {
+            const searchParametersForResource = this.getSearchParametersForResource({ resourceType: searchResourceType });
+            if (searchParametersForResource) {
+                for (const propertyObj of Object.values(searchParametersForResource)) {
+                    for (const field of propertyObj.fields) {
+                        allowedFields.add(field);
+                    }
+                }
+            }
+        }
+        this.allowedFieldsForResourceByType.set(resourceType, allowedFields);
+        return allowedFields;
     }
 
     /**

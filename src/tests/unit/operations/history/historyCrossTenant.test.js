@@ -81,7 +81,8 @@ describe('History Operation - Cross-Tenant Data Exposure', () => {
             logOperationFailureAsync: jest.fn().mockResolvedValue(undefined)
         };
         mockScopesValidator = {
-            verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined)
+            verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined),
+            isAdminScope: jest.fn().mockReturnValue(true)
         };
         mockBundleManager = {
             createRawBundleFromEntries: jest.fn().mockReturnValue({
@@ -99,8 +100,7 @@ describe('History Operation - Cross-Tenant Data Exposure', () => {
             useAccessIndex: false,
             cloudStorageHistoryResources: [],
             cloudStorageBatchDownloadSize: 10,
-            enableConsentedProaDataAccess: false,
-            enableHIETreatmentRelatedDataAccess: false
+            enableConsentedProaDataAccess: false
         };
         mockSearchManager = {
             constructQueryAsync: jest.fn().mockResolvedValue({ query: {}, columns: new Set() })

@@ -57,6 +57,7 @@ describe('Patient Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
+            const bwellPerson1Uuid = resp.body.uuid;
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
@@ -100,10 +101,18 @@ describe('Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
+            // Patient-scoped self-lookup (personToPatientIdsExpander.js) now resolves a caller's
+            // own Person strictly by _uuid -- and, since IDG-5, no longer follows Person.link to
+            // another Person at all for a patient-scoped caller, so bwellFhirPatient1 (reachable
+            // only via the bwellPerson1 -> bwellFhirPerson1 hop) is no longer reachable. Task1's
+            // `for` references the caller's own Person via the proxy-patient syntax
+            // (Patient/person.<uuid>) using bwellPerson1's real _uuid -- not its plain source id
+            // -- so it resolves cleanly via the same _uuid the query filters on and remains
+            // reachable, same as bwellPatient1 (bwellPerson1's direct Patient.link).
             const person_payload = {
-                scope: 'patient/*.read',
+                scope: 'patient/*.read admin/*.read',
                 username: 'patient-123@example.com',
-                clientFhirPersonId: 'bwellPerson1',
+                clientFhirPersonId: bwellPerson1Uuid,
                 clientFhirPatientId: 'clientFhirPatient',
                 bwellFhirPersonId: 'bwellPerson1',
                 bwellFhirPatientId: 'bwellFhirPatient',

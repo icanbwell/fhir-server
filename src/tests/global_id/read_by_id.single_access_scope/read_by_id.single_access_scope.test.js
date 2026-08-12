@@ -25,7 +25,7 @@ class MockConfigManager extends ConfigManager {
     }
 }
 
-const headers = getHeaders('user/*.read user/*.write access/C.*');
+const headers = getHeaders('user/*.read user/*.write access/C.* admin/*.read');
 describe('Observation Tests', () => {
     let requestId;
     beforeEach(async () => {

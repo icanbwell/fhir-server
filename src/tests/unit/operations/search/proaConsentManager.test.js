@@ -101,8 +101,46 @@ describe('ProaConsentManager', () => {
                             code: { $in: ownerTags }
                         }
                     }
+                },
+                {
+                    $or: [
+                        { 'provision.period.start': { $exists: false } },
+                        { 'provision.period.start': { $lte: expect.any(String) } }
+                    ]
+                },
+                {
+                    $or: [
+                        { 'provision.period.end': { $exists: false } },
+                        { 'provision.period.end': { $gte: expect.any(String) } }
+                    ]
                 }
             ]);
+        });
+
+        test('should filter out consents whose provision.period.end has already passed', async () => {
+            await proaConsentManager.getConsentResources({ ownerTags: ['tag'], patientIds: ['Patient/p1'] });
+
+            const findCall = mockQueryManager.findAsync.mock.calls[0][0];
+            const endClause = findCall.query.$and.find(
+                (clause) => clause.$or && clause.$or.some((c) => 'provision.period.end' in c)
+            );
+            expect(endClause).toBeDefined();
+            expect(endClause.$or).toContainEqual({ 'provision.period.end': { $exists: false } });
+            const gteClause = endClause.$or.find((c) => c['provision.period.end']?.$gte);
+            expect(gteClause).toBeDefined();
+        });
+
+        test('should filter out consents whose provision.period.start is in the future', async () => {
+            await proaConsentManager.getConsentResources({ ownerTags: ['tag'], patientIds: ['Patient/p1'] });
+
+            const findCall = mockQueryManager.findAsync.mock.calls[0][0];
+            const startClause = findCall.query.$and.find(
+                (clause) => clause.$or && clause.$or.some((c) => 'provision.period.start' in c)
+            );
+            expect(startClause).toBeDefined();
+            expect(startClause.$or).toContainEqual({ 'provision.period.start': { $exists: false } });
+            const lteClause = startClause.$or.find((c) => c['provision.period.start']?.$lte);
+            expect(lteClause).toBeDefined();
         });
 
         test('should use CONSENT_OF_LINKED_PERSON_INDEX hint', async () => {

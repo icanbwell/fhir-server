@@ -174,6 +174,16 @@ class FhirDataSource {
                     if (!resourceType) {
                         return [];
                     }
+                    // DCON-4846: getResources/getResourcesBundle gate their own root resourceType,
+                    // but a reference field (e.g. Patient.generalPractitioner) resolves through this
+                    // batch loader for the *referenced* resourceType, bypassing that gate entirely --
+                    // gate it here too so a CMS-partner/delegated-user caller can't pivot through a
+                    // reference to read a disallowed resource type.
+                    this.accessManager.verifyGraphQLReadAccess({
+                        requestInfo,
+                        resourceType,
+                        operation: 'search'
+                    });
                     /**
                      * @type {string[]}
                      */
@@ -215,7 +225,8 @@ class FhirDataSource {
                             parsedArgs: await this.getParsedArgsAsync({
                                 args: args1,
                                 resourceType,
-                                headers: requestInfo.headers
+                                headers: requestInfo.headers,
+                                requestInfo
                             }),
                             useAggregationPipeline: false
                         });
@@ -394,6 +405,13 @@ class FhirDataSource {
      * @return {Promise<Resource[]>}
      */
     async getResources (parent, args, context, info, resourceType) {
+        // DCON-4846: REST search runs this same allowlist check (fhirOperationsManager.search) --
+        // GraphQL reads must too, or a CMS-partner/delegated-user caller could bypass it entirely
+        this.accessManager.verifyGraphQLReadAccess({
+            requestInfo: context.fhirRequestInfo,
+            resourceType,
+            operation: 'search'
+        });
         this.generateResourceProjections(info);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const args1 = {
@@ -421,7 +439,8 @@ class FhirDataSource {
                         {
                             args: args1,
                             resourceType,
-                            headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
+                            headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined,
+                            requestInfo: context.fhirRequestInfo
                         }
                     ),
                     useAggregationPipeline: false
@@ -486,6 +505,12 @@ class FhirDataSource {
      * @return {Promise<Bundle>}
      */
     async getResourcesBundle (parent, args, context, info, resourceType, useAggregationPipeline = false) {
+        // DCON-4846: see getResources -- same allowlist check REST search already enforces
+        this.accessManager.verifyGraphQLReadAccess({
+            requestInfo: context.fhirRequestInfo,
+            resourceType,
+            operation: 'search'
+        });
         this.createDataLoader(args);
         this.generateResourceProjections(info);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
@@ -515,7 +540,8 @@ class FhirDataSource {
                     {
                         args: args1,
                         resourceType,
-                        headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
+                        headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined,
+                        requestInfo: context.fhirRequestInfo
                     }
                 ),
                 useAggregationPipeline
@@ -689,9 +715,10 @@ class FhirDataSource {
      * @param {Object} args
      * @param {string} resourceType
      * @param {Object|undefined} headers
+     * @param {FhirRequestInfo} [requestInfo]
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync ({ args, resourceType, headers }) {
+    async getParsedArgsAsync ({ args, resourceType, headers, requestInfo }) {
         const { base_version } = args;
         /**
          * @type {ParsedArgs}
@@ -706,7 +733,7 @@ class FhirDataSource {
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
-                base_version, parsedArgs, resourceType, operation: READ
+                base_version, parsedArgs, resourceType, operation: READ, requestInfo
             }
         );
         if (headers) {

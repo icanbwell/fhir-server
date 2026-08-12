@@ -50,6 +50,13 @@ const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 /**
  * This class helps with creating graph responses
  */
+// filterProperty is parsed directly from a caller-supplied GraphDefinition link.path
+// (e.g. "subject:role=doctor" -> filterProperty="role") and is used as a literal MongoDB
+// query key (see getForwardReferencesAsync). An unconstrained value could inject a
+// MongoDB operator key (e.g. "$where") into the query. Only field-path-shaped values are
+// applied; anything else is dropped.
+const SAFE_FILTER_PROPERTY_RE = /^[A-Za-z][A-Za-z0-9_.]*$/;
+
 class GraphHelper {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
@@ -372,12 +379,10 @@ class GraphHelper {
             // path like 'generalPractitioner:$and=1' must not be applied as a raw top-level Mongo
             // operator key onto the already tenant/access-tag-scoped query object built above.
             if (filterProperty) {
-                if (filterProperty.startsWith('$')) {
-                    logWarn(`Ignoring GraphDefinition filterProperty '${filterProperty}': Mongo operator keys are not allowed here`, {
-                        resourceType
-                    });
-                } else {
+                if (SAFE_FILTER_PROPERTY_RE.test(filterProperty)) {
                     query[`${filterProperty}`] = filterValue;
+                } else {
+                    logWarn(`Ignoring unsafe filterProperty in GraphDefinition link: ${filterProperty}`);
                 }
             }
             /**

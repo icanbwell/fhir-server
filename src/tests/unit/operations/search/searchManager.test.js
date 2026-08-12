@@ -28,11 +28,14 @@ const { DataSharingManager } = require('../../../../operations/search/dataSharin
 const { SearchQueryBuilder } = require('../../../../operations/search/searchQueryBuilder');
 const { PatientScopeManager } = require('../../../../operations/security/patientScopeManager');
 const { PatientQueryCreator } = require('../../../../operations/common/patientQueryCreator');
+const { SearchParametersManager } = require('../../../../searchParameters/searchParametersManager');
+const { SearchParameterDefinition } = require('../../../../searchParameters/searchParameterTypes');
 
 jest.mock('../../../../operations/common/logging', () => ({
     logError: jest.fn(),
     logInfo: jest.fn(),
-    logDebug: jest.fn()
+    logDebug: jest.fn(),
+    logWarn: jest.fn()
 }));
 
 jest.mock('../../../../operations/common/systemEventLogging', () => ({
@@ -58,6 +61,7 @@ describe('SearchManager', () => {
     let mockSearchQueryBuilder;
     let mockPatientScopeManager;
     let mockPatientQueryCreator;
+    let mockSearchParametersManager;
 
     beforeEach(() => {
         mockDatabaseQueryFactory = Object.create(DatabaseQueryFactory.prototype);
@@ -68,7 +72,6 @@ describe('SearchManager', () => {
         mockR4SearchQueryCreator = Object.create(R4SearchQueryCreator.prototype);
         mockConfigManager = Object.create(ConfigManager.prototype);
         Object.defineProperty(mockConfigManager, 'enableConsentedProaDataAccess', { value: false, writable: true, configurable: true });
-        Object.defineProperty(mockConfigManager, 'enableHIETreatmentRelatedDataAccess', { value: false, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'doNotRequirePersonOrPatientIdForPatientScope', { value: false, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'requiredFiltersForAuditEvent', { value: null, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'auditEventMaxRangePeriod', { value: 30, writable: true, configurable: true });
@@ -85,6 +88,8 @@ describe('SearchManager', () => {
         mockSearchQueryBuilder = Object.create(SearchQueryBuilder.prototype);
         mockPatientScopeManager = Object.create(PatientScopeManager.prototype);
         mockPatientQueryCreator = Object.create(PatientQueryCreator.prototype);
+        mockSearchParametersManager = Object.create(SearchParametersManager.prototype);
+        mockSearchParametersManager.allowedFieldsForResourceByType = new Map();
 
         searchManager = new SearchManager({
             databaseQueryFactory: mockDatabaseQueryFactory,
@@ -102,7 +107,8 @@ describe('SearchManager', () => {
             dataSharingManager: mockDataSharingManager,
             searchQueryBuilder: mockSearchQueryBuilder,
             patientScopeManager: mockPatientScopeManager,
-            patientQueryCreator: mockPatientQueryCreator
+            patientQueryCreator: mockPatientQueryCreator,
+            searchParametersManager: mockSearchParametersManager
         });
     });
 
@@ -122,7 +128,6 @@ describe('SearchManager', () => {
                 query: { resourceType: 'Observation' }, columns: new Set(['_uuid'])
             });
             mockConfigManager.enableConsentedProaDataAccess = false;
-            mockConfigManager.enableHIETreatmentRelatedDataAccess = false;
             mockQueryRewriterManager.rewriteQueryAsync = jest.fn().mockImplementation(async ({ query, columns }) => ({ query, columns }));
         });
 
@@ -196,24 +201,64 @@ describe('SearchManager', () => {
     });
 
     describe('handleSortQuery', () => {
-        it('adds ascending sort', () => {
-            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['date'] } }), _sort: 'date' };
-            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {} });
-            expect(result.options.sort.date).toBe(1);
+        beforeEach(() => {
+            mockSearchParametersManager.getSearchParametersForResource = jest.fn(({ resourceType }) => {
+                if (resourceType === 'Observation') {
+                    return {
+                        status: new SearchParameterDefinition({ type: 'token', field: 'status' }),
+                        category: new SearchParameterDefinition({ type: 'token', field: 'category' })
+                    };
+                }
+                if (resourceType === 'Resource') {
+                    return {
+                        _lastUpdated: new SearchParameterDefinition({ type: 'date', field: 'meta.lastUpdated' })
+                    };
+                }
+                return undefined;
+            });
         });
 
-        it('adds descending sort with - prefix', () => {
-            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['-date'] } }), _sort: '-date' };
-            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {} });
-            expect(result.options.sort.date).toBe(-1);
-        });
-
-        it('handles multiple sort properties', () => {
-            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['status', '-date', 'category'] } }), _sort: 'status,-date,category' };
-            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {} });
+        it('adds ascending sort for an allowed field', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['status'] } }), _sort: 'status' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
             expect(result.options.sort.status).toBe(1);
-            expect(result.options.sort.date).toBe(-1);
+            expect(result.columns.has('status')).toBe(true);
+        });
+
+        it('adds descending sort with - prefix for an allowed field', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['-category'] } }), _sort: '-category' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort.category).toBe(-1);
+        });
+
+        it('handles multiple allowed sort properties, including a nested dotted path from the generic Resource bucket', () => {
+            const parsedArgs = {
+                get: () => ({ queryParameterValue: { values: ['status', '-meta.lastUpdated', 'category'] } }),
+                _sort: 'status,-meta.lastUpdated,category'
+            };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort.status).toBe(1);
+            expect(result.options.sort['meta.lastUpdated']).toBe(-1);
             expect(result.options.sort.category).toBe(1);
+        });
+
+        it('drops a sort field that is not in the resource allowlist instead of failing the request', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['$$$'] } }), _sort: '$$$' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort).toStrictEqual({});
+            expect(result.columns.has('$$$')).toBe(false);
+        });
+
+        it('drops only the invalid field when mixed with valid ones', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['status', '$$$'] } }), _sort: 'status,$$$' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort).toStrictEqual({ status: 1 });
+        });
+
+        it('always allows the configured default sort tie-breaker field, even though it has no search-parameter definition', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['_uuid'] } }), _sort: '_uuid' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort._uuid).toBe(1);
         });
     });
 

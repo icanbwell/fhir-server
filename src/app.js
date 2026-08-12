@@ -15,11 +15,13 @@ const passport = require('passport');
 
 const {handleAlert} = require('./routeHandlers/alert');
 const {MyFHIRServer} = require('./routeHandlers/fhirServer');
+const {McpServer} = require('./routeHandlers/mcpServer');
 const validateContentTypeMiddleware = require('./middleware/contentType-validation.middleware.js')
 const {authenticateWithJsonFailure} = require('./middleware/fhir/authentication.middleware.js');
 const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
 const {AUTH_USER_TYPES} = require('./constants');
 const forbidForUserTypes = require('./middleware/forbidForUserTypes.middleware');
+const createPostRequestCleanupMiddleware = require('./middleware/postRequestCleanup.middleware');
 const {graphqlErrorFormatter} = require('./middleware/graphql/graphqlErrorFormatter');
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
 const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
@@ -32,7 +34,7 @@ const cookieParser = require('cookie-parser');
 const {handleLivenessCheck} = require('./routeHandlers/probeChecker.js');
 const {handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut} = require('./routeHandlers/admin');
 const {getImageVersion} = require('./utils/getImageVersion');
-const {ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constants');
+const {ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE, MCP_REQUEST_INFO_CONTEXT_KEY} = require('./constants');
 const {generateUUID} = require('./utils/uid.util');
 const {logInfo, logError} = require('./operations/common/logging');
 const {generateNonce} = require('./utils/nonce');
@@ -104,8 +106,6 @@ function createApp({fnGetContainer}) {
     const configManager = container.configManager;
 
     const accessLogger = container.accessLogger;
-
-    const httpProtocol = process.env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
     // Urls to be ignored for which access logs are to be created in db.
     const ignoredUrls = ['/live', '/health', '/ready'];
@@ -337,6 +337,18 @@ function createApp({fnGetContainer}) {
         app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(configuredSwaggerDocument));
     }
 
+    // Serves the token endpoint + client id the static OAuth callback page should use,
+    // computed entirely server-side from deploy config. The callback page fetches this
+    // instead of trusting a `tokenUrl`/`clientId` query param, so a caller who navigates
+    // directly to /oauth/callback.html can no longer redirect the auth-code exchange to an
+    // arbitrary endpoint.
+    app.get('/oauth/config', (req, res) => {
+        res.json({
+            tokenUrl: `${process.env.AUTH_CODE_FLOW_URL}/oauth2/token`,
+            clientId: process.env.AUTH_CODE_FLOW_CLIENT_ID
+        });
+    });
+
     app.use('/oauth', express.static(path.join(__dirname, 'oauth')));
 
     // handles when the user is redirected by the OpenIDConnect/OAuth provider
@@ -344,19 +356,24 @@ function createApp({fnGetContainer}) {
         const state = req.query.state;
         const resourceUrl = state
             ? encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
-        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
+        const redirectUrl = `${process.env.HOST_SERVER}/authcallback`;
         res.redirect(
-            `/oauth/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
-            `&clientId=${process.env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${redirectUrl}` +
-            `&tokenUrl=${process.env.AUTH_CODE_FLOW_URL}/oauth2/token`
+            `/oauth/callback.html?code=${encodeURIComponent(req.query.code)}&resourceUrl=${resourceUrl}` +
+            `&redirectUri=${encodeURIComponent(redirectUrl)}`
         );
     });
 
     app.get('/fhir', (req, res) => {
         const resourceUrl = req.query.resource;
-        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
+        const redirectUrl = `${process.env.HOST_SERVER}/authcallback`;
+        // base64-encoded here to match the base64 decode in the /authcallback handler above.
+        // Base64 rewrites '&'/'?' away (they're outside its alphabet), but its own alphabet
+        // still includes '+'/'/'/'=' -- encodeURIComponent below escapes those, so nothing in
+        // the final state value can act as live query syntax and inject/duplicate sibling
+        // params (e.g. redirect_uri). No information is lost either way; it round-trips exactly.
+        const state = resourceUrl ? encodeURIComponent(Buffer.from(resourceUrl, 'ascii').toString('base64')) : '';
         res.redirect(`${process.env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${process.env.AUTH_CODE_FLOW_CLIENT_ID}` +
-            `&redirect_uri=${redirectUrl}&state=${resourceUrl}`);
+            `&redirect_uri=${redirectUrl}&state=${state}`);
     });
 
     app.get('/health', (req, res) => handleHealthCheck(
@@ -371,7 +388,7 @@ function createApp({fnGetContainer}) {
 
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {
-        const returnUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/logout');
+        const returnUrl = `${process.env.HOST_SERVER}/logout`;
         const logoutUrl = `${process.env.AUTH_CODE_FLOW_URL}/logout?client_id=${process.env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
         res.redirect(logoutUrl);
     });
@@ -416,6 +433,47 @@ function createApp({fnGetContainer}) {
 
     app.use('/admin', adminRouter);
 
+    // Gated by ENABLE_MCP (default off): this is a new PHI-read surface, and McpServer's
+    // constructor does eager, boot-time work (assertTypeEquals(this.mcpToolHandler, McpToolHandler))
+    // that could break the entire app's boot -- not just /mcp -- if it were ever mis-wired. Keeping
+    // the whole block, including the `new McpServer(...)` construction, behind this flag ensures
+    // that when MCP is disabled, that constructor never runs at all.
+    if (configManager.enableMcp) {
+        // noinspection JSCheckFunctionSignatures
+        passport.use('mcpStrategy', container.jwt_strategy);
+
+        const mcpRouter = express.Router();
+        mcpRouter.use(cors(fhirServerConfig.server.corsOptions));
+        mcpRouter.use(passport.initialize());
+        mcpRouter.use(authenticateWithJsonFailure('mcpStrategy', {session: false}));
+        // Required, not optional: CMSManager's resource-type allowlist for CMS-partner tokens is only
+        // enforced for GraphQL via this same categorical block (app.js, see graphql/graphqlv2 routers
+        // below), not via a per-call OperationAccessManager.verifyAccess check -- McpToolHandler never
+        // calls that either, so without this line a CMS-partner token could search any resource type
+        // through MCP.
+        mcpRouter.use(forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]));
+        mcpRouter.use(express.json());
+        mcpRouter.use(function buildMcpRequestContext(req, res, next) {
+            // Mirrors graphqlServer.js/graphqlServerV2.js's getContext(), which sets req.container so
+            // graphqlPostRequestCleanup can read it inside res.once('finish', ...) below. Without this,
+            // req.container is always undefined for /mcp requests (McpServer only stores the container
+            // on `this`, not on req), so mcpRequestCleanup's `if (container1)` guard would silently skip
+            // every flush -- the exact audit-log-drop / PostRequestProcessor leak this exists to prevent.
+            req.container = container;
+            httpContext.set(MCP_REQUEST_INFO_CONTEXT_KEY, FhirRequestInfoBuilder.fromRequest(req));
+            next();
+        });
+        // Required, not optional: SearchBundleOperation only *queues* the PHI-read audit entry (via
+        // postRequestProcessor.add) against the current requestId -- nothing drains that queue
+        // automatically. REST (generic.controller.js) and GraphQL (graphqlPostRequestCleanup /
+        // graphqlV2PostRequestCleanup below) both flush it explicitly after the response is sent.
+        // Without this, every /mcp read silently never gets audited, and PostRequestProcessor /
+        // RequestSpecificCache leak one entry per request. See design doc §5.
+        mcpRouter.use(createPostRequestCleanupMiddleware());
+        mcpRouter.use(new McpServer(fnGetContainer).getRouter());
+        app.use('/mcp', mcpRouter);
+    }
+
     // noinspection JSCheckFunctionSignatures
     passport.use('graphqlStrategy', container.jwt_strategy);
 
@@ -434,31 +492,7 @@ function createApp({fnGetContainer}) {
         router.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
         router.use(handleSecurityPolicyGraphql);
-        router.use(function graphqlPostRequestCleanup(req, res, next) {
-            res.once('finish', async () => {
-                const req1 = req;
-                /**
-                 * @type {SimpleContainer}
-                 */
-                const container1 = req1.container;
-                if (container1) {
-                    /**
-                     * @type {PostRequestProcessor}
-                     */
-                    const postRequestProcessor = container1.postRequestProcessor;
-                    if (postRequestProcessor) {
-                        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                        /**
-                         * @type {RequestSpecificCache}
-                         */
-                        const requestSpecificCache = container1.requestSpecificCache;
-                        await postRequestProcessor.executeAsync({requestId});
-                        await requestSpecificCache.clearAsync({requestId});
-                    }
-                }
-            });
-            next();
-        });
+        router.use(createPostRequestCleanupMiddleware());
 
         const routerv2 = express.Router();
         routerv2.use(function markGraphqlV2Route(req, res, next) { req.isGraphQLRoute = true; next(); });
@@ -469,31 +503,7 @@ function createApp({fnGetContainer}) {
         routerv2.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
         routerv2.use(handleSecurityPolicyGraphql);
-        routerv2.use(function graphqlV2PostRequestCleanup(req, res, next) {
-            res.once('finish', async () => {
-                const req1 = req;
-                /**
-                 * @type {SimpleContainer}
-                 */
-                const container1 = req1.container;
-                if (container1) {
-                    /**
-                     * @type {PostRequestProcessor}
-                     */
-                    const postRequestProcessor = container1.postRequestProcessor;
-                    if (postRequestProcessor) {
-                        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                        /**
-                         * @type {RequestSpecificCache}
-                         */
-                        const requestSpecificCache = container1.requestSpecificCache;
-                        await postRequestProcessor.executeAsync({requestId});
-                        await requestSpecificCache.clearAsync({requestId});
-                    }
-                }
-            });
-            next();
-        });
+        routerv2.use(createPostRequestCleanupMiddleware());
 
         Promise.all([
             isTrue(process.env.ENABLE_GRAPHQL) ? graphql(fnGetContainer) : Promise.resolve(),

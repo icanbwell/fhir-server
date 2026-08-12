@@ -58,6 +58,7 @@ const { CustomTracer } = require('../../utils/customTracer');
 const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
+const { RedisManager } = require('../../utils/redisManager');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const httpContext = require('express-http-context');
 const { recordOutboundEverything } = require('../../utils/metrics');
@@ -111,6 +112,7 @@ class EverythingHelper {
      *
      * @param {EverythingHelperParams}
      * @param {RedisStreamManager} redisStreamManager
+     * @param {RedisManager} redisManager
      */
     constructor({
         databaseQueryFactory,
@@ -128,7 +130,8 @@ class EverythingHelper {
         patientDataViewControlManager,
         auditLogger,
         postRequestProcessor,
-        redisStreamManager
+        redisStreamManager,
+        redisManager
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -247,6 +250,12 @@ class EverythingHelper {
          * @type {RedisStreamManager}
          */
         this.redisStreamManager = redisStreamManager;
+
+        /**
+         * @type {RedisManager}
+         */
+        this.redisManager = redisManager;
+        assertTypeEquals(redisManager, RedisManager);
     }
 
     /**
@@ -318,7 +327,7 @@ class EverythingHelper {
         if (!requestInfo.personIdFromJwtToken || requestInfo.userType) {
             return undefined;
         }
-        const keyGenerator = new PatientEverythingCacheKeyGenerator();
+        const keyGenerator = new PatientEverythingCacheKeyGenerator({ redisManager: this.redisManager });
         if (!keyGenerator.isResponseTypeCacheable(requestInfo.accept, parsedArgs)) {
             return undefined;
         }
@@ -793,7 +802,8 @@ class EverythingHelper {
                     useUuidProjection,
                     resourceMapper,
                     cachedStreamer,
-                    everythingChunkIndex
+                    everythingChunkIndex,
+                    scopedPersonIds
                 });
 
                 optionsForQueries = baseResult.options;
@@ -942,7 +952,8 @@ class EverythingHelper {
                     resourceMapper,
                     cachedStreamer,
                     everythingChunkIndex,
-                    personUuidsForCustomQuery
+                    personUuidsForCustomQuery,
+                    scopedPersonIds
                 });
 
                 if (!responseStreamer) {
@@ -1031,7 +1042,8 @@ class EverythingHelper {
                                 everythingRelatedResourceManager,
                                 resourceMapper,
                                 cachedStreamer,
-                                everythingChunkIndex
+                                everythingChunkIndex,
+                                scopedPersonIds
                             });
 
                             depthParallelProcess.push(result);
@@ -1174,7 +1186,8 @@ class EverythingHelper {
         applyPatientFilter = true,
         resourceMapper = new ResourceMapper(),
         cachedStreamer = null,
-        everythingChunkIndex
+        everythingChunkIndex,
+        scopedPersonIds
     }) {
 
         /**
@@ -1221,6 +1234,7 @@ class EverythingHelper {
                 addPersonOwnerToContext: requestInfo.isUser,
                 applyPatientFilter,
                 allowConsentedProaDataAccess: true,
+                useProxyPatientToPersonCache: Boolean(scopedPersonIds?.length),
                 everythingChunkIndex
             });
 
@@ -1487,6 +1501,7 @@ class EverythingHelper {
                     requestInfo.isUser &&
                     this.relatedResourceNeedingPatientScopeFilter[parentResourceType].includes(relatedResourceType),
                 allowConsentedProaDataAccess: true,
+                useProxyPatientToPersonCache: Boolean(scopedPersonIds?.length),
                 everythingChunkIndex
             });
 

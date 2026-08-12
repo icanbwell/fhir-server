@@ -70,7 +70,7 @@ describe('GraphQL Reference as string tests', () => {
                 variables: {},
                 query: graphqlQueryText
             })
-            .set(getGraphQLHeaders());
+            .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedConditionBundleWithReferenceStringResource);
@@ -112,7 +112,7 @@ describe('GraphQL Reference as string tests', () => {
                 variables: {},
                 query: graphqlQueryText
             })
-            .set(getGraphQLHeaders());
+            .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'));
 
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedConditionBundleWithReferenceResourceResource);

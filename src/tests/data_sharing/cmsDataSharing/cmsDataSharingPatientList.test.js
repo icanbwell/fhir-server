@@ -43,7 +43,7 @@ const PATIENT_ID_3 = '08f1b73a-e27c-456d-8a61-277f164a9a57-3';
 // Helper to create CMS partner user headers with patient scope
 const getCmsHeaders = (personId) => {
     const token = getTokenWithCustomPayload({
-        scope: 'patient/*.read user/*.read access/*.read',
+        scope: 'patient/*.read user/*.read access/*.read admin/*.read',
         user_type: 'cms-partner',
         username: personId,
         clientFhirPersonId: personId,

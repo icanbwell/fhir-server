@@ -186,6 +186,105 @@ describe('authentication.middleware', () => {
             expect(req.authInfo).toEqual(info);
         });
 
+        // INC-322 thread 4: transient auth-infrastructure failures must never leak the
+        // raw underlying error/info message (which can contain internal
+        // hostnames/IPs, e.g. `connect ECONNREFUSED 10.0.4.12:443`) to an
+        // unauthenticated caller.
+        describe('transient failures never leak the raw error message', () => {
+            test('REST route: transient `info` failure sends sanitized 503 JSON, not raw message', () => {
+                passport.authenticate.mockImplementation((strategy, options, callback) => {
+                    return (innerReq, innerRes, innerNext) => {
+                        const infrastructureError = new Error('connect ECONNREFUSED 10.0.4.12:443');
+                        infrastructureError.isTransient = true;
+                        callback(null, false, infrastructureError);
+                    };
+                });
+
+                const middleware = authenticateWithJsonFailure('bearer');
+                middleware(req, res, next);
+                expect(res.status).toHaveBeenCalledWith(503);
+                const body = res.json.mock.calls[0][0];
+                expect(JSON.stringify(body)).not.toContain('10.0.4.12');
+                expect(JSON.stringify(body)).not.toContain('ECONNREFUSED');
+            });
+
+            test('GraphQL route: transient `info` failure forwards a sanitized error, not the raw info object', () => {
+                req.isGraphQLRoute = true;
+                passport.authenticate.mockImplementation((strategy, options, callback) => {
+                    return (innerReq, innerRes, innerNext) => {
+                        const infrastructureError = new Error('connect ECONNREFUSED 10.0.4.12:443');
+                        infrastructureError.isTransient = true;
+                        callback(null, false, infrastructureError);
+                    };
+                });
+
+                const middleware = authenticateWithJsonFailure('bearer');
+                middleware(req, res, next);
+                expect(next).toHaveBeenCalledTimes(1);
+                const forwardedErr = next.mock.calls[0][0];
+                expect(forwardedErr).toBeInstanceOf(Error);
+                expect(forwardedErr.statusCode).toBe(503);
+                expect(forwardedErr.message).not.toContain('10.0.4.12');
+                expect(forwardedErr.message).not.toContain('ECONNREFUSED');
+            });
+
+            test('REST route: transient `err` (passport self.error path) sends sanitized 503 JSON, not next(err)', () => {
+                // Mirrors AuthService.verify()'s userinfo-endpoint-failure path, which
+                // calls done(error) with a truthy first arg -- passport-jwt routes that
+                // through self.error(err), landing here as `err`, not `info`.
+                passport.authenticate.mockImplementation((strategy, options, callback) => {
+                    return (innerReq, innerRes, innerNext) => {
+                        const infrastructureError = new Error('connect ECONNREFUSED 10.0.4.12:443');
+                        infrastructureError.isTransient = true;
+                        infrastructureError.statusCode = 503;
+                        callback(infrastructureError, null, null);
+                    };
+                });
+
+                const middleware = authenticateWithJsonFailure('bearer');
+                middleware(req, res, next);
+                expect(next).not.toHaveBeenCalled();
+                expect(res.status).toHaveBeenCalledWith(503);
+                const body = res.json.mock.calls[0][0];
+                expect(JSON.stringify(body)).not.toContain('10.0.4.12');
+                expect(JSON.stringify(body)).not.toContain('ECONNREFUSED');
+            });
+
+            test('GraphQL route: transient `err` forwards a sanitized error, not the raw err', () => {
+                req.isGraphQLRoute = true;
+                passport.authenticate.mockImplementation((strategy, options, callback) => {
+                    return (innerReq, innerRes, innerNext) => {
+                        const infrastructureError = new Error('connect ECONNREFUSED 10.0.4.12:443');
+                        infrastructureError.isTransient = true;
+                        infrastructureError.statusCode = 503;
+                        callback(infrastructureError, null, null);
+                    };
+                });
+
+                const middleware = authenticateWithJsonFailure('bearer');
+                middleware(req, res, next);
+                expect(next).toHaveBeenCalledTimes(1);
+                const forwardedErr = next.mock.calls[0][0];
+                expect(forwardedErr).toBeInstanceOf(Error);
+                expect(forwardedErr.statusCode).toBe(503);
+                expect(forwardedErr.message).not.toContain('10.0.4.12');
+                expect(forwardedErr.message).not.toContain('ECONNREFUSED');
+            });
+
+            test('non-transient `err` still passes through raw to next() (unaffected by INC-322 fix)', () => {
+                const passportError = new Error('some unrelated internal error');
+                passport.authenticate.mockImplementation((strategy, options, callback) => {
+                    return (innerReq, innerRes, innerNext) => {
+                        callback(passportError, null, null);
+                    };
+                });
+
+                const middleware = authenticateWithJsonFailure('bearer');
+                middleware(req, res, next);
+                expect(next).toHaveBeenCalledWith(passportError);
+            });
+        });
+
         test('passes logIn error to next', () => {
             const loginErr = new Error('login failed');
             req.logIn = jestObj.fn((user, opts, cb) => cb(loginErr));

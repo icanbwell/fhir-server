@@ -23,6 +23,18 @@ const person_payload = {
 };
 const headers = getHeadersWithCustomPayload(person_payload);
 
+// Patient-scoped self-lookup (personToPatientIdsExpander.js) now resolves a caller's own Person
+// strictly by _uuid, not by the plain source id the JWT's clientFhirPersonId/bwellFhirPersonId
+// claims would carry here otherwise. Build headers whose claims carry the real _uuid Mongo
+// assigned to the merged person1 fixture, mirroring a real client-issued identity token.
+function personScopedHeaders (personUuid) {
+    return getHeadersWithCustomPayload({
+        ...person_payload,
+        clientFhirPersonId: personUuid,
+        bwellFhirPersonId: personUuid
+    });
+}
+
 class MockConfigManager extends ConfigManager {
     get enableReturnBundle () {
         return true;
@@ -70,7 +82,7 @@ describe('Condition Tests', () => {
             resp = await request
                 .post('/4_0_0/Condition')
                 .send(condition1Resource)
-                .set(headers);
+                .set(personScopedHeaders(resp.body.uuid));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(201);
         });

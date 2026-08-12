@@ -1,5 +1,5 @@
 const { isTrue } = require('../../utils/isTrue');
-const { logDebug, logError } = require('../common/logging');
+const { logDebug, logError, logWarn } = require('../common/logging');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const { pipeline } = require('stream/promises');
@@ -33,6 +33,7 @@ const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { PatientScopeManager } = require('../security/patientScopeManager');
 const { PatientQueryCreator } = require('../common/patientQueryCreator');
+const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const {
     DB_SEARCH_LIMIT_FOR_IDS,
     DB_SEARCH_LIMIT,
@@ -61,6 +62,7 @@ class SearchManager {
      * @param {SearchQueryBuilder} searchQueryBuilder
      * @param {PatientScopeManager} patientScopeManager
      * @param {PatientQueryCreator} patientQueryCreator
+     * @param {SearchParametersManager} searchParametersManager
      */
     constructor (
         {
@@ -79,7 +81,8 @@ class SearchManager {
             dataSharingManager,
             searchQueryBuilder,
             patientScopeManager,
-            patientQueryCreator
+            patientQueryCreator,
+            searchParametersManager
         }
     ) {
         /**
@@ -173,6 +176,11 @@ class SearchManager {
         this.patientQueryCreator = patientQueryCreator;
         assertTypeEquals(patientQueryCreator, PatientQueryCreator);
 
+        /**
+         * @type {SearchParametersManager}
+         */
+        this.searchParametersManager = searchParametersManager;
+        assertTypeEquals(searchParametersManager, SearchParametersManager);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -194,6 +202,9 @@ class SearchManager {
      * @param {boolean} applyPatientFilter
      * @param {boolean} addPersonOwnerToContext
      * @param {boolean} allowConsentedProaDataAccess
+     * @param {boolean} useProxyPatientToPersonCache true when the original request was
+     *   Person/proxy-patient $everything -- signals DataSharingManager.getValidatedPatientIdsMap
+     *   to use the RequestSpecificCache-backed path instead of BwellPersonFinder.
      * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
     async constructQueryAsync (
@@ -213,6 +224,7 @@ class SearchManager {
             applyPatientFilter = true,
             addPersonOwnerToContext = false,
             allowConsentedProaDataAccess = false,
+            useProxyPatientToPersonCache,
             actor,
             everythingChunkIndex
         }
@@ -260,7 +272,15 @@ class SearchManager {
                  * @type {string[]}
                  */
                 const allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                    base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext
+                    base_version,
+                    isUser,
+                    personIdFromJwtToken,
+                    addPersonOwnerToContext,
+                    // Apply the caller's access-tag security filter while traversing Person.link so a
+                    // Person/Patient reachable only via a cross-tenant link on the caller's own Person
+                    // is not silently included in the patient-scope filter. Only supplied when we have
+                    // a real user identity to check against (see getSecurityTagsFromScope).
+                    requestInfo: typeof user === 'string' && scope ? { user, scope } : undefined
                 });
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
@@ -301,7 +321,7 @@ class SearchManager {
                     useHistoryTable
                 });
 
-                if (this.configManager.enableConsentedProaDataAccess || this.configManager.enableHIETreatmentRelatedDataAccess) {
+                if (this.configManager.enableConsentedProaDataAccess) {
                     query = await this.dataSharingManager.updateQueryConsideringDataSharing({
                         base_version,
                         resourceType,
@@ -312,7 +332,8 @@ class SearchManager {
                         requestId,
                         isUser,
                         allowConsentedProaDataAccess,
-                        everythingChunkIndex
+                        everythingChunkIndex,
+                        useProxyPatientToPersonCache
                     });
                 }
             }
@@ -403,7 +424,7 @@ class SearchManager {
         }
         // if _sort is specified then add sort criteria to mongo query
         if (parsedArgs._sort) {
-            const __ret = this.handleSortQuery({ parsedArgs, columns, options });
+            const __ret = this.handleSortQuery({ parsedArgs, columns, options, resourceType });
             columns = __ret.columns;
             options = __ret.options;
         }
@@ -699,15 +720,34 @@ class SearchManager {
     }
 
     /**
+     * builds the set of Mongo field paths that are valid `_sort` targets for a resourceType --
+     * every field path already declared on that resource's search-parameter definitions (via
+     * SearchParametersManager.getAllowedFieldsForResource, which applies the same
+     * resourceType-then-Resource fallback rule as the rest of the search-parameter lookups, and
+     * covers legitimate nested dotted paths, e.g. meta.lastUpdated under the generic Resource
+     * bucket), plus the configured default sort tie-breaker field, which is a raw system field
+     * with no search-parameter definition of its own but is already used directly as a _sort
+     * value today.
+     * @param {string} resourceType
+     * @return {Set<string>}
+     */
+    getAllowedSortFields ({ resourceType }) {
+        const allowedFields = new Set(this.searchParametersManager.getAllowedFieldsForResource({ resourceType }));
+        allowedFields.add(this.configManager.defaultSortId);
+        return allowedFields;
+    }
+
+    /**
      * handles sort: https://www.hl7.org/fhir/search.html#sort
      * @param {ParsedArgs} parsedArgs
      * @param {Set} columns
      * @param {Object} options
+     * @param {string} resourceType
      * @return {{columns:Set, options: Object}} columns selected and changed options
      */
     handleSortQuery (
         {
-            parsedArgs, columns, options
+            parsedArgs, columns, options, resourceType
         }
     ) {
         // GET [base]/Observation?_sort=status,-date,category
@@ -718,25 +758,23 @@ class SearchManager {
          */
         const sort_properties_list = parsedArgs.get('_sort').queryParameterValue.values;
         if (sort_properties_list && sort_properties_list.length > 0) {
+            const allowedSortFields = this.getAllowedSortFields({ resourceType });
             /**
              * @type {import('mongodb').Sort}
              */
             const sort = {};
-            /**
-             * @type {string}
-             */
             for (const sortProperty of sort_properties_list) {
-                if (sortProperty.startsWith('-')) {
-                    /**
-                     * @type {string}
-                     */
-                    const sortPropertyWithoutMinus = sortProperty.substring(1);
-                    sort[`${sortPropertyWithoutMinus}`] = -1;
-                    columns.add(sortPropertyWithoutMinus);
-                } else {
-                    sort[`${sortProperty}`] = 1;
-                    columns.add(sortProperty);
+                const descending = sortProperty.startsWith('-');
+                /**
+                 * @type {string}
+                 */
+                const sortField = descending ? sortProperty.substring(1) : sortProperty;
+                if (!allowedSortFields.has(sortField)) {
+                    logWarn(`Ignoring _sort value '${sortProperty}' for ${resourceType}: not a recognized sortable field`);
+                    continue;
                 }
+                sort[`${sortField}`] = descending ? -1 : 1;
+                columns.add(sortField);
             }
             options.sort = sort;
         }

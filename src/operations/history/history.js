@@ -181,10 +181,36 @@ class BaseHistoryOperationProcessor {
             userType
         } = requestInfo;
 
+        // _explain/_debug/_setIndexHint expose Mongo query plans, collection internals, and
+        // let the caller pick the query's index; only an admin-scoped caller may use them.
+        if ((parsedArgs._explain || parsedArgs._debug || parsedArgs._setIndexHint) && !this.scopesValidator.isAdminScope({ scope })) {
+            parsedArgs._explain = undefined;
+            parsedArgs._debug = undefined;
+            parsedArgs._setIndexHint = undefined;
+        }
+
         if (this.scopesManager.hasPatientScope({ scope })) {
             const forbiddenError =  new ForbiddenError(
                 `user ${user} with scopes [${scope}] failed access check to ${resourceType}'s ` +
                     'history: Access to history resources not allowed if patient scope is present'
+            );
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs?.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: forbiddenError
+            });
+            throw forbiddenError;
+        }
+
+        // SEC-1580 SAE-1: see ScopesManager.hasHistoryAccess for why a tenant-scoped access
+        // code is never sufficient to read history.
+        if (!this.scopesManager.hasHistoryAccess({ resourceType, scope })) {
+            const forbiddenError = new ForbiddenError(
+                `user ${user} with scopes [${scope}] failed access check to ${resourceType}'s ` +
+                    'history: history access requires a non-tenant-specific access scope (access/*.read or access/*.*)'
             );
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
