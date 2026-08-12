@@ -57,6 +57,7 @@
  */
 
 const { metrics: otelMetrics } = require('@opentelemetry/api');
+const { fhirSchemaValidator } = require('./fhirSchemaValidator');
 
 const LABEL = Object.freeze({
     OUTCOME: 'outcome',
@@ -239,6 +240,33 @@ const importFileSizeHistogram = meter.createHistogram('fhir_import_file_size_byt
 });
 
 /**
+ * Splits a `tallyMergeOutcomes` composite key ("outcome|resourceType") back into its parts.
+ * Shared by recordMergeOutcomes and recordImportResourceOutcomes so the key format has one
+ * decoder, not two copies that could drift.
+ * @param {string} key
+ * @returns {{outcome: string, resourceType: string}}
+ */
+function decodeOutcomeTallyKey (key) {
+    const sep = key.indexOf('|');
+    return { outcome: key.substring(0, sep), resourceType: key.substring(sep + 1) };
+}
+
+/**
+ * Memoized Set of every FHIR R4 resourceType this server knows about (same source
+ * fhirSchemaValidator uses to validate saves -- see resourceValidator.js), lazily built on
+ * first use rather than at module load so a test that mocks @opentelemetry/api but never
+ * touches import metrics doesn't pay for it.
+ * @returns {Set<string>}
+ */
+let validResourceTypesSet = null;
+function getValidResourceTypesSet () {
+    if (!validResourceTypesSet) {
+        validResourceTypesSet = new Set(fhirSchemaValidator.getAllResourceTypes());
+    }
+    return validResourceTypesSet;
+}
+
+/**
  * Tally `entries` and emit fhir_merge_outcome_total once per (outcome,
  * resource_type) tuple.
  *
@@ -254,9 +282,7 @@ const importFileSizeHistogram = meter.createHistogram('fhir_import_file_size_byt
 function recordMergeOutcomes (entries) {
     const tallies = tallyMergeOutcomes(entries);
     for (const [key, count] of tallies) {
-        const sep = key.indexOf('|');
-        const outcome = key.substring(0, sep);
-        const resourceType = key.substring(sep + 1);
+        const { outcome, resourceType } = decodeOutcomeTallyKey(key);
         mergeOutcomeCounter.add(count, {
             [LABEL.OUTCOME]: outcome,
             [LABEL.RESOURCE_TYPE]: resourceType
@@ -355,10 +381,18 @@ function recordImportOperationTriggered () {
  */
 function recordImportResourceOutcomes (entries) {
     const tallies = tallyMergeOutcomes(entries);
+    const validResourceTypes = getValidResourceTypesSet();
     for (const [key, count] of tallies) {
-        const sep = key.indexOf('|');
-        const outcome = key.substring(0, sep);
-        const resourceType = key.substring(sep + 1);
+        const { outcome, resourceType: rawResourceType } = decodeOutcomeTallyKey(key);
+        // Unlike merge's resourceType (already routed through a real endpoint), a bulk-import
+        // NDJSON line's resourceType can reach here straight from unvalidated input -- e.g.
+        // handler.js's resourceError catch records a MergeResultEntry for a bad/unsupported
+        // resourceType that failed before FhirResourceWriteSerializer could validate it. Bound
+        // it to the known FHIR resourceType vocabulary before it becomes a label: an unbounded
+        // string here would let a single malicious/malformed upload explode this instrument's
+        // cardinality, and risks free-text/PHI-shaped input leaking into a metric label -- both
+        // forbidden by the PHI label discipline in this module's docstring.
+        const resourceType = validResourceTypes.has(rawResourceType) ? rawResourceType : UNKNOWN;
         if (outcome === OUTCOME.ERROR) {
             importResourcesFailedCounter.add(count, {
                 [LABEL.RESOURCE_TYPE]: resourceType

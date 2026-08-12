@@ -425,6 +425,35 @@ describe('metrics.js', () => {
             });
         });
 
+        test('sanitizes an unbounded/invalid resourceType (e.g. a bad NDJSON line) to UNKNOWN before it becomes a label', () => {
+            recordImportResourceOutcomes([
+                { issue: { severity: 'error' }, resourceType: 'not a real resource type; totally free text' }
+            ]);
+            expect(importResourcesFailedCounter.add).toHaveBeenCalledWith(1, {
+                [LABEL.RESOURCE_TYPE]: UNKNOWN
+            });
+        });
+
+        test('passes through a real FHIR resourceType unchanged', () => {
+            recordImportResourceOutcomes([
+                { created: true, resourceType: 'Patient' }
+            ]);
+            expect(importResourcesProcessedCounter.add).toHaveBeenCalledWith(1, {
+                [LABEL.OUTCOME]: OUTCOME.CREATED,
+                [LABEL.RESOURCE_TYPE]: 'Patient'
+            });
+        });
+
+        test('sanitizes to UNKNOWN on the processed (created/updated) path too, not just failed', () => {
+            recordImportResourceOutcomes([
+                { created: true, resourceType: 'TotallyBogusType' }
+            ]);
+            expect(importResourcesProcessedCounter.add).toHaveBeenCalledWith(1, {
+                [LABEL.OUTCOME]: OUTCOME.CREATED,
+                [LABEL.RESOURCE_TYPE]: UNKNOWN
+            });
+        });
+
         test('does not emit for entries with no outcome (e.g. skipped ifNoneExist matches)', () => {
             recordImportResourceOutcomes([
                 { created: false, updated: false, issue: null, resourceType: 'Patient' }
