@@ -62,7 +62,8 @@ class ExportManager {
             'handling',
             '_type',
             'patient',
-            '_since'
+            '_since',
+            'useExternalStorage'  // Prevent query param from bypassing header check
         ];
 
         // Store useExternalStorage header value for checking during background export

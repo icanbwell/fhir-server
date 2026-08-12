@@ -304,6 +304,25 @@ describe('ExportManager', () => {
             const ext = result.extension.find(e => e.id === 'useExternalStorage');
             expect(ext).toBeUndefined();
         });
+
+        test('prevents query param bypass: useExternalStorage in args is ignored', async () => {
+            const result = await exportManager.generateExportStatusResourceAsync({
+                requestInfo: makeRequestInfo({ headers: {} }),
+                args: { useExternalStorage: 'true' }  // Attacker tries query param
+            });
+            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            expect(ext).toBeUndefined();  // Should be filtered out by ignoredParams
+        });
+
+        test('header takes precedence: query param cannot override header value', async () => {
+            const result = await exportManager.generateExportStatusResourceAsync({
+                requestInfo: makeRequestInfo({ headers: { useexternalstorage: 'true' } }),
+                args: { useExternalStorage: 'false' }  // Attacker tries to downgrade
+            });
+            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            expect(ext).toBeDefined();
+            expect(ext.valueString).toBe('true');  // Header wins, query param ignored
+        });
     });
 
     describe('triggerExportJob', () => {
