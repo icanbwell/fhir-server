@@ -282,6 +282,57 @@ describe('Group Export Tests', () => {
         // This prevents unauthorized access to ClickHouse data
     }, 60000);
 
+    test('ClickHouse Group export WITH useExternalStorage=false header returns empty (explicit opt-out)', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
+            return c;
+        });
+
+        const externalHeadersTrue = { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
+        const externalHeadersFalse = { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'false' };
+
+        const memberIds = ['false-header-p1', 'false-header-p2'];
+        for (const id of memberIds) {
+            await request
+                .post('/4_0_0/Patient/$merge')
+                .send({ resourceType: 'Patient', id, meta: { source: 'http://test.com', security: bwellTags } })
+                .set(getHeaders())
+                .expect(200);
+        }
+
+        // Create ClickHouse-backed Group WITH header=true (members stripped)
+        const createResp = await request
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                meta: {
+                    source: 'http://export-test.com/Group',
+                    security: bwellTags
+                },
+                type: 'person',
+                actual: true,
+                member: memberIds.map(id => ({ entity: { reference: `Patient/${id}` } }))
+            })
+            .set(externalHeadersTrue)
+            .expect(201);
+
+        expect(createResp.body.member).toBeUndefined();
+
+        await syncMaterializedViews();
+
+        // Export WITH header explicitly set to 'false'
+        const result = await runGroupExport(request, createResp.body.id, { headers: externalHeadersFalse });
+
+        // Export completes successfully
+        expect(result.body.errors).toHaveLength(0);
+
+        // Returns empty (same as header absent - explicit opt-out)
+        const patients = exportedResources(result, 'Patient');
+        expect(patients).toHaveLength(0);
+
+        // Verify explicit false has same effect as absent header
+    }, 60000);
+
     test('Owned hybrid Group whose roster has zero Patient members exports nothing (no tenant-wide fallback)', async () => {
         const request = await createTestRequest((c) => {
             c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
