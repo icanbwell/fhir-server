@@ -16,7 +16,7 @@
     "body": "[{\"op\":\"replace\",\"path\":\"/subject/reference\",\"value\":\"Patient/123\"}]",
     "operationResult": "[{\"id\":\"1\",\"uuid\":\"61abdd48-df46-5e98-ac6c-fde3cace4d07\",\"sourceAssigningAuthority\":\"bwell\",\"resourceType\":\"Observation\",\"operationOutcome\":{\"resourceType\":\"OperationOutcome\",\"issue\":[{\"severity\":\"error\",\"code\":\"invalid\",\"details\":{\"text\":\"Patient Reference Patient/123 did not match with patient reference Patient/1 reference present in database\"}}]},\"created\":false,\"updated\":false}]",
     "params": {
-      "_id": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
+      "id": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
     }
   },
   "request": {
