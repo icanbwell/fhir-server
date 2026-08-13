@@ -43,6 +43,10 @@ For example:
 
 [GraphQLV2](readme/graphqlV2.md)
 
+## MCP Support
+
+[MCP Endpoint](docs/mcp-endpoint.md)
+
 ## Merge functionality
 
 [Merge](readme/merge.md)
