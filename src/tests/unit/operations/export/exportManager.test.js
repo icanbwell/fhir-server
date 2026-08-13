@@ -256,6 +256,73 @@ describe('ExportManager', () => {
             });
             expect(result.meta.source).toBe('https://www.icanbwell.com/fhir-server');
         });
+
+        test('includes useExternalStorage extension when header is true', async () => {
+            const result = await exportManager.generateExportStatusResourceAsync({
+                requestInfo: makeRequestInfo({ headers: { useexternalstorage: 'true' } }),
+                args: {}
+            });
+            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            expect(ext).toBeDefined();
+            expect(ext.url).toBe('https://icanbwell.com/codes/useExternalStorage');
+            expect(ext.valueString).toBe('true');
+        });
+
+        test('includes useExternalStorage extension when header is "1"', async () => {
+            const result = await exportManager.generateExportStatusResourceAsync({
+                requestInfo: makeRequestInfo({ headers: { useexternalstorage: '1' } }),
+                args: {}
+            });
+            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            expect(ext).toBeDefined();
+            expect(ext.valueString).toBe('true');
+        });
+
+        test('does not include useExternalStorage extension when header is absent', async () => {
+            const result = await exportManager.generateExportStatusResourceAsync({
+                requestInfo: makeRequestInfo({ headers: {} }),
+                args: {}
+            });
+            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            expect(ext).toBeUndefined();
+        });
+
+        test('does not include useExternalStorage extension when header is false', async () => {
+            const result = await exportManager.generateExportStatusResourceAsync({
+                requestInfo: makeRequestInfo({ headers: { useexternalstorage: 'false' } }),
+                args: {}
+            });
+            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            expect(ext).toBeUndefined();
+        });
+
+        test('does not include useExternalStorage extension when header is "0"', async () => {
+            const result = await exportManager.generateExportStatusResourceAsync({
+                requestInfo: makeRequestInfo({ headers: { useexternalstorage: '0' } }),
+                args: {}
+            });
+            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            expect(ext).toBeUndefined();
+        });
+
+        test('prevents query param bypass: useExternalStorage in args is ignored', async () => {
+            const result = await exportManager.generateExportStatusResourceAsync({
+                requestInfo: makeRequestInfo({ headers: {} }),
+                args: { useExternalStorage: 'true' }  // Attacker tries query param
+            });
+            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            expect(ext).toBeUndefined();  // Should be filtered out by ignoredParams
+        });
+
+        test('header takes precedence: query param cannot override header value', async () => {
+            const result = await exportManager.generateExportStatusResourceAsync({
+                requestInfo: makeRequestInfo({ headers: { useexternalstorage: 'true' } }),
+                args: { useExternalStorage: 'false' }  // Attacker tries to downgrade
+            });
+            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            expect(ext).toBeDefined();
+            expect(ext.valueString).toBe('true');  // Header wins, query param ignored
+        });
     });
 
     describe('triggerExportJob', () => {

@@ -9,12 +9,86 @@ const { FhirRequestInfo } = require('./fhirRequestInfo');
 const { ScopesManager } = require('../operations/security/scopesManager');
 const { SecurityTagManager } = require('../operations/common/securityTagManager');
 const { ConfigManager } = require('./configManager');
+const {
+    meetsMinimumAssurance,
+    isRecognizedAssuranceLevel,
+    DEFAULT_ASSURANCE_MINIMUM_LEVEL
+} = require('./personLinkAssuranceLevel');
 
 const patientReferencePrefix = 'Patient/';
 const personReferencePrefix = 'Person/';
 const personProxyPrefix = 'person.';
 const patientReferencePlusPersonProxyPrefix = `${patientReferencePrefix}${personProxyPrefix}`;
 const maximumRecursionDepth = 4;
+
+/**
+ * DCON-4894 helper: resolves the configured Person.link assurance minimum, falling back to
+ * DEFAULT_ASSURANCE_MINIMUM_LEVEL (and logging a warning) if it is not a recognized
+ * identity-assuranceLevel code -- an unrecognized minimum would otherwise rank 0 (same as a
+ * missing assurance), silently making both the dry-run logging and the enforcement gate a no-op.
+ * @param {string} configuredMinimumLevel
+ * @return {string}
+ */
+function resolvePersonLinkAssuranceMinimumLevel (configuredMinimumLevel) {
+    if (isRecognizedAssuranceLevel(configuredMinimumLevel)) {
+        return configuredMinimumLevel;
+    }
+    logWarn(
+        'configManager.personLinkAssuranceMinimumLevel is not a recognized identity-assuranceLevel code; falling back to the default',
+        { configuredMinimumLevel, fallbackMinimumLevel: DEFAULT_ASSURANCE_MINIMUM_LEVEL }
+    );
+    return DEFAULT_ASSURANCE_MINIMUM_LEVEL;
+}
+
+/**
+ * DCON-4894 helper: classifies each Person.link entry by whether its target is actually a
+ * Patient/Person -- the only target types ever followed by patientIdsToAdd/
+ * personResourceWithPersonReferenceLink below (Practitioner/RelatedPerson targets are legal per
+ * FHIR R4 but never followed) -- and whether it meets the given assurance minimum. Computed once
+ * per link so both the dry-run logging and the enforcement gate can reuse the same result instead
+ * of each independently recomputing meetsMinimumAssurance.
+ * @param {Object[]} links
+ * @param {string} minimumLevel
+ * @param {string} uuidKey
+ * @return {{link: Object, targetUuid: (string|undefined), isPatientOrPersonTarget: boolean, passesAssurance: boolean}[]}
+ */
+function classifyPersonLinksByAssurance ({ links, minimumLevel, uuidKey }) {
+    return links.map(l => {
+        const targetUuid = l.target && l.target[`${uuidKey}`];
+        const isPatientOrPersonTarget = !!targetUuid && !!l.target && (
+            targetUuid.startsWith(patientReferencePrefix) || l.target.type === 'Patient' ||
+            targetUuid.startsWith(personReferencePrefix) || l.target.type === 'Person'
+        );
+        return {
+            link: l,
+            targetUuid,
+            isPatientOrPersonTarget,
+            passesAssurance: meetsMinimumAssurance({ assurance: l.assurance, minimumLevel })
+        };
+    });
+}
+
+/**
+ * DCON-4894 helper: logs a dry-run warning for every classified link that is actually followable
+ * (Patient/Person target) but below the configured assurance minimum. Purely observational --
+ * does not change which links are followed.
+ * @param {ReturnType<typeof classifyPersonLinksByAssurance>} linkAssuranceInfo
+ * @param {string} personId
+ * @param {string} minimumLevel
+ */
+function logBelowMinimumAssuranceLinks ({ linkAssuranceInfo, personId, minimumLevel }) {
+    linkAssuranceInfo
+        .filter(info => info.isPatientOrPersonTarget && !info.passesAssurance)
+        .forEach(info => {
+            const targetId = info.targetUuid
+                .replace(patientReferencePrefix, '')
+                .replace(personReferencePrefix, '');
+            logWarn(
+                'Person.link followed below configured assurance minimum (dry-run, no enforcement)',
+                { personId, targetId, assurance: info.link.assurance, minimumLevel }
+            );
+        });
+}
 
 class PersonToPatientIdsExpander {
     /**
@@ -381,7 +455,48 @@ class PersonToPatientIdsExpander {
             if (person && person.link && person.link.length > 0 && !totalProcessedPersonIds.has(personId)) {
                 const linkedPatients = personToLinkedPatient.get(personId) || new Set();
 
-                const patientIdsToAdd = person.link
+                // DCON-4894: Person.link.assurance-aware traversal. Commit A (dry-run logging,
+                // gated behind logPersonLinkAssuranceBelowMinimum) and Commit B (enforcement,
+                // gated behind enforcePersonLinkAssuranceMinimum) both need, per link: whether
+                // its target is actually a Patient/Person (the only target types ever followed
+                // below -- Practitioner/RelatedPerson targets are legal per FHIR R4 but never
+                // contribute to patientIdsToAdd/personResourceWithPersonReferenceLink, so a
+                // below-minimum warning for one of those would describe a link that was never
+                // going to be followed regardless of assurance) and whether it meets the
+                // configured minimum. Both flags default to false; when both happen to be on
+                // (e.g. running enforcement live while still observing the dry-run logs), this
+                // computes each link's assurance/target-type classification exactly once and
+                // reuses it for both purposes, rather than each flag's block redoing it
+                // independently.
+                let linksToFollow = person.link;
+                if (this.configManager.logPersonLinkAssuranceBelowMinimum ||
+                    this.configManager.enforcePersonLinkAssuranceMinimum) {
+                    const minimumLevel = resolvePersonLinkAssuranceMinimumLevel(
+                        this.configManager.personLinkAssuranceMinimumLevel
+                    );
+                    const linkAssuranceInfo = classifyPersonLinksByAssurance({
+                        links: person.link, minimumLevel, uuidKey
+                    });
+
+                    if (this.configManager.logPersonLinkAssuranceBelowMinimum) {
+                        logBelowMinimumAssuranceLinks({ linkAssuranceInfo, personId, minimumLevel });
+                    }
+
+                    // DCON-4894 Commit B: when on, a Person.link below the configured assurance
+                    // minimum is excluded from being followed at all -- it contributes neither to
+                    // patientIdsToAdd nor to personResourceWithPersonReferenceLink below, so it is
+                    // never returned and (if it targets a Person) never recursed into. The logging
+                    // above fires unconditionally (regardless of this flag) so operators can see
+                    // what's actively being excluded once enforcement is on, not just what would
+                    // have been excluded.
+                    if (this.configManager.enforcePersonLinkAssuranceMinimum) {
+                        linksToFollow = linkAssuranceInfo
+                            .filter(info => info.passesAssurance)
+                            .map(info => info.link);
+                    }
+                }
+
+                const patientIdsToAdd = linksToFollow
                     .filter(l => l.target && l.target[`${uuidKey}`] &&
                         (l.target[`${uuidKey}`].startsWith(patientReferencePrefix) || l.target.type === 'Patient'))
                     .map(l => {
@@ -395,7 +510,7 @@ class PersonToPatientIdsExpander {
 
                 patientIds = patientIds.concat(patientIdsToAdd);
 
-                const personResourceWithPersonReferenceLink = person.link
+                const personResourceWithPersonReferenceLink = linksToFollow
                     .filter(l => l.target && l.target[`${uuidKey}`] &&
                         (l.target[`${uuidKey}`].startsWith(personReferencePrefix) || l.target.type === 'Person'))
                     .map(l => {
@@ -426,10 +541,26 @@ class PersonToPatientIdsExpander {
             }
 
             if (addPersonOwnerToContext && person.meta && person.meta.security && person.meta.security.length > 0) {
+                // The consent-enrollment gate's getConsentAsync reads this key back as
+                // `personOwnerFor-<personIdFromJwtToken>` -- the raw JWT claim, never the resolved
+                // _uuid. `personId` above is only reassigned to the raw id when
+                // `returnOriginalPersonId && toMap` (the gate controlling this function's *return
+                // value* shape for map-wanting callers, unrelated to this write), so for every other
+                // caller -- including both McpToolHandler and graphqlv2/dataSource.js, neither of
+                // which sets toMap -- `personId` here is `person._uuid`, which only equals
+                // personIdFromJwtToken when the caller's JWT person id happens to already be a bwell
+                // uuid. Resolving the raw id independently of that gate keeps the write key correct
+                // for every caller, not just ones that opted into the map return shape. Without this,
+                // the write/read keys silently diverge and the enrollment gate never fires: an
+                // unknown owner falls through `if (userOwnerFromContext && ...)` as "no restriction",
+                // so the consent exclusion applies unconditionally regardless of
+                // configManager.clientsWithDataConnectionViewControl (review.md SS D: don't conflate
+                // "owner unknown" with "owner known and applicable").
+                const rawPersonId = personIds.find((id) => id === person._uuid || id === person._sourceId) ?? personId;
                 person.meta.security.forEach((security) => {
                     if (security.system === SecurityTagSystem.owner) {
                         httpContext.set(
-                            `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personId}`,
+                            `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${rawPersonId}`,
                             security.code
                         );
                     }
