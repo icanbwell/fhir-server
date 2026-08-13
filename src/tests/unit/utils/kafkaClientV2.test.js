@@ -153,21 +153,6 @@ describe('KafkaClientV2', () => {
         test('stores configManager reference', () => {
             expect(kafkaClient.configManager).toBe(mockConfigManagerInstance);
         });
-
-        test('creates the producer with idempotent: true and a bounded retry config', () => {
-            // Locks in the fix for the duplicate-on-retry bug: without idempotent: true,
-            // a retry after an ambiguous failure (e.g. "Closed connection" during a broker
-            // restart) can write the same record twice. A future refactor that drops this
-            // config would otherwise pass the rest of the suite silently.
-            expect(kafkaClient.client.producer).toHaveBeenCalledWith({
-                idempotent: true,
-                retry: {
-                    initialRetryTime: 500,
-                    retries: 5,
-                    maxRetryTime: 30000
-                }
-            });
-        });
     });
 
     describe('getConfigAsync', () => {

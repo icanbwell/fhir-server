@@ -203,6 +203,8 @@ function createApp({fnGetContainer}) {
                     statusCode: res.statusCode,
                     startTime,
                     authorizationHeader: logAuthContextOn401 ? req.headers.authorization : undefined
+                }).catch((e) => {
+                    logError('Error logging access log entry', { error: e.message });
                 });
             }
             logInfo('Request Completed', logData);

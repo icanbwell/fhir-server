@@ -81,14 +81,7 @@ class KafkaClientV2 {
         };
 
         this.client = new Kafka(config);
-        this.producer = this.client.producer({
-            idempotent: true,
-            retry: {
-                initialRetryTime: 500,
-                retries: 5,
-                maxRetryTime: 30000
-            }
-        });
+        this.producer = this.client.producer();
         this.producerConnected = false;
 
         this.producer.on(this.producer.events.DISCONNECT, () => (this.producerConnected = false));

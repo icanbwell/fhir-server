@@ -63,7 +63,8 @@
   },
   "resolutions": {
     "uuid": "^14.0.0",
-    "yargs": "^18.1.0"
+    "yargs": "^18.1.0",
+    "@hono/node-server": "^2.0.5"
   },
   "dependencies": {
     "@apollo/server": "5.5.1",
@@ -130,6 +131,7 @@
     "graphql-fields": "^2.0.3",
     "graphql-parse-resolve-info": "^4.14.1",
     "helmet": "^8.2.0",
+    "hono": "^4.13.1",
     "jwks-rsa": "^4.0.1",
     "kafkajs": "^2.2.4",
     "lru-cache": "^11.5.0",

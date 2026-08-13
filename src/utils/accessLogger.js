@@ -138,24 +138,29 @@ class AccessLogger {
         };
 
         // Args parsing requires a resourceType; on a 401 the URL may not carry one (e.g. /$graphql).
+        //
+        // Deliberately does NOT call fhirOperationsManager.getParsedArgsAsync() here: that runs
+        // the full query-rewriter pipeline (proxy-patient expansion, reference rewriting, etc.),
+        // which is meant for the real request, not a post-hoc logging pass over one that has
+        // already fully completed. Doing so once caused two production bugs -- an
+        // assertion crash (PersonToPatientIdsExpander.getPatientProxyIdsAsync requires a
+        // requestInfo the rewriters here had no legitimate one to give) and, once that was
+        // "fixed" by passing requestInfo through, a permanent memory leak (PatientProxyQueryRewriter's
+        // writeProaSafeCache recreating a RequestSpecificCache entry for a requestId the real
+        // handler had already cleared, which nothing would ever clear again). Logging the raw,
+        // unrewritten args below avoids the entire rewriter pipeline -- and its side effects --
+        // for this logging-only pass.
         if (resourceType) {
             let combined_args = get_all_args(req, req.sanitized_args);
             combined_args = this.fhirOperationsManager.parseParametersFromBody({ req, combined_args });
-            if (!combined_args.base_version) {
-                combined_args.base_version = '4_0_0';
-            }
-            /**
-             * @type {ParsedArgs}
-             */
-            const args = await this.fhirOperationsManager.getParsedArgsAsync({
-                args: combined_args,
-                resourceType,
-                operation
-            });
 
             const params = {};
-            Object.entries(args.getRawArgs())
-                .filter(([k, _]) => !['resource', 'base_version'].includes(k))
+            Object.entries(combined_args)
+                // 'handling' is a request-processing hint get_all_args() always injects (defaulted
+                // to lenient when the caller doesn't set it), not a real search parameter --
+                // r4ArgsParser.parseArgs() consumes and deletes it the same way before building
+                // parsedArgItems, so it never appeared in the old getParsedArgsAsync()-derived params
+                .filter(([k, _]) => !['resource', 'base_version', 'handling'].includes(k))
                 .forEach(([k, v]) => {
                     params[k] = !v || typeof v === 'string' ? v : JSON.stringify(v, getCircularReplacer());
                 });

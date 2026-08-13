@@ -650,7 +650,8 @@ class FhirOperationsManager {
                         args: combined_args,
                         resourceType,
                         headers: req.headers,
-                        operation: WRITE
+                        operation: WRITE,
+                        requestInfo
                     })
                 });
                 return { requestInfo, parsedArgs };
