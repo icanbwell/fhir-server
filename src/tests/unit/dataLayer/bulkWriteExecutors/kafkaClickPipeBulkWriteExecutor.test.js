@@ -121,13 +121,15 @@ describe('KafkaClickPipeBulkWriteExecutor', () => {
             });
         });
 
-        test('delegates entire batch to fallback when produce fails', async () => {
+        test('delegates entire batch to fallback after all retries exhausted', async () => {
             mockKafkaClientV2.sendCloudEventMessageAsync.mockRejectedValue(new Error('Kafka unavailable'));
 
             const executorWithFallback = new KafkaClickPipeBulkWriteExecutor({
                 kafkaClientV2: mockKafkaClientV2,
                 schemaRegistry: mockSchemaRegistry,
-                fallbackExecutor: mockFallbackExecutor
+                fallbackExecutor: mockFallbackExecutor,
+                maxRetries: 0,
+                initialRetryDelayMs: 0
             });
 
             const params = {
@@ -148,6 +150,34 @@ describe('KafkaClickPipeBulkWriteExecutor', () => {
             expect(mockFallbackExecutor.executeBulkAsync).toHaveBeenCalledWith(params);
             expect(result.error).toBeNull();
             expect(result.mergeResultEntries).toEqual([{ id: 'r1', created: true }]);
+        });
+
+        test('succeeds on retry without falling back', async () => {
+            mockKafkaClientV2.sendCloudEventMessageAsync
+                .mockRejectedValueOnce(new Error('transient broker error'))
+                .mockRejectedValueOnce(new Error('transient broker error'))
+                .mockResolvedValueOnce(undefined);
+
+            const executorWithFallback = new KafkaClickPipeBulkWriteExecutor({
+                kafkaClientV2: mockKafkaClientV2,
+                schemaRegistry: mockSchemaRegistry,
+                fallbackExecutor: mockFallbackExecutor,
+                maxRetries: 2,
+                initialRetryDelayMs: 10
+            });
+
+            const operations = [makeEntry({ id: 'r1', uuid: 'u1' })];
+            const result = await executorWithFallback.executeBulkAsync({
+                resourceType: 'TestResource',
+                operations,
+                requestInfo: { requestId: 'req-retry-1' },
+                base_version: '4_0_0'
+            });
+
+            expect(mockKafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(3);
+            expect(mockFallbackExecutor.executeBulkAsync).not.toHaveBeenCalled();
+            expect(result.mergeResultEntries[0].created).toBe(true);
+            expect(result.error).toBeNull();
         });
 
         test('routes to fallback when extraction throws (bad resource)', async () => {
@@ -178,7 +208,9 @@ describe('KafkaClickPipeBulkWriteExecutor', () => {
 
             const executorNoFallback = new KafkaClickPipeBulkWriteExecutor({
                 kafkaClientV2: mockKafkaClientV2,
-                schemaRegistry: mockSchemaRegistry
+                schemaRegistry: mockSchemaRegistry,
+                maxRetries: 0,
+                initialRetryDelayMs: 0
             });
 
             const operations = [makeEntry({ id: 'r1', uuid: 'u1' })];
