@@ -8,6 +8,13 @@
 tmp
 .vscode
 node_modules
+
+# Claude Code / agent tooling (session data, worktrees, skill caches - not part of the app)
+.claude
+.worktrees
+.playwright-mcp
+.superpowers
+
 .yarn/cache
 .yarn/install-state.gz
 npm-debug.log
@@ -20,3 +27,14 @@ src/tests
 src/app.test.js
 generatorScripts
 generated.sdl
+
+# Not needed at runtime - docker-compose only bind-mounts src/package.json/yarn.lock/.yarnrc.yml,
+# and keycloak-config/clickhouse-init are bind-mounted into the keycloak/clickhouse containers
+# directly (not built into this image)
+docs
+policies
+readme
+clickhouse-init
+keycloak-config
+catalog-info.yaml
+service-catalog.yaml
