@@ -223,4 +223,51 @@ describe('/mcp resource authorization', () => {
             process.env.ENABLE_DELEGATED_ACCESS_DETECTION = ENABLE_DELEGATED_ACCESS_DETECTION;
         }
     });
+
+    test('a hidden-tagged resource is excluded from /mcp search by default, and included when _includeHidden=true is passed (resource-authorization.md §8)', async () => {
+        const request = await createTestRequest();
+        const visibleId = 'mcp-sec3-visible';
+        const hiddenId = 'mcp-sec3-hidden';
+
+        let resp = await request
+            .post(`/4_0_0/Patient/${visibleId}/$merge?validate=true`)
+            .send(makePatient(visibleId, { family: 'HiddenTagFamily', given: 'Visible', birthDate: '1990-01-01' }))
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post(`/4_0_0/Patient/${hiddenId}/$merge?validate=true`)
+            .send({
+                ...makePatient(hiddenId, { family: 'HiddenTagFamily', given: 'Hidden', birthDate: '1990-01-01' }),
+                meta: {
+                    source: 'test',
+                    security: minimalSecurity(),
+                    tag: [{ system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior', code: 'hidden' }]
+                }
+            })
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        const { rpc: defaultRpc } = await callMcpTool(request, getFullAccessToken(), 'search_patient', {
+            'family:contains': 'HiddenTagFamily'
+        });
+        expect(defaultRpc.result.isError).toBeUndefined();
+        const defaultIds = idsInBundle(bundleFromToolResult(defaultRpc));
+        expect(defaultIds).toContain(visibleId);
+        expect(defaultIds).not.toContain(hiddenId);
+
+        // _includeHidden isn't a declared field on search_patient's zod schema, but the schema is
+        // .passthrough()-enabled (src/mcp/tools/patient.tool.js) and R4ArgsParser.parseArgs adds any
+        // unrecognized truthy-valued arg as a live ParsedArgsItem in the default (lenient) handling
+        // mode -- so this proves that path actually reaches R4SearchQueryCreator's hidden-tag check
+        // (src/operations/query/r4.js), matching REST's equally-undocumented-in-schema-terms behavior.
+        const { rpc: includeHiddenRpc } = await callMcpTool(request, getFullAccessToken(), 'search_patient', {
+            'family:contains': 'HiddenTagFamily',
+            _includeHidden: 'true'
+        });
+        expect(includeHiddenRpc.result.isError).toBeUndefined();
+        const includeHiddenIds = idsInBundle(bundleFromToolResult(includeHiddenRpc));
+        expect(includeHiddenIds).toContain(visibleId);
+        expect(includeHiddenIds).toContain(hiddenId);
+    });
 });
