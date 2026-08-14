@@ -349,6 +349,7 @@ sequenceDiagram
     C->>Auth: Request
     Auth->>Auth: processForDelegatedActor()<br/>sets userType=delegatedUser, actor
     Auth->>OAM: verifyAccess(operation) — checked first, at the top<br/>of the operation handler, before args are parsed
+    Note over OAM: REST entry point only — see §12's<br/>"Open (latent, harmless today)" entry
     alt write operation (create/update/delete/patch)
         OAM-->>C: 403 Forbidden — read-only
     else read operation (search/searchById/everything/graph)

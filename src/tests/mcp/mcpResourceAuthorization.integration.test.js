@@ -17,8 +17,7 @@ const {
     commonAfterEach,
     getHeaders,
     getFullAccessToken,
-    createTestRequest,
-    getHeadersWithCustomPayload
+    createTestRequest
 } = require('../common');
 const {
     callMcpTool,
@@ -156,17 +155,14 @@ describe('/mcp resource authorization', () => {
             // AuthService.processForDelegatedActor (src/strategies/authService.js) reads jwt_payload.act
             // as an object with `reference` (must start with 'RelatedPerson/') and `sub` fields -- mirrors
             // src/tests/patientScope/search_with_delegated_access/search_with_delegated_access.test.js's
-            // delegatedPayload shape.
-            const delegatedToken = getHeadersWithCustomPayload({
-                scope: 'patient/*.read user/*.* access/*.*',
+            // delegatedPayload shape. Reuses patientScopedToken rather than a raw
+            // getHeadersWithCustomPayload call -- grantorPersonUuid (the Person's real merged _uuid)
+            // equals personUuid(grantorPersonId) here, the same derivation the confidentiality-R test
+            // below already relies on, so the helper's base patient-scoped payload applies unchanged.
+            const delegatedToken = patientScopedToken(grantorPersonId, {
                 username: 'delegated-actor@example.com',
-                clientFhirPersonId: grantorPersonUuid,
-                clientFhirPatientId: 'clientFhirPatient',
-                bwellFhirPersonId: grantorPersonUuid,
-                bwellFhirPatientId: 'bwellFhirPatient',
-                token_use: 'access',
                 act: { reference: `RelatedPerson/${actorRelatedPersonId}`, sub: 'delegated-sub-mcp-sec2' }
-            }).Authorization.replace(/^Bearer /, '');
+            });
 
             // No Consent authorizing this actor yet -- DelegatedAccessRulesManager.hasValidConsentAsync
             // (called from inside ScopesValidator.isScopesValidAsync, shared by every entry point) must
