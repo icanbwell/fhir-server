@@ -45,8 +45,14 @@ COMMON_PARAMS: List[Dict[str, Any]] = [
 # undocumented on these two tools (still functional via inputSchema's .passthrough(), just not
 # discoverable). SubscriptionTopic needs no equivalent entry: its patient-scope narrowing uses the
 # standard `identifier` token param, already present in search-parameters.json.
+#
+# These entries hand-duplicate src/searchParameters/searchParametersManager.js's
+# customSearchParameterQueries (the actual runtime source of truth r4ArgsParser.js reads via
+# getPropertyObject) -- nothing keeps the two in sync, so a new entry added there needs a matching
+# entry added here by hand. TODO(follow-up PR): have this generator read
+# customSearchParameterQueries directly (e.g. via a shared JSON file) instead of re-declaring it.
 EXTENSION_SEARCH_PARAM_OVERRIDES: Dict[str, List[Dict[str, Any]]] = {
-    resource_type: [{
+    "Subscription": [{
         "code": "extension",
         "type": "token",
         "description": (
@@ -54,8 +60,24 @@ EXTENSION_SEARCH_PARAM_OVERRIDES: Dict[str, List[Dict[str, Any]]] = {
             "'https://icanbwell.com/codes/client_person_id'."
         ),
         "target": [],
-    }]
-    for resource_type in ("Subscription", "SubscriptionStatus")
+    }],
+    "SubscriptionStatus": [
+        {
+            "code": "extension",
+            "type": "token",
+            "description": (
+                "Search by a resource extension value, e.g. the b.well connection-identity "
+                "extension 'https://icanbwell.com/codes/client_person_id'."
+            ),
+            "target": [],
+        },
+        {
+            "code": "subscription",
+            "type": "reference",
+            "description": "Subscription that this status is for.",
+            "target": ["Subscription"],
+        },
+    ],
 }
 
 # How to actually *write* a filter value for each FHIR SearchParameter.type, verified against this

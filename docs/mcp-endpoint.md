@@ -251,7 +251,7 @@ per-request/stateless by construction; there is no separate stateful transport m
   exclusion for patient-scoped callers (§9), and the `AuditEvent` required-filters gate (§3). See
   `docs/superpowers/plans/2026-08-14-mcp-resource-authorization-test-coverage.md` for why other
   sections of that doc (§2, §4, §6a, §6b, admin/debug params) don't need their own MCP-level test.
-- `src/tests/mcp/dedicated_tools/` — per-tool coverage for all 16 generated dedicated tools.
+- `src/tests/mcp/dedicated_tools/` — per-tool coverage for all 20 generated dedicated tools.
 - `src/tests/unit/mcp/mcpToolHandler.test.js` — unit coverage for `McpToolHandler`, including
   asserting the consent-exclusion merge against `parsedArgs.parsedArgItems` directly (the structure
   the query builder actually reads), not just the cosmetic bracket property.
