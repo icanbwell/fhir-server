@@ -321,9 +321,13 @@ class EverythingHelper {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string} base_version
+     * @param {boolean} [isPersonEverything] - true only for a genuine Person $everything request;
+     *  included in the cache key so a genuine Person $everything response (potentially
+     *  PROA-expanded) and the equivalent proxy-patient $everything response (never PROA-expanded)
+     *  don't collide on the same key despite sharing the same id/isPersonId/scope/_type
      * @returns {Promise<string|undefined>}
      */
-    async getCacheKey(parsedArgs, requestInfo, resourceType, base_version) {
+    async getCacheKey(parsedArgs, requestInfo, resourceType, base_version, isPersonEverything) {
         if (!requestInfo.personIdFromJwtToken || requestInfo.userType) {
             return undefined;
         }
@@ -355,7 +359,8 @@ class EverythingHelper {
                 id: idForCache,
                 isPersonId: isProxyPatient,
                 parsedArgs: parsedArgs,
-                scope: requestInfo.scope
+                scope: requestInfo.scope,
+                isPersonEverything
             })
             : undefined;
     }
@@ -448,7 +453,7 @@ class EverythingHelper {
             let streamedResources = [];
             const writeCache = this.configManager.writeToCacheForEverythingOperation;
             cacheKey = writeCache ? await this.getCacheKey(
-                parsedArgs, requestInfo, resourceType, base_version
+                parsedArgs, requestInfo, resourceType, base_version, isPersonEverything
             ) : undefined;
             cachedStreamer = cacheKey ? new CachedFhirResponseStreamer({
                 redisStreamManager: this.redisStreamManager,
