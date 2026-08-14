@@ -26,6 +26,35 @@ function personUuid (personId, owner = 'client') {
 }
 
 /**
+ * A patient-scoped JWT payload whose clientFhirPersonId/bwellFhirPersonId is the given
+ * personId's Person._uuid (SEC-1580 IDG-5, #2481, tightened this to an exact _uuid match with
+ * no _sourceId fallback -- see personUuid's doc comment above). Full user/access grants are
+ * included alongside the patient scope so that scope *narrowing* (not an outright access
+ * denial) is what's under test -- mirrors src/tests/graphqlv2/observation/observation.test.js's
+ * getGraphQLHeadersWithPerson usage and src/tests/patientScope/search_with_clientfhirpersonid's
+ * jwt_payload shape.
+ * @param {string} personId
+ * @param {Object} [overrides]
+ * @returns {string} raw bearer token (no 'Bearer ' prefix)
+ */
+function patientScopedToken (personId, overrides = {}) {
+    // eslint-disable-next-line global-require -- avoids a require cycle at module load time,
+    // since common.js pulls in the full app/container graph and this helper module is required
+    // very early by every /mcp test file.
+    const { getHeadersWithCustomPayload } = require('../common');
+    return getHeadersWithCustomPayload({
+        scope: 'patient/*.read user/*.* access/*.*',
+        username: `${personId}@example.com`,
+        clientFhirPersonId: personUuid(personId),
+        clientFhirPatientId: 'clientFhirPatient',
+        bwellFhirPersonId: personUuid(personId),
+        bwellFhirPatientId: 'bwellFhirPatient',
+        token_use: 'access',
+        ...overrides
+    }).Authorization.replace(/^Bearer /, '');
+}
+
+/**
  * Extracts the JSON-RPC envelope out of an MCP SSE response body
  * (`event: message\ndata: {...}\n\n`). supertest does not parse SSE into `resp.body`, so the
  * envelope must be pulled out of `resp.text` by hand.
@@ -291,6 +320,7 @@ module.exports = {
     idsInBundle,
     minimalSecurity,
     personUuid,
+    patientScopedToken,
     makePatient,
     makeLocation,
     makeObservation,
