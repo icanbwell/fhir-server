@@ -130,15 +130,22 @@ schemas:
   sharing one deterministic id, letting a caller answer "what are my data sources" (search
   `SubscriptionTopic` by its `identifier`) and "when did my data last arrive" (fetch the matching
   `SubscriptionStatus` by that same id and read `notificationEvent`/error extensions). `Subscription`
-  and `SubscriptionStatus` also get a generator-injected `extension` field
-  (`generatorScripts/mcp/generate_mcp_tools.py`'s `EXTENSION_SEARCH_PARAM_OVERRIDES`) documenting a
-  b.well-specific token search parameter that has no standard HL7 `SearchParameter` definition (so
-  it doesn't come from `search-parameters.json` the way every other field here does) — this mirrors
-  `patientFilterManager.personFilterWithQueryMapping`'s own `extension=.../client_person_id|{person}`
-  filter verbatim, which is also what enforces patient-scope isolation for these two resource types
-  (they have no `patient`/`subject` search parameter, so they sit outside the generic
-  patient-compartment mechanism every other dedicated tool relies on — see
-  `src/fhir/patientFilterManager.js`).
+  and `SubscriptionStatus` also get an `extension` field (and `SubscriptionStatus` a `subscription`
+  field) documenting b.well-specific search parameters that have no standard HL7 `SearchParameter`
+  definition (so they don't come from `search-parameters.json` the way every other field here
+  does) — `extension` mirrors `patientFilterManager.personFilterWithQueryMapping`'s own
+  `extension=.../client_person_id|{person}` filter verbatim, which is also what enforces
+  patient-scope isolation for these two resource types (they have no `patient`/`subject` search
+  parameter, so they sit outside the generic patient-compartment mechanism every other dedicated
+  tool relies on — see `src/fhir/patientFilterManager.js`). Both fields are loaded by the generator
+  from `src/searchParameters/customSearchParameterQueries.json` — the same file
+  `SearchParametersManager.js` reads at runtime for these non-standard parameters — rather than
+  hand-duplicated as a separate Python declaration, so a new custom parameter added there is picked
+  up automatically the next time `make mcp` runs (see `generate_mcp_tools.py`'s
+  `load_custom_search_parameters_by_resource`). Only `Subscription`/`SubscriptionStatus` surface the
+  generic `Resource`-level `extension` field in their schema
+  (`RESOURCE_TYPES_NEEDING_GENERIC_CUSTOM_PARAMS`) — a deliberate, hand-maintained UX decision, since
+  `extension` is technically usable on every resource but would be noisy to document everywhere.
 
   Each has a typed Zod `inputSchema` with one `z.string().optional()` field per real FHIR search
   parameter for that resource (plus `_id`, `_lastUpdated`, `_count`, `_sort` on every resource),
@@ -173,8 +180,10 @@ New generator following the existing Jinja2 convention (`generatorScripts/classe
 `generatorScripts/graphqlv2/`):
 
 - `generatorScripts/mcp/generate_mcp_tools.py` — reads the same `search-parameters.json` bundle the
-  existing search-parameters generator reads, builds the `TYPE_VALUE_SYNTAX_HINTS` table, and
-  renders one file per curated resource plus the barrel `src/mcp/tools/index.js`.
+  existing search-parameters generator reads, plus
+  `src/searchParameters/customSearchParameterQueries.json` for non-standard fields (see `Tools`
+  above), builds the `TYPE_VALUE_SYNTAX_HINTS` table, and renders one file per curated resource plus
+  the barrel `src/mcp/tools/index.js`.
 - `generatorScripts/mcp/template.mcp_tool.jinja2` — per-resource tool template.
 - `generatorScripts/mcp/commonly_used_resources.json` — the curated resource list; hand-maintained,
   not generated. It's the single source of truth for both which resources get a generated file and
@@ -261,6 +270,10 @@ per-request/stateless by construction; there is no separate stateful transport m
   `src/tests/unit/routeHandlers/mcpFeatureFlag.test.js` — unit coverage for the generic tool
   definition, the route handler, and the `ENABLE_MCP` gate.
 - `generatorScripts/mcp/test_generate_mcp_tools.py` — generator unit tests.
+- `src/tests/unit/searchParameters/customSearchParameterQueries.test.js` — characterization
+  coverage for `SearchParametersManager`'s non-standard search parameters (`extension`,
+  `SubscriptionStatus.subscription`, `ExportStatus.status`), backed by
+  `customSearchParameterQueries.json`, the same file `generate_mcp_tools.py` reads.
 
 ## Known limitations (v1)
 

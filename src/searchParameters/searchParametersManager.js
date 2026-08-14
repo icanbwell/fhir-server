@@ -7,33 +7,25 @@ class SearchParametersManager {
      */
     constructor () {
         /**
-         * This are custom search parameters that we support that are not in FHIR standard search parameters
-         * @type {{Resource: {extension: SearchParameterDefinition}}}
+         * Custom search parameters that we support that are not in FHIR standard search
+         * parameters. Backed by customSearchParameterQueries.json rather than declared inline, so
+         * generatorScripts/mcp/generate_mcp_tools.py can read the same file to document these
+         * fields on generated MCP tool schemas instead of hand-duplicating them in Python (which
+         * previously drifted out of sync -- see that file's load_custom_search_parameters_by_resource).
+         * @type {Record<string, Record<string, SearchParameterDefinition>>}
          */
-        const customSearchParameterQueries = {
-            Resource: {
-                extension: new SearchParameterDefinition({
-                    description: 'Extension',
-                    type: 'token',
-                    field: 'extension'
-                })
-            },
-            SubscriptionStatus: {
-                subscription: new SearchParameterDefinition({
-                    description: 'Subscription that this status is for',
-                    type: 'reference',
-                    field: 'subscription',
-                    target: ['Subscription']
-                })
-            },
-            ExportStatus: {
-                status: new SearchParameterDefinition({
-                    description: 'The status for ExportStatus',
-                    type: 'token',
-                    field: 'status'
-                })
-            }
-        };
+        const customSearchParameterQueries = Object.fromEntries(
+            Object.entries(require('./customSearchParameterQueries.json')).map(
+                ([resourceType, definitionsByCode]) => [
+                    resourceType,
+                    Object.fromEntries(
+                        Object.entries(definitionsByCode).map(
+                            ([code, definition]) => [code, new SearchParameterDefinition(definition)]
+                        )
+                    )
+                ]
+            )
+        );
         /**
          * @type {Record<string, Record<string, SearchParameterDefinition>>}
          */
