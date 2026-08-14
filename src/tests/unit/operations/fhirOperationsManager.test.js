@@ -459,6 +459,28 @@ describe('FhirOperationsManager', () => {
             expect(mockMergeOperation.mergeAsyncStream).toHaveBeenCalled();
             expect(mockMergeOperation.mergeAsync).not.toHaveBeenCalled();
         });
+
+        // Regression: merge()'s nested getParsedArgsAsync call (inside its
+        // customTracer.trace(() => ...) closure) never threaded requestInfo through to
+        // queryRewriterManager.rewriteArgsAsync, unlike every other operation in this class.
+        // Harmless today only because PatientProxyQueryRewriter is registered for READ, not
+        // WRITE (see src/createContainer.js) -- but a future WRITE-side rewriter needing
+        // requestInfo would silently get undefined here.
+        test('threads requestInfo into getParsedArgsAsync', async () => {
+            const requestInfo = { user: 'u', requestId: 'r', method: 'POST', headers: {} };
+            manager.getRequestInfo = jest.fn().mockReturnValue(requestInfo);
+            manager.parseParametersFromBody = jest.fn().mockImplementation(({ combined_args }) => combined_args);
+
+            const { get_all_args } = require('../../../operations/common/get_all_args');
+            get_all_args.mockReturnValue({ base_version: '4_0_0' });
+
+            const req = { headers: { 'content-type': 'application/json' }, body: {} };
+            await manager.merge([], { req }, 'Patient');
+
+            expect(mockQueryRewriterManager.rewriteArgsAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ requestInfo })
+            );
+        });
     });
 
     describe('everything', () => {

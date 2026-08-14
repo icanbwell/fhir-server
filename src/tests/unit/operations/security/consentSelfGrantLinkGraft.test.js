@@ -16,13 +16,16 @@
  * test).
  *
  * The consent-unlock traversal is keyed off a *Person*, not a Patient -- it only activates for a
- * Person-scoped $everything or the proxy-patient form (Patient/person.<personUuid>/$everything),
- * confirmed against src/utils/bwellPersonFinder.js and src/operations/search/dataSharingManager.js.
+ * genuine Person-scoped $everything (GET /Person/{id}/$everything), confirmed against
+ * src/utils/bwellPersonFinder.js and src/operations/search/dataSharingManager.js. The
+ * proxy-patient form (Patient/person.<personUuid>/$everything) used to activate it too, but a
+ * later fix scoped PROA consented-data-access expansion to genuine Person $everything only, so
+ * these tests now exercise the real /Person/{id}/$everything route directly.
  *
  * W-chain (Task 1.1): Tenant B (1) self-grants a Consent it owns, referencing Tenant A's patient,
  * then (2) grafts a Person.link from Tenant B's own Person to Tenant A's patient, then (3) reads
- * $everything on Tenant B's own Person (proxy-patient form). Neither write is rejected today, and
- * the link graft makes Tenant A's patient a candidate for the (self-granted) consent unlock.
+ * $everything on Tenant B's own Person. Neither write is rejected today, and the link graft makes
+ * Tenant A's patient a candidate for the (self-granted) consent unlock.
  *
  * W1 (Task 1.2): the self-grant in isolation, without the link graft -- Tenant A's patient is
  * never a candidate in Tenant B's own link graph, so it should NOT be reachable via $everything
@@ -190,9 +193,9 @@ describe('SEC-1580 W-chain: consent self-grant + Person.link graft (Task 1.1)', 
             .send(person('personB', 'tenant_b', ['Patient/patB', `Patient/${patAUuid}`]))
             .set(tenantBHeaders);
 
-        // Step 3: Tenant B reads $everything via the proxy-patient form of its own Person.
+        // Step 3: Tenant B reads $everything on its own Person.
         const everythingResp = await request
-            .get(`/4_0_0/Patient/person.${personBUuid}/$everything`)
+            .get(`/4_0_0/Person/${personBUuid}/$everything`)
             .set(tenantBHeaders);
 
         const returnedSourceIds = (everythingResp.body.entry || [])
@@ -266,7 +269,7 @@ describe('SEC-1580 W-chain: consent self-grant + Person.link graft (Task 1.1)', 
         expect(consentResp).toHaveMergeResponse({ created: true });
 
         const everythingResp = await request
-            .get(`/4_0_0/Patient/person.${personBUuid}/$everything`)
+            .get(`/4_0_0/Person/${personBUuid}/$everything`)
             .set(tenantBHeaders);
 
         const returnedSourceIds = (everythingResp.body.entry || [])
@@ -312,7 +315,7 @@ describe('SEC-1580 W1: consent self-grant in isolation, without the link graft (
             .set(tenantBHeaders);
 
         const everythingResp = await request
-            .get(`/4_0_0/Patient/person.${personBUuid}/$everything`)
+            .get(`/4_0_0/Person/${personBUuid}/$everything`)
             .set(tenantBHeaders);
 
         const returnedSourceIds = (everythingResp.body.entry || [])

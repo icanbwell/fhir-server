@@ -42,6 +42,7 @@ const { FhirResourceWriterFactory } = require('../../../operations/streaming/res
 const { DataSharingManager } = require('../../../operations/search/dataSharingManager');
 const { SearchQueryBuilder } = require('../../../operations/search/searchQueryBuilder');
 const { PatientQueryCreator } = require('../../../operations/common/patientQueryCreator');
+const { SearchParametersManager } = require('../../../searchParameters/searchParametersManager');
 
 jest.mock('../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -346,7 +347,8 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                 dataSharingManager: mockDataSharingManager,
                 searchQueryBuilder: mockSearchQueryBuilder,
                 patientScopeManager: mockPatientScopeManager,
-                patientQueryCreator: mockPatientQueryCreator
+                patientQueryCreator: mockPatientQueryCreator,
+                searchParametersManager: createMockInstance(SearchParametersManager)
             });
         });
 

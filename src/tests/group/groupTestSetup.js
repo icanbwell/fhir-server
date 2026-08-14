@@ -13,7 +13,7 @@
  *   });
  */
 
-const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getHeadersWithAdmin } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
@@ -317,10 +317,12 @@ function getTestHeaders() {
 /**
  * Helper to get headers with the useExternalStorage flag enabled
  * Used by tests that exercise ClickHouse member storage paths
+ * @param {{admin?: boolean}} [options] - pass { admin: true } for requests that also need
+ *   admin scope
  */
-function getTestHeadersWithExternalStorage() {
+function getTestHeadersWithExternalStorage ({ admin = false } = {}) {
     return {
-        ...getHeaders(),
+        ...(admin ? getHeadersWithAdmin() : getHeaders()),
         [USE_EXTERNAL_STORAGE_HEADER]: 'true'
     };
 }

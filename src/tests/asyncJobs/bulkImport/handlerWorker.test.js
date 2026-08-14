@@ -949,6 +949,367 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         readSpy.mockRestore();
     });
 
+    test('handleMessageAsync creates a resource from an ifNoneExist-wrapped line when no match exists', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-ine-create' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        container.s3NdjsonReader.setLinesToYield([
+            {
+                ifNoneExist: 'identifier=http://example.com|ine-create-12345',
+                resource: {
+                    resourceType: 'Patient',
+                    id: 'bulk-import-ine-create',
+                    identifier: [{ system: 'http://example.com', value: 'ine-create-12345' }],
+                    name: [{ family: 'Created' }]
+                }
+            }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-ine-create-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-ine-create' }),
+            headers: []
+        });
+
+        await request
+            .get('/4_0_0/Patient/bulk-import-ine-create')
+            .set(getHeaders())
+            .expect(200)
+            .then((res) => {
+                expect(res.body.name[0].family).toBe('Created');
+            });
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-ine-create')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+    });
+
+    test('handleMessageAsync skips an ifNoneExist-wrapped line when a matching resource already exists', async () => {
+        const request = await createTestRequest();
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        // Pre-existing resource with the identifier the bulk-imported line's ifNoneExist
+        // query will match against. Created via a separate bulk-import task (rather than
+        // a plain HTTP PUT) so it doesn't need explicit meta.security tags -- bulk-imported
+        // resources get default security tags applied by the handler itself.
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-ine-preexisting' })
+            .set(getHeaders())
+            .expect(202);
+
+        container.s3NdjsonReader.setLinesToYield([
+            {
+                resourceType: 'Patient',
+                id: 'bulk-import-ine-preexisting',
+                identifier: [{ system: 'http://example.com', value: 'ine-skip-98765' }],
+                name: [{ family: 'PreExisting' }]
+            }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-ine-preexisting-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-ine-preexisting' }),
+            headers: []
+        });
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-ine-skip' })
+            .set(getHeaders())
+            .expect(202);
+
+        container.s3NdjsonReader.setLinesToYield([
+            {
+                ifNoneExist: 'identifier=http://example.com|ine-skip-98765',
+                resource: {
+                    resourceType: 'Patient',
+                    id: 'bulk-import-ine-should-not-be-created',
+                    identifier: [{ system: 'http://example.com', value: 'ine-skip-98765' }],
+                    name: [{ family: 'ShouldNotBeCreated' }]
+                }
+            }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-ine-skip-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-ine-skip' }),
+            headers: []
+        });
+
+        // The wrapped resource's own id must NOT have been created -- ifNoneExist matched
+        // the pre-existing resource, so the write was skipped.
+        await request
+            .get('/4_0_0/Patient/bulk-import-ine-should-not-be-created')
+            .set(getHeaders())
+            .expect(404);
+
+        // The pre-existing resource is unaffected.
+        await request
+            .get('/4_0_0/Patient/bulk-import-ine-preexisting')
+            .set(getHeaders())
+            .expect(200)
+            .then((res) => {
+                expect(res.body.name[0].family).toBe('PreExisting');
+            });
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-ine-skip')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+    });
+
+    test('handleMessageAsync creates a resource from an ifNoneExist-wrapped line when the only identifier match belongs to a different tenant', async () => {
+        const request = await createTestRequest();
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        // Pre-existing resource with the same identifier, but owned by a different tenant.
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-ine-other-tenant-setup' })
+            .set(getHeaders())
+            .expect(202);
+
+        container.s3NdjsonReader.setLinesToYield([
+            {
+                resourceType: 'Patient',
+                id: 'bulk-import-ine-other-tenant',
+                meta: { security: [{ system: 'https://www.icanbwell.com/owner', code: 'clientA' }] },
+                identifier: [{ system: 'http://example.com', value: 'ine-cross-tenant-55555' }],
+                name: [{ family: 'OtherTenant' }]
+            }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-ine-other-tenant-setup-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-ine-other-tenant-setup' }),
+            headers: []
+        });
+
+        // Own-tenant import whose ifNoneExist query matches only the other tenant's resource
+        // above. The existence check must not consider that cross-tenant match, so this
+        // resource should still be created rather than skipped.
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-ine-own-tenant' })
+            .set(getHeaders())
+            .expect(202);
+
+        container.s3NdjsonReader.setLinesToYield([
+            {
+                ifNoneExist: 'identifier=http://example.com|ine-cross-tenant-55555',
+                resource: {
+                    resourceType: 'Patient',
+                    id: 'bulk-import-ine-own-tenant',
+                    meta: { security: [{ system: 'https://www.icanbwell.com/owner', code: 'clientB' }] },
+                    identifier: [{ system: 'http://example.com', value: 'ine-cross-tenant-55555' }],
+                    name: [{ family: 'OwnTenant' }]
+                }
+            }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-ine-own-tenant-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-ine-own-tenant' }),
+            headers: []
+        });
+
+        await request
+            .get('/4_0_0/Patient/bulk-import-ine-own-tenant')
+            .set(getHeaders())
+            .expect(200)
+            .then((res) => {
+                expect(res.body.name[0].family).toBe('OwnTenant');
+            });
+    });
+
+    test('handleMessageAsync fails (does not skip or create) an ifNoneExist-wrapped line referencing an unrecognized search parameter', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-ine-bad-param' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        container.s3NdjsonReader.setLinesToYield([
+            {
+                // "identifer" is a typo of "identifier" -- an unrecognized search parameter
+                // must fail the line rather than silently matching every Patient for this
+                // tenant (which would wrongly skip the create).
+                ifNoneExist: 'identifer=http://example.com|ine-bad-param-11111',
+                resource: {
+                    resourceType: 'Patient',
+                    id: 'bulk-import-ine-bad-param',
+                    identifier: [{ system: 'http://example.com', value: 'ine-bad-param-11111' }],
+                    name: [{ family: 'BadParam' }]
+                }
+            }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-ine-bad-param-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-ine-bad-param' }),
+            headers: []
+        });
+
+        // Not created -- the ifNoneExist check errored out rather than silently succeeding.
+        await request
+            .get('/4_0_0/Patient/bulk-import-ine-bad-param')
+            .set(getHeaders())
+            .expect(404);
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-ine-bad-param')
+            .set(getHeaders())
+            .expect(200);
+        // The bad line is recorded as a per-resource failure, not silently dropped.
+        expect(taskResp.body.output.some((o) => o.type?.text === 'error')).toBe(true);
+    });
+
+    test('handleMessageAsync skips an ifNoneExist-wrapped line with only an access tag when a same-owner match exists', async () => {
+        const request = await createTestRequest();
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        // Pre-existing resource owned by "clientC" (the owner tag OwnerColumnHandler would
+        // derive from an access-tag-only resource's first access code).
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-ine-access-only-setup' })
+            .set(getHeaders())
+            .expect(202);
+
+        container.s3NdjsonReader.setLinesToYield([
+            {
+                resourceType: 'Patient',
+                id: 'bulk-import-ine-access-only-preexisting',
+                meta: { security: [{ system: 'https://www.icanbwell.com/owner', code: 'clientC' }] },
+                identifier: [{ system: 'http://example.com', value: 'ine-access-only-22222' }],
+                name: [{ family: 'AccessOnlyPreExisting' }]
+            }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-ine-access-only-setup-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-ine-access-only-setup' }),
+            headers: []
+        });
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-ine-access-only' })
+            .set(getHeaders())
+            .expect(202);
+
+        container.s3NdjsonReader.setLinesToYield([
+            {
+                ifNoneExist: 'identifier=http://example.com|ine-access-only-22222',
+                resource: {
+                    resourceType: 'Patient',
+                    id: 'bulk-import-ine-access-only-should-not-be-created',
+                    // No owner tag -- only an access tag, which OwnerColumnHandler would
+                    // normally backfill to an owner tag of "clientC" during preSave (too
+                    // late for the ifNoneExist existence check to see it).
+                    meta: { security: [{ system: 'https://www.icanbwell.com/access', code: 'clientC' }] },
+                    identifier: [{ system: 'http://example.com', value: 'ine-access-only-22222' }],
+                    name: [{ family: 'AccessOnlyShouldNotBeCreated' }]
+                }
+            }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-ine-access-only-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-ine-access-only' }),
+            headers: []
+        });
+
+        await request
+            .get('/4_0_0/Patient/bulk-import-ine-access-only-should-not-be-created')
+            .set(getHeaders())
+            .expect(404);
+    });
+
+    test('handleMessageAsync only creates one resource when two ifNoneExist-wrapped lines with the same criteria land in the same unflushed batch', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-ine-same-batch' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        // Both lines share the same ifNoneExist criteria and land in the same batch (default
+        // BULK_IMPORT_BATCH_SIZE is well above 2), so the second one is only in memory --
+        // not yet committed to Mongo -- when its own existence check would otherwise run.
+        container.s3NdjsonReader.setLinesToYield([
+            {
+                ifNoneExist: 'identifier=http://example.com|ine-same-batch-33333',
+                resource: {
+                    resourceType: 'Patient',
+                    id: 'bulk-import-ine-same-batch-first',
+                    identifier: [{ system: 'http://example.com', value: 'ine-same-batch-33333' }],
+                    name: [{ family: 'SameBatchFirst' }]
+                }
+            },
+            {
+                ifNoneExist: 'identifier=http://example.com|ine-same-batch-33333',
+                resource: {
+                    resourceType: 'Patient',
+                    id: 'bulk-import-ine-same-batch-second',
+                    identifier: [{ system: 'http://example.com', value: 'ine-same-batch-33333' }],
+                    name: [{ family: 'SameBatchSecond' }]
+                }
+            }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-ine-same-batch-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-ine-same-batch' }),
+            headers: []
+        });
+
+        await request
+            .get('/4_0_0/Patient/bulk-import-ine-same-batch-first')
+            .set(getHeaders())
+            .expect(200);
+
+        // The second line claimed the same criteria while the first was still buffered
+        // in-memory (not yet committed), so it must be skipped rather than also created.
+        await request
+            .get('/4_0_0/Patient/bulk-import-ine-same-batch-second')
+            .set(getHeaders())
+            .expect(404);
+    });
+
     test('handleMessageAsync completes the range and clears the request cache even when AuditLogger.flushAsync throws', async () => {
         const request = await createTestRequest();
 

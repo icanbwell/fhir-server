@@ -6,6 +6,7 @@ const { initStandaloneEntrypointSentry } = require('../../utils/initStandaloneEn
 // completely unreported.
 initStandaloneEntrypointSentry();
 
+const http = require('http');
 const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');
 const { logInfo, logError } = require('../common/logging');
@@ -40,6 +41,36 @@ async function main() {
         const container = createContainer();
         const { kafkaClientV2 } = container;
         const jobs = getJobs(container);
+
+        // Deployed via the same bwell-app-3x chart as the main fhir-server (unlike
+        // orchestrator.js, which still deploys via the older chart and only needs a single
+        // health path), so /live, /ready and /health must all exist here for the standard
+        // liveness/readiness/startup probes to work.
+        let isReady = false;
+        const healthServer = http.createServer((req, res) => {
+            if (req.url === '/ready') {
+                if (isReady) {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ status: 'ok' }));
+                } else {
+                    res.writeHead(503, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ status: 'starting' }));
+                }
+                return;
+            }
+            if (req.url === '/live' || req.url === '/health') {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'ok' }));
+                return;
+            }
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'not_found' }));
+        });
+        healthServer.on('error', (err) => {
+            logError('Health server error', { error: err.message });
+            process.exit(1);
+        });
+        healthServer.listen(3000);
 
         const consumers = [];
         const joinPromises = [];
@@ -96,6 +127,7 @@ async function main() {
 
         const shutdown = async (signal) => {
             logInfo(`Received ${signal}, shutting down async job worker`);
+            isReady = false;
             try {
                 await Promise.all(consumers.map((consumer) => kafkaClientV2.removeConsumerAsync({ consumer })));
             } catch (e) {
@@ -108,6 +140,7 @@ async function main() {
         process.on('SIGINT', () => shutdown('SIGINT'));
 
         await Promise.all(joinPromises);
+        isReady = true;
         logInfo('Async job worker ready', { topics: jobs.map((job) => job.topic) });
     } catch (e) {
         console.error(JSON.stringify({

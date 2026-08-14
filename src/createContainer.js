@@ -83,6 +83,7 @@ const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {PersonMatchManager} = require('./admin/personMatchManager');
 const {OAuthClientCredentialsHelper} = require('./utils/oauthClientCredentialsHelper');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
+const {McpToolHandler} = require('./mcp/mcpToolHandler');
 const {K8sClient} = require('./utils/k8sClient');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
@@ -498,7 +499,8 @@ const createContainer = function () {
                 dataSharingManager: c.dataSharingManager,
                 searchQueryBuilder: c.searchQueryBuilder,
                 patientScopeManager: c.patientScopeManager,
-                patientQueryCreator: c.patientQueryCreator
+                patientQueryCreator: c.patientQueryCreator,
+                searchParametersManager: c.searchParametersManager
             }
         )
     );
@@ -1156,6 +1158,14 @@ const createContainer = function () {
         searchParametersManager: c.searchParametersManager
     }));
 
+    container.register('mcpToolHandler', (c) => new McpToolHandler({
+        searchBundleOperation: c.searchBundleOperation,
+        r4ArgsParser: c.r4ArgsParser,
+        patientDataViewControlManager: c.patientDataViewControlManager,
+        patientScopeManager: c.patientScopeManager,
+        queryRewriterManager: c.queryRewriterManager
+    }));
+
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
         {
             configManager: c.configManager
@@ -1252,7 +1262,9 @@ const createContainer = function () {
         s3NdjsonReader: c.s3NdjsonReader,
         postRequestProcessor: c.postRequestProcessor,
         requestSpecificCache: c.requestSpecificCache,
-        auditLogger: c.auditLogger
+        auditLogger: c.auditLogger,
+        r4ArgsParser: c.r4ArgsParser,
+        searchQueryBuilder: c.searchQueryBuilder
     }));
 
     // Routes messages on kafkaBulkImportTaskCreatedTopic to their handler by CloudEvent

@@ -9,6 +9,8 @@ const { logInfo, logWarn } = require('../../operations/common/logging');
 const { ConfigManager } = require('../../utils/configManager');
 const { generateUUID } = require('../../utils/uid.util');
 const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { isTrue } = require('../../utils/isTrue');
 
 class ExportManager {
     /**
@@ -60,8 +62,12 @@ class ExportManager {
             'handling',
             '_type',
             'patient',
-            '_since'
+            '_since',
+            'useExternalStorage'  // Prevent query param from bypassing header check
         ];
+
+        // Store useExternalStorage header value for checking during background export
+        const useExternalStorage = isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER]);
 
         // Create ExportStatus resource
         /**
@@ -80,13 +86,21 @@ class ExportManager {
                     ],
                     source: 'https://www.icanbwell.com/fhir-server'
                 },
-                extension: Object.entries(args)
-                    .filter(([key]) => !ignoredParams.includes(key))
-                    .map(([key, value]) => ({
-                        id: key,
-                        url: `https://icanbwell.com/codes/${key}`,
-                        valueString: value
-                    })),
+                extension: [
+                    ...Object.entries(args)
+                        .filter(([key]) => !ignoredParams.includes(key))
+                        .map(([key, value]) => ({
+                            id: key,
+                            url: `https://icanbwell.com/codes/${key}`,
+                            valueString: value
+                        })),
+                    // Store useExternalStorage header for checking during background export
+                    ...(useExternalStorage ? [{
+                        id: 'useExternalStorage',
+                        url: 'https://icanbwell.com/codes/useExternalStorage',
+                        valueString: 'true'
+                    }] : [])
+                ],
                 scope,
                 user,
                 transactionTime: new Date().toISOString(),
