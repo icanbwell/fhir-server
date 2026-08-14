@@ -1,0 +1,24 @@
+{
+    "Resource": {
+        "extension": {
+            "description": "Search by a resource extension value, e.g. the b.well connection-identity extension 'https://icanbwell.com/codes/client_person_id'.",
+            "type": "token",
+            "field": "extension"
+        }
+    },
+    "SubscriptionStatus": {
+        "subscription": {
+            "description": "Subscription that this status is for",
+            "type": "reference",
+            "field": "subscription",
+            "target": ["Subscription"]
+        }
+    },
+    "ExportStatus": {
+        "status": {
+            "description": "The status for ExportStatus",
+            "type": "token",
+            "field": "status"
+        }
+    }
+}
