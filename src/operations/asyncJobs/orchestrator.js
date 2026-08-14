@@ -11,6 +11,7 @@ const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');
 const { logInfo, logError } = require('../common/logging');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { BaseSerializer } = require('../../fhir/writeSerializers/4_0_0/customSerializers');
 
 /**
  * Generic orchestrator entrypoint: one Kafka consumer per registered job below, each routing
@@ -39,6 +40,11 @@ async function main() {
     try {
         initialize();
         const container = createContainer();
+        // This entrypoint doesn't serialize resources itself today, but sets this for
+        // consistency with worker.js/index.js -- otherwise any future code path here that
+        // touches FhirResourceWriteSerializer would silently hit a null configManager
+        // (see worker.js's comment on this same call for the full failure mode).
+        BaseSerializer.setConfigManager(container.configManager);
         const { kafkaClientV2 } = container;
         const jobs = getJobs(container);
 
