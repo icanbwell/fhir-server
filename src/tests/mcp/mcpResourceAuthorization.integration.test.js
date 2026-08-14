@@ -326,4 +326,20 @@ describe('/mcp resource authorization', () => {
         expect(ids).toContain(visibleObservationId);
         expect(ids).not.toContain(restrictedObservationId);
     });
+
+    test('a fhir_search AuditEvent query without required date filters is rejected via /mcp the same way REST rejects it (resource-authorization.md §3)', async () => {
+        const request = await createTestRequest();
+
+        const { rpc } = await callMcpTool(request, getFullAccessToken(), 'fhir_search', {
+            resourceType: 'AuditEvent',
+            filters: {}
+        });
+
+        expect(rpc.result.isError).toBe(true);
+        const operationOutcome = JSON.parse(rpc.result.content[0].text);
+        expect(operationOutcome.resourceType).toBe('OperationOutcome');
+        expect(operationOutcome.issue[0].details.text).toContain(
+            'One of the filters [date] is required to query AuditEvent'
+        );
+    });
 });
