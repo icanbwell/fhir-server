@@ -27,7 +27,8 @@ const {
     minimalSecurity,
     makePatient,
     makeObservation,
-    makePerson
+    makePerson,
+    patientScopedToken
 } = require('./mcpTestHelpers');
 const { DatabaseCursor } = require('../../dataLayer/databaseCursor');
 
@@ -269,5 +270,60 @@ describe('/mcp resource authorization', () => {
         const includeHiddenIds = idsInBundle(bundleFromToolResult(includeHiddenRpc));
         expect(includeHiddenIds).toContain(visibleId);
         expect(includeHiddenIds).toContain(hiddenId);
+    });
+
+    test('a confidentiality-R restricted resource is excluded from a patient-scoped caller\'s /mcp search (resource-authorization.md §9)', async () => {
+        const request = await createTestRequest();
+        const personId = 'mcp-sec4-person';
+        const patientId = 'mcp-sec4-patient';
+        const visibleObservationId = 'mcp-sec4-obs-visible';
+        const restrictedObservationId = 'mcp-sec4-obs-restricted';
+
+        let resp = await request
+            .post(`/4_0_0/Person/${personId}/$merge?validate=true`)
+            .send(makePerson(personId, [patientId]))
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post(`/4_0_0/Patient/${patientId}/$merge?validate=true`)
+            .send(makePatient(patientId, { family: 'RestrictedTagFamily', given: 'Test', birthDate: '1985-01-01' }))
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post(`/4_0_0/Observation/${visibleObservationId}/$merge?validate=true`)
+            .send(makeObservation(visibleObservationId, { patientId, system: 'http://loinc.org', code: '1111-1' }))
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // Confidentiality-R tag shape from src/tests/confidential/restricted_resources/fixtures/Observation/observation2.json.
+        resp = await request
+            .post(`/4_0_0/Observation/${restrictedObservationId}/$merge?validate=true`)
+            .send({
+                ...makeObservation(restrictedObservationId, { patientId, system: 'http://loinc.org', code: '2222-2' }),
+                meta: {
+                    source: 'test',
+                    security: [
+                        ...minimalSecurity(),
+                        {
+                            id: 'Confidentiality',
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'R',
+                            display: 'Restricted'
+                        }
+                    ]
+                }
+            })
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        const { rpc } = await callMcpTool(request, patientScopedToken(personId), 'search_observation', {
+            patient: `Patient/${patientId}`
+        });
+        expect(rpc.result.isError).toBeUndefined();
+        const ids = idsInBundle(bundleFromToolResult(rpc));
+        expect(ids).toContain(visibleObservationId);
+        expect(ids).not.toContain(restrictedObservationId);
     });
 });
