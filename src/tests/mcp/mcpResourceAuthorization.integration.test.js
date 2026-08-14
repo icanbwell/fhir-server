@@ -175,6 +175,11 @@ describe('/mcp resource authorization', () => {
                 patient: `Patient/${grantorPatientId}`
             });
             expect(deniedRpc.result.isError).toBe(true);
+            const deniedOutcome = JSON.parse(deniedRpc.result.content[0].text);
+            expect(deniedOutcome.issue[0].code).toBe('forbidden');
+            expect(deniedOutcome.issue[0].details.text).toContain(
+                'User does not have valid permission for delegated access'
+            );
 
             // Grantor-to-actor Consent, permit-type, with a deny sub-provision for MENTAL_HEALTH --
             // mirrors fixtures/Consent/consentWithSensitiveCategoriesExcluded.json from

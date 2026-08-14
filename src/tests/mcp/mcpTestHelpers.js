@@ -5,6 +5,7 @@
  * per-tool test files (see dedicated_tools/) don't each hand-duplicate the SSE/JSON-RPC parsing.
  */
 const { generateUUIDv5 } = require('../../utils/uid.util');
+const { getHeadersWithCustomPayload } = require('../common');
 
 /**
  * A patient-scoped caller's identity (SEC-1580 IDG-5, #2481) is now matched strictly against
@@ -38,10 +39,6 @@ function personUuid (personId, owner = 'client') {
  * @returns {string} raw bearer token (no 'Bearer ' prefix)
  */
 function patientScopedToken (personId, overrides = {}) {
-    // eslint-disable-next-line global-require -- avoids a require cycle at module load time,
-    // since common.js pulls in the full app/container graph and this helper module is required
-    // very early by every /mcp test file.
-    const { getHeadersWithCustomPayload } = require('../common');
     return getHeadersWithCustomPayload({
         scope: 'patient/*.read user/*.* access/*.*',
         username: `${personId}@example.com`,

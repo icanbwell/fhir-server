@@ -377,9 +377,10 @@ sequenceDiagram
    `purposeOfUse`.
 2. **Operation restriction** — checked before anything else below: `OperationAccessManager` →
    `DelegatedAccessManager.verifyAccess` (`src/utils/delegatedAccessManager.js`) runs at the top of
-   the operation handler in `fhirOperationsManager.js`, before request args are even parsed. It
-   allows only `search`, `searchById`, `everything`, and `graph`; any write operation is rejected
-   with `ForbiddenError` immediately — the consent/query logic below never runs for a write.
+   the operation handler in `fhirOperationsManager.js`, before request args are even parsed
+   (REST-specific — see §12's "Open (latent, harmless today)" entry for why this doesn't extend to
+   `/mcp`). It allows only `search`, `searchById`, `everything`, and `graph`; any write operation is
+   rejected with `ForbiddenError` immediately — the consent/query logic below never runs for a write.
 3. **Pre-query consent gate** (alongside the §3 scope check) — `ScopesValidator.isScopesValidAsync`
    calls `DelegatedAccessScopeManager.isAccessAllowedAsync` →
    `DelegatedAccessRulesManager.hasValidConsentAsync`. No active Consent tying the grantor Person
@@ -442,9 +443,10 @@ red flag under `review.md`'s checklist, since `_uuid`/`id` are deterministic and
 Findings from an adversarial review of this surface against `review.md`'s checklist, verified
 directly against source (not assumed from the checklist, and not taken on faith from a single
 pass). These are gaps between what the sections above document as the *intended* composition and
-what the code actually enforces — thirteen have since been fixed, none remain open, and three
-suspected findings were investigated and do not reproduce (kept here, marked as such, so they
-aren't re-discovered and re-reported from scratch later).
+what the code actually enforces — thirteen have since been fixed, three suspected findings were
+investigated and do not reproduce (kept here, marked as such, so they aren't re-discovered and
+re-reported from scratch later), and one latent gap remains open (harmless today, guarded by a
+regression tripwire rather than fixed outright).
 
 ### Fixed
 
@@ -727,6 +729,22 @@ aren't re-discovered and re-reported from scratch later).
   (`nested_resource_tag_leak.test.js`) had an invalid `GraphDefinition.path` and an over-broad
   `not.toContain` assertion that could false-fail on an unrelated reference string; both fixed
   test-side, confirming (rather than closing) that traversal is safe here.
+
+### Open (latent, harmless today)
+
+- **OPEN, latent — delegated-actor operation-name allowlist (`DelegatedAccessManager.verifyAccess`,
+  restricting delegated actors to `search`/`searchById`/`everything`/`graph` and rejecting any write
+  operation) is enforced only at the REST entry point (`fhirOperationsManager.js`), not called
+  anywhere under `src/mcp/` (§4, §10).** Harmless today only because `/mcp` has zero write-capable
+  tools — every registered tool resolves to a read-only search handler
+  (`McpToolHandler.registerTools`, `src/mcp/mcpToolHandler.js`). If a write tool is ever added to
+  `/mcp` without also wiring in this check (or `OperationAccessManager.verifyAccess` generally), a
+  delegated actor would be able to write through MCP with no operation-type gate at all — the same
+  shape of bug this section's FIXED findings above document for GraphQL's CMS/delegated-user
+  allowlist. Guarded by a regression tripwire, not a fix, since there is nothing to fix while MCP
+  remains read-only: `src/tests/unit/mcp/mcpToolHandler.test.js`'s `'McpToolHandler write-tool
+  tripwire'` describe block fails the moment a third handler method appears on `McpToolHandler`,
+  forcing whoever adds write support to address this gate before that assertion can be updated.
 
 Regression tests for the two original FIXED findings above are in `src/tests/unit/resourceAuthorization/`
 (see `12_knownGap_patientScopedWriteTagBypass.test.js` and

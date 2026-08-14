@@ -147,6 +147,12 @@ describe('Cross-Tenant Security - Search Query Construction', () => {
         });
     });
 
+    // NOTE: this quarantined test's premise contradicts the CURRENT, INTENDED behavior, confirmed by
+    // src/tests/mcp/mcpResourceAuthorization.integration.test.js's "_includeHidden=true" test and
+    // documented in docs/resource-authorization.md §8: _includeHidden is an unauthenticated-scope
+    // override available to ANY caller (the access-tag tenant filter still ANDs on top, so there is no
+    // cross-tenant consequence), not something requiring admin scope. Do not resurrect this test as a
+    // "regression" without first re-confirming which behavior is actually intended.
     describe('VULN-1: _includeHidden parameter bypasses hidden resource filter', () => {
         test('query with _includeHidden=true from user input should still exclude hidden resources for non-admin users', () => {
             // VULNERABILITY: A user can pass _includeHidden=true as a URL parameter
