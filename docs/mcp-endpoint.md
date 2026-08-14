@@ -231,7 +231,7 @@ per-request/stateless by construction; there is no separate stateful transport m
   real `/mcp` route, that every `docs/resource-authorization.md` mechanism reachable from a
   read-only search surface is actually enforced when driven by MCP's tool-call argument shape:
   access-tag tenant isolation and the `access/*` wildcard bypass (§1, §7), delegated-actor consent
-  gate and sensitivity denylist (§6c, §10 steps 2-5), hidden-tag default exclusion (§8), confidentiality-`R`
+  gate and sensitivity denylist (§6c, §10 steps 3-5), hidden-tag default exclusion (§8), confidentiality-`R`
   exclusion for patient-scoped callers (§9), and the `AuditEvent` required-filters gate (§3). See
   `docs/superpowers/plans/2026-08-14-mcp-resource-authorization-test-coverage.md` for why other
   sections of that doc (§2, §4, §6a, §6b, admin/debug params) don't need their own MCP-level test.
