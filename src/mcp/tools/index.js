@@ -16,6 +16,10 @@ const { tool: practitionerTool } = require('./practitioner.tool');
 const { tool: organizationTool } = require('./organization.tool');
 const { tool: personTool } = require('./person.tool');
 const { tool: medication_dispenseTool } = require('./medication_dispense.tool');
+const { tool: compositionTool } = require('./composition.tool');
+const { tool: subscriptionTool } = require('./subscription.tool');
+const { tool: subscription_statusTool } = require('./subscription_status.tool');
+const { tool: subscription_topicTool } = require('./subscription_topic.tool');
 
 module.exports = {
     mcpToolsByResourceType: {
@@ -34,6 +38,10 @@ module.exports = {
         Practitioner: practitionerTool,
         Organization: organizationTool,
         Person: personTool,
-        MedicationDispense: medication_dispenseTool
+        MedicationDispense: medication_dispenseTool,
+        Composition: compositionTool,
+        Subscription: subscriptionTool,
+        SubscriptionStatus: subscription_statusTool,
+        SubscriptionTopic: subscription_topicTool
     }
 };

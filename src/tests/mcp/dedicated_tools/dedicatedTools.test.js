@@ -42,7 +42,11 @@ const {
     makeCoverage,
     makeDocumentReference,
     makePractitioner,
-    makeOrganization
+    makeOrganization,
+    makeComposition,
+    makeSubscription,
+    makeSubscriptionStatus,
+    makeSubscriptionTopic
 } = require('../mcpTestHelpers');
 
 describe('/mcp dedicated tools', () => {
@@ -250,6 +254,50 @@ describe('/mcp dedicated tools', () => {
             request,
             makeMedicationDispense('mcp-tool-medication-dispense', { patientId, code: '206765' }),
             'search_medication_dispense'
+        );
+    });
+
+    test('search_composition finds a created Composition by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-composition-patient');
+        const authorOrgId = 'mcp-tool-composition-author-org';
+        const orgResp = await request
+            .post(`/4_0_0/Organization/${authorOrgId}/$merge?validate=true`)
+            .send(makeOrganization(authorOrgId, 'Test Author Org'))
+            .set(getHeaders());
+        expect(orgResp).toHaveMergeResponse({ created: true });
+
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeComposition('mcp-tool-composition', { patientId, authorOrgId }),
+            'search_composition'
+        );
+    });
+
+    test('search_subscription finds a created Subscription by _id', async () => {
+        const request = await createTestRequest();
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeSubscription('mcp-tool-subscription', { clientPersonId: 'mcp-tool-subscription-person' }),
+            'search_subscription'
+        );
+    });
+
+    test('search_subscription_status finds a created SubscriptionStatus by _id', async () => {
+        const request = await createTestRequest();
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeSubscriptionStatus('mcp-tool-subscription-status', { clientPersonId: 'mcp-tool-subscription-status-person' }),
+            'search_subscription_status'
+        );
+    });
+
+    test('search_subscription_topic finds a created SubscriptionTopic by _id', async () => {
+        const request = await createTestRequest();
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeSubscriptionTopic('mcp-tool-subscription-topic', { clientPersonId: 'mcp-tool-subscription-topic-person' }),
+            'search_subscription_topic'
         );
     });
 });
