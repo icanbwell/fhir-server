@@ -3,6 +3,7 @@ const readline = require('readline');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { logInfo, logError } = require('../../common/logging');
+const { recordImportS3ReadThroughput } = require('../../../utils/metrics');
 
 /**
  * Marks an error as deterministic (bad input/config, not a transient S3/network issue) so
@@ -97,84 +98,95 @@ class S3NdjsonReader {
             rangeHeader
         });
 
-        const response = await s3.send(new GetObjectCommand({
-            Bucket: bucket,
-            Key: key,
-            Range: rangeHeader
-        }));
-
-        const rl = readline.createInterface({
-            input: response.Body,
-            crlfDelay: Infinity
-        });
-
+        const startTimeMs = Date.now();
         let lineNumber = 0;
         let bytesRead = byteRangeStart;
-        let skippedFirst = isFirstRange;
 
-        for await (const line of rl) {
-            const lineBytes = Buffer.byteLength(line, 'utf8') + 1; // +1 for newline
-            bytesRead += lineBytes;
+        try {
+            const response = await s3.send(new GetObjectCommand({
+                Bucket: bucket,
+                Key: key,
+                Range: rangeHeader
+            }));
 
-            if (!skippedFirst) {
-                skippedFirst = true;
-                continue;
+            const rl = readline.createInterface({
+                input: response.Body,
+                crlfDelay: Infinity
+            });
+
+            let skippedFirst = isFirstRange;
+
+            for await (const line of rl) {
+                const lineBytes = Buffer.byteLength(line, 'utf8') + 1; // +1 for newline
+                bytesRead += lineBytes;
+
+                if (!skippedFirst) {
+                    skippedFirst = true;
+                    continue;
+                }
+
+                if (!isLastRange && bytesRead - lineBytes > byteRangeEnd) {
+                    break;
+                }
+
+                if (line.trim().length === 0) {
+                    continue;
+                }
+
+                lineNumber++;
+                // lineNumber resets to 1 at the start of every byte range, so it only
+                // identifies a line within THIS range, not within the original file once a
+                // file is split into multiple ranges. byteOffset is the line's absolute start
+                // position in the full file (bytesRead already includes byteRangeStart), so it
+                // stays correct regardless of how the file was split.
+                const byteOffset = bytesRead - lineBytes;
+
+                // A single bad line (too large, unparseable) must not abort the rest of the
+                // range -- skip it and let the caller record it in the error output, the same
+                // way a per-resource write failure is handled.
+                if (Buffer.byteLength(line, 'utf8') > maxLineSizeBytes) {
+                    yield {
+                        lineNumber,
+                        byteOffset,
+                        resource: null,
+                        parseError: new Error(
+                            `Line ${lineNumber} in "${filepath}" exceeds maximum size of ` +
+                            `${this.configManager.bulkImportMaxLineSizeMb} MB`
+                        )
+                    };
+                    continue;
+                }
+
+                let parsed;
+                try {
+                    parsed = JSON.parse(line);
+                } catch (e) {
+                    yield {
+                        lineNumber,
+                        byteOffset,
+                        resource: null,
+                        parseError: new Error(`Invalid JSON at line ${lineNumber} in "${filepath}": ${e.message}`)
+                    };
+                    continue;
+                }
+
+                yield { lineNumber, byteOffset, resource: parsed, parseError: null };
             }
 
-            if (!isLastRange && bytesRead - lineBytes > byteRangeEnd) {
-                break;
-            }
-
-            if (line.trim().length === 0) {
-                continue;
-            }
-
-            lineNumber++;
-            // lineNumber resets to 1 at the start of every byte range, so it only
-            // identifies a line within THIS range, not within the original file once a
-            // file is split into multiple ranges. byteOffset is the line's absolute start
-            // position in the full file (bytesRead already includes byteRangeStart), so it
-            // stays correct regardless of how the file was split.
-            const byteOffset = bytesRead - lineBytes;
-
-            // A single bad line (too large, unparseable) must not abort the rest of the
-            // range -- skip it and let the caller record it in the error output, the same
-            // way a per-resource write failure is handled.
-            if (Buffer.byteLength(line, 'utf8') > maxLineSizeBytes) {
-                yield {
-                    lineNumber,
-                    byteOffset,
-                    resource: null,
-                    parseError: new Error(
-                        `Line ${lineNumber} in "${filepath}" exceeds maximum size of ` +
-                        `${this.configManager.bulkImportMaxLineSizeMb} MB`
-                    )
-                };
-                continue;
-            }
-
-            let parsed;
-            try {
-                parsed = JSON.parse(line);
-            } catch (e) {
-                yield {
-                    lineNumber,
-                    byteOffset,
-                    resource: null,
-                    parseError: new Error(`Invalid JSON at line ${lineNumber} in "${filepath}": ${e.message}`)
-                };
-                continue;
-            }
-
-            yield { lineNumber, byteOffset, resource: parsed, parseError: null };
+            logInfo('S3 NDJSON reader finished', {
+                filepath,
+                byteRangeStart,
+                byteRangeEnd,
+                linesRead: lineNumber
+            });
+        } finally {
+            // In `finally` (not after the success log above) so a partial read -- the S3
+            // GetObject call fails, the stream errors mid-range, or the caller stops
+            // iterating early -- still reports the throughput actually achieved for
+            // whatever was read before the exit, mirroring the merge boundary's
+            // finally-based emission (see docs/adr/0002).
+            recordImportS3ReadThroughput(bytesRead - byteRangeStart, (Date.now() - startTimeMs) / 1000);
         }
-
-        logInfo('S3 NDJSON reader finished', {
-            filepath,
-            byteRangeStart,
-            byteRangeEnd,
-            linesRead: lineNumber
-        });
     }
 
     /**
