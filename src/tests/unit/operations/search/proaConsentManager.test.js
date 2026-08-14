@@ -294,8 +294,10 @@ describe('ProaConsentManager', () => {
             });
 
             // Result should contain the INPUT patient ID, not the linked one
-            expect(result.has('input-patient-1')).toBe(true);
-            expect(result.has('linked-patient-x')).toBe(false);
+            expect(result.allowedPatientIds.has('input-patient-1')).toBe(true);
+            expect(result.allowedPatientIds.has('linked-patient-x')).toBe(false);
+            // The person the consent belongs to is surfaced for proxy-patient references
+            expect(result.consentedPersonUuids.has('person-aaa')).toBe(true);
         });
 
         test('should skip consent resources without patient._uuid or patient._sourceId', async () => {
@@ -321,7 +323,8 @@ describe('ProaConsentManager', () => {
                 personToLinkedPatientsMap
             });
 
-            expect(result.size).toBe(0);
+            expect(result.allowedPatientIds.size).toBe(0);
+            expect(result.consentedPersonUuids.size).toBe(0);
         });
 
         test('should use patient._sourceId when patient._uuid is missing', async () => {
@@ -355,7 +358,7 @@ describe('ProaConsentManager', () => {
                 personToLinkedPatientsMap
             });
 
-            expect(result.has('input-patient-1')).toBe(true);
+            expect(result.allowedPatientIds.has('input-patient-1')).toBe(true);
         });
 
         test('should handle empty patientIdToImmediatePersonUuid', async () => {
@@ -368,7 +371,7 @@ describe('ProaConsentManager', () => {
                 personToLinkedPatientsMap: new Map()
             });
 
-            expect(result.size).toBe(0);
+            expect(result.allowedPatientIds.size).toBe(0);
             expect(getConsentSpy).toHaveBeenCalledWith({
                 ownerTags: ['tag'],
                 patientIds: []
@@ -429,7 +432,7 @@ describe('ProaConsentManager', () => {
                 personToLinkedPatientsMap
             });
 
-            expect(result.has('input-patient-1')).toBe(true);
+            expect(result.allowedPatientIds.has('input-patient-1')).toBe(true);
         });
 
         test('should not include patient when consent is for a patient not linked to any relevant person', async () => {
@@ -466,7 +469,8 @@ describe('ProaConsentManager', () => {
             });
 
             // person-other is in personToLinkedPatientsMap but NOT in immediatePersonToInputPatientId
-            expect(result.size).toBe(0);
+            expect(result.allowedPatientIds.size).toBe(0);
+            expect(result.consentedPersonUuids.size).toBe(0);
         });
 
         test('should correctly use getAllPatientsForPersons to get all linked patients', async () => {

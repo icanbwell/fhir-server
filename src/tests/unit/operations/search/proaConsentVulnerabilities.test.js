@@ -278,8 +278,14 @@ describe('VULNERABILITY 3: DataSharingManager caches allowedPatientIds ignoring 
 
         // First call with securityTags=['client-A'] - patient HAS consent for client-A
         mockProaConsentManager.getPatientIdsWithConsent = jest.fn()
-            .mockResolvedValueOnce(new Set(['patient-uuid-1'])) // client-A: has consent
-            .mockResolvedValueOnce(new Set()); // client-B: NO consent
+            .mockResolvedValueOnce({
+                allowedPatientIds: new Set(['patient-uuid-1']), // client-A: has consent
+                consentedPersonUuids: new Set(['person-uuid-1'])
+            })
+            .mockResolvedValueOnce({
+                allowedPatientIds: new Set(), // client-B: NO consent
+                consentedPersonUuids: new Set()
+            });
 
         const mockParsedArgs = Object.create(ParsedArgs.prototype);
         mockParsedArgs.parsedArgItems = [{
