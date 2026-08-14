@@ -119,7 +119,9 @@ schemas:
   ```
   Patient, Observation, Condition, MedicationRequest, AllergyIntolerance, Immunization, Procedure,
   DiagnosticReport, Encounter, CarePlan, Coverage, DocumentReference, Practitioner, Organization,
-  Person, MedicationDispense, Composition, Subscription, SubscriptionStatus, SubscriptionTopic
+  Person, MedicationDispense, Composition, Subscription, SubscriptionStatus, SubscriptionTopic,
+  Appointment, ServiceRequest, MedicationStatement, CareTeam, Goal, FamilyMemberHistory,
+  ImmunizationRecommendation, ExplanationOfBenefit, Claim, QuestionnaireResponse, RelatedPerson
   ```
 
   `Subscription`/`SubscriptionStatus`/`SubscriptionTopic` model b.well's per-connection data-source

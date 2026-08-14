@@ -19,6 +19,17 @@
         "Composition",
         "Subscription",
         "SubscriptionStatus",
-        "SubscriptionTopic"
+        "SubscriptionTopic",
+        "Appointment",
+        "ServiceRequest",
+        "MedicationStatement",
+        "CareTeam",
+        "Goal",
+        "FamilyMemberHistory",
+        "ImmunizationRecommendation",
+        "ExplanationOfBenefit",
+        "Claim",
+        "QuestionnaireResponse",
+        "RelatedPerson"
     ]
 }

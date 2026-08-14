@@ -46,7 +46,18 @@ const {
     makeComposition,
     makeSubscription,
     makeSubscriptionStatus,
-    makeSubscriptionTopic
+    makeSubscriptionTopic,
+    makeAppointment,
+    makeServiceRequest,
+    makeMedicationStatement,
+    makeCareTeam,
+    makeGoal,
+    makeFamilyMemberHistory,
+    makeImmunizationRecommendation,
+    makeExplanationOfBenefit,
+    makeClaim,
+    makeQuestionnaireResponse,
+    makeRelatedPerson
 } = require('../mcpTestHelpers');
 
 describe('/mcp dedicated tools', () => {
@@ -298,6 +309,142 @@ describe('/mcp dedicated tools', () => {
             request,
             makeSubscriptionTopic('mcp-tool-subscription-topic', { clientPersonId: 'mcp-tool-subscription-topic-person' }),
             'search_subscription_topic'
+        );
+    });
+
+    test('search_appointment finds a created Appointment by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-appointment-patient');
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeAppointment('mcp-tool-appointment', { patientId }),
+            'search_appointment'
+        );
+    });
+
+    test('search_service_request finds a created ServiceRequest by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-servicerequest-patient');
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeServiceRequest('mcp-tool-service-request', { patientId, code: '169069000' }),
+            'search_service_request'
+        );
+    });
+
+    test('search_medication_statement finds a created MedicationStatement by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-medstatement-patient');
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeMedicationStatement('mcp-tool-medication-statement', { patientId, code: '197361' }),
+            'search_medication_statement'
+        );
+    });
+
+    test('search_care_team finds a created CareTeam by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-careteam-patient');
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeCareTeam('mcp-tool-care-team', { patientId }),
+            'search_care_team'
+        );
+    });
+
+    test('search_goal finds a created Goal by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-goal-patient');
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeGoal('mcp-tool-goal', { patientId }),
+            'search_goal'
+        );
+    });
+
+    test('search_family_member_history finds a created FamilyMemberHistory by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-fmh-patient');
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeFamilyMemberHistory('mcp-tool-family-member-history', { patientId }),
+            'search_family_member_history'
+        );
+    });
+
+    test('search_immunization_recommendation finds a created ImmunizationRecommendation by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-immrec-patient');
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeImmunizationRecommendation('mcp-tool-immunization-recommendation', { patientId }),
+            'search_immunization_recommendation'
+        );
+    });
+
+    test('search_explanation_of_benefit finds a created ExplanationOfBenefit by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-eob-patient');
+        const organizationId = 'mcp-tool-eob-org';
+        const coverageId = 'mcp-tool-eob-coverage';
+        const orgResp = await request
+            .post(`/4_0_0/Organization/${organizationId}/$merge?validate=true`)
+            .send(makeOrganization(organizationId, 'Test EOB Org'))
+            .set(getHeaders());
+        expect(orgResp).toHaveMergeResponse({ created: true });
+        const coverageResp = await request
+            .post(`/4_0_0/Coverage/${coverageId}/$merge?validate=true`)
+            .send(makeCoverage(coverageId, { patientId, payorOrgId: organizationId }))
+            .set(getHeaders());
+        expect(coverageResp).toHaveMergeResponse({ created: true });
+
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeExplanationOfBenefit('mcp-tool-explanation-of-benefit', { patientId, organizationId, coverageId }),
+            'search_explanation_of_benefit'
+        );
+    });
+
+    test('search_claim finds a created Claim by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-claim-patient');
+        const organizationId = 'mcp-tool-claim-org';
+        const coverageId = 'mcp-tool-claim-coverage';
+        const orgResp = await request
+            .post(`/4_0_0/Organization/${organizationId}/$merge?validate=true`)
+            .send(makeOrganization(organizationId, 'Test Claim Org'))
+            .set(getHeaders());
+        expect(orgResp).toHaveMergeResponse({ created: true });
+        const coverageResp = await request
+            .post(`/4_0_0/Coverage/${coverageId}/$merge?validate=true`)
+            .send(makeCoverage(coverageId, { patientId, payorOrgId: organizationId }))
+            .set(getHeaders());
+        expect(coverageResp).toHaveMergeResponse({ created: true });
+
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeClaim('mcp-tool-claim', { patientId, organizationId, coverageId }),
+            'search_claim'
+        );
+    });
+
+    test('search_questionnaire_response finds a created QuestionnaireResponse by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-qr-patient');
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeQuestionnaireResponse('mcp-tool-questionnaire-response', { patientId }),
+            'search_questionnaire_response'
+        );
+    });
+
+    test('search_related_person finds a created RelatedPerson by _id', async () => {
+        const request = await createTestRequest();
+        const patientId = await createPatient(request, 'mcp-tool-relatedperson-patient');
+        await assertDedicatedToolFindsResourceById(
+            request,
+            makeRelatedPerson('mcp-tool-related-person', { patientId }),
+            'search_related_person'
         );
     });
 });
