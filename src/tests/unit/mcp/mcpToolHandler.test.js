@@ -341,3 +341,21 @@ describe('McpToolHandler', () => {
         });
     });
 });
+
+describe('McpToolHandler write-tool tripwire', () => {
+    test('McpToolHandler exposes exactly its two known read-only handlers -- see plan note before adding a third', () => {
+        // resource-authorization.md documents DelegatedAccessManager.verifyAccess (the operation-name
+        // allowlist restricting delegated actors to search/searchById/everything/graph, rejecting any
+        // write with a 403 before args are even parsed) as REST-specific -- it is not called anywhere
+        // under src/mcp/. This is harmless today ONLY because every registered MCP tool resolves to
+        // one of the two handlers below, both read-only (McpToolHandler.registerTools,
+        // src/mcp/mcpToolHandler.js). If a third handler method appears here, it means a write-capable
+        // MCP tool is being added, and per
+        // docs/superpowers/plans/2026-08-14-mcp-resource-authorization-test-coverage.md's Task 9 note,
+        // whoever adds it must also wire in an equivalent to DelegatedAccessManager.verifyAccess /
+        // OperationAccessManager.verifyAccess before this assertion is updated -- not after.
+        const handlerMethodNames = Object.getOwnPropertyNames(McpToolHandler.prototype)
+            .filter((name) => name !== 'constructor' && name !== 'registerTools');
+        expect(handlerMethodNames.sort()).toEqual(['handleGenericSearchToolCall', 'handleSearchToolCall']);
+    });
+});
