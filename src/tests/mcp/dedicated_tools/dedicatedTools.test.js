@@ -85,6 +85,25 @@ describe('/mcp dedicated tools', () => {
     }
 
     /**
+     * Creates an Organization and a Coverage referencing it (the fixture pair
+     * ExplanationOfBenefit/Claim both require) and returns the ids used.
+     * @param {import('supertest').Test} request
+     * @param {{patientId: string, organizationId: string, coverageId: string, orgName: string}} params
+     */
+    async function createOrganizationAndCoverage (request, { patientId, organizationId, coverageId, orgName }) {
+        const orgResp = await request
+            .post(`/4_0_0/Organization/${organizationId}/$merge?validate=true`)
+            .send(makeOrganization(organizationId, orgName))
+            .set(getHeaders());
+        expect(orgResp).toHaveMergeResponse({ created: true });
+        const coverageResp = await request
+            .post(`/4_0_0/Coverage/${coverageId}/$merge?validate=true`)
+            .send(makeCoverage(coverageId, { patientId, payorOrgId: organizationId }))
+            .set(getHeaders());
+        expect(coverageResp).toHaveMergeResponse({ created: true });
+    }
+
+    /**
      * Creates the given resource via $merge, calls its dedicated MCP tool filtered by `_id`, and
      * asserts the created resource's id is the only thing in the result.
      * @param {import('supertest').Test} request
@@ -387,16 +406,7 @@ describe('/mcp dedicated tools', () => {
         const patientId = await createPatient(request, 'mcp-tool-eob-patient');
         const organizationId = 'mcp-tool-eob-org';
         const coverageId = 'mcp-tool-eob-coverage';
-        const orgResp = await request
-            .post(`/4_0_0/Organization/${organizationId}/$merge?validate=true`)
-            .send(makeOrganization(organizationId, 'Test EOB Org'))
-            .set(getHeaders());
-        expect(orgResp).toHaveMergeResponse({ created: true });
-        const coverageResp = await request
-            .post(`/4_0_0/Coverage/${coverageId}/$merge?validate=true`)
-            .send(makeCoverage(coverageId, { patientId, payorOrgId: organizationId }))
-            .set(getHeaders());
-        expect(coverageResp).toHaveMergeResponse({ created: true });
+        await createOrganizationAndCoverage(request, { patientId, organizationId, coverageId, orgName: 'Test EOB Org' });
 
         await assertDedicatedToolFindsResourceById(
             request,
@@ -410,16 +420,7 @@ describe('/mcp dedicated tools', () => {
         const patientId = await createPatient(request, 'mcp-tool-claim-patient');
         const organizationId = 'mcp-tool-claim-org';
         const coverageId = 'mcp-tool-claim-coverage';
-        const orgResp = await request
-            .post(`/4_0_0/Organization/${organizationId}/$merge?validate=true`)
-            .send(makeOrganization(organizationId, 'Test Claim Org'))
-            .set(getHeaders());
-        expect(orgResp).toHaveMergeResponse({ created: true });
-        const coverageResp = await request
-            .post(`/4_0_0/Coverage/${coverageId}/$merge?validate=true`)
-            .send(makeCoverage(coverageId, { patientId, payorOrgId: organizationId }))
-            .set(getHeaders());
-        expect(coverageResp).toHaveMergeResponse({ created: true });
+        await createOrganizationAndCoverage(request, { patientId, organizationId, coverageId, orgName: 'Test Claim Org' });
 
         await assertDedicatedToolFindsResourceById(
             request,
