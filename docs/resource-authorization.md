@@ -243,6 +243,16 @@ or expand what's returned, each with its own category code and its own code path
 (`src/operations/search/proaConsentManager.js`) to find active, `permit`-type Consents and OR's a
 connection-type-filtered query branch onto the search.
 
+As of `DCON-4962` (#2511), this expansion is scoped to genuine `Person $everything` requests
+only: `SearchManager.constructQueryAsync`'s `allowConsentedProaDataAccess` parameter defaults to
+`false` and is set to `true` only by `everythingHelper.js`, and only when
+`isPersonEverything` is true (`Boolean(isPersonEverything)` — explicitly `false` for
+Patient/proxy-patient `$everything`). Plain search, `searchById`, `history`, `$graph`, and both
+GraphQL APIs never set it, so this mechanism does not apply to them regardless of caller type —
+this is why the MCP endpoint (`docs/mcp-endpoint.md`), which has no `$everything` tool, has no
+PROA-consent test: the mechanism is unreachable from its surface by construction, not an
+untested gap.
+
 **b. CMS partner data-sharing consent** — for `userType: 'cms-partner'` callers only (§4).
 `DataSharingManager.updateQueryConsideringCmsDataSharing` uses
 `CmsConsentManager.getPatientIdsWithConsent` (`src/operations/search/cmsConsentManager.js`) to
