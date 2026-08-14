@@ -371,6 +371,8 @@ class EverythingHelper {
      * @property {boolean} includeNonClinicalResources
      * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
      *  the requested Person ids, used to restrict returned Person resources to only these ids
+     * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
+     *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
      *
      * @param {retriveEverythingAsyncParams}
      * @return {Promise<Bundle>}
@@ -382,7 +384,8 @@ class EverythingHelper {
         responseStreamer,
         parsedArgs,
         includeNonClinicalResources = true,
-        scopedPersonIds
+        scopedPersonIds,
+        isPersonEverything
     }) {
         if (!this.supportedResources.includes(resourceType)) {
             throw new Error('$everything is not supported for resource: ' + resourceType);
@@ -522,7 +525,8 @@ class EverythingHelper {
                             proxyPatientIds,
                             cachedStreamer,
                             everythingChunkIndex: everythingChunkIndex++,
-                            scopedPersonIds
+                            scopedPersonIds,
+                            isPersonEverything
                         }
                     );
 
@@ -659,6 +663,8 @@ class EverythingHelper {
      * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
      * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
      *  the requested Person ids, used to restrict returned Person resources to only these ids
+     * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
+     *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
      *
      * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -676,7 +682,8 @@ class EverythingHelper {
         proxyPatientIds = [],
         cachedStreamer = null,
         everythingChunkIndex,
-        scopedPersonIds
+        scopedPersonIds,
+        isPersonEverything
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -803,7 +810,8 @@ class EverythingHelper {
                     resourceMapper,
                     cachedStreamer,
                     everythingChunkIndex,
-                    scopedPersonIds
+                    scopedPersonIds,
+                    isPersonEverything
                 });
 
                 optionsForQueries = baseResult.options;
@@ -895,7 +903,8 @@ class EverythingHelper {
                     cachedStreamer,
                     everythingChunkIndex,
                     personResourcesProcessedTracker,
-                    scopedPersonIds
+                    scopedPersonIds,
+                    isPersonEverything
                 });
 
                 if (!responseStreamer) {
@@ -953,7 +962,8 @@ class EverythingHelper {
                     cachedStreamer,
                     everythingChunkIndex,
                     personUuidsForCustomQuery,
-                    scopedPersonIds
+                    scopedPersonIds,
+                    isPersonEverything
                 });
 
                 if (!responseStreamer) {
@@ -1043,7 +1053,8 @@ class EverythingHelper {
                                 resourceMapper,
                                 cachedStreamer,
                                 everythingChunkIndex,
-                                scopedPersonIds
+                                scopedPersonIds,
+                                isPersonEverything
                             });
 
                             depthParallelProcess.push(result);
@@ -1147,6 +1158,10 @@ class EverythingHelper {
      * @property {Boolean} useUuidProjection
      * @property {ResourceMapper} resourceMapper
      * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
+     * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
+     *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -1168,7 +1183,8 @@ class EverythingHelper {
         resourceMapper = new ResourceMapper(),
         cachedStreamer = null,
         everythingChunkIndex,
-        scopedPersonIds
+        scopedPersonIds,
+        isPersonEverything
     }) {
 
         /**
@@ -1214,7 +1230,15 @@ class EverythingHelper {
                 accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
                 addPersonOwnerToContext: requestInfo.isUser,
                 applyPatientFilter,
-                allowConsentedProaDataAccess: true,
+                // PROA consented-data-access expansion is only for a genuine Person $everything
+                // request -- it must not apply to Patient $everything, including proxy-patient
+                // $everything (routed through this same Patient $everything path with a
+                // Person-prefixed id). resourceType here is always 'Patient' regardless of which
+                // of those three cases this is (see fhirOperationsManager.js), so isPersonEverything
+                // is the only signal that actually distinguishes a genuine Person request from a
+                // client-issued proxy-patient one -- unlike scopedPersonIds/useProxyPatientToPersonCache
+                // below, which are (by design) identical for both.
+                allowConsentedProaDataAccess: Boolean(isPersonEverything),
                 useProxyPatientToPersonCache: Boolean(scopedPersonIds?.length),
                 everythingChunkIndex
             });
@@ -1331,6 +1355,8 @@ class EverythingHelper {
      * @property {string[]} [personUuidsForCustomQuery] - Person _uuids to include in subscription custom queries (client_person_id match)
      * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
      *  the requested Person ids, used to restrict returned Person resources to only these ids
+     * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
+     *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {_uuid: string, resourceType: string}[]}>}
@@ -1357,7 +1383,8 @@ class EverythingHelper {
         cachedStreamer = null,
         personResourcesProcessedTracker = null,
         personUuidsForCustomQuery = [],
-        scopedPersonIds
+        scopedPersonIds,
+        isPersonEverything
     }
     ) {
 
@@ -1481,7 +1508,11 @@ class EverythingHelper {
                 applyPatientFilter:
                     requestInfo.isUser &&
                     this.relatedResourceNeedingPatientScopeFilter[parentResourceType].includes(relatedResourceType),
-                allowConsentedProaDataAccess: true,
+                // Same Person-only PROA boundary as fetchResourceByArgsAsync above -- isPersonEverything
+                // reflects the originating request, not parentResourceType (which is always 'Patient'
+                // here regardless of whether this traversal started from a genuine Person request, a
+                // real Patient request, or a client-issued proxy-patient request).
+                allowConsentedProaDataAccess: Boolean(isPersonEverything),
                 useProxyPatientToPersonCache: Boolean(scopedPersonIds?.length),
                 everythingChunkIndex
             });
