@@ -11,6 +11,7 @@ const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');
 const { logInfo, logError } = require('../common/logging');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { BaseSerializer } = require('../../fhir/writeSerializers/4_0_0/customSerializers');
 
 /**
  * Generic worker entrypoint: one Kafka consumer per registered job below, each routing its
@@ -39,6 +40,12 @@ async function main() {
     try {
         initialize();
         const container = createContainer();
+        // Without this, BaseSerializer.configManager stays null in this standalone
+        // entrypoint (only src/index.js's main() sets it otherwise) and every Coding
+        // serialization (meta.security, meta.tag, etc. -- present on virtually all
+        // real resources) throws when CodingSerializer.writeSerialize reads
+        // configManager.preSaveCodingIdUpdateResources off of null.
+        BaseSerializer.setConfigManager(container.configManager);
         const { kafkaClientV2 } = container;
         const jobs = getJobs(container);
 
