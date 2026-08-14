@@ -20,6 +20,17 @@ const { tool: compositionTool } = require('./composition.tool');
 const { tool: subscriptionTool } = require('./subscription.tool');
 const { tool: subscription_statusTool } = require('./subscription_status.tool');
 const { tool: subscription_topicTool } = require('./subscription_topic.tool');
+const { tool: appointmentTool } = require('./appointment.tool');
+const { tool: service_requestTool } = require('./service_request.tool');
+const { tool: medication_statementTool } = require('./medication_statement.tool');
+const { tool: care_teamTool } = require('./care_team.tool');
+const { tool: goalTool } = require('./goal.tool');
+const { tool: family_member_historyTool } = require('./family_member_history.tool');
+const { tool: immunization_recommendationTool } = require('./immunization_recommendation.tool');
+const { tool: explanation_of_benefitTool } = require('./explanation_of_benefit.tool');
+const { tool: claimTool } = require('./claim.tool');
+const { tool: questionnaire_responseTool } = require('./questionnaire_response.tool');
+const { tool: related_personTool } = require('./related_person.tool');
 
 module.exports = {
     mcpToolsByResourceType: {
@@ -42,6 +53,17 @@ module.exports = {
         Composition: compositionTool,
         Subscription: subscriptionTool,
         SubscriptionStatus: subscription_statusTool,
-        SubscriptionTopic: subscription_topicTool
+        SubscriptionTopic: subscription_topicTool,
+        Appointment: appointmentTool,
+        ServiceRequest: service_requestTool,
+        MedicationStatement: medication_statementTool,
+        CareTeam: care_teamTool,
+        Goal: goalTool,
+        FamilyMemberHistory: family_member_historyTool,
+        ImmunizationRecommendation: immunization_recommendationTool,
+        ExplanationOfBenefit: explanation_of_benefitTool,
+        Claim: claimTool,
+        QuestionnaireResponse: questionnaire_responseTool,
+        RelatedPerson: related_personTool
     }
 };

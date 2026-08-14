@@ -372,6 +372,146 @@ function makeComposition (id, { patientId, authorOrgId }) {
     };
 }
 
+function makeAppointment (id, { patientId }) {
+    return {
+        resourceType: 'Appointment',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'booked',
+        participant: [{ actor: { reference: `Patient/${patientId}` }, status: 'accepted' }]
+    };
+}
+
+function makeServiceRequest (id, { patientId, code }) {
+    return {
+        resourceType: 'ServiceRequest',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'active',
+        intent: 'order',
+        code: { coding: [{ system: 'http://snomed.info/sct', code, display: 'Test service request' }] },
+        subject: { reference: `Patient/${patientId}` }
+    };
+}
+
+function makeMedicationStatement (id, { patientId, code }) {
+    return {
+        resourceType: 'MedicationStatement',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'active',
+        medicationCodeableConcept: {
+            coding: [{ system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code, display: 'Test medication' }]
+        },
+        subject: { reference: `Patient/${patientId}` }
+    };
+}
+
+function makeCareTeam (id, { patientId }) {
+    return {
+        resourceType: 'CareTeam',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'active',
+        subject: { reference: `Patient/${patientId}` }
+    };
+}
+
+function makeGoal (id, { patientId }) {
+    return {
+        resourceType: 'Goal',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        lifecycleStatus: 'active',
+        description: { text: 'Improve blood pressure control' },
+        subject: { reference: `Patient/${patientId}` }
+    };
+}
+
+function makeFamilyMemberHistory (id, { patientId }) {
+    return {
+        resourceType: 'FamilyMemberHistory',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'completed',
+        patient: { reference: `Patient/${patientId}` },
+        relationship: {
+            coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-RoleCode', code: 'MTH', display: 'Mother' }]
+        }
+    };
+}
+
+function makeImmunizationRecommendation (id, { patientId }) {
+    return {
+        resourceType: 'ImmunizationRecommendation',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        patient: { reference: `Patient/${patientId}` },
+        date: '2024-01-01T00:00:00Z',
+        recommendation: [{
+            forecastStatus: {
+                coding: [{
+                    system: 'http://terminology.hl7.org/CodeSystem/immunization-recommendation-status',
+                    code: 'due',
+                    display: 'Due'
+                }]
+            }
+        }]
+    };
+}
+
+function makeExplanationOfBenefit (id, { patientId, organizationId, coverageId }) {
+    return {
+        resourceType: 'ExplanationOfBenefit',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'active',
+        type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/claim-type', code: 'professional', display: 'Professional' }] },
+        use: 'claim',
+        patient: { reference: `Patient/${patientId}` },
+        created: '2024-01-01T00:00:00Z',
+        insurer: { reference: `Organization/${organizationId}` },
+        provider: { reference: `Organization/${organizationId}` },
+        outcome: 'complete',
+        insurance: [{ focal: true, coverage: { reference: `Coverage/${coverageId}` } }]
+    };
+}
+
+function makeClaim (id, { patientId, organizationId, coverageId }) {
+    return {
+        resourceType: 'Claim',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'active',
+        type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/claim-type', code: 'professional', display: 'Professional' }] },
+        use: 'claim',
+        patient: { reference: `Patient/${patientId}` },
+        created: '2024-01-01T00:00:00Z',
+        provider: { reference: `Organization/${organizationId}` },
+        priority: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/processpriority', code: 'normal', display: 'Normal' }] },
+        insurance: [{ sequence: 1, focal: true, coverage: { reference: `Coverage/${coverageId}` } }]
+    };
+}
+
+function makeQuestionnaireResponse (id, { patientId }) {
+    return {
+        resourceType: 'QuestionnaireResponse',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'completed',
+        subject: { reference: `Patient/${patientId}` }
+    };
+}
+
+function makeRelatedPerson (id, { patientId }) {
+    return {
+        resourceType: 'RelatedPerson',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        patient: { reference: `Patient/${patientId}` }
+    };
+}
+
 module.exports = {
     parseMcpRpcResponse,
     callMcpTool,
@@ -400,5 +540,16 @@ module.exports = {
     makeComposition,
     makeSubscription,
     makeSubscriptionStatus,
-    makeSubscriptionTopic
+    makeSubscriptionTopic,
+    makeAppointment,
+    makeServiceRequest,
+    makeMedicationStatement,
+    makeCareTeam,
+    makeGoal,
+    makeFamilyMemberHistory,
+    makeImmunizationRecommendation,
+    makeExplanationOfBenefit,
+    makeClaim,
+    makeQuestionnaireResponse,
+    makeRelatedPerson
 };
