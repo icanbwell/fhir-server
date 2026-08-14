@@ -19,6 +19,12 @@ const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
 const { logInfo, logError } = require('../../common/logging');
+const {
+    recordImportOperationTriggered,
+    recordImportFileSize,
+    recordImportResourceOutcomes,
+    recordImportRangeDuration
+} = require('../../../utils/metrics');
 const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
 const { AuditLogger } = require('../../../utils/auditLogger');
 const { groupByLambda } = require('../../../utils/list.util');
@@ -321,6 +327,7 @@ class BulkImportHandler {
                 );
             }
 
+            recordImportFileSize(fileSize);
             results.push({ url: input.url, fileSize });
         }
         return results;
@@ -360,6 +367,8 @@ class BulkImportHandler {
             logError('Task not found for orchestrator message', { taskId });
             return;
         }
+
+        recordImportOperationTriggered();
 
         let inputsWithSizes;
         try {
@@ -734,6 +743,7 @@ class BulkImportHandler {
         }
 
         const { taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, fileSize, user, scope } = eventData;
+        const rangeStartTimeMs = Date.now();
 
         logInfo('Processing bulk import range', {
             taskId,
@@ -1017,6 +1027,13 @@ class BulkImportHandler {
                 totalRanges
             });
         } finally {
+            // Emitted here (not at the success-return point above) so a range that fails
+            // after a partial flush -- or is redelivered and fails again -- still surfaces
+            // whatever mergeResultEntries this attempt actually produced, mirroring the
+            // merge boundary's finally-based emission (see docs/adr/0002).
+            recordImportResourceOutcomes(mergeResultEntries);
+            recordImportRangeDuration((Date.now() - rangeStartTimeMs) / 1000);
+
             // FastDatabaseBulkInserter defers history writes onto postRequestProcessor's
             // queue rather than writing them inline — without this, history writes for
             // every bulk-imported resource would be silently dropped. RequestSpecificCache

@@ -23,6 +23,8 @@ jestObj.mock('../../../../../operations/common/logging', () => ({
 }));
 
 const { S3NdjsonReader } = require('../../../../../operations/asyncJobs/bulkImport/s3NdjsonReader');
+const metrics = require('../../../../../utils/metrics');
+jestObj.spyOn(metrics.importS3ReadThroughputHistogram, 'record');
 
 describe('S3NdjsonReader', () => {
     let reader;
@@ -36,6 +38,7 @@ describe('S3NdjsonReader', () => {
         };
         reader = new S3NdjsonReader({ configManager: mockConfigManager });
         mockSend.mockReset();
+        metrics.importS3ReadThroughputHistogram.record.mockClear();
     });
 
     /**
@@ -268,6 +271,91 @@ describe('S3NdjsonReader', () => {
             expect(results[0].resource).toBeNull();
             expect(results[0].parseError.message).toMatch(/exceeds maximum size/);
             expect(results[1]).toMatchObject({ resource: { id: 'p2' }, parseError: null });
+        });
+    });
+
+    describe('BAI-229: fhir_import_s3_read_throughput_bytes_per_second', () => {
+        const lines = [
+            '{"resourceType":"Patient","id":"p1"}',
+            '{"resourceType":"Patient","id":"p2"}'
+        ];
+        const fullText = lines.join('\n') + '\n';
+        const fileSize = Buffer.byteLength(fullText, 'utf8');
+
+        test('records throughput once after a successful full read', async () => {
+            serveFileFromMockS3(fullText);
+            // Real elapsed time for an in-memory mock read is often sub-millisecond, which
+            // Date.now()'s resolution can round to a 0ms delta -- mock it so the 50ms elapsed
+            // window (and therefore a positive, non-flaky throughput value) is deterministic.
+            const nowSpy = jestObj.spyOn(Date, 'now')
+                .mockReturnValueOnce(1_000)
+                .mockReturnValueOnce(1_050);
+
+            await collect(reader.readNdjsonAsync({
+                filepath: 's3://allowed-bucket/file.ndjson',
+                byteRangeStart: 0,
+                byteRangeEnd: fileSize,
+                fileSize
+            }));
+
+            expect(metrics.importS3ReadThroughputHistogram.record).toHaveBeenCalledTimes(1);
+            // bytesRead - byteRangeStart == fileSize for a single full-file range; 50ms elapsed.
+            expect(metrics.importS3ReadThroughputHistogram.record).toHaveBeenCalledWith(fileSize / 0.05);
+
+            nowSpy.mockRestore();
+        });
+
+        test('does not record (divide-by-zero guard) when elapsed duration is 0', async () => {
+            serveFileFromMockS3(fullText);
+            const nowSpy = jestObj.spyOn(Date, 'now')
+                .mockReturnValueOnce(1_000)
+                .mockReturnValueOnce(1_000);
+
+            await collect(reader.readNdjsonAsync({
+                filepath: 's3://allowed-bucket/file.ndjson',
+                byteRangeStart: 0,
+                byteRangeEnd: fileSize,
+                fileSize
+            }));
+
+            expect(metrics.importS3ReadThroughputHistogram.record).not.toHaveBeenCalled();
+
+            nowSpy.mockRestore();
+        });
+
+        test('records a partial (zero-byte) throughput data point when the GetObject call itself fails', async () => {
+            mockSend.mockRejectedValue(new Error('S3 unavailable'));
+            const nowSpy = jestObj.spyOn(Date, 'now')
+                .mockReturnValueOnce(1_000)
+                .mockReturnValueOnce(1_050);
+
+            const gen = reader.readNdjsonAsync({
+                filepath: 's3://allowed-bucket/file.ndjson',
+                byteRangeStart: 0,
+                byteRangeEnd: fileSize,
+                fileSize
+            });
+
+            await expect(gen.next()).rejects.toThrow('S3 unavailable');
+
+            // finally still runs on the thrown GetObject error. Zero bytes were read before the
+            // failure, so the recorded throughput is 0 -- a real (if unhelpful on its own)
+            // partial-read data point, not suppressed like the zero-duration case above.
+            expect(metrics.importS3ReadThroughputHistogram.record).toHaveBeenCalledWith(0);
+
+            nowSpy.mockRestore();
+        });
+
+        test('does not record for a parameter-validation failure (throws before the finally-wrapped read starts)', async () => {
+            const gen = reader.readNdjsonAsync({
+                filepath: 's3://allowed-bucket/file.ndjson',
+                byteRangeStart: 0,
+                byteRangeEnd: 100,
+                fileSize: 0
+            });
+
+            await expect(gen.next()).rejects.toThrow(/Invalid fileSize/);
+            expect(metrics.importS3ReadThroughputHistogram.record).not.toHaveBeenCalled();
         });
     });
 });
