@@ -5,6 +5,7 @@
  * per-tool test files (see dedicated_tools/) don't each hand-duplicate the SSE/JSON-RPC parsing.
  */
 const { generateUUIDv5 } = require('../../utils/uid.util');
+const { getHeadersWithCustomPayload } = require('../common');
 
 /**
  * A patient-scoped caller's identity (SEC-1580 IDG-5, #2481) is now matched strictly against
@@ -23,6 +24,31 @@ const { generateUUIDv5 } = require('../../utils/uid.util');
  */
 function personUuid (personId, owner = 'client') {
     return generateUUIDv5(`${personId}|${owner}`);
+}
+
+/**
+ * A patient-scoped JWT payload whose clientFhirPersonId/bwellFhirPersonId is the given
+ * personId's Person._uuid (SEC-1580 IDG-5, #2481, tightened this to an exact _uuid match with
+ * no _sourceId fallback -- see personUuid's doc comment above). Full user/access grants are
+ * included alongside the patient scope so that scope *narrowing* (not an outright access
+ * denial) is what's under test -- mirrors src/tests/graphqlv2/observation/observation.test.js's
+ * getGraphQLHeadersWithPerson usage and src/tests/patientScope/search_with_clientfhirpersonid's
+ * jwt_payload shape.
+ * @param {string} personId
+ * @param {Object} [overrides]
+ * @returns {string} raw bearer token (no 'Bearer ' prefix)
+ */
+function patientScopedToken (personId, overrides = {}) {
+    return getHeadersWithCustomPayload({
+        scope: 'patient/*.read user/*.* access/*.*',
+        username: `${personId}@example.com`,
+        clientFhirPersonId: personUuid(personId),
+        clientFhirPatientId: 'clientFhirPatient',
+        bwellFhirPersonId: personUuid(personId),
+        bwellFhirPatientId: 'bwellFhirPatient',
+        token_use: 'access',
+        ...overrides
+    }).Authorization.replace(/^Bearer /, '');
 }
 
 /**
@@ -291,6 +317,7 @@ module.exports = {
     idsInBundle,
     minimalSecurity,
     personUuid,
+    patientScopedToken,
     makePatient,
     makeLocation,
     makeObservation,
