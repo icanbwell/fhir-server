@@ -310,6 +310,68 @@ function makeOrganization (id, name) {
     };
 }
 
+/**
+ * The b.well-specific system URI patientFilterManager.personFilterWithQueryMapping narrows
+ * Subscription/SubscriptionStatus/SubscriptionTopic searches by, for a patient-scoped caller
+ * (see src/constants.js SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person and
+ * src/fhir/patientFilterManager.js). Test fixtures must stamp this exact system on the
+ * connection-identity extension/identifier so the patient-scope narrowing test can prove the
+ * filter actually matches (or excludes) it.
+ * @type {string}
+ */
+const CLIENT_PERSON_ID_SYSTEM = 'https://icanbwell.com/codes/client_person_id';
+
+function makeSubscription (id, { clientPersonId }) {
+    return {
+        resourceType: 'Subscription',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'active',
+        reason: 'Monitor connection',
+        criteria: `SubscriptionTopic/${id}`,
+        channel: { type: 'rest-hook', endpoint: 'https://example.com/hook' },
+        extension: [{ id: 'client_person_id', url: CLIENT_PERSON_ID_SYSTEM, valueString: clientPersonId }]
+    };
+}
+
+function makeSubscriptionStatus (id, { clientPersonId }) {
+    return {
+        resourceType: 'SubscriptionStatus',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'active',
+        type: 'query-status',
+        subscription: { reference: `Subscription/${id}` },
+        topic: `https://example.com/SubscriptionTopic/${id}`,
+        extension: [{ id: 'client_person_id', url: CLIENT_PERSON_ID_SYSTEM, valueString: clientPersonId }]
+    };
+}
+
+function makeSubscriptionTopic (id, { clientPersonId }) {
+    return {
+        resourceType: 'SubscriptionTopic',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'active',
+        url: `https://example.com/SubscriptionTopic/${id}`,
+        identifier: [{ system: CLIENT_PERSON_ID_SYSTEM, value: clientPersonId }]
+    };
+}
+
+function makeComposition (id, { patientId, authorOrgId }) {
+    return {
+        resourceType: 'Composition',
+        id,
+        meta: { source: 'test', security: minimalSecurity() },
+        status: 'final',
+        type: { coding: [{ system: 'http://loinc.org', code: '11488-4', display: 'Consult note' }] },
+        subject: { reference: `Patient/${patientId}` },
+        date: '2024-01-01T00:00:00Z',
+        author: [{ reference: `Organization/${authorOrgId}` }],
+        title: 'Test Composition'
+    };
+}
+
 module.exports = {
     parseMcpRpcResponse,
     callMcpTool,
@@ -334,5 +396,9 @@ module.exports = {
     makeCoverage,
     makeDocumentReference,
     makePractitioner,
-    makeOrganization
+    makeOrganization,
+    makeComposition,
+    makeSubscription,
+    makeSubscriptionStatus,
+    makeSubscriptionTopic
 };

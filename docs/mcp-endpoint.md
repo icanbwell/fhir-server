@@ -119,8 +119,24 @@ schemas:
   ```
   Patient, Observation, Condition, MedicationRequest, AllergyIntolerance, Immunization, Procedure,
   DiagnosticReport, Encounter, CarePlan, Coverage, DocumentReference, Practitioner, Organization,
-  Person, MedicationDispense
+  Person, MedicationDispense, Composition, Subscription, SubscriptionStatus, SubscriptionTopic
   ```
+
+  `Subscription`/`SubscriptionStatus`/`SubscriptionTopic` model b.well's per-connection data-source
+  metadata (see the internal FDR "Storing connection status and metadata (Subscription)"): one
+  `SubscriptionTopic` + `Subscription` + `SubscriptionStatus` triple per patient data connection,
+  sharing one deterministic id, letting a caller answer "what are my data sources" (search
+  `SubscriptionTopic` by its `identifier`) and "when did my data last arrive" (fetch the matching
+  `SubscriptionStatus` by that same id and read `notificationEvent`/error extensions). `Subscription`
+  and `SubscriptionStatus` also get a generator-injected `extension` field
+  (`generatorScripts/mcp/generate_mcp_tools.py`'s `EXTENSION_SEARCH_PARAM_OVERRIDES`) documenting a
+  b.well-specific token search parameter that has no standard HL7 `SearchParameter` definition (so
+  it doesn't come from `search-parameters.json` the way every other field here does) — this mirrors
+  `patientFilterManager.personFilterWithQueryMapping`'s own `extension=.../client_person_id|{person}`
+  filter verbatim, which is also what enforces patient-scope isolation for these two resource types
+  (they have no `patient`/`subject` search parameter, so they sit outside the generic
+  patient-compartment mechanism every other dedicated tool relies on — see
+  `src/fhir/patientFilterManager.js`).
 
   Each has a typed Zod `inputSchema` with one `z.string().optional()` field per real FHIR search
   parameter for that resource (plus `_id`, `_lastUpdated`, `_count`, `_sort` on every resource),
@@ -235,7 +251,7 @@ per-request/stateless by construction; there is no separate stateful transport m
   exclusion for patient-scoped callers (§9), and the `AuditEvent` required-filters gate (§3). See
   `docs/superpowers/plans/2026-08-14-mcp-resource-authorization-test-coverage.md` for why other
   sections of that doc (§2, §4, §6a, §6b, admin/debug params) don't need their own MCP-level test.
-- `src/tests/mcp/dedicated_tools/` — per-tool coverage for all 16 generated dedicated tools.
+- `src/tests/mcp/dedicated_tools/` — per-tool coverage for all 20 generated dedicated tools.
 - `src/tests/unit/mcp/mcpToolHandler.test.js` — unit coverage for `McpToolHandler`, including
   asserting the consent-exclusion merge against `parsedArgs.parsedArgItems` directly (the structure
   the query builder actually reads), not just the cosmetic bracket property.

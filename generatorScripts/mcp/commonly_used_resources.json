@@ -15,6 +15,10 @@
         "Practitioner",
         "Organization",
         "Person",
-        "MedicationDispense"
+        "MedicationDispense",
+        "Composition",
+        "Subscription",
+        "SubscriptionStatus",
+        "SubscriptionTopic"
     ]
 }
