@@ -331,8 +331,13 @@ class MergeManager {
                         uuid
                     }
                 );
-            } else {
-                // Query our collection for this id
+            }
+            if (!currentResource) {
+                // getResourceFromExistingList() returns null both when the resource was
+                // confirmed not to exist and when there's no bulk loader (or this
+                // resourceType/uuid was never loaded into it for this request) -- trusting
+                // that as confirmed non-existence would misroute an existing resource to the
+                // insert path. Query our collection directly to be sure.
                 const databaseQueryManager = this.databaseQueryFactory.createQuery(
                     { resourceType: resourceToMerge.resourceType, base_version }
                 );
