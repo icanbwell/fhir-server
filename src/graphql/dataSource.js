@@ -225,7 +225,8 @@ class FhirDataSource {
                             parsedArgs: await this.getParsedArgsAsync({
                                 args: args1,
                                 resourceType,
-                                headers: requestInfo.headers
+                                headers: requestInfo.headers,
+                                requestInfo
                             }),
                             useAggregationPipeline: false
                         });
@@ -438,7 +439,8 @@ class FhirDataSource {
                         {
                             args: args1,
                             resourceType,
-                            headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
+                            headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined,
+                            requestInfo: context.fhirRequestInfo
                         }
                     ),
                     useAggregationPipeline: false
@@ -538,7 +540,8 @@ class FhirDataSource {
                     {
                         args: args1,
                         resourceType,
-                        headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
+                        headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined,
+                        requestInfo: context.fhirRequestInfo
                     }
                 ),
                 useAggregationPipeline
@@ -712,9 +715,10 @@ class FhirDataSource {
      * @param {Object} args
      * @param {string} resourceType
      * @param {Object|undefined} headers
+     * @param {FhirRequestInfo} [requestInfo]
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync ({ args, resourceType, headers }) {
+    async getParsedArgsAsync ({ args, resourceType, headers, requestInfo }) {
         const { base_version } = args;
         /**
          * @type {ParsedArgs}
@@ -729,7 +733,7 @@ class FhirDataSource {
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
-                base_version, parsedArgs, resourceType, operation: READ
+                base_version, parsedArgs, resourceType, operation: READ, requestInfo
             }
         );
         if (headers) {

@@ -66,7 +66,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/validate/validate.test.js',
         '<rootDir>/src/tests/unit/routeHandlers/fhirServer.test.js',
         '<rootDir>/src/tests/unit/utils/accessLogger.test.js',
-        '<rootDir>/src/tests/unit/utils/bwellPersonFinder.test.js',
         '<rootDir>/src/tests/unit/utils/clickHouseClientManager.test.js',
         '<rootDir>/src/tests/unit/utils/delegatedAccessRulesManager.test.js',
         '<rootDir>/src/tests/unit/utils/filterGraphResources.test.js',
@@ -79,7 +78,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/graphql/resolvers/graphqlResolver.crossTenant.test.js',
         '<rootDir>/src/tests/unit/graphqlv2/crossTenantPhiLeakage.test.js',
         '<rootDir>/src/tests/unit/middleware/errorInformationDisclosure.test.js',
-        '<rootDir>/src/tests/unit/operations/everything/patientEverything.consent.test.js',
         '<rootDir>/src/tests/unit/operations/export/bulkDataExportRunner.crossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/history/historyCrossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/merge/merge.crossTenant.test.js',
@@ -88,9 +86,10 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/search/proaConsentVulnerabilities.test.js',
         '<rootDir>/src/tests/unit/operations/subscription/subscription.crossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/subscription/webhookPhiLeakage.test.js',
-        '<rootDir>/src/tests/unit/strategies/authFailureMode.test.js',
-        '<rootDir>/src/tests/unit/strategies/jwtCacheThunderingHerd.test.js',
-        '<rootDir>/src/tests/unit/utils/personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js'
+        '<rootDir>/src/tests/unit/strategies/jwtCacheThunderingHerd.test.js'
+        // personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js entry removed here:
+        // DCON-4894 closed this gap (Person.link assurance enforcement) and the test now
+        // passes against current main -- see the file's updated top-of-file comment.
     ],
     setupFiles: [
         '<rootDir>/jest/patchClickHouseClient.js',

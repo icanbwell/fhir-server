@@ -132,6 +132,12 @@ describe('Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
+            // clientFhirPersonId is already mps-bwell-person's real _uuid (its `id` is a valid
+            // uuid, so isUuid(resource.id) makes _uuid === id directly). Since IDG-5, a
+            // patient-scoped caller's self-lookup no longer follows Person.link to another
+            // Person at all, so mps-person (reached via mps-bwell-person -> mps-person) and its
+            // Task1 are no longer reachable -- only mps-bwell-person's own proxy and its direct
+            // Patient.link (mps-patient-1, Task3) are.
             const mps_person_payload = {
                 scope: 'patient/Task.read admin/*.read',
                 username: 'patient-123@example.com',

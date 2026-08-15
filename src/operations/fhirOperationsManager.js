@@ -544,7 +544,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.searchByIdOperation.searchByIdAsync(
@@ -580,7 +580,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         });
 
         return await this.createOperation.createAsync(
@@ -613,7 +613,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         }
         );
         return await this.updateOperation.updateAsync(
@@ -650,7 +650,8 @@ class FhirOperationsManager {
                         args: combined_args,
                         resourceType,
                         headers: req.headers,
-                        operation: WRITE
+                        operation: WRITE,
+                        requestInfo
                     })
                 });
                 return { requestInfo, parsedArgs };
@@ -717,8 +718,15 @@ class FhirOperationsManager {
 
         let scopedPersonIds;
         // person ids to retrict result to
+        // True only for a genuine /Person/{id}/$everything request, captured here before the
+        // Person->Patient remap below erases the distinction. scopedPersonIds alone can't be used
+        // for this (SEC-1580 F10 below populates it identically for a client-issued proxy-patient
+        // request), but PROA consented-data-access expansion must apply to a real Person
+        // $everything request only, not to a Patient-endpoint request using a proxy id.
+        let isPersonEverything = false;
         if (resourceType === "Person" && idsList) {
             scopedPersonIds = idsList;
+            isPersonEverything = true;
         } else if (resourceType === 'Patient' && idsList) {
             // the equivalent of Person $everything can also be requested directly against the
             // Patient endpoint using the proxy patient id form (Patient/person.<id>/$everything);
@@ -790,7 +798,8 @@ class FhirOperationsManager {
                         parsedArgs,
                         resourceType,
                         responseStreamer,
-                        scopedPersonIds
+                        scopedPersonIds,
+                        isPersonEverything
                     });
                 await responseStreamer.endAsync();
                 return undefined;
@@ -821,7 +830,8 @@ class FhirOperationsManager {
                     res,
                     parsedArgs,
                     resourceType,
-                    scopedPersonIds
+                    scopedPersonIds,
+                    isPersonEverything
                 });
             return result;
         }
@@ -859,7 +869,8 @@ class FhirOperationsManager {
             resourceType,
             headers: req.headers,
             operation: READ,
-            allowMultipleIds: false
+            allowMultipleIds: false,
+            requestInfo
         });
         /**
          * response streamer to use
@@ -910,7 +921,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         }
         );
         return await this.removeOperation.removeAsync(
@@ -942,7 +953,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         }
         );
         return await this.removeOperation.removeAsync(
@@ -975,7 +986,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.searchByVersionIdOperation.searchByVersionIdAsync(
@@ -1008,7 +1019,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
 
@@ -1042,7 +1053,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.historyByIdOperation.historyByIdAsync(
@@ -1074,7 +1085,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         }
         );
         return await this.patchOperation.patchAsync(
@@ -1106,7 +1117,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.validateOperation.validateAsync(
@@ -1142,7 +1153,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
 

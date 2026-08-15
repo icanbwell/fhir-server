@@ -83,6 +83,7 @@ const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {PersonMatchManager} = require('./admin/personMatchManager');
 const {OAuthClientCredentialsHelper} = require('./utils/oauthClientCredentialsHelper');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
+const {McpToolHandler} = require('./mcp/mcpToolHandler');
 const {K8sClient} = require('./utils/k8sClient');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
@@ -104,6 +105,7 @@ const {MergeResourceValidator} = require('./operations/merge/validators/mergeRes
 const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
 const {PostSaveProcessor} = require('./dataLayer/postSaveProcessor');
 const {PostSaveHandlerFactory} = require('./dataLayer/postSaveHandlers/postSaveHandlerFactory');
+const {ConsentCacheInvalidationHandler} = require('./dataLayer/postSaveHandlers/handlers/consentCacheInvalidationHandler');
 const {ProfileUrlMapper} = require('./utils/profileMapper');
 const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const {PatientScopeManager} = require('./operations/security/patientScopeManager');
@@ -464,7 +466,8 @@ const createContainer = function () {
             [READ]: [
                 new PatientProxyQueryRewriter({
                     personToPatientIdsExpander: c.personToPatientIdsExpander,
-                    configManager: c.configManager
+                    configManager: c.configManager,
+                    requestSpecificCache: c.requestSpecificCache
                 })
             ]
         }
@@ -496,7 +499,8 @@ const createContainer = function () {
                 dataSharingManager: c.dataSharingManager,
                 searchQueryBuilder: c.searchQueryBuilder,
                 patientScopeManager: c.patientScopeManager,
-                patientQueryCreator: c.patientQueryCreator
+                patientQueryCreator: c.patientQueryCreator,
+                searchParametersManager: c.searchParametersManager
             }
         )
     );
@@ -740,7 +744,8 @@ const createContainer = function () {
         patientDataViewControlManager: c.patientDataViewControlManager,
         auditLogger: c.auditLogger,
         postRequestProcessor: c.postRequestProcessor,
-        redisStreamManager: c.redisStreamManager
+        redisStreamManager: c.redisStreamManager,
+        redisManager: c.redisManager
     }));
 
     container.register('everythingRelatedResourceMapper', (c) => new EverythingRelatedResourcesMapper());
@@ -1153,6 +1158,14 @@ const createContainer = function () {
         searchParametersManager: c.searchParametersManager
     }));
 
+    container.register('mcpToolHandler', (c) => new McpToolHandler({
+        searchBundleOperation: c.searchBundleOperation,
+        r4ArgsParser: c.r4ArgsParser,
+        patientDataViewControlManager: c.patientDataViewControlManager,
+        patientScopeManager: c.patientScopeManager,
+        queryRewriterManager: c.queryRewriterManager
+    }));
+
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
         {
             configManager: c.configManager
@@ -1167,7 +1180,11 @@ const createContainer = function () {
     container.register('postSaveProcessor', (c) => {
         const handlers = [
             c.changeEventProducer,
-            c.patientPersonDataChangeEventProducer
+            c.patientPersonDataChangeEventProducer,
+            new ConsentCacheInvalidationHandler({
+                redisManager: c.redisManager,
+                bwellPersonFinder: c.bwellPersonFinder
+            })
         ];
 
         // Add ClickHouse handler for Group resources if enabled
@@ -1244,7 +1261,10 @@ const createContainer = function () {
         fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
         s3NdjsonReader: c.s3NdjsonReader,
         postRequestProcessor: c.postRequestProcessor,
-        requestSpecificCache: c.requestSpecificCache
+        requestSpecificCache: c.requestSpecificCache,
+        auditLogger: c.auditLogger,
+        r4ArgsParser: c.r4ArgsParser,
+        searchQueryBuilder: c.searchQueryBuilder
     }));
 
     // Routes messages on kafkaBulkImportTaskCreatedTopic to their handler by CloudEvent

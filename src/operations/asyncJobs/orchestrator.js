@@ -1,8 +1,17 @@
+const { initStandaloneEntrypointSentry } = require('../../utils/initStandaloneEntrypointSentry');
+
+// This entrypoint runs standalone (node src/operations/asyncJobs/orchestrator.js), so it
+// never loads src/index.js/server.js -- their Sentry.init()/error handlers do not cover this
+// process. Without this, errors here (including a crashed/unhandled-rejected consumer) go
+// completely unreported.
+initStandaloneEntrypointSentry();
+
 const http = require('http');
 const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');
 const { logInfo, logError } = require('../common/logging');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { BaseSerializer } = require('../../fhir/writeSerializers/4_0_0/customSerializers');
 
 /**
  * Generic orchestrator entrypoint: one Kafka consumer per registered job below, each routing
@@ -10,7 +19,7 @@ const { getCircularReplacer } = require('../../utils/getCircularReplacer');
  * async job's orchestrator-side consumer means adding another entry to `jobs` below, not a new
  * entrypoint file.
  * @param {import('../../utils/simpleContainer').SimpleContainer} container
- * @returns {Array<{ topic: string, groupId: string, dispatcher: { handleMessageAsync: function }, label: string }>}
+ * @returns {Array<{ topic: string, groupId: string, dispatcher: { handleMessageAsync: function }, label: string, deadLetterTopic: string }>}
  */
 function getJobs(container) {
     const { configManager } = container;
@@ -19,7 +28,10 @@ function getJobs(container) {
             topic: configManager.kafkaBulkImportTaskCreatedTopic,
             groupId: configManager.bulkImportOrchestratorGroupId,
             dispatcher: container.bulkImportOrchestratorDispatcher,
-            label: 'bulk-import-orchestrator'
+            label: 'bulk-import-orchestrator',
+            // A message still failing after 3 retries goes here instead of blocking the
+            // partition forever — see kafkaClientV2.receiveMessagesAsync's deadLetterTopic option.
+            deadLetterTopic: `${configManager.kafkaBulkImportTaskCreatedTopic}.dlt`
         }
     ];
 }
@@ -28,6 +40,11 @@ async function main() {
     try {
         initialize();
         const container = createContainer();
+        // This entrypoint doesn't serialize resources itself today, but sets this for
+        // consistency with worker.js/index.js -- otherwise any future code path here that
+        // touches FhirResourceWriteSerializer would silently hit a null configManager
+        // (see worker.js's comment on this same call for the full failure mode).
+        BaseSerializer.setConfigManager(container.configManager);
         const { kafkaClientV2 } = container;
         const jobs = getJobs(container);
 
@@ -67,7 +84,9 @@ async function main() {
                 fromBeginning: false,
                 onMessageAsync: async (message) => {
                     await job.dispatcher.handleMessageAsync(message);
-                }
+                },
+                maxRetries: 3,
+                deadLetterTopic: job.deadLetterTopic
             });
 
             // kafkaClientV2's own CRASH listener (registered inside waitForConsumerToJoinGroupAsync)
@@ -83,12 +102,15 @@ async function main() {
             // otherwise this handler's process.exit could cut that write off mid-flight.
             if (consumer) {
                 consumer.on(consumer.events.CRASH, async (event) => {
+                    // Log every crash, retriable or not -- a silent retriable crash gives no
+                    // evidence a self-heal was even attempted, let alone whether it succeeded.
+                    logError(`Async job orchestrator consumer crashed (${job.label})`, {
+                        error: event.payload.error?.message,
+                        restart: event.payload.restart
+                    });
                     if (event.payload.restart) {
                         return;
                     }
-                    logError(`Async job orchestrator consumer crashed, exiting (${job.label})`, {
-                        error: event.payload.error?.message
-                    });
                     await new Promise((resolve) => setImmediate(resolve));
                     process.exit(1);
                 });

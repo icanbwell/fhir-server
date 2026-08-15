@@ -179,7 +179,7 @@ class AdminExportManager {
         const combined_args = get_all_args(req, args);
 
         const parsedArgs = await this.fhirOperationsManager.getParsedArgsAsync({
-            args: combined_args, resourceType: resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType: resourceType, headers: req.headers, operation: WRITE, requestInfo
         });
 
         try {
@@ -263,7 +263,7 @@ class AdminExportManager {
         const combined_args = get_all_args(req, args);
 
         const parsedArgs = await this.fhirOperationsManager.getParsedArgsAsync({
-            args: combined_args, resourceType: resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType: resourceType, headers: req.headers, operation: WRITE, requestInfo
         });
 
         try {

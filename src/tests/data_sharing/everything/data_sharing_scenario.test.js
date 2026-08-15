@@ -52,6 +52,7 @@ const sameClientPersonAPayload = require('./fixtures/same_client_person_a_payloa
 const sameClientPersonBPayload = require('./fixtures/same_client_person_b_payload.json');
 const expectedSameClientPersonAEverything = require('./fixtures/expected/expected_same_client_person_a_everything.json');
 const expectedSameClientPersonBEverything = require('./fixtures/expected/expected_same_client_person_b_everything.json');
+const expectedClientPersonBEverythingNoConsent = require('./fixtures/expected/expected_client_person_b_everything_no_consent.json');
 
 const {
     commonBeforeEach,
@@ -293,6 +294,58 @@ describe('Data sharing test cases for different scenarios', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse9Resource);
+        });
+
+        describe('PROA consented-data-access is Person-$everything-only', () => {
+            // Regression coverage for the boundary: PROA consented-data-access expansion must
+            // apply to a genuine Person $everything request, but NOT to a Patient-endpoint
+            // request using a proxy id (Patient/person.<id>/$everything) -- even though both
+            // forms address the exact same underlying person with the exact same caller scope,
+            // and even though a client-issued proxy-patient request restricts results to that
+            // person's own sibling patients the same way a genuine Person request does
+            // (scopedPersonIds is set identically for both). Only PROA consented-data-access is
+            // gated by which route was actually used.
+            test('Genuine Person $everything includes PROA-consented data; the equivalent proxy-patient $everything for the same person does not', async () => {
+                const request = await createTestRequest((c) => c);
+
+                let resp = await request
+                    .post('/4_0_0/Person/1/$merge')
+                    .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
+                        clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
+                        proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
+                        clientConsentGivenResource])
+                    .set(getHeaders());
+                // noinspection JSUnresolvedFunction
+                expect(resp).toHaveMergeResponse({ created: true });
+
+                // Genuine Person $everything: client person c12345 is only directly linked to its
+                // own client-owned patient (ce6); ce7 (proaPatient1) is a health-service-owned,
+                // PROA-connected patient reachable only through the consent given above. It must
+                // be present here.
+                resp = await request
+                    .get('/4_0_0/Person/c12345/$everything?_type=Patient')
+                    .set({ ...headersWithAdmin, prefer: 'global_id=false' });
+
+                let patientIds = (resp.body.entry || [])
+                    .filter((e) => e.resource?.resourceType === 'Patient')
+                    .map((e) => e.resource.id);
+                expect(patientIds).toContain('bb7862e6-b7ac-470e-bde3-e85cee9d1ce7');
+
+                // Same person, same caller scope, requested via the Patient-endpoint proxy form
+                // instead (Patient/person.c12345/$everything). The PROA-consented patient must NOT
+                // leak through here, despite the Person-prefixed id.
+                resp = await request
+                    .get('/4_0_0/Patient/person.c12345/$everything?_type=Patient')
+                    .set({ ...headersWithAdmin, prefer: 'global_id=false' });
+
+                patientIds = (resp.body.entry || [])
+                    .filter((e) => e.resource?.resourceType === 'Patient')
+                    .map((e) => e.resource.id);
+                expect(patientIds).not.toContain('bb7862e6-b7ac-470e-bde3-e85cee9d1ce7');
+                // The caller's own, directly-owned client patient is still reachable -- this isn't
+                // a general access regression, only the PROA expansion is scoped out.
+                expect(patientIds).toContain('bb7862e6-b7ac-470e-bde3-e85cee9d1ce6');
+            });
         });
 
         describe('PROA data sharing flow with connectionType-based consent', () => {
@@ -629,10 +682,11 @@ describe('Data sharing test cases for different scenarios', () => {
             .get(`/4_0_0/Person/${PERSON_A_CLIENT_ID}/$everything?_debug=1`)
             .set({ ...client2Headers, prefer: 'global_id=false' });
 
+        const expectedSameClientPersonAEverythingCopy = deepcopy(expectedSameClientPersonAEverything)
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMongoQuery(expectedSameClientPersonAEverything);
+        expect(resp).toHaveMongoQuery(expectedSameClientPersonAEverythingCopy);
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(expectedSameClientPersonAEverything);
+        expect(resp).toHaveResponse(expectedSameClientPersonAEverythingCopy);
 
         // Symmetric check: person B's own Subscription must come back, person A's must not.
         resp = await request
@@ -643,5 +697,49 @@ describe('Data sharing test cases for different scenarios', () => {
         expect(resp).toHaveMongoQuery(expectedSameClientPersonBEverything);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedSameClientPersonBEverything);
-    })
+    });
+
+
+    test('Two client person of same client having common connection should use requested person consent', async () => {
+        const request = await createTestRequest((c) => c);
+
+        const PERSON_A_CLIENT_ID = '3e89b5be-a773-4aa7-af74-a23e6abedb653';
+        const PERSON_B_CLIENT_ID = '624fa318-ffa8-4c5d-8a27-3c216bc280323';
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send(sameClientPersonAPayload)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send(sameClientPersonBPayload.filter(resource => resource.resourceType !== 'Consent'))
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        const client2Headers = getHeaders('user/*.read access/client2.* admin/*.*');
+
+        resp = await request
+            .get(`/4_0_0/Person/${PERSON_A_CLIENT_ID}/$everything?_debug=1`)
+            .set({ ...client2Headers, prefer: 'global_id=false' });
+
+        const expectedSameClientPersonAEverythingCopy = deepcopy(expectedSameClientPersonAEverything)
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedSameClientPersonAEverythingCopy);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedSameClientPersonAEverythingCopy);
+
+        // Symmetric check: person B's own Subscription must come back, person A's must not.
+        resp = await request
+            .get(`/4_0_0/Person/${PERSON_B_CLIENT_ID}/$everything?_debug=1`)
+            .set({ ...client2Headers, prefer: 'global_id=false' });
+
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedClientPersonBEverythingNoConsent);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedClientPersonBEverythingNoConsent);
+    });
 });

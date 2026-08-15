@@ -6,8 +6,8 @@
  * CACHE ANALYSIS:
  * 1. Cache mechanism: RequestSpecificCache.getMap({ requestId, name: 'dataSharingManager' }) at line 107
  * 2. Cache KEY dimensions: requestId (single param)
- * 3. Method PARAMETERS: base_version, resourceType, parsedArgs, securityTags, query, useHistoryTable, requestId, isUser, allowConsentedProaDataAccess
- * 4. Params NOT in cache key: base_version, resourceType, parsedArgs, securityTags, query, useHistoryTable, isUser, allowConsentedProaDataAccess
+ * 3. Method PARAMETERS: base_version, resourceType, parsedArgs, securityTags, query, useHistoryTable, requestId, isUser
+ * 4. Params NOT in cache key: base_version, resourceType, parsedArgs, securityTags, query, useHistoryTable, isUser
  * 5. Cached VALUE: patientIdToImmediatePersonUuid, patientsList, personToLinkedPatientsMap, allowedPatientIds
  * 6. Downstream consumer: getConnectionTypeFilteredQuery and filterPatientsByConnectionType
  * 7. REQUIRED TEST: same requestId, different resourceType/parsedArgs/securityTags
@@ -29,6 +29,7 @@ const { RequestSpecificCache } = require('../../../../utils/requestSpecificCache
 const { DelegatedAccessRulesManager } = require('../../../../utils/delegatedAccessRulesManager');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const httpContext = require('express-http-context');
+const { DATA_SHARING_PATIENT_TO_PERSON_DATA } = require('../../../../constants');
 
 // Mock httpContext
 jest.mock('express-http-context', () => ({
@@ -160,7 +161,10 @@ describe('DataSharingManager', () => {
                 findAsync: jest.fn().mockResolvedValue(mockCursor)
             });
 
-            mockProaConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue(new Set(['patient-uuid-1']));
+            mockProaConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue({
+                allowedPatientIds: new Set(['patient-uuid-1']),
+                consentedPersonUuids: new Set(['person-uuid-1'])
+            });
 
             mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({
                 query: { 'subject.reference': 'Patient/patient-uuid-1' }
@@ -254,7 +258,10 @@ describe('DataSharingManager', () => {
                 patientReferenceToPersonUuid: { [patientUuid]: ['person-uuid-1'] },
                 personToLinkedPatientsMap: new Map()
             });
-            mockProaConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue(new Set([patientUuid]));
+            mockProaConsentManager.getPatientIdsWithConsent = jest.fn().mockResolvedValue({
+                allowedPatientIds: new Set([patientUuid]),
+                consentedPersonUuids: new Set(['person-uuid-1'])
+            });
             mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({
                 query: { 'subject.reference': `Patient/${patientUuid}` }
             });
@@ -520,6 +527,162 @@ describe('DataSharingManager', () => {
                 parsedArgs: mockParsedArgs,
                 securityTags: ['client-abc']
             })).rejects.toThrow('Multiple Patient Resources');
+        });
+    });
+
+    describe('getValidatedPatientIdsMap — Person/proxy-patient PROA cache branch', () => {
+        let mockParsedArgs;
+
+        beforeEach(() => {
+            mockParsedArgs = Object.create(ParsedArgs.prototype);
+            mockParsedArgs.parsedArgItems = [];
+            mockParsedArgs.base_version = '4_0_0';
+            mockPatientFilterManager.isPatientRelatedResource = jest.fn().mockReturnValue(true);
+            dataSharingManager.getResourceReferencesFromFilter = jest.fn().mockReturnValue([
+                { id: 'patient-1-uuid', resourceType: 'Patient' }
+            ]);
+            dataSharingManager.getPatientsList = jest.fn().mockResolvedValue([
+                { id: 'patient-1-uuid', _uuid: 'patient-1-uuid' }
+            ]);
+            dataSharingManager.validatePatientIdsAsync = jest.fn().mockResolvedValue(undefined);
+        });
+
+        it('uses the RequestSpecificCache and never calls bwellPersonFinder when useProxyPatientToPersonCache is true and the cache is fully populated', async () => {
+            const cache = requestSpecificCache.getMap({ requestId: 'req-1', name: DATA_SHARING_PATIENT_TO_PERSON_DATA });
+            cache.set('personToLinkedPatientsMap', new Map([['person-uuid-1', ['Patient/patient-1-uuid']]]));
+            cache.set('patientReferenceToPersonUuid', { 'patient-1-uuid': ['person-uuid-1'] });
+            mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync = jest.fn();
+
+            const result = await dataSharingManager.getValidatedPatientIdsMap({
+                resourceType: 'Observation',
+                parsedArgs: mockParsedArgs,
+                securityTags: ['tenant_a'],
+                useProxyPatientToPersonCache: true,
+                requestId: 'req-1'
+            });
+
+            expect(result.patientIdToImmediatePersonUuid).toEqual({ 'patient-1-uuid': ['person-uuid-1'] });
+            expect(result.personToLinkedPatientsMap.get('person-uuid-1')).toEqual(['Patient/patient-1-uuid']);
+            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).not.toHaveBeenCalled();
+        });
+
+        it('throws when useProxyPatientToPersonCache is true and the cache was never populated', async () => {
+            await expect(
+                dataSharingManager.getValidatedPatientIdsMap({
+                    resourceType: 'Observation',
+                    parsedArgs: mockParsedArgs,
+                    securityTags: ['tenant_a'],
+                    useProxyPatientToPersonCache: true,
+                    requestId: 'req-empty'
+                })
+            ).rejects.toThrow(/proaSafePatientToPersonData missing/);
+        });
+
+        it('omits (does not throw for) a queried patient missing from the cache, while other cached patients still resolve', async () => {
+            // A patient reachable only via a Person the caller can read but doesn't own is
+            // legitimately excluded from the owner-verified cache -- not a wiring bug. It should
+            // simply be omitted from the result, not cause a throw.
+            dataSharingManager.getResourceReferencesFromFilter = jest.fn().mockReturnValue([
+                { id: 'patient-1-uuid', resourceType: 'Patient' },
+                { id: 'patient-not-cached-uuid', resourceType: 'Patient' }
+            ]);
+            dataSharingManager.getPatientsList = jest.fn().mockResolvedValue([
+                { id: 'patient-1-uuid', _uuid: 'patient-1-uuid' },
+                { id: 'patient-not-cached-uuid', _uuid: 'patient-not-cached-uuid' }
+            ]);
+
+            const cache = requestSpecificCache.getMap({ requestId: 'req-partial', name: DATA_SHARING_PATIENT_TO_PERSON_DATA });
+            cache.set('personToLinkedPatientsMap', new Map([['person-uuid-1', ['Patient/patient-1-uuid']]]));
+            cache.set('patientReferenceToPersonUuid', { 'patient-1-uuid': ['person-uuid-1'] });
+            mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync = jest.fn();
+
+            const result = await dataSharingManager.getValidatedPatientIdsMap({
+                resourceType: 'Observation',
+                parsedArgs: mockParsedArgs,
+                securityTags: ['tenant_a'],
+                useProxyPatientToPersonCache: true,
+                requestId: 'req-partial'
+            });
+
+            expect(result.patientIdToImmediatePersonUuid).toEqual({ 'patient-1-uuid': ['person-uuid-1'] });
+            expect(result.patientIdToImmediatePersonUuid).not.toHaveProperty('patient-not-cached-uuid');
+            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).not.toHaveBeenCalled();
+        });
+
+        it('skips PERSON_PROXY_PREFIX patient references entirely (no cache lookup, no throw) while concrete patients still resolve', async () => {
+            dataSharingManager.getResourceReferencesFromFilter = jest.fn().mockReturnValue([
+                { id: 'patient-1-uuid', resourceType: 'Patient' },
+                { id: 'person.person-uuid-1', resourceType: 'Patient' }
+            ]);
+            dataSharingManager.getPatientsList = jest.fn().mockResolvedValue([
+                { id: 'patient-1-uuid', _uuid: 'patient-1-uuid' }
+            ]);
+
+            const cache = requestSpecificCache.getMap({ requestId: 'req-proxy', name: DATA_SHARING_PATIENT_TO_PERSON_DATA });
+            cache.set('personToLinkedPatientsMap', new Map([['person-uuid-1', ['Patient/patient-1-uuid']]]));
+            cache.set('patientReferenceToPersonUuid', { 'patient-1-uuid': ['person-uuid-1'] });
+            mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync = jest.fn();
+
+            const result = await dataSharingManager.getValidatedPatientIdsMap({
+                resourceType: 'Observation',
+                parsedArgs: mockParsedArgs,
+                securityTags: ['tenant_a'],
+                useProxyPatientToPersonCache: true,
+                requestId: 'req-proxy'
+            });
+
+            expect(result.patientIdToImmediatePersonUuid).toEqual({ 'patient-1-uuid': ['person-uuid-1'] });
+            expect(result.patientIdToImmediatePersonUuid).not.toHaveProperty('person.person-uuid-1');
+            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).not.toHaveBeenCalled();
+        });
+
+        it('skips a falsy patient reference id entirely (no crash, no cache lookup) while concrete patients still resolve', async () => {
+            // Fix 3: patientReference.id.startsWith(...) must be guarded by a truthiness check,
+            // matching the sibling loop above it in this same method.
+            dataSharingManager.getResourceReferencesFromFilter = jest.fn().mockReturnValue([
+                { id: 'patient-1-uuid', resourceType: 'Patient' },
+                { id: undefined, resourceType: 'Patient' }
+            ]);
+            dataSharingManager.getPatientsList = jest.fn().mockResolvedValue([
+                { id: 'patient-1-uuid', _uuid: 'patient-1-uuid' }
+            ]);
+
+            const cache = requestSpecificCache.getMap({ requestId: 'req-falsy-id', name: DATA_SHARING_PATIENT_TO_PERSON_DATA });
+            cache.set('personToLinkedPatientsMap', new Map([['person-uuid-1', ['Patient/patient-1-uuid']]]));
+            cache.set('patientReferenceToPersonUuid', { 'patient-1-uuid': ['person-uuid-1'] });
+            mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync = jest.fn();
+
+            const result = await dataSharingManager.getValidatedPatientIdsMap({
+                resourceType: 'Observation',
+                parsedArgs: mockParsedArgs,
+                securityTags: ['tenant_a'],
+                useProxyPatientToPersonCache: true,
+                requestId: 'req-falsy-id'
+            });
+
+            expect(result.patientIdToImmediatePersonUuid).toEqual({ 'patient-1-uuid': ['person-uuid-1'] });
+            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).not.toHaveBeenCalled();
+        });
+
+        it('falls through to bwellPersonFinder, unchanged, when useProxyPatientToPersonCache is false', async () => {
+            mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync = jest.fn().mockResolvedValue({
+                patientReferenceToPersonUuid: { 'patient-1-uuid': ['person-uuid-1'] },
+                personToLinkedPatientsMap: new Map([['person-uuid-1', ['Patient/patient-1-uuid']]])
+            });
+
+            const result = await dataSharingManager.getValidatedPatientIdsMap({
+                resourceType: 'Observation',
+                parsedArgs: mockParsedArgs,
+                securityTags: ['tenant_a'],
+                useProxyPatientToPersonCache: false,
+                requestId: 'req-patient-everything'
+            });
+
+            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).toHaveBeenCalledWith({
+                patientReferences: [{ id: 'patient-1-uuid', resourceType: 'Patient' }],
+                securityTags: ['tenant_a']
+            });
+            expect(result.patientIdToImmediatePersonUuid).toEqual({ 'patient-1-uuid': ['person-uuid-1'] });
         });
     });
 

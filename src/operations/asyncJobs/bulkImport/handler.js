@@ -1,4 +1,5 @@
 const { S3Client: S3, HeadObjectCommand } = require('@aws-sdk/client-s3');
+const querystring = require('querystring');
 const moment = require('moment-timezone');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -13,11 +14,22 @@ const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
 const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
 const { generateUUID } = require('../../../utils/uid.util');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
-const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../../constants');
+const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING } = require('../../../constants');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
 const { logInfo, logError } = require('../../common/logging');
+const {
+    recordImportOperationTriggered,
+    recordImportFileSize,
+    recordImportResourceOutcomes,
+    recordImportRangeDuration
+} = require('../../../utils/metrics');
+const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
+const { AuditLogger } = require('../../../utils/auditLogger');
+const { groupByLambda } = require('../../../utils/list.util');
+const { R4ArgsParser } = require('../../query/r4ArgsParser');
+const { SearchQueryBuilder } = require('../../search/searchQueryBuilder');
 
 /**
  * Extension URL used to record a marker on the Task each time a byte-range finishes
@@ -36,8 +48,8 @@ const BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL = 'https://www.icanbwell.com/bul
  * src/operations/asyncJobs/worker.js (topic fhir_server.bulk_import.events) route into this
  * same handler; handleMessageAsync dispatches on the CloudEvent "type" rather than the topic,
  * since a single job's messages can arrive on more than one topic:
- * - TaskCreated: validates S3 inputs and will publish ImportRangeRequested events (byte-range
- *   splitting is a follow-up — see the TODO in handleTaskCreatedAsync).
+ * - TaskCreated: HEADs each S3 input to validate it and get its size, splits it into byte
+ *   ranges, and publishes an ImportRangeRequested event per range.
  * - ImportRangeRequested: reads a byte range's NDJSON, merges resources, writes result/error
  *   output to S3, and records completion on the Task.
  */
@@ -53,6 +65,9 @@ class BulkImportHandler {
      * @property {S3NdjsonReader} s3NdjsonReader
      * @property {PostRequestProcessor} postRequestProcessor
      * @property {RequestSpecificCache} requestSpecificCache
+     * @property {AuditLogger} auditLogger
+     * @property {R4ArgsParser} r4ArgsParser
+     * @property {SearchQueryBuilder} searchQueryBuilder
      *
      * @param {ConstructorParams}
      */
@@ -65,7 +80,10 @@ class BulkImportHandler {
         fastDatabaseBulkInserter,
         s3NdjsonReader,
         postRequestProcessor,
-        requestSpecificCache
+        requestSpecificCache,
+        auditLogger,
+        r4ArgsParser,
+        searchQueryBuilder
     }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -93,6 +111,15 @@ class BulkImportHandler {
 
         this.requestSpecificCache = requestSpecificCache;
         assertTypeEquals(requestSpecificCache, RequestSpecificCache);
+
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+        this.searchQueryBuilder = searchQueryBuilder;
+        assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
     }
 
     /**
@@ -136,6 +163,67 @@ class BulkImportHandler {
         return databaseQueryManager.findOneAsync({
             query: { id: taskId }
         });
+    }
+
+    /**
+     * Checks whether a resource matching an `ifNoneExist` search query already exists, for
+     * the `{ ifNoneExist, resource }` NDJSON line wrapper's conditional-create semantics.
+     * Bypasses SearchManager's user-scope filtering (bulk import runs as a service principal,
+     * not a scoped user search) but still restricts the match to the importing resource's own
+     * owner tenant -- otherwise this existence check would be a cross-tenant oracle: a match
+     * belonging to a different tenant would silently suppress this tenant's create and leak
+     * that a same-identifier resource exists elsewhere.
+     *
+     * Requires a resolved ownerCode and parses with strict search-parameter handling: an
+     * unrecognized/mistyped query parameter (e.g. "identifer=...") would otherwise silently
+     * drop out of the filter entirely, collapsing the query to "any resource of this type
+     * owned by this tenant" -- a fail-open match that would wrongly skip the create.
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {string} params.ifNoneExist - a FHIR search-query string, e.g.
+     *   "identifier=http://example.com|12345", the same format as the If-None-Exist header.
+     * @param {string} params.ownerCode - the owner-tag code from the importing resource's own
+     *   meta.security; the existence check is restricted to resources owned by this tenant.
+     * @returns {Promise<Object|null>}
+     */
+    async findExistingResourceForIfNoneExistAsync({ resourceType, ifNoneExist, ownerCode }) {
+        if (!ifNoneExist || !ifNoneExist.trim()) {
+            throw new Error('ifNoneExist is empty');
+        }
+        if (!ownerCode) {
+            throw new Error('Cannot resolve an owner tag to scope the ifNoneExist existence check');
+        }
+
+        const base_version = '4_0_0';
+        const args = querystring.parse(ifNoneExist);
+        args.base_version = base_version;
+        // Strict handling: an unrecognized search parameter must throw rather than silently
+        // no-op out of the query (see class docstring above).
+        args.handling = STRICT_SEARCH_HANDLING;
+        const parsedArgs = this.r4ArgsParser.parseArgs({ resourceType, args });
+        const { query } = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
+            base_version,
+            parsedArgs,
+            resourceType,
+            operation: 'read'
+        });
+
+        const scopedQuery = {
+            $and: [
+                query,
+                {
+                    'meta.security': {
+                        $elemMatch: { system: SecurityTagSystem.owner, code: ownerCode }
+                    }
+                }
+            ]
+        };
+
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType,
+            base_version
+        });
+        return databaseQueryManager.findOneAsync({ query: scopedQuery });
     }
 
     // ── TaskCreated (orchestrator side, topic fhir_server.bulk_import.requested) ───────────
@@ -239,6 +327,7 @@ class BulkImportHandler {
                 );
             }
 
+            recordImportFileSize(fileSize);
             results.push({ url: input.url, fileSize });
         }
         return results;
@@ -273,40 +362,35 @@ class BulkImportHandler {
             user
         });
 
-        // TODO: S3 HEAD validation and byte-range splitting will be added in a follow-up PR.
-        // The orchestrator will:
-        // 1. Load the Task resource
-        // 2. HEAD each S3 file to get sizes and validate
-        // 3. Split files into byte ranges
-        // 4. Publish ImportRangeRequested events for each range
-        //
-        // const task = await this.loadTaskAsync(taskId);
-        // if (!task) {
-        //     logError('Task not found for orchestrator message', { taskId });
-        //     return;
-        // }
-        //
-        // let inputsWithSizes;
-        // try {
-        //     inputsWithSizes = await this.headS3FilesAsync(inputs);
-        // } catch (e) {
-        //     logError('S3 validation failed for import task', { taskId, error: e.message });
-        //     await this.updateOrchestratorTaskStatusAsync(task, 'failed', e.message);
-        //     return;
-        // }
-        //
-        // const messageCount = await this.bulkImportEventProducer.publishImportEventsAsync({
-        //     taskId,
-        //     inputs: inputsWithSizes,
-        //     requestId,
-        //     scope,
-        //     user
-        // });
-        //
-        // logInfo('Orchestrator published byte-range messages', {
-        //     taskId,
-        //     messageCount
-        // });
+        const task = await this.loadTaskAsync(taskId);
+        if (!task) {
+            logError('Task not found for orchestrator message', { taskId });
+            return;
+        }
+
+        recordImportOperationTriggered();
+
+        let inputsWithSizes;
+        try {
+            inputsWithSizes = await this.headS3FilesAsync(inputs);
+        } catch (e) {
+            logError('S3 validation failed for import task', { taskId, error: e.message });
+            await this.updateOrchestratorTaskStatusAsync(task, 'failed', e.message);
+            return;
+        }
+
+        const messageCount = await this.bulkImportEventProducer.publishImportEventsAsync({
+            taskId,
+            inputs: inputsWithSizes,
+            requestId,
+            scope,
+            user
+        });
+
+        logInfo('Orchestrator published byte-range messages', {
+            taskId,
+            messageCount
+        });
     }
 
     // ── ImportRangeRequested (worker side, topic fhir_server.bulk_import.events) ───────────
@@ -485,15 +569,72 @@ class BulkImportHandler {
      * @returns {Promise<void>}
      */
     async writeNdjsonWithRetryAsync({ filepath, data, attempts = 3 }) {
+        try {
+            return await retryWithBackoff({
+                fn: () => this.s3NdjsonReader.writeNdjsonAsync({ filepath, data }),
+                maxRetries: attempts - 1,
+                initialDelayMs: 200,
+                onRetry: ({ attempt, error }) => {
+                    logError('S3 NDJSON write attempt failed', { filepath, attempt, attempts, error: error.message });
+                }
+            });
+        } catch (e) {
+            logError('S3 NDJSON write attempt failed', { filepath, attempt: attempts, attempts, error: e.message });
+            throw e;
+        }
+    }
+
+    /**
+     * Retries reading+processing an entire byte range on transient S3/stream failures,
+     * but ONLY when nothing has been durably written yet in this attempt (readAndProcess
+     * marks a thrown error with `bulkImportRangePartiallyFlushed` once at least one batch
+     * has been flushed). This is NOT a generic retryWithBackoff use -- once a batch has
+     * flushed, redoing the whole range is unsafe for two independent reasons, so retrying
+     * must stop there rather than continue for `attempts` total tries:
+     *   1. Not every resourceType's flush is an idempotent Mongo upsert. A resourceType
+     *      routed to ClickHouseBulkWriteExecutor (SYNC_DIRECT) or
+     *      KafkaClickPipeBulkWriteExecutor (KAFKA_CLICKPIPE) -- e.g. AuditEvent under
+     *      enableAuditEventClickPipe/clickHouseOnlyResources -- does an unconditional
+     *      insert/produce with no dedup, so replaying an already-flushed batch creates a
+     *      duplicate ClickHouse row or Kafka message.
+     *   2. Clearing requestId's cache to avoid double-buffering (see below) would also
+     *      discard any Kafka change-event/history-write tasks a successful flush already
+     *      queued onto postRequestProcessor (it shares the same requestId-keyed cache) --
+     *      and re-inserting the same unchanged document on retry gets silently skipped by
+     *      mongoBulkWriteExecutor, so that task never gets queued a second time either.
+     * Before a safe (pre-first-flush) retry, this clears requestId's buffered-but-unflushed
+     * inserts so a failed attempt's partial buffer doesn't get double-inserted alongside
+     * the retry's own -- safe here specifically because nothing has flushed yet.
+     * Also skips retrying deterministic errors (S3NdjsonReader marks bad input/config --
+     * invalid byteRange, oversized line, malformed JSON -- with `retryable = false`) since
+     * they fail identically on every attempt.
+     * @param {Object} params
+     * @param {() => Promise<void>} params.fn
+     * @param {string} params.requestId
+     * @param {number} [params.attempts]
+     * @returns {Promise<void>}
+     */
+    async readRangeWithRetryAsync({ fn, requestId, attempts = 3 }) {
         let lastError;
         for (let attempt = 1; attempt <= attempts; attempt++) {
             try {
-                await this.s3NdjsonReader.writeNdjsonAsync({ filepath, data });
+                await fn();
                 return;
             } catch (e) {
                 lastError = e;
-                logError('S3 NDJSON write attempt failed', { filepath, attempt, attempts, error: e.message });
+                logError('S3 NDJSON range read attempt failed', {
+                    requestId,
+                    attempt,
+                    attempts,
+                    partiallyFlushed: !!e.bulkImportRangePartiallyFlushed,
+                    retryable: e.retryable !== false,
+                    error: e.message
+                });
+                if (e.bulkImportRangePartiallyFlushed || e.retryable === false) {
+                    throw e;
+                }
                 if (attempt < attempts) {
+                    await this.requestSpecificCache.clearAsync({ requestId });
                     await new Promise((resolve) => setTimeout(resolve, 200 * attempt));
                 }
             }
@@ -602,6 +743,7 @@ class BulkImportHandler {
         }
 
         const { taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, fileSize, user, scope } = eventData;
+        const rangeStartTimeMs = Date.now();
 
         logInfo('Processing bulk import range', {
             taskId,
@@ -633,10 +775,17 @@ class BulkImportHandler {
         let created = 0;
         let updated = 0;
         let failed = 0;
+        let skipped = 0;
         const mergeResultEntries = [];
+
+        // Set once this attempt's first flush actually writes to Mongo (and possibly
+        // ClickHouse/Kafka-ClickPipe for clickHouseOnlyResources) -- see
+        // readRangeWithRetryAsync's docstring for why retry must stop once this is true.
+        let hasFlushedThisAttempt = false;
 
         const flushBatchAsync = async () => {
             const mergeResults = await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+            hasFlushedThisAttempt = true;
             for (const mergeResult of mergeResults) {
                 mergeResultEntries.push(mergeResult);
                 if (mergeResult.created) {
@@ -650,9 +799,27 @@ class BulkImportHandler {
             sinceLastFlush = 0;
         };
 
-        try {
+        const readAndProcessRangeAsync = async () => {
+            // Reset accumulators -- a retry reprocesses the WHOLE range from the start, so
+            // a partial attempt's counts/entries must not carry over into the next one.
+            linesRead = 0;
+            sinceLastFlush = 0;
+            created = 0;
+            updated = 0;
+            failed = 0;
+            skipped = 0;
+            mergeResultEntries.length = 0;
+            hasFlushedThisAttempt = false;
+
+            // ifNoneExist criteria "claimed" by a resource already queued for insert in this
+            // attempt but not yet flushed to Mongo. findExistingResourceForIfNoneExistAsync
+            // only sees committed state, so two wrapped lines with the same match criteria
+            // landing in the same unflushed batch would otherwise both pass the existence
+            // check and both get created.
+            const claimedIfNoneExistKeys = new Set();
+
             try {
-                for await (const { lineNumber, resource } of this.s3NdjsonReader.readNdjsonAsync({
+                for await (const { lineNumber, byteOffset, resource, parseError } of this.s3NdjsonReader.readNdjsonAsync({
                     filepath,
                     byteRangeStart,
                     byteRangeEnd,
@@ -661,34 +828,115 @@ class BulkImportHandler {
                     linesRead++;
                     sinceLastFlush++;
 
-                    try {
-                        const fhirResource = FhirResourceWriteSerializer.serialize({
-                            obj: this.applyDefaultSecurityTagsIfMissing(resource)
-                        });
-                        const contextData = buildContextDataForHybridStorage(
-                            fhirResource.resourceType, fhirResource, requestInfo
-                        );
-                        await this.fastDatabaseBulkInserter.insertOneAsync({
-                            base_version,
-                            requestInfo,
-                            resourceType: fhirResource.resourceType,
-                            doc: fhirResource,
-                            contextData
-                        });
-                    } catch (resourceError) {
+                    if (parseError) {
                         failed++;
-                        // Failed before reaching the bulk inserter (e.g. missing/unsupported
-                        // resourceType) — still record it so it lands in the error NDJSON and
-                        // Task.output, not just a log line.
+                        // A single bad line (too large, unparseable) doesn't abort the range --
+                        // record it the same way a per-resource write failure is recorded, so
+                        // it lands in the error NDJSON and Task.output instead of silently
+                        // failing the whole import.
                         mergeResultEntries.push(
-                            MergeResultEntry.createFromError({ error: resourceError, resource })
+                            MergeResultEntry.createFromError({ error: parseError, resource: {}, sourceByteOffset: byteOffset })
                         );
-                        logError('Failed to buffer bulk import resource for write', {
+                        logError('Invalid NDJSON line skipped', {
                             taskId,
                             filepath,
                             lineNumber,
-                            error: resourceError.message
+                            byteOffset,
+                            error: parseError.message
                         });
+                    } else {
+                        // Duplicate-prevention wrapper: { ifNoneExist, resource } instead of a
+                        // plain resource line. A real FHIR resource never has a top-level
+                        // "ifNoneExist" field, so this check doesn't collide with plain lines.
+                        const isIfNoneExistWrapper = resource && typeof resource.ifNoneExist === 'string' &&
+                            resource.resource && typeof resource.resource === 'object';
+                        const innerResource = isIfNoneExistWrapper ? resource.resource : resource;
+
+                        try {
+                            const fhirResource = FhirResourceWriteSerializer.serialize({
+                                obj: this.applyDefaultSecurityTagsIfMissing(innerResource)
+                            });
+
+                            let existingResource = null;
+                            let ifNoneExistKey = null;
+                            if (isIfNoneExistWrapper) {
+                                const securityTags = fhirResource.meta?.security || [];
+                                // Mirrors OwnerColumnHandler's own fallback rule -- a resource
+                                // may arrive with only an access tag and no owner tag yet
+                                // (OwnerColumnHandler backfills the owner from the first access
+                                // tag, but only later during preSave, after this check runs).
+                                const ownerCode = securityTags.find((tag) => tag.system === SecurityTagSystem.owner)?.code ||
+                                    securityTags.find((tag) => tag.system === SecurityTagSystem.access)?.code;
+
+                                ifNoneExistKey = `${fhirResource.resourceType}|${ownerCode}|${resource.ifNoneExist}`;
+                                if (claimedIfNoneExistKeys.has(ifNoneExistKey)) {
+                                    // Another line earlier in this same unflushed batch already
+                                    // claimed this criteria -- treat as a match without a redundant
+                                    // (and stale, since the earlier insert isn't committed yet) query.
+                                    existingResource = true;
+                                } else {
+                                    existingResource = await this.findExistingResourceForIfNoneExistAsync({
+                                        resourceType: fhirResource.resourceType,
+                                        ifNoneExist: resource.ifNoneExist,
+                                        ownerCode
+                                    });
+                                }
+                            }
+
+                            if (existingResource) {
+                                skipped++;
+                                mergeResultEntries.push(new MergeResultEntry({
+                                    id: fhirResource.id,
+                                    uuid: fhirResource._uuid,
+                                    sourceAssigningAuthority: fhirResource._sourceAssigningAuthority,
+                                    resourceType: fhirResource.resourceType,
+                                    created: false,
+                                    updated: false,
+                                    issue: null,
+                                    operationOutcome: null
+                                }));
+                                logInfo('Skipped bulk import resource: matched existing via ifNoneExist', {
+                                    taskId,
+                                    filepath,
+                                    lineNumber,
+                                    byteOffset,
+                                    resourceType: fhirResource.resourceType,
+                                    ifNoneExist: resource.ifNoneExist
+                                });
+                            } else {
+                                const contextData = buildContextDataForHybridStorage(
+                                    fhirResource.resourceType, fhirResource, requestInfo
+                                );
+                                await this.fastDatabaseBulkInserter.insertOneAsync({
+                                    base_version,
+                                    requestInfo,
+                                    resourceType: fhirResource.resourceType,
+                                    doc: fhirResource,
+                                    contextData
+                                });
+                                // Only claim the criteria once the insert is actually queued --
+                                // if insertOneAsync had thrown instead, nothing was created, so a
+                                // later duplicate line in this batch must still be free to try.
+                                if (ifNoneExistKey) {
+                                    claimedIfNoneExistKeys.add(ifNoneExistKey);
+                                }
+                            }
+                        } catch (resourceError) {
+                            failed++;
+                            // Failed before reaching the bulk inserter (e.g. missing/unsupported
+                            // resourceType) — still record it so it lands in the error NDJSON and
+                            // Task.output, not just a log line.
+                            mergeResultEntries.push(
+                                MergeResultEntry.createFromError({ error: resourceError, resource: innerResource, sourceByteOffset: byteOffset })
+                            );
+                            logError('Failed to buffer bulk import resource for write', {
+                                taskId,
+                                filepath,
+                                lineNumber,
+                                byteOffset,
+                                error: resourceError.message
+                            });
+                        }
                     }
 
                     if (sinceLastFlush >= batchSize) {
@@ -701,6 +949,20 @@ class BulkImportHandler {
                 if (sinceLastFlush > 0) {
                     await flushBatchAsync();
                 }
+            } catch (e) {
+                if (hasFlushedThisAttempt) {
+                    e.bulkImportRangePartiallyFlushed = true;
+                }
+                throw e;
+            }
+        };
+
+        try {
+            try {
+                await this.readRangeWithRetryAsync({
+                    fn: readAndProcessRangeAsync,
+                    requestId: requestInfo.requestId
+                });
             } catch (e) {
                 logError('Error reading S3 NDJSON range', {
                     taskId,
@@ -716,6 +978,21 @@ class BulkImportHandler {
                 if (currentTask && currentTask.status !== 'completed') {
                     await this.updateTaskStatusAsync(currentTask, 'failed', e.message, requestInfo);
                 }
+                // mergeResultEntries only ever gains entries once a batch actually commits
+                // (flushBatchAsync) or a per-line failure is recorded -- so on a partially-
+                // flushed range (bulkImportRangePartiallyFlushed), these resources are already
+                // durably persisted even though the range as a whole failed. This range won't
+                // be redelivered once the Task is 'failed', so without this the flushed
+                // resources would never get an AuditEvent.
+                this.queueAuditEntriesForRangeAsync({
+                    requestInfo,
+                    base_version,
+                    mergeResultEntries,
+                    taskId,
+                    filepath,
+                    rangeIndex,
+                    totalRanges
+                });
                 return;
             }
 
@@ -727,7 +1004,8 @@ class BulkImportHandler {
                 linesRead,
                 created,
                 updated,
-                failed
+                failed,
+                skipped
             });
 
             await this.recordRangeCompletionAsync({
@@ -738,15 +1016,118 @@ class BulkImportHandler {
                 mergeResultEntries,
                 requestInfo
             });
+
+            this.queueAuditEntriesForRangeAsync({
+                requestInfo,
+                base_version,
+                mergeResultEntries,
+                taskId,
+                filepath,
+                rangeIndex,
+                totalRanges
+            });
         } finally {
+            // Emitted here (not at the success-return point above) so a range that fails
+            // after a partial flush -- or is redelivered and fails again -- still surfaces
+            // whatever mergeResultEntries this attempt actually produced, mirroring the
+            // merge boundary's finally-based emission (see docs/adr/0002).
+            recordImportResourceOutcomes(mergeResultEntries);
+            recordImportRangeDuration((Date.now() - rangeStartTimeMs) / 1000);
+
             // FastDatabaseBulkInserter defers history writes onto postRequestProcessor's
             // queue rather than writing them inline — without this, history writes for
             // every bulk-imported resource would be silently dropped. RequestSpecificCache
             // entries are also only ever freed by an explicit clearAsync, so skipping this
             // would leak one entry per Kafka message in this long-running consumer.
             await this.postRequestProcessor.executeAsync({ requestId: requestInfo.requestId });
+            // AuditLogger.logAuditEntryAsync only buffers AuditEvent docs in-memory --
+            // flushAsync() is what actually writes them via the bulk inserter. In the main
+            // FHIR server this runs on a periodic cron (see cronTasksProcessor.js), but this
+            // process never starts that cron (only src/index.js does), so nothing would ever
+            // persist these without flushing explicitly here. Guarded because it can throw
+            // (e.g. a transient Mongo write failure) -- the range's writes and Task completion
+            // have already succeeded by this point, so an audit-flush hiccup must not skip
+            // the cache cleanup below or propagate out and cause this already-completed range
+            // to be redelivered/reprocessed.
+            try {
+                await this.auditLogger.flushAsync();
+            } catch (auditFlushError) {
+                logError('Failed to flush AuditEvents for bulk import range', {
+                    taskId,
+                    filepath,
+                    rangeIndex,
+                    error: auditFlushError.message
+                });
+            }
             await this.requestSpecificCache.clearAsync({ requestId: requestInfo.requestId });
         }
+    }
+
+    /**
+     * Queues AuditEvent entries for every resource this range created/updated/failed,
+     * grouped by resourceType, mirroring MergeManager.logAuditEntriesForMergeResults --
+     * the same pattern the $merge operation uses. Deferred via postRequestProcessor so it
+     * runs alongside the other end-of-range cleanup in the finally block below.
+     * @param {Object} params
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {import('../../common/mergeResultEntry').MergeResultEntry[]} params.mergeResultEntries
+     * @param {string} params.taskId
+     * @param {string} params.filepath
+     * @param {number} params.rangeIndex
+     * @param {number} params.totalRanges
+     * @returns {void}
+     */
+    queueAuditEntriesForRangeAsync({
+        requestInfo, base_version, mergeResultEntries, taskId, filepath, rangeIndex, totalRanges
+    }) {
+        this.postRequestProcessor.add({
+            requestId: requestInfo.requestId,
+            fnTask: async () => {
+                const args = { taskId, filepath, rangeIndex, totalRanges };
+                const groupByResourceType = groupByLambda(mergeResultEntries, (entry) => entry.resourceType);
+
+                for (const [resourceType, entriesForResourceType] of Object.entries(groupByResourceType)) {
+                    const failedItems = entriesForResourceType.filter((r) => r.issue);
+
+                    if (resourceType !== 'AuditEvent') {
+                        // we don't log success (create/update) audits on AuditEvent itself
+                        const createdItems = entriesForResourceType.filter((r) => r.created === true);
+                        const updatedItems = entriesForResourceType.filter((r) => r.updated === true);
+                        if (createdItems.length > 0) {
+                            await this.auditLogger.logAuditEntryAsync({
+                                requestInfo,
+                                base_version,
+                                resourceType,
+                                operation: 'create',
+                                args,
+                                ids: createdItems.map((r) => r._uuid)
+                            });
+                        }
+                        if (updatedItems.length > 0) {
+                            await this.auditLogger.logAuditEntryAsync({
+                                requestInfo,
+                                base_version,
+                                resourceType,
+                                operation: 'update',
+                                args,
+                                ids: updatedItems.map((r) => r._uuid)
+                            });
+                        }
+                    }
+                    // error audits are logged for all resource types, including AuditEvent,
+                    // to match mergeManager's logAuditEntriesForMergeResults.
+                    for (const entry of failedItems) {
+                        await this.auditLogger.logErrorAuditEntryAsync({
+                            requestInfo,
+                            resourceType,
+                            errorCode: 400,
+                            errorMessage: `${resourceType}/${entry.id}: bulk import failure`
+                        });
+                    }
+                }
+            }
+        });
     }
 }
 
