@@ -1,5 +1,10 @@
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
+const metrics = require('../../../utils/metrics');
+
+// DCON-5050: spied once (module-scope singleton instrument) and cleared per-test below --
+// see handlerOrchestrator.test.js's note on why this is call-history-only, not a fresh wrap.
+const importTaskCompletedAddSpy = jest.spyOn(metrics.importTaskCompletedCounter, 'add');
 
 const makeCloudEvent = (overrides = {}) => {
     const data = {
@@ -40,6 +45,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
     beforeEach(async () => {
         process.env.ENABLE_BULK_IMPORT = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
+        importTaskCompletedAddSpy.mockClear();
         await commonBeforeEach();
     });
 
@@ -399,6 +405,11 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         // failures are surfaced via the error output file, not a non-completed status.
         expect(taskResp.body.status).toBe('completed');
 
+        // DCON-5050: 1 of 2 resources failed (50%), well past the 5% partial-failure threshold.
+        expect(metrics.importTaskCompletedCounter.add).toHaveBeenCalledWith(1, {
+            [metrics.LABEL.OUTCOME]: metrics.TASK_OUTCOME.PARTIAL_FAILURE
+        });
+
         // The line with no resourceType fails before ever reaching the bulk inserter —
         // it must still show up in the error NDJSON and Task.output, not just a log line.
         const writeCalls = container.s3NdjsonReader.getWriteCalls();
@@ -552,6 +563,43 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         })).toBe(true);
     });
 
+    test('computeTaskOutcome (DCON-5050): success, partial_failure threshold, and no-resources edge case', () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const marker = (counts) => ({
+            url: 'https://www.icanbwell.com/bulk-import-range-completed',
+            valueString: JSON.stringify({ filepath: 's3://bucket/a.ndjson', rangeIndex: 0, totalRanges: 1, ...counts })
+        });
+
+        // 0 failed / 100 total -- clean success.
+        expect(handler.computeTaskOutcome({
+            extension: [marker({ created: 100, updated: 0, failed: 0 })]
+        })).toBe('success');
+
+        // 5 failed / 100 total (exactly 5%) -- at, not over, the threshold: still success.
+        expect(handler.computeTaskOutcome({
+            extension: [marker({ created: 95, updated: 0, failed: 5 })]
+        })).toBe('success');
+
+        // 6 failed / 100 total (6%) -- past the 5% threshold.
+        expect(handler.computeTaskOutcome({
+            extension: [marker({ created: 94, updated: 0, failed: 6 })]
+        })).toBe('partial_failure');
+
+        // Counts accumulate across multiple ranges (e.g. a multi-range file), not just the last one.
+        expect(handler.computeTaskOutcome({
+            extension: [
+                marker({ created: 50, updated: 0, failed: 0 }),
+                marker({ created: 44, updated: 0, failed: 6 })
+            ]
+        })).toBe('partial_failure');
+
+        // No resources at all (e.g. an empty input file) -- nothing failed, so success.
+        expect(handler.computeTaskOutcome({ extension: [] })).toBe('success');
+    });
+
     test('handleMessageAsync writes result NDJSON to S3 and records Task.output + completion', async () => {
         const request = await createTestRequest();
 
@@ -589,6 +637,11 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         expect(taskResp.body.status).toBe('completed');
         const resultOutput = taskResp.body.output.find((o) => o.type.text === 'result');
         expect(resultOutput.valueUri).toBe('s3://allowed-bucket/output/Patient-001.ndjson');
+
+        // DCON-5050: no failures at all -- a clean success.
+        expect(metrics.importTaskCompletedCounter.add).toHaveBeenCalledWith(1, {
+            [metrics.LABEL.OUTCOME]: metrics.TASK_OUTCOME.SUCCESS
+        });
     });
 
     test('isTaskFullyComplete ignores an unparseable completion marker rather than throwing', () => {
@@ -780,6 +833,11 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             .set(getHeaders())
             .expect(200);
         expect(taskResp.body.status).toBe('failed');
+
+        // DCON-5050: a whole-Task failure, distinct from a partial-failure completion.
+        expect(metrics.importTaskCompletedCounter.add).toHaveBeenCalledWith(1, {
+            [metrics.LABEL.OUTCOME]: metrics.TASK_OUTCOME.FAILED
+        });
 
         // The already-flushed resource is durably in Mongo exactly once (not duplicated by
         // a retry that never happened).

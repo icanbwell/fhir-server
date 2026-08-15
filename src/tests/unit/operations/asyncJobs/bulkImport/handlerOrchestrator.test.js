@@ -608,8 +608,17 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
             await handler.handleMessageAsync(message);
 
             // The operation was triggered (Task found) even though S3 validation failed
-            // afterward -- "triggered" tracks activity, not eventual success.
-            expect(metrics.importOperationsTriggeredCounter.add).toHaveBeenCalledTimes(1);
+            // afterward -- "triggered" tracks activity, not eventual success. Filtered to the
+            // bare, label-less `.add(1)` call shape rather than a raw call count: in this
+            // no-SDK test environment @opentelemetry/api's no-op meter hands back the SAME
+            // singleton instrument for every createCounter() call, so this spy also observes
+            // the labeled `.add(1, {...})` call the DCON-5050 task-completed metric below makes.
+            const triggeredCalls = metrics.importOperationsTriggeredCounter.add.mock.calls
+                .filter((args) => args.length === 1 && args[0] === 1);
+            expect(triggeredCalls).toHaveLength(1);
+
+            // DCON-5050: an S3-validation failure is a whole-Task failure, not a partial one.
+            expect(metrics.importTaskCompletedCounter.add).toHaveBeenCalledWith(1, { outcome: 'failed' });
         });
 
         test('logs and returns without publishing when the Task cannot be found', async () => {

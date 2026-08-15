@@ -78,6 +78,14 @@ const OUTCOME = Object.freeze({
     ERROR: 'error'
 });
 
+// Task-wide outcome for fhir_import_task_completed_total (DCON-5050 Slack alerting) --
+// distinct from OUTCOME above, which labels individual resource writes, not a whole task.
+const TASK_OUTCOME = Object.freeze({
+    SUCCESS: 'success',
+    PARTIAL_FAILURE: 'partial_failure',
+    FAILED: 'failed'
+});
+
 const VALIDATION_STAGE = Object.freeze({
     SCHEMA: 'schema',
     META: 'meta',
@@ -222,6 +230,12 @@ const importResourcesProcessedCounter = meter.createCounter('fhir_import_resourc
 
 const importResourcesFailedCounter = meter.createCounter('fhir_import_resources_failed_total', {
     description: 'Bulk-imported resources that failed to write, by resource_type.'
+});
+
+const importTaskCompletedCounter = meter.createCounter('fhir_import_task_completed_total', {
+    description: 'Bulk $import Tasks reaching a terminal state, by outcome: success, partial_failure ' +
+        '(>5% of the task\'s resources failed), or failed (the Task itself errored out, e.g. S3 ' +
+        'validation or an unrecoverable range read). DCON-5050 Slack alerting is built on this metric.'
 });
 
 const importRangeDurationHistogram = meter.createHistogram('fhir_import_range_duration_seconds', {
@@ -373,6 +387,17 @@ function recordImportOperationTriggered () {
 }
 
 /**
+ * Emit fhir_import_task_completed_total once per bulk-import Task reaching a terminal
+ * state (completed or failed). See TASK_OUTCOME for the bounded outcome vocabulary.
+ * @param {string} outcome one of TASK_OUTCOME's values
+ */
+function recordImportTaskCompleted (outcome) {
+    importTaskCompletedCounter.add(1, {
+        [LABEL.OUTCOME]: outcome
+    });
+}
+
+/**
  * Tally a bulk-import byte range's `MergeResultEntry[]` (identical shape to a merge's
  * mergeResults) and emit fhir_import_resources_processed_total (created/updated) or
  * fhir_import_resources_failed_total (error), once per (outcome, resource_type) tuple.
@@ -449,6 +474,7 @@ module.exports = {
     importRangeDurationHistogram,
     importS3ReadThroughputHistogram,
     importFileSizeHistogram,
+    importTaskCompletedCounter,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -461,6 +487,7 @@ module.exports = {
     recordImportRangeDuration,
     recordImportS3ReadThroughput,
     recordImportFileSize,
+    recordImportTaskCompleted,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,
@@ -469,6 +496,7 @@ module.exports = {
     // Label vocabularies.
     LABEL,
     OUTCOME,
+    TASK_OUTCOME,
     VALIDATION_STAGE,
     DIRECTION,
     OPERATION,
