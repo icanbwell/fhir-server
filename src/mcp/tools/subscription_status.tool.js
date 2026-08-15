@@ -10,8 +10,8 @@ const tool = {
         _lastUpdated: z.string().optional().describe('When the resource was last updated. (date) Prefix the value with a comparator for a range match: eq, ne, gt, lt, ge, le, sa, eb, ap (e.g. \'ge2020-01-01\'). Omit the prefix for an exact match.'),
         _count: z.string().optional().describe('Number of results to return per page. A plain positive integer -- comparator prefixes are not supported. (number)'),
         _sort: z.string().optional().describe('Comma-separated fields to sort by; prefix a field with \'-\' for descending. Literal field names only -- \':exact\'/\':contains\' modifiers are not supported. (string)'),
-        extension: z.string().optional().describe('Search by a resource extension value, e.g. the b.well connection-identity extension \'https://icanbwell.com/codes/client_person_id\'. (token) Format: \'system|code\', or bare \'code\' to match any system.'),
-        subscription: z.string().optional().describe('Subscription that this status is for. (reference: Subscription) Format: \'ResourceType/id\', or bare \'id\' to match against any of this parameter\'s allowed target types.')
+        subscription: z.string().optional().describe('Subscription that this status is for (reference: Subscription) Format: \'ResourceType/id\', or bare \'id\' to match against any of this parameter\'s allowed target types.'),
+        extension: z.string().optional().describe('Search by a resource extension value, e.g. the b.well connection-identity extension \'https://icanbwell.com/codes/client_person_id\'. (token) Format: \'system|code\', or bare \'code\' to match any system.')
     }).passthrough()
 };
 

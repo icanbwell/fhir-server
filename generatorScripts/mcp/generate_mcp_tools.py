@@ -17,6 +17,9 @@ SEARCH_PARAMETERS_JSON = SCRIPT_DIR.parent.joinpath("searchParameters", "search-
 COMMONLY_USED_RESOURCES_JSON = SCRIPT_DIR.joinpath("commonly_used_resources.json")
 TEMPLATE_PATH = SCRIPT_DIR.joinpath("template.mcp_tool.jinja2")
 OUTPUT_DIR = SCRIPT_DIR.parent.parent.joinpath("src", "mcp", "tools")
+CUSTOM_SEARCH_PARAMETER_QUERIES_JSON = SCRIPT_DIR.parent.parent.joinpath(
+    "src", "searchParameters", "customSearchParameterQueries.json"
+)
 
 # Every resource supports these generically via R4ArgsParser/SearchManager, regardless of whether
 # search-parameters.json lists them per-resource.
@@ -37,48 +40,46 @@ COMMON_PARAMS: List[Dict[str, Any]] = [
     {"code": "_sort", "type": "string", "description": "Comma-separated fields to sort by; prefix a field with '-' for descending. Literal field names only -- ':exact'/':contains' modifiers are not supported.", "target": [], "no_syntax_hint": True},
 ]
 
-# Subscription/SubscriptionStatus narrow patient-scope search by a b.well-specific `extension`
-# token filter -- patientFilterManager.personFilterWithQueryMapping
-# (src/fhir/patientFilterManager.js) maps both to
-# 'extension=https://icanbwell.com/codes/client_person_id|{person}' -- rather than a standard HL7
-# SearchParameter, so it never appears in search-parameters.json and would otherwise be
-# undocumented on these two tools (still functional via inputSchema's .passthrough(), just not
-# discoverable). SubscriptionTopic needs no equivalent entry: its patient-scope narrowing uses the
-# standard `identifier` token param, already present in search-parameters.json.
-#
-# These entries hand-duplicate src/searchParameters/searchParametersManager.js's
-# customSearchParameterQueries (the actual runtime source of truth r4ArgsParser.js reads via
-# getPropertyObject) -- nothing keeps the two in sync, so a new entry added there needs a matching
-# entry added here by hand. TODO(follow-up PR): have this generator read
-# customSearchParameterQueries directly (e.g. via a shared JSON file) instead of re-declaring it.
-EXTENSION_SEARCH_PARAM_OVERRIDES: Dict[str, List[Dict[str, Any]]] = {
-    "Subscription": [{
-        "code": "extension",
-        "type": "token",
-        "description": (
-            "Search by a resource extension value, e.g. the b.well connection-identity extension "
-            "'https://icanbwell.com/codes/client_person_id'."
-        ),
-        "target": [],
-    }],
-    "SubscriptionStatus": [
-        {
-            "code": "extension",
-            "type": "token",
-            "description": (
-                "Search by a resource extension value, e.g. the b.well connection-identity "
-                "extension 'https://icanbwell.com/codes/client_person_id'."
-            ),
-            "target": [],
-        },
-        {
-            "code": "subscription",
-            "type": "reference",
-            "description": "Subscription that this status is for.",
-            "target": ["Subscription"],
-        },
-    ],
-}
+# Resource types that should also surface the generic `Resource`-level custom search parameters
+# (currently just `extension`) in their dedicated tool schema. `extension` genuinely works as a
+# search filter on every resource type (SearchParametersManager.getPropertyObject's Resource-level
+# fallback), but documenting it on all 31 curated tools' schemas would be noisy/misleading for
+# resources where it isn't a meaningful way to search. This set exists only for
+# Subscription/SubscriptionStatus, which need it because
+# patientFilterManager.personFilterWithQueryMapping (src/fhir/patientFilterManager.js) uses
+# `extension=https://icanbwell.com/codes/client_person_id|{person}` to enforce their patient-scope
+# isolation -- they have no patient/subject search parameter, so they sit outside the generic
+# patient-compartment mechanism every other dedicated tool relies on. This is a deliberate,
+# hand-maintained UX decision (which resources should *advertise* the field), not a completeness
+# concern -- unlike the per-resource entries below, which are loaded automatically.
+RESOURCE_TYPES_NEEDING_GENERIC_CUSTOM_PARAMS = {"Subscription", "SubscriptionStatus"}
+
+
+def load_custom_search_parameters_by_resource() -> Dict[str, List[Dict[str, Any]]]:
+    """Loads src/searchParameters/customSearchParameterQueries.json -- the single source of truth
+    SearchParametersManager.js reads at runtime (via getPropertyObject, the same lookup
+    r4ArgsParser.js uses to validate every incoming search filter) for search parameters that
+    exist outside the standard HL7 search-parameters.json bundle, e.g. `extension` and
+    `SubscriptionStatus.subscription`. Reading the same file here means a new custom parameter
+    added there is picked up automatically the next time `make mcp` runs, rather than requiring a
+    second, hand-maintained Python declaration that can silently drift out of sync (exactly what
+    happened before this function existed: `SubscriptionStatus.subscription` was missing from the
+    old hardcoded override map).
+    """
+    with open(CUSTOM_SEARCH_PARAMETER_QUERIES_JSON, "r") as f:
+        raw: Dict[str, Dict[str, Dict[str, Any]]] = json.load(f)
+    return {
+        resource_type: [
+            {
+                "code": code,
+                "type": definition["type"],
+                "description": definition.get("description", code),
+                "target": definition.get("target", []),
+            }
+            for code, definition in definitions_by_code.items()
+        ]
+        for resource_type, definitions_by_code in raw.items()
+    }
 
 # How to actually *write* a filter value for each FHIR SearchParameter.type, verified against this
 # repo's own filter implementations (src/operations/query/filters/*.js + src/utils/querybuilder.util.js),
@@ -244,6 +245,7 @@ def render_type_value_syntax_hints_js() -> str:
 
 def main() -> int:
     search_parameters_by_resource = load_search_parameters_by_resource()
+    custom_search_parameters_by_resource = load_custom_search_parameters_by_resource()
     commonly_used_resources = load_commonly_used_resources()
 
     with open(TEMPLATE_PATH, "r") as f:
@@ -253,9 +255,12 @@ def main() -> int:
     file_names: List[str] = []
 
     for resource_type in commonly_used_resources:
+        custom_params = list(custom_search_parameters_by_resource.get(resource_type, []))
+        if resource_type in RESOURCE_TYPES_NEEDING_GENERIC_CUSTOM_PARAMS:
+            custom_params += custom_search_parameters_by_resource.get("Resource", [])
         params = dedupe_by_code(
             COMMON_PARAMS
-            + EXTENSION_SEARCH_PARAM_OVERRIDES.get(resource_type, [])
+            + custom_params
             + search_parameters_by_resource.get(resource_type, [])
         )
         # Copy dicts before mutating to avoid modifying COMMON_PARAMS across iterations
