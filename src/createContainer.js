@@ -161,6 +161,7 @@ const { GenericClickHouseQueryBuilder } = require('./dataLayer/builders/genericC
 const { GenericClickHouseRepository } = require('./dataLayer/repositories/genericClickHouseRepository');
 const { AccessHistoryClickHouseRepository } = require('./dataLayer/repositories/accessHistoryClickHouseRepository');
 const { AccessHistoryOperation } = require('./operations/accessHistory/accessHistory');
+const { BaseSerializer } = require('./fhir/writeSerializers/4_0_0/customSerializers');
 const deepcopy = require('deepcopy');
 
 /**
@@ -171,7 +172,23 @@ const createContainer = function () {
     // Note: the order of registration does NOT matter since everything is lazy evaluated
     const container = new SimpleContainer();
 
-    container.register('configManager', () => new ConfigManager());
+    container.register('configManager', () => {
+        const configManager = new ConfigManager();
+        // Every serializer in src/fhir/writeSerializers/4_0_0/ reads BaseSerializer.configManager
+        // (a static field, not something SimpleContainer wires per-instance), most notably
+        // CodingSerializer.writeSerialize. Wiring it here -- as a side effect of this factory,
+        // triggered lazily whenever anything first touches container.configManager, rather than
+        // an eager read right after registration -- means every createContainer() consumer gets
+        // it automatically without its own BaseSerializer.setConfigManager(...) call. Deliberately
+        // NOT read eagerly here: SimpleContainer.register() memoizes on first access, so eagerly
+        // reading container.configManager would permanently lock in this instance and silently
+        // defeat src/tests/createTestContainer.js's fnUpdateContainer pattern, which re-registers
+        // this exact factory with a test-specific ConfigManager subclass (used by 40+ test files)
+        // -- src/tests/common.js's own explicit setConfigManager call after that override runs is
+        // what covers the mocked case.
+        BaseSerializer.setConfigManager(configManager);
+        return configManager;
+    });
 
     container.register('kafkaClient', (c) => c.configManager.kafkaEnableEvents
         ? new KafkaClient({configManager: c.configManager})
