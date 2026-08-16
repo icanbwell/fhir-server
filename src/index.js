@@ -8,7 +8,6 @@ const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
-const { BaseSerializer } = require('./fhir/writeSerializers/4_0_0/customSerializers');
 const { fhirSchemaValidator } = require('./utils/fhirSchemaValidator');
 
 // Validates OpenTelemetry setup, which only this entrypoint (loaded via
@@ -19,8 +18,6 @@ const main = async function () {
     try {
         initialize();
         const container = createContainer();
-        // Initialize configManager for all serializers
-        BaseSerializer.setConfigManager(container.configManager);
         // Pre-compile FHIR schema validators for every resourceType off the request path
         fhirSchemaValidator.preWarm();
 
