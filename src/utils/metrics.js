@@ -231,12 +231,23 @@ const importRangeDurationHistogram = meter.createHistogram('fhir_import_range_du
 
 const importS3ReadThroughputHistogram = meter.createHistogram('fhir_import_s3_read_throughput_bytes_per_second', {
     description: 'Effective S3 read throughput for a bulk-import byte range: bytes read divided by read duration. Recorded even on partial/aborted reads.',
-    unit: 'By/s'
+    unit: 'By/s',
+    // Default OTel bucket boundaries top out around 10000 -- far too small for throughput
+    // measured in bytes/sec (real imports run in the hundreds of KB/s to tens of MB/s), which
+    // clamps every observation into the overflow bucket and makes quantile queries meaningless.
+    advice: {
+        explicitBucketBoundaries: [1000, 10000, 100000, 500000, 1000000, 5000000, 10000000, 50000000]
+    }
 });
 
 const importFileSizeHistogram = meter.createHistogram('fhir_import_file_size_bytes', {
     description: 'Size (bytes) of each S3 input file validated for bulk import.',
-    unit: 'By'
+    unit: 'By',
+    // Same overflow-bucket problem as the throughput histogram above -- file sizes run into the
+    // tens/hundreds of MB, well past the default boundaries' ~10000 ceiling.
+    advice: {
+        explicitBucketBoundaries: [1000, 10000, 100000, 1000000, 5000000, 10000000, 50000000, 100000000, 500000000]
+    }
 });
 
 /**
