@@ -56,7 +56,8 @@ describe('MergeManager', () => {
             insertOneAsync: jest.fn().mockResolvedValue(undefined)
         };
         mockDatabaseBulkLoader = {
-            getResourceFromExistingList: jest.fn().mockReturnValue(null)
+            getResourceFromExistingList: jest.fn().mockReturnValue(null),
+            isResourceTypeLoaded: jest.fn().mockReturnValue(true)
         };
         mockScopesManager = {
             doesResourceHaveSourceAssigningAuthority: jest.fn().mockReturnValue(true),
@@ -290,6 +291,75 @@ describe('MergeManager', () => {
 
             expect(result).toBeNull();
             expect(mergeManager.mergeInsertAsync).toHaveBeenCalled();
+        });
+
+        test('does not query DB directly when resourceType was loaded but resource not found', async () => {
+            const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
+            const { assertTypeEquals } = require('../../../../utils/assertType');
+            assertTypeEquals.mockImplementation(() => {});
+
+            mockDatabaseBulkLoader.getResourceFromExistingList.mockReturnValue(null);
+            mockDatabaseBulkLoader.isResourceTypeLoaded.mockReturnValue(true);
+
+            mergeManager.mergeInsertAsync = jest.fn().mockResolvedValue(null);
+
+            const requestInfo = Object.create(FhirRequestInfo.prototype);
+            requestInfo.user = 'testUser';
+            requestInfo.requestId = 'req-1';
+            requestInfo.path = '/Patient';
+            requestInfo.headers = {};
+
+            await mergeManager.mergeResourceAsync({
+                resourceToMerge: {
+                    id: 'p1', _uuid: 'uuid-p1', resourceType: 'Patient',
+                    meta: { source: 'test', lastUpdated: '2024-01-01' }
+                },
+                resourceType: 'Patient',
+                base_version: '4_0_0',
+                requestInfo,
+                smartMerge: true
+            });
+
+            expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
+            expect(mergeManager.mergeInsertAsync).toHaveBeenCalled();
+        });
+
+        test('queries DB directly when resourceType was never loaded, and finds an existing resource', async () => {
+            const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
+            const { assertTypeEquals } = require('../../../../utils/assertType');
+            assertTypeEquals.mockImplementation(() => {});
+
+            const currentResource = {
+                id: 'p1', resourceType: 'Patient',
+                meta: { versionId: '1', source: 'test' }
+            };
+            mockDatabaseBulkLoader.getResourceFromExistingList.mockReturnValue(null);
+            mockDatabaseBulkLoader.isResourceTypeLoaded.mockReturnValue(false);
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                fastFindOneAsync: jest.fn().mockResolvedValue(currentResource)
+            });
+
+            mergeManager.mergeExistingAsync = jest.fn().mockResolvedValue(null);
+
+            const requestInfo = Object.create(FhirRequestInfo.prototype);
+            requestInfo.user = 'testUser';
+            requestInfo.requestId = 'req-1';
+            requestInfo.path = '/Patient';
+            requestInfo.headers = {};
+
+            await mergeManager.mergeResourceAsync({
+                resourceToMerge: {
+                    id: 'p1', _uuid: 'uuid-p1', resourceType: 'Patient',
+                    meta: { source: 'test', lastUpdated: '2024-01-01' }
+                },
+                resourceType: 'Patient',
+                base_version: '4_0_0',
+                requestInfo,
+                smartMerge: true
+            });
+
+            expect(mockDatabaseQueryFactory.createQuery).toHaveBeenCalled();
+            expect(mergeManager.mergeExistingAsync).toHaveBeenCalled();
         });
 
         test('calls mergeExistingAsync when current resource found', async () => {
