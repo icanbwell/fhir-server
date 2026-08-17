@@ -228,7 +228,12 @@ describe('KafkaClientV2', () => {
         test('sends messages successfully on first attempt', async () => {
             await kafkaClient.sendCloudEventMessageAsync({ topic, messages });
             expect(mockProducerConnect).toHaveBeenCalled();
-            expect(mockProducerSend).toHaveBeenCalledWith({ topic, messages });
+            // BAI-427: headers is always added (even if empty, absent an active trace context in
+            // this test env) -- see the trace-context injection in sendCloudEventMessageHelperAsync.
+            expect(mockProducerSend).toHaveBeenCalledWith({
+                topic,
+                messages: messages.map((m) => ({ ...m, headers: {} }))
+            });
         });
 
         test('retries on KafkaJSNonRetriableError with error code 72', async () => {
@@ -362,7 +367,12 @@ describe('KafkaClientV2', () => {
         test('sends messages via producer.send', async () => {
             kafkaClient.producerConnected = true;
             await kafkaClient.sendCloudEventMessageHelperAsync({ topic, messages });
-            expect(mockProducerSend).toHaveBeenCalledWith({ topic, messages });
+            // BAI-427: headers is always added (even if empty, absent an active trace context in
+            // this test env) -- see the trace-context injection above producer.send's call.
+            expect(mockProducerSend).toHaveBeenCalledWith({
+                topic,
+                messages: messages.map((m) => ({ ...m, headers: {} }))
+            });
         });
 
         test('throws RethrownError when producer connect fails', async () => {
