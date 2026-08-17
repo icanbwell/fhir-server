@@ -1,5 +1,5 @@
 const { Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
-const { propagation, context: otelContext } = require('@opentelemetry/api');
+const { propagation, context: otelContext, trace } = require('@opentelemetry/api');
 const { assertIsValid, assertTypeEquals } = require('./assertType');
 const { logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync } = require('../operations/common/systemEventLogging');
 const { logError } = require('../operations/common/logging');
@@ -200,7 +200,7 @@ class KafkaClientV2 {
                 await logTraceSystemEventAsync({
                     event: 'kafkaClientV2',
                     message: 'Sent CloudEvent messages',
-                    args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl, topic, messages, result }
+                    args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl, topic, messages: messagesWithTraceContext, result }
                 });
             }
         } catch (e) {
@@ -312,21 +312,31 @@ class KafkaClientV2 {
             await consumer.subscribe({ topics: [topic], fromBeginning });
             await consumer.run({
                 eachMessage: async ({ topic: t, partition, message, heartbeat, pause }) => {
-                    // BAI-427: string-ify headers once, both for the parsed message shape callers
-                    // already expect and as the carrier for propagation.extract below.
-                    const stringHeaders = Object.fromEntries(
-                        Object.entries(message.headers || {}).map(([k, v]) => [k, v ? v.toString() : ''])
-                    );
+                    // BAI-427: one pass over the raw headers builds both the {key,value} array
+                    // callers already expect and the string-keyed carrier propagation.extract needs.
+                    const headerEntries = Object.entries(message.headers || {})
+                        .map(([key, v]) => ({ key, value: v ? v.toString() : '' }));
                     const parsedMessage = {
                         key: message.key.toString(),
                         value: message.value.toString(),
-                        headers: Object.entries(stringHeaders).map(([key, value]) => ({ key, value }))
+                        headers: headerEntries
                     };
 
                     // Defense-in-depth fallback alongside the producer-side injection above --
-                    // see that comment. A missing/empty traceparent header is a safe no-op:
-                    // extract() just returns the current active context unchanged.
-                    const extractedContext = propagation.extract(otelContext.active(), stringHeaders);
+                    // see that comment. Only extract from headers when nothing is already active:
+                    // @opentelemetry/instrumentation-kafkajs (if loaded) already extracted from
+                    // these same raw headers to create and activate its own consumer span, and
+                    // re-extracting here would read the original PRODUCER's traceparent (headers
+                    // aren't rewritten by that instrumentation) and silently replace the active
+                    // consumer span with it -- making any span onMessageAsync creates a sibling of
+                    // the consumer span instead of its child. A missing/empty traceparent header
+                    // is a safe no-op: extract() just returns the context passed in unchanged.
+                    const activeContext = otelContext.active();
+                    const extractedContext = trace.getSpan(activeContext)
+                        ? activeContext
+                        : propagation.extract(activeContext, Object.fromEntries(
+                            headerEntries.map(({ key, value }) => [key, value])
+                        ));
 
                     await otelContext.with(extractedContext, async () => {
                         // Without a deadLetterTopic, behave exactly as before: a failure
