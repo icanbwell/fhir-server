@@ -17,15 +17,14 @@ const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING } = require('../../../constants');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
+const { trace } = require('@opentelemetry/api');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
 const { logInfo, logError } = require('../../common/logging');
 const {
     recordImportOperationTriggered,
     recordImportFileSize,
     recordImportResourceOutcomes,
-    recordImportRangeDuration,
-    recordImportTaskCompleted,
-    TASK_OUTCOME
+    recordImportRangeDuration
 } = require('../../../utils/metrics');
 const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
 const { AuditLogger } = require('../../../utils/auditLogger');
@@ -44,13 +43,28 @@ const { SearchQueryBuilder } = require('../../search/searchQueryBuilder');
  */
 const BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL = 'https://www.icanbwell.com/bulk-import-range-completed';
 
+const importTracer = trace.getTracer('fhir-server');
+
 /**
- * DCON-5050: a completed Task whose failed-resource share exceeds this fraction is reported
- * as TASK_OUTCOME.PARTIAL_FAILURE (instead of SUCCESS) on fhir_import_task_completed_total,
- * for Slack alerting on partial failures.
- * @type {number}
+ * DCON-5050: attaches bulk-import outcome data as span attributes rather than a custom OTel
+ * counter -- with BAI-427's trace-context propagation across both Kafka hops in place,
+ * GroundCover can group spans by trace ID itself and alert on cross-span ratios (e.g. failed /
+ * (created + updated + failed) per trace) without any app-side aggregation or a hardcoded
+ * threshold in this codebase. Falls back to a short-lived span of our own when nothing is
+ * active (e.g. auto-instrumentation not loaded in this environment), so the data isn't
+ * silently dropped.
+ * @param {Object} attributes
  */
-const PARTIAL_FAILURE_THRESHOLD = 0.05;
+function recordImportSpanAttributes (attributes) {
+    const activeSpan = trace.getActiveSpan();
+    if (activeSpan) {
+        activeSpan.setAttributes(attributes);
+        return;
+    }
+    const span = importTracer.startSpan('bulk_import.outcome');
+    span.setAttributes(attributes);
+    span.end();
+}
 
 /**
  * Handles every Kafka message type for the bulk-import async job. Both
@@ -386,7 +400,7 @@ class BulkImportHandler {
         } catch (e) {
             logError('S3 validation failed for import task', { taskId, error: e.message });
             await this.updateOrchestratorTaskStatusAsync(task, 'failed', e.message);
-            recordImportTaskCompleted(TASK_OUTCOME.FAILED);
+            recordImportSpanAttributes({ 'fhir_import.outcome': 'failed' });
             return;
         }
 
@@ -537,27 +551,6 @@ class BulkImportHandler {
     }
 
     /**
-     * Parses every range-completion marker recorded in Task.extension (see
-     * BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL). Shared by isTaskFullyComplete (checks range
-     * coverage) and computeTaskOutcome (aggregates created/updated/failed counts) so the
-     * marker JSON shape has one parser, not two copies that could drift.
-     * @param {Object} task
-     * @returns {Array<{filepath: string, rangeIndex: number, totalRanges: number, created?: number, updated?: number, failed?: number}>}
-     */
-    getRangeCompletionMarkers(task) {
-        return (task.extension || [])
-            .filter((e) => e.url === BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL && e.valueString)
-            .map((e) => {
-                try {
-                    return JSON.parse(e.valueString);
-                } catch (parseError) {
-                    return null;
-                }
-            })
-            .filter(Boolean);
-    }
-
-    /**
      * Whether every byte-range of every input file on this Task has recorded a
      * completion marker. Cross-references Task.input (fixed at Task creation) against
      * the completion markers accumulated in Task.extension.
@@ -570,7 +563,16 @@ class BulkImportHandler {
             return false;
         }
 
-        const markers = this.getRangeCompletionMarkers(task);
+        const markers = (task.extension || [])
+            .filter((e) => e.url === BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL && e.valueString)
+            .map((e) => {
+                try {
+                    return JSON.parse(e.valueString);
+                } catch (parseError) {
+                    return null;
+                }
+            })
+            .filter(Boolean);
 
         return inputUrls.every((url) => {
             const fileMarkers = markers.filter((m) => m.filepath === url);
@@ -580,32 +582,6 @@ class BulkImportHandler {
             const distinctRanges = new Set(fileMarkers.map((m) => m.rangeIndex));
             return distinctRanges.size === fileMarkers[0].totalRanges;
         });
-    }
-
-    /**
-     * DCON-5050: aggregates created/updated/failed counts across every range-completion
-     * marker on a just-completed Task into a single TASK_OUTCOME for
-     * fhir_import_task_completed_total. A Task with no resources at all (e.g. an empty
-     * input file) counts as SUCCESS -- nothing failed.
-     * @param {Object} task
-     * @returns {string} one of TASK_OUTCOME's values
-     */
-    computeTaskOutcome(task) {
-        const markers = this.getRangeCompletionMarkers(task);
-        let totalFailed = 0;
-        let totalProcessed = 0;
-        for (const marker of markers) {
-            totalFailed += marker.failed || 0;
-            totalProcessed += (marker.created || 0) + (marker.updated || 0) + (marker.failed || 0);
-        }
-
-        if (totalProcessed === 0) {
-            return TASK_OUTCOME.SUCCESS;
-        }
-
-        return (totalFailed / totalProcessed) > PARTIAL_FAILURE_THRESHOLD
-            ? TASK_OUTCOME.PARTIAL_FAILURE
-            : TASK_OUTCOME.SUCCESS;
     }
 
     /**
@@ -707,12 +683,9 @@ class BulkImportHandler {
      * @param {number} params.totalRanges
      * @param {import('../../common/mergeResultEntry').MergeResultEntry[]} params.mergeResultEntries
      * @param {FhirRequestInfo} params.requestInfo
-     * @param {{created: number, updated: number, failed: number}} params.counts DCON-5050: stashed
-     *        on the completion marker so computeTaskOutcome can aggregate them task-wide once every
-     *        range is in.
      * @returns {Promise<void>}
      */
-    async recordRangeCompletionAsync({ taskId, filepath, rangeIndex, totalRanges, mergeResultEntries, requestInfo, counts }) {
+    async recordRangeCompletionAsync({ taskId, filepath, rangeIndex, totalRanges, mergeResultEntries, requestInfo }) {
         // Reload fresh rather than reusing the Task loaded at the top of handleImportRangeRequestedAsync —
         // that snapshot can be minutes stale by the time a large range finishes, and
         // replaceOneAsync's merge takes scalar fields (e.g. status) from OUR doc when they
@@ -755,8 +728,7 @@ class BulkImportHandler {
                 url: BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL,
                 // JSON-encoded rather than a delimited string — '|' is a legal S3 key
                 // character and would otherwise corrupt parsing for a pathological filepath.
-                // counts spread in (DCON-5050) so computeTaskOutcome can aggregate them task-wide.
-                valueString: JSON.stringify({ filepath, rangeIndex, totalRanges, ...counts })
+                valueString: JSON.stringify({ filepath, rangeIndex, totalRanges })
             }
         ];
 
@@ -775,7 +747,6 @@ class BulkImportHandler {
         const finalTask = savedResource || await this.loadTaskAsync(taskId);
         if (finalTask && finalTask.status !== 'completed' && this.isTaskFullyComplete(finalTask)) {
             await this.updateTaskStatusAsync(finalTask, 'completed', undefined, requestInfo);
-            recordImportTaskCompleted(this.computeTaskOutcome(finalTask));
         }
     }
 
@@ -1031,7 +1002,7 @@ class BulkImportHandler {
                 const currentTask = await this.loadTaskAsync(taskId);
                 if (currentTask && currentTask.status !== 'completed') {
                     await this.updateTaskStatusAsync(currentTask, 'failed', e.message, requestInfo);
-                    recordImportTaskCompleted(TASK_OUTCOME.FAILED);
+                    recordImportSpanAttributes({ 'fhir_import.outcome': 'failed' });
                 }
                 // mergeResultEntries only ever gains entries once a batch actually commits
                 // (flushBatchAsync) or a per-line failure is recorded -- so on a partially-
@@ -1069,8 +1040,7 @@ class BulkImportHandler {
                 rangeIndex,
                 totalRanges,
                 mergeResultEntries,
-                requestInfo,
-                counts: { created, updated, failed }
+                requestInfo
             });
 
             this.queueAuditEntriesForRangeAsync({
@@ -1089,6 +1059,14 @@ class BulkImportHandler {
             // merge boundary's finally-based emission (see docs/adr/0002).
             recordImportResourceOutcomes(mergeResultEntries);
             recordImportRangeDuration((Date.now() - rangeStartTimeMs) / 1000);
+            // DCON-5050: per-range counts as span attributes (see recordImportSpanAttributes'
+            // docstring) -- covers both success and partial-flush-then-fail, same finally-based
+            // rationale as the two calls above.
+            recordImportSpanAttributes({
+                'fhir_import.resources_created': created,
+                'fhir_import.resources_updated': updated,
+                'fhir_import.resources_failed': failed
+            });
 
             // FastDatabaseBulkInserter defers history writes onto postRequestProcessor's
             // queue rather than writing them inline — without this, history writes for

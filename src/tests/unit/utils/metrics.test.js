@@ -32,7 +32,6 @@ const {
     recordImportRangeDuration,
     recordImportS3ReadThroughput,
     recordImportFileSize,
-    recordImportTaskCompleted,
     mergeOutcomeCounter,
     validationFailureCounter,
     bundleSizeHistogram,
@@ -44,10 +43,8 @@ const {
     importRangeDurationHistogram,
     importS3ReadThroughputHistogram,
     importFileSizeHistogram,
-    importTaskCompletedCounter,
     LABEL,
     OUTCOME,
-    TASK_OUTCOME,
     VALIDATION_STAGE,
     DIRECTION,
     OPERATION,
@@ -399,27 +396,6 @@ describe('metrics.js', () => {
         });
     });
 
-    describe('recordImportTaskCompleted', () => {
-        test('emits counter with the outcome label', () => {
-            recordImportTaskCompleted(TASK_OUTCOME.SUCCESS);
-            expect(importTaskCompletedCounter.add).toHaveBeenCalledWith(1, {
-                [LABEL.OUTCOME]: TASK_OUTCOME.SUCCESS
-            });
-        });
-
-        test('emits once per call, one call per outcome', () => {
-            recordImportTaskCompleted(TASK_OUTCOME.FAILED);
-            recordImportTaskCompleted(TASK_OUTCOME.PARTIAL_FAILURE);
-            expect(importTaskCompletedCounter.add).toHaveBeenCalledTimes(2);
-            expect(importTaskCompletedCounter.add).toHaveBeenCalledWith(1, {
-                [LABEL.OUTCOME]: TASK_OUTCOME.FAILED
-            });
-            expect(importTaskCompletedCounter.add).toHaveBeenCalledWith(1, {
-                [LABEL.OUTCOME]: TASK_OUTCOME.PARTIAL_FAILURE
-            });
-        });
-    });
-
     describe('recordImportResourceOutcomes', () => {
         test('routes created/updated tallies to the processed counter, by outcome and resource_type', () => {
             recordImportResourceOutcomes([
@@ -532,10 +508,6 @@ describe('metrics.js', () => {
 
         test('OUTCOME is frozen', () => {
             expect(Object.isFrozen(OUTCOME)).toBe(true);
-        });
-
-        test('TASK_OUTCOME is frozen', () => {
-            expect(Object.isFrozen(TASK_OUTCOME)).toBe(true);
         });
 
         test('VALIDATION_STAGE is frozen', () => {

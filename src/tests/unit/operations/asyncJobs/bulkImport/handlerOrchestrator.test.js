@@ -36,6 +36,7 @@ jestGlobal.mock('@aws-sdk/client-s3', () => ({
 const { BulkImportHandler } = require('../../../../../operations/asyncJobs/bulkImport/handler');
 const { logInfo, logError } = require('../../../../../operations/common/logging');
 const metrics = require('../../../../../utils/metrics');
+const { trace } = require('@opentelemetry/api');
 // Spied once (module-scope singleton instrument) -- the outer beforeEach's
 // clearAllMocks() resets call history between tests without re-wrapping.
 jestGlobal.spyOn(metrics.importOperationsTriggeredCounter, 'add');
@@ -605,20 +606,22 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
                 headers: []
             };
 
+            // DCON-5050: fake an active span so recordImportSpanAttributes' fallback (starting
+            // its own span) isn't what's under test here -- just that the right attributes
+            // reach *a* span.
+            const fakeSpan = { setAttributes: jestGlobal.fn() };
+            const activeSpanSpy = jestGlobal.spyOn(trace, 'getActiveSpan').mockReturnValue(fakeSpan);
+
             await handler.handleMessageAsync(message);
 
             // The operation was triggered (Task found) even though S3 validation failed
-            // afterward -- "triggered" tracks activity, not eventual success. Filtered to the
-            // bare, label-less `.add(1)` call shape rather than a raw call count: in this
-            // no-SDK test environment @opentelemetry/api's no-op meter hands back the SAME
-            // singleton instrument for every createCounter() call, so this spy also observes
-            // the labeled `.add(1, {...})` call the DCON-5050 task-completed metric below makes.
-            const triggeredCalls = metrics.importOperationsTriggeredCounter.add.mock.calls
-                .filter((args) => args.length === 1 && args[0] === 1);
-            expect(triggeredCalls).toHaveLength(1);
+            // afterward -- "triggered" tracks activity, not eventual success.
+            expect(metrics.importOperationsTriggeredCounter.add).toHaveBeenCalledTimes(1);
 
-            // DCON-5050: an S3-validation failure is a whole-Task failure, not a partial one.
-            expect(metrics.importTaskCompletedCounter.add).toHaveBeenCalledWith(1, { outcome: 'failed' });
+            // DCON-5050: an S3-validation failure is a whole-Task failure, not a partial one --
+            // tagged as a span attribute so GroundCover can alert on it, grouped by trace ID.
+            expect(fakeSpan.setAttributes).toHaveBeenCalledWith({ 'fhir_import.outcome': 'failed' });
+            activeSpanSpy.mockRestore();
         });
 
         test('logs and returns without publishing when the Task cannot be found', async () => {
