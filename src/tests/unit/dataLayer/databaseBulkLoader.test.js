@@ -173,6 +173,53 @@ describe('DatabaseBulkLoader', () => {
         });
     });
 
+    describe('isResourceTypeLoaded', () => {
+        test('returns false when cache has no entry for given resourceType', () => {
+            const result = loader.isResourceTypeLoaded({
+                requestId: 'req-1',
+                resourceType: 'Patient'
+            });
+            expect(result).toBe(false);
+        });
+
+        test('returns true when resourceType was loaded, even with 0 matching resources', () => {
+            const bulkCache = loader.getBulkCache({ requestId: 'req-1' });
+            bulkCache.set('Patient', []);
+
+            const result = loader.isResourceTypeLoaded({
+                requestId: 'req-1',
+                resourceType: 'Patient'
+            });
+            expect(result).toBe(true);
+        });
+
+        test('returns true when resourceType cache has resources', () => {
+            const bulkCache = loader.getBulkCache({ requestId: 'req-1' });
+            bulkCache.set('Patient', [
+                { _uuid: 'uuid-A', id: '1', resourceType: 'Patient' }
+            ]);
+
+            const result = loader.isResourceTypeLoaded({
+                requestId: 'req-1',
+                resourceType: 'Patient'
+            });
+            expect(result).toBe(true);
+        });
+
+        test('different requestIds have isolated caches', () => {
+            const bulkCache1 = loader.getBulkCache({ requestId: 'req-1' });
+            bulkCache1.set('Patient', [
+                { _uuid: 'uuid-A', id: '1', resourceType: 'Patient' }
+            ]);
+
+            const result = loader.isResourceTypeLoaded({
+                requestId: 'req-2',
+                resourceType: 'Patient'
+            });
+            expect(result).toBe(false);
+        });
+    });
+
     describe('getResourcesAsync', () => {
         test('calls databaseQueryFactory.createQuery with resourceType and base_version', async () => {
             mockCursor.toArrayAsync.mockResolvedValue([]);

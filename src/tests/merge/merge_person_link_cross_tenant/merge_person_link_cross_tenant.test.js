@@ -102,6 +102,11 @@ describe('DCON-4844 - $merge cannot link a Person into another tenant\'s identit
             .get('/4_0_0/Person/person-tenant-a-1')
             .set(getHeaders())
             .expect(200);
+        // The bare-id reference is corrected to carry the resolved match's real
+        // sourceAssigningAuthority (DCON-4844 step 5), even though both Persons are in
+        // the same tenant here and the correction doesn't change which resource the
+        // reference resolves to -- id|sourceAssigningAuthority is this codebase's
+        // standard reference format, not a malformed value.
         expect(getResp.body.link[0].target.reference).toStrictEqual('Person/person-tenant-a-2|tenant_a');
     });
 
