@@ -94,7 +94,7 @@ const { trace, context: otelContext, propagation } = require('@opentelemetry/api
 const { W3CTraceContextPropagator } = require('@opentelemetry/core');
 
 // The global propagator defaults to a no-op unless the real OTel SDK is initialized (which this
-// bare test process never does) -- register the real W3C propagator so BAI-427's trace-context
+// bare test process never does) -- register the real W3C propagator so the trace-context
 // tests below actually exercise header parsing instead of silently no-op-ing.
 propagation.setGlobalPropagator(new W3CTraceContextPropagator());
 const { recordKafkaRetryExhausted } = require('../../../utils/metrics');
@@ -235,7 +235,7 @@ describe('KafkaClientV2', () => {
         test('sends messages successfully on first attempt', async () => {
             await kafkaClient.sendCloudEventMessageAsync({ topic, messages });
             expect(mockProducerConnect).toHaveBeenCalled();
-            // BAI-427: headers is always added (even if empty, absent an active trace context in
+            // Headers is always added (even if empty, absent an active trace context in
             // this test env) -- see the trace-context injection in sendCloudEventMessageHelperAsync.
             expect(mockProducerSend).toHaveBeenCalledWith({
                 topic,
@@ -374,7 +374,7 @@ describe('KafkaClientV2', () => {
         test('sends messages via producer.send', async () => {
             kafkaClient.producerConnected = true;
             await kafkaClient.sendCloudEventMessageHelperAsync({ topic, messages });
-            // BAI-427: headers is always added (even if empty, absent an active trace context in
+            // Headers is always added (even if empty, absent an active trace context in
             // this test env) -- see the trace-context injection above producer.send's call.
             expect(mockProducerSend).toHaveBeenCalledWith({
                 topic,
@@ -740,7 +740,7 @@ describe('KafkaClientV2', () => {
         // but trace.setSpanContext/getSpan are pure reads/writes on a given Context value and
         // don't need a ContextManager, so asserting on the value itself is both simpler and
         // independent of whether a ContextManager happens to be registered.
-        test('BAI-427: extracts trace context from headers into the active context when nothing is already active', async () => {
+        test('Extracts trace context from headers into the active context when nothing is already active', async () => {
             const traceparent = '00-11111111111111111111111111111111-2222222222222222-01';
             const consumer = {
                 connect: mockConsumerConnect,
@@ -770,7 +770,7 @@ describe('KafkaClientV2', () => {
             withSpy.mockRestore();
         });
 
-        test('BAI-427: does not override an already-active span (e.g. from auto-instrumentation) with one extracted from headers', async () => {
+        test('Does not override an already-active span (e.g. from auto-instrumentation) with one extracted from headers', async () => {
             // Simulates @opentelemetry/instrumentation-kafkajs already having extracted from these
             // same raw headers and activated its own consumer span before eachMessage runs.
             const activeSpanContext = {

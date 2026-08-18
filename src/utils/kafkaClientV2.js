@@ -184,7 +184,7 @@ class KafkaClientV2 {
                     args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl, topic, messages }
                 });
             }
-            // BAI-427: inject the caller's active OTel trace context into every message's
+            // Inject the caller's active OTel trace context into every message's
             // headers as a defense-in-depth fallback -- @opentelemetry/instrumentation-kafkajs
             // auto-instrumentation is expected to do this on its own, but that depends on the
             // OTel Operator correctly injecting NODE_OPTIONS in every environment/pod, which
@@ -312,7 +312,7 @@ class KafkaClientV2 {
             await consumer.subscribe({ topics: [topic], fromBeginning });
             await consumer.run({
                 eachMessage: async ({ topic: t, partition, message, heartbeat, pause }) => {
-                    // BAI-427: one pass over the raw headers builds both the {key,value} array
+                    // One pass over the raw headers builds both the {key,value} array
                     // callers already expect and the string-keyed carrier propagation.extract needs.
                     const headerEntries = Object.entries(message.headers || {})
                         .map(([key, v]) => ({ key, value: v ? v.toString() : '' }));
