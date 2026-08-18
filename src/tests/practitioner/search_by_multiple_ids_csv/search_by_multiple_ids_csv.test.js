@@ -21,10 +21,6 @@ class MockConfigManagerDefaultSortId extends ConfigManager {
     }
 }
 
-const formUrlEncodedContentType = {
-    'Content-Type': 'application/x-www-form-urlencoded'
-}
-
 describe('search by multiple ids csv', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -302,7 +298,7 @@ describe('search by multiple ids csv', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')
                 .send({id:"0,1679033641",_sort: "id",_streamResponse:"1" })
-                .set({...getHeadersCsv(), ...formUrlEncodedContentType});
+                .set(getHeadersCsvFormUrlEncoded());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerCsv);
         });

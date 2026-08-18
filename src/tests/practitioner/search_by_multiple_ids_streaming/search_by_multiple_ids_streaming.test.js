@@ -39,10 +39,6 @@ class MockConfigManagerStreaming extends ConfigManager {
     }
 }
 
-const formUrlEncodedContentType = {
-    'Content-Type': 'application/x-www-form-urlencoded'
-}
-
 describe('search by multiple ids streaming', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -153,7 +149,7 @@ describe('search by multiple ids streaming', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id')
                 .send({id: "0,1679033641", _sort: "id"})
-                .set({...getHeaders(), ...formUrlEncodedContentType});
+                .set(getHeadersFormUrlEncoded());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);
         });

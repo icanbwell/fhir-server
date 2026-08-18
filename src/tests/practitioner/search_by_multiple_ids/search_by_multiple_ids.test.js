@@ -116,8 +116,8 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id')
-                .send({ resourceType: 'Parameters', parameter: [{ name: 'id', valueString: '0,1679033641' }] })
-                .set(getHeaders());
+                .send({ id :"0,1679033641", _sort: "id" })
+                .set(getHeadersFormUrlEncoded());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);
         });
@@ -146,7 +146,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id')
-                .send('id=0,1679033641')
+                .send({id:'0,1679033641',_sort: "id"})
                 .set(getHeadersFormUrlEncoded());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);

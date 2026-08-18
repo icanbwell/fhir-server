@@ -114,6 +114,60 @@ describe('getArgsMiddleware', () => {
         expect(req.sanitized_args.name).toBe('Smith');
     });
 
+    test('rejects POST body for a JSON _search endpoint with a trailing slash with 415', () => {
+        const middleware = getArgsMiddleware({}, []);
+        const req = createReq({
+            url: '/Patient/_search/',
+            method: 'POST',
+            body: { name: 'Smith' },
+            query: {},
+            headers: { 'content-type': 'application/fhir+json' }
+        });
+        const next = jestObj.fn();
+
+        middleware(req, {}, next);
+
+        expect(req.sanitized_args).toBeUndefined();
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next.mock.calls[0][0].statusCode).toBe(415);
+    });
+
+    test('includes POST body for a form-urlencoded _search endpoint with a charset suffix', () => {
+        const middleware = getArgsMiddleware({}, []);
+        const req = createReq({
+            url: '/Patient/_search',
+            method: 'POST',
+            body: { name: 'Smith' },
+            query: {},
+            headers: { 'content-type': 'application/x-www-form-urlencoded; charset=UTF-8' }
+        });
+        const next = jestObj.fn();
+
+        middleware(req, {}, next);
+
+        expect(req.sanitized_args.name).toBe('Smith');
+    });
+
+    test('does not treat an update-by-id whose id ends in "_search" as the _search endpoint', () => {
+        const middleware = getArgsMiddleware({}, []);
+        const req = createReq({
+            url: '/4_0_0/Patient/provider_search',
+            method: 'PUT',
+            body: { resourceType: 'Patient', id: 'provider_search' },
+            params: { id: 'provider_search' },
+            query: {},
+            headers: { 'content-type': 'application/fhir+json' }
+        });
+        const next = jestObj.fn();
+
+        middleware(req, {}, next);
+
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next.mock.calls[0][0]).toBeUndefined();
+        expect(req.sanitized_args.resourceType).toBeUndefined();
+        expect(req.sanitized_args.id).toBe('provider_search');
+    });
+
     test('ignores POST body for non-search endpoint', () => {
         const middleware = getArgsMiddleware({}, []);
         const req = createReq({

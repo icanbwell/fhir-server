@@ -9,7 +9,8 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest
+    createTestRequest,
+    getHeadersFormUrlEncoded
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -26,10 +27,6 @@ class MockConfigManagerDefaultSortId extends ConfigManager {
     get enableReturnBundle () {
         return true;
     }
-}
-
-const formUrlEncodedContentType = {
-    'Content-Type': 'application/x-www-form-urlencoded'
 }
 
 describe('PatientReturnIdTests', () => {
@@ -72,11 +69,11 @@ describe('PatientReturnIdTests', () => {
             resp = await request
                 .post('/4_0_0/Patient/_search?id=00100000000')
                 .send({id: "00100000000" })
-                .set({...getHeaders(), ...formUrlEncodedContentType});
+                .set(getHeadersFormUrlEncoded());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedSinglePatientResource);
 
-            resp = await request.get('/4_0_0/Patient/_search').set({...getHeaders(), ...formUrlEncodedContentType});
+            resp = await request.get('/4_0_0/Patient/_search').set(getHeadersFormUrlEncoded());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
         });
