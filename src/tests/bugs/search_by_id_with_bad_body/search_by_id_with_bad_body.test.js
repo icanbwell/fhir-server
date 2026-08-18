@@ -28,6 +28,10 @@ class MockConfigManagerDefaultSortId extends ConfigManager {
     }
 }
 
+const formUrlEncodedContentType = {
+    'Content-Type': 'application/x-www-form-urlencoded'
+}
+
 describe('PatientReturnIdTests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -67,12 +71,12 @@ describe('PatientReturnIdTests', () => {
 
             resp = await request
                 .post('/4_0_0/Patient/_search?id=00100000000')
-                .send(badBody)
-                .set(getHeaders());
+                .send({"id": "00100000000" })
+                .set({...getHeaders(), ...formUrlEncodedContentType});
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedSinglePatientResource);
 
-            resp = await request.get('/4_0_0/Patient/_search').set(getHeaders());
+            resp = await request.get('/4_0_0/Patient/_search').set({...getHeaders(), ...formUrlEncodedContentType});
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
         });
