@@ -46,9 +46,9 @@ const BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL = 'https://www.icanbwell.com/bul
 const importTracer = trace.getTracer('fhir-server');
 
 /**
- * DCON-5050: attaches bulk-import outcome data as span attributes rather than a custom OTel
- * counter -- with BAI-427's trace-context propagation across both Kafka hops in place,
- * GroundCover can group spans by trace ID itself and alert on cross-span ratios (e.g. failed /
+ * Attaches bulk-import outcome data as span attributes rather than a custom OTel counter --
+ * with trace context propagated across both Kafka hops, an external observability platform
+ * can group spans by trace ID itself and alert on cross-span ratios (e.g. failed /
  * (created + updated + failed) per trace) without any app-side aggregation or a hardcoded
  * threshold in this codebase. Falls back to a short-lived span of our own when nothing is
  * active (e.g. auto-instrumentation not loaded in this environment), so the data isn't
@@ -1059,7 +1059,7 @@ class BulkImportHandler {
             // merge boundary's finally-based emission (see docs/adr/0002).
             recordImportResourceOutcomes(mergeResultEntries);
             recordImportRangeDuration((Date.now() - rangeStartTimeMs) / 1000);
-            // DCON-5050: per-range counts as span attributes (see recordImportSpanAttributes'
+            // Per-range counts as span attributes (see recordImportSpanAttributes'
             // docstring) -- covers both success and partial-flush-then-fail, same finally-based
             // rationale as the two calls above.
             recordImportSpanAttributes({

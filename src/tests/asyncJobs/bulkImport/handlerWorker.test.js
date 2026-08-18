@@ -38,9 +38,9 @@ const validParametersBody = {
 };
 
 describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
-    // DCON-5050: recordImportSpanAttributes checks trace.getActiveSpan() first -- faking one
-    // here means every test observes attributes on a single, easy-to-assert-on span instead of
-    // exercising (or needing) the real auto-instrumentation-created span.
+    // recordImportSpanAttributes checks trace.getActiveSpan() first -- faking one here means
+    // every test observes attributes on a single, easy-to-assert-on span instead of exercising
+    // (or needing) the real auto-instrumentation-created span.
     let fakeSpan;
     let activeSpanSpy;
 
@@ -409,8 +409,8 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         // failures are surfaced via the error output file, not a non-completed status.
         expect(taskResp.body.status).toBe('completed');
 
-        // DCON-5050: 1 created, 1 failed -- tagged as span attributes so GroundCover can
-        // compute the failure ratio itself, grouped by trace ID.
+        // 1 created, 1 failed -- tagged as span attributes so the failure ratio can be
+        // computed externally, grouped by trace ID.
         expect(fakeSpan.setAttributes).toHaveBeenCalledWith({
             'fhir_import.resources_created': 1,
             'fhir_import.resources_updated': 0,
@@ -608,7 +608,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         const resultOutput = taskResp.body.output.find((o) => o.type.text === 'result');
         expect(resultOutput.valueUri).toBe('s3://allowed-bucket/output/Patient-001.ndjson');
 
-        // DCON-5050: 1 created, 0 failed -- tagged as span attributes.
+        // 1 created, 0 failed -- tagged as span attributes.
         expect(fakeSpan.setAttributes).toHaveBeenCalledWith({
             'fhir_import.resources_created': 1,
             'fhir_import.resources_updated': 0,
@@ -806,8 +806,8 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             .expect(200);
         expect(taskResp.body.status).toBe('failed');
 
-        // DCON-5050: a whole-Task failure, distinct from a partial-failure completion --
-        // tagged as a span attribute so GroundCover can alert on it, grouped by trace ID.
+        // A whole-Task failure, distinct from a partial-failure completion -- tagged as a
+        // span attribute so alerts can be built on it, grouped by trace ID.
         expect(fakeSpan.setAttributes).toHaveBeenCalledWith({ 'fhir_import.outcome': 'failed' });
 
         // The already-flushed resource is durably in Mongo exactly once (not duplicated by

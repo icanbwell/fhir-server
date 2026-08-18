@@ -606,9 +606,8 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
                 headers: []
             };
 
-            // DCON-5050: fake an active span so recordImportSpanAttributes' fallback (starting
-            // its own span) isn't what's under test here -- just that the right attributes
-            // reach *a* span.
+            // Fake an active span so recordImportSpanAttributes' fallback (starting its own
+            // span) isn't what's under test here -- just that the right attributes reach *a* span.
             const fakeSpan = { setAttributes: jestGlobal.fn() };
             const activeSpanSpy = jestGlobal.spyOn(trace, 'getActiveSpan').mockReturnValue(fakeSpan);
 
@@ -618,8 +617,8 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
             // afterward -- "triggered" tracks activity, not eventual success.
             expect(metrics.importOperationsTriggeredCounter.add).toHaveBeenCalledTimes(1);
 
-            // DCON-5050: an S3-validation failure is a whole-Task failure, not a partial one --
-            // tagged as a span attribute so GroundCover can alert on it, grouped by trace ID.
+            // An S3-validation failure is a whole-Task failure, not a partial one -- tagged
+            // as a span attribute so alerts can be built on it, grouped by trace ID.
             expect(fakeSpan.setAttributes).toHaveBeenCalledWith({ 'fhir_import.outcome': 'failed' });
             activeSpanSpy.mockRestore();
         });
