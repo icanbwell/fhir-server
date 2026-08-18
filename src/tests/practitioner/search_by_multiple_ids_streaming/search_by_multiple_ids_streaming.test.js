@@ -152,7 +152,7 @@ describe('search by multiple ids streaming', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id')
-                .send({"id": "0,1679033641", "_sort": "id"})
+                .send({id: "0,1679033641", _sort: "id"})
                 .set({...getHeaders(), ...formUrlEncodedContentType});
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);
@@ -185,7 +185,7 @@ describe('search by multiple ids streaming', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id')
-                .send({"id":"0,1679033641", "_sort": "id"})
+                .send({id:"0,1679033641", _sort: "id"})
                 .set(getHeadersFormUrlEncoded());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);

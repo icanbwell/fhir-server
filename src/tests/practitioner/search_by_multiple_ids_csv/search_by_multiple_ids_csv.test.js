@@ -301,7 +301,7 @@ describe('search by multiple ids csv', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')
-                .send({"id":"0,1679033641","_sort": "id","_streamResponse":"1" })
+                .send({id:"0,1679033641",_sort: "id",_streamResponse:"1" })
                 .set({...getHeadersCsv(), ...formUrlEncodedContentType});
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerCsv);
@@ -334,7 +334,7 @@ describe('search by multiple ids csv', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search')
-                .send({'id':'0,1679033641',"_sort":"id","_streamResponse":1})
+                .send({id:'0,1679033641',_sort:"id",_streamResponse:1})
                 .set(getHeadersCsvFormUrlEncoded());
 
             const expectedPractitionerCsv = fs.readFileSync(
