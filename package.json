@@ -64,6 +64,7 @@
   "resolutions": {
     "uuid": "^14.0.0",
     "yargs": "^18.1.0",
+    "raw-body": "^4.0.0",
     "@hono/node-server": "^2.0.5"
   },
   "dependencies": {
