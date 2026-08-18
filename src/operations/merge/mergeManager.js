@@ -323,6 +323,7 @@ class MergeManager {
              */
             let currentResource;
 
+            let resourceTypeWasLoaded = false;
             if (this.databaseBulkLoader) {
                 currentResource = this.databaseBulkLoader.getResourceFromExistingList(
                     {
@@ -331,8 +332,18 @@ class MergeManager {
                         uuid
                     }
                 );
-            } else {
-                // Query our collection for this id
+                resourceTypeWasLoaded = this.databaseBulkLoader.isResourceTypeLoaded(
+                    { requestId, resourceType: resourceToMerge.resourceType }
+                );
+            }
+            if (!currentResource && !resourceTypeWasLoaded) {
+                // getResourceFromExistingList() returns null both when the resource was
+                // confirmed not to exist (resourceType was loaded, uuid just wasn't in it) and
+                // when there's no bulk loader (or this resourceType was never loaded into it for
+                // this request). Only the latter is ambiguous -- trusting it as confirmed
+                // non-existence would misroute an existing resource to the insert path -- so
+                // only fall back to a direct query in that case. Querying on every miss would
+                // add a redundant DB round-trip for every ordinary create.
                 const databaseQueryManager = this.databaseQueryFactory.createQuery(
                     { resourceType: resourceToMerge.resourceType, base_version }
                 );
