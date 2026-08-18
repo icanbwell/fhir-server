@@ -168,6 +168,24 @@ describe('getArgsMiddleware', () => {
         expect(req.sanitized_args.id).toBe('provider_search');
     });
 
+    test('rejects POST body for a JSON _SEARCH endpoint (mixed case) with 415', () => {
+        const middleware = getArgsMiddleware({}, []);
+        const req = createReq({
+            url: '/Patient/_SEARCH',
+            method: 'POST',
+            body: { name: 'Smith' },
+            query: {},
+            headers: { 'content-type': 'application/fhir+json' }
+        });
+        const next = jestObj.fn();
+
+        middleware(req, {}, next);
+
+        expect(req.sanitized_args).toBeUndefined();
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next.mock.calls[0][0].statusCode).toBe(415);
+    });
+
     test('ignores POST body for non-search endpoint', () => {
         const middleware = getArgsMiddleware({}, []);
         const req = createReq({

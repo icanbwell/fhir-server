@@ -128,7 +128,7 @@ describe('search by multiple ids ndjson', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')
-                .send({id: "0,1679033641", _sort: "id", _streamResponse: "1" })
+                .send({ id: '0,1679033641', _sort: 'id', _streamResponse: '1' })
                 .set(getHeadersNdJsonFormUrlEncoded());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);
@@ -158,7 +158,7 @@ describe('search by multiple ids ndjson', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search')
-                .send({id: "0,1679033641", _sort: "id", _streamResponse: "1"})
+                .send({ id: '0,1679033641', _sort: 'id', _streamResponse: '1' })
                 .set(getHeadersNdJsonFormUrlEncoded());
 
             // noinspection JSUnresolvedFunction

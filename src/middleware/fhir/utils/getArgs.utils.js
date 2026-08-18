@@ -9,10 +9,9 @@ const { UnsupportedMediaTypeError } = require('../../../utils/httpErrors');
  */
 const parseParams = req => {
     const params = {};
-    // Anchor to the last path segment so an update-by-id whose id merely ends in
-    // "_search" (e.g. /Patient/provider_search) is not mistaken for the _search endpoint.
     const pathSegments = req.path ? req.path.split('/').filter(Boolean) : [];
-    const isSearch = pathSegments.length > 0 && pathSegments[pathSegments.length - 1] === '_search';
+    const isSearch = pathSegments.length > 0 &&
+        pathSegments[pathSegments.length - 1].toLowerCase() === '_search';
 
     if (req.query && req.method === 'GET' && Object.keys(req.query).length) {
         Object.assign(params, req.query);

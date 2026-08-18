@@ -1,6 +1,5 @@
 // provider file
 const patient1Resource = require('./fixtures/patient/patient1.json');
-const badBody = require('./fixtures/bad_body.json');
 
 // expected
 const expectedSinglePatientResource = require('./fixtures/expected/expected_single_patient.json');
@@ -68,7 +67,7 @@ describe('PatientReturnIdTests', () => {
 
             resp = await request
                 .post('/4_0_0/Patient/_search?id=00100000000')
-                .send({id: "00100000000" })
+                .send({ id: '00100000000' })
                 .set(getHeadersFormUrlEncoded());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedSinglePatientResource);
