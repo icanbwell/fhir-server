@@ -366,6 +366,66 @@ class EverythingHelper {
     }
 
     /**
+     * Groups `resourcesToAudit` by resource type and enqueues an AuditEvent per type. When
+     * `outcome` is provided, the AuditEvent(s) also carry `outcome`/`outcomeDesc`, falling back
+     * to `resourceType` with an empty entity list when nothing was streamed.
+     * @param {Object} params
+     * @param {{_uuid: string, resourceType: string}[]} params.resourcesToAudit
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {string} params.resourceType
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} [params.outcome]
+     * @param {string} [params.outcomeDesc]
+     */
+    _logAuditForRequestAsync({ resourcesToAudit, requestInfo, base_version, resourceType, parsedArgs, outcome, outcomeDesc }) {
+        if (resourceType === 'AuditEvent') {
+            return;
+        }
+        if (resourcesToAudit.length === 0 && outcome === undefined) {
+            return;
+        }
+
+        const requestId = requestInfo.requestId;
+
+        // Group resources by type for proper audit logging
+        const resourcesByType = new Map();
+        resourcesToAudit.forEach(resource => {
+            const type = resource.resourceType;
+            if (!resourcesByType.has(type)) {
+                resourcesByType.set(type, []);
+            }
+            resourcesByType.get(type).push(resource._uuid);
+        });
+
+        if (resourcesByType.size === 0 && outcome !== undefined) {
+            resourcesByType.set(resourceType, []);
+        }
+
+        for (const [type, ids] of resourcesByType.entries()) {
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => {
+                    // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
+                    // calling in setImmediate to process it in next iteration of event loop
+                    setImmediate(async () => {
+                        await this.auditLogger.logAuditEntryAsync({
+                            requestInfo,
+                            base_version,
+                            resourceType: type,
+                            operation: 'read',
+                            args: parsedArgs.getRawArgs(),
+                            ids,
+                            outcome,
+                            outcomeDesc
+                        });
+                    });
+                }
+            });
+        }
+    }
+
+    /**
      * @typedef {Object} retriveEverythingAsyncParams
      * @property {FhirRequestInfo} requestInfo
      * @property {string} resourceType
@@ -399,6 +459,12 @@ class EverythingHelper {
         assertTypeEquals(parsedArgs, ParsedArgs);
         let cachedStreamer = undefined;
         let cacheKey = undefined;
+        /**
+         * @type {{_uuid: string, resourceType: string}[]} - Track resource IDs with types for
+         * audit logging; pushed into directly at write time so it survives a throw from any
+         * level of this call chain
+         */
+        let streamedResources = [];
 
         try {
             /**
@@ -447,10 +513,6 @@ class EverythingHelper {
              * @type {ResourceProccessedTracker}
              */
             let bundleEntryIdsProcessedTracker = new ResourceProccessedTracker();
-            /**
-             * @type {{_uuid: string, resourceType: string}[]} - Track resource IDs with types for audit logging
-             */
-            let streamedResources = [];
             const writeCache = this.configManager.writeToCacheForEverythingOperation;
             cacheKey = writeCache ? await this.getCacheKey(
                 parsedArgs, requestInfo, resourceType, base_version, isPersonEverything
@@ -514,8 +576,7 @@ class EverythingHelper {
                         entries: entries1,
                         queryItems: queryItems1,
                         options: options1,
-                        explanations: explanations1,
-                        streamedResources: streamedRes1
+                        explanations: explanations1
                     } = await this.retrieveEverythingMulipleIdsAsync(
                         {
                             base_version,
@@ -531,7 +592,8 @@ class EverythingHelper {
                             cachedStreamer,
                             everythingChunkIndex: everythingChunkIndex++,
                             scopedPersonIds,
-                            isPersonEverything
+                            isPersonEverything,
+                            streamedResources
                         }
                     );
 
@@ -539,7 +601,6 @@ class EverythingHelper {
                     queryItems = queryItems.concat(queryItems1);
                     options = options.concat(options1);
                     explanations = explanations.concat(explanations1);
-                    streamedResources = streamedResources.concat(streamedRes1 || []);
                 }
             }
             /**
@@ -579,43 +640,6 @@ class EverythingHelper {
                 ? streamedResources
                 : resources.map((r) => ({ _uuid: r._uuid, resourceType: r.resourceType }));
 
-            if (resourcesToAudit.length > 0 && resourceType !== 'AuditEvent') {
-                const requestId = requestInfo.requestId;
-
-                // Group resources by type for proper audit logging
-                const resourcesByType = new Map();
-
-                // Group by actual resource type from tracked data
-                resourcesToAudit.forEach(resource => {
-                    const type = resource.resourceType;
-                    if (!resourcesByType.has(type)) {
-                        resourcesByType.set(type, []);
-                    }
-                    resourcesByType.get(type).push(resource._uuid);
-                });
-
-                // Create audit events for each resource type
-                for (const [type, ids] of resourcesByType.entries()) {
-                    this.postRequestProcessor.add({
-                        requestId,
-                        fnTask: async () => {
-                            // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
-                            // calling in setImmediate to process it in next iteration of event loop
-                            setImmediate(async () => {
-                                await this.auditLogger.logAuditEntryAsync({
-                                    requestInfo,
-                                    base_version,
-                                    resourceType: type,
-                                    operation: 'read',
-                                    args: parsedArgs.getRawArgs(),
-                                    ids
-                                });
-                            });
-                        }
-                    });
-                }
-            }
-
             if (responseStreamer) {
                 responseStreamer.setBundle({ bundle });
             }
@@ -631,8 +655,22 @@ class EverythingHelper {
                 ? streamedResources.length
                 : (bundle.entry ? bundle.entry.length : 0);
             recordOutboundEverything(resourceType, entryLength);
+
+            this._logAuditForRequestAsync({ resourcesToAudit, requestInfo, base_version, resourceType, parsedArgs });
+
             return bundle;
         } catch (error) {
+            const statusCode = error.statusCode || 500;
+            this._logAuditForRequestAsync({
+                resourcesToAudit: streamedResources,
+                requestInfo,
+                base_version,
+                resourceType,
+                parsedArgs,
+                outcome: statusCode >= 500 ? '8' : '4',
+                outcomeDesc: error.message
+            });
+
             // Deleting cached stream if any error occurs during processing
             if (cachedStreamer && !cachedStreamer.isFirstEntry) {
                 await this.redisStreamManager.deleteStream(cacheKey);
@@ -670,6 +708,9 @@ class EverythingHelper {
      *  the requested Person ids, used to restrict returned Person resources to only these ids
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
+     * @property {{_uuid: string, resourceType: string}[]} [streamedResources] - accumulator for
+     *  audit logging, pushed into directly at write time so it survives a throw from any level
+     *  of this call chain
      *
      * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -688,7 +729,8 @@ class EverythingHelper {
         cachedStreamer = null,
         everythingChunkIndex,
         scopedPersonIds,
-        isPersonEverything
+        isPersonEverything,
+        streamedResources = []
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -776,10 +818,6 @@ class EverythingHelper {
              * @type {ResourceMapper}
              */
             let resourceMapper = new ResourceMapper();
-            /**
-             * @type {{_uuid: string, resourceType: string}[]} - Track resource IDs with types for audit logging
-             */
-            let streamedResources = [];
 
             // Handle UUID-only responses:
             if (isTrue(parsedArgs._includeUuidOnly)) {
@@ -816,16 +854,14 @@ class EverythingHelper {
                     cachedStreamer,
                     everythingChunkIndex,
                     scopedPersonIds,
-                    isPersonEverything
+                    isPersonEverything,
+                    streamedResources
                 });
 
                 optionsForQueries = baseResult.options;
                 explanations = baseResult.explanations;
                 entries = baseResult.entries;
                 queries = baseResult.queryItems;
-
-                // Collect streamed resources from base Patient fetch
-                streamedResources = streamedResources.concat(baseResult.streamedResources || []);
             }
 
             if (isTrue(parsedArgs._excludeProxyPatientLinked)) {
@@ -887,7 +923,7 @@ class EverythingHelper {
              * @type {import('mongodb').Document[]}
              */
             for (const relatedResourceMapChunk of relatedResourceMapChunks) {
-                let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions, streamedResources: streamedRes } = await this.retriveveRelatedResourcesParallelyAsync({
+                let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions } = await this.retriveveRelatedResourcesParallelyAsync({
                     requestInfo,
                     base_version,
                     parentResourceType: resourceType,
@@ -909,14 +945,12 @@ class EverythingHelper {
                     everythingChunkIndex,
                     personResourcesProcessedTracker,
                     scopedPersonIds,
-                    isPersonEverything
+                    isPersonEverything,
+                    streamedResources
                 });
 
                 if (!responseStreamer) {
                     entries.push(...(relatedEntities || []))
-                } else {
-                    // Collect streamed resources with their types
-                    streamedResources.push(...(streamedRes || []));
                 }
 
                 for (const q of queryItems) {
@@ -946,7 +980,7 @@ class EverythingHelper {
                     .map((uuidKey) => uuidKey.split('/')[1])
                     .sort();
 
-                let { entities: subscriptionEntities, queryItems: subscriptionQueryItems, optionsForQueries: subscriptionOptions, streamedResources: subscriptionStreamedRes } = await this.retriveveRelatedResourcesParallelyAsync({
+                let { entities: subscriptionEntities, queryItems: subscriptionQueryItems, optionsForQueries: subscriptionOptions } = await this.retriveveRelatedResourcesParallelyAsync({
                     requestInfo,
                     base_version,
                     parentResourceType: resourceType,
@@ -968,13 +1002,12 @@ class EverythingHelper {
                     everythingChunkIndex,
                     personUuidsForCustomQuery,
                     scopedPersonIds,
-                    isPersonEverything
+                    isPersonEverything,
+                    streamedResources
                 });
 
                 if (!responseStreamer) {
                     entries.push(...(subscriptionEntities || []))
-                } else {
-                    streamedResources.push(...(subscriptionStreamedRes || []));
                 }
 
                 for (const q of subscriptionQueryItems) {
@@ -1059,22 +1092,25 @@ class EverythingHelper {
                                 cachedStreamer,
                                 everythingChunkIndex,
                                 scopedPersonIds,
-                                isPersonEverything
+                                isPersonEverything,
+                                streamedResources
                             });
 
                             depthParallelProcess.push(result);
 
                             if (depthParallelProcess.length >= this.configManager.everythingMaxParallelProcess) {
-                                const depthResults = await Promise.all(depthParallelProcess);
+                                const depthSettled = await Promise.allSettled(depthParallelProcess);
+                                const depthRejected = depthSettled.find((s) => s.status === 'rejected');
+                                if (depthRejected) {
+                                    throw depthRejected.reason;
+                                }
+                                const depthResults = depthSettled.map((s) => s.value);
                                 depthResults.forEach((result) => {
                                     queries.push(...(result.queryItems || []));
                                     explanations.push(...(result.explanations || []));
                                     optionsForQueries.push(...(result.options || []));
                                     if (!responseStreamer) {
                                         entries.push(...(result.entries || []));
-                                    } else {
-                                        // Collect streamed resources for audit logging
-                                        streamedResources.push(...(result.streamedResources || []));
                                     }
                                 });
                                 depthParallelProcess = [];
@@ -1083,16 +1119,18 @@ class EverythingHelper {
                     }
 
                     if (depthParallelProcess.length > 0) {
-                        const depthResults = await Promise.all(depthParallelProcess);
+                        const depthSettled = await Promise.allSettled(depthParallelProcess);
+                        const depthRejected = depthSettled.find((s) => s.status === 'rejected');
+                        if (depthRejected) {
+                            throw depthRejected.reason;
+                        }
+                        const depthResults = depthSettled.map((s) => s.value);
                         depthResults.forEach((result) => {
                             queries.push(...(result.queryItems || []));
                             explanations.push(...(result.explanations || []));
                             optionsForQueries.push(...(result.options || []));
                             if (!responseStreamer) {
                                 entries.push(...(result.entries || []));
-                            } else {
-                                // Collect streamed resources for audit logging
-                                streamedResources.push(...(result.streamedResources || []));
                             }
                         });
                     }
@@ -1131,7 +1169,7 @@ class EverythingHelper {
         } catch (e) {
             logError(`Error in retrieveEverythingMulipleIdsAsync(): ${e.message}`, { error: e });
             throw new RethrownError({
-                message: 'Error in retrieveEverythingMulipleIdsAsync(): ' + `resourceType: ${resourceType} , `,
+                message: 'Error in retrieveEverythingMulipleIdsAsync(): ' + `resourceType: ${resourceType} , ` + e.message,
                 error: e,
                 args: {
                     base_version,
@@ -1167,6 +1205,9 @@ class EverythingHelper {
      *  the requested Person ids, used to restrict returned Person resources to only these ids
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
+     * @property {{_uuid: string, resourceType: string}[]} [streamedResources] - accumulator for
+     *  audit logging, pushed into directly at write time so it survives a throw from any level
+     *  of this call chain
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -1189,7 +1230,8 @@ class EverythingHelper {
         cachedStreamer = null,
         everythingChunkIndex,
         scopedPersonIds,
-        isPersonEverything
+        isPersonEverything,
+        streamedResources = []
     }) {
 
         /**
@@ -1208,10 +1250,6 @@ class EverythingHelper {
          * @type {import('mongodb').Document[]}
          */
         let explanations = [];
-        /**
-         * @type {{_uuid: string, resourceType: string}[]} - Track resources with types for audit logging
-         */
-        let streamedResources = [];
 
         let isQueryById = !!parsedArgs.get('id') || !!parsedArgs.get('_id');
 
@@ -1305,7 +1343,7 @@ class EverythingHelper {
 
             explanations.push(...explanations1);
 
-            const { bundleEntries, streamedResources: streamedResources1 } = await this.processCursorAsync({
+            const { bundleEntries } = await this.processCursorAsync({
                 cursor,
                 requestInfo,
                 parentParsedArgs: parsedArgs,
@@ -1316,11 +1354,11 @@ class EverythingHelper {
                 everythingRelatedResourceManager,
                 useUuidProjection,
                 resourceMapper,
-                cachedStreamer
+                cachedStreamer,
+                streamedResources
             });
 
             entries.push(...(bundleEntries || []));
-            streamedResources = streamedResources.concat(streamedResources1 || []);
         }
 
         return new ProcessMultipleIdsAsyncResult({
@@ -1328,7 +1366,7 @@ class EverythingHelper {
             queryItems: queries,
             options: optionsForQueries,
             explanations,
-            streamedResources: streamedResources || []
+            streamedResources
         })
 
     }
@@ -1389,7 +1427,8 @@ class EverythingHelper {
         personResourcesProcessedTracker = null,
         personUuidsForCustomQuery = [],
         scopedPersonIds,
-        isPersonEverything
+        isPersonEverything,
+        streamedResources = []
     }
     ) {
 
@@ -1407,10 +1446,6 @@ class EverythingHelper {
          * @type {BundleEntry[]}
          */
         const bundleEntries = [];
-        /**
-         * @type {{_uuid: string, resourceType: string}[]} - Collect streamed resources with types
-         */
-        const streamedResources = [];
 
         /**
          * @type {EverythingRelatedResources[]}
@@ -1700,7 +1735,8 @@ class EverythingHelper {
                 useUuidProjection,
                 resourceMapper,
                 cachedStreamer,
-                personResourcesProcessedTracker
+                personResourcesProcessedTracker,
+                streamedResources
             })
 
             parallelProcess.push(promiseResult)
@@ -1713,13 +1749,14 @@ class EverythingHelper {
             }))
         }
 
-        const result = await Promise.all(parallelProcess);
+        const settled = await Promise.allSettled(parallelProcess);
+        const rejected = settled.find((s) => s.status === 'rejected');
+        if (rejected) {
+            throw rejected.reason;
+        }
+        const result = settled.map((s) => s.value);
         result.forEach(entry => {
             bundleEntries.push(...(entry.bundleEntries || []));
-            // Collect streamed resources with their types
-            if (entry.streamedResources) {
-                streamedResources.push(...entry.streamedResources);
-            }
         })
 
 
@@ -1750,6 +1787,7 @@ class EverythingHelper {
      *  resourceMapper?: ResourceMapper,
      *  cachedStreamer?: CachedFhirResponseStreamer|null,
      *  personResourcesProcessedTracker?: ResourceProccessedTracker|null,
+     *  streamedResources?: {_uuid: string, resourceType: string}[],
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {_uuid: string, resourceType: string}[]}>}
      */
@@ -1769,16 +1807,13 @@ class EverythingHelper {
         useUuidProjection,
         resourceMapper = new ResourceMapper(),
         cachedStreamer = null,
-        personResourcesProcessedTracker = null
+        personResourcesProcessedTracker = null,
+        streamedResources = []
     }) {
         /**
          * @type {BundleEntry[]}
          */
         const bundleEntries = [];
-        /**
-         * @type {{_uuid: string, resourceType: string}[]} - Track resources with types for audit logging
-         */
-        const streamedResources = [];
         while (await cursor.hasNext()) {
             /**
              * element

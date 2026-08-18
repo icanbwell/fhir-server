@@ -282,6 +282,25 @@ describe('AuditLogger', () => {
             expect(entry.entity[1].detail).toBeNull();
             expect(entry.entity[2].detail).toBeNull();
         });
+
+        test('should include outcome and outcomeDesc when provided', () => {
+            const requestInfo = { isUser: false, actor: {} };
+            const entry = auditLogger.createAuditEntry({
+                requestInfo, resourceType: 'Patient', operation: 'read', args: {}, ids: ['1'],
+                outcome: '8', outcomeDesc: 'Simulated mongo cursor timeout'
+            });
+            expect(entry.outcome).toBe('8');
+            expect(entry.outcomeDesc).toBe('Simulated mongo cursor timeout');
+        });
+
+        test('should omit outcome and outcomeDesc when not provided', () => {
+            const requestInfo = { isUser: false, actor: {} };
+            const entry = auditLogger.createAuditEntry({
+                requestInfo, resourceType: 'Patient', operation: 'read', args: {}, ids: ['1']
+            });
+            expect(entry.outcome).toBeUndefined();
+            expect(entry.outcomeDesc).toBeUndefined();
+        });
     });
 
     // =====================================================
@@ -324,6 +343,27 @@ describe('AuditLogger', () => {
             });
             expect(auditLogger.queue).toHaveLength(1);
             expect(auditLogger.queue[0].doc.resourceType).toBe('AuditEvent');
+        });
+
+        test('should still enqueue one AuditEvent with empty entity when ids is empty and outcome is provided', async () => {
+            const requestInfo = { isUser: false, requestId: 'r1', actor: {} };
+            await auditLogger.logAuditEntryAsync({
+                requestInfo, base_version: '4_0_0', resourceType: 'Patient',
+                operation: 'read', args: {}, ids: [],
+                outcome: '8', outcomeDesc: 'Simulated mongo cursor timeout'
+            });
+            expect(auditLogger.queue).toHaveLength(1);
+            expect(auditLogger.queue[0].doc.entity).toEqual([]);
+            expect(auditLogger.queue[0].doc.outcome).toBe('8');
+        });
+
+        test('should remain a no-op when ids is empty and outcome is not provided', async () => {
+            const requestInfo = { isUser: false, requestId: 'r1', actor: {} };
+            await auditLogger.logAuditEntryAsync({
+                requestInfo, base_version: '4_0_0', resourceType: 'Patient',
+                operation: 'read', args: {}, ids: []
+            });
+            expect(auditLogger.queue).toHaveLength(0);
         });
     });
 
