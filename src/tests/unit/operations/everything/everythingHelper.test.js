@@ -300,6 +300,43 @@ describe('EverythingHelper', () => {
                 })
             ).rejects.toThrow('No id was passed');
         });
+
+        test('does not call audit logger for a non-streaming request that fails', async () => {
+            const parsedArgs = {
+                get: jest.fn().mockReturnValue(null),
+                _since: null,
+                _explain: false,
+                _debug: false,
+                _includeHidden: false,
+                headers: { prefer: '' },
+                resourceFilterList: null,
+                clone: jest.fn().mockReturnThis(),
+                getRawArgs: jest.fn().mockReturnValue({})
+            };
+            const { assertTypeEquals } = require('../../../../utils/assertType');
+            assertTypeEquals.mockImplementation(() => {});
+
+            const requestInfo = {
+                user: 'u',
+                requestId: 'r',
+                userRequestId: 'ur',
+                host: 'host',
+                protocol: 'https',
+                isUser: false,
+                skipCachedData: jest.fn().mockReturnValue(false)
+            };
+
+            await expect(
+                everythingHelper.retriveEverythingAsync({
+                    requestInfo,
+                    base_version: '4_0_0',
+                    resourceType: 'Patient',
+                    parsedArgs
+                })
+            ).rejects.toThrow('No id was passed');
+
+            expect(mockPostRequestProcessor.add).not.toHaveBeenCalled();
+        });
     });
 
     describe('getPropertiesForEntity - in EverythingHelper', () => {

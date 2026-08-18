@@ -240,7 +240,9 @@ class AuditLogger {
      * @param {string} [params.outcomeDesc]
      * @return {Promise<void>}
      */
-    async logAuditEntryAsync({ requestInfo, base_version, resourceType, operation, args, ids, outcome, outcomeDesc }) {
+    async logAuditEntryAsync({
+        requestInfo, base_version, resourceType, operation, args, ids, outcome, outcomeDesc
+    }) {
         if (!this.enableAccessAuditEvent || resourceType === 'AuditEvent') {
             return;
         }

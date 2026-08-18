@@ -90,6 +90,19 @@ function escapeForJsonTemplate(value) {
 }
 
 /**
+ * @param {Promise[]} promises
+ * @return {Promise<*[]>}
+ */
+async function settleAllOrThrow(promises) {
+    const settled = await Promise.allSettled(promises);
+    const rejected = settled.find((s) => s.status === 'rejected');
+    if (rejected) {
+        throw rejected.reason;
+    }
+    return settled.map((s) => s.value);
+}
+
+/**
  * This class is for $everything operation
  */
 class EverythingHelper {
@@ -378,7 +391,9 @@ class EverythingHelper {
      * @param {string} [params.outcome]
      * @param {string} [params.outcomeDesc]
      */
-    _logAuditForRequestAsync({ resourcesToAudit, requestInfo, base_version, resourceType, parsedArgs, outcome, outcomeDesc }) {
+    _logAuditForRequestAsync({
+        resourcesToAudit, requestInfo, base_version, resourceType, parsedArgs, outcome, outcomeDesc
+    }) {
         if (resourceType === 'AuditEvent') {
             return;
         }
@@ -536,7 +551,7 @@ class EverythingHelper {
             let fallbackToMongo = false;
             if (readFromCache) {
                 try {
-                    streamedResources = await cachedStreamer.streamFromCacheAsync();
+                    await cachedStreamer.streamFromCacheAsync({ streamedResources });
                 } catch (err) {
                     fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
                     logError('Error reading everything response from cache', { error: err, cacheKey });
@@ -656,20 +671,24 @@ class EverythingHelper {
                 : (bundle.entry ? bundle.entry.length : 0);
             recordOutboundEverything(resourceType, entryLength);
 
-            this._logAuditForRequestAsync({ resourcesToAudit, requestInfo, base_version, resourceType, parsedArgs });
+            this._logAuditForRequestAsync({
+                resourcesToAudit, requestInfo, base_version, resourceType, parsedArgs
+            });
 
             return bundle;
         } catch (error) {
-            const statusCode = error.statusCode || 500;
-            this._logAuditForRequestAsync({
-                resourcesToAudit: streamedResources,
-                requestInfo,
-                base_version,
-                resourceType,
-                parsedArgs,
-                outcome: statusCode >= 500 ? '8' : '4',
-                outcomeDesc: error.message
-            });
+            if (responseStreamer) {
+                const statusCode = error.statusCode || 500;
+                this._logAuditForRequestAsync({
+                    resourcesToAudit: streamedResources,
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    parsedArgs,
+                    outcome: statusCode >= 500 ? '8' : '4',
+                    outcomeDesc: error.message
+                });
+            }
 
             // Deleting cached stream if any error occurs during processing
             if (cachedStreamer && !cachedStreamer.isFirstEntry) {
@@ -1099,12 +1118,7 @@ class EverythingHelper {
                             depthParallelProcess.push(result);
 
                             if (depthParallelProcess.length >= this.configManager.everythingMaxParallelProcess) {
-                                const depthSettled = await Promise.allSettled(depthParallelProcess);
-                                const depthRejected = depthSettled.find((s) => s.status === 'rejected');
-                                if (depthRejected) {
-                                    throw depthRejected.reason;
-                                }
-                                const depthResults = depthSettled.map((s) => s.value);
+                                const depthResults = await settleAllOrThrow(depthParallelProcess);
                                 depthResults.forEach((result) => {
                                     queries.push(...(result.queryItems || []));
                                     explanations.push(...(result.explanations || []));
@@ -1119,12 +1133,7 @@ class EverythingHelper {
                     }
 
                     if (depthParallelProcess.length > 0) {
-                        const depthSettled = await Promise.allSettled(depthParallelProcess);
-                        const depthRejected = depthSettled.find((s) => s.status === 'rejected');
-                        if (depthRejected) {
-                            throw depthRejected.reason;
-                        }
-                        const depthResults = depthSettled.map((s) => s.value);
+                        const depthResults = await settleAllOrThrow(depthParallelProcess);
                         depthResults.forEach((result) => {
                             queries.push(...(result.queryItems || []));
                             explanations.push(...(result.explanations || []));
@@ -1169,7 +1178,8 @@ class EverythingHelper {
         } catch (e) {
             logError(`Error in retrieveEverythingMulipleIdsAsync(): ${e.message}`, { error: e });
             throw new RethrownError({
-                message: 'Error in retrieveEverythingMulipleIdsAsync(): ' + `resourceType: ${resourceType} , ` + e.message,
+                message: 'Error in retrieveEverythingMulipleIdsAsync(): ' +
+                    `resourceType: ${resourceType} , ` + e.message,
                 error: e,
                 args: {
                     base_version,
@@ -1749,12 +1759,7 @@ class EverythingHelper {
             }))
         }
 
-        const settled = await Promise.allSettled(parallelProcess);
-        const rejected = settled.find((s) => s.status === 'rejected');
-        if (rejected) {
-            throw rejected.reason;
-        }
-        const result = settled.map((s) => s.value);
+        const result = await settleAllOrThrow(parallelProcess);
         result.forEach(entry => {
             bundleEntries.push(...(entry.bundleEntries || []));
         })
