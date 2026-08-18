@@ -4,14 +4,20 @@ const { describe, test, expect, jest: jestObj } = require('@jest/globals');
 const { getArgsMiddleware } = require('../../../../../middleware/fhir/utils/getArgs.utils');
 
 describe('getArgsMiddleware', () => {
-    const createReq = (overrides = {}) => ({
-        url: '/Patient',
-        method: 'GET',
-        query: {},
-        body: {},
-        params: {},
-        ...overrides
-    });
+    const createReq = (overrides = {}) => {
+        const req = {
+            url: '/Patient',
+            method: 'GET',
+            query: {},
+            body: {},
+            params: {},
+            ...overrides
+        };
+        if (req.path === undefined) {
+            req.path = req.url.split('?')[0];
+        }
+        return req;
+    };
 
     test('sets sanitized_args from GET query params', () => {
         const middleware = getArgsMiddleware({}, []);
@@ -40,13 +46,66 @@ describe('getArgsMiddleware', () => {
         expect(req.sanitized_args.name).toBe('John');
     });
 
-    test('includes POST body for _search endpoint', () => {
+    test('includes POST body for form-urlencoded _search endpoint', () => {
         const middleware = getArgsMiddleware({}, []);
         const req = createReq({
             url: '/Patient/_search',
             method: 'POST',
             body: { name: 'Smith' },
-            query: {}
+            query: {},
+            headers: { 'content-type': 'application/x-www-form-urlencoded' }
+        });
+        const next = jestObj.fn();
+
+        middleware(req, {}, next);
+
+        expect(req.sanitized_args.name).toBe('Smith');
+    });
+
+    test('includes POST body for form-urlencoded _search endpoint when a query string is present', () => {
+        const middleware = getArgsMiddleware({}, []);
+        const req = createReq({
+            url: '/Patient/_search?_debug=1',
+            method: 'POST',
+            body: { name: 'Smith' },
+            query: { _debug: '1' },
+            headers: { 'content-type': 'application/x-www-form-urlencoded' }
+        });
+        const next = jestObj.fn();
+
+        middleware(req, {}, next);
+
+        expect(req.sanitized_args.name).toBe('Smith');
+    });
+
+    test('rejects POST body for a JSON _search endpoint with 415, per FHIR search spec (form-urlencoded only)', () => {
+        const middleware = getArgsMiddleware({}, []);
+        const req = createReq({
+            url: '/Patient/_search',
+            method: 'POST',
+            body: { name: 'Smith' },
+            query: {},
+            headers: { 'content-type': 'application/fhir+json' }
+        });
+        const next = jestObj.fn();
+
+        middleware(req, {}, next);
+
+        expect(req.sanitized_args).toBeUndefined();
+        expect(next).toHaveBeenCalledTimes(1);
+        const err = next.mock.calls[0][0];
+        expect(err).toBeDefined();
+        expect(err.statusCode).toBe(415);
+    });
+
+    test('includes POST body for form-urlencoded _search endpoint with a trailing slash', () => {
+        const middleware = getArgsMiddleware({}, []);
+        const req = createReq({
+            url: '/Patient/_search/',
+            method: 'POST',
+            body: { name: 'Smith' },
+            query: {},
+            headers: { 'content-type': 'application/x-www-form-urlencoded' }
         });
         const next = jestObj.fn();
 
