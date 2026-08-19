@@ -9,7 +9,8 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest
+    createTestRequest,
+    getHeadersFormUrlEncoded
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -67,14 +68,28 @@ describe('PatientReturnIdTests', () => {
 
             resp = await request
                 .post('/4_0_0/Patient/_search?id=00100000000')
-                .send(badBody)
-                .set(getHeaders());
+                .send({ id: '00100000000' })
+                .set(getHeadersFormUrlEncoded());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedSinglePatientResource);
 
-            resp = await request.get('/4_0_0/Patient/_search').set(getHeaders());
+            resp = await request.get('/4_0_0/Patient/_search').set(getHeadersFormUrlEncoded());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
+        });
+
+        test('POST _search with a non-form-urlencoded body returns 415', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                return c;
+            });
+
+            const resp = await request
+                .post('/4_0_0/Patient/_search')
+                .send(badBody)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(415);
         });
     });
 });

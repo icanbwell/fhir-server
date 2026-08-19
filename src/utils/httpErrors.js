@@ -283,6 +283,30 @@ class PayloadTooLargeError extends ServerError {
     }
 }
 
+class UnsupportedMediaTypeError extends ServerError {
+    constructor (message, options = {}) {
+        super(message, {
+            statusCode: 415,
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'not-supported',
+                    details: { text: message }
+                }
+            ]
+        });
+        this.logLevel = 'info';
+
+        for (const [key, value] of Object.entries(options)) {
+            this[`${key}`] = value;
+        }
+    }
+
+    get statusCode () {
+        return 415;
+    }
+}
+
 module.exports = {
     BadRequestError,
     NotFoundError,
@@ -293,5 +317,6 @@ module.exports = {
     ExternalTimeoutError,
     PreconditionFailedError,
     MethodNotAllowedError,
-    PayloadTooLargeError
+    PayloadTooLargeError,
+    UnsupportedMediaTypeError
 };

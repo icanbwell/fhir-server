@@ -36,6 +36,7 @@ jestGlobal.mock('@aws-sdk/client-s3', () => ({
 const { BulkImportHandler } = require('../../../../../operations/asyncJobs/bulkImport/handler');
 const { logInfo, logError } = require('../../../../../operations/common/logging');
 const metrics = require('../../../../../utils/metrics');
+const { trace } = require('@opentelemetry/api');
 // Spied once (module-scope singleton instrument) -- the outer beforeEach's
 // clearAllMocks() resets call history between tests without re-wrapping.
 jestGlobal.spyOn(metrics.importOperationsTriggeredCounter, 'add');
@@ -605,11 +606,21 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
                 headers: []
             };
 
+            // Fake an active span so recordImportSpanAttributes' fallback (starting its own
+            // span) isn't what's under test here -- just that the right attributes reach *a* span.
+            const fakeSpan = { setAttributes: jestGlobal.fn() };
+            const activeSpanSpy = jestGlobal.spyOn(trace, 'getActiveSpan').mockReturnValue(fakeSpan);
+
             await handler.handleMessageAsync(message);
 
             // The operation was triggered (Task found) even though S3 validation failed
             // afterward -- "triggered" tracks activity, not eventual success.
             expect(metrics.importOperationsTriggeredCounter.add).toHaveBeenCalledTimes(1);
+
+            // An S3-validation failure is a whole-Task failure, not a partial one -- tagged
+            // as a span attribute so alerts can be built on it, grouped by trace ID.
+            expect(fakeSpan.setAttributes).toHaveBeenCalledWith({ 'fhir_import.outcome': 'failed' });
+            activeSpanSpy.mockRestore();
         });
 
         test('logs and returns without publishing when the Task cannot be found', async () => {

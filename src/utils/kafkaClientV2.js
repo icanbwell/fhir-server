@@ -1,4 +1,5 @@
 const { Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
+const { propagation, context: otelContext, trace } = require('@opentelemetry/api');
 const { assertIsValid, assertTypeEquals } = require('./assertType');
 const { logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync } = require('../operations/common/systemEventLogging');
 const { logError } = require('../operations/common/logging');
@@ -183,12 +184,23 @@ class KafkaClientV2 {
                     args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl, topic, messages }
                 });
             }
-            const result = await this.producer.send({ topic, messages });
+            // Inject the caller's active OTel trace context into every message's
+            // headers as a defense-in-depth fallback -- @opentelemetry/instrumentation-kafkajs
+            // auto-instrumentation is expected to do this on its own, but that depends on the
+            // OTel Operator correctly injecting NODE_OPTIONS in every environment/pod, which
+            // hasn't been verified. This manual injection makes propagation work regardless.
+            // A no-op (empty headers added) when no span/trace is active.
+            const messagesWithTraceContext = messages.map((m) => {
+                const headers = { ...(m.headers || {}) };
+                propagation.inject(otelContext.active(), headers);
+                return { ...m, headers };
+            });
+            const result = await this.producer.send({ topic, messages: messagesWithTraceContext });
             if (process.env.LOGLEVEL === 'DEBUG') {
                 await logTraceSystemEventAsync({
                     event: 'kafkaClientV2',
                     message: 'Sent CloudEvent messages',
-                    args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl, topic, messages, result }
+                    args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl, topic, messages: messagesWithTraceContext, result }
                 });
             }
         } catch (e) {
@@ -300,63 +312,82 @@ class KafkaClientV2 {
             await consumer.subscribe({ topics: [topic], fromBeginning });
             await consumer.run({
                 eachMessage: async ({ topic: t, partition, message, heartbeat, pause }) => {
+                    // One pass over the raw headers builds both the {key,value} array
+                    // callers already expect and the string-keyed carrier propagation.extract needs.
+                    const headerEntries = Object.entries(message.headers || {})
+                        .map(([key, v]) => ({ key, value: v ? v.toString() : '' }));
                     const parsedMessage = {
                         key: message.key.toString(),
                         value: message.value.toString(),
-                        headers: Object.entries(message.headers).map(([k, v]) => ({
-                            key: k,
-                            value: v ? v.toString() : ''
-                        }))
+                        headers: headerEntries
                     };
 
-                    // Without a deadLetterTopic, behave exactly as before: a failure
-                    // propagates straight out of eachMessage, no retry, no DLT.
-                    if (!deadLetterTopic) {
-                        await onMessageAsync(parsedMessage);
-                        return;
-                    }
+                    // Defense-in-depth fallback alongside the producer-side injection above --
+                    // see that comment. Only extract from headers when nothing is already active:
+                    // @opentelemetry/instrumentation-kafkajs (if loaded) already extracted from
+                    // these same raw headers to create and activate its own consumer span, and
+                    // re-extracting here would read the original PRODUCER's traceparent (headers
+                    // aren't rewritten by that instrumentation) and silently replace the active
+                    // consumer span with it -- making any span onMessageAsync creates a sibling of
+                    // the consumer span instead of its child. A missing/empty traceparent header
+                    // is a safe no-op: extract() just returns the context passed in unchanged.
+                    const activeContext = otelContext.active();
+                    const extractedContext = trace.getSpan(activeContext)
+                        ? activeContext
+                        : propagation.extract(activeContext, Object.fromEntries(
+                            headerEntries.map(({ key, value }) => [key, value])
+                        ));
 
-                    try {
-                        await retryWithBackoff({
-                            // Heartbeat before every attempt (including the first), not just
-                            // during the backoff delay -- a handler's own processing time (e.g.
-                            // S3 reads + Mongo writes) can be several seconds per attempt, and
-                            // replaying that up to maxRetries+1 times with no heartbeat in
-                            // between risks exceeding the consumer's session timeout and
-                            // triggering a rebalance mid-retry, independent of how short the
-                            // backoff itself is.
-                            fn: async () => {
-                                await heartbeat();
-                                return onMessageAsync(parsedMessage);
-                            },
-                            maxRetries,
-                            initialDelayMs: retryInitialDelayMs,
-                            onRetry: ({ attempt, error }) => {
-                                // onRetry is invoked synchronously (not awaited) by retryWithBackoff,
-                                // so this log write races the retry delay -- best-effort only.
-                                logSystemEventAsync({
-                                    event: 'kafkaClientV2',
-                                    message: 'Retrying failed message processing',
-                                    args: { topic: t, partition, key: parsedMessage.key, attempt, maxRetries, error: error.message }
-                                }).catch(() => {});
-                            }
-                        });
-                    } catch (finalError) {
-                        // Retries exhausted -- this message can't be processed. Publish it to
-                        // the dead-letter topic (with the failure reason) and let eachMessage
-                        // return normally so the offset commits; otherwise a single poison
-                        // message would block this partition forever. If the DLT publish
-                        // itself fails, sendToDeadLetterTopicAsync rethrows so the offset does
-                        // NOT commit -- losing the message's only record would be worse than
-                        // redelivering it.
-                        await logSystemErrorAsync({
-                            event: 'kafkaClientV2',
-                            message: 'Message failed after exhausting retries, sending to dead-letter topic',
-                            args: { topic: t, partition, key: parsedMessage.key, deadLetterTopic, maxRetries },
-                            error: finalError
-                        });
-                        await this.sendToDeadLetterTopicAsync({ deadLetterTopic, message: parsedMessage, error: finalError });
-                    }
+                    await otelContext.with(extractedContext, async () => {
+                        // Without a deadLetterTopic, behave exactly as before: a failure
+                        // propagates straight out of eachMessage, no retry, no DLT.
+                        if (!deadLetterTopic) {
+                            await onMessageAsync(parsedMessage);
+                            return;
+                        }
+
+                        try {
+                            await retryWithBackoff({
+                                // Heartbeat before every attempt (including the first), not just
+                                // during the backoff delay -- a handler's own processing time (e.g.
+                                // S3 reads + Mongo writes) can be several seconds per attempt, and
+                                // replaying that up to maxRetries+1 times with no heartbeat in
+                                // between risks exceeding the consumer's session timeout and
+                                // triggering a rebalance mid-retry, independent of how short the
+                                // backoff itself is.
+                                fn: async () => {
+                                    await heartbeat();
+                                    return onMessageAsync(parsedMessage);
+                                },
+                                maxRetries,
+                                initialDelayMs: retryInitialDelayMs,
+                                onRetry: ({ attempt, error }) => {
+                                    // onRetry is invoked synchronously (not awaited) by retryWithBackoff,
+                                    // so this log write races the retry delay -- best-effort only.
+                                    logSystemEventAsync({
+                                        event: 'kafkaClientV2',
+                                        message: 'Retrying failed message processing',
+                                        args: { topic: t, partition, key: parsedMessage.key, attempt, maxRetries, error: error.message }
+                                    }).catch(() => {});
+                                }
+                            });
+                        } catch (finalError) {
+                            // Retries exhausted -- this message can't be processed. Publish it to
+                            // the dead-letter topic (with the failure reason) and let eachMessage
+                            // return normally so the offset commits; otherwise a single poison
+                            // message would block this partition forever. If the DLT publish
+                            // itself fails, sendToDeadLetterTopicAsync rethrows so the offset does
+                            // NOT commit -- losing the message's only record would be worse than
+                            // redelivering it.
+                            await logSystemErrorAsync({
+                                event: 'kafkaClientV2',
+                                message: 'Message failed after exhausting retries, sending to dead-letter topic',
+                                args: { topic: t, partition, key: parsedMessage.key, deadLetterTopic, maxRetries },
+                                error: finalError
+                            });
+                            await this.sendToDeadLetterTopicAsync({ deadLetterTopic, message: parsedMessage, error: finalError });
+                        }
+                    });
                 }
             });
         } catch (e) {
