@@ -18,6 +18,7 @@ const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING, BLOB_OP
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
+const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
 const { trace } = require('@opentelemetry/api');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
 const { logInfo, logError } = require('../../common/logging');
@@ -94,6 +95,7 @@ class BulkImportHandler {
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchQueryBuilder} searchQueryBuilder
      * @property {Base64DataManager} base64DataManager
+     * @property {DatabaseAttachmentManager} databaseAttachmentManager
      *
      * @param {ConstructorParams}
      */
@@ -110,7 +112,8 @@ class BulkImportHandler {
         auditLogger,
         r4ArgsParser,
         searchQueryBuilder,
-        base64DataManager
+        base64DataManager,
+        databaseAttachmentManager
     }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -150,6 +153,9 @@ class BulkImportHandler {
 
         this.base64DataManager = base64DataManager;
         assertTypeEquals(base64DataManager, Base64DataManager);
+
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -887,16 +893,18 @@ class BulkImportHandler {
                             let fhirResource = FhirResourceWriteSerializer.serialize({
                                 obj: this.applyDefaultSecurityTagsIfMissing(innerResource)
                             });
-                            // Offloads oversized Binary.data / DocumentReference.content[].attachment.data
-                            // to cloud storage (see Base64DataManager) -- without this, a >16MB attachment
-                            // would blow MongoDB's own 16MB/document BSON limit on insert regardless of
-                            // bulkImportMaxLineSizeMb. No-op for any other resourceType or when disabled.
-                            // BAI-434: DocumentReference's entry in base64DataResources.json requires
-                            // `make classes` to have been run so the Attachment complex type (and its
-                            // fast/write serializer) actually carries `_blobMeta` -- until that
-                            // regeneration lands, this call would strip a DocumentReference attachment's
-                            // inline data with no serialized sidecar surviving to find it again, i.e.
-                            // silent data loss. Binary already has class support today and is unaffected.
+                            // BAI-434: without these, a >16MB attachment blows MongoDB's own
+                            // 16MB/document BSON limit on insert regardless of bulkImportMaxLineSizeMb.
+                            // Two separate, pre-existing mechanisms cover the two resource types that
+                            // commonly hit this -- create.js/mergeManager.js already call both, in this
+                            // same order, for the non-bulk-import write path:
+                            // - DocumentReference.content[].attachment.data -> MongoDB GridFS, keyed by
+                            //   `_file_id` (DatabaseAttachmentManager, config-driven by
+                            //   generated.databaseAttachmentResources.json).
+                            // - Binary.data -> cloud storage (S3), keyed by `_blobMeta`
+                            //   (Base64DataManager, config-driven by base64DataResources.json).
+                            // Both are no-ops for any other resourceType or when disabled.
+                            fhirResource = await this.databaseAttachmentManager.transformAttachments(fhirResource);
                             fhirResource = await this.base64DataManager.transformAsync(
                                 fhirResource, BLOB_OP.INSERT, requestInfo
                             );

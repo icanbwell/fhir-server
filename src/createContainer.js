@@ -1282,7 +1282,8 @@ const createContainer = function () {
         auditLogger: c.auditLogger,
         r4ArgsParser: c.r4ArgsParser,
         searchQueryBuilder: c.searchQueryBuilder,
-        base64DataManager: c.base64DataManager
+        base64DataManager: c.base64DataManager,
+        databaseAttachmentManager: c.databaseAttachmentManager
     }));
 
     // Routes messages on kafkaBulkImportTaskCreatedTopic to their handler by CloudEvent
