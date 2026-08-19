@@ -1,5 +1,6 @@
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
+const { trace } = require('@opentelemetry/api');
 
 const makeCloudEvent = (overrides = {}) => {
     const data = {
@@ -37,15 +38,24 @@ const validParametersBody = {
 };
 
 describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
+    // recordImportSpanAttributes checks trace.getActiveSpan() first -- faking one here means
+    // every test observes attributes on a single, easy-to-assert-on span instead of exercising
+    // (or needing) the real auto-instrumentation-created span.
+    let fakeSpan;
+    let activeSpanSpy;
+
     beforeEach(async () => {
         process.env.ENABLE_BULK_IMPORT = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
+        fakeSpan = { setAttributes: jest.fn() };
+        activeSpanSpy = jest.spyOn(trace, 'getActiveSpan').mockReturnValue(fakeSpan);
         await commonBeforeEach();
     });
 
     afterEach(async () => {
         delete process.env.ENABLE_BULK_IMPORT;
         delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
+        activeSpanSpy.mockRestore();
         await commonAfterEach();
     });
 
@@ -399,6 +409,14 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         // failures are surfaced via the error output file, not a non-completed status.
         expect(taskResp.body.status).toBe('completed');
 
+        // 1 created, 1 failed -- tagged as span attributes so the failure ratio can be
+        // computed externally, grouped by trace ID.
+        expect(fakeSpan.setAttributes).toHaveBeenCalledWith({
+            'fhir_import.resources_created': 1,
+            'fhir_import.resources_updated': 0,
+            'fhir_import.resources_failed': 1
+        });
+
         // The line with no resourceType fails before ever reaching the bulk inserter —
         // it must still show up in the error NDJSON and Task.output, not just a log line.
         const writeCalls = container.s3NdjsonReader.getWriteCalls();
@@ -589,6 +607,13 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         expect(taskResp.body.status).toBe('completed');
         const resultOutput = taskResp.body.output.find((o) => o.type.text === 'result');
         expect(resultOutput.valueUri).toBe('s3://allowed-bucket/output/Patient-001.ndjson');
+
+        // 1 created, 0 failed -- tagged as span attributes.
+        expect(fakeSpan.setAttributes).toHaveBeenCalledWith({
+            'fhir_import.resources_created': 1,
+            'fhir_import.resources_updated': 0,
+            'fhir_import.resources_failed': 0
+        });
     });
 
     test('isTaskFullyComplete ignores an unparseable completion marker rather than throwing', () => {
@@ -780,6 +805,10 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             .set(getHeaders())
             .expect(200);
         expect(taskResp.body.status).toBe('failed');
+
+        // A whole-Task failure, distinct from a partial-failure completion -- tagged as a
+        // span attribute so alerts can be built on it, grouped by trace ID.
+        expect(fakeSpan.setAttributes).toHaveBeenCalledWith({ 'fhir_import.outcome': 'failed' });
 
         // The already-flushed resource is durably in Mongo exactly once (not duplicated by
         // a retry that never happened).

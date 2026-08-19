@@ -17,6 +17,7 @@ const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING } = require('../../../constants');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
+const { trace } = require('@opentelemetry/api');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
 const { logInfo, logError } = require('../../common/logging');
 const {
@@ -41,6 +42,29 @@ const { SearchQueryBuilder } = require('../../search/searchQueryBuilder');
  * @type {string}
  */
 const BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL = 'https://www.icanbwell.com/bulk-import-range-completed';
+
+const importTracer = trace.getTracer('fhir-server');
+
+/**
+ * Attaches bulk-import outcome data as span attributes rather than a custom OTel counter --
+ * with trace context propagated across both Kafka hops, an external observability platform
+ * can group spans by trace ID itself and alert on cross-span ratios (e.g. failed /
+ * (created + updated + failed) per trace) without any app-side aggregation or a hardcoded
+ * threshold in this codebase. Falls back to a short-lived span of our own when nothing is
+ * active (e.g. auto-instrumentation not loaded in this environment), so the data isn't
+ * silently dropped.
+ * @param {Object} attributes
+ */
+function recordImportSpanAttributes (attributes) {
+    const activeSpan = trace.getActiveSpan();
+    if (activeSpan) {
+        activeSpan.setAttributes(attributes);
+        return;
+    }
+    const span = importTracer.startSpan('bulk_import.outcome');
+    span.setAttributes(attributes);
+    span.end();
+}
 
 /**
  * Handles every Kafka message type for the bulk-import async job. Both
@@ -376,6 +400,7 @@ class BulkImportHandler {
         } catch (e) {
             logError('S3 validation failed for import task', { taskId, error: e.message });
             await this.updateOrchestratorTaskStatusAsync(task, 'failed', e.message);
+            recordImportSpanAttributes({ 'fhir_import.outcome': 'failed' });
             return;
         }
 
@@ -977,6 +1002,7 @@ class BulkImportHandler {
                 const currentTask = await this.loadTaskAsync(taskId);
                 if (currentTask && currentTask.status !== 'completed') {
                     await this.updateTaskStatusAsync(currentTask, 'failed', e.message, requestInfo);
+                    recordImportSpanAttributes({ 'fhir_import.outcome': 'failed' });
                 }
                 // mergeResultEntries only ever gains entries once a batch actually commits
                 // (flushBatchAsync) or a per-line failure is recorded -- so on a partially-
@@ -1033,6 +1059,14 @@ class BulkImportHandler {
             // merge boundary's finally-based emission (see docs/adr/0002).
             recordImportResourceOutcomes(mergeResultEntries);
             recordImportRangeDuration((Date.now() - rangeStartTimeMs) / 1000);
+            // Per-range counts as span attributes (see recordImportSpanAttributes'
+            // docstring) -- covers both success and partial-flush-then-fail, same finally-based
+            // rationale as the two calls above.
+            recordImportSpanAttributes({
+                'fhir_import.resources_created': created,
+                'fhir_import.resources_updated': updated,
+                'fhir_import.resources_failed': failed
+            });
 
             // FastDatabaseBulkInserter defers history writes onto postRequestProcessor's
             // queue rather than writing them inline — without this, history writes for
