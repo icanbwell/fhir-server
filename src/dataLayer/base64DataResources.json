@@ -4,11 +4,5 @@
       "dataPath": "/data",
       "blobMetaPath": "/_blobMeta"
     }
-  ],
-  "DocumentReference": [
-    {
-      "dataPath": "/content/[]/attachment/data",
-      "blobMetaPath": "/content/[]/attachment/_blobMeta"
-    }
   ]
 }
