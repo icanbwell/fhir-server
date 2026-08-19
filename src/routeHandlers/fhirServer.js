@@ -21,7 +21,7 @@ const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOpera
 const { ConfigManager } = require('../utils/configManager');
 const { FhirRequestInfoBuilder } = require('../utils/fhirRequestInfoBuilder');
 const { logError } = require('../operations/common/logging');
-const { STATUS_CODES } = require('http');
+const { sanitizeOutcomeDesc } = require('../utils/auditLogger');
 
 class MyFHIRServer {
     /**
@@ -403,17 +403,9 @@ class MyFHIRServer {
             const resourceType = req.resourceType || (req.url.split('/')[2])?.split('?')[0];
             const requestInfo = FhirRequestInfoBuilder.fromRequest(req);
             let extraParams;
-            let errorMessage;
-            if (status === 403) {
-                errorMessage = err.message
-                    || err.issue?.[0]?.diagnostics
-                    || err.issue?.[0]?.details?.text
-                    || 'Forbidden';
-                if (req.authInfo?.scope) {
-                    extraParams = [{ type: 'scope', valueString: req.authInfo.scope }];
-                }
-            } else {
-                errorMessage = STATUS_CODES[`${status}`] || 'Internal Server Error';
+            const errorMessage = sanitizeOutcomeDesc({ error: err, statusCode: status });
+            if (status === 403 && req.authInfo?.scope) {
+                extraParams = [{ type: 'scope', valueString: req.authInfo.scope }];
             }
             auditLogger.logErrorAuditEntryAsync({
                 requestInfo,

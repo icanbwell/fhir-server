@@ -12,8 +12,25 @@ const { ConfigManager } = require('./configManager');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 const { buildBulkWriteRequestContext } = require('../dataLayer/bulkWriteRequestContext');
 const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES, PURPOSE_OF_USE_SYSTEM } = require('../constants');
+const { STATUS_CODES } = require('http');
 
 const mutex = new Mutex();
+
+/**
+ * @param {Object} params
+ * @param {Error} params.error
+ * @param {number} params.statusCode
+ * @return {string}
+ */
+function sanitizeOutcomeDesc({ error, statusCode }) {
+    if (statusCode === 403) {
+        return error.message
+            || error.issue?.[0]?.diagnostics
+            || error.issue?.[0]?.details?.text
+            || 'Forbidden';
+    }
+    return STATUS_CODES[`${statusCode}`] || 'Internal Server Error';
+}
 
 class AuditLogger {
     /**
@@ -414,5 +431,6 @@ class AuditLogger {
 }
 
 module.exports = {
-    AuditLogger
+    AuditLogger,
+    sanitizeOutcomeDesc
 };

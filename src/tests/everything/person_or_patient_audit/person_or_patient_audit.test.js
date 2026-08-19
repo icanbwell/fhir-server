@@ -279,7 +279,7 @@ describe('Person and Patient $everything Audit Logging Tests', () => {
 
             auditLogs.forEach((log) => {
                 expect(log.outcome).toBe('8');
-                expect(log.outcomeDesc).toEqual(expect.stringContaining('Simulated mongo cursor timeout'));
+                expect(log.outcomeDesc).toBe('Internal Server Error');
             });
         });
 
@@ -333,9 +333,7 @@ describe('Person and Patient $everything Audit Logging Tests', () => {
             expect(auditLogs.length).toBe(1);
             expect(auditLogs[0].entity).toBeUndefined();
             expect(auditLogs[0].outcome).toBe('8');
-            expect(auditLogs[0].outcomeDesc).toEqual(
-                expect.stringContaining('Simulated mongo cursor timeout on first query')
-            );
+            expect(auditLogs[0].outcomeDesc).toBe('Internal Server Error');
         });
     });
 });

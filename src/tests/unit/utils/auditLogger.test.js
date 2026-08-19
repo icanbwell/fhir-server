@@ -31,7 +31,7 @@ jestGlobal.mock('../../../dataLayer/bulkWriteRequestContext', () => ({
     }))
 }));
 
-const { AuditLogger } = require('../../../utils/auditLogger');
+const { AuditLogger, sanitizeOutcomeDesc } = require('../../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -488,5 +488,58 @@ describe('AuditLogger', () => {
             ];
             await expect(auditLogger.flushAsync()).rejects.toThrow();
         });
+    });
+});
+
+describe('sanitizeOutcomeDesc', () => {
+    test('returns the real error message for a 403', () => {
+        const result = sanitizeOutcomeDesc({ error: new Error('scope mismatch'), statusCode: 403 });
+        expect(result).toBe('scope mismatch');
+    });
+
+    test('falls back to issue diagnostics for a 403 with no message', () => {
+        const error = new Error();
+        error.message = '';
+        error.issue = [{ diagnostics: 'insufficient scope' }];
+        const result = sanitizeOutcomeDesc({ error, statusCode: 403 });
+        expect(result).toBe('insufficient scope');
+    });
+
+    test('falls back to issue details text for a 403 with no message or diagnostics', () => {
+        const error = new Error();
+        error.message = '';
+        error.issue = [{ details: { text: 'access denied' } }];
+        const result = sanitizeOutcomeDesc({ error, statusCode: 403 });
+        expect(result).toBe('access denied');
+    });
+
+    test('falls back to Forbidden for a 403 with nothing else available', () => {
+        const error = new Error();
+        error.message = '';
+        const result = sanitizeOutcomeDesc({ error, statusCode: 403 });
+        expect(result).toBe('Forbidden');
+    });
+
+    test('returns a generic status-code string for a 500, not the real message', () => {
+        const result = sanitizeOutcomeDesc({
+            error: new Error('MongoServerSelectionError: connection timed out to mongo-shard-3.internal:27017'),
+            statusCode: 500
+        });
+        expect(result).toBe('Internal Server Error');
+    });
+
+    test('returns a generic status-code string for a 400, not the real message', () => {
+        const result = sanitizeOutcomeDesc({ error: new Error('No id was passed'), statusCode: 400 });
+        expect(result).toBe('Bad Request');
+    });
+
+    test('returns a generic status-code string for a 404', () => {
+        const result = sanitizeOutcomeDesc({ error: new Error('not found'), statusCode: 404 });
+        expect(result).toBe('Not Found');
+    });
+
+    test('falls back to Internal Server Error for an unrecognized status code', () => {
+        const result = sanitizeOutcomeDesc({ error: new Error('whatever'), statusCode: 0 });
+        expect(result).toBe('Internal Server Error');
     });
 });

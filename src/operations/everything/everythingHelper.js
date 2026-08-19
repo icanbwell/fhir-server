@@ -3,7 +3,7 @@
  */
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { AuditLogger } = require('../../utils/auditLogger');
+const { AuditLogger, sanitizeOutcomeDesc } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const { ConfigManager } = require('../../utils/configManager');
@@ -686,7 +686,7 @@ class EverythingHelper {
                     resourceType,
                     parsedArgs,
                     outcome: statusCode >= 500 ? '8' : '4',
-                    outcomeDesc: error.message
+                    outcomeDesc: sanitizeOutcomeDesc({ error, statusCode })
                 });
             }
 
