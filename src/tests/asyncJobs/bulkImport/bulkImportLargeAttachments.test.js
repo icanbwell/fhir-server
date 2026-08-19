@@ -3,6 +3,7 @@ const {
     beforeEach,
     describe,
     expect,
+    jest,
     test
 } = require('@jest/globals');
 
@@ -125,5 +126,125 @@ describe('Bulk import — large attachment externalization', () => {
                 .on('end', resolve);
         });
         expect(Buffer.concat(chunks).toString('utf-8')).toBe(LARGE_DATA);
+    });
+
+    test('handleMessageAsync does not upload an attachment for a line skipped via ifNoneExist', async () => {
+        const request = await createTestRequest();
+
+        // Pre-existing DocumentReference the skip-triggering line's ifNoneExist query matches.
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-large-attachment-preexisting' })
+            .set(getHeaders())
+            .expect(202);
+
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        container.s3NdjsonReader.setLinesToYield([
+            {
+                resourceType: 'DocumentReference',
+                id: 'bulk-import-attachment-preexisting',
+                status: 'current',
+                identifier: [{ system: 'http://example.com', value: 'attachment-skip-12345' }]
+            }
+        ]);
+        await handler.handleMessageAsync({
+            key: 'import-large-attachment-preexisting-0',
+            value: makeCloudEvent({ taskId: 'import-large-attachment-preexisting' }),
+            headers: []
+        });
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-large-attachment-skip' })
+            .set(getHeaders())
+            .expect(202);
+
+        const transformAttachmentsSpy = jest.spyOn(container.databaseAttachmentManager, 'transformAttachments');
+
+        container.s3NdjsonReader.setLinesToYield([
+            {
+                ifNoneExist: 'identifier=http://example.com|attachment-skip-12345',
+                resource: {
+                    resourceType: 'DocumentReference',
+                    id: 'bulk-import-attachment-should-not-be-created',
+                    status: 'current',
+                    identifier: [{ system: 'http://example.com', value: 'attachment-skip-12345' }],
+                    content: [
+                        { attachment: { contentType: 'application/pdf', data: LARGE_DATA } }
+                    ]
+                }
+            }
+        ]);
+        await handler.handleMessageAsync({
+            key: 'import-large-attachment-skip-0',
+            value: makeCloudEvent({ taskId: 'import-large-attachment-skip' }),
+            headers: []
+        });
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-large-attachment-skip')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+
+        // The skipped line's attachment must never reach the GridFS upload step -- uploading it
+        // and then discarding the resource (because the write was skipped) would orphan the
+        // uploaded bytes permanently, with nothing left referencing them for cleanup.
+        expect(transformAttachmentsSpy).not.toHaveBeenCalled();
+
+        const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
+        const skippedDoc = await fhirDb.collection('DocumentReference_4_0_0')
+            .findOne({ id: 'bulk-import-attachment-should-not-be-created' });
+        expect(skippedDoc).toBeNull();
+
+        transformAttachmentsSpy.mockRestore();
+    });
+
+    test('handleMessageAsync strips an attacker-supplied _file_id with no data instead of persisting it verbatim', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-attachment-pointer-injection' })
+            .set(getHeaders())
+            .expect(202);
+
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        // No `data` at all -- only a directly-supplied _file_id, as if crafted to point at
+        // another tenant's already-uploaded GridFS content. convertDataToFileId only ever sets
+        // _file_id when `data` is present, so an unstripped _file_id here would persist
+        // unchanged and later reads would stream back whatever that id actually points to.
+        container.s3NdjsonReader.setLinesToYield([
+            {
+                resourceType: 'DocumentReference',
+                id: 'bulk-import-pointer-injection',
+                status: 'current',
+                content: [
+                    { attachment: { contentType: 'application/pdf', _file_id: '000000000000000000000000' } }
+                ]
+            }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-attachment-pointer-injection-0',
+            value: makeCloudEvent({ taskId: 'import-attachment-pointer-injection' }),
+            headers: []
+        });
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-attachment-pointer-injection')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+
+        const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
+        const mongoDoc = await fhirDb.collection('DocumentReference_4_0_0')
+            .findOne({ id: 'bulk-import-pointer-injection' });
+        expect(mongoDoc).toBeDefined();
+        expect(mongoDoc.content[0].attachment._file_id).toBeUndefined();
     });
 });
