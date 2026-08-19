@@ -90,6 +90,13 @@ jestObj.mock('../../../utils/metrics', () => ({
 
 const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
 const { KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
+const { trace, context: otelContext, propagation } = require('@opentelemetry/api');
+const { W3CTraceContextPropagator } = require('@opentelemetry/core');
+
+// The global propagator defaults to a no-op unless the real OTel SDK is initialized (which this
+// bare test process never does) -- register the real W3C propagator so the trace-context
+// tests below actually exercise header parsing instead of silently no-op-ing.
+propagation.setGlobalPropagator(new W3CTraceContextPropagator());
 const { recordKafkaRetryExhausted } = require('../../../utils/metrics');
 const { logTraceSystemEventAsync, logSystemErrorAsync, logSystemEventAsync } = require('../../../operations/common/systemEventLogging');
 const { logError } = require('../../../operations/common/logging');
@@ -228,7 +235,12 @@ describe('KafkaClientV2', () => {
         test('sends messages successfully on first attempt', async () => {
             await kafkaClient.sendCloudEventMessageAsync({ topic, messages });
             expect(mockProducerConnect).toHaveBeenCalled();
-            expect(mockProducerSend).toHaveBeenCalledWith({ topic, messages });
+            // Headers is always added (even if empty, absent an active trace context in
+            // this test env) -- see the trace-context injection in sendCloudEventMessageHelperAsync.
+            expect(mockProducerSend).toHaveBeenCalledWith({
+                topic,
+                messages: messages.map((m) => ({ ...m, headers: {} }))
+            });
         });
 
         test('retries on KafkaJSNonRetriableError with error code 72', async () => {
@@ -362,7 +374,12 @@ describe('KafkaClientV2', () => {
         test('sends messages via producer.send', async () => {
             kafkaClient.producerConnected = true;
             await kafkaClient.sendCloudEventMessageHelperAsync({ topic, messages });
-            expect(mockProducerSend).toHaveBeenCalledWith({ topic, messages });
+            // Headers is always added (even if empty, absent an active trace context in
+            // this test env) -- see the trace-context injection above producer.send's call.
+            expect(mockProducerSend).toHaveBeenCalledWith({
+                topic,
+                messages: messages.map((m) => ({ ...m, headers: {} }))
+            });
         });
 
         test('throws RethrownError when producer connect fails', async () => {
@@ -712,6 +729,83 @@ describe('KafkaClientV2', () => {
                 value: 'val',
                 headers: [{ key: 'empty_header', value: '' }]
             });
+        });
+
+        // These two tests verify the context VALUE passed to context.with() directly (via a spy)
+        // rather than reading context.active() from inside onMessageAsync -- @opentelemetry/api's
+        // context propagation across async boundaries only works once a real ContextManager is
+        // registered (e.g. AsyncHooksContextManager, which the real OTel SDK registers on startup
+        // via @opentelemetry/context-async-hooks). That's not initialized in this bare test
+        // process, so context.with()/.active() alone can't be used to observe propagation here --
+        // but trace.setSpanContext/getSpan are pure reads/writes on a given Context value and
+        // don't need a ContextManager, so asserting on the value itself is both simpler and
+        // independent of whether a ContextManager happens to be registered.
+        test('Extracts trace context from headers into the active context when nothing is already active', async () => {
+            const traceparent = '00-11111111111111111111111111111111-2222222222222222-01';
+            const consumer = {
+                connect: mockConsumerConnect,
+                disconnect: mockConsumerDisconnect,
+                subscribe: mockConsumerSubscribe,
+                run: jestObj.fn().mockImplementation(async ({ eachMessage }) => {
+                    await eachMessage({
+                        topic: 'test-topic',
+                        partition: 0,
+                        message: {
+                            key: Buffer.from('key'),
+                            value: Buffer.from('val'),
+                            headers: { traceparent: Buffer.from(traceparent) }
+                        },
+                        heartbeat: jestObj.fn(),
+                        pause: jestObj.fn()
+                    });
+                })
+            };
+            const withSpy = jestObj.spyOn(otelContext, 'with');
+            await kafkaClient.receiveMessagesAsync({ consumer, topic: 'test-topic', onMessageAsync: jestObj.fn() });
+
+            expect(trace.getSpanContext(withSpy.mock.calls[0][0])).toMatchObject({
+                traceId: '11111111111111111111111111111111',
+                spanId: '2222222222222222'
+            });
+            withSpy.mockRestore();
+        });
+
+        test('Does not override an already-active span (e.g. from auto-instrumentation) with one extracted from headers', async () => {
+            // Simulates @opentelemetry/instrumentation-kafkajs already having extracted from these
+            // same raw headers and activated its own consumer span before eachMessage runs.
+            const activeSpanContext = {
+                traceId: '33333333333333333333333333333333',
+                spanId: '4444444444444444',
+                traceFlags: 1
+            };
+            const activeContext = trace.setSpanContext(otelContext.active(), activeSpanContext);
+            const activeSpy = jestObj.spyOn(otelContext, 'active').mockReturnValue(activeContext);
+
+            const consumer = {
+                connect: mockConsumerConnect,
+                disconnect: mockConsumerDisconnect,
+                subscribe: mockConsumerSubscribe,
+                run: jestObj.fn().mockImplementation(async ({ eachMessage }) => {
+                    await eachMessage({
+                        topic: 'test-topic',
+                        partition: 0,
+                        message: {
+                            key: Buffer.from('key'),
+                            value: Buffer.from('val'),
+                            // Original producer's traceparent -- must NOT win over the already-active span.
+                            headers: { traceparent: Buffer.from('00-11111111111111111111111111111111-2222222222222222-01') }
+                        },
+                        heartbeat: jestObj.fn(),
+                        pause: jestObj.fn()
+                    });
+                })
+            };
+            const withSpy = jestObj.spyOn(otelContext, 'with');
+            await kafkaClient.receiveMessagesAsync({ consumer, topic: 'test-topic', onMessageAsync: jestObj.fn() });
+
+            expect(trace.getSpanContext(withSpy.mock.calls[0][0])).toMatchObject(activeSpanContext);
+            withSpy.mockRestore();
+            activeSpy.mockRestore();
         });
 
         test('logs error and rethrows when consumer.run fails', async () => {
