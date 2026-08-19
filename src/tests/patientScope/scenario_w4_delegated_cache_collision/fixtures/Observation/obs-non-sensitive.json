@@ -1,0 +1,17 @@
+{
+    "resourceType": "Observation",
+    "id": "obs-non-sensitive",
+    "meta": {
+        "source": "/patients",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/access", "code": "healthsystem1" }
+        ]
+    },
+    "status": "final",
+    "code": {
+        "coding": [{ "system": "http://loinc.org", "code": "29463-7", "display": "Body weight" }]
+    },
+    "subject": { "reference": "Patient/patient1" },
+    "valueQuantity": { "value": 70, "unit": "kg" }
+}
