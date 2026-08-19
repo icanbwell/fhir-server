@@ -258,7 +258,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             });
     });
 
-    test('handleMessageAsync runs each resource through Base64DataManager before insert (BAI-434)', async () => {
+    test('handleMessageAsync runs each resource through Base64DataManager before insert', async () => {
         const request = await createTestRequest();
 
         await request

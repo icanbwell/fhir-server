@@ -1012,7 +1012,7 @@ class BulkImportHandler {
                             let fhirResource = FhirResourceWriteSerializer.serialize({
                                 obj: this.applyDefaultSecurityTagsIfMissing(innerResource)
                             });
-                            // BAI-434: without these, a >16MB attachment blows MongoDB's own
+                            // Without these, a >16MB attachment blows MongoDB's own
                             // 16MB/document BSON limit on insert regardless of bulkImportMaxLineSizeMb.
                             // Two separate, pre-existing mechanisms cover the two resource types that
                             // commonly hit this -- create.js/mergeManager.js already call both, in this
