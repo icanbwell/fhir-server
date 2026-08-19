@@ -9,7 +9,7 @@ const {
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 
-// BAI-434: bulk import must externalize large attachments the same way create/update/$merge
+// Bulk import must externalize large attachments the same way create/update/$merge
 // already do -- otherwise a >16MB attachment blows MongoDB's own 16MB/document BSON limit on
 // insert regardless of bulkImportMaxLineSizeMb. Two separate, pre-existing mechanisms cover
 // this depending on resourceType (see handler.js's comment at the call site):
@@ -55,7 +55,7 @@ const makeCloudEvent = (overrides = {}) => {
     });
 };
 
-describe('Bulk import — large attachment externalization (BAI-434)', () => {
+describe('Bulk import — large attachment externalization', () => {
     beforeEach(async () => {
         process.env.ENABLE_BULK_IMPORT = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
