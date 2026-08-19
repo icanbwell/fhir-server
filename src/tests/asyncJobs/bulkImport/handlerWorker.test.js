@@ -258,6 +258,46 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             });
     });
 
+    test('handleMessageAsync runs each resource through Base64DataManager before insert (BAI-434)', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-base64' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const { BLOB_OP } = require('../../../constants');
+        const transformAsyncSpy = jest.spyOn(container.base64DataManager, 'transformAsync');
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-base64-1', name: [{ family: 'Externalize' }] }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-base64-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-base64' }),
+            headers: []
+        });
+
+        // Runs unconditionally per resource -- transformAsync itself no-ops when the feature
+        // is disabled or the resourceType has no configured paths (see Base64DataManager),
+        // so this must be called regardless, the same way create.js/mergeManager.js do it,
+        // otherwise a large DocumentReference/Binary attachment would blow MongoDB's 16MB
+        // document limit on insert instead of being externalized to cloud storage first.
+        expect(transformAsyncSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ resourceType: 'Patient', id: 'bulk-import-base64-1' }),
+            BLOB_OP.INSERT,
+            expect.anything()
+        );
+
+        transformAsyncSpy.mockRestore();
+    });
+
     test('handleMessageAsync creates an AuditEvent for a bulk-imported resource', async () => {
         const request = await createTestRequest();
 
