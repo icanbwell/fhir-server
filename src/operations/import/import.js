@@ -328,7 +328,10 @@ class ImportOperation {
                         inputs,
                         requestId,
                         scope,
-                        user: requestInfo.user
+                        user: requestInfo.user,
+                        alternateUserId: requestInfo.alternateUserId,
+                        isUser: requestInfo.isUser,
+                        remoteIpAddress: requestInfo.remoteIpAddress
                     }
                 };
 

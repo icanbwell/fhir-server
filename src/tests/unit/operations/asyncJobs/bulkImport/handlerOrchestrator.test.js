@@ -120,7 +120,10 @@ function createTaskCreatedMessage({
     inputs = [{ url: 's3://allowed-bucket/data/patients.ndjson' }],
     requestId = 'req-001',
     scope = 'system/*.read',
-    user = 'practitioner/dr-smith'
+    user = 'practitioner/dr-smith',
+    alternateUserId = 'alt-dr-smith',
+    isUser = true,
+    remoteIpAddress = '10.0.0.1'
 } = {}) {
     return JSON.stringify({
         specversion: '1.0',
@@ -128,7 +131,7 @@ function createTaskCreatedMessage({
         source: 'https://www.icanbwell.com/fhir-server',
         type: 'TaskCreated',
         datacontenttype: 'application/json',
-        data: { taskId, inputs, requestId, scope, user }
+        data: { taskId, inputs, requestId, scope, user, alternateUserId, isUser, remoteIpAddress }
     });
 }
 
@@ -575,12 +578,18 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
 
             await handler.handleMessageAsync(message);
 
+            // alternateUserId/isUser/remoteIpAddress must be forwarded to the event producer
+            // unchanged -- these are what ultimately populate AuditEvent.agent[0].altId/who/
+            // network.address for every resource this Task's ranges write (see BAI-432).
             expect(publishImportEventsAsync).toHaveBeenCalledWith({
                 taskId: 'task-abc-123',
                 inputs: [{ url: 's3://allowed-bucket/data/patients.ndjson', fileSize: 10 * 1024 * 1024 }],
                 requestId: 'req-001',
                 scope: 'system/*.read',
-                user: 'practitioner/dr-smith'
+                user: 'practitioner/dr-smith',
+                alternateUserId: 'alt-dr-smith',
+                isUser: true,
+                remoteIpAddress: '10.0.0.1'
             });
             expect(logInfo).toHaveBeenCalledWith(
                 'Orchestrator published byte-range messages',
