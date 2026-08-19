@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Regression test for DCON-4824 / SEC-1580 W4 — $everything cache key must include
+ * Regression test for W4 — $everything cache key must include
  * the delegated-actor / consent dimension.
  *
  * Gap (CACHE-2, verified in code): BaseCacheKeyGenerator.generateCacheKey() keys on
