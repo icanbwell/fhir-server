@@ -14,6 +14,7 @@ const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
 const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
 const { generateUUID } = require('../../../utils/uid.util');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
+const { removeUnderscoreFieldsRecursive } = require('../../../utils/removeUnderscoreFields');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING, BLOB_OP } = require('../../../constants');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
@@ -890,24 +891,17 @@ class BulkImportHandler {
                         const innerResource = isIfNoneExistWrapper ? resource.resource : resource;
 
                         try {
+                            // Internal fields (_uuid, _sourceAssigningAuthority, _file_id, _blobMeta,
+                            // etc.) are never legitimate input on a create -- they're always
+                            // (re)computed server-side. Strip them from the raw NDJSON line before
+                            // serializing, mirroring create.js/update.js, so a line can't claim an
+                            // arbitrary GridFS _file_id or S3 _blobMeta (belonging to another
+                            // resource/tenant) and have it persist verbatim with no data of its own,
+                            // to be read back later.
+                            removeUnderscoreFieldsRecursive(innerResource);
                             let fhirResource = FhirResourceWriteSerializer.serialize({
                                 obj: this.applyDefaultSecurityTagsIfMissing(innerResource)
                             });
-                            // Without these, a >16MB attachment blows MongoDB's own
-                            // 16MB/document BSON limit on insert regardless of bulkImportMaxLineSizeMb.
-                            // Two separate, pre-existing mechanisms cover the two resource types that
-                            // commonly hit this -- create.js/mergeManager.js already call both, in this
-                            // same order, for the non-bulk-import write path:
-                            // - DocumentReference.content[].attachment.data -> MongoDB GridFS, keyed by
-                            //   `_file_id` (DatabaseAttachmentManager, config-driven by
-                            //   generated.databaseAttachmentResources.json).
-                            // - Binary.data -> cloud storage (S3), keyed by `_blobMeta`
-                            //   (Base64DataManager, config-driven by base64DataResources.json).
-                            // Both are no-ops for any other resourceType or when disabled.
-                            fhirResource = await this.databaseAttachmentManager.transformAttachments(fhirResource);
-                            fhirResource = await this.base64DataManager.transformAsync(
-                                fhirResource, BLOB_OP.INSERT, requestInfo
-                            );
 
                             let existingResource = null;
                             let ifNoneExistKey = null;
@@ -956,6 +950,26 @@ class BulkImportHandler {
                                     ifNoneExist: resource.ifNoneExist
                                 });
                             } else {
+                                // Deferred until the write is guaranteed to happen -- an ifNoneExist
+                                // match above skips the insert entirely, and running these first would
+                                // upload the attachment to GridFS/S3 with nothing ever referencing it,
+                                // orphaning it permanently (no MergeResultEntry, no cleanup path).
+                                // Without these, a >16MB attachment blows MongoDB's own 16MB/document
+                                // BSON limit on insert regardless of bulkImportMaxLineSizeMb. Two
+                                // separate, pre-existing mechanisms cover the two resource types that
+                                // commonly hit this -- create.js/mergeManager.js already call both, in
+                                // this same order, for the non-bulk-import write path:
+                                // - DocumentReference.content[].attachment.data -> MongoDB GridFS, keyed
+                                //   by `_file_id` (DatabaseAttachmentManager, config-driven by
+                                //   generated.databaseAttachmentResources.json).
+                                // - Binary.data -> cloud storage (S3), keyed by `_blobMeta`
+                                //   (Base64DataManager, config-driven by base64DataResources.json).
+                                // Both are no-ops for any other resourceType or when disabled.
+                                fhirResource = await this.databaseAttachmentManager.transformAttachments(fhirResource);
+                                fhirResource = await this.base64DataManager.transformAsync(
+                                    fhirResource, BLOB_OP.INSERT, requestInfo
+                                );
+
                                 const contextData = buildContextDataForHybridStorage(
                                     fhirResource.resourceType, fhirResource, requestInfo
                                 );
