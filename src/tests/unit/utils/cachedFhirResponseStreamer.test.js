@@ -432,5 +432,35 @@ describe('CachedFhirResponseStreamer', () => {
 
             expect(mockResponseStreamer.writeBundleEntryAsync).toHaveBeenCalledTimes(2);
         });
+
+        test('pushes into a caller-provided streamedResources array by reference', async () => {
+            const entries = [{ resource: { _uuid: 'u1', resourceType: 'Patient' } }];
+            mockRedisStreamManager.readBundleEntriesFromStream.mockResolvedValueOnce({
+                entries,
+                hasMore: false,
+                lastId: '1-0'
+            });
+
+            const streamedResources = [];
+            const result = await cachedStreamer.streamFromCacheAsync({ streamedResources });
+
+            expect(streamedResources).toEqual([{ _uuid: 'u1', resourceType: 'Patient' }]);
+            expect(result).toBe(streamedResources);
+        });
+
+        test('preserves entries from earlier batches in the caller-provided array when a later batch throws', async () => {
+            const batch1 = [{ resource: { _uuid: 'u1', resourceType: 'Patient' } }];
+
+            mockRedisStreamManager.readBundleEntriesFromStream
+                .mockResolvedValueOnce({ entries: batch1, hasMore: true, lastId: '1-0' })
+                .mockRejectedValueOnce(new Error('Redis connection dropped'));
+
+            const streamedResources = [];
+            await expect(
+                cachedStreamer.streamFromCacheAsync({ streamedResources })
+            ).rejects.toThrow('Redis connection dropped');
+
+            expect(streamedResources).toEqual([{ _uuid: 'u1', resourceType: 'Patient' }]);
+        });
     });
 });
