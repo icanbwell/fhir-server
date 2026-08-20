@@ -21,6 +21,9 @@ class MergeResultEntry {
      * @param {string} resourceType
      * @param {boolean} updated
      * @param {string} sourceAssigningAuthority
+     * @param {number|undefined} [sourceByteOffset] - absolute byte offset of the source NDJSON
+     *   line this entry came from (bulk import only); used to restore output ordering to match
+     *   the source file. Not part of toJSON() -- internal-only, doesn't change the NDJSON schema.
      */
     constructor (
         {
@@ -31,7 +34,8 @@ class MergeResultEntry {
             uuid,
             resourceType,
             updated,
-            sourceAssigningAuthority
+            sourceAssigningAuthority,
+            sourceByteOffset
         }
     ) {
         /**
@@ -66,6 +70,10 @@ class MergeResultEntry {
          * @type {string}
          */
         this._sourceAssigningAuthority = sourceAssigningAuthority;
+        /**
+         * @type {number|undefined}
+         */
+        this.sourceByteOffset = sourceByteOffset;
     }
 
     toJSON () {
@@ -129,7 +137,8 @@ class MergeResultEntry {
                 updated: false,
                 issue,
                 operationOutcome,
-                resourceType: resource.resourceType
+                resourceType: resource.resourceType,
+                sourceByteOffset
             }
         );
         return mergeResultEntry;

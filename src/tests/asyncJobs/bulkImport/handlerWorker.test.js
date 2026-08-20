@@ -485,6 +485,51 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         expect(errorWrite.data).toContain('Invalid JSON at line 2');
     });
 
+    test('handleMessageAsync preserves source line order in the result NDJSON even when an error is recorded before later successes flush', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-order' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        // A per-line failure is recorded into mergeResultEntries the instant its line is
+        // read, but a success is only recorded once its batch flushes -- with the default
+        // batch size, all 3 successes below flush together in one batch at the very end of
+        // the range, after the error was already recorded. Without restoring source order,
+        // the error would end up first in the output instead of third.
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-order-1', name: [{ family: 'One' }] },
+            { resourceType: 'Patient', id: 'bulk-import-order-2', name: [{ family: 'Two' }] },
+            { __parseError: 'Invalid JSON at line 3 in "s3://allowed-bucket/Patient.ndjson": Unexpected token' },
+            { resourceType: 'Patient', id: 'bulk-import-order-4', name: [{ family: 'Four' }] }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-order-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-order' }),
+            headers: []
+        });
+
+        const resultWrite = container.s3NdjsonReader.getWriteCalls()
+            .find((c) => c.filepath.includes('/output/') && !c.filepath.includes('/errors/'));
+        expect(resultWrite).toBeDefined();
+
+        const resultLines = resultWrite.data.trim().split('\n').map((line) => JSON.parse(line));
+        expect(resultLines.map((entry) => entry.id || entry.operationOutcome?.issue?.[0]?.extension?.[0]?.valueInteger))
+            .toEqual([
+                'bulk-import-order-1',
+                'bulk-import-order-2',
+                200, // the error entry's source-byte-offset, positioned between order-2 and order-4
+                'bulk-import-order-4'
+            ]);
+    });
+
     test('handleMessageAsync flushes postRequestProcessor and clears requestSpecificCache per range', async () => {
         const request = await createTestRequest();
 

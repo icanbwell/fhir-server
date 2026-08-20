@@ -729,6 +729,12 @@ class BulkImportHandler {
         const { bucket, key } = this.s3NdjsonReader.parseS3Uri(filepath);
         const { resultKey, errorKey } = this.buildRangeOutputKeys({ key, rangeIndex });
 
+        // Entries land here in commit order, not source order -- an error is recorded the
+        // instant its line is read, but a success only once its whole batch flushes, so a
+        // later-flushing batch's successes can end up after an earlier error in the array.
+        // Restore source order before writing output so position always matches the input file.
+        mergeResultEntries.sort((a, b) => (a.sourceByteOffset ?? 0) - (b.sourceByteOffset ?? 0));
+
         const newOutputs = [];
         if (mergeResultEntries.length > 0) {
             const resultUri = `s3://${bucket}/${resultKey}`;
@@ -954,7 +960,8 @@ class BulkImportHandler {
                         created: false,
                         updated: true,
                         issue: null,
-                        operationOutcome: null
+                        operationOutcome: null,
+                        sourceByteOffset: byteOffset
                     }));
                 } else {
                     created++;
@@ -966,7 +973,8 @@ class BulkImportHandler {
                         created: true,
                         updated: false,
                         issue: null,
-                        operationOutcome: null
+                        operationOutcome: null,
+                        sourceByteOffset: byteOffset
                     }));
                 }
             } catch (mergeError) {
@@ -1089,7 +1097,8 @@ class BulkImportHandler {
                                     created: false,
                                     updated: false,
                                     issue: null,
-                                    operationOutcome: null
+                                    operationOutcome: null,
+                                    sourceByteOffset: byteOffset
                                 }));
                                 logInfo('Skipped bulk import resource: matched existing via ifNoneExist', {
                                     taskId,
