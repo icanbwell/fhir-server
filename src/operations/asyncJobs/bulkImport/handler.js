@@ -11,8 +11,11 @@ const { BulkImportEventProducer } = require('./bulkImportEventProducer');
 const { BulkImportTaskStateMachine } = require('./bulkImportTaskStateMachine');
 const { FhirResourceWriteSerializer } = require('../../../fhir/fhirResourceWriteSerializer');
 const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
-const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
-const { generateUUID } = require('../../../utils/uid.util');
+const { generateUUID, isUuid } = require('../../../utils/uid.util');
+const { MergeManager } = require('../../merge/mergeManager');
+const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
+const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING } = require('../../../constants');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
@@ -89,6 +92,10 @@ class BulkImportHandler {
      * @property {AuditLogger} auditLogger
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchQueryBuilder} searchQueryBuilder
+     * @property {MergeManager} mergeManager
+     * @property {DatabaseBulkLoader} databaseBulkLoader
+     * @property {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
+     * @property {UuidColumnHandler} uuidColumnHandler
      *
      * @param {ConstructorParams}
      */
@@ -104,7 +111,11 @@ class BulkImportHandler {
         requestSpecificCache,
         auditLogger,
         r4ArgsParser,
-        searchQueryBuilder
+        searchQueryBuilder,
+        mergeManager,
+        databaseBulkLoader,
+        sourceAssigningAuthorityColumnHandler,
+        uuidColumnHandler
     }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -141,6 +152,18 @@ class BulkImportHandler {
 
         this.searchQueryBuilder = searchQueryBuilder;
         assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
+
+        this.mergeManager = mergeManager;
+        assertTypeEquals(mergeManager, MergeManager);
+
+        this.databaseBulkLoader = databaseBulkLoader;
+        assertTypeEquals(databaseBulkLoader, DatabaseBulkLoader);
+
+        this.sourceAssigningAuthorityColumnHandler = sourceAssigningAuthorityColumnHandler;
+        assertTypeEquals(sourceAssigningAuthorityColumnHandler, SourceAssigningAuthorityColumnHandler);
+
+        this.uuidColumnHandler = uuidColumnHandler;
+        assertTypeEquals(uuidColumnHandler, UuidColumnHandler);
     }
 
     /**
@@ -763,21 +786,101 @@ class BulkImportHandler {
         // readRangeWithRetryAsync's docstring for why retry must stop once this is true.
         let hasFlushedThisAttempt = false;
 
+        // Buffers a batch's successfully-serialized (non-skipped) resources so their
+        // create/update status can be resolved with one pre-loaded databaseBulkLoader lookup
+        // per resourceType instead of a fastFindOneAsync round trip per line -- see Shubham's
+        // PR #2528 review comment (per-line existence-check cost tradeoff).
+        let pendingMergeResources = [];
+
         const flushBatchAsync = async () => {
-            const mergeResults = await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
-            hasFlushedThisAttempt = true;
-            for (const mergeResult of mergeResults) {
-                mergeResult.sourceByteOffset = byteOffsetByUuid.get(`${mergeResult.resourceType}|${mergeResult.id}`);
-                mergeResultEntries.push(mergeResult);
-                if (mergeResult.created) {
-                    created++;
-                } else if (mergeResult.updated) {
-                    updated++;
-                } else if (mergeResult.operationOutcome) {
-                    failed++;
+            if (pendingMergeResources.length > 0) {
+                // Pre-load once for the whole batch (grouped by resourceType internally) so
+                // mergeBufferedResourceAsync's getResourceFromExistingList() calls below are
+                // in-memory lookups instead of a query per line.
+                await this.databaseBulkLoader.loadResourcesAsync({
+                    requestId: requestInfo.requestId,
+                    base_version,
+                    requestedResources: pendingMergeResources.map((p) => p.fhirResource)
+                });
+                for (const { fhirResource, byteOffset } of pendingMergeResources) {
+                    await mergeBufferedResourceAsync({ fhirResource, byteOffset });
                 }
+                pendingMergeResources = [];
             }
+            await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+            hasFlushedThisAttempt = true;
             sinceLastFlush = 0;
+        };
+
+        /**
+         * Merges one already-serialized resource via mergeManager.mergeResourceAsync
+         * (schema validation + real upsert, instead of fastDatabaseBulkInserter.insertOneAsync's
+         * unconditional $setOnInsert) and folds its null/MergeResultEntry return contract into
+         * this range's counters/mergeResultEntries.
+         * @param {Object} params
+         * @param {Object} params.fhirResource
+         * @param {number} params.byteOffset
+         * @returns {Promise<void>}
+         */
+        const mergeBufferedResourceAsync = async ({ fhirResource, byteOffset }) => {
+            const wasExisting = !!this.databaseBulkLoader.getResourceFromExistingList({
+                requestId: requestInfo.requestId,
+                resourceType: fhirResource.resourceType,
+                uuid: fhirResource._uuid
+            });
+
+            try {
+                const validationFailure = await this.mergeManager.mergeResourceAsync({
+                    resourceToMerge: fhirResource,
+                    resourceType: fhirResource.resourceType,
+                    base_version,
+                    requestInfo
+                });
+
+                if (validationFailure) {
+                    failed++;
+                    mergeResultEntries.push(validationFailure);
+                } else if (wasExisting) {
+                    updated++;
+                    mergeResultEntries.push(new MergeResultEntry({
+                        id: fhirResource.id,
+                        uuid: fhirResource._uuid,
+                        sourceAssigningAuthority: fhirResource._sourceAssigningAuthority,
+                        resourceType: fhirResource.resourceType,
+                        created: false,
+                        updated: true,
+                        issue: null,
+                        operationOutcome: null
+                    }));
+                } else {
+                    created++;
+                    mergeResultEntries.push(new MergeResultEntry({
+                        id: fhirResource.id,
+                        uuid: fhirResource._uuid,
+                        sourceAssigningAuthority: fhirResource._sourceAssigningAuthority,
+                        resourceType: fhirResource.resourceType,
+                        created: true,
+                        updated: false,
+                        issue: null,
+                        operationOutcome: null
+                    }));
+                }
+            } catch (mergeError) {
+                failed++;
+                const entryFromError = mergeError.args instanceof MergeResultEntry
+                    ? mergeError.args
+                    : MergeResultEntry.createFromError({
+                        error: mergeError, resource: fhirResource, sourceByteOffset: byteOffset
+                    });
+                mergeResultEntries.push(entryFromError);
+                logError('Failed to merge bulk import resource', {
+                    taskId,
+                    filepath,
+                    resourceType: fhirResource.resourceType,
+                    byteOffset,
+                    error: mergeError.message
+                });
+            }
         };
 
         const readAndProcessRangeAsync = async () => {
@@ -792,6 +895,7 @@ class BulkImportHandler {
             mergeResultEntries.length = 0;
             byteOffsetByUuid.clear();
             hasFlushedThisAttempt = false;
+            pendingMergeResources = [];
 
             // ifNoneExist criteria "claimed" by a resource already queued for insert in this
             // attempt but not yet flushed to Mongo. findExistingResourceForIfNoneExistAsync
@@ -838,6 +942,16 @@ class BulkImportHandler {
                             const fhirResource = FhirResourceWriteSerializer.serialize({
                                 obj: this.applyDefaultSecurityTagsIfMissing(innerResource)
                             });
+
+                            // mergeManager.mergeResourceAsync requires _uuid to already be set --
+                            // mirrors MergeResourceValidator's own pre-merge assignment (the same
+                            // rule $merge's API path uses) since serialize() doesn't compute it.
+                            if (isUuid(fhirResource.id)) {
+                                fhirResource._uuid = fhirResource.id;
+                            } else {
+                                await this.sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource: fhirResource });
+                                await this.uuidColumnHandler.preSaveAsync({ resource: fhirResource });
+                            }
 
                             let existingResource = null;
                             let ifNoneExistKey = null;
@@ -887,25 +1001,10 @@ class BulkImportHandler {
                                     ifNoneExist: resource.ifNoneExist
                                 });
                             } else {
-                                const contextData = buildContextDataForHybridStorage(
-                                    fhirResource.resourceType, fhirResource, requestInfo
-                                );
-                                // Keyed by resourceType+id rather than _uuid -- _uuid isn't
-                                // reliably populated on fhirResource yet at this point (it's
-                                // derived by a pre-save handler further down the write
-                                // pipeline), while id is the caller-supplied value and is
-                                // already stable here.
-                                byteOffsetByUuid.set(`${fhirResource.resourceType}|${fhirResource.id}`, byteOffset);
-                                await this.fastDatabaseBulkInserter.insertOneAsync({
-                                    base_version,
-                                    requestInfo,
-                                    resourceType: fhirResource.resourceType,
-                                    doc: fhirResource,
-                                    contextData
-                                });
-                                // Only claim the criteria once the insert is actually queued --
-                                // if insertOneAsync had thrown instead, nothing was created, so a
-                                // later duplicate line in this batch must still be free to try.
+                                pendingMergeResources.push({ fhirResource, byteOffset });
+                                // Only claim the criteria once the merge is actually queued --
+                                // if mergeBufferedResourceAsync later fails, nothing was created,
+                                // so a later duplicate line in this batch must still be free to try.
                                 if (ifNoneExistKey) {
                                     claimedIfNoneExistKeys.add(ifNoneExistKey);
                                 }
