@@ -424,25 +424,8 @@ class BulkImportHandler {
     // ── ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed (orchestrator side, ──────
     // ── topic fhir_server.bulk_import.range_progress) ──────────────────────────────────────
 
-        if (!envelope.data || !envelope.data.taskId || !envelope.data.filepath || !envelope.data.signature) {
     /**
      * Parses an ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed CloudEvent message.
-        
-        const crypto = require('crypto');
-        const { signature, ...dataToVerify } = envelope.data;
-        const workerSecret = this.configManager.bulkImportWorkerSecret;
-        
-        if (!workerSecret) {
-            throw new Error('Worker secret not configured for message verification');
-        }
-        
-        const hmac = crypto.createHmac('sha256', workerSecret);
-        hmac.update(JSON.stringify(dataToVerify));
-        const expectedSignature = hmac.digest('hex');
-        
-        if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
-            throw new Error('Invalid message signature');
-        }
      * @param {string} messageValue
      * @returns {Object} parsed CloudEvent data
      */
