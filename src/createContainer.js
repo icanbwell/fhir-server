@@ -1281,7 +1281,11 @@ const createContainer = function () {
         requestSpecificCache: c.requestSpecificCache,
         auditLogger: c.auditLogger,
         r4ArgsParser: c.r4ArgsParser,
-        searchQueryBuilder: c.searchQueryBuilder
+        searchQueryBuilder: c.searchQueryBuilder,
+        mergeManager: c.mergeManager,
+        databaseBulkLoader: c.databaseBulkLoader,
+        sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+        uuidColumnHandler: c.uuidColumnHandler
     }));
 
     // Routes messages on kafkaBulkImportTaskCreatedTopic to their handler by CloudEvent
