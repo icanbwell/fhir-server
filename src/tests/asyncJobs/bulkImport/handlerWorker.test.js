@@ -11,7 +11,10 @@ const makeCloudEvent = (overrides = {}) => {
         rangeIndex: 0,
         totalRanges: 1,
         requestId: 'req-001',
-        scope: 'user/*.write',
+        // mergeManager.mergeResourceAsync is now scope-checked the same way $merge's API
+        // path is (WriteAllowedByScopesValidator) -- a plain 'user/*.write' scope has no
+        // access-tag grant and gets rejected as forbidden, same as it would via $merge.
+        scope: 'user/*.write access/*.*',
         user: 'test-user',
         ...overrides
     };
@@ -257,7 +260,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             value: makeCloudEvent({
                 taskId: 'import-consumer-audit',
                 user: 'bulk-import-service-account',
-                scope: 'user/*.write'
+                scope: 'user/*.write access/*.*'
             }),
             headers: []
         });
