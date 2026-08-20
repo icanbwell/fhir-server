@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { generateUUID } = require('../../../utils/uid.util');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
@@ -138,10 +139,35 @@ class BulkImportEventProducer {
     }
 
     /**
+     * HMAC-SHA256 signs a range-progress event's data payload with the shared worker secret,
+     * so the orchestrator can verify a message actually came from a trusted worker rather than
+     * trusting taskId/status-affecting fields from anyone able to publish onto the topic.
+     * @param {Object} data
+     * @returns {string} hex-encoded signature
+     */
+    signRangeProgressPayload(data) {
+        const workerSecret = this.configManager.bulkImportWorkerSecret;
+        if (!workerSecret) {
+            throw new Error(
+                'bulkImportWorkerSecret is not configured -- refusing to publish an unsigned ' +
+                'range-progress event (BULK_IMPORT_WORKER_SECRET must be set before this worker ' +
+                'can report range progress)'
+            );
+        }
+        return crypto.createHmac('sha256', workerSecret).update(JSON.stringify(data)).digest('hex');
+    }
+
+    /**
      * Publishes a single range-progress CloudEvent onto the worker->orchestrator topic. The
      * orchestrator is the only process that ever writes to a Task once it exists -- workers
      * report progress here instead of touching the Task themselves, so there's exactly one
      * writer and no concurrent-update race to resolve.
+     *
+     * The payload is HMAC-signed (signRangeProgressPayload) before publishing -- without this,
+     * anyone able to publish onto kafkaBulkImportRangeProgressTopic could forge an
+     * ImportRangeCompleted/Failed message with an arbitrary taskId and manipulate any Task's
+     * status/output, since the orchestrator otherwise has no other way to authenticate the
+     * message's origin.
      * @param {Object} params
      * @param {'ImportRangeStarted'|'ImportRangeCompleted'|'ImportRangeFailed'} params.type
      * @param {Object} params.data
@@ -153,13 +179,14 @@ class BulkImportEventProducer {
         }
 
         const topic = this.configManager.kafkaBulkImportRangeProgressTopic;
+        const signedData = { ...data, signature: this.signRangeProgressPayload(data) };
         const cloudEvent = {
             specversion: '1.0',
             id: generateUUID(),
             source: 'https://www.icanbwell.com/fhir-server',
             type,
             datacontenttype: 'application/json',
-            data
+            data: signedData
         };
 
         try {

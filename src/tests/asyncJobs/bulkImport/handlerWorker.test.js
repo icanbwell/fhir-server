@@ -79,6 +79,9 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         process.env.ENABLE_BULK_IMPORT = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
         process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
+        // publishRangeProgressEventAsync signs every message and refuses to publish
+        // unsigned if this isn't set (see BulkImportEventProducer.signRangeProgressPayload).
+        process.env.BULK_IMPORT_WORKER_SECRET = 'test-worker-secret';
         fakeSpan = { setAttributes: jest.fn() };
         activeSpanSpy = jest.spyOn(trace, 'getActiveSpan').mockReturnValue(fakeSpan);
         await commonBeforeEach();
@@ -88,6 +91,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         delete process.env.ENABLE_BULK_IMPORT;
         delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
         delete process.env.ENABLE_EVENTS_KAFKA_V2;
+        delete process.env.BULK_IMPORT_WORKER_SECRET;
         activeSpanSpy.mockRestore();
         await commonAfterEach();
     });

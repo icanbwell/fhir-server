@@ -1429,6 +1429,18 @@ class ConfigManager {
         return env.KAFKA_BULK_IMPORT_RANGE_PROGRESS_TOPIC || 'fhir_server.bulk_import.range_progress';
     }
 
+    /**
+     * Shared secret used to HMAC-sign/verify range-progress CloudEvents (worker->orchestrator,
+     * see BulkImportEventProducer.publishRangeProgressEventAsync). Without this, anyone able to
+     * publish onto kafkaBulkImportRangeProgressTopic could forge an ImportRangeCompleted/Failed
+     * message with an arbitrary taskId and manipulate any bulk-import Task's status/output --
+     * the orchestrator otherwise trusts this data with no other authentication.
+     * @return {string|undefined}
+     */
+    get bulkImportWorkerSecret() {
+        return env.BULK_IMPORT_WORKER_SECRET;
+    }
+
     // ── Kafka v2 (new MSK cluster) ──────────────────────────────────────────
 
     /**
