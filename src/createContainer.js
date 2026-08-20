@@ -549,6 +549,11 @@ const createContainer = function () {
         )
     );
 
+    container.register('writeAllowedByScopesValidator', (c) => new WriteAllowedByScopesValidator({
+        scopesValidator: c.scopesValidator,
+        databaseBulkLoader: c.databaseBulkLoader
+    }));
+
     container.register('mergeValidator', (c) => new MergeValidator(
         {
             validators: [
@@ -563,10 +568,7 @@ const createContainer = function () {
                     uuidColumnHandler: c.uuidColumnHandler,
                     customTracer: c.customTracer
                 }),
-                new WriteAllowedByScopesValidator({
-                    scopesValidator: c.scopesValidator,
-                    databaseBulkLoader: c.databaseBulkLoader
-                })
+                c.writeAllowedByScopesValidator
             ],
             configManager: c.configManager,
             customTracer: c.customTracer
@@ -1281,7 +1283,12 @@ const createContainer = function () {
         requestSpecificCache: c.requestSpecificCache,
         auditLogger: c.auditLogger,
         r4ArgsParser: c.r4ArgsParser,
-        searchQueryBuilder: c.searchQueryBuilder
+        searchQueryBuilder: c.searchQueryBuilder,
+        mergeManager: c.mergeManager,
+        databaseBulkLoader: c.databaseBulkLoader,
+        sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+        uuidColumnHandler: c.uuidColumnHandler,
+        writeAllowedByScopesValidator: c.writeAllowedByScopesValidator
     }));
 
     // Routes messages on kafkaBulkImportTaskCreatedTopic to their handler by CloudEvent
