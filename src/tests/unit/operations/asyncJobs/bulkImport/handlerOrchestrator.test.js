@@ -93,6 +93,7 @@ function createMockTask(overrides = {}) {
         resourceType: 'Task',
         id: 'task-abc-123',
         status: 'requested',
+        code: { coding: [{ system: 'https://www.icanbwell.com/task-type', code: 'bulk-import' }] },
         meta: { lastUpdated: '2026-01-01T00:00:00.000Z' },
         ...overrides
     };
@@ -818,6 +819,32 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
                     'Failed to parse bulk import range-progress Kafka message',
                     expect.objectContaining({ error: expect.stringContaining('signature does not match') })
                 );
+                expect(updateOneAsync).not.toHaveBeenCalled();
+            });
+
+            test('does not mutate a Task that lacks the bulk-import code, even with a valid signature', async () => {
+                // A valid HMAC proves the message came from a trusted worker but does not grant
+                // permission to modify an arbitrary Task -- loadTaskAsync now restricts its query
+                // to Tasks carrying the bulk-import code so a message with a legitimate signature
+                // but a taskId pointing at a non-import Task is silently dropped.
+                const updateOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
+                const handlerInstance = createHandler({}, {
+                    databaseQueryFactory: {
+                        createQuery: jestGlobal.fn(() => ({
+                            findOneAsync: jestGlobal.fn().mockResolvedValue(null) // code filter returns nothing
+                        }))
+                    },
+                    databaseUpdateFactory: {
+                        createDatabaseUpdateManager: jestGlobal.fn(() => ({ updateOneAsync }))
+                    }
+                });
+
+                await handlerInstance.handleMessageAsync({
+                    key: 'k1',
+                    value: createRangeProgressMessage('ImportRangeStarted'),
+                    headers: []
+                });
+
                 expect(updateOneAsync).not.toHaveBeenCalled();
             });
 

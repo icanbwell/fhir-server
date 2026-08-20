@@ -35,6 +35,10 @@ const { SearchQueryBuilder } = require('../../search/searchQueryBuilder');
 
 const importTracer = trace.getTracer('fhir-server');
 
+/** Identifies a Task as a bulk-import job (set at creation time in import.js). */
+const BULK_IMPORT_TASK_TYPE_SYSTEM = 'https://www.icanbwell.com/task-type';
+const BULK_IMPORT_TASK_TYPE_CODE = 'bulk-import';
+
 /**
  * Attaches bulk-import outcome data as span attributes rather than a custom OTel counter --
  * with trace context propagated across both Kafka hops, an external observability platform
@@ -185,8 +189,18 @@ class BulkImportHandler {
             base_version: '4_0_0'
         });
 
+        // Restrict to Tasks that carry the bulk-import code so a valid HMAC on a message
+        // with an arbitrary taskId cannot be used to mutate a non-import Task.
         return databaseQueryManager.findOneAsync({
-            query: { id: taskId }
+            query: {
+                id: taskId,
+                'code.coding': {
+                    $elemMatch: {
+                        system: BULK_IMPORT_TASK_TYPE_SYSTEM,
+                        code: BULK_IMPORT_TASK_TYPE_CODE
+                    }
+                }
+            }
         });
     }
 
