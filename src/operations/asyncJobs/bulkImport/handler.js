@@ -32,17 +32,6 @@ const { groupByLambda } = require('../../../utils/list.util');
 const { R4ArgsParser } = require('../../query/r4ArgsParser');
 const { SearchQueryBuilder } = require('../../search/searchQueryBuilder');
 
-/**
- * Extension URL used to record a marker on the Task each time a byte-range finishes
- * processing. Markers accumulate across concurrent consumer pods/files (Task.output/
- * extension array merges are additive — see resourceMerger's array-union semantics) and
- * are the only way to determine when every range of every input file is done, since no
- * single event carries a task-wide range count (ImportRangeRequested's totalRanges is
- * per-file only).
- * @type {string}
- */
-const BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL = 'https://www.icanbwell.com/bulk-import-range-completed';
-
 const importTracer = trace.getTracer('fhir-server');
 
 /**
@@ -68,14 +57,21 @@ function recordImportSpanAttributes (attributes) {
 
 /**
  * Handles every Kafka message type for the bulk-import async job. Both
- * src/operations/asyncJobs/orchestrator.js (topic fhir_server.bulk_import.requested) and
- * src/operations/asyncJobs/worker.js (topic fhir_server.bulk_import.events) route into this
- * same handler; handleMessageAsync dispatches on the CloudEvent "type" rather than the topic,
- * since a single job's messages can arrive on more than one topic:
- * - TaskCreated: HEADs each S3 input to validate it and get its size, splits it into byte
- *   ranges, and publishes an ImportRangeRequested event per range.
- * - ImportRangeRequested: reads a byte range's NDJSON, merges resources, writes result/error
- *   output to S3, and records completion on the Task.
+ * src/operations/asyncJobs/orchestrator.js (topics fhir_server.bulk_import.requested and
+ * fhir_server.bulk_import.range_progress) and src/operations/asyncJobs/worker.js (topic
+ * fhir_server.bulk_import.events) route into this same handler; handleMessageAsync dispatches
+ * on the CloudEvent "type" rather than the topic, since a single job's messages can arrive on
+ * more than one topic:
+ * - TaskCreated (orchestrator): HEADs each S3 input to validate it and get its size, splits
+ *   it into byte ranges, and publishes an ImportRangeRequested event per range.
+ * - ImportRangeRequested (worker): reads a byte range's NDJSON and merges resources, then
+ *   reports what happened by publishing ImportRangeStarted/ImportRangeCompleted/
+ *   ImportRangeFailed rather than writing to the Task itself.
+ * - ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed (orchestrator): the ONLY writes
+ *   to a Task resource once it exists happen here. Routing every worker report through the
+ *   orchestrator's single consumer means there is exactly one writer for a given Task's
+ *   status/output at any time -- no concurrent-update races between worker pods to resolve,
+ *   and no need for smartMerge array-matching tricks on Task.output/extension.
  */
 class BulkImportHandler {
     /**
@@ -168,6 +164,10 @@ class BulkImportHandler {
                 return this.handleTaskCreatedAsync(message);
             case 'ImportRangeRequested':
                 return this.handleImportRangeRequestedAsync(message);
+            case 'ImportRangeStarted':
+            case 'ImportRangeCompleted':
+            case 'ImportRangeFailed':
+                return this.handleRangeProgressEventAsync(message, envelope.type);
             default:
                 logError('Unexpected bulk import event type', { type: envelope.type, key: message.key });
         }
@@ -421,6 +421,153 @@ class BulkImportHandler {
         });
     }
 
+    // ── ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed (orchestrator side, ──────
+    // ── topic fhir_server.bulk_import.range_progress) ──────────────────────────────────────
+
+    /**
+     * Parses an ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed CloudEvent message.
+     * @param {string} messageValue
+     * @returns {Object} parsed CloudEvent data
+     */
+    parseRangeProgressEvent(messageValue) {
+        const envelope = JSON.parse(messageValue);
+        if (!envelope.data || !envelope.data.taskId || !envelope.data.filepath) {
+            throw new Error(`Invalid ${envelope.type} event: missing taskId or filepath`);
+        }
+        return envelope.data;
+    }
+
+    /**
+     * Handles a range-progress report from a worker. This is the ONLY place a Task resource
+     * is ever written once it exists (see class docstring) -- workers only publish these
+     * events, they never touch the Task themselves, so there is exactly one writer and no
+     * concurrent-update race between worker pods to resolve.
+     * @param {{ key: string, value: string, headers: Array<{key: string, value: string}> }} message
+     * @param {'ImportRangeStarted'|'ImportRangeCompleted'|'ImportRangeFailed'} type
+     * @returns {Promise<void>}
+     */
+    async handleRangeProgressEventAsync(message, type) {
+        let eventData;
+        try {
+            eventData = this.parseRangeProgressEvent(message.value);
+        } catch (e) {
+            logError('Failed to parse bulk import range-progress Kafka message', {
+                error: e.message,
+                key: message.key
+            });
+            return;
+        }
+
+        const { taskId, filepath, rangeIndex } = eventData;
+
+        const task = await this.loadTaskAsync(taskId);
+        if (!task) {
+            logError('Task not found for bulk import range-progress message', { taskId, filepath, rangeIndex });
+            return;
+        }
+
+        switch (type) {
+            case 'ImportRangeStarted':
+                return this.handleRangeStartedAsync(task, eventData);
+            case 'ImportRangeCompleted':
+                return this.handleRangeCompletedAsync(task, eventData);
+            case 'ImportRangeFailed':
+                return this.handleRangeFailedAsync(task, eventData);
+        }
+    }
+
+    /**
+     * Flips a Task from 'requested' to 'in-progress' the first time any range reports having
+     * started. A no-op if the Task is already past 'requested' -- workers report this
+     * unconditionally on every range (see buildRangeRequestInfo's caller), so this is expected
+     * to be called far more than once per Task.
+     * @param {Object} task
+     * @param {Object} eventData
+     * @returns {Promise<void>}
+     */
+    async handleRangeStartedAsync(task, eventData) {
+        if (task.status !== 'requested') {
+            return;
+        }
+        await this.updateOrchestratorTaskStatusAsync(task, 'in-progress');
+    }
+
+    /**
+     * Marks a Task 'failed', unless it already reached 'completed' -- a range that failed
+     * before every other range finished must not regress an already-completed Task if its
+     * failure report arrives late or is redelivered.
+     * @param {Object} task
+     * @param {Object} eventData
+     * @returns {Promise<void>}
+     */
+    async handleRangeFailedAsync(task, eventData) {
+        if (task.status === 'completed') {
+            return;
+        }
+        await this.updateOrchestratorTaskStatusAsync(task, 'failed', eventData.errorMessage);
+    }
+
+    /**
+     * Appends this range's result/error S3 URIs to Task.output (each stamped with
+     * buildRangeOutputEntryId so countCompletedRanges can recognize it), then flips the Task
+     * to 'completed' once every range of every input file has reported in. Since this is the
+     * only process that ever writes a Task's output/status, this is a plain read-modify-write
+     * -- no smartMerge id-matching or optimistic-concurrency retry needed, because there is no
+     * concurrent writer to race against.
+     * @param {Object} task
+     * @param {Object} eventData
+     * @returns {Promise<void>}
+     */
+    async handleRangeCompletedAsync(task, eventData) {
+        const { filepath, rangeIndex, taskTotalRanges, resultUri, errorUri } = eventData;
+
+        if (task.status === 'completed') {
+            // Already-recorded redelivery -- countCompletedRanges below already reflects this
+            // range, and re-appending would double the output entries.
+            return;
+        }
+
+        const rangeEntryId = this.buildRangeOutputEntryId({ filepath, rangeIndex });
+        // Recorded entries carry rangeEntryId as a PREFIX (id is rangeEntryId + '-result'/
+        // '-error', or bare rangeEntryId for the empty-range placeholder) -- never an exact
+        // match on rangeEntryId itself, since a completed range always has at least one
+        // output entry with one of those three exact suffixed/unsuffixed forms.
+        const alreadyRecorded = (task.output || []).some((o) =>
+            typeof o.id === 'string' && (o.id === rangeEntryId || o.id.startsWith(`${rangeEntryId}-`))
+        );
+        if (alreadyRecorded) {
+            return;
+        }
+
+        const newOutputs = [];
+        if (resultUri) {
+            newOutputs.push({ id: `${rangeEntryId}-result`, type: { text: 'result' }, valueUri: resultUri });
+        }
+        if (errorUri) {
+            newOutputs.push({ id: `${rangeEntryId}-error`, type: { text: 'error' }, valueUri: errorUri });
+        }
+        // A range with no created/updated/skipped resources and no failures (an empty range)
+        // still needs to be counted as complete -- stamp a placeholder entry so
+        // countCompletedRanges sees it even with no S3 output to point at.
+        if (newOutputs.length === 0) {
+            newOutputs.push({ id: rangeEntryId, type: { text: 'empty' } });
+        }
+
+        const updated = task.clone();
+        updated.output = [...(updated.output || []), ...newOutputs];
+        updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
+
+        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+            resourceType: 'Task',
+            base_version: '4_0_0'
+        });
+        await databaseUpdateManager.updateOneAsync({ doc: updated });
+
+        if (this.countCompletedRanges(updated) >= taskTotalRanges) {
+            await this.updateOrchestratorTaskStatusAsync(updated, 'completed');
+        }
+    }
+
     // ── ImportRangeRequested (worker side, topic fhir_server.bulk_import.events) ───────────
 
     /**
@@ -498,36 +645,6 @@ class BulkImportHandler {
     }
 
     /**
-     * Updates the Task status in MongoDB. Uses replaceOneAsync's optimistic-concurrency
-     * merge (not a raw full-document replace) since multiple consumer pods update the
-     * same Task concurrently — a raw replace built from a stale snapshot would silently
-     * wipe out another pod's already-committed output/extension entries.
-     * @param {Object} task
-     * @param {string} status
-     * @param {string} [statusReason]
-     * @param {FhirRequestInfo} requestInfo
-     * @returns {Promise<void>}
-     */
-    async updateTaskStatusAsync(task, status, statusReason, requestInfo) {
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-            resourceType: 'Task',
-            base_version: '4_0_0'
-        });
-
-        const updated = task.clone();
-        updated.status = status;
-        updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-        if (statusReason) {
-            if (!updated.statusReason) {
-                updated.statusReason = {};
-            }
-            updated.statusReason.text = statusReason;
-        }
-
-        await databaseUpdateManager.replaceOneAsync({ base_version: '4_0_0', requestInfo, doc: updated });
-    }
-
-    /**
      * Splits an S3 key (relative to its bucket) into a result and an error output key
      * for the given range, nesting both under an "output/" prefix alongside the input file.
      * e.g. "run-20260521/Patient.ndjson" + rangeIndex 0 -> "run-20260521/output/Patient-001.ndjson"
@@ -555,37 +672,33 @@ class BulkImportHandler {
     }
 
     /**
-     * Whether every byte-range of every input file on this Task has recorded a
-     * completion marker. Cross-references Task.input (fixed at Task creation) against
-     * the completion markers accumulated in Task.extension.
-     * @param {Object} task
-     * @returns {boolean}
+     * The stable id stamped on every Task.output entry a range's completion report adds,
+     * shared by its result/error pair. Since the orchestrator is the only writer of Task.output
+     * (see handleRangeProgressEventAsync), this doesn't need smartMerge id-matching to dedupe --
+     * it's just how countCompletedRanges below recognizes "one range" among possibly-multiple
+     * output entries (result + error) per range.
+     * @param {Object} params
+     * @param {string} params.filepath
+     * @param {number} params.rangeIndex
+     * @returns {string}
      */
-    isTaskFullyComplete(task) {
-        const inputUrls = (task.input || []).map((i) => i.valueUri).filter(Boolean);
-        if (inputUrls.length === 0) {
-            return false;
-        }
+    buildRangeOutputEntryId({ filepath, rangeIndex }) {
+        return `bulk-import-range:${filepath}#${rangeIndex}`;
+    }
 
-        const markers = (task.extension || [])
-            .filter((e) => e.url === BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL && e.valueString)
-            .map((e) => {
-                try {
-                    return JSON.parse(e.valueString);
-                } catch (parseError) {
-                    return null;
-                }
-            })
-            .filter(Boolean);
-
-        return inputUrls.every((url) => {
-            const fileMarkers = markers.filter((m) => m.filepath === url);
-            if (fileMarkers.length === 0) {
-                return false;
-            }
-            const distinctRanges = new Set(fileMarkers.map((m) => m.rangeIndex));
-            return distinctRanges.size === fileMarkers[0].totalRanges;
-        });
+    /**
+     * Counts distinct ranges already recorded as complete on this Task, by their
+     * buildRangeOutputEntryId prefix (ignoring the -result/-error suffix that distinguishes a
+     * range's two possible output entries).
+     * @param {Object} task
+     * @returns {number}
+     */
+    countCompletedRanges(task) {
+        const rangeIds = (task.output || [])
+            .map((o) => o.id)
+            .filter((id) => typeof id === 'string' && id.startsWith('bulk-import-range:'))
+            .map((id) => id.replace(/-(result|error)$/, ''));
+        return new Set(rangeIds).size;
     }
 
     /**
@@ -672,35 +785,24 @@ class BulkImportHandler {
     }
 
     /**
-     * Writes this range's merge-result (and error, if any) NDJSON to S3, appends
-     * Task.output entries pointing at them, and records a completion marker so
-     * isTaskFullyComplete() can detect when every range of every file is done.
-     * Throws (after retries) rather than swallowing failures — the caller must let
-     * this propagate so an unacknowledged Kafka message gets redelivered instead of
-     * a range silently never recording its marker (which would permanently block
-     * the Task from ever reaching 'completed'). Redelivery is safe: the underlying
-     * MongoDB writes for this range are idempotent merges.
+     * Writes this range's merge-result (and error, if any) NDJSON to S3, then reports the
+     * range as complete by publishing ImportRangeCompleted -- this worker never writes to the
+     * Task itself; the orchestrator (the sole Task writer) appends the resulting S3 URIs to
+     * Task.output and decides when every range has reported in. Throws (after S3 write
+     * retries) rather than swallowing failures — the caller must let this propagate so an
+     * unacknowledged Kafka message gets redelivered instead of a range silently never
+     * reporting completion (which would permanently block the Task from ever reaching
+     * 'completed'). Redelivery is safe: both the underlying MongoDB writes and the
+     * orchestrator's own output-recording are idempotent.
      * @param {Object} params
      * @param {string} params.taskId
      * @param {string} params.filepath
      * @param {number} params.rangeIndex
-     * @param {number} params.totalRanges
+     * @param {number} params.taskTotalRanges
      * @param {import('../../common/mergeResultEntry').MergeResultEntry[]} params.mergeResultEntries
-     * @param {FhirRequestInfo} params.requestInfo
      * @returns {Promise<void>}
      */
-    async recordRangeCompletionAsync({ taskId, filepath, rangeIndex, totalRanges, mergeResultEntries, requestInfo }) {
-        // Reload fresh rather than reusing the Task loaded at the top of handleImportRangeRequestedAsync —
-        // that snapshot can be minutes stale by the time a large range finishes, and
-        // replaceOneAsync's merge takes scalar fields (e.g. status) from OUR doc when they
-        // differ from the DB, so a stale snapshot here could silently regress a concurrent
-        // status change.
-        const task = await this.loadTaskAsync(taskId);
-        if (!task) {
-            logError('Task disappeared before range completion could be recorded', { taskId, filepath, rangeIndex });
-            return;
-        }
-
+    async reportRangeCompletedAsync({ taskId, filepath, rangeIndex, taskTotalRanges, mergeResultEntries }) {
         const { bucket, key } = this.s3NdjsonReader.parseS3Uri(filepath);
         const { resultKey, errorKey } = this.buildRangeOutputKeys({ key, rangeIndex });
 
@@ -710,54 +812,29 @@ class BulkImportHandler {
         // Restore source order before writing output so position always matches the input file.
         mergeResultEntries.sort((a, b) => (a.sourceByteOffset ?? 0) - (b.sourceByteOffset ?? 0));
 
-        const newOutputs = [];
+        let resultUri = null;
         if (mergeResultEntries.length > 0) {
-            const resultUri = `s3://${bucket}/${resultKey}`;
+            resultUri = `s3://${bucket}/${resultKey}`;
             await this.writeNdjsonWithRetryAsync({
                 filepath: resultUri,
                 data: this.buildNdjson(mergeResultEntries)
             });
-            newOutputs.push({ type: { text: 'result' }, valueUri: resultUri });
         }
 
+        let errorUri = null;
         const failedEntries = mergeResultEntries.filter((entry) => entry.operationOutcome);
         if (failedEntries.length > 0) {
-            const errorUri = `s3://${bucket}/${errorKey}`;
+            errorUri = `s3://${bucket}/${errorKey}`;
             await this.writeNdjsonWithRetryAsync({
                 filepath: errorUri,
                 data: this.buildNdjson(failedEntries)
             });
-            newOutputs.push({ type: { text: 'error' }, valueUri: errorUri });
         }
 
-        const updated = task.clone();
-        updated.output = [...(updated.output || []), ...newOutputs];
-        updated.extension = [
-            ...(updated.extension || []),
-            {
-                url: BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL,
-                // JSON-encoded rather than a delimited string — '|' is a legal S3 key
-                // character and would otherwise corrupt parsing for a pathological filepath.
-                valueString: JSON.stringify({ filepath, rangeIndex, totalRanges })
-            }
-        ];
-
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-            resourceType: 'Task',
-            base_version: '4_0_0'
+        await this.bulkImportEventProducer.publishRangeProgressEventAsync({
+            type: 'ImportRangeCompleted',
+            data: { taskId, filepath, rangeIndex, taskTotalRanges, resultUri, errorUri }
         });
-        const { savedResource } = await databaseUpdateManager.replaceOneAsync({
-            base_version: '4_0_0',
-            requestInfo,
-            doc: updated
-        });
-
-        // A null savedResource means the merge detected no change (e.g. a Kafka
-        // redelivery of a range already recorded) — re-read to see current state.
-        const finalTask = savedResource || await this.loadTaskAsync(taskId);
-        if (finalTask && finalTask.status !== 'completed' && this.isTaskFullyComplete(finalTask)) {
-            await this.updateTaskStatusAsync(finalTask, 'completed', undefined, requestInfo);
-        }
     }
 
     /**
@@ -778,7 +855,7 @@ class BulkImportHandler {
         }
 
         const {
-            taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, fileSize,
+            taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, taskTotalRanges, fileSize,
             user, scope, alternateUserId, isUser, remoteIpAddress
         } = eventData;
         const rangeStartTimeMs = Date.now();
@@ -792,17 +869,16 @@ class BulkImportHandler {
             totalRanges
         });
 
-        const task = await this.loadTaskAsync(taskId);
-        if (!task) {
-            logError('Task not found for bulk import message', { taskId });
-            return;
-        }
+        // This worker never reads or writes the Task resource -- the orchestrator is the sole
+        // Task writer (see class docstring), so "did this range start" is reported
+        // unconditionally rather than gated on a Task read here; the orchestrator's own
+        // read-before-write only flips status if it's still 'requested'.
+        await this.bulkImportEventProducer.publishRangeProgressEventAsync({
+            type: 'ImportRangeStarted',
+            data: { taskId, filepath, rangeIndex, taskTotalRanges }
+        });
 
         const requestInfo = this.buildRangeRequestInfo({ user, scope, alternateUserId, isUser, remoteIpAddress });
-
-        if (task.status === 'requested') {
-            await this.updateTaskStatusAsync(task, 'in-progress', undefined, requestInfo);
-        }
 
         const base_version = '4_0_0';
         const batchSize = this.configManager.bulkImportBatchSize;
@@ -1025,15 +1101,17 @@ class BulkImportHandler {
                     rangeIndex,
                     error: e.message
                 });
-                // Reload fresh (the Task loaded at the top of this function can be stale by
-                // now) and skip the write if the Task already completed — Kafka redelivering
-                // this same range after every other range already finished must not regress
-                // a completed import back to failed.
-                const currentTask = await this.loadTaskAsync(taskId);
-                if (currentTask && currentTask.status !== 'completed') {
-                    await this.updateTaskStatusAsync(currentTask, 'failed', e.message, requestInfo);
-                    recordImportSpanAttributes({ 'fhir_import.outcome': 'failed' });
-                }
+                // Reports unconditionally -- this worker doesn't read the Task, so it can't
+                // know whether the Task already completed (e.g. every other range finished
+                // while this one was retrying). The orchestrator's own read-before-write
+                // decides whether a 'failed' status would regress an already-'completed' Task
+                // and skips it if so; a redelivery of this same failure report is likewise
+                // resolved there, not here.
+                await this.bulkImportEventProducer.publishRangeProgressEventAsync({
+                    type: 'ImportRangeFailed',
+                    data: { taskId, filepath, rangeIndex, taskTotalRanges, errorMessage: e.message }
+                });
+                recordImportSpanAttributes({ 'fhir_import.outcome': 'failed' });
                 // mergeResultEntries only ever gains entries once a batch actually commits
                 // (flushBatchAsync) or a per-line failure is recorded -- so on a partially-
                 // flushed range (bulkImportRangePartiallyFlushed), these resources are already
@@ -1064,13 +1142,12 @@ class BulkImportHandler {
                 skipped
             });
 
-            await this.recordRangeCompletionAsync({
+            await this.reportRangeCompletedAsync({
                 taskId,
                 filepath,
                 rangeIndex,
-                totalRanges,
-                mergeResultEntries,
-                requestInfo
+                taskTotalRanges,
+                mergeResultEntries
             });
 
             this.queueAuditEntriesForRangeAsync({

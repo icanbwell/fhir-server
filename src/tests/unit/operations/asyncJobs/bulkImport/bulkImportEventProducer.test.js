@@ -32,10 +32,14 @@ describe('BulkImportEventProducer', () => {
     let mockConfigManager;
 
     beforeEach(() => {
-        mockKafkaClientV2 = { sendMessagesAsync: jestObj.fn().mockResolvedValue(undefined) };
+        mockKafkaClientV2 = {
+            sendMessagesAsync: jestObj.fn().mockResolvedValue(undefined),
+            sendCloudEventMessageAsync: jestObj.fn().mockResolvedValue(undefined)
+        };
         mockConfigManager = {
             kafkaV2EnableEvents: true,
             kafkaBulkImportEventTopic: 'import-events',
+            kafkaBulkImportRangeProgressTopic: 'import-range-progress',
             bulkImportRangeSizeMb: 1
         };
         producer = new BulkImportEventProducer({
@@ -75,5 +79,83 @@ describe('BulkImportEventProducer', () => {
             requestId: 'r1', scope: 's', user: 'u'
         });
         expect(result).toBe(0);
+    });
+
+    test('calculateTotalRangeCount sums ranges across every input file', () => {
+        // 3MB + 0.5MB + exactly 2MB at a 1MB range size -> 3 + 1 + 2 ranges.
+        const total = producer.calculateTotalRangeCount([
+            { url: 'a.ndjson', fileSize: 3 * 1024 * 1024 },
+            { url: 'b.ndjson', fileSize: 500000 },
+            { url: 'c.ndjson', fileSize: 2 * 1024 * 1024 }
+        ]);
+        expect(total).toBe(6);
+    });
+
+    test('publishImportEventsAsync stamps every message with the task-wide taskTotalRanges, distinct from each message\'s own per-file totalRanges', async () => {
+        // File A: 3 ranges, file B: 1 range -- task-wide total is 4, but neither file's own
+        // totalRanges equals that, so a bug conflating the two would be immediately observable.
+        const inputs = [
+            { url: 'a.ndjson', fileSize: 3 * 1024 * 1024 },
+            { url: 'b.ndjson', fileSize: 500000 }
+        ];
+
+        await producer.publishImportEventsAsync({
+            taskId: 't1', inputs, requestId: 'r1', scope: 's', user: 'u'
+        });
+
+        const sentMessages = mockKafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0].messages
+            .map((m) => JSON.parse(m.value).data);
+
+        expect(sentMessages).toHaveLength(4);
+        for (const message of sentMessages) {
+            expect(message.taskTotalRanges).toBe(4);
+        }
+
+        const fileARanges = sentMessages.filter((m) => m.filepath === 'a.ndjson');
+        const fileBRanges = sentMessages.filter((m) => m.filepath === 'b.ndjson');
+        expect(fileARanges.every((m) => m.totalRanges === 3)).toBe(true);
+        expect(fileBRanges.every((m) => m.totalRanges === 1)).toBe(true);
+    });
+
+    describe('publishRangeProgressEventAsync', () => {
+        test('does nothing when kafka is disabled', async () => {
+            mockConfigManager.kafkaV2EnableEvents = false;
+            await producer.publishRangeProgressEventAsync({
+                type: 'ImportRangeStarted',
+                data: { taskId: 't1', filepath: 'a.ndjson', rangeIndex: 0, taskTotalRanges: 1 }
+            });
+            expect(mockKafkaClientV2.sendCloudEventMessageAsync).not.toHaveBeenCalled();
+        });
+
+        test('publishes a CloudEvent of the given type onto the range-progress topic, keyed by taskId', async () => {
+            await producer.publishRangeProgressEventAsync({
+                type: 'ImportRangeCompleted',
+                data: {
+                    taskId: 't1', filepath: 'a.ndjson', rangeIndex: 0, taskTotalRanges: 1,
+                    resultUri: 's3://bucket/result.ndjson', errorUri: null
+                }
+            });
+
+            expect(mockKafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(1);
+            const { topic, messages } = mockKafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0];
+            expect(topic).toBe('import-range-progress');
+            expect(messages).toHaveLength(1);
+            expect(messages[0].key).toBe('t1');
+
+            const cloudEvent = JSON.parse(messages[0].value);
+            expect(cloudEvent.type).toBe('ImportRangeCompleted');
+            expect(cloudEvent.data).toEqual({
+                taskId: 't1', filepath: 'a.ndjson', rangeIndex: 0, taskTotalRanges: 1,
+                resultUri: 's3://bucket/result.ndjson', errorUri: null
+            });
+        });
+
+        test('propagates a Kafka send failure rather than swallowing it', async () => {
+            mockKafkaClientV2.sendCloudEventMessageAsync.mockRejectedValueOnce(new Error('broker unavailable'));
+            await expect(producer.publishRangeProgressEventAsync({
+                type: 'ImportRangeFailed',
+                data: { taskId: 't1', filepath: 'a.ndjson', rangeIndex: 0, taskTotalRanges: 1, errorMessage: 'boom' }
+            })).rejects.toThrow('broker unavailable');
+        });
     });
 });

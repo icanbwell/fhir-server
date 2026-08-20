@@ -5,6 +5,9 @@
  * - parseTaskCreatedEvent: validation of event type, taskId, and handling of untrusted fields
  * - headS3FilesAsync: S3 bucket allowlist enforcement, URI validation, file size checks
  * - handleMessageAsync: end-to-end message handling, logging of sensitive data
+ * - handleRangeProgressEventAsync (ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed):
+ *   the orchestrator's role as the sole writer of a Task's status/output once it exists
+ * - countCompletedRanges: recognizing which ranges have already reported completion
  *
  * Security-critical scenarios are documented inline.
  */
@@ -64,7 +67,11 @@ function createMockConfigManager(overrides = {}) {
 
 /**
  * Creates a mock Task resource with a working clone() (needed by
- * updateOrchestratorTaskStatusAsync).
+ * updateOrchestratorTaskStatusAsync). clone() returns another mock Task (itself
+ * re-cloneable) rather than a plain object -- handleRangeCompletedAsync clones once to
+ * append output, then may pass that clone into updateOrchestratorTaskStatusAsync, which
+ * clones again to flip status; a plain `{...task}` spread would lose `.clone` on the second
+ * hop and throw.
  * @param {Object} [overrides]
  */
 function createMockTask(overrides = {}) {
@@ -75,7 +82,7 @@ function createMockTask(overrides = {}) {
         meta: { lastUpdated: '2026-01-01T00:00:00.000Z' },
         ...overrides
     };
-    task.clone = jestGlobal.fn(() => ({ ...task }));
+    task.clone = jestGlobal.fn(() => createMockTask({ ...task, clone: undefined }));
     return task;
 }
 
@@ -109,6 +116,40 @@ function createHandler(configOverrides = {}, depsOverrides = {}) {
         postRequestProcessor: {},
         requestSpecificCache: {},
         ...depsOverrides
+    });
+}
+
+/**
+ * Creates a valid ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed CloudEvent
+ * message value (JSON string).
+ */
+function createRangeProgressMessage(type, {
+    taskId = 'task-abc-123',
+    filepath = 's3://allowed-bucket/data/patients.ndjson',
+    rangeIndex = 0,
+    taskTotalRanges = 1,
+    resultUri,
+    errorUri,
+    errorMessage
+} = {}) {
+    const data = { taskId, filepath, rangeIndex, taskTotalRanges };
+    if (resultUri !== undefined) {
+        data.resultUri = resultUri;
+    }
+    if (errorUri !== undefined) {
+        data.errorUri = errorUri;
+    }
+    if (errorMessage !== undefined) {
+        data.errorMessage = errorMessage;
+    }
+
+    return JSON.stringify({
+        specversion: '1.0',
+        id: 'evt-range-001',
+        source: 'https://www.icanbwell.com/fhir-server',
+        type,
+        datacontenttype: 'application/json',
+        data
     });
 }
 
@@ -688,6 +729,296 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
                     doc: expect.objectContaining({ status: 'failed' })
                 })
             );
+        });
+    });
+
+    // =========================================================================
+    // handleRangeProgressEventAsync: ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed
+    //
+    // The worker never touches the Task resource -- these are the ONLY writes to a Task
+    // once it exists. Each test below captures the `doc` passed to updateOneAsync to verify
+    // exactly what the orchestrator wrote.
+    // =========================================================================
+    describe('handleRangeProgressEventAsync', () => {
+        /**
+         * @param {Object} [taskOverrides]
+         * @returns {{ handler: BulkImportHandler, updateOneAsync: Function, findOneAsync: Function }}
+         */
+        function createHandlerCapturingTaskWrites(taskOverrides = {}) {
+            const updateOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
+            const findOneAsync = jestGlobal.fn().mockResolvedValue(createMockTask(taskOverrides));
+            const handlerInstance = createHandler({}, {
+                databaseQueryFactory: {
+                    createQuery: jestGlobal.fn(() => ({ findOneAsync }))
+                },
+                databaseUpdateFactory: {
+                    createDatabaseUpdateManager: jestGlobal.fn(() => ({ updateOneAsync }))
+                }
+            });
+            return { handler: handlerInstance, updateOneAsync, findOneAsync };
+        }
+
+        describe('ImportRangeStarted', () => {
+            test('flips a requested Task to in-progress', async () => {
+                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({ status: 'requested' });
+
+                await h.handleMessageAsync({
+                    key: 'k1',
+                    value: createRangeProgressMessage('ImportRangeStarted'),
+                    headers: []
+                });
+
+                expect(updateOneAsync).toHaveBeenCalledWith(
+                    expect.objectContaining({ doc: expect.objectContaining({ status: 'in-progress' }) })
+                );
+            });
+
+            test('is a no-op if the Task is already past requested', async () => {
+                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({ status: 'in-progress' });
+
+                await h.handleMessageAsync({
+                    key: 'k1',
+                    value: createRangeProgressMessage('ImportRangeStarted'),
+                    headers: []
+                });
+
+                expect(updateOneAsync).not.toHaveBeenCalled();
+            });
+
+            test('logs and returns if the Task cannot be found', async () => {
+                const updateOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
+                const handlerInstance = createHandler({}, {
+                    databaseQueryFactory: {
+                        createQuery: jestGlobal.fn(() => ({ findOneAsync: jestGlobal.fn().mockResolvedValue(null) }))
+                    },
+                    databaseUpdateFactory: {
+                        createDatabaseUpdateManager: jestGlobal.fn(() => ({ updateOneAsync }))
+                    }
+                });
+
+                await handlerInstance.handleMessageAsync({
+                    key: 'k1',
+                    value: createRangeProgressMessage('ImportRangeStarted', { taskId: 'task-missing' }),
+                    headers: []
+                });
+
+                expect(logError).toHaveBeenCalledWith(
+                    'Task not found for bulk import range-progress message',
+                    expect.objectContaining({ taskId: 'task-missing' })
+                );
+                expect(updateOneAsync).not.toHaveBeenCalled();
+            });
+        });
+
+        describe('ImportRangeFailed', () => {
+            test('marks a non-terminal Task failed with the reported error message', async () => {
+                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({ status: 'in-progress' });
+
+                await h.handleMessageAsync({
+                    key: 'k1',
+                    value: createRangeProgressMessage('ImportRangeFailed', { errorMessage: 'S3 read timed out' }),
+                    headers: []
+                });
+
+                expect(updateOneAsync).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        doc: expect.objectContaining({
+                            status: 'failed',
+                            statusReason: expect.objectContaining({ text: 'S3 read timed out' })
+                        })
+                    })
+                );
+            });
+
+            // A range's failure report can arrive after every other range already completed
+            // the Task (e.g. redelivered, or simply slow) -- since the worker never checks
+            // Task state itself, this guard is the orchestrator's alone to enforce.
+            test('does not regress an already-completed Task back to failed', async () => {
+                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({ status: 'completed' });
+
+                await h.handleMessageAsync({
+                    key: 'k1',
+                    value: createRangeProgressMessage('ImportRangeFailed', { errorMessage: 'too late' }),
+                    headers: []
+                });
+
+                expect(updateOneAsync).not.toHaveBeenCalled();
+            });
+        });
+
+        describe('ImportRangeCompleted', () => {
+            test('appends result and error output entries stamped with a stable range id', async () => {
+                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({
+                    status: 'in-progress', output: []
+                });
+
+                await h.handleMessageAsync({
+                    key: 'k1',
+                    value: createRangeProgressMessage('ImportRangeCompleted', {
+                        filepath: 's3://allowed-bucket/Patient.ndjson',
+                        rangeIndex: 0,
+                        taskTotalRanges: 2,
+                        resultUri: 's3://allowed-bucket/output/Patient-001.ndjson',
+                        errorUri: 's3://allowed-bucket/output/errors/Patient-001-errors.ndjson'
+                    }),
+                    headers: []
+                });
+
+                const rangeEntryId = h.buildRangeOutputEntryId({
+                    filepath: 's3://allowed-bucket/Patient.ndjson', rangeIndex: 0
+                });
+                expect(updateOneAsync).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        doc: expect.objectContaining({
+                            output: [
+                                {
+                                    id: `${rangeEntryId}-result`,
+                                    type: { text: 'result' },
+                                    valueUri: 's3://allowed-bucket/output/Patient-001.ndjson'
+                                },
+                                {
+                                    id: `${rangeEntryId}-error`,
+                                    type: { text: 'error' },
+                                    valueUri: 's3://allowed-bucket/output/errors/Patient-001-errors.ndjson'
+                                }
+                            ]
+                        })
+                    })
+                );
+                // Only 1 of 2 task-wide ranges has reported -- must not complete yet, so
+                // updateOneAsync is called exactly once (the output append), not a second
+                // time for a status flip.
+                expect(updateOneAsync).toHaveBeenCalledTimes(1);
+            });
+
+            test('stamps a placeholder output entry for a range with no created/failed resources', async () => {
+                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({
+                    status: 'in-progress', output: []
+                });
+
+                await h.handleMessageAsync({
+                    key: 'k1',
+                    value: createRangeProgressMessage('ImportRangeCompleted', {
+                        taskTotalRanges: 2, resultUri: null, errorUri: null
+                    }),
+                    headers: []
+                });
+
+                const rangeEntryId = h.buildRangeOutputEntryId({
+                    filepath: 's3://allowed-bucket/data/patients.ndjson', rangeIndex: 0
+                });
+                expect(updateOneAsync).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        doc: expect.objectContaining({
+                            output: [{ id: rangeEntryId, type: { text: 'empty' } }]
+                        })
+                    })
+                );
+            });
+
+            test('flips the Task to completed once every range has reported', async () => {
+                const rangeEntryId0 = 'bulk-import-range:s3://allowed-bucket/data/patients.ndjson#0';
+                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({
+                    status: 'in-progress',
+                    output: [{ id: `${rangeEntryId0}-result`, type: { text: 'result' }, valueUri: 's3://x' }]
+                });
+
+                await h.handleMessageAsync({
+                    key: 'k1',
+                    value: createRangeProgressMessage('ImportRangeCompleted', {
+                        rangeIndex: 1,
+                        taskTotalRanges: 2,
+                        resultUri: 's3://allowed-bucket/output/Patient-002.ndjson',
+                        errorUri: null
+                    }),
+                    headers: []
+                });
+
+                // First call appends this range's output; second call flips status once
+                // countCompletedRanges sees both ranges represented.
+                expect(updateOneAsync).toHaveBeenCalledTimes(2);
+                expect(updateOneAsync).toHaveBeenNthCalledWith(2,
+                    expect.objectContaining({ doc: expect.objectContaining({ status: 'completed' }) })
+                );
+            });
+
+            test('is a no-op if the Task already reached completed (redelivery)', async () => {
+                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({ status: 'completed' });
+
+                await h.handleMessageAsync({
+                    key: 'k1',
+                    value: createRangeProgressMessage('ImportRangeCompleted', {
+                        resultUri: 's3://allowed-bucket/output/Patient-001.ndjson', errorUri: null
+                    }),
+                    headers: []
+                });
+
+                expect(updateOneAsync).not.toHaveBeenCalled();
+            });
+
+            test('is a no-op if this exact range was already recorded (redelivery before completion)', async () => {
+                const rangeEntryId = 'bulk-import-range:s3://allowed-bucket/data/patients.ndjson#0';
+                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({
+                    status: 'in-progress',
+                    output: [{ id: `${rangeEntryId}-result`, type: { text: 'result' }, valueUri: 's3://x' }]
+                });
+
+                await h.handleMessageAsync({
+                    key: 'k1',
+                    value: createRangeProgressMessage('ImportRangeCompleted', {
+                        taskTotalRanges: 2,
+                        resultUri: 's3://allowed-bucket/output/Patient-001.ndjson',
+                        errorUri: null
+                    }),
+                    headers: []
+                });
+
+                expect(updateOneAsync).not.toHaveBeenCalled();
+            });
+        });
+    });
+
+    // =========================================================================
+    // countCompletedRanges
+    // =========================================================================
+    describe('countCompletedRanges', () => {
+        test('returns 0 for a Task with no output entries', () => {
+            expect(handler.countCompletedRanges({ output: [] })).toBe(0);
+        });
+
+        test('returns 0 when output is undefined', () => {
+            expect(handler.countCompletedRanges({})).toBe(0);
+        });
+
+        test('counts a range with both a result and an error entry as one range, not two', () => {
+            const rangeEntryId = 'bulk-import-range:s3://bucket/a.ndjson#0';
+            const task = {
+                output: [
+                    { id: `${rangeEntryId}-result`, type: { text: 'result' }, valueUri: 's3://x' },
+                    { id: `${rangeEntryId}-error`, type: { text: 'error' }, valueUri: 's3://y' }
+                ]
+            };
+            expect(handler.countCompletedRanges(task)).toBe(1);
+        });
+
+        test('counts multiple distinct ranges', () => {
+            const task = {
+                output: [
+                    { id: 'bulk-import-range:s3://bucket/a.ndjson#0-result', type: { text: 'result' }, valueUri: 's3://x' },
+                    { id: 'bulk-import-range:s3://bucket/a.ndjson#1-result', type: { text: 'result' }, valueUri: 's3://y' },
+                    { id: 'bulk-import-range:s3://bucket/b.ndjson#0', type: { text: 'empty' } }
+                ]
+            };
+            expect(handler.countCompletedRanges(task)).toBe(3);
+        });
+
+        test('ignores output entries without a bulk-import-range id', () => {
+            const task = {
+                output: [
+                    { type: { text: 'error' }, valueUri: 's3://some-other-unrelated-output' }
+                ]
+            };
+            expect(handler.countCompletedRanges(task)).toBe(0);
         });
     });
 });

@@ -67,6 +67,11 @@ describe('BulkImportEventProducer', () => {
         expect(event0.data.byteRangeEnd).toBe(100 * 1024 * 1024);
         expect(event0.data.rangeIndex).toBe(0);
         expect(event0.data.totalRanges).toBe(3);
+        // Single-file Task, so the task-wide total equals this file's own range count --
+        // publishImportEventsAsync stamps taskTotalRanges (calculateTotalRangeCount) as well
+        // as totalRanges (this file's own count); see the dedicated
+        // "distinct taskTotalRanges" test below for the multi-file case where they differ.
+        expect(event0.data.taskTotalRanges).toBe(3);
         expect(event0.data.requestId).toBe('req-001');
 
         const event2 = JSON.parse(messages[2].value);
@@ -99,6 +104,20 @@ describe('BulkImportEventProducer', () => {
         const event1 = JSON.parse(messages[1].value);
         expect(event1.data.filepath).toBe('s3://bucket/Condition.ndjson');
         expect(event1.data.totalRanges).toBe(2);
+
+        // Task-wide total (3) is stamped on every message regardless of which file it
+        // belongs to, distinct from each file's own totalRanges (1 and 2 above).
+        for (const message of messages) {
+            expect(JSON.parse(message.value).data.taskTotalRanges).toBe(3);
+        }
+    });
+
+    test('calculateTotalRangeCount sums ranges across every input file', () => {
+        const total = producer.calculateTotalRangeCount([
+            { url: 's3://bucket/Patient.ndjson', fileSize: 100 * 1024 * 1024 },
+            { url: 's3://bucket/Condition.ndjson', fileSize: 200 * 1024 * 1024 }
+        ]);
+        expect(total).toBe(3);
     });
 
     test('publishImportEventsAsync returns 0 for empty inputs', async () => {
@@ -168,5 +187,67 @@ describe('BulkImportEventProducer', () => {
 
         expect(count).toBe(0);
         expect(disabledKafka.getCloudEventMessages()).toHaveLength(0);
+    });
+
+    describe('publishRangeProgressEventAsync', () => {
+        test('publishes an ImportRangeStarted CloudEvent keyed by taskId', async () => {
+            await producer.publishRangeProgressEventAsync({
+                type: 'ImportRangeStarted',
+                data: { taskId: 'task-006', filepath: 's3://bucket/Patient.ndjson', rangeIndex: 0, taskTotalRanges: 2 }
+            });
+
+            const messages = kafkaClientV2.getCloudEventMessages();
+            expect(messages).toHaveLength(1);
+            expect(messages[0].key).toBe('task-006');
+
+            const event = JSON.parse(messages[0].value);
+            expect(event.type).toBe('ImportRangeStarted');
+            expect(event.data).toEqual({
+                taskId: 'task-006', filepath: 's3://bucket/Patient.ndjson', rangeIndex: 0, taskTotalRanges: 2
+            });
+        });
+
+        test('publishes an ImportRangeCompleted CloudEvent carrying result/error S3 URIs', async () => {
+            await producer.publishRangeProgressEventAsync({
+                type: 'ImportRangeCompleted',
+                data: {
+                    taskId: 'task-007', filepath: 's3://bucket/Patient.ndjson', rangeIndex: 1, taskTotalRanges: 2,
+                    resultUri: 's3://bucket/output/Patient-002.ndjson', errorUri: null
+                }
+            });
+
+            const event = JSON.parse(kafkaClientV2.getCloudEventMessages()[0].value);
+            expect(event.type).toBe('ImportRangeCompleted');
+            expect(event.data.resultUri).toBe('s3://bucket/output/Patient-002.ndjson');
+            expect(event.data.errorUri).toBeNull();
+        });
+
+        test('publishes an ImportRangeFailed CloudEvent carrying the error message', async () => {
+            await producer.publishRangeProgressEventAsync({
+                type: 'ImportRangeFailed',
+                data: {
+                    taskId: 'task-008', filepath: 's3://bucket/Patient.ndjson', rangeIndex: 0, taskTotalRanges: 1,
+                    errorMessage: 'S3 read timed out'
+                }
+            });
+
+            const event = JSON.parse(kafkaClientV2.getCloudEventMessages()[0].value);
+            expect(event.type).toBe('ImportRangeFailed');
+            expect(event.data.errorMessage).toBe('S3 read timed out');
+        });
+
+        test('skips sending when Kafka v2 events are disabled', async () => {
+            delete process.env.ENABLE_EVENTS_KAFKA_V2;
+            const configManager = new ConfigManager();
+            const disabledKafka = new MockKafkaClientV2({ configManager });
+            const disabledProducer = new BulkImportEventProducer({ kafkaClientV2: disabledKafka, configManager });
+
+            await disabledProducer.publishRangeProgressEventAsync({
+                type: 'ImportRangeStarted',
+                data: { taskId: 'task-disabled', filepath: 's3://bucket/Patient.ndjson', rangeIndex: 0, taskTotalRanges: 1 }
+            });
+
+            expect(disabledKafka.getCloudEventMessages()).toHaveLength(0);
+        });
     });
 });

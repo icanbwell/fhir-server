@@ -1284,12 +1284,19 @@ const createContainer = function () {
         searchQueryBuilder: c.searchQueryBuilder
     }));
 
-    // Routes messages on kafkaBulkImportTaskCreatedTopic to their handler by CloudEvent
-    // "type". TaskCreated is the only registered handler today; new event types on this
-    // topic are added here as another entry rather than a new topic+entrypoint+handler.
+    // Routes messages on kafkaBulkImportTaskCreatedTopic and kafkaBulkImportRangeProgressTopic
+    // to their handler by CloudEvent "type" -- the same dispatcher is registered as the job
+    // for both topics in orchestrator.js's getJobs, since both are consumed by the
+    // orchestrator and route to the same handler. ImportRangeStarted/ImportRangeCompleted/
+    // ImportRangeFailed are the only place a Task resource is ever written once it exists
+    // (see BulkImportHandler's class docstring); new event types are added here as another
+    // entry rather than a new topic+entrypoint+handler.
     container.register('bulkImportOrchestratorDispatcher', (c) => new KafkaEventDispatcher({
         handlersByEventType: {
-            TaskCreated: c.bulkImportHandler
+            TaskCreated: c.bulkImportHandler,
+            ImportRangeStarted: c.bulkImportHandler,
+            ImportRangeCompleted: c.bulkImportHandler,
+            ImportRangeFailed: c.bulkImportHandler
         }
     }));
 
