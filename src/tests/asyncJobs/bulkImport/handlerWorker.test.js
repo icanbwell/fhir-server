@@ -260,7 +260,10 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             value: makeCloudEvent({
                 taskId: 'import-consumer-audit',
                 user: 'bulk-import-service-account',
-                scope: 'user/*.write access/*.*'
+                scope: 'user/*.write access/*.*',
+                alternateUserId: 'bulk-import-alt-id',
+                isUser: true,
+                remoteIpAddress: '10.0.0.1'
             }),
             headers: []
         });
@@ -288,6 +291,13 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         expect(patientCreateAudit.entity[0].detail).toContainEqual(
             { type: 'requestUrl', valueString: '$import' }
         );
+        // The requester's identity (alternateUserId/isUser/remoteIpAddress) must be threaded
+        // all the way from the ImportRangeRequested event into buildRangeRequestInfo, not
+        // hardcoded to null/false -- otherwise every bulk-import AuditEvent would be missing
+        // who actually triggered the import.
+        expect(patientCreateAudit.agent[0].altId).toBe('bulk-import-alt-id');
+        expect(patientCreateAudit.agent[0].network.address).toBe('10.0.0.1');
+        expect(patientCreateAudit.agent[0].who.reference).toContain('bulk-import-service-account');
     });
 
     test('handleMessageAsync creates an error AuditEvent for a per-resource write failure', async () => {
