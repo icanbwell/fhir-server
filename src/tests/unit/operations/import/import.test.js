@@ -316,4 +316,54 @@ describe('ImportOperation - null safety and error handling', () => {
             expect(mocks.databaseQueryFactory.createQuery).toHaveBeenCalledTimes(2);
         });
     });
+
+    // ========== importAsync - TaskCreated event carries requester identity (BAI-432) ==========
+    describe('importAsync - TaskCreated event identity fields', () => {
+        test('publishes alternateUserId/isUser/remoteIpAddress from requestInfo on the TaskCreated event', async () => {
+            Object.defineProperty(mocks.configManager, 'kafkaV2EnableEvents', {
+                get: () => true,
+                configurable: true
+            });
+            importOp = new ImportOperation(mocks);
+
+            const mockDatabaseQueryManager = {
+                findOneAsync: jest.fn().mockResolvedValue(null)
+            };
+            const mockDatabaseUpdateManager = {
+                insertOneAsync: jest.fn().mockResolvedValue(undefined),
+                updateOneAsync: jest.fn().mockResolvedValue(undefined)
+            };
+            mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+            mocks.databaseUpdateFactory.createDatabaseUpdateManager = jest.fn().mockReturnValue(mockDatabaseUpdateManager);
+            mocks.kafkaClientV2.sendCloudEventMessageAsync = jest.fn().mockResolvedValue(undefined);
+
+            const requestInfo = {
+                requestId: 'req-1',
+                scope: 'user/*.*',
+                user: 'admin',
+                alternateUserId: 'admin-alt-id',
+                isUser: true,
+                remoteIpAddress: '203.0.113.5'
+            };
+
+            await importOp.importAsync({
+                requestInfo,
+                args: {
+                    base_version: '4_0_0',
+                    resource: {
+                        resourceType: 'Parameters',
+                        id: 'job-identity',
+                        parameter: [{ name: 'input', valueUri: 's3://my-bucket/file.ndjson' }]
+                    }
+                }
+            });
+
+            expect(mocks.kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(1);
+            const publishedMessage = mocks.kafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0].messages[0];
+            const publishedEvent = JSON.parse(publishedMessage.value);
+            expect(publishedEvent.data.alternateUserId).toBe('admin-alt-id');
+            expect(publishedEvent.data.isUser).toBe(true);
+            expect(publishedEvent.data.remoteIpAddress).toBe('203.0.113.5');
+        });
+    });
 });

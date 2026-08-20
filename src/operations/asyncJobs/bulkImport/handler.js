@@ -375,7 +375,7 @@ class BulkImportHandler {
             return;
         }
 
-        const { taskId, inputs, requestId, scope, user } = eventData;
+        const { taskId, inputs, requestId, scope, user, alternateUserId, isUser, remoteIpAddress } = eventData;
 
         logInfo('Orchestrator received TaskCreated event', {
             taskId,
@@ -409,7 +409,10 @@ class BulkImportHandler {
             inputs: inputsWithSizes,
             requestId,
             scope,
-            user
+            user,
+            alternateUserId,
+            isUser,
+            remoteIpAddress
         });
 
         logInfo('Orchestrator published byte-range messages', {
@@ -424,14 +427,15 @@ class BulkImportHandler {
      * Builds a request-scoped FhirRequestInfo for a single byte-range's writes.
      * A fresh requestId is required per range so concurrent ranges don't share
      * the singleton FastDatabaseBulkInserter's buffered-operations map.
-     * @param {{ user: string|null, scope: string|null }} params
+     * @param {{ user: string|null, scope: string|null, alternateUserId: string|undefined,
+     *   isUser: boolean|undefined, remoteIpAddress: string|undefined }} params
      * @returns {FhirRequestInfo}
      */
-    buildRangeRequestInfo({ user, scope }) {
+    buildRangeRequestInfo({ user, scope, alternateUserId, isUser, remoteIpAddress }) {
         return new FhirRequestInfo({
             user: user || null,
             scope: scope || null,
-            remoteIpAddress: null,
+            remoteIpAddress: remoteIpAddress || null,
             requestId: generateUUID(),
             userRequestId: null,
             protocol: 'kafka',
@@ -440,7 +444,7 @@ class BulkImportHandler {
             host: null,
             body: null,
             accept: 'application/fhir+json',
-            isUser: false,
+            isUser: Boolean(isUser),
             userType: null,
             personIdFromJwtToken: null,
             masterPersonIdFromJwtToken: null,
@@ -448,7 +452,7 @@ class BulkImportHandler {
             headers: {},
             method: 'POST',
             contentTypeFromHeader: null,
-            alternateUserId: null,
+            alternateUserId: alternateUserId || null,
             actor: null,
             purposeOfUse: null
         });
@@ -773,7 +777,10 @@ class BulkImportHandler {
             return;
         }
 
-        const { taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, fileSize, user, scope } = eventData;
+        const {
+            taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, fileSize,
+            user, scope, alternateUserId, isUser, remoteIpAddress
+        } = eventData;
         const rangeStartTimeMs = Date.now();
 
         logInfo('Processing bulk import range', {
@@ -791,7 +798,7 @@ class BulkImportHandler {
             return;
         }
 
-        const requestInfo = this.buildRangeRequestInfo({ user, scope });
+        const requestInfo = this.buildRangeRequestInfo({ user, scope, alternateUserId, isUser, remoteIpAddress });
 
         if (task.status === 'requested') {
             await this.updateTaskStatusAsync(task, 'in-progress', undefined, requestInfo);
