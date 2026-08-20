@@ -848,6 +848,55 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
                 expect(updateOneAsync).not.toHaveBeenCalled();
             });
 
+            // S3 URI allowlist -- filepath, resultUri, and errorUri are written into
+            // Task.output as-is, so a compromised worker (or a replayed message that passed
+            // HMAC verification) must not be able to inject arbitrary URIs into Task output.
+            test('rejects a message whose filepath is not in the S3 allowlist', async () => {
+                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({ status: 'requested' });
+                const data = { taskId: 'task-abc-123', filepath: 's3://disallowed-bucket/data/patients.ndjson', rangeIndex: 0, taskTotalRanges: 1 };
+                data.signature = signRangeProgressPayload(data);
+
+                await h.handleMessageAsync({
+                    key: 'k1',
+                    value: JSON.stringify({
+                        specversion: '1.0', id: 'evt-1', source: 'https://www.icanbwell.com/fhir-server',
+                        type: 'ImportRangeStarted', datacontenttype: 'application/json', data
+                    }),
+                    headers: []
+                });
+
+                expect(logError).toHaveBeenCalledWith(
+                    'Failed to parse bulk import range-progress Kafka message',
+                    expect.objectContaining({ error: expect.stringContaining('disallowed S3 bucket') })
+                );
+                expect(updateOneAsync).not.toHaveBeenCalled();
+            });
+
+            test('rejects a message whose resultUri is not in the S3 allowlist', async () => {
+                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({ status: 'in-progress' });
+                const data = {
+                    taskId: 'task-abc-123', filepath: 's3://allowed-bucket/data/patients.ndjson',
+                    rangeIndex: 0, taskTotalRanges: 1,
+                    resultUri: 's3://evil-bucket/result.ndjson', errorUri: null
+                };
+                data.signature = signRangeProgressPayload(data);
+
+                await h.handleMessageAsync({
+                    key: 'k1',
+                    value: JSON.stringify({
+                        specversion: '1.0', id: 'evt-1', source: 'https://www.icanbwell.com/fhir-server',
+                        type: 'ImportRangeCompleted', datacontenttype: 'application/json', data
+                    }),
+                    headers: []
+                });
+
+                expect(logError).toHaveBeenCalledWith(
+                    'Failed to parse bulk import range-progress Kafka message',
+                    expect.objectContaining({ error: expect.stringContaining('disallowed S3 bucket') })
+                );
+                expect(updateOneAsync).not.toHaveBeenCalled();
+            });
+
             test('rejects every range-progress message when the worker secret is not configured', async () => {
                 const updateOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
                 const handlerInstance = createHandler({ bulkImportWorkerSecret: undefined }, {

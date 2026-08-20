@@ -478,8 +478,30 @@ class BulkImportHandler {
     }
 
     /**
+     * Validates a single S3 URI against the configured bucket allowlist. Called from
+     * parseRangeProgressEvent for every URI in a range-progress event -- filepath, resultUri,
+     * and errorUri are written into Task.output as-is, so an unvalidated URI from a compromised
+     * worker (or a replayed/forged message that passed HMAC verification) could inject arbitrary
+     * URIs into Task output. The same allowlist that guards initial $import inputs applies here.
+     * @param {string} uri
+     * @throws {Error} if the URI is not a valid s3:// URI or its bucket is not allowed
+     */
+    validateRangeProgressS3Uri(uri) {
+        const match = uri.match(/^s3:\/\/([^/]+)\/(.+)$/);
+        if (!match) {
+            throw new Error(`Range-progress event contains an invalid S3 URI: "${uri}"`);
+        }
+        const bucket = match[1];
+        const allowedBuckets = this.configManager.bulkImportAllowedS3Buckets;
+        if (!allowedBuckets.includes(bucket)) {
+            throw new Error(`Range-progress event references a disallowed S3 bucket: "${bucket}"`);
+        }
+    }
+
+    /**
      * Parses an ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed CloudEvent message,
-     * verifying its signature before returning any of its data as trustworthy.
+     * verifying its signature and that every S3 URI it carries is from an allowed bucket before
+     * returning any of its data as trustworthy.
      * @param {string} messageValue
      * @returns {Object} parsed CloudEvent data
      */
@@ -489,6 +511,14 @@ class BulkImportHandler {
             throw new Error(`Invalid ${envelope.type} event: missing taskId or filepath`);
         }
         this.verifyRangeProgressSignature(envelope.data);
+        const { filepath, resultUri, errorUri } = envelope.data;
+        this.validateRangeProgressS3Uri(filepath);
+        if (resultUri) {
+            this.validateRangeProgressS3Uri(resultUri);
+        }
+        if (errorUri) {
+            this.validateRangeProgressS3Uri(errorUri);
+        }
         return envelope.data;
     }
 
