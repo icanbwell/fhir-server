@@ -31,7 +31,7 @@ jestGlobal.mock('../../../dataLayer/bulkWriteRequestContext', () => ({
     }))
 }));
 
-const { AuditLogger } = require('../../../utils/auditLogger');
+const { AuditLogger, sanitizeOutcomeDesc } = require('../../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -282,6 +282,25 @@ describe('AuditLogger', () => {
             expect(entry.entity[1].detail).toBeNull();
             expect(entry.entity[2].detail).toBeNull();
         });
+
+        test('should include outcome and outcomeDesc when provided', () => {
+            const requestInfo = { isUser: false, actor: {} };
+            const entry = auditLogger.createAuditEntry({
+                requestInfo, resourceType: 'Patient', operation: 'read', args: {}, ids: ['1'],
+                outcome: '8', outcomeDesc: 'Simulated mongo cursor timeout'
+            });
+            expect(entry.outcome).toBe('8');
+            expect(entry.outcomeDesc).toBe('Simulated mongo cursor timeout');
+        });
+
+        test('should omit outcome and outcomeDesc when not provided', () => {
+            const requestInfo = { isUser: false, actor: {} };
+            const entry = auditLogger.createAuditEntry({
+                requestInfo, resourceType: 'Patient', operation: 'read', args: {}, ids: ['1']
+            });
+            expect(entry.outcome).toBeUndefined();
+            expect(entry.outcomeDesc).toBeUndefined();
+        });
     });
 
     // =====================================================
@@ -324,6 +343,27 @@ describe('AuditLogger', () => {
             });
             expect(auditLogger.queue).toHaveLength(1);
             expect(auditLogger.queue[0].doc.resourceType).toBe('AuditEvent');
+        });
+
+        test('should still enqueue one AuditEvent with empty entity when ids is empty and outcome is provided', async () => {
+            const requestInfo = { isUser: false, requestId: 'r1', actor: {} };
+            await auditLogger.logAuditEntryAsync({
+                requestInfo, base_version: '4_0_0', resourceType: 'Patient',
+                operation: 'read', args: {}, ids: [],
+                outcome: '8', outcomeDesc: 'Simulated mongo cursor timeout'
+            });
+            expect(auditLogger.queue).toHaveLength(1);
+            expect(auditLogger.queue[0].doc.entity).toEqual([]);
+            expect(auditLogger.queue[0].doc.outcome).toBe('8');
+        });
+
+        test('should remain a no-op when ids is empty and outcome is not provided', async () => {
+            const requestInfo = { isUser: false, requestId: 'r1', actor: {} };
+            await auditLogger.logAuditEntryAsync({
+                requestInfo, base_version: '4_0_0', resourceType: 'Patient',
+                operation: 'read', args: {}, ids: []
+            });
+            expect(auditLogger.queue).toHaveLength(0);
         });
     });
 
@@ -448,5 +488,58 @@ describe('AuditLogger', () => {
             ];
             await expect(auditLogger.flushAsync()).rejects.toThrow();
         });
+    });
+});
+
+describe('sanitizeOutcomeDesc', () => {
+    test('returns the real error message for a 403', () => {
+        const result = sanitizeOutcomeDesc({ error: new Error('scope mismatch'), statusCode: 403 });
+        expect(result).toBe('scope mismatch');
+    });
+
+    test('falls back to issue diagnostics for a 403 with no message', () => {
+        const error = new Error();
+        error.message = '';
+        error.issue = [{ diagnostics: 'insufficient scope' }];
+        const result = sanitizeOutcomeDesc({ error, statusCode: 403 });
+        expect(result).toBe('insufficient scope');
+    });
+
+    test('falls back to issue details text for a 403 with no message or diagnostics', () => {
+        const error = new Error();
+        error.message = '';
+        error.issue = [{ details: { text: 'access denied' } }];
+        const result = sanitizeOutcomeDesc({ error, statusCode: 403 });
+        expect(result).toBe('access denied');
+    });
+
+    test('falls back to Forbidden for a 403 with nothing else available', () => {
+        const error = new Error();
+        error.message = '';
+        const result = sanitizeOutcomeDesc({ error, statusCode: 403 });
+        expect(result).toBe('Forbidden');
+    });
+
+    test('returns a generic status-code string for a 500, not the real message', () => {
+        const result = sanitizeOutcomeDesc({
+            error: new Error('MongoServerSelectionError: connection timed out to mongo-shard-3.internal:27017'),
+            statusCode: 500
+        });
+        expect(result).toBe('Internal Server Error');
+    });
+
+    test('returns a generic status-code string for a 400, not the real message', () => {
+        const result = sanitizeOutcomeDesc({ error: new Error('No id was passed'), statusCode: 400 });
+        expect(result).toBe('Bad Request');
+    });
+
+    test('returns a generic status-code string for a 404', () => {
+        const result = sanitizeOutcomeDesc({ error: new Error('not found'), statusCode: 404 });
+        expect(result).toBe('Not Found');
+    });
+
+    test('falls back to Internal Server Error for an unrecognized status code', () => {
+        const result = sanitizeOutcomeDesc({ error: new Error('whatever'), statusCode: 0 });
+        expect(result).toBe('Internal Server Error');
     });
 });

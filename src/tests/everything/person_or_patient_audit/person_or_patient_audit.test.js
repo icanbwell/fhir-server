@@ -14,10 +14,54 @@ const {
     getTestContainer,
     mockHttpContext
 } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { AuditLogger } = require('../../../utils/auditLogger');
+const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
 const headers = getHeaders('patient/*.* user/*.* access/*.*');
+
+/**
+ * Merges the standard Patient + Observation x2 + Condition + MedicationRequest + Organization
+ * fixture set shared by every test in this file.
+ * @param {import('supertest').SuperTest<import('supertest').Test>} request
+ */
+async function arrangeAuditTestDataAsync(request) {
+    let resp = await request
+        .post('/4_0_0/Patient/patient1/$merge?validate=true')
+        .send(patient1Resource)
+        .set(getHeaders());
+    expect(resp).toHaveMergeResponse({ created: true });
+
+    resp = await request
+        .post('/4_0_0/Observation/2354-InAgeCohort/$merge?validate=true')
+        .send(observation1Resource)
+        .set(getHeaders());
+    expect(resp).toHaveMergeResponse({ created: true });
+
+    resp = await request
+        .post('/4_0_0/Observation/2353-InPatientMeasure/$merge?validate=true')
+        .send(observation2Resource)
+        .set(getHeaders());
+    expect(resp).toHaveMergeResponse({ created: true });
+
+    resp = await request
+        .post('/4_0_0/Condition/condition1/$merge?validate=true')
+        .send(condition1Resource)
+        .set(getHeaders());
+    expect(resp).toHaveMergeResponse({ created: true });
+
+    resp = await request
+        .post('/4_0_0/MedicationRequest/medicationRequest1/$merge?validate=true')
+        .send(medicationRequest1Resource)
+        .set(getHeaders());
+    expect(resp).toHaveMergeResponse({ created: true });
+
+    resp = await request
+        .post('/4_0_0/Organization/org1/$merge?validate=true')
+        .send(organization1Resource)
+        .set(getHeaders());
+    expect(resp).toHaveMergeResponse({ created: true });
+}
 
 describe('Person and Patient $everything Audit Logging Tests', () => {
     let requestId;
@@ -76,47 +120,7 @@ describe('Person and Patient $everything Audit Logging Tests', () => {
             const auditEventCollection = auditEventDb.collection(mongoCollectionName);
 
             // ARRANGE - Add test data
-            // Add a patient
-            let resp = await request
-                .post('/4_0_0/Patient/patient1/$merge?validate=true')
-                .send(patient1Resource)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            // Add observations
-            resp = await request
-                .post('/4_0_0/Observation/2354-InAgeCohort/$merge?validate=true')
-                .send(observation1Resource)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Observation/2353-InPatientMeasure/$merge?validate=true')
-                .send(observation2Resource)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            // Add condition
-            resp = await request
-                .post('/4_0_0/Condition/condition1/$merge?validate=true')
-                .send(condition1Resource)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            // Add medication request
-            resp = await request
-                .post('/4_0_0/MedicationRequest/medicationRequest1/$merge?validate=true')
-                .send(medicationRequest1Resource)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            // Add organnization request
-
-            resp = await request
-                .post('/4_0_0/Organization/org1/$merge?validate=true')
-                .send(organization1Resource)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
+            await arrangeAuditTestDataAsync(request);
 
             // Clear any existing audit events from setup
             await postRequestProcessor.waitTillDoneAsync({ requestId });
@@ -124,7 +128,7 @@ describe('Person and Patient $everything Audit Logging Tests', () => {
             await auditEventCollection.deleteMany({});
 
             // Call $everything endpoint
-            resp = await request
+            let resp = await request
                 .get('/4_0_0/Patient/patient1/$everything')
                 .set(getHeaders());
 
@@ -170,6 +174,8 @@ describe('Person and Patient $everything Audit Logging Tests', () => {
                 expect(log.type).toBeDefined();
                 expect(log.action).toBe('R'); // Read action
                 expect(log.recorded).toBeDefined();
+                expect(log.outcome).toBeUndefined();
+                expect(log.outcomeDesc).toBeUndefined();
 
                 // Entity validation
                 expect(log.entity).toBeDefined();
@@ -188,6 +194,146 @@ describe('Person and Patient $everything Audit Logging Tests', () => {
                 expect(resourceTypes.size).toBe(1);
             });
 
+        });
+
+        test('Patient $everything mid-stream cursor failure still audits resources already streamed', async () => {
+            const request = await createTestRequest((container) => {
+                container.register(
+                    'auditLogger',
+                    (c) =>
+                        new AuditLogger({
+                            postRequestProcessor: c.postRequestProcessor,
+                            databaseBulkInserter: c.fastDatabaseBulkInserter,
+                            preSaveManager: c.preSaveManager,
+                            configManager: c.configManager
+                        })
+                );
+                return container;
+            });
+            const container = getTestContainer();
+            const postRequestProcessor = container.postRequestProcessor;
+            const auditLogger = container.auditLogger;
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
+            const auditEventCollection = auditEventDb.collection('AuditEvent_4_0_0');
+
+            await arrangeAuditTestDataAsync(request);
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+            await auditEventCollection.deleteMany({});
+
+            // Simulate a mid-stream Mongo failure: every related resource type streams
+            // normally except Condition, whose cursor throws once asked for its one document.
+            // The _type filter below restricts clinicalRelatedResources to exactly Condition,
+            // Observation, and MedicationRequest (see everythingRelatedResourceManager.js),
+            // so all 3 are fetched in the SAME Promise.allSettled batch (well within the
+            // everythingMaxParallelProcess default of 10) -- this exercises the allSettled fix,
+            // since Observation/MedicationRequest must still complete and be audited despite
+            // their sibling Condition rejecting.
+            const originalNext = DatabaseCursor.prototype.next;
+            const nextSpy = jest.spyOn(DatabaseCursor.prototype, 'next').mockImplementation(async function () {
+                if (this.resourceType === 'Condition') {
+                    throw new Error('Simulated mongo cursor timeout');
+                }
+                return originalNext.call(this);
+            });
+
+            let resp;
+            try {
+                resp = await request
+                    .get('/4_0_0/Patient/patient1/$everything?_type=Condition,Observation,MedicationRequest')
+                    .set(getHeaders());
+            } finally {
+                nextSpy.mockRestore();
+            }
+
+            // Sanity check that the simulated failure actually triggered -- existing behavior,
+            // unchanged by this fix: HTTP 200 with a partial Bundle plus an OperationOutcome.
+            expect(resp.body.entry.some((e) => e.resource?.resourceType === 'OperationOutcome')).toBe(true);
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+            const auditLogs = await auditEventCollection.find({}).toArray();
+
+            // One AuditEvent for Observation (both Observations grouped into one per-type
+            // event) and one for MedicationRequest -- Condition never produces an event.
+            expect(auditLogs.length).toBe(2);
+
+            const allReferences = [];
+            auditLogs.forEach((log) => {
+                log.entity.forEach((entity) => {
+                    if (entity.what?.reference) {
+                        allReferences.push(entity.what.reference);
+                    }
+                });
+            });
+
+            // Both Observations and MedicationRequest were streamed before Condition's cursor
+            // threw -- they must still be audited despite their sibling Condition rejecting.
+            expect(allReferences).toContain('Observation/61886699-c643-5e3b-a074-569e4c43bddf');
+            expect(allReferences).toContain('Observation/a78fb907-0afc-5f47-92bc-aa72cc05cda1');
+            expect(allReferences).toContain('MedicationRequest/9d63064f-8ccc-5452-aad2-2ce6ffd5371a');
+            // Condition's cursor threw before yielding anything -- it must NOT appear.
+            expect(allReferences).not.toContain('Condition/b805f61e-6087-55be-87f3-2eddffb320e3');
+
+            auditLogs.forEach((log) => {
+                expect(log.outcome).toBe('8');
+                expect(log.outcomeDesc).toBe('Internal Server Error');
+            });
+        });
+
+        test('Patient $everything failure before any resource is streamed still records an audit event', async () => {
+            const request = await createTestRequest((container) => {
+                container.register(
+                    'auditLogger',
+                    (c) =>
+                        new AuditLogger({
+                            postRequestProcessor: c.postRequestProcessor,
+                            databaseBulkInserter: c.fastDatabaseBulkInserter,
+                            preSaveManager: c.preSaveManager,
+                            configManager: c.configManager
+                        })
+                );
+                return container;
+            });
+            const container = getTestContainer();
+            const postRequestProcessor = container.postRequestProcessor;
+            const auditLogger = container.auditLogger;
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
+            const auditEventCollection = auditEventDb.collection('AuditEvent_4_0_0');
+
+            await arrangeAuditTestDataAsync(request);
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+            await auditEventCollection.deleteMany({});
+
+            // Simulate a failure on the very first query -- the base Patient fetch itself --
+            // before any resource has been streamed.
+            const originalHasNext = DatabaseCursor.prototype.hasNext;
+            const hasNextSpy = jest.spyOn(DatabaseCursor.prototype, 'hasNext').mockImplementation(async function () {
+                if (this.resourceType === 'Patient') {
+                    throw new Error('Simulated mongo cursor timeout on first query');
+                }
+                return originalHasNext.call(this);
+            });
+
+            try {
+                await request.get('/4_0_0/Patient/patient1/$everything').set(getHeaders());
+            } finally {
+                hasNextSpy.mockRestore();
+            }
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+            const auditLogs = await auditEventCollection.find({}).toArray();
+
+            expect(auditLogs.length).toBe(1);
+            expect(auditLogs[0].entity).toBeUndefined();
+            expect(auditLogs[0].outcome).toBe('8');
+            expect(auditLogs[0].outcomeDesc).toBe('Internal Server Error');
         });
     });
 });
