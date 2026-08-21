@@ -13,7 +13,7 @@ const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { ScopesManager } = require('../security/scopesManager');
 const { SecurityTagManager } = require('../common/securityTagManager');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
-const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../constants');
+const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, CLOUD_EVENT, BULK_IMPORT_TASK } = require('../../constants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { generateUUID, isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { logInfo, logError } = require('../common/logging');
@@ -187,8 +187,8 @@ class ImportOperation {
             code: {
                 coding: [
                     new Coding({
-                        system: 'https://www.icanbwell.com/task-type',
-                        code: 'bulk-import'
+                        system: BULK_IMPORT_TASK.TYPE_SYSTEM,
+                        code: BULK_IMPORT_TASK.TYPE_CODE
                     })
                 ]
             },
@@ -320,7 +320,7 @@ class ImportOperation {
                 const taskCreatedEvent = {
                     specversion: '1.0',
                     id: generateUUID(),
-                    source: 'https://www.icanbwell.com/fhir-server',
+                    source: CLOUD_EVENT.SOURCE,
                     type: 'TaskCreated',
                     datacontenttype: 'application/json',
                     data: {

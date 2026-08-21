@@ -31,6 +31,16 @@ function getJobs(container) {
             // A message still failing after 3 retries goes here instead of blocking the
             // partition forever — see kafkaClientV2.receiveMessagesAsync's deadLetterTopic option.
             deadLetterTopic: `${configManager.kafkaBulkImportTaskCreatedTopic}.dlt`
+        },
+        {
+            // Workers report per-range progress here instead of writing to the Task
+            // themselves -- the orchestrator is the only process that ever updates a Task
+            // once it exists, so there is exactly one writer and no concurrent-update race.
+            topic: configManager.kafkaBulkImportRangeProgressTopic,
+            groupId: configManager.bulkImportOrchestratorGroupId,
+            dispatcher: container.bulkImportOrchestratorDispatcher,
+            label: 'bulk-import-range-progress',
+            deadLetterTopic: `${configManager.kafkaBulkImportRangeProgressTopic}.dlt`
         }
     ];
 }
