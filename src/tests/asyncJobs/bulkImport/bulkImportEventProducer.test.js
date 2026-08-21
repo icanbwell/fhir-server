@@ -9,9 +9,6 @@ describe('BulkImportEventProducer', () => {
 
     beforeEach(() => {
         process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
-        // publishRangeProgressEventAsync signs every message and refuses to publish
-        // unsigned if this isn't set (see BulkImportEventProducer.signRangeProgressPayload).
-        process.env.BULK_IMPORT_WORKER_SECRET = 'test-worker-secret';
         const configManager = new ConfigManager();
         kafkaClientV2 = new MockKafkaClientV2({ configManager });
         producer = new BulkImportEventProducer({ kafkaClientV2, configManager });
@@ -19,7 +16,6 @@ describe('BulkImportEventProducer', () => {
 
     afterEach(() => {
         delete process.env.ENABLE_EVENTS_KAFKA_V2;
-        delete process.env.BULK_IMPORT_WORKER_SECRET;
     });
 
     test('calculateByteRanges splits a file into correct ranges', () => {
@@ -194,7 +190,7 @@ describe('BulkImportEventProducer', () => {
     });
 
     describe('publishRangeProgressEventAsync', () => {
-        test('publishes an ImportRangeStarted CloudEvent keyed by taskId, signed with a verifiable signature', async () => {
+        test('publishes an ImportRangeStarted CloudEvent keyed by taskId', async () => {
             const data = { taskId: 'task-006', filepath: 's3://bucket/Patient.ndjson', rangeIndex: 0, taskTotalRanges: 2 };
             await producer.publishRangeProgressEventAsync({ type: 'ImportRangeStarted', data });
 
@@ -204,26 +200,7 @@ describe('BulkImportEventProducer', () => {
 
             const event = JSON.parse(messages[0].value);
             expect(event.type).toBe('ImportRangeStarted');
-            expect(event.data).toMatchObject(data);
-            expect(typeof event.data.signature).toBe('string');
-            expect(event.data.signature.length).toBeGreaterThan(0);
-        });
-
-        test('throws instead of publishing an unsigned event when the worker secret is not configured', async () => {
-            delete process.env.BULK_IMPORT_WORKER_SECRET;
-
-            await expect(producer.publishRangeProgressEventAsync({
-                type: 'ImportRangeStarted',
-                data: { taskId: 'task-unsigned', filepath: 's3://bucket/Patient.ndjson', rangeIndex: 0, taskTotalRanges: 1 }
-            })).rejects.toThrow('bulkImportWorkerSecret is not configured');
-
-            expect(kafkaClientV2.getCloudEventMessages()).toHaveLength(0);
-        });
-
-        test('signRangeProgressPayload produces a different signature for a different payload', () => {
-            const sigA = producer.signRangeProgressPayload({ taskId: 'a', rangeIndex: 0 });
-            const sigB = producer.signRangeProgressPayload({ taskId: 'b', rangeIndex: 0 });
-            expect(sigA).not.toBe(sigB);
+            expect(event.data).toEqual(data);
         });
 
         test('publishes an ImportRangeCompleted CloudEvent carrying result/error S3 URIs', async () => {

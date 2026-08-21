@@ -11,16 +11,7 @@
  *
  * Security-critical scenarios are documented inline.
  */
-const crypto = require('crypto');
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
-
-const TEST_WORKER_SECRET = 'test-worker-secret';
-
-// Mirrors BulkImportEventProducer.signRangeProgressPayload -- createRangeProgressMessage
-// below builds messages by hand rather than via the real producer, so it needs to sign the
-// payload itself the same way.
-const signRangeProgressPayload = (data) =>
-    crypto.createHmac('sha256', TEST_WORKER_SECRET).update(JSON.stringify(data)).digest('hex');
 
 // Mock logging before importing the module under test
 jestGlobal.mock('../../../../../operations/common/logging', () => {
@@ -65,11 +56,6 @@ function createMockConfigManager(overrides = {}) {
         awsRegion: 'us-east-1',
         bulkImportMinFileSizeMb: 0,
         bulkImportMaxFileSizeGb: 5,
-        // handleRangeProgressEventAsync's parseRangeProgressEvent refuses to trust a
-        // range-progress message without this configured (see
-        // BulkImportHandler.verifyRangeProgressSignature) -- createRangeProgressMessage below
-        // signs with this exact value so the two stay in sync.
-        bulkImportWorkerSecret: TEST_WORKER_SECRET,
         ...overrides
     };
     const obj = {};
@@ -157,8 +143,6 @@ function createRangeProgressMessage(type, {
     if (errorMessage !== undefined) {
         data.errorMessage = errorMessage;
     }
-    data.signature = signRangeProgressPayload(data);
-
     return JSON.stringify({
         specversion: '1.0',
         id: 'evt-range-001',
@@ -773,154 +757,6 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
             });
             return { handler: handlerInstance, updateOneAsync, findOneAsync };
         }
-
-        // IDOR: without signature verification, anyone able to publish onto
-        // kafkaBulkImportRangeProgressTopic could forge a message with an arbitrary taskId and
-        // manipulate any Task's status/output -- these are the only authentication this topic
-        // has, so parseRangeProgressEvent must reject rather than trust an invalid message.
-        describe('signature verification', () => {
-            test('rejects a message with no signature at all', async () => {
-                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({ status: 'requested' });
-                const data = { taskId: 'task-abc-123', filepath: 's3://allowed-bucket/data/patients.ndjson', rangeIndex: 0, taskTotalRanges: 1 };
-
-                await h.handleMessageAsync({
-                    key: 'k1',
-                    value: JSON.stringify({
-                        specversion: '1.0', id: 'evt-1', source: 'https://www.icanbwell.com/fhir-server',
-                        type: 'ImportRangeStarted', datacontenttype: 'application/json', data
-                    }),
-                    headers: []
-                });
-
-                expect(logError).toHaveBeenCalledWith(
-                    'Failed to parse bulk import range-progress Kafka message',
-                    expect.objectContaining({ error: expect.stringContaining('missing its signature') })
-                );
-                expect(updateOneAsync).not.toHaveBeenCalled();
-            });
-
-            test('rejects a message whose signature does not match its payload', async () => {
-                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({ status: 'requested' });
-                const data = {
-                    taskId: 'task-abc-123', filepath: 's3://allowed-bucket/data/patients.ndjson', rangeIndex: 0,
-                    taskTotalRanges: 1, signature: signRangeProgressPayload({ taskId: 'a-different-task' })
-                };
-
-                await h.handleMessageAsync({
-                    key: 'k1',
-                    value: JSON.stringify({
-                        specversion: '1.0', id: 'evt-1', source: 'https://www.icanbwell.com/fhir-server',
-                        type: 'ImportRangeStarted', datacontenttype: 'application/json', data
-                    }),
-                    headers: []
-                });
-
-                expect(logError).toHaveBeenCalledWith(
-                    'Failed to parse bulk import range-progress Kafka message',
-                    expect.objectContaining({ error: expect.stringContaining('signature does not match') })
-                );
-                expect(updateOneAsync).not.toHaveBeenCalled();
-            });
-
-            test('does not mutate a Task that lacks the bulk-import code, even with a valid signature', async () => {
-                // A valid HMAC proves the message came from a trusted worker but does not grant
-                // permission to modify an arbitrary Task -- loadTaskAsync now restricts its query
-                // to Tasks carrying the bulk-import code so a message with a legitimate signature
-                // but a taskId pointing at a non-import Task is silently dropped.
-                const updateOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
-                const handlerInstance = createHandler({}, {
-                    databaseQueryFactory: {
-                        createQuery: jestGlobal.fn(() => ({
-                            findOneAsync: jestGlobal.fn().mockResolvedValue(null) // code filter returns nothing
-                        }))
-                    },
-                    databaseUpdateFactory: {
-                        createDatabaseUpdateManager: jestGlobal.fn(() => ({ updateOneAsync }))
-                    }
-                });
-
-                await handlerInstance.handleMessageAsync({
-                    key: 'k1',
-                    value: createRangeProgressMessage('ImportRangeStarted'),
-                    headers: []
-                });
-
-                expect(updateOneAsync).not.toHaveBeenCalled();
-            });
-
-            // S3 URI allowlist -- filepath, resultUri, and errorUri are written into
-            // Task.output as-is, so a compromised worker (or a replayed message that passed
-            // HMAC verification) must not be able to inject arbitrary URIs into Task output.
-            test('rejects a message whose filepath is not in the S3 allowlist', async () => {
-                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({ status: 'requested' });
-                const data = { taskId: 'task-abc-123', filepath: 's3://disallowed-bucket/data/patients.ndjson', rangeIndex: 0, taskTotalRanges: 1 };
-                data.signature = signRangeProgressPayload(data);
-
-                await h.handleMessageAsync({
-                    key: 'k1',
-                    value: JSON.stringify({
-                        specversion: '1.0', id: 'evt-1', source: 'https://www.icanbwell.com/fhir-server',
-                        type: 'ImportRangeStarted', datacontenttype: 'application/json', data
-                    }),
-                    headers: []
-                });
-
-                expect(logError).toHaveBeenCalledWith(
-                    'Failed to parse bulk import range-progress Kafka message',
-                    expect.objectContaining({ error: expect.stringContaining('disallowed S3 bucket') })
-                );
-                expect(updateOneAsync).not.toHaveBeenCalled();
-            });
-
-            test('rejects a message whose resultUri is not in the S3 allowlist', async () => {
-                const { handler: h, updateOneAsync } = createHandlerCapturingTaskWrites({ status: 'in-progress' });
-                const data = {
-                    taskId: 'task-abc-123', filepath: 's3://allowed-bucket/data/patients.ndjson',
-                    rangeIndex: 0, taskTotalRanges: 1,
-                    resultUri: 's3://evil-bucket/result.ndjson', errorUri: null
-                };
-                data.signature = signRangeProgressPayload(data);
-
-                await h.handleMessageAsync({
-                    key: 'k1',
-                    value: JSON.stringify({
-                        specversion: '1.0', id: 'evt-1', source: 'https://www.icanbwell.com/fhir-server',
-                        type: 'ImportRangeCompleted', datacontenttype: 'application/json', data
-                    }),
-                    headers: []
-                });
-
-                expect(logError).toHaveBeenCalledWith(
-                    'Failed to parse bulk import range-progress Kafka message',
-                    expect.objectContaining({ error: expect.stringContaining('disallowed S3 bucket') })
-                );
-                expect(updateOneAsync).not.toHaveBeenCalled();
-            });
-
-            test('rejects every range-progress message when the worker secret is not configured', async () => {
-                const updateOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
-                const handlerInstance = createHandler({ bulkImportWorkerSecret: undefined }, {
-                    databaseQueryFactory: {
-                        createQuery: jestGlobal.fn(() => ({ findOneAsync: jestGlobal.fn().mockResolvedValue(createMockTask()) }))
-                    },
-                    databaseUpdateFactory: {
-                        createDatabaseUpdateManager: jestGlobal.fn(() => ({ updateOneAsync }))
-                    }
-                });
-
-                await handlerInstance.handleMessageAsync({
-                    key: 'k1',
-                    value: createRangeProgressMessage('ImportRangeStarted'),
-                    headers: []
-                });
-
-                expect(logError).toHaveBeenCalledWith(
-                    'Failed to parse bulk import range-progress Kafka message',
-                    expect.objectContaining({ error: expect.stringContaining('bulkImportWorkerSecret is not configured') })
-                );
-                expect(updateOneAsync).not.toHaveBeenCalled();
-            });
-        });
 
         describe('ImportRangeStarted', () => {
             test('flips a requested Task to in-progress', async () => {

@@ -1,5 +1,4 @@
 const { S3Client: S3, HeadObjectCommand } = require('@aws-sdk/client-s3');
-const crypto = require('crypto');
 const querystring = require('querystring');
 const moment = require('moment-timezone');
 const { assertTypeEquals } = require('../../../utils/assertType');
@@ -440,68 +439,7 @@ class BulkImportHandler {
     // ── topic fhir_server.bulk_import.range_progress) ──────────────────────────────────────
 
     /**
-     * Verifies a range-progress event's HMAC signature (see
-     * BulkImportEventProducer.signRangeProgressPayload) before its data is trusted. Without
-     * this, anyone able to publish onto kafkaBulkImportRangeProgressTopic could forge an
-     * ImportRangeCompleted/Failed message with an arbitrary taskId and manipulate any bulk
-     * import Task's status/output -- this is the ONLY authentication on that topic.
-     * @param {Object} data - envelope.data, including the `signature` field to verify
-     * @throws {Error} if the worker secret isn't configured or the signature doesn't match
-     */
-    verifyRangeProgressSignature(data) {
-        const workerSecret = this.configManager.bulkImportWorkerSecret;
-        if (!workerSecret) {
-            throw new Error(
-                'bulkImportWorkerSecret is not configured -- refusing to trust an unverifiable ' +
-                'range-progress event (BULK_IMPORT_WORKER_SECRET must be set before the ' +
-                'orchestrator can process these)'
-            );
-        }
-
-        const { signature, ...dataToVerify } = data;
-        if (typeof signature !== 'string' || !signature) {
-            throw new Error('Range-progress event is missing its signature');
-        }
-
-        const expectedSignature = crypto.createHmac('sha256', workerSecret)
-            .update(JSON.stringify(dataToVerify))
-            .digest('hex');
-
-        const providedBuffer = Buffer.from(signature, 'hex');
-        const expectedBuffer = Buffer.from(expectedSignature, 'hex');
-        // Buffers of different byte length would throw inside timingSafeEqual -- a forged/
-        // truncated signature must be rejected the same way a merely-wrong one is, not crash.
-        if (providedBuffer.length !== expectedBuffer.length ||
-            !crypto.timingSafeEqual(providedBuffer, expectedBuffer)) {
-            throw new Error('Range-progress event signature does not match');
-        }
-    }
-
-    /**
-     * Validates a single S3 URI against the configured bucket allowlist. Called from
-     * parseRangeProgressEvent for every URI in a range-progress event -- filepath, resultUri,
-     * and errorUri are written into Task.output as-is, so an unvalidated URI from a compromised
-     * worker (or a replayed/forged message that passed HMAC verification) could inject arbitrary
-     * URIs into Task output. The same allowlist that guards initial $import inputs applies here.
-     * @param {string} uri
-     * @throws {Error} if the URI is not a valid s3:// URI or its bucket is not allowed
-     */
-    validateRangeProgressS3Uri(uri) {
-        const match = uri.match(/^s3:\/\/([^/]+)\/(.+)$/);
-        if (!match) {
-            throw new Error(`Range-progress event contains an invalid S3 URI: "${uri}"`);
-        }
-        const bucket = match[1];
-        const allowedBuckets = this.configManager.bulkImportAllowedS3Buckets;
-        if (!allowedBuckets.includes(bucket)) {
-            throw new Error(`Range-progress event references a disallowed S3 bucket: "${bucket}"`);
-        }
-    }
-
-    /**
-     * Parses an ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed CloudEvent message,
-     * verifying its signature and that every S3 URI it carries is from an allowed bucket before
-     * returning any of its data as trustworthy.
+     * Parses an ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed CloudEvent message.
      * @param {string} messageValue
      * @returns {Object} parsed CloudEvent data
      */
@@ -509,15 +447,6 @@ class BulkImportHandler {
         const envelope = JSON.parse(messageValue);
         if (!envelope.data || !envelope.data.taskId || !envelope.data.filepath) {
             throw new Error(`Invalid ${envelope.type} event: missing taskId or filepath`);
-        }
-        this.verifyRangeProgressSignature(envelope.data);
-        const { filepath, resultUri, errorUri } = envelope.data;
-        this.validateRangeProgressS3Uri(filepath);
-        if (resultUri) {
-            this.validateRangeProgressS3Uri(resultUri);
-        }
-        if (errorUri) {
-            this.validateRangeProgressS3Uri(errorUri);
         }
         return envelope.data;
     }

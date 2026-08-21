@@ -40,8 +40,7 @@ describe('BulkImportEventProducer', () => {
             kafkaV2EnableEvents: true,
             kafkaBulkImportEventTopic: 'import-events',
             kafkaBulkImportRangeProgressTopic: 'import-range-progress',
-            bulkImportRangeSizeMb: 1,
-            bulkImportWorkerSecret: 'test-worker-secret'
+            bulkImportRangeSizeMb: 1
         };
         producer = new BulkImportEventProducer({
             kafkaClientV2: mockKafkaClientV2,
@@ -145,11 +144,10 @@ describe('BulkImportEventProducer', () => {
 
             const cloudEvent = JSON.parse(messages[0].value);
             expect(cloudEvent.type).toBe('ImportRangeCompleted');
-            expect(cloudEvent.data).toMatchObject({
+            expect(cloudEvent.data).toEqual({
                 taskId: 't1', filepath: 'a.ndjson', rangeIndex: 0, taskTotalRanges: 1,
                 resultUri: 's3://bucket/result.ndjson', errorUri: null
             });
-            expect(typeof cloudEvent.data.signature).toBe('string');
         });
 
         test('propagates a Kafka send failure rather than swallowing it', async () => {
@@ -160,15 +158,5 @@ describe('BulkImportEventProducer', () => {
             })).rejects.toThrow('broker unavailable');
         });
 
-        // IDOR: without this, anyone able to publish onto kafkaBulkImportRangeProgressTopic
-        // could forge a message with an arbitrary taskId and manipulate any Task.
-        test('throws instead of publishing when the worker secret is not configured', async () => {
-            mockConfigManager.bulkImportWorkerSecret = undefined;
-            await expect(producer.publishRangeProgressEventAsync({
-                type: 'ImportRangeStarted',
-                data: { taskId: 't1', filepath: 'a.ndjson', rangeIndex: 0, taskTotalRanges: 1 }
-            })).rejects.toThrow('bulkImportWorkerSecret is not configured');
-            expect(mockKafkaClientV2.sendCloudEventMessageAsync).not.toHaveBeenCalled();
-        });
     });
 });

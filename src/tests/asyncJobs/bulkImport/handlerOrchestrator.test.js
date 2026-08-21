@@ -1,16 +1,5 @@
-const crypto = require('crypto');
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { BulkImportHandler } = require('../../../operations/asyncJobs/bulkImport/handler');
-const { ConfigManager } = require('../../../utils/configManager');
-
-const TEST_WORKER_SECRET = 'test-worker-secret';
-
-// Mirrors BulkImportEventProducer.signRangeProgressPayload -- these tests build
-// ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed messages by hand (rather than via
-// the real producer) so they need to sign the payload themselves the same way.
-const signRangeProgressPayload = (data) =>
-    crypto.createHmac('sha256', TEST_WORKER_SECRET).update(JSON.stringify(data)).digest('hex');
 
 const makeRangeProgressEvent = (type, overrides = {}) => {
     const data = {
@@ -20,7 +9,6 @@ const makeRangeProgressEvent = (type, overrides = {}) => {
         taskTotalRanges: 1,
         ...overrides
     };
-    data.signature = signRangeProgressPayload(data);
 
     return JSON.stringify({
         specversion: '1.0',
@@ -143,7 +131,6 @@ describe('BulkImportHandler - ImportRangeStarted/ImportRangeCompleted/ImportRang
         process.env.ENABLE_BULK_IMPORT = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
         process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
-        process.env.BULK_IMPORT_WORKER_SECRET = TEST_WORKER_SECRET;
         await commonBeforeEach();
     });
 
@@ -151,7 +138,6 @@ describe('BulkImportHandler - ImportRangeStarted/ImportRangeCompleted/ImportRang
         delete process.env.ENABLE_BULK_IMPORT;
         delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
         delete process.env.ENABLE_EVENTS_KAFKA_V2;
-        delete process.env.BULK_IMPORT_WORKER_SECRET;
         await commonAfterEach();
     });
 
@@ -304,100 +290,6 @@ describe('BulkImportHandler - ImportRangeStarted/ImportRangeCompleted/ImportRang
         });
     });
 
-    // IDOR: without signature verification, anyone able to publish onto
-    // kafkaBulkImportRangeProgressTopic could forge a message with an arbitrary taskId and
-    // manipulate any Task's status/output. handleMessageAsync must reject rather than act on
-    // an unsigned/mis-signed message instead of silently trusting it.
-    test('handleMessageAsync ignores a range-progress message with no signature', async () => {
-        const request = await createTestRequest();
-        await request
-            .post('/4_0_0/$import')
-            .send({ ...validParametersBody, id: 'import-orch-no-sig' })
-            .set(getHeaders())
-            .expect(202);
-
-        const { createTestContainer } = require('../../createTestContainer');
-        const container = createTestContainer();
-        const handler = container.bulkImportHandler;
-
-        const unsignedData = { taskId: 'import-orch-no-sig', filepath: 's3://allowed-bucket/Patient.ndjson', rangeIndex: 0, taskTotalRanges: 1 };
-        await handler.handleMessageAsync({
-            key: 'import-orch-no-sig-0',
-            value: JSON.stringify({
-                specversion: '1.0', id: 'evt-no-sig', source: 'https://www.icanbwell.com/fhir-server',
-                type: 'ImportRangeStarted', datacontenttype: 'application/json', data: unsignedData
-            }),
-            headers: []
-        });
-
-        const taskResp = await request
-            .get('/4_0_0/Task/import-orch-no-sig')
-            .set(getHeaders())
-            .expect(200);
-        // Must NOT have been flipped to in-progress -- the unsigned message was rejected.
-        expect(taskResp.body.status).toBe('requested');
-    });
-
-    test('handleMessageAsync ignores a range-progress message with a tampered payload', async () => {
-        const request = await createTestRequest();
-        await request
-            .post('/4_0_0/$import')
-            .send({ ...validParametersBody, id: 'import-orch-tampered' })
-            .set(getHeaders())
-            .expect(202);
-
-        const { createTestContainer } = require('../../createTestContainer');
-        const container = createTestContainer();
-        const handler = container.bulkImportHandler;
-
-        // Sign a legitimate payload, then swap in a different taskId after signing -- the
-        // signature no longer matches the (tampered) data it's attached to.
-        const originalData = { taskId: 'some-other-task', filepath: 's3://allowed-bucket/Patient.ndjson', rangeIndex: 0, taskTotalRanges: 1 };
-        const signature = signRangeProgressPayload(originalData);
-        const tamperedData = { ...originalData, taskId: 'import-orch-tampered', signature };
-
-        await handler.handleMessageAsync({
-            key: 'import-orch-tampered-0',
-            value: JSON.stringify({
-                specversion: '1.0', id: 'evt-tampered', source: 'https://www.icanbwell.com/fhir-server',
-                type: 'ImportRangeStarted', datacontenttype: 'application/json', data: tamperedData
-            }),
-            headers: []
-        });
-
-        const taskResp = await request
-            .get('/4_0_0/Task/import-orch-tampered')
-            .set(getHeaders())
-            .expect(200);
-        expect(taskResp.body.status).toBe('requested');
-    });
-
-    test('handleMessageAsync ignores a range-progress message when the worker secret is not configured', async () => {
-        delete process.env.BULK_IMPORT_WORKER_SECRET;
-
-        const request = await createTestRequest();
-        await request
-            .post('/4_0_0/$import')
-            .send({ ...validParametersBody, id: 'import-orch-no-secret' })
-            .set(getHeaders())
-            .expect(202);
-
-        const { createTestContainer } = require('../../createTestContainer');
-        const container = createTestContainer();
-        const handler = container.bulkImportHandler;
-
-        await handler.handleMessageAsync({
-            key: 'import-orch-no-secret-0',
-            value: makeRangeProgressEvent('ImportRangeStarted', { taskId: 'import-orch-no-secret' }),
-            headers: []
-        });
-
-        const taskResp = await request
-            .get('/4_0_0/Task/import-orch-no-secret')
-            .set(getHeaders())
-            .expect(200);
-        expect(taskResp.body.status).toBe('requested');
-    });
 });
 
 // TODO: Uncomment when orchestrator logic is enabled in a follow-up PR.
