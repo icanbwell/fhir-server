@@ -45,9 +45,12 @@ class BulkImportEventProducer {
      * @param {string} params.requestId
      * @param {string} params.scope
      * @param {string} params.user
+     * @param {string|undefined} [params.alternateUserId]
+     * @param {boolean|undefined} [params.isUser]
+     * @param {string|undefined} [params.remoteIpAddress]
      * @returns {Promise<number>} total number of messages published
      */
-    async publishImportEventsAsync({ taskId, inputs, requestId, scope, user }) {
+    async publishImportEventsAsync({ taskId, inputs, requestId, scope, user, alternateUserId, isUser, remoteIpAddress }) {
         if (!this.configManager.kafkaV2EnableEvents) {
             return 0;
         }
@@ -79,7 +82,10 @@ class BulkImportEventProducer {
                         totalRanges: ranges.length,
                         requestId,
                         scope,
-                        user
+                        user,
+                        alternateUserId,
+                        isUser,
+                        remoteIpAddress
                     }
                 };
 

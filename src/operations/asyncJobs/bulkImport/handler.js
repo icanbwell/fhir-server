@@ -375,7 +375,7 @@ class BulkImportHandler {
             return;
         }
 
-        const { taskId, inputs, requestId, scope, user } = eventData;
+        const { taskId, inputs, requestId, scope, user, alternateUserId, isUser, remoteIpAddress } = eventData;
 
         logInfo('Orchestrator received TaskCreated event', {
             taskId,
@@ -409,7 +409,10 @@ class BulkImportHandler {
             inputs: inputsWithSizes,
             requestId,
             scope,
-            user
+            user,
+            alternateUserId,
+            isUser,
+            remoteIpAddress
         });
 
         logInfo('Orchestrator published byte-range messages', {
@@ -424,14 +427,15 @@ class BulkImportHandler {
      * Builds a request-scoped FhirRequestInfo for a single byte-range's writes.
      * A fresh requestId is required per range so concurrent ranges don't share
      * the singleton FastDatabaseBulkInserter's buffered-operations map.
-     * @param {{ user: string|null, scope: string|null }} params
+     * @param {{ user: string|null, scope: string|null, alternateUserId: string|undefined,
+     *   isUser: boolean|undefined, remoteIpAddress: string|undefined }} params
      * @returns {FhirRequestInfo}
      */
-    buildRangeRequestInfo({ user, scope }) {
+    buildRangeRequestInfo({ user, scope, alternateUserId, isUser, remoteIpAddress }) {
         return new FhirRequestInfo({
             user: user || null,
             scope: scope || null,
-            remoteIpAddress: null,
+            remoteIpAddress: remoteIpAddress || null,
             requestId: generateUUID(),
             userRequestId: null,
             protocol: 'kafka',
@@ -440,7 +444,7 @@ class BulkImportHandler {
             host: null,
             body: null,
             accept: 'application/fhir+json',
-            isUser: false,
+            isUser: Boolean(isUser),
             userType: null,
             personIdFromJwtToken: null,
             masterPersonIdFromJwtToken: null,
@@ -448,7 +452,7 @@ class BulkImportHandler {
             headers: {},
             method: 'POST',
             contentTypeFromHeader: null,
-            alternateUserId: null,
+            alternateUserId: alternateUserId || null,
             actor: null,
             purposeOfUse: null
         });
@@ -700,6 +704,12 @@ class BulkImportHandler {
         const { bucket, key } = this.s3NdjsonReader.parseS3Uri(filepath);
         const { resultKey, errorKey } = this.buildRangeOutputKeys({ key, rangeIndex });
 
+        // Entries land here in commit order, not source order -- an error is recorded the
+        // instant its line is read, but a success only once its whole batch flushes, so a
+        // later-flushing batch's successes can end up after an earlier error in the array.
+        // Restore source order before writing output so position always matches the input file.
+        mergeResultEntries.sort((a, b) => (a.sourceByteOffset ?? 0) - (b.sourceByteOffset ?? 0));
+
         const newOutputs = [];
         if (mergeResultEntries.length > 0) {
             const resultUri = `s3://${bucket}/${resultKey}`;
@@ -767,7 +777,10 @@ class BulkImportHandler {
             return;
         }
 
-        const { taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, fileSize, user, scope } = eventData;
+        const {
+            taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, fileSize,
+            user, scope, alternateUserId, isUser, remoteIpAddress
+        } = eventData;
         const rangeStartTimeMs = Date.now();
 
         logInfo('Processing bulk import range', {
@@ -785,7 +798,7 @@ class BulkImportHandler {
             return;
         }
 
-        const requestInfo = this.buildRangeRequestInfo({ user, scope });
+        const requestInfo = this.buildRangeRequestInfo({ user, scope, alternateUserId, isUser, remoteIpAddress });
 
         if (task.status === 'requested') {
             await this.updateTaskStatusAsync(task, 'in-progress', undefined, requestInfo);
@@ -803,6 +816,14 @@ class BulkImportHandler {
         let skipped = 0;
         const mergeResultEntries = [];
 
+        // fastDatabaseBulkInserter buffers queued resources and only builds their
+        // MergeResultEntry once a batch actually flushes to Mongo, by which point the
+        // line's byteOffset is no longer in scope there -- so we track it here, keyed by
+        // resourceType+id, and re-attach it to the returned entry in flushBatchAsync below.
+        // Restores output ordering to match the source file regardless of when within a
+        // batch a given line's write actually commits.
+        const byteOffsetByUuid = new Map();
+
         // Set once this attempt's first flush actually writes to Mongo (and possibly
         // ClickHouse/Kafka-ClickPipe for clickHouseOnlyResources) -- see
         // readRangeWithRetryAsync's docstring for why retry must stop once this is true.
@@ -812,6 +833,7 @@ class BulkImportHandler {
             const mergeResults = await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
             hasFlushedThisAttempt = true;
             for (const mergeResult of mergeResults) {
+                mergeResult.sourceByteOffset = byteOffsetByUuid.get(`${mergeResult.resourceType}|${mergeResult.id}`);
                 mergeResultEntries.push(mergeResult);
                 if (mergeResult.created) {
                     created++;
@@ -834,6 +856,7 @@ class BulkImportHandler {
             failed = 0;
             skipped = 0;
             mergeResultEntries.length = 0;
+            byteOffsetByUuid.clear();
             hasFlushedThisAttempt = false;
 
             // ifNoneExist criteria "claimed" by a resource already queued for insert in this
@@ -918,7 +941,8 @@ class BulkImportHandler {
                                     created: false,
                                     updated: false,
                                     issue: null,
-                                    operationOutcome: null
+                                    operationOutcome: null,
+                                    sourceByteOffset: byteOffset
                                 }));
                                 logInfo('Skipped bulk import resource: matched existing via ifNoneExist', {
                                     taskId,
@@ -932,6 +956,12 @@ class BulkImportHandler {
                                 const contextData = buildContextDataForHybridStorage(
                                     fhirResource.resourceType, fhirResource, requestInfo
                                 );
+                                // Keyed by resourceType+id rather than _uuid -- _uuid isn't
+                                // reliably populated on fhirResource yet at this point (it's
+                                // derived by a pre-save handler further down the write
+                                // pipeline), while id is the caller-supplied value and is
+                                // already stable here.
+                                byteOffsetByUuid.set(`${fhirResource.resourceType}|${fhirResource.id}`, byteOffset);
                                 await this.fastDatabaseBulkInserter.insertOneAsync({
                                     base_version,
                                     requestInfo,
