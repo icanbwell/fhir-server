@@ -1,0 +1,42 @@
+{
+  "resourceType": "CarePlan",
+  "id": "careplan-2015",
+  "meta": {
+    "source": "mps",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client"
+      }
+    ]
+  },
+  "status": "active",
+  "intent": "plan",
+  "subject": {
+    "reference": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df727",
+    "display": "Mr. Max124 Larry532 Gibson10"
+  },
+  "period": {
+    "start": "2015-06-19T01:15:45+00:00",
+    "end": "2015-06-19T01:30:45+00:00"
+  },
+  "activity": [
+    {
+      "detail": {
+        "status": "not-started",
+        "scheduledPeriod": {
+          "start": "2025-06-19T01:15:45+00:00",
+          "end": "2025-06-19T01:30:45+00:00"
+        }
+      }
+    }
+  ]
+}
