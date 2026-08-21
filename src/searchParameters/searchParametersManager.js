@@ -55,6 +55,13 @@ class SearchParametersManager {
          * @type {Map<string, Set<string>>}
          */
         this.allowedFieldsForResourceByType = new Map();
+        /**
+         * memoized result of getFieldType(), keyed by resourceType then by field path, search
+         * parameter definitions never change at runtime, so this is safe to cache for the
+         * lifetime of this (singleton) instance
+         * @type {Map<string, Map<string, string>>}
+         */
+        this.fieldTypesByResourceType = new Map();
     }
 
     /**
@@ -137,6 +144,39 @@ class SearchParametersManager {
         }
         this.allowedFieldsForResourceByType.set(resourceType, allowedFields);
         return allowedFields;
+    }
+
+    /**
+     * Returns the FHIR field type (e.g. 'period', 'datetime', 'instant') declared for a Mongo
+     * field path on a resourceType, by scanning every search parameter's fieldTypesObj for that
+     * resourceType plus the generic Resource bucket (same resourceType-then-Resource fallback
+     * rule as getAllowedFieldsForResource). This lets callers recognize e.g. any Period-typed
+     * field generically (a `<field>.start`/`<field>.end` _sort target) without needing a
+     * dedicated search parameter declared per field. Memoized per resourceType since these
+     * definitions never change at runtime.
+     * @param {string} resourceType
+     * @param {string} field
+     * @return {string | null}
+     */
+    getFieldType ({ resourceType, field }) {
+        let fieldTypes = this.fieldTypesByResourceType.get(resourceType);
+        if (!fieldTypes) {
+            fieldTypes = new Map();
+            for (const searchResourceType of [resourceType, 'Resource']) {
+                const searchParametersForResource = this.getSearchParametersForResource({ resourceType: searchResourceType });
+                if (searchParametersForResource) {
+                    for (const propertyObj of Object.values(searchParametersForResource)) {
+                        for (const [fieldName, fieldType] of Object.entries(propertyObj.fieldTypesObj || {})) {
+                            if (!fieldTypes.has(fieldName)) {
+                                fieldTypes.set(fieldName, fieldType);
+                            }
+                        }
+                    }
+                }
+            }
+            this.fieldTypesByResourceType.set(resourceType, fieldTypes);
+        }
+        return fieldTypes.get(field) || null;
     }
 
     /**

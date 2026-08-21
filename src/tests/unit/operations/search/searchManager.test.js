@@ -90,6 +90,7 @@ describe('SearchManager', () => {
         mockPatientQueryCreator = Object.create(PatientQueryCreator.prototype);
         mockSearchParametersManager = Object.create(SearchParametersManager.prototype);
         mockSearchParametersManager.allowedFieldsForResourceByType = new Map();
+        mockSearchParametersManager.fieldTypesByResourceType = new Map();
 
         searchManager = new SearchManager({
             databaseQueryFactory: mockDatabaseQueryFactory,
@@ -206,15 +207,40 @@ describe('SearchManager', () => {
                 if (resourceType === 'Observation') {
                     return {
                         status: new SearchParameterDefinition({ type: 'token', field: 'status' }),
-                        category: new SearchParameterDefinition({ type: 'token', field: 'category' })
+                        category: new SearchParameterDefinition({ type: 'token', field: 'category' }),
+                        date: new SearchParameterDefinition({
+                            type: 'date',
+                            fields: ['effectiveDateTime', 'effectivePeriod', 'effectiveTiming', 'effectiveInstant']
+                        }),
+                        patient: new SearchParameterDefinition({ type: 'reference', field: 'subject' })
+                    };
+                }
+                if (resourceType === 'MedicationStatement') {
+                    return {
+                        effective: new SearchParameterDefinition({
+                            type: 'date',
+                            fields: ['effectiveDateTime', 'effectivePeriod'],
+                            fieldTypesObj: { effectiveDateTime: 'datetime', effectivePeriod: 'period' }
+                        })
                     };
                 }
                 if (resourceType === 'Resource') {
                     return {
+                        _id: new SearchParameterDefinition({ type: 'token', field: 'id' }),
                         _lastUpdated: new SearchParameterDefinition({ type: 'date', field: 'meta.lastUpdated' })
                     };
                 }
                 return undefined;
+            });
+            mockSearchParametersManager.getFieldNameForSearchParameter = jest.fn((searchResourceType, searchParameterName) => {
+                const byResourceType = {
+                    Observation: { status: 'status', category: 'category', date: 'effectiveDateTime', patient: 'subject' },
+                    MedicationStatement: { effective: 'effectiveDateTime' },
+                    Resource: { _id: 'id', _lastUpdated: 'meta.lastUpdated' }
+                };
+                return byResourceType[searchResourceType]?.[searchParameterName] ??
+                    byResourceType.Resource[searchParameterName] ??
+                    null;
             });
         });
 
@@ -259,6 +285,78 @@ describe('SearchManager', () => {
             const parsedArgs = { get: () => ({ queryParameterValue: { values: ['_uuid'] } }), _sort: '_uuid' };
             const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
             expect(result.options.sort._uuid).toBe(1);
+        });
+
+        it('resolves a search-parameter code to its underlying field when they differ (_sort=-date on Observation)', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['-date'] } }), _sort: '-date' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort.effectiveDateTime).toBe(-1);
+            expect(result.options.sort.date).toBeUndefined();
+            expect(result.columns.has('effectiveDateTime')).toBe(true);
+        });
+
+        it('resolves the _lastUpdated search-parameter code (Resource bucket) to meta.lastUpdated', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['_lastUpdated'] } }), _sort: '_lastUpdated' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort['meta.lastUpdated']).toBe(1);
+            expect(result.options.sort._lastUpdated).toBeUndefined();
+        });
+
+        it('resolves a reference-type search-parameter code to its field (patient -> subject)', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['patient'] } }), _sort: 'patient' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort.subject).toBe(1);
+            expect(result.options.sort.patient).toBeUndefined();
+        });
+
+        it('resolves effectivePeriod.end via the generic period-type fallback, with no dedicated search parameter declaring that dotted path (matches real client traffic)', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['-effectivePeriod.end'] } }), _sort: '-effectivePeriod.end' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'MedicationStatement' });
+            expect(result.options.sort['effectivePeriod.end']).toBe(-1);
+            expect(result.columns.has('effectivePeriod.end')).toBe(true);
+        });
+
+        it('resolves effectivePeriod.start via the generic period-type fallback the same way', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['effectivePeriod.start'] } }), _sort: 'effectivePeriod.start' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'MedicationStatement' });
+            expect(result.options.sort['effectivePeriod.start']).toBe(1);
+        });
+
+        it('drops a boundary other than start/end on a period-typed field (effectivePeriod.middle is not a real boundary)', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['effectivePeriod.middle'] } }), _sort: 'effectivePeriod.middle' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'MedicationStatement' });
+            expect(result.options.sort).toStrictEqual({});
+        });
+
+        it('drops a .start/.end suffix on a field that is declared but not typed as a period (Observation.effectivePeriod has no fieldTypesObj in this fixture, unlike MedicationStatement)', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['effectivePeriod.end'] } }), _sort: 'effectivePeriod.end' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort).toStrictEqual({});
+        });
+
+        it('drops a dotted value whose base field was never declared by any search parameter', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['bogus.field'] } }), _sort: 'bogus.field' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'MedicationStatement' });
+            expect(result.options.sort).toStrictEqual({});
+        });
+
+        it('drops an injection-shaped value ($-prefixed) since it was never declared as an allowed field', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['effectivePeriod.$where'] } }), _sort: 'effectivePeriod.$where' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'MedicationStatement' });
+            expect(result.options.sort).toStrictEqual({});
+        });
+
+        it('drops the _id search-parameter code since id resolution to sourceId/uuid is not yet decided', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['_id'] } }), _sort: '_id' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort).toStrictEqual({});
+            expect(result.columns.has('id')).toBe(false);
+        });
+
+        it('drops the raw id field too, since it resolves to the same ambiguous field as _id', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['-id'] } }), _sort: '-id' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort).toStrictEqual({});
         });
     });
 
