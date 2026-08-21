@@ -3,6 +3,7 @@ const { assertTypeEquals } = require('../../../utils/assertType');
 const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
 const { ConfigManager } = require('../../../utils/configManager');
 const { logInfo, logError } = require('../../common/logging');
+const { CLOUD_EVENT } = require('../../../constants');
 
 class BulkImportEventProducer {
     /**
@@ -86,7 +87,7 @@ class BulkImportEventProducer {
                 const cloudEvent = {
                     specversion: '1.0',
                     id: eventId,
-                    source: 'https://www.icanbwell.com/fhir-server',
+                    source: CLOUD_EVENT.SOURCE,
                     type: 'ImportRangeRequested',
                     datacontenttype: 'application/json',
                     data: {

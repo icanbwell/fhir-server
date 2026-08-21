@@ -121,6 +121,7 @@ const {BulkExportEventProducer} = require('./utils/bulkExportEventProducer');
 const {ImportOperation} = require('./operations/import/import');
 const {BulkImportEventProducer} = require('./operations/asyncJobs/bulkImport/bulkImportEventProducer');
 const {BulkImportHandler} = require('./operations/asyncJobs/bulkImport/handler');
+const {BulkImportTaskStateMachine} = require('./operations/asyncJobs/bulkImport/bulkImportTaskStateMachine');
 const {KafkaEventDispatcher} = require('./operations/common/kafkaEventDispatcher');
 const {S3NdjsonReader} = require('./operations/asyncJobs/bulkImport/s3NdjsonReader');
 const {KafkaClientV2} = require('./utils/kafkaClientV2');
@@ -1266,6 +1267,12 @@ const createContainer = function () {
         configManager: c.configManager
     }));
 
+    container.register('bulkImportTaskStateMachine', (c) => new BulkImportTaskStateMachine({
+        databaseQueryFactory: c.databaseQueryFactory,
+        fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
+        mergeManager: c.mergeManager
+    }));
+
     // Handles every message type for the bulk-import async job (TaskCreated on the
     // orchestrator side, ImportRangeRequested on the worker side) — see
     // src/operations/asyncJobs/bulkImport/handler.js.
@@ -1273,8 +1280,8 @@ const createContainer = function () {
         configManager: c.configManager,
         kafkaClientV2: c.kafkaClientV2,
         bulkImportEventProducer: c.bulkImportEventProducer,
+        bulkImportTaskStateMachine: c.bulkImportTaskStateMachine,
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory,
         fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
         s3NdjsonReader: c.s3NdjsonReader,
         postRequestProcessor: c.postRequestProcessor,

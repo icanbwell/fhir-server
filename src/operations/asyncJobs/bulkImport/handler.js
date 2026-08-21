@@ -5,10 +5,10 @@ const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
-const { DatabaseUpdateFactory } = require('../../../dataLayer/databaseUpdateFactory');
 const { FastDatabaseBulkInserter } = require('../../../dataLayer/fastDatabaseBulkInserter');
 const { S3NdjsonReader } = require('./s3NdjsonReader');
 const { BulkImportEventProducer } = require('./bulkImportEventProducer');
+const { BulkImportTaskStateMachine } = require('./bulkImportTaskStateMachine');
 const { FhirResourceWriteSerializer } = require('../../../fhir/fhirResourceWriteSerializer');
 const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
 const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
@@ -34,9 +34,6 @@ const { SearchQueryBuilder } = require('../../search/searchQueryBuilder');
 
 const importTracer = trace.getTracer('fhir-server');
 
-/** Identifies a Task as a bulk-import job (set at creation time in import.js). */
-const BULK_IMPORT_TASK_TYPE_SYSTEM = 'https://www.icanbwell.com/task-type';
-const BULK_IMPORT_TASK_TYPE_CODE = 'bulk-import';
 
 /**
  * Attaches bulk-import outcome data as span attributes rather than a custom OTel counter --
@@ -83,8 +80,8 @@ class BulkImportHandler {
      * @property {ConfigManager} configManager
      * @property {KafkaClientV2} kafkaClientV2
      * @property {BulkImportEventProducer} bulkImportEventProducer
+     * @property {BulkImportTaskStateMachine} bulkImportTaskStateMachine
      * @property {DatabaseQueryFactory} databaseQueryFactory
-     * @property {DatabaseUpdateFactory} databaseUpdateFactory
      * @property {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      * @property {S3NdjsonReader} s3NdjsonReader
      * @property {PostRequestProcessor} postRequestProcessor
@@ -99,8 +96,8 @@ class BulkImportHandler {
         configManager,
         kafkaClientV2,
         bulkImportEventProducer,
+        bulkImportTaskStateMachine,
         databaseQueryFactory,
-        databaseUpdateFactory,
         fastDatabaseBulkInserter,
         s3NdjsonReader,
         postRequestProcessor,
@@ -118,11 +115,11 @@ class BulkImportHandler {
         this.bulkImportEventProducer = bulkImportEventProducer;
         assertTypeEquals(bulkImportEventProducer, BulkImportEventProducer);
 
+        this.bulkImportTaskStateMachine = bulkImportTaskStateMachine;
+        assertTypeEquals(bulkImportTaskStateMachine, BulkImportTaskStateMachine);
+
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-
-        this.databaseUpdateFactory = databaseUpdateFactory;
-        assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
 
         this.fastDatabaseBulkInserter = fastDatabaseBulkInserter;
         assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
@@ -178,29 +175,12 @@ class BulkImportHandler {
     }
 
     /**
-     * Loads the Task resource by ID
+     * Loads a bulk-import Task by id. Delegates to BulkImportTaskStateMachine.
      * @param {string} taskId
      * @returns {Promise<Object|null>}
      */
     async loadTaskAsync(taskId) {
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({
-            resourceType: 'Task',
-            base_version: '4_0_0'
-        });
-
-        // Restrict to Tasks that carry the bulk-import code so a valid HMAC on a message
-        // with an arbitrary taskId cannot be used to mutate a non-import Task.
-        return databaseQueryManager.findOneAsync({
-            query: {
-                id: taskId,
-                'code.coding': {
-                    $elemMatch: {
-                        system: BULK_IMPORT_TASK_TYPE_SYSTEM,
-                        code: BULK_IMPORT_TASK_TYPE_CODE
-                    }
-                }
-            }
-        });
+        return this.bulkImportTaskStateMachine.loadTaskAsync(taskId);
     }
 
     /**
@@ -283,28 +263,14 @@ class BulkImportHandler {
     }
 
     /**
+     * Updates a Task's status. Delegates to BulkImportTaskStateMachine.
      * @param {Object} task
      * @param {string} status
      * @param {string} [statusReason]
      * @returns {Promise<void>}
      */
     async updateOrchestratorTaskStatusAsync(task, status, statusReason) {
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-            resourceType: 'Task',
-            base_version: '4_0_0'
-        });
-
-        const updated = task.clone();
-        updated.status = status;
-        updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-        if (statusReason) {
-            if (!updated.statusReason) {
-                updated.statusReason = {};
-            }
-            updated.statusReason.text = statusReason;
-        }
-
-        await databaseUpdateManager.updateOneAsync({ doc: updated });
+        return this.bulkImportTaskStateMachine.updateTaskStatusAsync(task, status, statusReason);
     }
 
     /**
@@ -482,103 +448,11 @@ class BulkImportHandler {
 
         switch (type) {
             case 'ImportRangeStarted':
-                return this.handleRangeStartedAsync(task, eventData);
+                return this.bulkImportTaskStateMachine.handleRangeStartedAsync(task);
             case 'ImportRangeCompleted':
-                return this.handleRangeCompletedAsync(task, eventData);
+                return this.bulkImportTaskStateMachine.handleRangeCompletedAsync(task, eventData);
             case 'ImportRangeFailed':
-                return this.handleRangeFailedAsync(task, eventData);
-        }
-    }
-
-    /**
-     * Flips a Task from 'requested' to 'in-progress' the first time any range reports having
-     * started. A no-op if the Task is already past 'requested' -- workers report this
-     * unconditionally on every range (see buildRangeRequestInfo's caller), so this is expected
-     * to be called far more than once per Task.
-     * @param {Object} task
-     * @param {Object} eventData
-     * @returns {Promise<void>}
-     */
-    async handleRangeStartedAsync(task, eventData) {
-        if (task.status !== 'requested') {
-            return;
-        }
-        await this.updateOrchestratorTaskStatusAsync(task, 'in-progress');
-    }
-
-    /**
-     * Marks a Task 'failed', unless it already reached 'completed' -- a range that failed
-     * before every other range finished must not regress an already-completed Task if its
-     * failure report arrives late or is redelivered.
-     * @param {Object} task
-     * @param {Object} eventData
-     * @returns {Promise<void>}
-     */
-    async handleRangeFailedAsync(task, eventData) {
-        if (task.status === 'completed') {
-            return;
-        }
-        await this.updateOrchestratorTaskStatusAsync(task, 'failed', eventData.errorMessage);
-    }
-
-    /**
-     * Appends this range's result/error S3 URIs to Task.output (each stamped with
-     * buildRangeOutputEntryId so countCompletedRanges can recognize it), then flips the Task
-     * to 'completed' once every range of every input file has reported in. Since this is the
-     * only process that ever writes a Task's output/status, this is a plain read-modify-write
-     * -- no smartMerge id-matching or optimistic-concurrency retry needed, because there is no
-     * concurrent writer to race against.
-     * @param {Object} task
-     * @param {Object} eventData
-     * @returns {Promise<void>}
-     */
-    async handleRangeCompletedAsync(task, eventData) {
-        const { filepath, rangeIndex, taskTotalRanges, resultUri, errorUri } = eventData;
-
-        if (task.status === 'completed') {
-            // Already-recorded redelivery -- countCompletedRanges below already reflects this
-            // range, and re-appending would double the output entries.
-            return;
-        }
-
-        const rangeEntryId = this.buildRangeOutputEntryId({ filepath, rangeIndex });
-        // Recorded entries carry rangeEntryId as a PREFIX (id is rangeEntryId + '-result'/
-        // '-error', or bare rangeEntryId for the empty-range placeholder) -- never an exact
-        // match on rangeEntryId itself, since a completed range always has at least one
-        // output entry with one of those three exact suffixed/unsuffixed forms.
-        const alreadyRecorded = (task.output || []).some((o) =>
-            typeof o.id === 'string' && (o.id === rangeEntryId || o.id.startsWith(`${rangeEntryId}-`))
-        );
-        if (alreadyRecorded) {
-            return;
-        }
-
-        const newOutputs = [];
-        if (resultUri) {
-            newOutputs.push({ id: `${rangeEntryId}-result`, type: { text: 'result' }, valueUri: resultUri });
-        }
-        if (errorUri) {
-            newOutputs.push({ id: `${rangeEntryId}-error`, type: { text: 'error' }, valueUri: errorUri });
-        }
-        // A range with no created/updated/skipped resources and no failures (an empty range)
-        // still needs to be counted as complete -- stamp a placeholder entry so
-        // countCompletedRanges sees it even with no S3 output to point at.
-        if (newOutputs.length === 0) {
-            newOutputs.push({ id: rangeEntryId, type: { text: 'empty' } });
-        }
-
-        const updated = task.clone();
-        updated.output = [...(updated.output || []), ...newOutputs];
-        updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-            resourceType: 'Task',
-            base_version: '4_0_0'
-        });
-        await databaseUpdateManager.updateOneAsync({ doc: updated });
-
-        if (this.countCompletedRanges(updated) >= taskTotalRanges) {
-            await this.updateOrchestratorTaskStatusAsync(updated, 'completed');
+                return this.bulkImportTaskStateMachine.handleRangeFailedAsync(task, eventData.errorMessage);
         }
     }
 
@@ -683,36 +557,6 @@ class BulkImportHandler {
      */
     buildNdjson(entries) {
         return entries.map((entry) => JSON.stringify(entry.toJSON())).join('\n') + '\n';
-    }
-
-    /**
-     * The stable id stamped on every Task.output entry a range's completion report adds,
-     * shared by its result/error pair. Since the orchestrator is the only writer of Task.output
-     * (see handleRangeProgressEventAsync), this doesn't need smartMerge id-matching to dedupe --
-     * it's just how countCompletedRanges below recognizes "one range" among possibly-multiple
-     * output entries (result + error) per range.
-     * @param {Object} params
-     * @param {string} params.filepath
-     * @param {number} params.rangeIndex
-     * @returns {string}
-     */
-    buildRangeOutputEntryId({ filepath, rangeIndex }) {
-        return `bulk-import-range:${filepath}#${rangeIndex}`;
-    }
-
-    /**
-     * Counts distinct ranges already recorded as complete on this Task, by their
-     * buildRangeOutputEntryId prefix (ignoring the -result/-error suffix that distinguishes a
-     * range's two possible output entries).
-     * @param {Object} task
-     * @returns {number}
-     */
-    countCompletedRanges(task) {
-        const rangeIds = (task.output || [])
-            .map((o) => o.id)
-            .filter((id) => typeof id === 'string' && id.startsWith('bulk-import-range:'))
-            .map((id) => id.replace(/-(result|error)$/, ''));
-        return new Set(rangeIds).size;
     }
 
     /**

@@ -622,13 +622,13 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
     test('countCompletedRanges counts distinct ranges, ignoring the -result/-error suffix and unrelated output entries', () => {
         const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const handler = container.bulkImportHandler;
+        const stateMachine = container.bulkImportTaskStateMachine;
 
         // No output at all -- zero ranges completed.
-        expect(handler.countCompletedRanges({ output: [] })).toBe(0);
+        expect(stateMachine.countCompletedRanges({ output: [] })).toBe(0);
 
         // A range with BOTH a -result and a -error entry must still count as ONE range.
-        expect(handler.countCompletedRanges({
+        expect(stateMachine.countCompletedRanges({
             output: [
                 { id: 'bulk-import-range:s3://bucket/a.ndjson#0-result', type: { text: 'result' }, valueUri: 's3://bucket/out/a.ndjson' },
                 { id: 'bulk-import-range:s3://bucket/a.ndjson#0-error', type: { text: 'error' }, valueUri: 's3://bucket/out/a-errors.ndjson' }
@@ -637,7 +637,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
 
         // Multiple distinct ranges (including an "empty" placeholder entry with no suffix)
         // all count individually.
-        expect(handler.countCompletedRanges({
+        expect(stateMachine.countCompletedRanges({
             output: [
                 { id: 'bulk-import-range:s3://bucket/a.ndjson#0-result', type: { text: 'result' }, valueUri: 's3://bucket/out/a.ndjson' },
                 { id: 'bulk-import-range:s3://bucket/a.ndjson#1-error', type: { text: 'error' }, valueUri: 's3://bucket/out/a-errors.ndjson' },
@@ -647,7 +647,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
 
         // An output entry that doesn't match the "bulk-import-range:" id prefix at all (e.g.
         // a plain error output with no id) must be ignored rather than miscounted.
-        expect(handler.countCompletedRanges({
+        expect(stateMachine.countCompletedRanges({
             output: [
                 { type: { text: 'error' }, valueUri: 's3://bucket/out/unrelated-errors.ndjson' },
                 { id: 'bulk-import-range:s3://bucket/a.ndjson#0-result', type: { text: 'result' }, valueUri: 's3://bucket/out/a.ndjson' }
@@ -658,11 +658,11 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
     test('countCompletedRanges does not throw and returns 0 when task.output is missing', () => {
         const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const handler = container.bulkImportHandler;
+        const stateMachine = container.bulkImportTaskStateMachine;
 
-        expect(() => handler.countCompletedRanges({})).not.toThrow();
-        expect(handler.countCompletedRanges({})).toBe(0);
-        expect(handler.countCompletedRanges({ output: undefined })).toBe(0);
+        expect(() => stateMachine.countCompletedRanges({})).not.toThrow();
+        expect(stateMachine.countCompletedRanges({})).toBe(0);
+        expect(stateMachine.countCompletedRanges({ output: undefined })).toBe(0);
     });
 
     test('handleMessageAsync writes result NDJSON to S3 and records Task.output + completion', async () => {
