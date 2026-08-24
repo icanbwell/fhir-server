@@ -909,7 +909,8 @@ class BulkImportHandler {
                         created: false,
                         updated: true,
                         issue: null,
-                        operationOutcome: null
+                        operationOutcome: null,
+                        sourceByteOffset: byteOffset
                     }));
                 } else {
                     created++;
@@ -921,7 +922,8 @@ class BulkImportHandler {
                         created: true,
                         updated: false,
                         issue: null,
-                        operationOutcome: null
+                        operationOutcome: null,
+                        sourceByteOffset: byteOffset
                     }));
                 }
             } catch (mergeError) {
