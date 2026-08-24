@@ -66,6 +66,15 @@ class ConfigManager {
     }
 
     /**
+     * Whether K8sClient derives its namespace from environmentValue instead of
+     * reading it from the kube config context. Defaults to true.
+     * @return {boolean}
+     */
+    get useEnvironmentValueForK8sNamespace() {
+        return isTrueWithFallback(env.USE_ENVIRONMENT_VALUE_FOR_K8S_NAMESPACE, true);
+    }
+
+    /**
      * current hostname value
      * @return {string|null}
      */

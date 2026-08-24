@@ -1,0 +1,29 @@
+{
+  "resourceType": "Person",
+  "id": "person-active-false",
+  "meta": {
+    "source": "mps",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client"
+      }
+    ]
+  },
+  "active": false,
+  "link": [
+    {
+      "target": {
+        "reference": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df727"
+      }
+    }
+  ]
+}
