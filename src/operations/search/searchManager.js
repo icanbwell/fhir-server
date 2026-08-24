@@ -733,7 +733,7 @@ class SearchManager {
      * @return {Set<string>}
      */
     getAllowedSortFields ({ resourceType }) {
-        const allowedFields = new Set(this.searchParametersManager.getAllowedFieldsForResource({ resourceType }));
+        const allowedFields = new Set(this.searchParametersManager.getAllowedFieldsForResource({ resourceType }).keys());
         allowedFields.add(this.configManager.defaultSortId);
         return allowedFields;
     }
