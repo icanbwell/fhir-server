@@ -475,6 +475,18 @@ class ConfigManager {
     }
 
     /**
+     * number of reverse proxy hops to trust for express's 'trust proxy' setting
+     * @returns {number}
+     */
+    get trustProxyHopCount() {
+        const value = env.TRUST_PROXY_HOP_COUNT?.trim();
+        const hopCount = Number(value);
+        return value && Number.isInteger(hopCount) && hopCount >= 0
+            ? hopCount
+            : 20;
+    }
+
+    /**
      * whether to enable stats endpoint
      * @returns {boolean}
      */
