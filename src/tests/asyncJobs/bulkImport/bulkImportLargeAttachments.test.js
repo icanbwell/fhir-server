@@ -147,10 +147,10 @@ describe('Bulk import — large attachment externalization', () => {
     test('handleMessageAsync does not upload an attachment for a line skipped via ifNoneExist', async () => {
         const request = await createTestRequest();
 
-        // Pre-existing DocumentReference created via the REST API so it is committed and
+        // Pre-existing DocumentReference created via $merge so it is committed and
         // searchable before the bulk-import skip range runs.
         await request
-            .put('/4_0_0/DocumentReference/bulk-import-attachment-preexisting')
+            .post('/4_0_0/$merge')
             .send({
                 resourceType: 'DocumentReference',
                 id: 'bulk-import-attachment-preexisting',
@@ -160,7 +160,7 @@ describe('Bulk import — large attachment externalization', () => {
                 content: [{ attachment: { contentType: 'application/pdf' } }]
             })
             .set(getHeaders())
-            .expect(201);
+            .expect(200);
 
         await request
             .post('/4_0_0/$import')
