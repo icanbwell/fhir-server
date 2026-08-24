@@ -155,7 +155,8 @@ describe('Bulk import — large attachment externalization', () => {
                 resourceType: 'DocumentReference',
                 id: 'bulk-import-attachment-preexisting',
                 status: 'current',
-                identifier: [{ system: 'http://example.com', value: 'attachment-skip-12345' }]
+                identifier: [{ system: 'http://example.com', value: 'attachment-skip-12345' }],
+                content: [{ attachment: { contentType: 'application/pdf' } }]
             })
             .set(getHeaders())
             .expect(201);
