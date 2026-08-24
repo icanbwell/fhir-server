@@ -6,7 +6,9 @@ const { describe, test, expect, beforeEach, afterEach, jest: jestObj } = require
 // Mock @kubernetes/client-node
 const mockKubeConfig = {
     loadFromCluster: jestObj.fn(),
-    makeApiClient: jestObj.fn()
+    makeApiClient: jestObj.fn(),
+    getCurrentContext: jestObj.fn().mockReturnValue('inClusterContext'),
+    getContextObject: jestObj.fn().mockReturnValue({ namespace: 'fhir-server' })
 };
 
 const mockBatchV1Api = {
@@ -132,6 +134,18 @@ describe('K8sClient', () => {
             const client = new K8sClient({ configManager: mockConfigManager });
             expect(logError).toHaveBeenCalledWith('Error while initializing k8 client:', expect.any(Error));
         });
+
+        test('reads namespace from the current kube config context', () => {
+            expect(mockKubeConfig.getContextObject).toHaveBeenCalledWith('inClusterContext');
+            expect(k8sClient.namespace).toBe('fhir-server');
+        });
+
+        test('resolves namespace independently of environmentValue naming conventions', () => {
+            mockKubeConfig.getContextObject.mockReturnValueOnce({ namespace: 'fhir-server' });
+            mockConfigManager.environmentValue = 'dev';
+            const client = new K8sClient({ configManager: mockConfigManager });
+            expect(client.namespace).toBe('fhir-server');
+        });
     });
 
     describe('createJobBody', () => {
@@ -142,7 +156,7 @@ describe('K8sClient', () => {
             const job = await k8sClient.createJobBody({ scriptCommand, context });
             expect(mockCoreV1Api.readNamespacedPod).toHaveBeenCalledWith({
                 name: 'fhir-server-pod-0',
-                namespace: 'fhir-server-dev'
+                namespace: 'fhir-server'
             });
         });
 
@@ -242,7 +256,7 @@ describe('K8sClient', () => {
             expect(result).toBe(true);
             expect(mockBatchV1Api.createNamespacedJob).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    namespace: 'fhir-server-dev'
+                    namespace: 'fhir-server'
                 })
             );
             expect(logInfo).toHaveBeenCalledWith('Job created:', expect.anything());
@@ -288,15 +302,16 @@ describe('K8sClient', () => {
             await expect(k8sClient.createJob({ scriptCommand, context })).rejects.toThrow('Permission denied');
         });
 
-        test('uses correct namespace derived from environmentValue', async () => {
+        test('uses the namespace read from the kube config context, not environmentValue', async () => {
             mockBatchV1Api.createNamespacedJob.mockResolvedValue({ body: { metadata: { name: 'test-job' } } });
             mockConfigManager.environmentValue = 'production';
+            mockKubeConfig.getContextObject.mockReturnValueOnce({ namespace: 'fhir-server' });
             k8sClient = new K8sClient({ configManager: mockConfigManager });
 
             await k8sClient.createJob({ scriptCommand, context });
             expect(mockBatchV1Api.createNamespacedJob).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    namespace: 'fhir-server-production'
+                    namespace: 'fhir-server'
                 })
             );
         });
