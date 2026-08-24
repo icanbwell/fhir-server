@@ -154,6 +154,7 @@ describe('Bulk import — large attachment externalization', () => {
             .send({
                 resourceType: 'DocumentReference',
                 id: 'bulk-import-attachment-preexisting',
+                meta: { source: 'https://www.icanbwell.com' },
                 status: 'current',
                 identifier: [{ system: 'http://example.com', value: 'attachment-skip-12345' }],
                 content: [{ attachment: { contentType: 'application/pdf' } }]
