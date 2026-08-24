@@ -308,6 +308,10 @@ module.exports = {
     CLOUD_EVENT: {
         SOURCE: 'https://www.icanbwell.com/fhir-server'
     },
+    BULK_IMPORT_TASK: {
+        TYPE_SYSTEM: 'https://www.icanbwell.com/task-type',
+        TYPE_CODE: 'bulk-import'
+    },
     CACHE_STATUS: {
         HIT: 'Hit',
         MISS: 'Miss'
