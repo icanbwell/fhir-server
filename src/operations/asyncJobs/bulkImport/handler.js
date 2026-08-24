@@ -19,11 +19,9 @@ const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidCol
 const { WriteAllowedByScopesValidator } = require('../../merge/validators/writeAllowedByScopesValidator');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { removeUnderscoreFieldsRecursive } = require('../../../utils/removeUnderscoreFields');
-const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING, BLOB_OP } = require('../../../constants');
+const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING } = require('../../../constants');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
-const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
-const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
 const { trace } = require('@opentelemetry/api');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
 const { logInfo, logError } = require('../../common/logging');
@@ -101,8 +99,6 @@ class BulkImportHandler {
      * @property {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
      * @property {UuidColumnHandler} uuidColumnHandler
      * @property {WriteAllowedByScopesValidator} writeAllowedByScopesValidator
-     * @property {Base64DataManager} base64DataManager
-     * @property {DatabaseAttachmentManager} databaseAttachmentManager
      *
      * @param {ConstructorParams}
      */
@@ -123,9 +119,7 @@ class BulkImportHandler {
         databaseBulkLoader,
         sourceAssigningAuthorityColumnHandler,
         uuidColumnHandler,
-        writeAllowedByScopesValidator,
-        base64DataManager,
-        databaseAttachmentManager
+        writeAllowedByScopesValidator
     }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -177,12 +171,6 @@ class BulkImportHandler {
 
         this.writeAllowedByScopesValidator = writeAllowedByScopesValidator;
         assertTypeEquals(writeAllowedByScopesValidator, WriteAllowedByScopesValidator);
-
-        this.base64DataManager = base64DataManager;
-        assertTypeEquals(base64DataManager, Base64DataManager);
-
-        this.databaseAttachmentManager = databaseAttachmentManager;
-        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -1080,25 +1068,16 @@ class BulkImportHandler {
                                     ifNoneExist: resource.ifNoneExist
                                 });
                             } else {
-                                // Deferred until the write is guaranteed to happen -- an ifNoneExist
-                                // match above skips the insert entirely, and running these first would
-                                // upload the attachment to GridFS/S3 with nothing ever referencing it,
-                                // orphaning it permanently (no MergeResultEntry, no cleanup path).
-                                // Without these, a >16MB attachment blows MongoDB's own 16MB/document
-                                // BSON limit on insert regardless of bulkImportMaxLineSizeMb. Two
-                                // separate, pre-existing mechanisms cover the two resource types that
-                                // commonly hit this -- create.js/mergeManager.js already call both, in
-                                // this same order, for the non-bulk-import write path:
-                                // - DocumentReference.content[].attachment.data -> MongoDB GridFS, keyed
-                                //   by `_file_id` (DatabaseAttachmentManager, config-driven by
-                                //   generated.databaseAttachmentResources.json).
-                                // - Binary.data -> cloud storage (S3), keyed by `_blobMeta`
-                                //   (Base64DataManager, config-driven by base64DataResources.json).
-                                // Both are no-ops for any other resourceType or when disabled.
-                                fhirResource = await this.databaseAttachmentManager.transformAttachments(fhirResource);
-                                fhirResource = await this.base64DataManager.transformAsync(
-                                    fhirResource, BLOB_OP.INSERT, requestInfo
-                                );
+                                // Large attachment externalization (DocumentReference GridFS,
+                                // Binary S3) is handled by mergeManager.mergeResourceAsync
+                                // internally (performMergeDbInsertAsync/performMergeDbUpdateAsync
+                                // both call transformAttachments + base64DataManager.transformAsync).
+                                // By pushing to pendingMergeResources here -- after the ifNoneExist
+                                // check above -- we guarantee transforms only run when the write
+                                // is actually going to happen. An ifNoneExist match skips this
+                                // branch entirely, so no attachment bytes are uploaded for a
+                                // resource that will never be persisted (no orphaned GridFS/S3
+                                // objects with no referencing document to clean them up).
 
                                 // Claim immediately so a duplicate line later in this same
                                 // unflushed batch sees it, but pass the key through to

@@ -40,8 +40,9 @@ const makeCloudEvent = (overrides = {}) => {
         byteRangeEnd: 104857600,
         rangeIndex: 0,
         totalRanges: 1,
+        taskTotalRanges: 1,
         requestId: 'req-001',
-        scope: 'user/*.write',
+        scope: 'user/*.write access/*.*',
         user: 'test-user',
         ...overrides
     };
@@ -56,16 +57,31 @@ const makeCloudEvent = (overrides = {}) => {
     });
 };
 
+async function processRangeAsync(handler, container, message) {
+    const sendSpy = jest.spyOn(container.kafkaClientV2, 'sendCloudEventMessageAsync');
+    const callsBefore = sendSpy.mock.calls.length;
+    await handler.handleMessageAsync(message);
+    const newCalls = sendSpy.mock.calls.slice(callsBefore);
+    sendSpy.mockRestore();
+    for (const [{ messages }] of newCalls) {
+        for (const msg of messages) {
+            await handler.handleMessageAsync({ key: msg.key, value: msg.value, headers: [] });
+        }
+    }
+}
+
 describe('Bulk import — large attachment externalization', () => {
     beforeEach(async () => {
         process.env.ENABLE_BULK_IMPORT = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
+        process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
         await commonBeforeEach();
     });
 
     afterEach(async () => {
         delete process.env.ENABLE_BULK_IMPORT;
         delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
+        delete process.env.ENABLE_EVENTS_KAFKA_V2;
         await commonAfterEach();
     });
 
@@ -92,7 +108,7 @@ describe('Bulk import — large attachment externalization', () => {
             }
         ]);
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-large-attachment-0',
             value: makeCloudEvent(),
             headers: []
@@ -149,7 +165,7 @@ describe('Bulk import — large attachment externalization', () => {
                 identifier: [{ system: 'http://example.com', value: 'attachment-skip-12345' }]
             }
         ]);
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-large-attachment-preexisting-0',
             value: makeCloudEvent({ taskId: 'import-large-attachment-preexisting' }),
             headers: []
@@ -161,7 +177,13 @@ describe('Bulk import — large attachment externalization', () => {
             .set(getHeaders())
             .expect(202);
 
-        const transformAttachmentsSpy = jest.spyOn(container.databaseAttachmentManager, 'transformAttachments');
+        const gridFSBucket = await container.mongoDatabaseManager.getGridFsBucket();
+        const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
+
+        // Snapshot GridFS file count before the skip range runs -- the skipped line's attachment
+        // must not add any new GridFS entries (uploading then discarding would orphan the bytes
+        // permanently since no document ever references the resulting _file_id for cleanup).
+        const gridFsFilesBefore = await gridFSBucket.find({}).toArray();
 
         container.s3NdjsonReader.setLinesToYield([
             {
@@ -177,7 +199,7 @@ describe('Bulk import — large attachment externalization', () => {
                 }
             }
         ]);
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-large-attachment-skip-0',
             value: makeCloudEvent({ taskId: 'import-large-attachment-skip' }),
             headers: []
@@ -189,17 +211,14 @@ describe('Bulk import — large attachment externalization', () => {
             .expect(200);
         expect(taskResp.body.status).toBe('completed');
 
-        // The skipped line's attachment must never reach the GridFS upload step -- uploading it
-        // and then discarding the resource (because the write was skipped) would orphan the
-        // uploaded bytes permanently, with nothing left referencing them for cleanup.
-        expect(transformAttachmentsSpy).not.toHaveBeenCalled();
-
-        const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
+        // Skipped resource must not be in MongoDB.
         const skippedDoc = await fhirDb.collection('DocumentReference_4_0_0')
             .findOne({ id: 'bulk-import-attachment-should-not-be-created' });
         expect(skippedDoc).toBeNull();
 
-        transformAttachmentsSpy.mockRestore();
+        // No new GridFS files must have been uploaded for the skipped line.
+        const gridFsFilesAfter = await gridFSBucket.find({}).toArray();
+        expect(gridFsFilesAfter).toHaveLength(gridFsFilesBefore.length);
     });
 
     test('handleMessageAsync strips an attacker-supplied _file_id with no data instead of persisting it verbatim', async () => {
@@ -229,7 +248,7 @@ describe('Bulk import — large attachment externalization', () => {
             }
         ]);
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-attachment-pointer-injection-0',
             value: makeCloudEvent({ taskId: 'import-attachment-pointer-injection' }),
             headers: []
