@@ -40,7 +40,8 @@ const {
     OPERATIONS: { READ },
     GRIDFS: { RETRIEVE },
     BLOB_OP,
-    AUTH_USER_TYPES
+    AUTH_USER_TYPES,
+    UNSUPPORTED_SORT_FIELDS
 } = require('../../constants');
 
 class SearchManager {
@@ -732,7 +733,7 @@ class SearchManager {
      * @return {Set<string>}
      */
     getAllowedSortFields ({ resourceType }) {
-        const allowedFields = new Set(this.searchParametersManager.getAllowedFieldsForResource({ resourceType }));
+        const allowedFields = new Set(this.searchParametersManager.getAllowedFieldsForResource({ resourceType }).keys());
         allowedFields.add(this.configManager.defaultSortId);
         return allowedFields;
     }
@@ -768,8 +769,9 @@ class SearchManager {
                 /**
                  * @type {string}
                  */
-                const sortField = descending ? sortProperty.substring(1) : sortProperty;
-                if (!allowedSortFields.has(sortField)) {
+                const sortCode = descending ? sortProperty.substring(1) : sortProperty;
+                const sortField = this.resolveSortField({ resourceType, sortCode, allowedSortFields });
+                if (!sortField || UNSUPPORTED_SORT_FIELDS.includes(sortField)) {
                     logWarn(`Ignoring _sort value '${sortProperty}' for ${resourceType}: not a recognized sortable field`);
                     continue;
                 }
@@ -779,6 +781,53 @@ class SearchManager {
             options.sort = sort;
         }
         return { columns, options };
+    }
+
+    /**
+     * Resolves a single _sort code (the sort value with any leading '-' already stripped) to the
+     * Mongo field to sort by, trying each recognition rule in order until one matches:
+     *  1. a search-parameter code that resolves to a field, e.g. 'date' -> 'effectiveDateTime'
+     *  2. a field already declared verbatim on some search parameter for this resourceType
+     *  3. a `<field>.start`/`<field>.end` boundary on a field declared as a Period type -- lets
+     *     e.g. _sort=effectivePeriod.end work for any resource whose 'effectivePeriod' field is
+     * @param {string} resourceType
+     * @param {string} sortCode
+     * @param {Set<string>} allowedSortFields
+     * @return {string | null}
+     */
+    resolveSortField ({ resourceType, sortCode, allowedSortFields }) {
+        const resolvedField = this.searchParametersManager.getFieldNameForSearchParameter(resourceType, sortCode);
+        if (resolvedField) {
+            return resolvedField;
+        }
+        if (allowedSortFields.has(sortCode)) {
+            return sortCode;
+        }
+        return this.resolvePeriodBoundarySortField({ resourceType, sortCode });
+    }
+
+    /**
+     * Recognizes `<field>.start`/`<field>.end` as a valid _sort target for any FHIR Period-typed
+     * field (fieldType 'period') declared on this resourceType, without requiring a dedicated
+     * search parameter for that exact dotted path -- e.g. _sort=effectivePeriod.end works for any
+     * resource whose 'effectivePeriod' field is declared as type 'period' by some search
+     * parameter, not just resources with a hand-added `_xPeriodEnd` parameter.
+     * @param {string} resourceType
+     * @param {string} sortCode
+     * @return {string | null}
+     */
+    resolvePeriodBoundarySortField ({ resourceType, sortCode }) {
+        const lastDotIndex = sortCode.lastIndexOf('.');
+        if (lastDotIndex === -1) {
+            return null;
+        }
+        const boundary = sortCode.substring(lastDotIndex + 1);
+        if (boundary !== 'start' && boundary !== 'end') {
+            return null;
+        }
+        const baseField = sortCode.substring(0, lastDotIndex);
+        const fieldType = this.searchParametersManager.getFieldType({ resourceType, field: baseField });
+        return fieldType === 'period' ? sortCode : null;
     }
 
     // noinspection FunctionWithInconsistentReturnsJS
