@@ -32,13 +32,16 @@ class K8sClient {
             this.kc.loadFromCluster();
 
             /**
-             * Namespace the current pod is actually running in, read from the
-             * service-account namespace file loadFromCluster() mounts via the
-             * downward API. Namespace naming conventions differ between clusters
-             * (e.g. legacy `fhir-server-<env>` vs bwell-app 3.x `fhir-server`),
-             * so this must be read live rather than derived from environmentValue.
+             * Namespace to use for reading the current pod and creating jobs.
+             * Legacy clusters (dev-ue1/staging-ue1/prod-ue1/client-sandbox-ue1)
+             * follow a `fhir-server-<env>` convention; bwell-app 3.x clusters
+             * (e.g. dev-use1-eks) use the bare service name instead, which is
+             * read live from the service-account namespace file that
+             * loadFromCluster() mounts via the downward API.
              */
-            this.namespace = this.kc.getContextObject(this.kc.getCurrentContext())?.namespace;
+            this.namespace = this.configManager.useEnvironmentValueForK8sNamespace
+                ? `fhir-server-${this.configManager.environmentValue}`
+                : this.kc.getContextObject(this.kc.getCurrentContext())?.namespace;
 
             /**
              * Create an API client for batch (jobs) operations

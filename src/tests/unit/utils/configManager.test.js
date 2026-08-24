@@ -116,6 +116,24 @@ describe('ConfigManager', () => {
         });
     });
 
+    // ========== useEnvironmentValueForK8sNamespace ==========
+    describe('useEnvironmentValueForK8sNamespace', () => {
+        test('defaults to true when not set', () => {
+            delete process.env.USE_ENVIRONMENT_VALUE_FOR_K8S_NAMESPACE;
+            expect(new ConfigManager().useEnvironmentValueForK8sNamespace).toBe(true);
+        });
+
+        test('returns false when explicitly disabled', () => {
+            process.env.USE_ENVIRONMENT_VALUE_FOR_K8S_NAMESPACE = 'false';
+            expect(new ConfigManager().useEnvironmentValueForK8sNamespace).toBe(false);
+        });
+
+        test('returns true when explicitly enabled', () => {
+            process.env.USE_ENVIRONMENT_VALUE_FOR_K8S_NAMESPACE = 'true';
+            expect(new ConfigManager().useEnvironmentValueForK8sNamespace).toBe(true);
+        });
+    });
+
     // ========== accessTagsIndexed (large method with switch) ==========
     describe('accessTagsIndexed', () => {
         test('returns empty array when no env vars set', () => {
