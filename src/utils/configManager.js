@@ -66,14 +66,8 @@ class ConfigManager {
     }
 
     /**
-     * Whether K8sClient should derive its namespace (for reading the current pod
-     * and creating jobs) from `fhir-server-${environmentValue}` — the legacy
-     * <service>-<env> naming convention used on dev-ue1/staging-ue1/prod-ue1/
-     * client-sandbox-ue1. Defaults to true to preserve existing behavior.
-     * bwell-app 3.x clusters (e.g. dev-use1-eks) use the bare service name as
-     * the namespace instead, so this must be set to false there, at which
-     * point K8sClient reads the namespace live from the in-cluster kube config
-     * context instead.
+     * Whether K8sClient derives its namespace from environmentValue instead of
+     * reading it from the kube config context. Defaults to true.
      * @return {boolean}
      */
     get useEnvironmentValueForK8sNamespace() {
