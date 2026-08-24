@@ -9,6 +9,7 @@ module.exports = {
     AUDIT_EVENT_CLIENT_DB: 'auditEventClient_db',
     DB_SEARCH_LIMIT: 100,
     DB_SEARCH_LIMIT_FOR_IDS: 1000,
+    UNSUPPORTED_SORT_FIELDS: ['id'],
     COLLECTION: {
         ACCOUNT: 'Account',
         ACTIVITYDEFINITION: 'ActivityDefinition',

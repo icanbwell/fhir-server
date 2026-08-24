@@ -52,9 +52,9 @@ class SearchParametersManager {
          * memoized result of getAllowedFieldsForResource(), keyed by resourceType, search
          * parameter definitions never change at runtime, so this is safe to cache for the
          * lifetime of this (singleton) instance
-         * @type {Map<string, Set<string>>}
+         * @type {Map<string, Map<string, string | null>>}
          */
-        this.allowedFieldsForResourceByType = new Map();
+        this.allowedFieldsByResourceType = new Map();
     }
 
     /**
@@ -111,32 +111,54 @@ class SearchParametersManager {
     }
 
     /**
-     * Returns every Mongo field path declared on this resource's own search-parameter
-     * definitions, plus the generic `Resource` bucket's (the same resourceType-then-Resource
-     * fallback rule as getPropertyObject/getFieldNameForSearchParameter, but returning the full
-     * set of field paths for a resource instead of looking up one search parameter by name).
-     * Memoized per resourceType since these definitions never change at runtime.
+     * Walks every search parameter declared for a resourceType, plus the generic `Resource`
+     * bucket (same resourceType-then-Resource fallback rule as getPropertyObject/
+     * getFieldNameForSearchParameter), building a single Map keyed by every allowed Mongo field
+     * path for that resourceType. A key's mere presence (checked via .has()) is what makes that
+     * field an allowed sort field, independent of its value; the value (read via .get()) is that
+     * field's declared FHIR type (e.g. 'period', 'datetime'), or null when no type was declared.
+     * This is the one source both callers wanting the allowed field names (via .keys(), e.g.
+     * SearchManager.getAllowedSortFields) and getFieldType (via .get()) read from, so the walk
+     * happens once per resourceType. A field already resolved to a real type is never
+     * overwritten by a later untyped occurrence of the same field name, regardless of which
+     * bucket/search-parameter is walked first. Memoized per resourceType since these definitions
+     * never change at runtime.
      * @param {string} resourceType
-     * @return {Set<string>}
+     * @return {Map<string, string | null>}
      */
     getAllowedFieldsForResource ({ resourceType }) {
-        const cached = this.allowedFieldsForResourceByType.get(resourceType);
+        const cached = this.allowedFieldsByResourceType.get(resourceType);
         if (cached) {
             return cached;
         }
-        const allowedFields = new Set();
-        for (const searchResourceType of [resourceType, 'Resource']) {
-            const searchParametersForResource = this.getSearchParametersForResource({ resourceType: searchResourceType });
+        const allowedFields = new Map();
+        for (const resourceTypeBucket of [resourceType, 'Resource']) {
+            const searchParametersForResource = this.getSearchParametersForResource({ resourceType: resourceTypeBucket });
             if (searchParametersForResource) {
                 for (const propertyObj of Object.values(searchParametersForResource)) {
                     for (const field of propertyObj.fields) {
-                        allowedFields.add(field);
+                        if (!allowedFields.get(field)) {
+                            allowedFields.set(field, (propertyObj.fieldTypesObj && propertyObj.fieldTypesObj[field]) || null);
+                        }
                     }
                 }
             }
         }
-        this.allowedFieldsForResourceByType.set(resourceType, allowedFields);
+        this.allowedFieldsByResourceType.set(resourceType, allowedFields);
         return allowedFields;
+    }
+
+    /**
+     * Returns the FHIR field type (e.g. 'period', 'datetime', 'instant') declared for a Mongo
+     * field path on a resourceType. This lets callers recognize e.g. any Period-typed field
+     * generically (a `<field>.start`/`<field>.end` _sort target) without needing a dedicated
+     * search parameter declared per field.
+     * @param {string} resourceType
+     * @param {string} field
+     * @return {string | null}
+     */
+    getFieldType ({ resourceType, field }) {
+        return this.getAllowedFieldsForResource({ resourceType }).get(field) || null;
     }
 
     /**

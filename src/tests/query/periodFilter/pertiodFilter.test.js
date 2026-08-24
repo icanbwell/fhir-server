@@ -93,3 +93,4 @@ describe('Period start/end field search tests', () => {
         expect(resp).toHaveResponse(expectedObservationPeriodStartEq2026);
     });
 });
+

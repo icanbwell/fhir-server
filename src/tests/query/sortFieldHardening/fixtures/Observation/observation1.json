@@ -1,0 +1,36 @@
+{
+  "resourceType": "Observation",
+  "id": "observation-2017",
+  "meta": {
+    "source": "mps",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client"
+      }
+    ]
+  },
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "8310-5",
+        "display": "Body temperature"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df727",
+    "display": "Mr. Max124 Larry532 Gibson10"
+  },
+  "effectiveDateTime": "2017-06-19T01:15:45+00:00"
+}
