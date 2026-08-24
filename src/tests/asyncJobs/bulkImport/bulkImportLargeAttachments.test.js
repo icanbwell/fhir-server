@@ -161,8 +161,7 @@ describe('Bulk import — large attachment externalization', () => {
             {
                 resourceType: 'DocumentReference',
                 id: 'bulk-import-attachment-preexisting',
-                status: 'current',
-                identifier: [{ system: 'http://example.com', value: 'attachment-skip-12345' }]
+                status: 'current'
             }
         ]);
         await processRangeAsync(handler, container, {
@@ -187,12 +186,13 @@ describe('Bulk import — large attachment externalization', () => {
 
         container.s3NdjsonReader.setLinesToYield([
             {
-                ifNoneExist: 'identifier=http://example.com|attachment-skip-12345',
+                // _id search is used here because DocumentReference identifier indexing
+                // in the test env may differ from Patient; _id is reliable for any type.
+                ifNoneExist: '_id=bulk-import-attachment-preexisting',
                 resource: {
                     resourceType: 'DocumentReference',
                     id: 'bulk-import-attachment-should-not-be-created',
                     status: 'current',
-                    identifier: [{ system: 'http://example.com', value: 'attachment-skip-12345' }],
                     content: [
                         { attachment: { contentType: 'application/pdf', data: LARGE_DATA } }
                     ]
