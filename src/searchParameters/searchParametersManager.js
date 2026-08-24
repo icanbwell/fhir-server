@@ -49,19 +49,12 @@ class SearchParametersManager {
         }
 
         /**
-         * memoized result of getAllowedFieldsForResource(), keyed by resourceType, search
-         * parameter definitions never change at runtime, so this is safe to cache for the
-         * lifetime of this (singleton) instance
-         * @type {Map<string, Set<string>>}
+         * memoized result of getResourceFieldMetadata(), keyed by resourceType, search parameter
+         * definitions never change at runtime, so this is safe to cache for the lifetime of this
+         * (singleton) instance
+         * @type {Map<string, {allowedFields: Set<string>, fieldTypes: Map<string, string>}>}
          */
-        this.allowedFieldsForResourceByType = new Map();
-        /**
-         * memoized result of getFieldType(), keyed by resourceType then by field path, search
-         * parameter definitions never change at runtime, so this is safe to cache for the
-         * lifetime of this (singleton) instance
-         * @type {Map<string, Map<string, string>>}
-         */
-        this.fieldTypesByResourceType = new Map();
+        this.resourceFieldMetadataByType = new Map();
     }
 
     /**
@@ -118,20 +111,22 @@ class SearchParametersManager {
     }
 
     /**
-     * Returns every Mongo field path declared on this resource's own search-parameter
-     * definitions, plus the generic `Resource` bucket's (the same resourceType-then-Resource
-     * fallback rule as getPropertyObject/getFieldNameForSearchParameter, but returning the full
-     * set of field paths for a resource instead of looking up one search parameter by name).
-     * Memoized per resourceType since these definitions never change at runtime.
+     * Walks every search parameter declared for a resourceType, plus the generic `Resource`
+     * bucket (same resourceType-then-Resource fallback rule as getPropertyObject/
+     * getFieldNameForSearchParameter), collecting both the full set of Mongo field paths
+     * (getAllowedFieldsForResource) and each field's declared FHIR type from fieldTypesObj
+     * (getFieldType) in a single pass. Memoized per resourceType since these definitions never
+     * change at runtime.
      * @param {string} resourceType
-     * @return {Set<string>}
+     * @return {{allowedFields: Set<string>, fieldTypes: Map<string, string>}}
      */
-    getAllowedFieldsForResource ({ resourceType }) {
-        const cached = this.allowedFieldsForResourceByType.get(resourceType);
+    getResourceFieldMetadata ({ resourceType }) {
+        const cached = this.resourceFieldMetadataByType.get(resourceType);
         if (cached) {
             return cached;
         }
         const allowedFields = new Set();
+        const fieldTypes = new Map();
         for (const searchResourceType of [resourceType, 'Resource']) {
             const searchParametersForResource = this.getSearchParametersForResource({ resourceType: searchResourceType });
             if (searchParametersForResource) {
@@ -139,44 +134,40 @@ class SearchParametersManager {
                     for (const field of propertyObj.fields) {
                         allowedFields.add(field);
                     }
+                    for (const [fieldName, fieldType] of Object.entries(propertyObj.fieldTypesObj || {})) {
+                        if (!fieldTypes.has(fieldName)) {
+                            fieldTypes.set(fieldName, fieldType);
+                        }
+                    }
                 }
             }
         }
-        this.allowedFieldsForResourceByType.set(resourceType, allowedFields);
-        return allowedFields;
+        const metadata = { allowedFields, fieldTypes };
+        this.resourceFieldMetadataByType.set(resourceType, metadata);
+        return metadata;
+    }
+
+    /**
+     * Returns every Mongo field path declared on this resource's own search-parameter
+     * definitions, plus the generic `Resource` bucket's.
+     * @param {string} resourceType
+     * @return {Set<string>}
+     */
+    getAllowedFieldsForResource ({ resourceType }) {
+        return this.getResourceFieldMetadata({ resourceType }).allowedFields;
     }
 
     /**
      * Returns the FHIR field type (e.g. 'period', 'datetime', 'instant') declared for a Mongo
-     * field path on a resourceType, by scanning every search parameter's fieldTypesObj for that
-     * resourceType plus the generic Resource bucket (same resourceType-then-Resource fallback
-     * rule as getAllowedFieldsForResource). This lets callers recognize e.g. any Period-typed
-     * field generically (a `<field>.start`/`<field>.end` _sort target) without needing a
-     * dedicated search parameter declared per field. Memoized per resourceType since these
-     * definitions never change at runtime.
+     * field path on a resourceType. This lets callers recognize e.g. any Period-typed field
+     * generically (a `<field>.start`/`<field>.end` _sort target) without needing a dedicated
+     * search parameter declared per field.
      * @param {string} resourceType
      * @param {string} field
      * @return {string | null}
      */
     getFieldType ({ resourceType, field }) {
-        let fieldTypes = this.fieldTypesByResourceType.get(resourceType);
-        if (!fieldTypes) {
-            fieldTypes = new Map();
-            for (const searchResourceType of [resourceType, 'Resource']) {
-                const searchParametersForResource = this.getSearchParametersForResource({ resourceType: searchResourceType });
-                if (searchParametersForResource) {
-                    for (const propertyObj of Object.values(searchParametersForResource)) {
-                        for (const [fieldName, fieldType] of Object.entries(propertyObj.fieldTypesObj || {})) {
-                            if (!fieldTypes.has(fieldName)) {
-                                fieldTypes.set(fieldName, fieldType);
-                            }
-                        }
-                    }
-                }
-            }
-            this.fieldTypesByResourceType.set(resourceType, fieldTypes);
-        }
-        return fieldTypes.get(field) || null;
+        return this.getResourceFieldMetadata({ resourceType }).fieldTypes.get(field) || null;
     }
 
     /**
