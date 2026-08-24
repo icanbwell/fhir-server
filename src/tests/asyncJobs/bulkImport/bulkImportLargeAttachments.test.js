@@ -147,34 +147,27 @@ describe('Bulk import — large attachment externalization', () => {
     test('handleMessageAsync does not upload an attachment for a line skipped via ifNoneExist', async () => {
         const request = await createTestRequest();
 
-        // Pre-existing DocumentReference the skip-triggering line's ifNoneExist query matches.
+        // Pre-existing DocumentReference created via the REST API so it is committed and
+        // searchable before the bulk-import skip range runs.
         await request
-            .post('/4_0_0/$import')
-            .send({ ...validParametersBody, id: 'import-large-attachment-preexisting' })
-            .set(getHeaders())
-            .expect(202);
-
-        const container = createTestContainer();
-        const handler = container.bulkImportHandler;
-
-        container.s3NdjsonReader.setLinesToYield([
-            {
+            .put('/4_0_0/DocumentReference/bulk-import-attachment-preexisting')
+            .send({
                 resourceType: 'DocumentReference',
                 id: 'bulk-import-attachment-preexisting',
-                status: 'current'
-            }
-        ]);
-        await processRangeAsync(handler, container, {
-            key: 'import-large-attachment-preexisting-0',
-            value: makeCloudEvent({ taskId: 'import-large-attachment-preexisting' }),
-            headers: []
-        });
+                status: 'current',
+                identifier: [{ system: 'http://example.com', value: 'attachment-skip-12345' }]
+            })
+            .set(getHeaders())
+            .expect(201);
 
         await request
             .post('/4_0_0/$import')
             .send({ ...validParametersBody, id: 'import-large-attachment-skip' })
             .set(getHeaders())
             .expect(202);
+
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
 
         const gridFSBucket = await container.mongoDatabaseManager.getGridFsBucket();
         const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
@@ -186,13 +179,12 @@ describe('Bulk import — large attachment externalization', () => {
 
         container.s3NdjsonReader.setLinesToYield([
             {
-                // _id search is used here because DocumentReference identifier indexing
-                // in the test env may differ from Patient; _id is reliable for any type.
-                ifNoneExist: '_id=bulk-import-attachment-preexisting',
+                ifNoneExist: 'identifier=http://example.com|attachment-skip-12345',
                 resource: {
                     resourceType: 'DocumentReference',
                     id: 'bulk-import-attachment-should-not-be-created',
                     status: 'current',
+                    identifier: [{ system: 'http://example.com', value: 'attachment-skip-12345' }],
                     content: [
                         { attachment: { contentType: 'application/pdf', data: LARGE_DATA } }
                     ]
