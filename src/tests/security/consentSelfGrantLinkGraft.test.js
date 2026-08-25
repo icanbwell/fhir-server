@@ -41,9 +41,9 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest
-} = require('../../../common');
+} = require('../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
-const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
+const { DatabaseCursor } = require('../../dataLayer/databaseCursor');
 
 const OWNER = 'https://www.icanbwell.com/owner';
 const ACCESS = 'https://www.icanbwell.com/access';

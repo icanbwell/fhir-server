@@ -267,7 +267,7 @@ per-request/stateless by construction; there is no separate stateful transport m
   asserting the consent-exclusion merge against `parsedArgs.parsedArgItems` directly (the structure
   the query builder actually reads), not just the cosmetic bracket property.
 - `src/tests/unit/mcp/genericFhirSearchTool.test.js`, `src/tests/unit/routeHandlers/mcpServer.test.js`,
-  `src/tests/unit/routeHandlers/mcpFeatureFlag.test.js` — unit coverage for the generic tool
+  `src/tests/mcp/mcpFeatureFlag.test.js` — unit coverage for the generic tool
   definition, the route handler, and the `ENABLE_MCP` gate.
 - `generatorScripts/mcp/test_generate_mcp_tools.py` — generator unit tests.
 - `src/tests/unit/searchParameters/customSearchParameterQueries.test.js` — characterization

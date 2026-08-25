@@ -59,6 +59,26 @@ jobs:
           yarn install || yarn install
       - name: jest
         run: |
-          ./node_modules/.bin/jest --no-watchman --silent --runInBand --forceExit --logHeapUsage --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          ./node_modules/.bin/jest --config jest.config.js --no-watchman --silent --runInBand --forceExit --logHeapUsage --shard=${{ matrix.shard }}/${{ strategy.job-total }}
         env:
           NODE_OPTIONS: "--max-old-space-size=10240 --expose-gc"
+  test-unit:
+    runs-on: ubuntu-latest
+    name: test (unit)
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Use Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+      - name: Enable Corepack
+        run: corepack enable
+      - run: | # retry since yarn registry fetches fail sometimes
+          yarn install || yarn install
+      - name: jest (unit)
+        run: |
+          ./node_modules/.bin/jest --config jest.unit.config.js --no-watchman --silent --forceExit --logHeapUsage
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8096 --expose-gc"

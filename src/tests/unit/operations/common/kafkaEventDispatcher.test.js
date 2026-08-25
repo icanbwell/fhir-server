@@ -1,5 +1,5 @@
 const { describe, test, expect, jest } = require('@jest/globals');
-const { KafkaEventDispatcher } = require('../../../operations/common/kafkaEventDispatcher');
+const { KafkaEventDispatcher } = require('../../../../operations/common/kafkaEventDispatcher');
 
 const makeMessage = (body) => ({
     key: 'test-key',

@@ -22,74 +22,10 @@ module.exports = {
         '<rootDir>/src/graphql/resolvers',
         '<rootDir>/src/graphqlv2/resolvers'
     ],
-    // These suites assert correct behavior for known, tracked bugs and fail by design until each
-    // is fixed (security findings also need adversarial review against review.md); excluded here
-    // so a documented-but-unfixed bug doesn't fail CI. Note: entries below do NOT all point at a
-    // single external tracker - `BUG_REPORT.md`/`fhir-server-security-bugs.csv`, previously cited
-    // here for the whole list, do not exist in this repo (see docs/superpowers/plans/
-    // 2026-08-04-security-review-test-coverage.md's Global Constraints). Before removing an entry,
-    // run it directly (bypasses this ignore list) and confirm it passes against current `main` -
-    // some bugs get fixed without their quarantine entry being removed. Remove an entry once its
-    // bug is fixed (and reviewed, for security ones).
     testPathIgnorePatterns: [
         '<rootDir>/src/tests/performance/',
         '<rootDir>/.claude/',
-        '<rootDir>/src/tests/unit/admin/adminExportManager.test.js',
-        '<rootDir>/src/tests/unit/admin/runners/changeSourceAssigningAuthorityRunner.test.js',
-        '<rootDir>/src/tests/unit/admin/runners/fixDuplicateUuidRunner.test.js',
-        '<rootDir>/src/tests/unit/admin/runners/fixPersonLinksRunner.test.js',
-        '<rootDir>/src/tests/unit/admin/runners/getMasterPatientUsageDataRunner.test.js',
-        '<rootDir>/src/tests/unit/admin/runners/migrateHistoryToCloudStorageRunner.test.js',
-        '<rootDir>/src/tests/unit/admin/runners/partitionAuditEventRunner.test.js',
-        '<rootDir>/src/tests/unit/admin/runners/removeDuplicatePersonLinkRunner.test.js',
-        '<rootDir>/src/tests/unit/admin/runners/updateCollectionsRunner.test.js',
-        '<rootDir>/src/tests/unit/dataLayer/base64DataManager.test.js',
-        '<rootDir>/src/tests/unit/dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor.bugs.test.js',
-        '<rootDir>/src/tests/unit/dataLayer/databaseBulkLoader.test.js',
-        '<rootDir>/src/tests/unit/dataLayer/postSaveHandlers/clickHouseGroupHandler.nullSafety.test.js',
-        '<rootDir>/src/tests/unit/dataLayer/providers/mongoWithClickHouse/queryBuilder.test.js',
-        '<rootDir>/src/tests/unit/dataLayer/providers/mongoWithClickHouseStorageProvider.unit.test.js',
-        '<rootDir>/src/tests/unit/middleware/fhir/4_0_0/controllers/generic.controller.test.js',
-        '<rootDir>/src/tests/unit/middleware/fhir/router.test.js',
-        '<rootDir>/src/tests/unit/operations/common/patientQueryCreator.test.js',
-        '<rootDir>/src/tests/unit/operations/everything/everything.bugs.test.js',
-        '<rootDir>/src/tests/unit/operations/everything/everythingRelatedResourcesMapper.test.js',
-        '<rootDir>/src/tests/unit/operations/graph/graph.test.js',
-        '<rootDir>/src/tests/unit/operations/history/history.test.js',
-        '<rootDir>/src/tests/unit/operations/merge/merge.nullSafety.test.js',
-        '<rootDir>/src/tests/unit/operations/patch/strategies/groupMemberPatchStrategy.bugs.test.js',
-        '<rootDir>/src/tests/unit/operations/query/r4SearchQueryCreator.test.js',
-        '<rootDir>/src/tests/unit/operations/remove/removeHelper.test.js',
-        '<rootDir>/src/tests/unit/operations/search/searchBundle.test.js',
-        '<rootDir>/src/tests/unit/operations/searchById/searchById.test.js',
-        '<rootDir>/src/tests/unit/operations/searchByVersionId/searchByVersionId.test.js',
-        '<rootDir>/src/tests/unit/operations/validate/validate.test.js',
-        '<rootDir>/src/tests/unit/routeHandlers/fhirServer.test.js',
-        '<rootDir>/src/tests/unit/utils/accessLogger.test.js',
-        '<rootDir>/src/tests/unit/utils/clickHouseClientManager.test.js',
-        '<rootDir>/src/tests/unit/utils/delegatedAccessRulesManager.test.js',
-        '<rootDir>/src/tests/unit/utils/filterGraphResources.test.js',
-        '<rootDir>/src/tests/unit/utils/mergeHelper.test.js',
-        '<rootDir>/src/tests/unit/utils/personToPatientIdsExpander.test.js',
-        '<rootDir>/src/tests/unit/utils/s3Client.test.js',
-        '<rootDir>/src/tests/unit/dataLayer/databaseBulkInserter.nullPatches.test.js',
-        '<rootDir>/src/tests/unit/enrich/enrichmentManager.test.js',
-        '<rootDir>/src/tests/unit/enrich/proxyPatientReferenceEnrichmentProvider.test.js',
-        '<rootDir>/src/tests/unit/graphql/resolvers/graphqlResolver.crossTenant.test.js',
-        '<rootDir>/src/tests/unit/graphqlv2/crossTenantPhiLeakage.test.js',
-        '<rootDir>/src/tests/unit/middleware/errorInformationDisclosure.test.js',
-        '<rootDir>/src/tests/unit/operations/export/bulkDataExportRunner.crossTenant.test.js',
-        '<rootDir>/src/tests/unit/operations/history/historyCrossTenant.test.js',
-        '<rootDir>/src/tests/unit/operations/merge/merge.crossTenant.test.js',
-        '<rootDir>/src/tests/unit/operations/merge/mergeCrossTenantWrite.test.js',
-        '<rootDir>/src/tests/unit/operations/query/searchQuery.crossTenant.test.js',
-        '<rootDir>/src/tests/unit/operations/search/proaConsentVulnerabilities.test.js',
-        '<rootDir>/src/tests/unit/operations/subscription/subscription.crossTenant.test.js',
-        '<rootDir>/src/tests/unit/operations/subscription/webhookPhiLeakage.test.js',
-        '<rootDir>/src/tests/unit/strategies/jwtCacheThunderingHerd.test.js'
-        // personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js entry removed here:
-        // DCON-4894 closed this gap (Person.link assurance enforcement) and the test now
-        // passes against current main -- see the file's updated top-of-file comment.
+        '<rootDir>/src/tests/unit/'
     ],
     setupFiles: [
         '<rootDir>/jest/patchClickHouseClient.js',
