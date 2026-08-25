@@ -19,8 +19,14 @@ const eob1 = require('./fixtures/ExplanationOfBenefit/eob1.json');
 const eob2 = require('./fixtures/ExplanationOfBenefit/eob2.json');
 const allergyIntolerance1 = require('./fixtures/AllergyIntolerance/allergyintolerance1.json');
 const allergyIntolerance2 = require('./fixtures/AllergyIntolerance/allergyintolerance2.json');
+const allergyIntolerance3 = require('./fixtures/AllergyIntolerance/allergyintolerance3.json');
+const allergyIntolerance4 = require('./fixtures/AllergyIntolerance/allergyintolerance4.json');
+const procedure1 = require('./fixtures/Procedure/procedure1.json');
+const procedure2 = require('./fixtures/Procedure/procedure2.json');
 
-const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getHeadersWithAdmin } = require('../../common');
+const {
+    commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getHeadersWithAdmin, getTestContainer
+} = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
 const FAKE_TIMER_OPTIONS = {
@@ -285,5 +291,53 @@ describe('_sort field hardening tests', () => {
 
         resp = await request.get('/4_0_0/AllergyIntolerance?_sort=-onsetDateTime&_bundle=1').set(getHeadersWithAdmin());
         expect(resp.body.entry.map(e => e.resource.id)).toEqual(['allergyintolerance-2030', 'allergyintolerance-2018']);
+    });
+
+    test("_sort recognizes AllergyIntolerance's onsetPeriod.start/onsetPeriod.end via the temporary custom-sort-field allowlist, since AllergyIntolerance has no period-typed field declared", async () => {
+        const request = await createTestRequest();
+
+        let resp = await request.post('/4_0_0/AllergyIntolerance/$merge')
+            .send([allergyIntolerance3, allergyIntolerance4]).set(getHeaders());
+        expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
+
+        // allergyIntolerance3.onsetPeriod is 2019, allergyIntolerance4.onsetPeriod is 2031 (see fixtures)
+        resp = await request.get('/4_0_0/AllergyIntolerance?_sort=onsetPeriod.start&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['allergyintolerance-onsetperiod-2019', 'allergyintolerance-onsetperiod-2031']);
+
+        resp = await request.get('/4_0_0/AllergyIntolerance?_sort=-onsetPeriod.end&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['allergyintolerance-onsetperiod-2031', 'allergyintolerance-onsetperiod-2019']);
+    });
+
+    // Procedure.encounter is a Reference, and the generated Reference class (src/fhir/classes/
+    // 4_0_0/complex_types/reference.js) silently drops any 'period' property on construction, so
+    // $merge can never populate encounter.period.start/.end. To prove the custom-sort-field
+    // resolution itself works against whatever ends up in Mongo (regardless of how it got there),
+    // this test writes the fixtures via $merge first, then sets encounter.period directly on the
+    // persisted documents with a raw Mongo update.
+    test("_sort recognizes Procedure's encounter.period.start/encounter.period.end via the temporary custom-sort-field allowlist, since encounter is a Reference and has no period field", async () => {
+        const request = await createTestRequest();
+
+        let resp = await request.post('/4_0_0/Procedure/$merge').send([procedure1, procedure2]).set(getHeaders());
+        expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
+
+        const container = getTestContainer();
+        const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
+        const procedureCollection = fhirDb.collection('Procedure_4_0_0');
+
+        // procedure-encounter-2020's encounter.period is 2020, procedure-encounter-2032's is 2032
+        await procedureCollection.updateOne(
+            { id: 'procedure-encounter-2020' },
+            { $set: { 'encounter.period': { start: '2020-06-19T01:15:45+00:00', end: '2020-06-19T01:30:45+00:00' } } }
+        );
+        await procedureCollection.updateOne(
+            { id: 'procedure-encounter-2032' },
+            { $set: { 'encounter.period': { start: '2032-06-19T01:15:45+00:00', end: '2032-06-19T01:30:45+00:00' } } }
+        );
+
+        resp = await request.get('/4_0_0/Procedure?_sort=encounter.period.start&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['procedure-encounter-2020', 'procedure-encounter-2032']);
+
+        resp = await request.get('/4_0_0/Procedure?_sort=-encounter.period.end&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['procedure-encounter-2032', 'procedure-encounter-2020']);
     });
 });

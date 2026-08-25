@@ -367,7 +367,11 @@ describe('SearchManager', () => {
                 ['ExplanationOfBenefit', 'billablePeriod.start'],
                 ['ExplanationOfBenefit', 'billablePeriod.end'],
                 ['CarePlan', 'created'],
-                ['AllergyIntolerance', 'onsetDateTime']
+                ['AllergyIntolerance', 'onsetDateTime'],
+                ['AllergyIntolerance', 'onsetPeriod.start'],
+                ['AllergyIntolerance', 'onsetPeriod.end'],
+                ['Procedure', 'encounter.period.start'],
+                ['Procedure', 'encounter.period.end']
             ])('resolves %s\'s %s via the temporary custom-sort-field allowlist, with no search parameter declaring it', (resourceType, sortCode) => {
                 const parsedArgs = { get: () => ({ queryParameterValue: { values: [sortCode] } }), _sort: sortCode };
                 const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType });
