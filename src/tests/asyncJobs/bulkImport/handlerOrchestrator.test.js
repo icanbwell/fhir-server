@@ -1,7 +1,24 @@
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { BulkImportHandler } = require('../../../operations/asyncJobs/bulkImport/handler');
-const { ConfigManager } = require('../../../utils/configManager');
+
+const makeRangeProgressEvent = (type, overrides = {}) => {
+    const data = {
+        taskId: 'import-orch-001',
+        filepath: 's3://allowed-bucket/Patient.ndjson',
+        rangeIndex: 0,
+        taskTotalRanges: 1,
+        ...overrides
+    };
+
+    return JSON.stringify({
+        specversion: '1.0',
+        id: 'evt-range-001',
+        source: 'https://www.icanbwell.com/fhir-server',
+        type,
+        datacontenttype: 'application/json',
+        data
+    });
+};
 
 const makeTaskCreatedEvent = (overrides = {}) => {
     const data = {
@@ -107,6 +124,172 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
             headers: []
         });
     });
+});
+
+describe('BulkImportHandler - ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed (orchestrator)', () => {
+    beforeEach(async () => {
+        process.env.ENABLE_BULK_IMPORT = '1';
+        process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
+        process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
+        await commonBeforeEach();
+    });
+
+    afterEach(async () => {
+        delete process.env.ENABLE_BULK_IMPORT;
+        delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
+        delete process.env.ENABLE_EVENTS_KAFKA_V2;
+        await commonAfterEach();
+    });
+
+    test('ImportRangeStarted flips a requested Task to in-progress', async () => {
+        const request = await createTestRequest();
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-orch-started' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        await handler.handleMessageAsync({
+            key: 'import-orch-started-0',
+            value: makeRangeProgressEvent('ImportRangeStarted', { taskId: 'import-orch-started' }),
+            headers: []
+        });
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-orch-started')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('in-progress');
+    });
+
+    test('ImportRangeFailed marks the Task failed with the reported error message', async () => {
+        const request = await createTestRequest();
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-orch-failed' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        await handler.handleMessageAsync({
+            key: 'import-orch-failed-0',
+            value: makeRangeProgressEvent('ImportRangeFailed', {
+                taskId: 'import-orch-failed',
+                errorMessage: 'S3 read timed out'
+            }),
+            headers: []
+        });
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-orch-failed')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('failed');
+        expect(taskResp.body.statusReason.text).toBe('S3 read timed out');
+    });
+
+    test('ImportRangeCompleted appends Task.output and completes the Task once every range has reported', async () => {
+        const request = await createTestRequest();
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-orch-completed' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        await handler.handleMessageAsync({
+            key: 'import-orch-completed-0',
+            value: makeRangeProgressEvent('ImportRangeCompleted', {
+                taskId: 'import-orch-completed',
+                rangeIndex: 0,
+                taskTotalRanges: 1,
+                resultUri: 's3://allowed-bucket/output/Patient-001.ndjson',
+                errorUri: null
+            }),
+            headers: []
+        });
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-orch-completed')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+        const resultOutput = taskResp.body.output.find((o) => o.type.text === 'result');
+        expect(resultOutput.valueUri).toBe('s3://allowed-bucket/output/Patient-001.ndjson');
+    });
+
+    test('ImportRangeCompleted does not complete the Task until every range has reported', async () => {
+        const request = await createTestRequest();
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-orch-partial' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        await handler.handleMessageAsync({
+            key: 'import-orch-partial-0',
+            value: makeRangeProgressEvent('ImportRangeCompleted', {
+                taskId: 'import-orch-partial',
+                rangeIndex: 0,
+                taskTotalRanges: 2,
+                resultUri: 's3://allowed-bucket/output/Patient-001.ndjson',
+                errorUri: null
+            }),
+            headers: []
+        });
+
+        let taskResp = await request
+            .get('/4_0_0/Task/import-orch-partial')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).not.toBe('completed');
+
+        await handler.handleMessageAsync({
+            key: 'import-orch-partial-1',
+            value: makeRangeProgressEvent('ImportRangeCompleted', {
+                taskId: 'import-orch-partial',
+                rangeIndex: 1,
+                taskTotalRanges: 2,
+                resultUri: 's3://allowed-bucket/output/Patient-002.ndjson',
+                errorUri: null
+            }),
+            headers: []
+        });
+
+        taskResp = await request
+            .get('/4_0_0/Task/import-orch-partial')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+        expect(taskResp.body.output).toHaveLength(2);
+    });
+
+    test('handleMessageAsync ignores malformed range-progress messages', async () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        await handler.handleMessageAsync({
+            key: 'bad-message',
+            value: 'not-valid-json{{{',
+            headers: []
+        });
+    });
+
 });
 
 // TODO: Uncomment when orchestrator logic is enabled in a follow-up PR.

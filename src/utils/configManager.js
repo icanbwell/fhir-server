@@ -1438,6 +1438,18 @@ class ConfigManager {
         return env.BULK_IMPORT_ORCHESTRATOR_GROUP_ID || 'fhir-bulk-import-orchestrator';
     }
 
+    /**
+     * Kafka topic for worker->orchestrator range-progress reports (ImportRangeStarted/
+     * ImportRangeCompleted/ImportRangeFailed). The orchestrator is the only process that ever
+     * writes to the Task resource once it exists -- workers only emit onto this topic, never
+     * touch the Task themselves -- so a redelivered or reordered report is always resolved by
+     * a single consumer instead of racing another writer.
+     * @return {string}
+     */
+    get kafkaBulkImportRangeProgressTopic() {
+        return env.KAFKA_BULK_IMPORT_RANGE_PROGRESS_TOPIC || 'fhir_server.bulk_import.processing.events';
+    }
+
     // ── Kafka v2 (new MSK cluster) ──────────────────────────────────────────
 
     /**
