@@ -1,0 +1,37 @@
+{
+  "resourceType": "Procedure",
+  "id": "procedure-encounter-2032",
+  "meta": {
+    "source": "mps",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client"
+      }
+    ]
+  },
+  "status": "completed",
+  "code": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "90105005",
+        "display": "Biopsy of soft tissue of forearm (Procedure)"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df727"
+  },
+  "encounter": {
+    "reference": "Encounter/2"
+  }
+}
