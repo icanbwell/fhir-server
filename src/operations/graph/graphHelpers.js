@@ -533,6 +533,56 @@ class GraphHelper {
     }
 
     /**
+     * Identifies which parameter in a reverse-link target.params string is the one that links
+     * the child back to the parent, independent of its position in the string.
+     * @param {string} relatedResourceType
+     * @param {string} parentResourceType
+     * @param {string} reverse_filter
+     * @return {string}
+     */
+    getReverseLinkSearchParameterName ({ relatedResourceType, parentResourceType, reverse_filter }) {
+        const pairs = reverse_filter
+            .split('&')
+            .filter(pair => pair.length > 0)
+            .map(pair => {
+                const separatorIndex = pair.indexOf('=');
+                return separatorIndex === -1
+                    ? { name: pair, value: '' }
+                    : { name: pair.substring(0, separatorIndex), value: pair.substring(separatorIndex + 1) };
+            });
+        if (pairs.length === 0) {
+            return reverse_filter.split('=')[0];
+        }
+
+        const withPlaceholder = pairs.find(
+            pair => pair.value.includes('{ref}') || pair.value.includes('{id}')
+        );
+        if (withPlaceholder) {
+            return withPlaceholder.name;
+        }
+
+        const referencePairs = pairs.filter(pair => {
+            const propertyObj = this.searchParametersManager.getPropertyObject({
+                resourceType: relatedResourceType, queryParameter: pair.name
+            });
+            return propertyObj && propertyObj.type === 'reference';
+        });
+        const targetingParent = referencePairs.find(pair => {
+            const propertyObj = this.searchParametersManager.getPropertyObject({
+                resourceType: relatedResourceType, queryParameter: pair.name
+            });
+            return Array.isArray(propertyObj.target) && propertyObj.target.includes(parentResourceType);
+        });
+        if (targetingParent) {
+            return targetingParent.name;
+        }
+        if (referencePairs.length > 0) {
+            return referencePairs[0].name;
+        }
+        return pairs[0].name;
+    }
+
+    /**
      * Gets related resources using reverse link and add them to containedEntries in parentEntities
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
@@ -641,7 +691,9 @@ class GraphHelper {
             const args = {};
             args.base_version = base_version;
 
-            const searchParameterName = reverse_filter.split('=')[0];
+            const searchParameterName = this.getReverseLinkSearchParameterName({
+                relatedResourceType, parentResourceType, reverse_filter
+            });
             /**
              * @type {boolean}
              */

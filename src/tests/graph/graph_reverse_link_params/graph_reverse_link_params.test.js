@@ -162,8 +162,8 @@ describe('$graph reverse link target.params', () => {
         });
     });
 
-    describe('the first parameter in target.params is the one treated as the link', () => {
-        test('a matching _security placed before the placeholder returns nothing', async () => {
+    describe('the linking parameter is found regardless of its position in target.params', () => {
+        test('a matching _security before the placeholder still resolves the link', async () => {
             const request = await createTestRequest();
             await seed(request);
 
@@ -172,10 +172,10 @@ describe('$graph reverse link target.params', () => {
             ).toEqual(['obs-a1']);
             expect(
                 await graphObservations(request, 'patient-a', `_security=${ACCESS_SYSTEM}|tenantA&subject={ref}`)
-            ).toEqual([]);
+            ).toEqual(['obs-a1']);
         });
 
-        test('a matching status placed before the placeholder returns nothing', async () => {
+        test('a matching status before the placeholder still resolves the link', async () => {
             const request = await createTestRequest();
             await seed(request);
 
@@ -184,6 +184,39 @@ describe('$graph reverse link target.params', () => {
             ).toEqual(['obs-a1']);
             expect(
                 await graphObservations(request, 'patient-a', 'status=final&subject={ref}')
+            ).toEqual(['obs-a1']);
+        });
+
+        test('a leading filter that does not match still removes the resource', async () => {
+            const request = await createTestRequest();
+            await seed(request);
+
+            expect(
+                await graphObservations(request, 'patient-a', 'status=cancelled&subject={ref}')
+            ).toEqual([]);
+            expect(
+                await graphObservations(request, 'patient-a', `_security=${ACCESS_SYSTEM}|tenantB&subject={ref}`)
+            ).toEqual([]);
+        });
+
+        test('the {id} placeholder is found in a trailing position too', async () => {
+            const request = await createTestRequest();
+            await seed(request);
+
+            expect(
+                await graphObservations(request, 'patient-a', 'status=final&subject={id}')
+            ).toEqual(['obs-a1']);
+        });
+
+        test('a hardcoded reference is found behind a leading filter', async () => {
+            const request = await createTestRequest();
+            await seed(request);
+
+            expect(
+                await graphObservations(request, 'patient-a', 'status=final&subject=Patient/patient-a')
+            ).toEqual(['obs-a1']);
+            expect(
+                await graphObservations(request, 'patient-a', 'status=final&subject=Patient/patient-c')
             ).toEqual([]);
         });
     });

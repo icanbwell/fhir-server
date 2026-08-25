@@ -245,10 +245,12 @@ Two things to know about it:
 - It can only ever **narrow** the result. It is combined with the reference relationship and with
   the caller’s own access filter, and cannot replace either. A caller passing a `_security` value
   for a tenant it is not authorized for gets nothing back, not that tenant’s data.
-- On a reverse link, **the parameter carrying the `{ref}` or `{id}` placeholder must be listed
-  first**. The first parameter in the string is the one used to match children back to the parent,
-  so `status=final&subject={ref}` matches nothing at all, while `subject={ref}&status=final` works
-  as intended. Additional parameters after the first are applied as ordinary filters.
+- On a reverse link, the parameter that matches children back to the parent can appear anywhere in
+  `target.params`. It is identified as the parameter carrying the `{ref}`/`{id}` placeholder, or
+  (for a hardcoded reference) as the reference-type search parameter whose target includes the
+  parent's resource type — not by position. `status=final&subject={ref}` and
+  `subject={ref}&status=final` behave identically. Every other parameter is applied as an ordinary
+  filter.
 
 ### Proxy patient ids
 
