@@ -10,6 +10,17 @@ module.exports = {
     DB_SEARCH_LIMIT: 100,
     DB_SEARCH_LIMIT_FOR_IDS: 1000,
     UNSUPPORTED_SORT_FIELDS: ['id'],
+    // TEMPORARY: hardcoded allowlist for _sort fields that are valid Mongo paths but not declared
+    // FHIR search parameters, added for callers who relied on pre-hardening dotted-path sort
+    // behavior. Remove once these callers migrate to real search parameters or sort client-side.
+    CUSTOM_SORT_FIELDS: {
+        VerificationResult: ['statusDate'],
+        Person: ['active'],
+        Coverage: ['period.start', 'period.end'],
+        ExplanationOfBenefit: ['billablePeriod.start', 'billablePeriod.end'],
+        CarePlan: ['created'],
+        AllergyIntolerance: ['onsetDateTime']
+    },
     COLLECTION: {
         ACCOUNT: 'Account',
         ACTIVITYDEFINITION: 'ActivityDefinition',

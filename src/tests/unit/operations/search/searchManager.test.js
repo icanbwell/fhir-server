@@ -357,6 +357,36 @@ describe('SearchManager', () => {
             const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
             expect(result.options.sort).toStrictEqual({});
         });
+
+        describe('CUSTOM_SORT_FIELDS temporary allowlist', () => {
+            it.each([
+                ['VerificationResult', 'statusDate'],
+                ['Person', 'active'],
+                ['Coverage', 'period.start'],
+                ['Coverage', 'period.end'],
+                ['ExplanationOfBenefit', 'billablePeriod.start'],
+                ['ExplanationOfBenefit', 'billablePeriod.end'],
+                ['CarePlan', 'created'],
+                ['AllergyIntolerance', 'onsetDateTime']
+            ])('resolves %s\'s %s via the temporary custom-sort-field allowlist, with no search parameter declaring it', (resourceType, sortCode) => {
+                const parsedArgs = { get: () => ({ queryParameterValue: { values: [sortCode] } }), _sort: sortCode };
+                const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType });
+                expect(result.options.sort[sortCode]).toBe(1);
+                expect(result.columns.has(sortCode)).toBe(true);
+            });
+
+            it('honors the - prefix for a custom sort field', () => {
+                const parsedArgs = { get: () => ({ queryParameterValue: { values: ['-statusDate'] } }), _sort: '-statusDate' };
+                const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'VerificationResult' });
+                expect(result.options.sort.statusDate).toBe(-1);
+            });
+
+            it('does not allow a custom sort field for a resourceType it is not allowlisted for', () => {
+                const parsedArgs = { get: () => ({ queryParameterValue: { values: ['statusDate'] } }), _sort: 'statusDate' };
+                const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+                expect(result.options.sort).toStrictEqual({});
+            });
+        });
     });
 
     describe('setDefaultLimit', () => {
