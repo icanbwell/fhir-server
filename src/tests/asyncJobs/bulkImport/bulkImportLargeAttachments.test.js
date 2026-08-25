@@ -150,7 +150,7 @@ describe('Bulk import — large attachment externalization', () => {
         // Pre-existing DocumentReference created via $merge so it is committed and
         // searchable before the bulk-import skip range runs.
         await request
-            .post('/4_0_0/$merge')
+            .post('/4_0_0/DocumentReference/$merge')
             .send({
                 resourceType: 'DocumentReference',
                 id: 'bulk-import-attachment-preexisting',
