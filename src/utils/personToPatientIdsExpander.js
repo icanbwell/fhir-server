@@ -398,16 +398,20 @@ class PersonToPatientIdsExpander {
             // (accessViaPatientScopes short-circuits the "no access codes" error), which makes
             // getQueryWithSecurityTags() a complete no-op: no filter is added at all (see review.md §D,
             // "no restriction" must not be indistinguishable from "no matches"). That means this check
-            // alone does NOT protect a pure patient-scope caller from a cross-tenant Person.link. An
+            // does NOT protect a pure patient-scope caller from a cross-tenant Person.link today. An
             // owner-tag same-tenant check was evaluated as a fallback for that case and rejected: this
             // data model's Main-Person-to-Client-Person links are *intentionally* cross-tenant by design
             // (see review.md §1 and e.g. src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid),
             // so "different owner tag" cannot be used to distinguish a legitimate identity-matched link
-            // from a malicious/corrupted one -- doing so breaks that core feature. That gap is now closed
-            // elsewhere: whether a Person.link is followed AT ALL is gated on its `assurance` value
-            // inside the traversal loop (see personLinkAssuranceLevel.js), before any scope-derived
-            // query is built, so a pure patient-scope caller is protected exactly as much as a
-            // tenant/service-account one. This check remains a no-op for such a token by design.
+            // from a malicious/corrupted one -- doing so breaks that core feature. What addresses this
+            // case instead is the Person.link assurance gate in the traversal loop below: it excludes
+            // any link under personLinkAssuranceMinimumLevel from being followed at all, so it needs no
+            // owner-tag comparison and applies equally to a patient-scoped caller. That gate is
+            // controlled by the ENFORCE_PERSON_LINK_ASSURANCE_MINIMUM env var, which defaults to false
+            // pending the dry-run rollout described on configManager.enforcePersonLinkAssuranceMinimum,
+            // so the closure holds only where that var is enabled. Verified by
+            // personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js and
+            // personToPatientIdsExpander.assuranceEnforcement.test.js, both of which turn the var on.
             if (requestInfo) {
                 const { user, scope } = requestInfo;
 

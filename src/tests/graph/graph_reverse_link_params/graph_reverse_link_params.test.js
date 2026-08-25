@@ -148,7 +148,7 @@ describe('$graph reverse link target.params', () => {
             await seed(request);
 
             expect(
-                await graphObservations(request, 'patient-a', `_security=${ACCESS_SYSTEM}|tenantB&subject={ref}`)
+                await graphObservations(request, 'patient-a', `subject={ref}&_security=${ACCESS_SYSTEM}|tenantB`)
             ).toEqual([]);
         });
 
@@ -158,6 +158,32 @@ describe('$graph reverse link target.params', () => {
 
             expect(
                 await graphObservations(request, 'patient-a', 'subject={ref}&status=cancelled')
+            ).toEqual([]);
+        });
+    });
+
+    describe('the first parameter in target.params is the one treated as the link', () => {
+        test('a matching _security placed before the placeholder returns nothing', async () => {
+            const request = await createTestRequest();
+            await seed(request);
+
+            expect(
+                await graphObservations(request, 'patient-a', `subject={ref}&_security=${ACCESS_SYSTEM}|tenantA`)
+            ).toEqual(['obs-a1']);
+            expect(
+                await graphObservations(request, 'patient-a', `_security=${ACCESS_SYSTEM}|tenantA&subject={ref}`)
+            ).toEqual([]);
+        });
+
+        test('a matching status placed before the placeholder returns nothing', async () => {
+            const request = await createTestRequest();
+            await seed(request);
+
+            expect(
+                await graphObservations(request, 'patient-a', 'subject={ref}&status=final')
+            ).toEqual(['obs-a1']);
+            expect(
+                await graphObservations(request, 'patient-a', 'status=final&subject={ref}')
             ).toEqual([]);
         });
     });
