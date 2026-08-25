@@ -180,7 +180,10 @@ Linked resources can be nested. For example, this graph has nested linked resour
 
 ### Filtering
 
-Filtering can also be done:
+There are two different filters and they do different things: `link.path` chooses which nested
+elements of the *parent* to follow, and `target.params` filters the resources that get *fetched*.
+
+#### Filtering which nested elements to follow (`link.path`)
 
 ```json
 {
@@ -189,6 +192,20 @@ Filtering can also be done:
 ```
 
 This means return extensions where url property is equal to “plan”.
+
+The `:property=value` suffix is matched against the raw JSON properties of the elements at that
+path. It is not a FHIR search query.
+
+On a path that resolves to a reference (for example `subject`), the suffix is additionally applied
+as a field name on the fetched resource, on top of the reference relationship. Because the property
+being named belongs to the *parent's* element rather than to the target resource, this almost always
+matches nothing and the link comes back empty — `subject:meta.security=tenantA` returns no resources
+even for the caller's own tenant, because `meta.security` holds an array of Coding objects rather
+than a string. Names that are not shaped like a field path (anything starting with `$` or `_`, for
+instance) are dropped instead of applied. To filter the resources at the far end of a reference, use
+`target.params`.
+
+#### Filtering the resources that get fetched (`target.params`)
 
 For reverse link params, you can use standard query parameters:
 ```json
@@ -214,7 +231,20 @@ Filtering in forward reference linkage can also be done as in this example:
     ]
 }
 ```
-Here only those locations will be fetched whose reference in present at given path and those which satisfy the query parameter
+Here only those locations will be fetched whose reference is present at the given path and which also satisfy the query parameter.
+
+`target.params` is parsed as a FHIR search query against the target resource type, so any search
+parameter that resource type supports works — `_security`, `_tag`, `_profile`, `_lastUpdated`,
+`_source`, and the resource’s own parameters.
+
+Two things to know about it:
+
+- A name that is not a search parameter for that resource type is **ignored**, and the link behaves
+  as if the filter were absent. In particular `meta.security` is a stored field path, not a search
+  parameter — the search parameter for security tags is `_security`.
+- It can only ever **narrow** the result. It is combined with the reference relationship and with
+  the caller’s own access filter, and cannot replace either. A caller passing a `_security` value
+  for a tenant it is not authorized for gets nothing back, not that tenant’s data.
 
 ### Contained query parameter
 

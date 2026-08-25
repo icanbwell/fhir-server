@@ -398,14 +398,16 @@ class PersonToPatientIdsExpander {
             // (accessViaPatientScopes short-circuits the "no access codes" error), which makes
             // getQueryWithSecurityTags() a complete no-op: no filter is added at all (see review.md §D,
             // "no restriction" must not be indistinguishable from "no matches"). That means this check
-            // does NOT protect a pure patient-scope caller from a cross-tenant Person.link today. An
+            // alone does NOT protect a pure patient-scope caller from a cross-tenant Person.link. An
             // owner-tag same-tenant check was evaluated as a fallback for that case and rejected: this
             // data model's Main-Person-to-Client-Person links are *intentionally* cross-tenant by design
             // (see review.md §1 and e.g. src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid),
             // so "different owner tag" cannot be used to distinguish a legitimate identity-matched link
-            // from a malicious/corrupted one -- doing so breaks that core feature. This gap is tracked by
-            // the (quarantined) tests in personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js
-            // pending a real fix (see jest.config.js).
+            // from a malicious/corrupted one -- doing so breaks that core feature. That gap is now closed
+            // elsewhere: whether a Person.link is followed AT ALL is gated on its `assurance` value
+            // inside the traversal loop (see personLinkAssuranceLevel.js), before any scope-derived
+            // query is built, so a pure patient-scope caller is protected exactly as much as a
+            // tenant/service-account one. This check remains a no-op for such a token by design.
             if (requestInfo) {
                 const { user, scope } = requestInfo;
 
