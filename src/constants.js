@@ -19,7 +19,8 @@ module.exports = {
         Coverage: ['period.start', 'period.end'],
         ExplanationOfBenefit: ['billablePeriod.start', 'billablePeriod.end'],
         CarePlan: ['created'],
-        AllergyIntolerance: ['onsetDateTime']
+        AllergyIntolerance: ['onsetDateTime', 'onsetPeriod.start', 'onsetPeriod.end'],
+        Procedure: ['encounter.period.start', 'encounter.period.end']
     },
     COLLECTION: {
         ACCOUNT: 'Account',
