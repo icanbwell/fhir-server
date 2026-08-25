@@ -246,6 +246,31 @@ Two things to know about it:
   the caller’s own access filter, and cannot replace either. A caller passing a `_security` value
   for a tenant it is not authorized for gets nothing back, not that tenant’s data.
 
+### Proxy patient ids
+
+A clinical resource may reference a Person instead of a Patient by using a proxy-patient
+reference of the form `Patient/person.<person uuid>`.
+
+`$graph` expands proxy-patient references **only for the resource named in the request URL**, and
+that expansion applies **only to reverse links**. This is intentional, and the two halves of the
+rule are worth stating separately:
+
+- **The request URL is expanded.** Starting a graph at `Patient/person.<uuid>` (or at
+  `Person/<uuid>`) makes reverse links match children that reference the proxy patient *as well as*
+  children that reference the underlying Patient directly. Starting the same graph at the real
+  Patient id matches only the children that reference that Patient directly — the proxy is not
+  consulted, because it was not what the caller asked for.
+- **References found during traversal are not expanded.** A proxy-patient reference reached by
+  following a forward `link.path` — for example `Observation.subject` holding
+  `Patient/person.<uuid>` — is resolved literally. Since no Patient exists with the id
+  `person.<uuid>`, that link contributes no resource to the bundle. It does not fall back to the
+  Person, nor to the Patients that Person links to.
+
+The consequence to design around: `$graph` will not silently widen a traversal from one patient to
+every patient sharing a Person. If you need the resources of every Patient behind a Person, start
+the graph at the Person or at its proxy patient id, rather than expecting a forward link to a proxy
+reference to fan out.
+
 ### Contained query parameter
 
 By default, the FHIR returns all the related resources in the top level bundle.  
