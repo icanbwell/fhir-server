@@ -1,0 +1,54 @@
+{
+  "resourceType": "ExplanationOfBenefit",
+  "id": "eob-2017",
+  "meta": {
+    "source": "mps",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client"
+      }
+    ]
+  },
+  "status": "active",
+  "type": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+        "code": "professional"
+      }
+    ]
+  },
+  "use": "claim",
+  "patient": {
+    "reference": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df727"
+  },
+  "created": "2017-06-19T01:15:45+00:00",
+  "insurer": {
+    "reference": "Organization/eob-insurer"
+  },
+  "provider": {
+    "reference": "Organization/eob-provider"
+  },
+  "outcome": "complete",
+  "insurance": [
+    {
+      "focal": true,
+      "coverage": {
+        "reference": "Coverage/eob-coverage"
+      }
+    }
+  ],
+  "billablePeriod": {
+    "start": "2017-06-19T01:15:45+00:00",
+    "end": "2017-06-19T01:30:45+00:00"
+  }
+}
