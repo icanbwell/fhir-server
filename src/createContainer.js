@@ -1203,7 +1203,8 @@ const createContainer = function () {
             c.patientPersonDataChangeEventProducer,
             new ConsentCacheInvalidationHandler({
                 redisManager: c.redisManager,
-                bwellPersonFinder: c.bwellPersonFinder
+                bwellPersonFinder: c.bwellPersonFinder,
+                configManager: c.configManager
             })
         ];
 
