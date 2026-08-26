@@ -403,9 +403,15 @@ class PersonToPatientIdsExpander {
             // data model's Main-Person-to-Client-Person links are *intentionally* cross-tenant by design
             // (see review.md §1 and e.g. src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid),
             // so "different owner tag" cannot be used to distinguish a legitimate identity-matched link
-            // from a malicious/corrupted one -- doing so breaks that core feature. This gap is tracked by
-            // the (quarantined) tests in personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js
-            // pending a real fix (see jest.config.js).
+            // from a malicious/corrupted one -- doing so breaks that core feature. What addresses this
+            // case instead is the Person.link assurance gate in the traversal loop below: it excludes
+            // any link under personLinkAssuranceMinimumLevel from being followed at all, so it needs no
+            // owner-tag comparison and applies equally to a patient-scoped caller. That gate is
+            // controlled by the ENFORCE_PERSON_LINK_ASSURANCE_MINIMUM env var, which defaults to false
+            // pending the dry-run rollout described on configManager.enforcePersonLinkAssuranceMinimum,
+            // so the closure holds only where that var is enabled. Verified by
+            // personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js and
+            // personToPatientIdsExpander.assuranceEnforcement.test.js, both of which turn the var on.
             if (requestInfo) {
                 const { user, scope } = requestInfo;
 
