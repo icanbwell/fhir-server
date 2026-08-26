@@ -28,9 +28,13 @@ module.exports = {
     // single external tracker - `BUG_REPORT.md`/`fhir-server-security-bugs.csv`, previously cited
     // here for the whole list, do not exist in this repo (see docs/superpowers/plans/
     // 2026-08-04-security-review-test-coverage.md's Global Constraints). Before removing an entry,
-    // run it directly (bypasses this ignore list) and confirm it passes against current `main` -
-    // some bugs get fixed without their quarantine entry being removed. Remove an entry once its
-    // bug is fixed (and reviewed, for security ones).
+    // confirm it passes against current `main` - some bugs get fixed without their quarantine entry
+    // being removed. Naming the path alone does NOT bypass this list (jest reports "No tests
+    // found"); override the list and keep the path BEFORE the flag, since --testPathIgnorePatterns
+    // is variadic and would otherwise swallow the path and run the whole suite:
+    //   yarn jest --runInBand --forceExit <path> --testPathIgnorePatterns='src/tests/performance/'
+    // A Docker daemon is required either way: globalSetup starts a ClickHouse testcontainer.
+    // Remove an entry once its bug is fixed (and reviewed, for security ones).
     testPathIgnorePatterns: [
         '<rootDir>/src/tests/performance/',
         '<rootDir>/.claude/',
