@@ -18,6 +18,7 @@ const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandl
 const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
 const { WriteAllowedByScopesValidator } = require('../../merge/validators/writeAllowedByScopesValidator');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
+const { removeUnderscoreFieldsRecursive } = require('../../../utils/removeUnderscoreFields');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING } = require('../../../constants');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
@@ -997,7 +998,15 @@ class BulkImportHandler {
                         const innerResource = isIfNoneExistWrapper ? resource.resource : resource;
 
                         try {
-                            const fhirResource = FhirResourceWriteSerializer.serialize({
+                            // Internal fields (_uuid, _sourceAssigningAuthority, _file_id, _blobMeta,
+                            // etc.) are never legitimate input on a create -- they're always
+                            // (re)computed server-side. Strip them from the raw NDJSON line before
+                            // serializing, mirroring create.js/update.js, so a line can't claim an
+                            // arbitrary GridFS _file_id or S3 _blobMeta (belonging to another
+                            // resource/tenant) and have it persist verbatim with no data of its own,
+                            // to be read back later.
+                            removeUnderscoreFieldsRecursive(innerResource);
+                            let fhirResource = FhirResourceWriteSerializer.serialize({
                                 obj: this.applyDefaultSecurityTagsIfMissing(innerResource)
                             });
 
@@ -1059,6 +1068,17 @@ class BulkImportHandler {
                                     ifNoneExist: resource.ifNoneExist
                                 });
                             } else {
+                                // Large attachment externalization (DocumentReference GridFS,
+                                // Binary S3) is handled by mergeManager.mergeResourceAsync
+                                // internally (performMergeDbInsertAsync/performMergeDbUpdateAsync
+                                // both call transformAttachments + base64DataManager.transformAsync).
+                                // By pushing to pendingMergeResources here -- after the ifNoneExist
+                                // check above -- we guarantee transforms only run when the write
+                                // is actually going to happen. An ifNoneExist match skips this
+                                // branch entirely, so no attachment bytes are uploaded for a
+                                // resource that will never be persisted (no orphaned GridFS/S3
+                                // objects with no referencing document to clean them up).
+
                                 // Claim immediately so a duplicate line later in this same
                                 // unflushed batch sees it, but pass the key through to
                                 // mergeBufferedResourceAsync (run later, from flushBatchAsync)
