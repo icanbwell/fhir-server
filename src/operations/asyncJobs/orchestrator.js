@@ -40,8 +40,12 @@ function getJobs(container) {
             // across two different topic subscriptions causes Kafka to assign partitions
             // inconsistently (RoundRobin can't reconcile heterogeneous subscriptions),
             // producing rebalance storms that leave some partitions unowned and unconsumed.
+            // fromBeginning: true so a restarted orchestrator replays any range-progress
+            // events it missed during the deploy window -- the state machine's alreadyRecorded
+            // check makes replaying an already-applied event a safe no-op.
             topic: configManager.kafkaBulkImportRangeProgressTopic,
             groupId: configManager.bulkImportRangeProgressGroupId,
+            fromBeginning: true,
             dispatcher: container.bulkImportOrchestratorDispatcher,
             label: 'bulk-import-range-progress',
             deadLetterTopic: `${configManager.kafkaBulkImportRangeProgressTopic}.dlt`
@@ -89,7 +93,7 @@ async function main() {
             kafkaClientV2.receiveMessagesAsync({
                 consumer,
                 topic: job.topic,
-                fromBeginning: false,
+                fromBeginning: job.fromBeginning ?? false,
                 onMessageAsync: async (message) => {
                     await job.dispatcher.handleMessageAsync(message);
                 },
