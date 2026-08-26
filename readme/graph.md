@@ -180,7 +180,10 @@ Linked resources can be nested. For example, this graph has nested linked resour
 
 ### Filtering
 
-Filtering can also be done:
+There are two different filters and they do different things: `link.path` chooses which nested
+elements of the *parent* to follow, and `target.params` filters the resources that get *fetched*.
+
+#### Filtering which nested elements to follow (`link.path`)
 
 ```json
 {
@@ -189,6 +192,20 @@ Filtering can also be done:
 ```
 
 This means return extensions where url property is equal to “plan”.
+
+The `:property=value` suffix is matched against the raw JSON properties of the elements at that
+path. It is not a FHIR search query.
+
+On a path that resolves to a reference (for example `subject`), the suffix is additionally applied
+as a field name on the fetched resource, on top of the reference relationship. Because the property
+being named belongs to the *parent's* element rather than to the target resource, this almost always
+matches nothing and the link comes back empty — `subject:meta.security=tenantA` returns no resources
+even for the caller's own tenant, because `meta.security` holds an array of Coding objects rather
+than a string. Names that are not shaped like a field path (anything starting with `$` or `_`, for
+instance) are dropped instead of applied. To filter the resources at the far end of a reference, use
+`target.params`.
+
+#### Filtering the resources that get fetched (`target.params`)
 
 For reverse link params, you can use standard query parameters:
 ```json
@@ -214,7 +231,51 @@ Filtering in forward reference linkage can also be done as in this example:
     ]
 }
 ```
-Here only those locations will be fetched whose reference in present at given path and those which satisfy the query parameter
+Here only those locations will be fetched whose reference is present at the given path and which also satisfy the query parameter.
+
+`target.params` is parsed as a FHIR search query against the target resource type, so any search
+parameter that resource type supports works — `_security`, `_tag`, `_profile`, `_lastUpdated`,
+`_source`, and the resource’s own parameters.
+
+Two things to know about it:
+
+- A name that is not a search parameter for that resource type is **ignored**, and the link behaves
+  as if the filter were absent. In particular `meta.security` is a stored field path, not a search
+  parameter — the search parameter for security tags is `_security`.
+- It can only ever **narrow** the result. It is combined with the reference relationship and with
+  the caller’s own access filter, and cannot replace either. A caller passing a `_security` value
+  for a tenant it is not authorized for gets nothing back, not that tenant’s data.
+- On a reverse link, the parameter that matches children back to the parent can appear anywhere in
+  `target.params`. It is identified as the parameter carrying the `{ref}`/`{id}` placeholder, or
+  (for a hardcoded reference) as the reference-type search parameter whose target includes the
+  parent's resource type — not by position. `status=final&subject={ref}` and
+  `subject={ref}&status=final` behave identically. Every other parameter is applied as an ordinary
+  filter.
+
+### Proxy patient ids
+
+A clinical resource may reference a Person instead of a Patient by using a proxy-patient
+reference of the form `Patient/person.<person uuid>`.
+
+`$graph` expands proxy-patient references **only for the resource named in the request URL**, and
+that expansion applies **only to reverse links**. This is intentional, and the two halves of the
+rule are worth stating separately:
+
+- **The request URL is expanded.** Starting a graph at `Patient/person.<uuid>` (or at
+  `Person/<uuid>`) makes reverse links match children that reference the proxy patient *as well as*
+  children that reference the underlying Patient directly. Starting the same graph at the real
+  Patient id matches only the children that reference that Patient directly — the proxy is not
+  consulted, because it was not what the caller asked for.
+- **References found during traversal are not expanded.** A proxy-patient reference reached by
+  following a forward `link.path` — for example `Observation.subject` holding
+  `Patient/person.<uuid>` — is resolved literally. Since no Patient exists with the id
+  `person.<uuid>`, that link contributes no resource to the bundle. It does not fall back to the
+  Person, nor to the Patients that Person links to.
+
+The consequence to design around: `$graph` will not silently widen a traversal from one patient to
+every patient sharing a Person. If you need the resources of every Patient behind a Person, start
+the graph at the Person or at its proxy patient id, rather than expecting a forward link to a proxy
+reference to fan out.
 
 ### Contained query parameter
 
