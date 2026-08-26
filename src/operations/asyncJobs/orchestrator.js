@@ -36,8 +36,12 @@ function getJobs(container) {
             // Workers report per-range progress here instead of writing to the Task
             // themselves -- the orchestrator is the only process that ever updates a Task
             // once it exists, so there is exactly one writer and no concurrent-update race.
+            // Uses a separate groupId from the TaskCreated consumer -- sharing one group
+            // across two different topic subscriptions causes Kafka to assign partitions
+            // inconsistently (RoundRobin can't reconcile heterogeneous subscriptions),
+            // producing rebalance storms that leave some partitions unowned and unconsumed.
             topic: configManager.kafkaBulkImportRangeProgressTopic,
-            groupId: configManager.bulkImportOrchestratorGroupId,
+            groupId: configManager.bulkImportRangeProgressGroupId,
             dispatcher: container.bulkImportOrchestratorDispatcher,
             label: 'bulk-import-range-progress',
             deadLetterTopic: `${configManager.kafkaBulkImportRangeProgressTopic}.dlt`
