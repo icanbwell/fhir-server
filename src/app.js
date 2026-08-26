@@ -538,7 +538,7 @@ function createApp({fnGetContainer}) {
 
     // enables access to reverse proxy information
     // https://expressjs.com/en/guide/behind-proxies.html
-    app.enable('trust proxy');
+    app.set('trust proxy', configManager.trustProxyHopCount);
 
     return app;
 }
