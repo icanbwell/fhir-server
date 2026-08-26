@@ -1,6 +1,7 @@
 const { BasePostSaveHandler } = require('../../../utils/basePostSaveHandler');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { RedisManager } = require('../../../utils/redisManager');
+const { ConfigManager } = require('../../../utils/configManager');
 const { BwellPersonFinder } = require('../../../utils/bwellPersonFinder');
 const { ReferenceParser } = require('../../../utils/referenceParser');
 const { isUuid } = require('../../../utils/uid.util');
@@ -10,6 +11,11 @@ const { logDebug, logError } = require('../../../operations/common/logging');
 /**
  * Post-save handler that invalidates the Patient/$everything Redis cache whenever a
  * Consent resource is created, updated, or removed.
+ *
+ * No-ops entirely unless configManager.writeToCacheForEverythingOperation is true (i.e.
+ * ENABLE_REDIS && ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION) - the same gate
+ * everythingHelper.js itself uses before writing to the $everything cache. If that cache is
+ * never written to, there is nothing for this handler to invalidate.
  *
  * The $everything cache (see PatientEverythingCacheKeyGenerator) is keyed in part on a
  * "generation" counter stored in Redis (Patient:<uuid>:Everything:Generation or
@@ -39,8 +45,9 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
      * @param {Object} params
      * @param {RedisManager} params.redisManager
      * @param {BwellPersonFinder} params.bwellPersonFinder
+     * @param {ConfigManager} params.configManager
      */
-    constructor({ redisManager, bwellPersonFinder }) {
+    constructor({ redisManager, bwellPersonFinder, configManager }) {
         super();
 
         /**
@@ -54,6 +61,12 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
          */
         this.bwellPersonFinder = bwellPersonFinder;
         assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -66,6 +79,10 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
      */
     async afterSaveAsync({ requestId, eventType, resourceType, doc }) {
         if (resourceType !== 'Consent' || !doc) {
+            return;
+        }
+
+        if (!this.configManager.writeToCacheForEverythingOperation) {
             return;
         }
 
