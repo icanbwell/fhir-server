@@ -1,5 +1,5 @@
 const { isTrue } = require('../../utils/isTrue');
-const { logDebug, logError, logWarn } = require('../common/logging');
+const { logDebug, logError, logInfo, logWarn } = require('../common/logging');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const { pipeline } = require('stream/promises');
@@ -41,7 +41,8 @@ const {
     GRIDFS: { RETRIEVE },
     BLOB_OP,
     AUTH_USER_TYPES,
-    UNSUPPORTED_SORT_FIELDS
+    UNSUPPORTED_SORT_FIELDS,
+    CUSTOM_SORT_FIELDS
 } = require('../../constants');
 
 class SearchManager {
@@ -790,6 +791,7 @@ class SearchManager {
      *  2. a field already declared verbatim on some search parameter for this resourceType
      *  3. a `<field>.start`/`<field>.end` boundary on a field declared as a Period type -- lets
      *     e.g. _sort=effectivePeriod.end work for any resource whose 'effectivePeriod' field is
+     *  4. a resourceType/sortCode pair on the temporary CUSTOM_SORT_FIELDS allowlist
      * @param {string} resourceType
      * @param {string} sortCode
      * @param {Set<string>} allowedSortFields
@@ -803,7 +805,11 @@ class SearchManager {
         if (allowedSortFields.has(sortCode)) {
             return sortCode;
         }
-        return this.resolvePeriodBoundarySortField({ resourceType, sortCode });
+        const periodBoundaryField = this.resolvePeriodBoundarySortField({ resourceType, sortCode });
+        if (periodBoundaryField) {
+            return periodBoundaryField;
+        }
+        return this.resolveCustomSortField({ resourceType, sortCode });
     }
 
     /**
@@ -828,6 +834,25 @@ class SearchManager {
         const baseField = sortCode.substring(0, lastDotIndex);
         const fieldType = this.searchParametersManager.getFieldType({ resourceType, field: baseField });
         return fieldType === 'period' ? sortCode : null;
+    }
+
+    /**
+     * TEMPORARY: recognizes a fixed set of resourceType/sortCode pairs (CUSTOM_SORT_FIELDS in
+     * constants.js) that are valid Mongo field paths but are not declared by any FHIR search
+     * parameter, so callers who relied on the pre-hardening dotted-path passthrough behavior keep
+     * sorting correctly. Remove once those callers migrate to real search parameters or sort
+     * client-side.
+     * @param {string} resourceType
+     * @param {string} sortCode
+     * @return {string | null}
+     */
+    resolveCustomSortField ({ resourceType, sortCode }) {
+        const customSortFields = CUSTOM_SORT_FIELDS[resourceType];
+        if (!customSortFields || !customSortFields.includes(sortCode)) {
+            return null;
+        }
+        logInfo(`Using temporary custom sort field '${sortCode}' for ${resourceType}: not a declared FHIR search parameter`);
+        return sortCode;
     }
 
     // noinspection FunctionWithInconsistentReturnsJS

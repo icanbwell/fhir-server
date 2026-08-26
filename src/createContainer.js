@@ -121,6 +121,7 @@ const {BulkExportEventProducer} = require('./utils/bulkExportEventProducer');
 const {ImportOperation} = require('./operations/import/import');
 const {BulkImportEventProducer} = require('./operations/asyncJobs/bulkImport/bulkImportEventProducer');
 const {BulkImportHandler} = require('./operations/asyncJobs/bulkImport/handler');
+const {BulkImportTaskStateMachine} = require('./operations/asyncJobs/bulkImport/bulkImportTaskStateMachine');
 const {KafkaEventDispatcher} = require('./operations/common/kafkaEventDispatcher');
 const {S3NdjsonReader} = require('./operations/asyncJobs/bulkImport/s3NdjsonReader');
 const {KafkaClientV2} = require('./utils/kafkaClientV2');
@@ -549,6 +550,11 @@ const createContainer = function () {
         )
     );
 
+    container.register('writeAllowedByScopesValidator', (c) => new WriteAllowedByScopesValidator({
+        scopesValidator: c.scopesValidator,
+        databaseBulkLoader: c.databaseBulkLoader
+    }));
+
     container.register('mergeValidator', (c) => new MergeValidator(
         {
             validators: [
@@ -563,10 +569,7 @@ const createContainer = function () {
                     uuidColumnHandler: c.uuidColumnHandler,
                     customTracer: c.customTracer
                 }),
-                new WriteAllowedByScopesValidator({
-                    scopesValidator: c.scopesValidator,
-                    databaseBulkLoader: c.databaseBulkLoader
-                })
+                c.writeAllowedByScopesValidator
             ],
             configManager: c.configManager,
             customTracer: c.customTracer
@@ -1266,6 +1269,12 @@ const createContainer = function () {
         configManager: c.configManager
     }));
 
+    container.register('bulkImportTaskStateMachine', (c) => new BulkImportTaskStateMachine({
+        databaseQueryFactory: c.databaseQueryFactory,
+        fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
+        mergeManager: c.mergeManager
+    }));
+
     // Handles every message type for the bulk-import async job (TaskCreated on the
     // orchestrator side, ImportRangeRequested on the worker side) — see
     // src/operations/asyncJobs/bulkImport/handler.js.
@@ -1273,23 +1282,35 @@ const createContainer = function () {
         configManager: c.configManager,
         kafkaClientV2: c.kafkaClientV2,
         bulkImportEventProducer: c.bulkImportEventProducer,
+        bulkImportTaskStateMachine: c.bulkImportTaskStateMachine,
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory,
         fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
         s3NdjsonReader: c.s3NdjsonReader,
         postRequestProcessor: c.postRequestProcessor,
         requestSpecificCache: c.requestSpecificCache,
         auditLogger: c.auditLogger,
         r4ArgsParser: c.r4ArgsParser,
-        searchQueryBuilder: c.searchQueryBuilder
+        searchQueryBuilder: c.searchQueryBuilder,
+        mergeManager: c.mergeManager,
+        databaseBulkLoader: c.databaseBulkLoader,
+        sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+        uuidColumnHandler: c.uuidColumnHandler,
+        writeAllowedByScopesValidator: c.writeAllowedByScopesValidator
     }));
 
-    // Routes messages on kafkaBulkImportTaskCreatedTopic to their handler by CloudEvent
-    // "type". TaskCreated is the only registered handler today; new event types on this
-    // topic are added here as another entry rather than a new topic+entrypoint+handler.
+    // Routes messages on kafkaBulkImportTaskCreatedTopic and kafkaBulkImportRangeProgressTopic
+    // to their handler by CloudEvent "type" -- the same dispatcher is registered as the job
+    // for both topics in orchestrator.js's getJobs, since both are consumed by the
+    // orchestrator and route to the same handler. ImportRangeStarted/ImportRangeCompleted/
+    // ImportRangeFailed are the only place a Task resource is ever written once it exists
+    // (see BulkImportHandler's class docstring); new event types are added here as another
+    // entry rather than a new topic+entrypoint+handler.
     container.register('bulkImportOrchestratorDispatcher', (c) => new KafkaEventDispatcher({
         handlersByEventType: {
-            TaskCreated: c.bulkImportHandler
+            TaskCreated: c.bulkImportHandler,
+            ImportRangeStarted: c.bulkImportHandler,
+            ImportRangeCompleted: c.bulkImportHandler,
+            ImportRangeFailed: c.bulkImportHandler
         }
     }));
 

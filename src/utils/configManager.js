@@ -484,6 +484,18 @@ class ConfigManager {
     }
 
     /**
+     * number of reverse proxy hops to trust for express's 'trust proxy' setting
+     * @returns {number}
+     */
+    get trustProxyHopCount() {
+        const value = env.TRUST_PROXY_HOP_COUNT?.trim();
+        const hopCount = Number(value);
+        return value && Number.isInteger(hopCount) && hopCount >= 0
+            ? hopCount
+            : 20;
+    }
+
+    /**
      * whether to enable stats endpoint
      * @returns {boolean}
      */
@@ -1424,6 +1436,18 @@ class ConfigManager {
      */
     get bulkImportOrchestratorGroupId() {
         return env.BULK_IMPORT_ORCHESTRATOR_GROUP_ID || 'fhir-bulk-import-orchestrator';
+    }
+
+    /**
+     * Kafka topic for worker->orchestrator range-progress reports (ImportRangeStarted/
+     * ImportRangeCompleted/ImportRangeFailed). The orchestrator is the only process that ever
+     * writes to the Task resource once it exists -- workers only emit onto this topic, never
+     * touch the Task themselves -- so a redelivered or reordered report is always resolved by
+     * a single consumer instead of racing another writer.
+     * @return {string}
+     */
+    get kafkaBulkImportRangeProgressTopic() {
+        return env.KAFKA_BULK_IMPORT_RANGE_PROGRESS_TOPIC || 'fhir_server.bulk_import.processing.events';
     }
 
     // ── Kafka v2 (new MSK cluster) ──────────────────────────────────────────

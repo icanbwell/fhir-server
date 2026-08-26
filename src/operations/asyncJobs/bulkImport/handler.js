@@ -5,15 +5,20 @@ const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
-const { DatabaseUpdateFactory } = require('../../../dataLayer/databaseUpdateFactory');
 const { FastDatabaseBulkInserter } = require('../../../dataLayer/fastDatabaseBulkInserter');
 const { S3NdjsonReader } = require('./s3NdjsonReader');
 const { BulkImportEventProducer } = require('./bulkImportEventProducer');
+const { BulkImportTaskStateMachine } = require('./bulkImportTaskStateMachine');
 const { FhirResourceWriteSerializer } = require('../../../fhir/fhirResourceWriteSerializer');
 const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
-const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
-const { generateUUID } = require('../../../utils/uid.util');
+const { generateUUID, isUuid } = require('../../../utils/uid.util');
+const { MergeManager } = require('../../merge/mergeManager');
+const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
+const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
+const { WriteAllowedByScopesValidator } = require('../../merge/validators/writeAllowedByScopesValidator');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
+const { removeUnderscoreFieldsRecursive } = require('../../../utils/removeUnderscoreFields');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING } = require('../../../constants');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
@@ -32,18 +37,8 @@ const { groupByLambda } = require('../../../utils/list.util');
 const { R4ArgsParser } = require('../../query/r4ArgsParser');
 const { SearchQueryBuilder } = require('../../search/searchQueryBuilder');
 
-/**
- * Extension URL used to record a marker on the Task each time a byte-range finishes
- * processing. Markers accumulate across concurrent consumer pods/files (Task.output/
- * extension array merges are additive — see resourceMerger's array-union semantics) and
- * are the only way to determine when every range of every input file is done, since no
- * single event carries a task-wide range count (ImportRangeRequested's totalRanges is
- * per-file only).
- * @type {string}
- */
-const BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL = 'https://www.icanbwell.com/bulk-import-range-completed';
-
 const importTracer = trace.getTracer('fhir-server');
+
 
 /**
  * Attaches bulk-import outcome data as span attributes rather than a custom OTel counter --
@@ -68,14 +63,21 @@ function recordImportSpanAttributes (attributes) {
 
 /**
  * Handles every Kafka message type for the bulk-import async job. Both
- * src/operations/asyncJobs/orchestrator.js (topic fhir_server.bulk_import.requested) and
- * src/operations/asyncJobs/worker.js (topic fhir_server.bulk_import.events) route into this
- * same handler; handleMessageAsync dispatches on the CloudEvent "type" rather than the topic,
- * since a single job's messages can arrive on more than one topic:
- * - TaskCreated: HEADs each S3 input to validate it and get its size, splits it into byte
- *   ranges, and publishes an ImportRangeRequested event per range.
- * - ImportRangeRequested: reads a byte range's NDJSON, merges resources, writes result/error
- *   output to S3, and records completion on the Task.
+ * src/operations/asyncJobs/orchestrator.js (topics fhir_server.bulk_import.requested and
+ * fhir_server.bulk_import.range_progress) and src/operations/asyncJobs/worker.js (topic
+ * fhir_server.bulk_import.events) route into this same handler; handleMessageAsync dispatches
+ * on the CloudEvent "type" rather than the topic, since a single job's messages can arrive on
+ * more than one topic:
+ * - TaskCreated (orchestrator): HEADs each S3 input to validate it and get its size, splits
+ *   it into byte ranges, and publishes an ImportRangeRequested event per range.
+ * - ImportRangeRequested (worker): reads a byte range's NDJSON and merges resources, then
+ *   reports what happened by publishing ImportRangeStarted/ImportRangeCompleted/
+ *   ImportRangeFailed rather than writing to the Task itself.
+ * - ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed (orchestrator): the ONLY writes
+ *   to a Task resource once it exists happen here. Routing every worker report through the
+ *   orchestrator's single consumer means there is exactly one writer for a given Task's
+ *   status/output at any time -- no concurrent-update races between worker pods to resolve,
+ *   and no need for smartMerge array-matching tricks on Task.output/extension.
  */
 class BulkImportHandler {
     /**
@@ -83,8 +85,8 @@ class BulkImportHandler {
      * @property {ConfigManager} configManager
      * @property {KafkaClientV2} kafkaClientV2
      * @property {BulkImportEventProducer} bulkImportEventProducer
+     * @property {BulkImportTaskStateMachine} bulkImportTaskStateMachine
      * @property {DatabaseQueryFactory} databaseQueryFactory
-     * @property {DatabaseUpdateFactory} databaseUpdateFactory
      * @property {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      * @property {S3NdjsonReader} s3NdjsonReader
      * @property {PostRequestProcessor} postRequestProcessor
@@ -92,6 +94,11 @@ class BulkImportHandler {
      * @property {AuditLogger} auditLogger
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchQueryBuilder} searchQueryBuilder
+     * @property {MergeManager} mergeManager
+     * @property {DatabaseBulkLoader} databaseBulkLoader
+     * @property {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
+     * @property {UuidColumnHandler} uuidColumnHandler
+     * @property {WriteAllowedByScopesValidator} writeAllowedByScopesValidator
      *
      * @param {ConstructorParams}
      */
@@ -99,15 +106,20 @@ class BulkImportHandler {
         configManager,
         kafkaClientV2,
         bulkImportEventProducer,
+        bulkImportTaskStateMachine,
         databaseQueryFactory,
-        databaseUpdateFactory,
         fastDatabaseBulkInserter,
         s3NdjsonReader,
         postRequestProcessor,
         requestSpecificCache,
         auditLogger,
         r4ArgsParser,
-        searchQueryBuilder
+        searchQueryBuilder,
+        mergeManager,
+        databaseBulkLoader,
+        sourceAssigningAuthorityColumnHandler,
+        uuidColumnHandler,
+        writeAllowedByScopesValidator
     }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -118,11 +130,11 @@ class BulkImportHandler {
         this.bulkImportEventProducer = bulkImportEventProducer;
         assertTypeEquals(bulkImportEventProducer, BulkImportEventProducer);
 
+        this.bulkImportTaskStateMachine = bulkImportTaskStateMachine;
+        assertTypeEquals(bulkImportTaskStateMachine, BulkImportTaskStateMachine);
+
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-
-        this.databaseUpdateFactory = databaseUpdateFactory;
-        assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
 
         this.fastDatabaseBulkInserter = fastDatabaseBulkInserter;
         assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
@@ -144,6 +156,21 @@ class BulkImportHandler {
 
         this.searchQueryBuilder = searchQueryBuilder;
         assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
+
+        this.mergeManager = mergeManager;
+        assertTypeEquals(mergeManager, MergeManager);
+
+        this.databaseBulkLoader = databaseBulkLoader;
+        assertTypeEquals(databaseBulkLoader, DatabaseBulkLoader);
+
+        this.sourceAssigningAuthorityColumnHandler = sourceAssigningAuthorityColumnHandler;
+        assertTypeEquals(sourceAssigningAuthorityColumnHandler, SourceAssigningAuthorityColumnHandler);
+
+        this.uuidColumnHandler = uuidColumnHandler;
+        assertTypeEquals(uuidColumnHandler, UuidColumnHandler);
+
+        this.writeAllowedByScopesValidator = writeAllowedByScopesValidator;
+        assertTypeEquals(writeAllowedByScopesValidator, WriteAllowedByScopesValidator);
     }
 
     /**
@@ -168,25 +195,22 @@ class BulkImportHandler {
                 return this.handleTaskCreatedAsync(message);
             case 'ImportRangeRequested':
                 return this.handleImportRangeRequestedAsync(message);
+            case 'ImportRangeStarted':
+            case 'ImportRangeCompleted':
+            case 'ImportRangeFailed':
+                return this.handleRangeProgressEventAsync(message, envelope.type);
             default:
                 logError('Unexpected bulk import event type', { type: envelope.type, key: message.key });
         }
     }
 
     /**
-     * Loads the Task resource by ID
+     * Loads a bulk-import Task by id. Delegates to BulkImportTaskStateMachine.
      * @param {string} taskId
      * @returns {Promise<Object|null>}
      */
     async loadTaskAsync(taskId) {
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({
-            resourceType: 'Task',
-            base_version: '4_0_0'
-        });
-
-        return databaseQueryManager.findOneAsync({
-            query: { id: taskId }
-        });
+        return this.bulkImportTaskStateMachine.loadTaskAsync(taskId);
     }
 
     /**
@@ -269,28 +293,14 @@ class BulkImportHandler {
     }
 
     /**
+     * Updates a Task's status. Delegates to BulkImportTaskStateMachine.
      * @param {Object} task
      * @param {string} status
      * @param {string} [statusReason]
      * @returns {Promise<void>}
      */
     async updateOrchestratorTaskStatusAsync(task, status, statusReason) {
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-            resourceType: 'Task',
-            base_version: '4_0_0'
-        });
-
-        const updated = task.clone();
-        updated.status = status;
-        updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-        if (statusReason) {
-            if (!updated.statusReason) {
-                updated.statusReason = {};
-            }
-            updated.statusReason.text = statusReason;
-        }
-
-        await databaseUpdateManager.updateOneAsync({ doc: updated });
+        return this.bulkImportTaskStateMachine.updateTaskStatusAsync(task, status, statusReason);
     }
 
     /**
@@ -421,6 +431,61 @@ class BulkImportHandler {
         });
     }
 
+    // ── ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed (orchestrator side, ──────
+    // ── topic fhir_server.bulk_import.range_progress) ──────────────────────────────────────
+
+    /**
+     * Parses an ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed CloudEvent message.
+     * @param {string} messageValue
+     * @returns {Object} parsed CloudEvent data
+     */
+    parseRangeProgressEvent(messageValue) {
+        const envelope = JSON.parse(messageValue);
+        if (!envelope.data || !envelope.data.taskId || !envelope.data.filepath) {
+            throw new Error(`Invalid ${envelope.type} event: missing taskId or filepath`);
+        }
+        return envelope.data;
+    }
+
+    /**
+     * Handles a range-progress report from a worker. This is the ONLY place a Task resource
+     * is ever written once it exists (see class docstring) -- workers only publish these
+     * events, they never touch the Task themselves, so there is exactly one writer and no
+     * concurrent-update race between worker pods to resolve.
+     * @param {{ key: string, value: string, headers: Array<{key: string, value: string}> }} message
+     * @param {'ImportRangeStarted'|'ImportRangeCompleted'|'ImportRangeFailed'} type
+     * @returns {Promise<void>}
+     */
+    async handleRangeProgressEventAsync(message, type) {
+        let eventData;
+        try {
+            eventData = this.parseRangeProgressEvent(message.value);
+        } catch (e) {
+            logError('Failed to parse bulk import range-progress Kafka message', {
+                error: e.message,
+                key: message.key
+            });
+            return;
+        }
+
+        const { taskId, filepath, rangeIndex } = eventData;
+
+        const task = await this.loadTaskAsync(taskId);
+        if (!task) {
+            logError('Task not found for bulk import range-progress message', { taskId, filepath, rangeIndex });
+            return;
+        }
+
+        switch (type) {
+            case 'ImportRangeStarted':
+                return this.bulkImportTaskStateMachine.handleRangeStartedAsync(task);
+            case 'ImportRangeCompleted':
+                return this.bulkImportTaskStateMachine.handleRangeCompletedAsync(task, eventData);
+            case 'ImportRangeFailed':
+                return this.bulkImportTaskStateMachine.handleRangeFailedAsync(task, eventData.errorMessage);
+        }
+    }
+
     // ── ImportRangeRequested (worker side, topic fhir_server.bulk_import.events) ───────────
 
     /**
@@ -498,36 +563,6 @@ class BulkImportHandler {
     }
 
     /**
-     * Updates the Task status in MongoDB. Uses replaceOneAsync's optimistic-concurrency
-     * merge (not a raw full-document replace) since multiple consumer pods update the
-     * same Task concurrently — a raw replace built from a stale snapshot would silently
-     * wipe out another pod's already-committed output/extension entries.
-     * @param {Object} task
-     * @param {string} status
-     * @param {string} [statusReason]
-     * @param {FhirRequestInfo} requestInfo
-     * @returns {Promise<void>}
-     */
-    async updateTaskStatusAsync(task, status, statusReason, requestInfo) {
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-            resourceType: 'Task',
-            base_version: '4_0_0'
-        });
-
-        const updated = task.clone();
-        updated.status = status;
-        updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-        if (statusReason) {
-            if (!updated.statusReason) {
-                updated.statusReason = {};
-            }
-            updated.statusReason.text = statusReason;
-        }
-
-        await databaseUpdateManager.replaceOneAsync({ base_version: '4_0_0', requestInfo, doc: updated });
-    }
-
-    /**
      * Splits an S3 key (relative to its bucket) into a result and an error output key
      * for the given range, nesting both under an "output/" prefix alongside the input file.
      * e.g. "run-20260521/Patient.ndjson" + rangeIndex 0 -> "run-20260521/output/Patient-001.ndjson"
@@ -552,40 +587,6 @@ class BulkImportHandler {
      */
     buildNdjson(entries) {
         return entries.map((entry) => JSON.stringify(entry.toJSON())).join('\n') + '\n';
-    }
-
-    /**
-     * Whether every byte-range of every input file on this Task has recorded a
-     * completion marker. Cross-references Task.input (fixed at Task creation) against
-     * the completion markers accumulated in Task.extension.
-     * @param {Object} task
-     * @returns {boolean}
-     */
-    isTaskFullyComplete(task) {
-        const inputUrls = (task.input || []).map((i) => i.valueUri).filter(Boolean);
-        if (inputUrls.length === 0) {
-            return false;
-        }
-
-        const markers = (task.extension || [])
-            .filter((e) => e.url === BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL && e.valueString)
-            .map((e) => {
-                try {
-                    return JSON.parse(e.valueString);
-                } catch (parseError) {
-                    return null;
-                }
-            })
-            .filter(Boolean);
-
-        return inputUrls.every((url) => {
-            const fileMarkers = markers.filter((m) => m.filepath === url);
-            if (fileMarkers.length === 0) {
-                return false;
-            }
-            const distinctRanges = new Set(fileMarkers.map((m) => m.rangeIndex));
-            return distinctRanges.size === fileMarkers[0].totalRanges;
-        });
     }
 
     /**
@@ -672,35 +673,24 @@ class BulkImportHandler {
     }
 
     /**
-     * Writes this range's merge-result (and error, if any) NDJSON to S3, appends
-     * Task.output entries pointing at them, and records a completion marker so
-     * isTaskFullyComplete() can detect when every range of every file is done.
-     * Throws (after retries) rather than swallowing failures — the caller must let
-     * this propagate so an unacknowledged Kafka message gets redelivered instead of
-     * a range silently never recording its marker (which would permanently block
-     * the Task from ever reaching 'completed'). Redelivery is safe: the underlying
-     * MongoDB writes for this range are idempotent merges.
+     * Writes this range's merge-result (and error, if any) NDJSON to S3, then reports the
+     * range as complete by publishing ImportRangeCompleted -- this worker never writes to the
+     * Task itself; the orchestrator (the sole Task writer) appends the resulting S3 URIs to
+     * Task.output and decides when every range has reported in. Throws (after S3 write
+     * retries) rather than swallowing failures — the caller must let this propagate so an
+     * unacknowledged Kafka message gets redelivered instead of a range silently never
+     * reporting completion (which would permanently block the Task from ever reaching
+     * 'completed'). Redelivery is safe: both the underlying MongoDB writes and the
+     * orchestrator's own output-recording are idempotent.
      * @param {Object} params
      * @param {string} params.taskId
      * @param {string} params.filepath
      * @param {number} params.rangeIndex
-     * @param {number} params.totalRanges
+     * @param {number} params.taskTotalRanges
      * @param {import('../../common/mergeResultEntry').MergeResultEntry[]} params.mergeResultEntries
-     * @param {FhirRequestInfo} params.requestInfo
      * @returns {Promise<void>}
      */
-    async recordRangeCompletionAsync({ taskId, filepath, rangeIndex, totalRanges, mergeResultEntries, requestInfo }) {
-        // Reload fresh rather than reusing the Task loaded at the top of handleImportRangeRequestedAsync —
-        // that snapshot can be minutes stale by the time a large range finishes, and
-        // replaceOneAsync's merge takes scalar fields (e.g. status) from OUR doc when they
-        // differ from the DB, so a stale snapshot here could silently regress a concurrent
-        // status change.
-        const task = await this.loadTaskAsync(taskId);
-        if (!task) {
-            logError('Task disappeared before range completion could be recorded', { taskId, filepath, rangeIndex });
-            return;
-        }
-
+    async reportRangeCompletedAsync({ taskId, filepath, rangeIndex, taskTotalRanges, mergeResultEntries }) {
         const { bucket, key } = this.s3NdjsonReader.parseS3Uri(filepath);
         const { resultKey, errorKey } = this.buildRangeOutputKeys({ key, rangeIndex });
 
@@ -710,54 +700,29 @@ class BulkImportHandler {
         // Restore source order before writing output so position always matches the input file.
         mergeResultEntries.sort((a, b) => (a.sourceByteOffset ?? 0) - (b.sourceByteOffset ?? 0));
 
-        const newOutputs = [];
+        let resultUri = null;
         if (mergeResultEntries.length > 0) {
-            const resultUri = `s3://${bucket}/${resultKey}`;
+            resultUri = `s3://${bucket}/${resultKey}`;
             await this.writeNdjsonWithRetryAsync({
                 filepath: resultUri,
                 data: this.buildNdjson(mergeResultEntries)
             });
-            newOutputs.push({ type: { text: 'result' }, valueUri: resultUri });
         }
 
+        let errorUri = null;
         const failedEntries = mergeResultEntries.filter((entry) => entry.operationOutcome);
         if (failedEntries.length > 0) {
-            const errorUri = `s3://${bucket}/${errorKey}`;
+            errorUri = `s3://${bucket}/${errorKey}`;
             await this.writeNdjsonWithRetryAsync({
                 filepath: errorUri,
                 data: this.buildNdjson(failedEntries)
             });
-            newOutputs.push({ type: { text: 'error' }, valueUri: errorUri });
         }
 
-        const updated = task.clone();
-        updated.output = [...(updated.output || []), ...newOutputs];
-        updated.extension = [
-            ...(updated.extension || []),
-            {
-                url: BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL,
-                // JSON-encoded rather than a delimited string — '|' is a legal S3 key
-                // character and would otherwise corrupt parsing for a pathological filepath.
-                valueString: JSON.stringify({ filepath, rangeIndex, totalRanges })
-            }
-        ];
-
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-            resourceType: 'Task',
-            base_version: '4_0_0'
+        await this.bulkImportEventProducer.publishRangeProgressEventAsync({
+            type: 'ImportRangeCompleted',
+            data: { taskId, filepath, rangeIndex, taskTotalRanges, resultUri, errorUri }
         });
-        const { savedResource } = await databaseUpdateManager.replaceOneAsync({
-            base_version: '4_0_0',
-            requestInfo,
-            doc: updated
-        });
-
-        // A null savedResource means the merge detected no change (e.g. a Kafka
-        // redelivery of a range already recorded) — re-read to see current state.
-        const finalTask = savedResource || await this.loadTaskAsync(taskId);
-        if (finalTask && finalTask.status !== 'completed' && this.isTaskFullyComplete(finalTask)) {
-            await this.updateTaskStatusAsync(finalTask, 'completed', undefined, requestInfo);
-        }
     }
 
     /**
@@ -778,7 +743,7 @@ class BulkImportHandler {
         }
 
         const {
-            taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, fileSize,
+            taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, taskTotalRanges, fileSize,
             user, scope, alternateUserId, isUser, remoteIpAddress
         } = eventData;
         const rangeStartTimeMs = Date.now();
@@ -792,17 +757,16 @@ class BulkImportHandler {
             totalRanges
         });
 
-        const task = await this.loadTaskAsync(taskId);
-        if (!task) {
-            logError('Task not found for bulk import message', { taskId });
-            return;
-        }
+        // This worker never reads or writes the Task resource -- the orchestrator is the sole
+        // Task writer (see class docstring), so "did this range start" is reported
+        // unconditionally rather than gated on a Task read here; the orchestrator's own
+        // read-before-write only flips status if it's still 'requested'.
+        await this.bulkImportEventProducer.publishRangeProgressEventAsync({
+            type: 'ImportRangeStarted',
+            data: { taskId, filepath, rangeIndex, taskTotalRanges }
+        });
 
         const requestInfo = this.buildRangeRequestInfo({ user, scope, alternateUserId, isUser, remoteIpAddress });
-
-        if (task.status === 'requested') {
-            await this.updateTaskStatusAsync(task, 'in-progress', undefined, requestInfo);
-        }
 
         const base_version = '4_0_0';
         const batchSize = this.configManager.bulkImportBatchSize;
@@ -829,21 +793,159 @@ class BulkImportHandler {
         // readRangeWithRetryAsync's docstring for why retry must stop once this is true.
         let hasFlushedThisAttempt = false;
 
+        // Buffers a batch's successfully-serialized (non-skipped) resources so their
+        // create/update status can be resolved with one pre-loaded databaseBulkLoader lookup
+        // per resourceType instead of a fastFindOneAsync round trip per line -- see Shubham's
+        // PR #2528 review comment (per-line existence-check cost tradeoff).
+        let pendingMergeResources = [];
+
+        // ifNoneExist criteria "claimed" by a resource already queued for merge in this
+        // attempt but not yet flushed to Mongo. findExistingResourceForIfNoneExistAsync only
+        // sees committed state, so two wrapped lines with the same match criteria landing in
+        // the same unflushed batch would otherwise both pass the existence check and both get
+        // created. Declared here (not inside readAndProcessRangeAsync) so
+        // mergeBufferedResourceAsync -- a sibling closure, invoked later from
+        // flushBatchAsync -- can unclaim a key if the deferred merge it queued fails.
+        let claimedIfNoneExistKeys = new Set();
+
         const flushBatchAsync = async () => {
-            const mergeResults = await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
-            hasFlushedThisAttempt = true;
-            for (const mergeResult of mergeResults) {
-                mergeResult.sourceByteOffset = byteOffsetByUuid.get(`${mergeResult.resourceType}|${mergeResult.id}`);
-                mergeResultEntries.push(mergeResult);
-                if (mergeResult.created) {
-                    created++;
-                } else if (mergeResult.updated) {
-                    updated++;
-                } else if (mergeResult.operationOutcome) {
-                    failed++;
+            if (pendingMergeResources.length > 0) {
+                // Pre-load once for the whole batch (grouped by resourceType internally) so
+                // mergeBufferedResourceAsync's getResourceFromExistingList() calls below are
+                // in-memory lookups instead of a query per line.
+                await this.databaseBulkLoader.loadResourcesAsync({
+                    requestId: requestInfo.requestId,
+                    base_version,
+                    requestedResources: pendingMergeResources.map((p) => p.fhirResource)
+                });
+                // Tracks _uuids already processed earlier in THIS flush -- databaseBulkLoader's
+                // preload only reflects committed DB state, so two lines in the same unflushed
+                // batch that resolve to the same _uuid (a literal duplicate, or two lines whose
+                // id+sourceAssigningAuthority hash to the same UUID) would otherwise both see
+                // wasExisting=false and both get counted/audited as created, even though
+                // fastDatabaseBulkInserter correctly routes the second write to an update.
+                const uuidsSeenThisFlush = new Set();
+                for (const { fhirResource, byteOffset, ifNoneExistKey } of pendingMergeResources) {
+                    const wasSeenEarlierThisFlush = uuidsSeenThisFlush.has(fhirResource._uuid);
+                    uuidsSeenThisFlush.add(fhirResource._uuid);
+                    await mergeBufferedResourceAsync({
+                        fhirResource, byteOffset, ifNoneExistKey, forceUpdated: wasSeenEarlierThisFlush
+                    });
                 }
+                pendingMergeResources = [];
             }
+            await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+            hasFlushedThisAttempt = true;
             sinceLastFlush = 0;
+        };
+
+        /**
+         * Merges one already-serialized resource via mergeManager.mergeResourceAsync
+         * (schema validation + real upsert, instead of fastDatabaseBulkInserter.insertOneAsync's
+         * unconditional $setOnInsert) and folds its null/MergeResultEntry return contract into
+         * this range's counters/mergeResultEntries.
+         * @param {Object} params
+         * @param {Object} params.fhirResource
+         * @param {number} params.byteOffset
+         * @param {string|null} [params.ifNoneExistKey] - already claimed in
+         *   claimedIfNoneExistKeys by the caller; unclaimed here on any failure path so a
+         *   later duplicate line in this same range isn't permanently blocked from trying
+         *   again for a resource that was never actually created.
+         * @param {boolean} [params.forceUpdated] - true when an earlier line in this same
+         *   unflushed batch already resolved to the same _uuid. databaseBulkLoader's preload
+         *   only reflects committed state, so without this override every same-batch
+         *   duplicate would see wasExisting=false and get double-counted/audited as created,
+         *   even though the underlying ordered bulk write correctly applies the second one as
+         *   an update against the first's just-buffered document.
+         * @returns {Promise<void>}
+         */
+        const mergeBufferedResourceAsync = async ({ fhirResource, byteOffset, ifNoneExistKey = null, forceUpdated = false }) => {
+            const wasExisting = forceUpdated || !!this.databaseBulkLoader.getResourceFromExistingList({
+                requestId: requestInfo.requestId,
+                resourceType: fhirResource.resourceType,
+                uuid: fhirResource._uuid
+            });
+
+            try {
+                // mergeManager.mergeResourceAsync trusts its caller to have already enforced
+                // scopes -- the real $merge API path always runs WriteAllowedByScopesValidator
+                // before ever reaching mergeManager. Without this, an id colliding with
+                // another tenant's real _uuid (e.g. isUuid(fhirResource.id) above) could be
+                // merged into that tenant's resource with no access-tag check at all.
+                const { preCheckErrors: scopeErrors } = await this.writeAllowedByScopesValidator.validate({
+                    requestInfo,
+                    incomingResources: [fhirResource],
+                    base_version,
+                    effectiveSmartMerge: true
+                });
+                if (scopeErrors.length > 0) {
+                    failed++;
+                    mergeResultEntries.push(...scopeErrors);
+                    if (ifNoneExistKey) {
+                        claimedIfNoneExistKeys.delete(ifNoneExistKey);
+                    }
+                    return;
+                }
+
+                const validationFailure = await this.mergeManager.mergeResourceAsync({
+                    resourceToMerge: fhirResource,
+                    resourceType: fhirResource.resourceType,
+                    base_version,
+                    requestInfo
+                });
+
+                if (validationFailure) {
+                    failed++;
+                    mergeResultEntries.push(validationFailure);
+                    if (ifNoneExistKey) {
+                        claimedIfNoneExistKeys.delete(ifNoneExistKey);
+                    }
+                } else if (wasExisting) {
+                    updated++;
+                    mergeResultEntries.push(new MergeResultEntry({
+                        id: fhirResource.id,
+                        uuid: fhirResource._uuid,
+                        sourceAssigningAuthority: fhirResource._sourceAssigningAuthority,
+                        resourceType: fhirResource.resourceType,
+                        created: false,
+                        updated: true,
+                        issue: null,
+                        operationOutcome: null,
+                        sourceByteOffset: byteOffset
+                    }));
+                } else {
+                    created++;
+                    mergeResultEntries.push(new MergeResultEntry({
+                        id: fhirResource.id,
+                        uuid: fhirResource._uuid,
+                        sourceAssigningAuthority: fhirResource._sourceAssigningAuthority,
+                        resourceType: fhirResource.resourceType,
+                        created: true,
+                        updated: false,
+                        issue: null,
+                        operationOutcome: null,
+                        sourceByteOffset: byteOffset
+                    }));
+                }
+            } catch (mergeError) {
+                failed++;
+                const entryFromError = mergeError.args instanceof MergeResultEntry
+                    ? mergeError.args
+                    : MergeResultEntry.createFromError({
+                        error: mergeError, resource: fhirResource, sourceByteOffset: byteOffset
+                    });
+                mergeResultEntries.push(entryFromError);
+                if (ifNoneExistKey) {
+                    claimedIfNoneExistKeys.delete(ifNoneExistKey);
+                }
+                logError('Failed to merge bulk import resource', {
+                    taskId,
+                    filepath,
+                    resourceType: fhirResource.resourceType,
+                    byteOffset,
+                    error: mergeError.message
+                });
+            }
         };
 
         const readAndProcessRangeAsync = async () => {
@@ -858,13 +960,8 @@ class BulkImportHandler {
             mergeResultEntries.length = 0;
             byteOffsetByUuid.clear();
             hasFlushedThisAttempt = false;
-
-            // ifNoneExist criteria "claimed" by a resource already queued for insert in this
-            // attempt but not yet flushed to Mongo. findExistingResourceForIfNoneExistAsync
-            // only sees committed state, so two wrapped lines with the same match criteria
-            // landing in the same unflushed batch would otherwise both pass the existence
-            // check and both get created.
-            const claimedIfNoneExistKeys = new Set();
+            pendingMergeResources = [];
+            claimedIfNoneExistKeys = new Set();
 
             try {
                 for await (const { lineNumber, byteOffset, resource, parseError } of this.s3NdjsonReader.readNdjsonAsync({
@@ -901,9 +998,27 @@ class BulkImportHandler {
                         const innerResource = isIfNoneExistWrapper ? resource.resource : resource;
 
                         try {
-                            const fhirResource = FhirResourceWriteSerializer.serialize({
+                            // Internal fields (_uuid, _sourceAssigningAuthority, _file_id, _blobMeta,
+                            // etc.) are never legitimate input on a create -- they're always
+                            // (re)computed server-side. Strip them from the raw NDJSON line before
+                            // serializing, mirroring create.js/update.js, so a line can't claim an
+                            // arbitrary GridFS _file_id or S3 _blobMeta (belonging to another
+                            // resource/tenant) and have it persist verbatim with no data of its own,
+                            // to be read back later.
+                            removeUnderscoreFieldsRecursive(innerResource);
+                            let fhirResource = FhirResourceWriteSerializer.serialize({
                                 obj: this.applyDefaultSecurityTagsIfMissing(innerResource)
                             });
+
+                            // mergeManager.mergeResourceAsync requires _uuid to already be set --
+                            // mirrors MergeResourceValidator's own pre-merge assignment (the same
+                            // rule $merge's API path uses) since serialize() doesn't compute it.
+                            if (isUuid(fhirResource.id)) {
+                                fhirResource._uuid = fhirResource.id;
+                            } else {
+                                await this.sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource: fhirResource });
+                                await this.uuidColumnHandler.preSaveAsync({ resource: fhirResource });
+                            }
 
                             let existingResource = null;
                             let ifNoneExistKey = null;
@@ -953,28 +1068,29 @@ class BulkImportHandler {
                                     ifNoneExist: resource.ifNoneExist
                                 });
                             } else {
-                                const contextData = buildContextDataForHybridStorage(
-                                    fhirResource.resourceType, fhirResource, requestInfo
-                                );
-                                // Keyed by resourceType+id rather than _uuid -- _uuid isn't
-                                // reliably populated on fhirResource yet at this point (it's
-                                // derived by a pre-save handler further down the write
-                                // pipeline), while id is the caller-supplied value and is
-                                // already stable here.
-                                byteOffsetByUuid.set(`${fhirResource.resourceType}|${fhirResource.id}`, byteOffset);
-                                await this.fastDatabaseBulkInserter.insertOneAsync({
-                                    base_version,
-                                    requestInfo,
-                                    resourceType: fhirResource.resourceType,
-                                    doc: fhirResource,
-                                    contextData
-                                });
-                                // Only claim the criteria once the insert is actually queued --
-                                // if insertOneAsync had thrown instead, nothing was created, so a
-                                // later duplicate line in this batch must still be free to try.
+                                // Large attachment externalization (DocumentReference GridFS,
+                                // Binary S3) is handled by mergeManager.mergeResourceAsync
+                                // internally (performMergeDbInsertAsync/performMergeDbUpdateAsync
+                                // both call transformAttachments + base64DataManager.transformAsync).
+                                // By pushing to pendingMergeResources here -- after the ifNoneExist
+                                // check above -- we guarantee transforms only run when the write
+                                // is actually going to happen. An ifNoneExist match skips this
+                                // branch entirely, so no attachment bytes are uploaded for a
+                                // resource that will never be persisted (no orphaned GridFS/S3
+                                // objects with no referencing document to clean them up).
+
+                                // Claim immediately so a duplicate line later in this same
+                                // unflushed batch sees it, but pass the key through to
+                                // mergeBufferedResourceAsync (run later, from flushBatchAsync)
+                                // so it can UNCLAIM if the deferred merge itself fails --
+                                // otherwise a validation/scope failure here would permanently
+                                // (for the rest of this range) block any later duplicate line
+                                // with the same criteria from ever being tried again, since
+                                // nothing was actually created.
                                 if (ifNoneExistKey) {
                                     claimedIfNoneExistKeys.add(ifNoneExistKey);
                                 }
+                                pendingMergeResources.push({ fhirResource, byteOffset, ifNoneExistKey });
                             }
                         } catch (resourceError) {
                             failed++;
@@ -1025,15 +1141,17 @@ class BulkImportHandler {
                     rangeIndex,
                     error: e.message
                 });
-                // Reload fresh (the Task loaded at the top of this function can be stale by
-                // now) and skip the write if the Task already completed — Kafka redelivering
-                // this same range after every other range already finished must not regress
-                // a completed import back to failed.
-                const currentTask = await this.loadTaskAsync(taskId);
-                if (currentTask && currentTask.status !== 'completed') {
-                    await this.updateTaskStatusAsync(currentTask, 'failed', e.message, requestInfo);
-                    recordImportSpanAttributes({ 'fhir_import.outcome': 'failed' });
-                }
+                // Reports unconditionally -- this worker doesn't read the Task, so it can't
+                // know whether the Task already completed (e.g. every other range finished
+                // while this one was retrying). The orchestrator's own read-before-write
+                // decides whether a 'failed' status would regress an already-'completed' Task
+                // and skips it if so; a redelivery of this same failure report is likewise
+                // resolved there, not here.
+                await this.bulkImportEventProducer.publishRangeProgressEventAsync({
+                    type: 'ImportRangeFailed',
+                    data: { taskId, filepath, rangeIndex, taskTotalRanges, errorMessage: e.message }
+                });
+                recordImportSpanAttributes({ 'fhir_import.outcome': 'failed' });
                 // mergeResultEntries only ever gains entries once a batch actually commits
                 // (flushBatchAsync) or a per-line failure is recorded -- so on a partially-
                 // flushed range (bulkImportRangePartiallyFlushed), these resources are already
@@ -1064,13 +1182,12 @@ class BulkImportHandler {
                 skipped
             });
 
-            await this.recordRangeCompletionAsync({
+            await this.reportRangeCompletedAsync({
                 taskId,
                 filepath,
                 rangeIndex,
-                totalRanges,
-                mergeResultEntries,
-                requestInfo
+                taskTotalRanges,
+                mergeResultEntries
             });
 
             this.queueAuditEntriesForRangeAsync({

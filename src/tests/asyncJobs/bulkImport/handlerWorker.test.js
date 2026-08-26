@@ -10,8 +10,12 @@ const makeCloudEvent = (overrides = {}) => {
         byteRangeEnd: 104857600,
         rangeIndex: 0,
         totalRanges: 1,
+        taskTotalRanges: 1,
         requestId: 'req-001',
-        scope: 'user/*.write',
+        // mergeManager.mergeResourceAsync is now scope-checked the same way $merge's API
+        // path is (WriteAllowedByScopesValidator) -- a plain 'user/*.write' scope has no
+        // access-tag grant and gets rejected as forbidden, same as it would via $merge.
+        scope: 'user/*.write access/*.*',
         user: 'test-user',
         ...overrides
     };
@@ -25,6 +29,36 @@ const makeCloudEvent = (overrides = {}) => {
         data
     });
 };
+
+/**
+ * Drives a single ImportRangeRequested message through the worker side of
+ * handleMessageAsync, then feeds every range-progress CloudEvent the worker published
+ * (ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed, via
+ * bulkImportEventProducer.publishRangeProgressEventAsync -> kafkaClientV2.sendCloudEventMessageAsync)
+ * back through handleMessageAsync again, simulating the second real Kafka hop onto the
+ * orchestrator's consumer. The worker no longer reads or writes the Task itself -- only the
+ * orchestrator does, upon consuming these events -- so tests that assert on Task state need
+ * both hops to actually happen.
+ * @param {import('../../../operations/asyncJobs/bulkImport/handler').BulkImportHandler} handler
+ * @param {Object} container
+ * @param {{ key: string, value: string, headers: Array<{key: string, value: string}> }} message
+ * @returns {Promise<void>}
+ */
+async function processRangeAsync(handler, container, message) {
+    const sendSpy = jest.spyOn(container.kafkaClientV2, 'sendCloudEventMessageAsync');
+    const callsBefore = sendSpy.mock.calls.length;
+
+    await handler.handleMessageAsync(message);
+
+    const newCalls = sendSpy.mock.calls.slice(callsBefore);
+    sendSpy.mockRestore();
+
+    for (const [{ messages }] of newCalls) {
+        for (const msg of messages) {
+            await handler.handleMessageAsync({ key: msg.key, value: msg.value, headers: [] });
+        }
+    }
+}
 
 const validParametersBody = {
     resourceType: 'Parameters',
@@ -47,6 +81,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
     beforeEach(async () => {
         process.env.ENABLE_BULK_IMPORT = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
+        process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
         fakeSpan = { setAttributes: jest.fn() };
         activeSpanSpy = jest.spyOn(trace, 'getActiveSpan').mockReturnValue(fakeSpan);
         await commonBeforeEach();
@@ -55,6 +90,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
     afterEach(async () => {
         delete process.env.ENABLE_BULK_IMPORT;
         delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
+        delete process.env.ENABLE_EVENTS_KAFKA_V2;
         activeSpanSpy.mockRestore();
         await commonAfterEach();
     });
@@ -104,11 +140,11 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         const container = createTestContainer();
         const handler = container.bulkImportHandler;
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-001-0-0',
-            // totalRanges: 2 so this single range does not also complete the Task —
-            // that behavior is covered separately below.
-            value: makeCloudEvent({ totalRanges: 2 }),
+            // totalRanges/taskTotalRanges: 2 so this single range does not also complete
+            // the Task — that behavior is covered separately below.
+            value: makeCloudEvent({ totalRanges: 2, taskTotalRanges: 2 }),
             headers: []
         });
 
@@ -144,9 +180,9 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         const container = createTestContainer();
         const handler = container.bulkImportHandler;
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-001-0-0',
-            value: makeCloudEvent({ rangeIndex: 0, totalRanges: 2 }),
+            value: makeCloudEvent({ rangeIndex: 0, totalRanges: 2, taskTotalRanges: 2 }),
             headers: []
         });
 
@@ -156,9 +192,9 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             .expect(200);
         expect(taskResp.body.status).toBe('in-progress');
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-001-1',
-            value: makeCloudEvent({ rangeIndex: 1, totalRanges: 2 }),
+            value: makeCloudEvent({ rangeIndex: 1, totalRanges: 2, taskTotalRanges: 2 }),
             headers: []
         });
 
@@ -222,6 +258,46 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             });
     });
 
+    test('handleMessageAsync runs each resource through Base64DataManager before insert', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-base64' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+
+        const { BLOB_OP } = require('../../../constants');
+        const transformAsyncSpy = jest.spyOn(container.base64DataManager, 'transformAsync');
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-base64-1', name: [{ family: 'Externalize' }] }
+        ]);
+
+        await handler.handleMessageAsync({
+            key: 'import-consumer-base64-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-base64' }),
+            headers: []
+        });
+
+        // Runs unconditionally per resource -- transformAsync itself no-ops when the feature
+        // is disabled or the resourceType has no configured paths (see Base64DataManager),
+        // so this must be called regardless, the same way create.js/mergeManager.js do it,
+        // otherwise a large DocumentReference/Binary attachment would blow MongoDB's 16MB
+        // document limit on insert instead of being externalized to cloud storage first.
+        expect(transformAsyncSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ resourceType: 'Patient', id: 'bulk-import-base64-1' }),
+            BLOB_OP.INSERT,
+            expect.anything()
+        );
+
+        transformAsyncSpy.mockRestore();
+    });
+
     test('handleMessageAsync creates an AuditEvent for a bulk-imported resource', async () => {
         const request = await createTestRequest();
 
@@ -257,7 +333,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             value: makeCloudEvent({
                 taskId: 'import-consumer-audit',
                 user: 'bulk-import-service-account',
-                scope: 'user/*.write',
+                scope: 'user/*.write access/*.*',
                 alternateUserId: 'bulk-import-alt-id',
                 isUser: true,
                 remoteIpAddress: '10.0.0.1'
@@ -399,7 +475,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             { resourceType: 'Patient', id: 'bulk-import-survivor', name: [{ family: 'Survivor' }] }
         ]);
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-partial-fail-0',
             value: makeCloudEvent({ taskId: 'import-consumer-partial-fail' }),
             headers: []
@@ -469,7 +545,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             { resourceType: 'Patient', id: 'bulk-import-after-bad-line', name: [{ family: 'After' }] }
         ]);
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-bad-line-0',
             value: makeCloudEvent({ taskId: 'import-consumer-bad-line' }),
             headers: []
@@ -586,43 +662,50 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         expect(errorKey).toBe('run-20260521/output/errors/Patient-001-errors.ndjson');
     });
 
-    test('isTaskFullyComplete is false until every range of every input file is marked complete', () => {
+    test('countCompletedRanges counts distinct ranges, ignoring the -result/-error suffix and unrelated output entries', () => {
         const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();
-        const handler = container.bulkImportHandler;
+        const stateMachine = container.bulkImportTaskStateMachine;
 
-        const marker = (filepath, rangeIndex, totalRanges) => ({
-            url: 'https://www.icanbwell.com/bulk-import-range-completed',
-            valueString: JSON.stringify({ filepath, rangeIndex, totalRanges })
-        });
+        // No output at all -- zero ranges completed.
+        expect(stateMachine.countCompletedRanges({ output: [] })).toBe(0);
 
-        expect(handler.isTaskFullyComplete({
-            input: [{ valueUri: 's3://bucket/a.ndjson' }],
-            extension: []
-        })).toBe(false);
-
-        expect(handler.isTaskFullyComplete({
-            input: [
-                { valueUri: 's3://bucket/a.ndjson' },
-                { valueUri: 's3://bucket/b.ndjson' }
-            ],
-            extension: [
-                marker('s3://bucket/a.ndjson', 0, 2),
-                marker('s3://bucket/a.ndjson', 1, 2)
+        // A range with BOTH a -result and a -error entry must still count as ONE range.
+        expect(stateMachine.countCompletedRanges({
+            output: [
+                { id: 'bulk-import-range:s3://bucket/a.ndjson#0-result', type: { text: 'result' }, valueUri: 's3://bucket/out/a.ndjson' },
+                { id: 'bulk-import-range:s3://bucket/a.ndjson#0-error', type: { text: 'error' }, valueUri: 's3://bucket/out/a-errors.ndjson' }
             ]
-        })).toBe(false); // file "b" hasn't started
+        })).toBe(1);
 
-        expect(handler.isTaskFullyComplete({
-            input: [
-                { valueUri: 's3://bucket/a.ndjson' },
-                { valueUri: 's3://bucket/b.ndjson' }
-            ],
-            extension: [
-                marker('s3://bucket/a.ndjson', 0, 2),
-                marker('s3://bucket/a.ndjson', 1, 2),
-                marker('s3://bucket/b.ndjson', 0, 1)
+        // Multiple distinct ranges (including an "empty" placeholder entry with no suffix)
+        // all count individually.
+        expect(stateMachine.countCompletedRanges({
+            output: [
+                { id: 'bulk-import-range:s3://bucket/a.ndjson#0-result', type: { text: 'result' }, valueUri: 's3://bucket/out/a.ndjson' },
+                { id: 'bulk-import-range:s3://bucket/a.ndjson#1-error', type: { text: 'error' }, valueUri: 's3://bucket/out/a-errors.ndjson' },
+                { id: 'bulk-import-range:s3://bucket/b.ndjson#0', type: { text: 'empty' } }
             ]
-        })).toBe(true);
+        })).toBe(3);
+
+        // An output entry that doesn't match the "bulk-import-range:" id prefix at all (e.g.
+        // a plain error output with no id) must be ignored rather than miscounted.
+        expect(stateMachine.countCompletedRanges({
+            output: [
+                { type: { text: 'error' }, valueUri: 's3://bucket/out/unrelated-errors.ndjson' },
+                { id: 'bulk-import-range:s3://bucket/a.ndjson#0-result', type: { text: 'result' }, valueUri: 's3://bucket/out/a.ndjson' }
+            ]
+        })).toBe(1);
+    });
+
+    test('countCompletedRanges does not throw and returns 0 when task.output is missing', () => {
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const stateMachine = container.bulkImportTaskStateMachine;
+
+        expect(() => stateMachine.countCompletedRanges({})).not.toThrow();
+        expect(stateMachine.countCompletedRanges({})).toBe(0);
+        expect(stateMachine.countCompletedRanges({ output: undefined })).toBe(0);
     });
 
     test('handleMessageAsync writes result NDJSON to S3 and records Task.output + completion', async () => {
@@ -642,7 +725,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             { resourceType: 'Patient', id: 'bulk-import-output-1', name: [{ family: 'Output' }] }
         ]);
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-output-0',
             value: makeCloudEvent({ taskId: 'import-consumer-output' }),
             headers: []
@@ -662,6 +745,9 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         expect(taskResp.body.status).toBe('completed');
         const resultOutput = taskResp.body.output.find((o) => o.type.text === 'result');
         expect(resultOutput.valueUri).toBe('s3://allowed-bucket/output/Patient-001.ndjson');
+        expect(resultOutput.id).toBe(
+            'bulk-import-range:s3://allowed-bucket/Patient.ndjson#0-result'
+        );
 
         // 1 created, 0 failed -- tagged as span attributes.
         expect(fakeSpan.setAttributes).toHaveBeenCalledWith({
@@ -669,19 +755,6 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             'fhir_import.resources_updated': 0,
             'fhir_import.resources_failed': 0
         });
-    });
-
-    test('isTaskFullyComplete ignores an unparseable completion marker rather than throwing', () => {
-        const { createTestContainer } = require('../../createTestContainer');
-        const container = createTestContainer();
-        const handler = container.bulkImportHandler;
-
-        expect(() => handler.isTaskFullyComplete({
-            input: [{ valueUri: 's3://bucket/a.ndjson' }],
-            extension: [
-                { url: 'https://www.icanbwell.com/bulk-import-range-completed', valueString: 'not-json' }
-            ]
-        })).not.toThrow();
     });
 
     test('writeNdjsonWithRetryAsync retries transient failures and succeeds', async () => {
@@ -839,7 +912,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         container.s3NdjsonReader.setFailAfterYielding(1);
 
         try {
-            await handler.handleMessageAsync({
+            await processRangeAsync(handler, container, {
                 key: 'import-consumer-partial-flush-0',
                 value: makeCloudEvent({ taskId: 'import-consumer-partial-flush' }),
                 headers: []
@@ -891,7 +964,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         ]);
         container.s3NdjsonReader.setFailNextReads(1);
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-read-retry-0',
             value: makeCloudEvent({ taskId: 'import-consumer-read-retry' }),
             headers: []
@@ -931,7 +1004,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         ]);
         container.s3NdjsonReader.setFailNextReads(3);
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-read-exhausted-0',
             value: makeCloudEvent({ taskId: 'import-consumer-read-exhausted' }),
             headers: []
@@ -998,8 +1071,9 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             { resourceType: 'Patient', id: 'bulk-import-no-regress-1', name: [{ family: 'Once' }] }
         ]);
 
-        // First delivery: only range, only file -> Task completes.
-        await handler.handleMessageAsync({
+        // First delivery: only range, only file -> Task completes (both worker and
+        // orchestrator hops).
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-no-regress-0',
             value: makeCloudEvent({ taskId: 'import-consumer-no-regress' }),
             headers: []
@@ -1011,14 +1085,18 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             .expect(200);
         expect(taskResp.body.status).toBe('completed');
 
-        // Kafka redelivers the same range; this time the S3 read hits a transient error.
+        // Kafka redelivers the same range; this time the S3 read hits a transient error on
+        // every attempt, so the worker exhausts its retries and publishes ImportRangeFailed
+        // unconditionally (it never reads the Task itself). The "must not regress an
+        // already-completed Task" guard now lives on the orchestrator's
+        // handleRangeFailedAsync, exercised here via the second processRangeAsync hop.
         const readSpy = jest.spyOn(container.s3NdjsonReader, 'readNdjsonAsync')
             // eslint-disable-next-line require-yield -- deliberately throws before ever yielding
             .mockImplementation(async function* () {
                 throw new Error('transient S3 read error');
             });
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-no-regress-0-redelivered',
             value: makeCloudEvent({ taskId: 'import-consumer-no-regress' }),
             headers: []
@@ -1058,7 +1136,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             }
         ]);
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-ine-create-0',
             value: makeCloudEvent({ taskId: 'import-consumer-ine-create' }),
             headers: []
@@ -1129,7 +1207,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             }
         ]);
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-ine-skip-0',
             value: makeCloudEvent({ taskId: 'import-consumer-ine-skip' }),
             headers: []
@@ -1253,7 +1331,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             }
         ]);
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-ine-bad-param-0',
             value: makeCloudEvent({ taskId: 'import-consumer-ine-bad-param' }),
             headers: []
@@ -1416,7 +1494,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
             { resourceType: 'Patient', id: 'bulk-import-audit-flush-error', name: [{ family: 'Flushed' }] }
         ]);
 
-        await handler.handleMessageAsync({
+        await processRangeAsync(handler, container, {
             key: 'import-consumer-audit-flush-error-0',
             value: makeCloudEvent({ taskId: 'import-consumer-audit-flush-error' }),
             headers: []
@@ -1474,7 +1552,7 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         container.s3NdjsonReader.setFailAfterYielding(1);
 
         try {
-            await handler.handleMessageAsync({
+            await processRangeAsync(handler, container, {
                 key: 'import-consumer-audit-partial-flush-0',
                 value: makeCloudEvent({ taskId: 'import-consumer-audit-partial-flush' }),
                 headers: []
