@@ -507,11 +507,23 @@ describe('VULNERABILITY 5: No automatic cache invalidation when Consent status c
         return finder;
     }
 
+    /**
+     * @returns {ConfigManager}
+     */
+    function createFakeConfigManager() {
+        const configManager = Object.create(ConfigManager.prototype);
+        Object.defineProperty(configManager, 'writeToCacheForEverythingOperation', {
+            value: true, writable: true, configurable: true
+        });
+        return configManager;
+    }
+
     it('ConsentCacheInvalidationHandler MUST bump the Everything-cache generation for the consent patient on a Consent write', async () => {
         const redisManager = createFakeRedisManager();
         const handler = new ConsentCacheInvalidationHandler({
             redisManager,
-            bwellPersonFinder: createFakeBwellPersonFinder()
+            bwellPersonFinder: createFakeBwellPersonFinder(),
+            configManager: createFakeConfigManager()
         });
 
         // A revoked consent resource, as it would appear post-save (patient reference
@@ -541,7 +553,8 @@ describe('VULNERABILITY 5: No automatic cache invalidation when Consent status c
         const redisManager = createFakeRedisManager();
         const handler = new ConsentCacheInvalidationHandler({
             redisManager,
-            bwellPersonFinder: createFakeBwellPersonFinder()
+            bwellPersonFinder: createFakeBwellPersonFinder(),
+            configManager: createFakeConfigManager()
         });
         const keyGenerator = new PatientEverythingCacheKeyGenerator({ redisManager });
         const mockParsedArgs = { getRawArgs: () => ({}), _format: undefined };

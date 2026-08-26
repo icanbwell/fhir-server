@@ -14,6 +14,7 @@ const { describe, beforeEach, afterEach, it, expect, jest } = require('@jest/glo
 const { ConsentCacheInvalidationHandler } = require('../../../../../dataLayer/postSaveHandlers/handlers/consentCacheInvalidationHandler');
 const { RedisManager } = require('../../../../../utils/redisManager');
 const { BwellPersonFinder } = require('../../../../../utils/bwellPersonFinder');
+const { ConfigManager } = require('../../../../../utils/configManager');
 
 jest.mock('../../../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -31,6 +32,7 @@ describe('ConsentCacheInvalidationHandler', () => {
     let handler;
     let mockRedisManager;
     let mockBwellPersonFinder;
+    let mockConfigManager;
     let bumpedKeys;
 
     beforeEach(() => {
@@ -48,9 +50,15 @@ describe('ConsentCacheInvalidationHandler', () => {
             CLIENT_PERSON_UUID, MASTER_PERSON_UUID
         ]);
 
+        mockConfigManager = Object.create(ConfigManager.prototype);
+        Object.defineProperty(mockConfigManager, 'writeToCacheForEverythingOperation', {
+            value: true, writable: true, configurable: true
+        });
+
         handler = new ConsentCacheInvalidationHandler({
             redisManager: mockRedisManager,
-            bwellPersonFinder: mockBwellPersonFinder
+            bwellPersonFinder: mockBwellPersonFinder,
+            configManager: mockConfigManager
         });
     });
 
@@ -68,6 +76,15 @@ describe('ConsentCacheInvalidationHandler', () => {
     it('is a no-op for non-Consent resources', async () => {
         await handler.afterSaveAsync({ requestId: 'r1', eventType: 'U', resourceType: 'Observation', doc: { id: 'o1' } });
         expect(mockRedisManager.incrementGenerationAsync).not.toHaveBeenCalled();
+    });
+
+    it('is a no-op when the everything cache write flag (ENABLE_REDIS && ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION) is off', async () => {
+        mockConfigManager.writeToCacheForEverythingOperation = false;
+
+        await handler.afterSaveAsync({ requestId: 'r1', eventType: 'U', resourceType: 'Consent', doc: directPatientConsent() });
+
+        expect(mockRedisManager.incrementGenerationAsync).not.toHaveBeenCalled();
+        expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).not.toHaveBeenCalled();
     });
 
     it('on a direct-Patient Consent bumps the Patient key, the immediate client Person, AND the bwell master Person', async () => {
