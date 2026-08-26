@@ -13,8 +13,20 @@ const verificationResult1 = require('./fixtures/VerificationResult/verificationr
 const verificationResult2 = require('./fixtures/VerificationResult/verificationresult2.json');
 const person1 = require('./fixtures/Person/person1.json');
 const person2 = require('./fixtures/Person/person2.json');
+const coverage1 = require('./fixtures/Coverage/coverage1.json');
+const coverage2 = require('./fixtures/Coverage/coverage2.json');
+const eob1 = require('./fixtures/ExplanationOfBenefit/eob1.json');
+const eob2 = require('./fixtures/ExplanationOfBenefit/eob2.json');
+const allergyIntolerance1 = require('./fixtures/AllergyIntolerance/allergyintolerance1.json');
+const allergyIntolerance2 = require('./fixtures/AllergyIntolerance/allergyintolerance2.json');
+const allergyIntolerance3 = require('./fixtures/AllergyIntolerance/allergyintolerance3.json');
+const allergyIntolerance4 = require('./fixtures/AllergyIntolerance/allergyintolerance4.json');
+const procedure1 = require('./fixtures/Procedure/procedure1.json');
+const procedure2 = require('./fixtures/Procedure/procedure2.json');
 
-const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getHeadersWithAdmin } = require('../../common');
+const {
+    commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getHeadersWithAdmin, getTestContainer
+} = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
 const FAKE_TIMER_OPTIONS = {
@@ -195,26 +207,137 @@ describe('_sort field hardening tests', () => {
         expect(resp.body.entry.map(e => e.resource.id)).toEqual(['observation-2029', 'observation-2017']);
     });
 
-    test("_sort still ignores VerificationResult's statusDate since no search parameter declares that field", async () => {
+    test("_sort recognizes VerificationResult's statusDate via the temporary custom-sort-field allowlist, though no search parameter declares that field", async () => {
         const request = await createTestRequest();
 
         let resp = await request.post('/4_0_0/VerificationResult/$merge')
             .send([verificationResult1, verificationResult2]).set(getHeaders());
         expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
+        // verificationResult1.statusDate is 2021, verificationResult2.statusDate is 2023 (see fixtures)
+        resp = await request.get('/4_0_0/VerificationResult?_sort=statusDate&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['verificationresult-1', 'verificationresult-2']);
+
         resp = await request.get('/4_0_0/VerificationResult?_sort=-statusDate&_bundle=1').set(getHeadersWithAdmin());
-        expect(resp).toHaveStatusCode(200);
-        expect(resp.body.entry.map(e => e.resource.id).sort()).toEqual(['verificationresult-1', 'verificationresult-2']);
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['verificationresult-2', 'verificationresult-1']);
     });
 
-    test("_sort still ignores Person's active since no search parameter declares that field", async () => {
+    test("_sort recognizes Person's active via the temporary custom-sort-field allowlist, though no search parameter declares that field", async () => {
         const request = await createTestRequest();
 
         let resp = await request.post('/4_0_0/Person/$merge').send([person1, person2]).set(getHeaders());
         expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
+        // active ascending: false (0) before true (1)
+        resp = await request.get('/4_0_0/Person?_sort=active&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['person-active-false', 'person-active-true']);
+
         resp = await request.get('/4_0_0/Person?_sort=-active&_bundle=1').set(getHeadersWithAdmin());
-        expect(resp).toHaveStatusCode(200);
-        expect(resp.body.entry.map(e => e.resource.id).sort()).toEqual(['person-active-false', 'person-active-true']);
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['person-active-true', 'person-active-false']);
+    });
+
+    test("_sort recognizes CarePlan's created via the temporary custom-sort-field allowlist, though no search parameter declares that field", async () => {
+        const request = await createTestRequest();
+
+        let resp = await request.post('/4_0_0/CarePlan/$merge').send([careplan1, careplan2]).set(getHeaders());
+        expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
+
+        // careplan-2015.created is 2030, careplan-2027.created is 2010 (deliberately reversed vs. period)
+        resp = await request.get('/4_0_0/CarePlan?_sort=created&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['careplan-2027', 'careplan-2015']);
+
+        resp = await request.get('/4_0_0/CarePlan?_sort=-created&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['careplan-2015', 'careplan-2027']);
+    });
+
+    test("_sort recognizes Coverage's period.start/period.end via the temporary custom-sort-field allowlist, since Coverage has no period-typed field declared", async () => {
+        const request = await createTestRequest();
+
+        let resp = await request.post('/4_0_0/Coverage/$merge').send([coverage1, coverage2]).set(getHeaders());
+        expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
+
+        // coverage1.period is 2016, coverage2.period is 2028 (see fixtures)
+        resp = await request.get('/4_0_0/Coverage?_sort=period.start&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['coverage-2016', 'coverage-2028']);
+
+        resp = await request.get('/4_0_0/Coverage?_sort=-period.end&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['coverage-2028', 'coverage-2016']);
+    });
+
+    test("_sort recognizes ExplanationOfBenefit's billablePeriod.start/billablePeriod.end via the temporary custom-sort-field allowlist, since billablePeriod is not declared as a period-typed field", async () => {
+        const request = await createTestRequest();
+
+        let resp = await request.post('/4_0_0/ExplanationOfBenefit/$merge').send([eob1, eob2]).set(getHeaders());
+        expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
+
+        // eob1.billablePeriod is 2017, eob2.billablePeriod is 2029 (see fixtures)
+        resp = await request.get('/4_0_0/ExplanationOfBenefit?_sort=billablePeriod.start&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['eob-2017', 'eob-2029']);
+
+        resp = await request.get('/4_0_0/ExplanationOfBenefit?_sort=-billablePeriod.end&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['eob-2029', 'eob-2017']);
+    });
+
+    test("_sort recognizes AllergyIntolerance's onsetDateTime via the temporary custom-sort-field allowlist, since only reaction.onset is declared for the 'onset' search parameter", async () => {
+        const request = await createTestRequest();
+
+        let resp = await request.post('/4_0_0/AllergyIntolerance/$merge')
+            .send([allergyIntolerance1, allergyIntolerance2]).set(getHeaders());
+        expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
+
+        // allergyIntolerance1.onsetDateTime is 2018, allergyIntolerance2.onsetDateTime is 2030 (see fixtures)
+        resp = await request.get('/4_0_0/AllergyIntolerance?_sort=onsetDateTime&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['allergyintolerance-2018', 'allergyintolerance-2030']);
+
+        resp = await request.get('/4_0_0/AllergyIntolerance?_sort=-onsetDateTime&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['allergyintolerance-2030', 'allergyintolerance-2018']);
+    });
+
+    test("_sort recognizes AllergyIntolerance's onsetPeriod.start/onsetPeriod.end via the temporary custom-sort-field allowlist, since AllergyIntolerance has no period-typed field declared", async () => {
+        const request = await createTestRequest();
+
+        let resp = await request.post('/4_0_0/AllergyIntolerance/$merge')
+            .send([allergyIntolerance3, allergyIntolerance4]).set(getHeaders());
+        expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
+
+        // allergyIntolerance3.onsetPeriod is 2019, allergyIntolerance4.onsetPeriod is 2031 (see fixtures)
+        resp = await request.get('/4_0_0/AllergyIntolerance?_sort=onsetPeriod.start&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['allergyintolerance-onsetperiod-2019', 'allergyintolerance-onsetperiod-2031']);
+
+        resp = await request.get('/4_0_0/AllergyIntolerance?_sort=-onsetPeriod.end&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['allergyintolerance-onsetperiod-2031', 'allergyintolerance-onsetperiod-2019']);
+    });
+
+    // Procedure.encounter is a Reference, and the generated Reference class (src/fhir/classes/
+    // 4_0_0/complex_types/reference.js) silently drops any 'period' property on construction, so
+    // $merge can never populate encounter.period.start/.end. To prove the custom-sort-field
+    // resolution itself works against whatever ends up in Mongo (regardless of how it got there),
+    // this test writes the fixtures via $merge first, then sets encounter.period directly on the
+    // persisted documents with a raw Mongo update.
+    test("_sort recognizes Procedure's encounter.period.start/encounter.period.end via the temporary custom-sort-field allowlist, since encounter is a Reference and has no period field", async () => {
+        const request = await createTestRequest();
+
+        let resp = await request.post('/4_0_0/Procedure/$merge').send([procedure1, procedure2]).set(getHeaders());
+        expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
+
+        const container = getTestContainer();
+        const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
+        const procedureCollection = fhirDb.collection('Procedure_4_0_0');
+
+        // procedure-encounter-2020's encounter.period is 2020, procedure-encounter-2032's is 2032
+        await procedureCollection.updateOne(
+            { id: 'procedure-encounter-2020' },
+            { $set: { 'encounter.period': { start: '2020-06-19T01:15:45+00:00', end: '2020-06-19T01:30:45+00:00' } } }
+        );
+        await procedureCollection.updateOne(
+            { id: 'procedure-encounter-2032' },
+            { $set: { 'encounter.period': { start: '2032-06-19T01:15:45+00:00', end: '2032-06-19T01:30:45+00:00' } } }
+        );
+
+        resp = await request.get('/4_0_0/Procedure?_sort=encounter.period.start&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['procedure-encounter-2020', 'procedure-encounter-2032']);
+
+        resp = await request.get('/4_0_0/Procedure?_sort=-encounter.period.end&_bundle=1').set(getHeadersWithAdmin());
+        expect(resp.body.entry.map(e => e.resource.id)).toEqual(['procedure-encounter-2032', 'procedure-encounter-2020']);
     });
 });
