@@ -1438,6 +1438,10 @@ class ConfigManager {
         return env.BULK_IMPORT_ORCHESTRATOR_GROUP_ID || 'fhir-bulk-import-orchestrator';
     }
 
+    get bulkImportRangeProgressGroupId() {
+        return env.BULK_IMPORT_RANGE_PROGRESS_GROUP_ID || 'fhir-bulk-import-range-progress';
+    }
+
     /**
      * Kafka topic for worker->orchestrator range-progress reports (ImportRangeStarted/
      * ImportRangeCompleted/ImportRangeFailed). The orchestrator is the only process that ever
