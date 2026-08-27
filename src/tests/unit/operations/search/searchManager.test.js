@@ -367,6 +367,7 @@ describe('SearchManager', () => {
                 ['ExplanationOfBenefit', 'billablePeriod.start'],
                 ['ExplanationOfBenefit', 'billablePeriod.end'],
                 ['CarePlan', 'created'],
+                ['Questionnaire', '_sourceId'],
                 ['AllergyIntolerance', 'onsetDateTime'],
                 ['AllergyIntolerance', 'onsetPeriod.start'],
                 ['AllergyIntolerance', 'onsetPeriod.end'],
