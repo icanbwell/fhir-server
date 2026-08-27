@@ -20,6 +20,7 @@ module.exports = {
         ExplanationOfBenefit: ['billablePeriod.start', 'billablePeriod.end'],
         CarePlan: ['created'],
         AllergyIntolerance: ['onsetDateTime', 'onsetPeriod.start', 'onsetPeriod.end'],
+        Questionnaire: ['_sourceId'],
         Procedure: ['encounter.period.start', 'encounter.period.end']
     },
     COLLECTION: {
