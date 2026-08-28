@@ -17,6 +17,21 @@ const { QueryParameterValue } = require('../operations/query/queryParameterValue
 const { searchParameterQueries } = require('../searchParameters/searchParameters');
 const { logError } = require('../operations/common/logging');
 const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
+const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
+
+/**
+ * Mongo server error code for "operation exceeded time limit" (MaxTimeMSExpired). Walks
+ * RethrownError's `.original_error` (which resolves through any number of wrapping layers --
+ * see src/utils/rethrownError.js -- to the innermost error) so a query timeout deep in
+ * searchManager.js's pipeline() is still recognized here.
+ * @param {Error} err
+ * @returns {boolean}
+ */
+function isMongoTimeoutError (err) {
+    return err?.original_error?.code === 50 || err?.code === 50;
+}
 
 class McpToolHandler {
     /**
@@ -236,6 +251,27 @@ class McpToolHandler {
             // unexpected/internal failure) is masked to a generic message with no stack trace or
             // internal details; a known error with a statusCode < 500 (e.g. ForbiddenError,
             // NotFoundError from src/utils/httpErrors.js) keeps its client-safe FHIR `.issue`.
+            //
+            // A Mongo query-timeout (code 50/MaxTimeMSExpired) carries no PHI or internal detail
+            // worth masking -- unlike a raw stack trace, "the search timed out" is itself safe to
+            // return -- so it gets its own FHIR IssueType('timeout') instead of being bucketed into
+            // the generic 'internal' code. Without this, a caller (or an on-call engineer staring
+            // at "Internal Server Error") has no way to tell a timeout apart from an actual server
+            // fault short of trawling server-side logs (see DCON-5311).
+            if (isMongoTimeoutError(err)) {
+                const operationOutcome = new OperationOutcome({
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'timeout',
+                            details: new CodeableConcept({
+                                text: 'The search timed out. Try narrowing your search criteria.'
+                            })
+                        })
+                    ]
+                });
+                return { isError: true, content: [{ type: 'text', text: JSON.stringify(operationOutcome) }] };
+            }
             const status = err.statusCode || 500;
             const operationOutcome = convertErrorToOperationOutcome({ error: err, internalError: status >= 500 });
             return { isError: true, content: [{ type: 'text', text: JSON.stringify(operationOutcome) }] };
