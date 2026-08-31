@@ -81,6 +81,14 @@ describe('BulkImportEventProducer', () => {
         expect(result).toBe(0);
     });
 
+    test('publishImportEventsAsync returns 0 for empty inputs', async () => {
+        const result = await producer.publishImportEventsAsync({
+            taskId: 't1', inputs: [], requestId: 'r1', scope: 's', user: 'u'
+        });
+        expect(result).toBe(0);
+        expect(mockKafkaClientV2.sendCloudEventMessageAsync).not.toHaveBeenCalled();
+    });
+
     test('message keys include task ID and range index', async () => {
         await producer.publishImportEventsAsync({
             taskId: 'task-004',
@@ -92,6 +100,21 @@ describe('BulkImportEventProducer', () => {
         expect(messages[0].key).toBe('task-004-0-0');
         expect(messages[1].key).toBe('task-004-0-1');
         expect(messages[2].key).toBe('task-004-0-2');
+    });
+
+    test('publishImportEventsAsync threads calculated byteRangeStart/byteRangeEnd into each event', async () => {
+        await producer.publishImportEventsAsync({
+            taskId: 'task-006',
+            inputs: [{ url: 's3://bucket/file.ndjson', fileSize: 3 * 1024 * 1024 }],
+            requestId: 'req-006', scope: 'user/*.write', user: 'test-user'
+        });
+
+        const { messages } = mockKafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0];
+        const events = messages.map((m) => JSON.parse(m.value));
+        expect(events[0].data.byteRangeStart).toBe(0);
+        expect(events[0].data.byteRangeEnd).toBe(1048576);
+        expect(events[2].data.byteRangeStart).toBe(2097152);
+        expect(events[2].data.byteRangeEnd).toBe(3145728);
     });
 
     test('CloudEvent envelope has required fields', async () => {
@@ -185,6 +208,18 @@ describe('BulkImportEventProducer', () => {
                 type: 'ImportRangeFailed',
                 data: { taskId: 't1', filepath: 'a.ndjson', rangeIndex: 0, taskTotalRanges: 1, errorMessage: 'boom' }
             })).rejects.toThrow('broker unavailable');
+        });
+
+        test('threads the errorMessage field into an ImportRangeFailed CloudEvent', async () => {
+            await producer.publishRangeProgressEventAsync({
+                type: 'ImportRangeFailed',
+                data: { taskId: 't1', filepath: 'a.ndjson', rangeIndex: 0, taskTotalRanges: 1, errorMessage: 'S3 read timed out' }
+            });
+
+            const { messages } = mockKafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0];
+            const cloudEvent = JSON.parse(messages[0].value);
+            expect(cloudEvent.type).toBe('ImportRangeFailed');
+            expect(cloudEvent.data.errorMessage).toBe('S3 read timed out');
         });
 
     });

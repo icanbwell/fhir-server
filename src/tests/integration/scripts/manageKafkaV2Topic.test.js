@@ -5,7 +5,7 @@
 
 const { describe, test, beforeEach, expect, jest } = require('@jest/globals');
 
-jest.mock('../../utils/kafkaClientV2');
+jest.mock('../../../utils/kafkaClientV2');
 
 const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
 const {

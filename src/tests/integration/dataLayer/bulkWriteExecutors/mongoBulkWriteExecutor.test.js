@@ -15,11 +15,11 @@ const { MONGO_ERROR } = require('../../../../constants');
 const { RethrownError } = require('../../../../utils/rethrownError');
 
 // Suppress logging noise in tests
-jest.mock('../../../operations/common/logging', () => ({
+jest.mock('../../../../operations/common/logging', () => ({
     logInfo: jest.fn(),
     logError: jest.fn()
 }));
-jest.mock('../../../operations/common/systemEventLogging', () => ({
+jest.mock('../../../../operations/common/systemEventLogging', () => ({
     logSystemErrorAsync: jest.fn().mockResolvedValue(undefined),
     logTraceSystemEventAsync: jest.fn().mockResolvedValue(undefined)
 }));
