@@ -98,7 +98,7 @@ describe('Binary delete — S3 history persistence', () => {
     };
 
     const liveKeyOf = (doc) => `Binary_4_0_0/${doc._uuid}/${doc._blobMeta.lastUpdated.getTime()}`;
-    const historyKeyOf = (doc) => `Binary_4_0_0/${doc._uuid}/${doc._blobMeta.hash}`;
+    const historyKeyOf = (doc) => `Binary_4_0_0_History/${doc._uuid}/${doc._blobMeta.hash}`;
     const liveFolderPrefixOf = (doc) => `Binary_4_0_0/${doc._uuid}/`;
     const keysUnderLiveFolder = (liveClient, doc) => Object.keys(liveClient.uploadedData)
         .filter((key) => key.startsWith(liveFolderPrefixOf(doc)));

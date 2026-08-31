@@ -274,13 +274,14 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(liveClient.uploadedData[keyV2]).toBe(ALT_LARGE_DATA);
         expect(liveClient.uploadedData[keyV1]).toBeUndefined();
 
-        // History bucket is content-addressed: `Binary_4_0_0/{uuid}/{hash}`. Two distinct payloads
-        // (LARGE + ALT) => two distinct history objects; the suffix is a base64url hash, not an epoch.
+        // History bucket is content-addressed: `Binary_4_0_0_History/{uuid}/{hash}`. Two distinct
+        // payloads (LARGE + ALT) => two distinct history objects; the suffix is a base64url hash,
+        // not an epoch.
         const versionedKeys = Object.keys(historyClient.uploadedData)
-            .filter(k => k.startsWith(`Binary_4_0_0/${docV1._uuid}/`));
+            .filter(k => k.startsWith(`Binary_4_0_0_History/${docV1._uuid}/`));
         expect(versionedKeys.length).toBe(2);
         for (const key of versionedKeys) {
-            const suffix = key.replace(`Binary_4_0_0/${docV1._uuid}/`, '');
+            const suffix = key.replace(`Binary_4_0_0_History/${docV1._uuid}/`, '');
             expect(suffix).toMatch(/^[A-Za-z0-9_-]+$/);
         }
 
@@ -643,7 +644,7 @@ describe('Binary base64 S3 offload — write paths', () => {
     });
 
     const historyKeysFor = (historyClient, uuid) =>
-        Object.keys(historyClient.uploadedData).filter(k => k.startsWith(`Binary_4_0_0/${uuid}/`));
+        Object.keys(historyClient.uploadedData).filter(k => k.startsWith(`Binary_4_0_0_History/${uuid}/`));
 
     // History-collection snapshots for a uuid, sorted ascending by versionId.
     const historySnapshotsFor = async (container, uuid) => {
@@ -1326,7 +1327,7 @@ describe('Binary base64 S3 offload — write paths', () => {
     // `{Type}/{uuid}/{hash}`), never the live bucket, and bypass the per-request stash so distinct
     // versions in one response don't cross-contaminate.
     describe('history reads — each version hydrates from the history bucket', () => {
-        const historyKeyOf = (uuid, snapshot) => `Binary_4_0_0/${uuid}/${snapshot.resource._blobMeta.hash}`;
+        const historyKeyOf = (uuid, snapshot) => `Binary_4_0_0_History/${uuid}/${snapshot.resource._blobMeta.hash}`;
         // toHaveResponse walks `data` char-by-char and FHIR-validates the body — pathologically slow
         // on an 80 KB payload. Swap the real payloads for short, distinct placeholders on BOTH the
         // response and the fixture before the whole-response compare (the real bytes are asserted
@@ -1621,7 +1622,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         await drainPostRequest(container);
         const seeded = await readBinaryFromMongo(container, id);
         const liveKey = liveKeyOf(seeded);
-        const historyKey = `Binary_4_0_0/${seeded._uuid}/${seeded._blobMeta.hash}`;
+        const historyKey = `Binary_4_0_0_History/${seeded._uuid}/${seeded._blobMeta.hash}`;
 
         const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
         const copySpy = jest.spyOn(historyClient, 'copyObjectAsync');
