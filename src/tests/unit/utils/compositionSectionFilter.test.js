@@ -99,6 +99,42 @@ describe('filterCompositionSensitiveSections', () => {
             expect(resource.section[0].id).toBe('no-code-section');
         });
 
+        test('keeps section when coding has empty system string', () => {
+            const resource = {
+                resourceType: 'Composition',
+                _uuid: 'comp-1',
+                section: [
+                    {
+                        id: 'empty-system-section',
+                        code: { coding: [{ system: '', code: 'restricted' }] }
+                    }
+                ]
+            };
+
+            filterCompositionSensitiveSections(resource, new Set(['restricted']));
+
+            expect(resource.section).toHaveLength(1);
+            expect(resource.section[0].id).toBe('empty-system-section');
+        });
+
+        test('keeps section when coding entries have no system property', () => {
+            const resource = {
+                resourceType: 'Composition',
+                _uuid: 'comp-1',
+                section: [
+                    {
+                        id: 'no-system-prop-section',
+                        code: { coding: [{ code: 'restricted' }] }
+                    }
+                ]
+            };
+
+            filterCompositionSensitiveSections(resource, new Set(['restricted']));
+
+            expect(resource.section).toHaveLength(1);
+            expect(resource.section[0].id).toBe('no-system-prop-section');
+        });
+
         test('keeps sections where code.coding is not an array', () => {
             const resource = {
                 resourceType: 'Composition',

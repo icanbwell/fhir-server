@@ -16,7 +16,7 @@ Here are the examples graphs that $everything uses underneath: https://github.co
 
 here's the $graph implementation: https://github.com/icanbwell/fhir-server/blob/16990bd500d316300ef36d1a305cd8d255e42935/src/services/base/base.service.js#L2305
 
-and unit test for it: https://github.com/icanbwell/fhir-server/tree/main/src/tests/organization/graph
+and unit test for it: https://github.com/icanbwell/fhir-server/tree/main/src/tests/integration/organization/graph
 
 #### GraphDefinition
 

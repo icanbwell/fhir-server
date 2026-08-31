@@ -183,9 +183,9 @@ const createContainer = function () {
         // it automatically without its own BaseSerializer.setConfigManager(...) call. Deliberately
         // NOT read eagerly here: SimpleContainer.register() memoizes on first access, so eagerly
         // reading container.configManager would permanently lock in this instance and silently
-        // defeat src/tests/createTestContainer.js's fnUpdateContainer pattern, which re-registers
+        // defeat src/tests/integration/createTestContainer.js's fnUpdateContainer pattern, which re-registers
         // this exact factory with a test-specific ConfigManager subclass (used by 40+ test files)
-        // -- src/tests/common.js's own explicit setConfigManager call after that override runs is
+        // -- src/tests/integration/common.js's own explicit setConfigManager call after that override runs is
         // what covers the mocked case.
         BaseSerializer.setConfigManager(configManager);
         return configManager;

@@ -401,7 +401,7 @@ class PersonToPatientIdsExpander {
             // does NOT protect a pure patient-scope caller from a cross-tenant Person.link today. An
             // owner-tag same-tenant check was evaluated as a fallback for that case and rejected: this
             // data model's Main-Person-to-Client-Person links are *intentionally* cross-tenant by design
-            // (see review.md §1 and e.g. src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid),
+            // (see review.md §1 and e.g. src/tests/integration/patientScope/search_with_duplicate_patient_id.person_scope_uuid),
             // so "different owner tag" cannot be used to distinguish a legitimate identity-matched link
             // from a malicious/corrupted one -- doing so breaks that core feature. What addresses this
             // case instead is the Person.link assurance gate in the traversal loop below: it excludes
