@@ -2,8 +2,8 @@
 module.exports = {
     watchman: false,
     watchPathIgnorePatterns: ['globalConfig'],
-    globalSetup: '<rootDir>/src/tests/jestGlobalSetup.js',
-    globalTeardown: '<rootDir>/src/tests/jestGlobalTeardown.js',
+    globalSetup: '<rootDir>/src/tests/integration/jestGlobalSetup.js',
+    globalTeardown: '<rootDir>/src/tests/integration/jestGlobalTeardown.js',
     verbose: false,
     testEnvironment: 'node',
     collectCoverage: false,
@@ -23,7 +23,7 @@ module.exports = {
         '<rootDir>/src/graphqlv2/resolvers'
     ],
     testPathIgnorePatterns: [
-        '<rootDir>/src/tests/performance/',
+        '<rootDir>/src/tests/integration/performance/',
         '<rootDir>/.claude/',
         '<rootDir>/src/tests/unit/'
     ],
@@ -32,7 +32,7 @@ module.exports = {
         '<rootDir>/jest/patchClickHouseManager.js',
         '<rootDir>/jest/setEnvVars.js'
     ],
-    setupFilesAfterEnv: ['<rootDir>/src/tests/testSetup.js'],
+    setupFilesAfterEnv: ['<rootDir>/src/tests/integration/testSetup.js'],
     testTimeout: 60000,
     injectGlobals: false
 };

@@ -13,7 +13,7 @@ module.exports = {
     // being removed. Naming the path alone does NOT bypass this list (jest reports "No tests
     // found"); override the list and keep the path BEFORE the flag, since --testPathIgnorePatterns
     // is variadic and would otherwise swallow the path and run the whole suite:
-    //   yarn jest --runInBand --forceExit <path> --testPathIgnorePatterns='src/tests/performance/'
+    //   yarn jest --runInBand --forceExit <path> --testPathIgnorePatterns='src/tests/integration/performance/'
     // A Docker daemon is required either way: globalSetup starts a ClickHouse testcontainer.
     // Remove an entry once its bug is fixed (and reviewed, for security ones).
     testPathIgnorePatterns: [

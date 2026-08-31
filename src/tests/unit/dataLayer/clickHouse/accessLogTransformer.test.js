@@ -109,6 +109,16 @@ describe('AccessLogTransformer', () => {
             });
         });
 
+        test('does not include access_tags property', () => {
+            const doc = {
+                timestamp: '2024-01-15T10:30:00.000Z',
+                request: { id: 'req-123' },
+                agent: { altId: 'user-1' }
+            };
+            const result = transformer.transformDocument(doc);
+            expect(result).not.toHaveProperty('access_tags');
+        });
+
         test('normalizes agent scopes from array', () => {
             const doc = {
                 timestamp: '2024-01-15T10:30:00.000Z',

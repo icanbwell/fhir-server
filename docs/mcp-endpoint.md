@@ -250,11 +250,11 @@ per-request/stateless by construction; there is no separate stateful transport m
 
 ## Testing
 
-- `src/tests/mcp/mcpEndpoint.integration.test.js` — integration coverage via the existing
+- `src/tests/integration/mcp/mcpEndpoint.integration.test.js` — integration coverage via the existing
   `createTestContainer.js`/MongoDB Memory Server pattern: dedicated and generic tool searches match
   equivalent REST results, patient/tenant-scoped tokens restrict results identically to REST/
   GraphQL, error mapping for forbidden/unknown-resource calls, and the audit-cleanup/self-heal path.
-- `src/tests/mcp/mcpResourceAuthorization.integration.test.js` — end-to-end proof, through the
+- `src/tests/integration/mcp/mcpResourceAuthorization.integration.test.js` — end-to-end proof, through the
   real `/mcp` route, that every `docs/resource-authorization.md` mechanism reachable from a
   read-only search surface is actually enforced when driven by MCP's tool-call argument shape:
   access-tag tenant isolation and the `access/*` wildcard bypass (§1, §7), delegated-actor consent
@@ -262,12 +262,12 @@ per-request/stateless by construction; there is no separate stateful transport m
   exclusion for patient-scoped callers (§9), and the `AuditEvent` required-filters gate (§3). See
   `docs/superpowers/plans/2026-08-14-mcp-resource-authorization-test-coverage.md` for why other
   sections of that doc (§2, §4, §6a, §6b, admin/debug params) don't need their own MCP-level test.
-- `src/tests/mcp/dedicated_tools/` — per-tool coverage for all 31 generated dedicated tools.
+- `src/tests/integration/mcp/dedicated_tools/` — per-tool coverage for all 31 generated dedicated tools.
 - `src/tests/unit/mcp/mcpToolHandler.test.js` — unit coverage for `McpToolHandler`, including
   asserting the consent-exclusion merge against `parsedArgs.parsedArgItems` directly (the structure
   the query builder actually reads), not just the cosmetic bracket property.
 - `src/tests/unit/mcp/genericFhirSearchTool.test.js`, `src/tests/unit/routeHandlers/mcpServer.test.js`,
-  `src/tests/mcp/mcpFeatureFlag.test.js` — unit coverage for the generic tool
+  `src/tests/integration/mcp/mcpFeatureFlag.test.js` — unit coverage for the generic tool
   definition, the route handler, and the `ENABLE_MCP` gate.
 - `generatorScripts/mcp/test_generate_mcp_tools.py` — generator unit tests.
 - `src/tests/unit/searchParameters/customSearchParameterQueries.test.js` — characterization

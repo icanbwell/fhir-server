@@ -81,6 +81,35 @@ describe('BulkImportEventProducer', () => {
         expect(result).toBe(0);
     });
 
+    test('message keys include task ID and range index', async () => {
+        await producer.publishImportEventsAsync({
+            taskId: 'task-004',
+            inputs: [{ url: 's3://bucket/file.ndjson', fileSize: 3 * 1024 * 1024 }],
+            requestId: 'req-004', scope: 'user/*.write', user: 'test-user'
+        });
+
+        const { messages } = mockKafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0];
+        expect(messages[0].key).toBe('task-004-0-0');
+        expect(messages[1].key).toBe('task-004-0-1');
+        expect(messages[2].key).toBe('task-004-0-2');
+    });
+
+    test('CloudEvent envelope has required fields', async () => {
+        await producer.publishImportEventsAsync({
+            taskId: 'task-005',
+            inputs: [{ url: 's3://bucket/file.ndjson', fileSize: 100 }],
+            requestId: 'req-005', scope: 'user/*.write', user: 'test-user'
+        });
+
+        const { messages } = mockKafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0];
+        const event = JSON.parse(messages[0].value);
+        expect(event.specversion).toBe('1.0');
+        expect(event.id).toBeDefined();
+        expect(event.source).toBe('https://www.icanbwell.com/fhir-server');
+        expect(event.type).toBe('ImportRangeRequested');
+        expect(event.datacontenttype).toBe('application/json');
+    });
+
     test('calculateTotalRangeCount sums ranges across every input file', () => {
         // 3MB + 0.5MB + exactly 2MB at a 1MB range size -> 3 + 1 + 2 ranges.
         const total = producer.calculateTotalRangeCount([

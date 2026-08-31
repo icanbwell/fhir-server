@@ -23,5 +23,5 @@ The code for this process exists in:
 https://github.com/icanbwell/fhir-server/blob/master/src/dataLayer/databaseBulkInserter.js
 
 The unit tests for this behavior are in:
-https://github.com/icanbwell/fhir-server/blob/master/src/tests/dataLayer/databaseBulkInserter/databaseBulkInserter.test.js
+https://github.com/icanbwell/fhir-server/blob/master/src/tests/integration/dataLayer/databaseBulkInserter/databaseBulkInserter.test.js
 

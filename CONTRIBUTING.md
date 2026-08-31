@@ -71,8 +71,8 @@ Run `make tests` to run all the tests locally. Or click a test in PyCharm and ch
 Note: Logs are set to `SILENT` for unit tests in `jest/setEnvVars.js` file. If you want to enable logging for testcases you can change the `LOGLEVEL` env variable to `DEBUG` and for getting all the logs that might help tracing db calls you can change the `LOGLEVEL` env variable to `SILLY`.
 
 ### Using custom matchers in jest
-- Jest Custom matchers are defined in: https://github.com/icanbwell/fhir-server/blob/main/src/tests/customMatchers.js
-- Any Custom matcher defined needs to be registered in https://github.com/icanbwell/fhir-server/blob/main/src/tests/testSetup.js before it can be used.
+- Jest Custom matchers are defined in: https://github.com/icanbwell/fhir-server/blob/main/src/tests/integration/customMatchers.js
+- Any Custom matcher defined needs to be registered in https://github.com/icanbwell/fhir-server/blob/main/src/tests/integration/testSetup.js before it can be used.
 
 1. toHaveMongoQuery
 
@@ -181,7 +181,7 @@ If you add a new class, you can instantiate it here.
 
 If you add a new parameter to an existing class, you can pass it here.
 
-For testing, you can override the classes in the container in [src/tests/createTestContainer.js](src/tests/createTestContainer.js).
+For testing, you can override the classes in the container in [src/tests/integration/createTestContainer.js](src/tests/integration/createTestContainer.js).
 This allows you to test the code by swapping out classes with your mock classes.
 
 See MockKafka client for an example.

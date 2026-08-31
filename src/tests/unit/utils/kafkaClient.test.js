@@ -155,6 +155,11 @@ describe('KafkaClient', () => {
             });
         });
 
+        test('first-attempt success does NOT emit retry_exhausted', async () => {
+            await kafkaClient.sendMessagesAsync(topic, messages);
+            expect(recordKafkaRetryExhausted).not.toHaveBeenCalled();
+        });
+
         test('connects producer if not already connected', async () => {
             kafkaClient.producerConnected = false;
             await kafkaClient.sendMessagesAsync(topic, messages);

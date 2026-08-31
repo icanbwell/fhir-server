@@ -468,7 +468,7 @@ regression tripwire rather than fixed outright).
   patient-facing app has no `access/` scope on its token to validate a brand-new resource's
   self-assigned owner/access tags against — there's no other mechanism in this codebase for it to
   declare its own tenant identity on create (confirmed empirically against
-  `src/tests/patientScope/create_with_patient_scope/create_with_patient_scope.test.js`, whose real
+  `src/tests/integration/patientScope/create_with_patient_scope/create_with_patient_scope.test.js`, whose real
   fixture creates a `Condition` under a bare `patient/Condition.write` scope carrying its own
   `owner`/`access` tags, no `access/` scope at all). A write against an **existing** resource
   always goes through the real old-vs-new comparison, regardless of caller type, closing the
@@ -517,7 +517,7 @@ regression tripwire rather than fixed outright).
   client-Person linking is *intentionally*
   cross-tenant (`Person.link` connecting a Main Person owned by one tenant to Client Person records
   owned by others is the legitimate identity-matching model, not a leak), confirmed against the
-  real, currently-passing `src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid`
+  real, currently-passing `src/tests/integration/patientScope/search_with_duplicate_patient_id.person_scope_uuid`
   fixture. Covered by `src/tests/unit/utils/personToPatientIdsExpander.crossTenant.test.js`.
 - **FIXED — a caller could add a `Person.link` into a tenant they cannot access, then reach that
   tenant's data via link traversal (§1, §2, §4).** `ResourceValidator.validatePatientReference`
@@ -538,7 +538,7 @@ regression tripwire rather than fixed outright).
   all, a forbidden-shaped rejection (`resourceValidator.js:197`) only if a match exists but none are
   accessible to the caller, and an ambiguous-match rejection (`resourceValidator.js:209`) if more than
   one accessible resource shares a bare id — fail-closed on ambiguity rather than guessing. Covered by
-  `src/tests/merge/merge_person_link_cross_tenant/merge_person_link_cross_tenant.test.js` and
+  `src/tests/integration/merge/merge_person_link_cross_tenant/merge_person_link_cross_tenant.test.js` and
   `src/tests/unit/operations/common/resourceValidator.test.js`. Deliberately scoped to `Person.link`
   only, not a blanket fix for every array-reference field on a non-`user` scope — see the tripwire
   comment left in `resourceValidator.test.js` guarding against that distinction being lost later.
@@ -616,7 +616,7 @@ regression tripwire rather than fixed outright).
   before any ClickHouse query runs unless the caller has an access tag, an owner tag, or full access,
   and `_normalizeTenantContext` (`:61`), which treats a malformed/omitted `securityContext` as
   empty-restricted rather than unrestricted. Covered by
-  `mongoWithClickHouseStorageProvider.test.js` and `src/tests/group/group_clickhouse_id_and_tenant.test.js`.
+  `mongoWithClickHouseStorageProvider.test.js` and `src/tests/integration/group/group_clickhouse_id_and_tenant.test.js`.
 - **FIXED — `ExportStatus` read denial used `ForbiddenError` (403), letting the response distinguish
   "exists, not mine" from "doesn't exist" — the existence-oracle pattern §11's closing paragraph warns
   about generally (§1, §11).** `exportById.js` now throws `NotFoundError` (not `ForbiddenError`) on
