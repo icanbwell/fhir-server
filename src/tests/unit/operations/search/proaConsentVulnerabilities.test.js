@@ -267,14 +267,23 @@ describe('VULNERABILITY 3: DataSharingManager caches allowedPatientIds ignoring 
     it('allowedPatientIds cache MUST be keyed on securityTags so different tags get fresh consent check', async () => {
         const requestId = 'request-cross-security';
 
-        // Pre-populate the patient-level cache (simulating first resource type query)
-        const cacheMap = requestSpecificCache.getMap({ requestId, name: 'dataSharingManager' });
-        cacheMap.set('patientIdToImmediatePersonUuid', { 'patient-uuid-1': ['person-uuid-1'] });
-        cacheMap.set('patientsList', [{
-            id: 'p1', _sourceId: 'p1', _uuid: 'patient-uuid-1',
-            meta: { security: [{ system: 'https://www.icanbwell.com/connectionType', code: 'proa' }] }
-        }]);
-        cacheMap.set('personToLinkedPatientsMap', new Map([['person-uuid-1', ['Patient/patient-uuid-1']]]));
+        // Pre-populate the patient-level identity-resolution cache for BOTH securityTags
+        // contexts (simulating that patient/person identity was already resolved earlier in
+        // the request, e.g. by an earlier resource-type query) using the manager's real,
+        // securityTags-scoped cache key (see getDataSharingManagerCache). This isolates the
+        // allowedPatientIds/consent-caching behavior under test instead of also exercising the
+        // real DB-backed getPatientsList path.
+        const seedPatientIdentityCache = (securityTags) => {
+            const cacheMap = dataSharingManager.getDataSharingManagerCache({ requestId, securityTags });
+            cacheMap.set('patientIdToImmediatePersonUuid', { 'patient-uuid-1': ['person-uuid-1'] });
+            cacheMap.set('patientsList', [{
+                id: 'p1', _sourceId: 'p1', _uuid: 'patient-uuid-1',
+                meta: { security: [{ system: 'https://www.icanbwell.com/connectionType', code: 'proa' }] }
+            }]);
+            cacheMap.set('personToLinkedPatientsMap', new Map([['person-uuid-1', ['Patient/patient-uuid-1']]]));
+        };
+        seedPatientIdentityCache(['client-A']);
+        seedPatientIdentityCache(['client-B']);
 
         // First call with securityTags=['client-A'] - patient HAS consent for client-A
         mockProaConsentManager.getPatientIdsWithConsent = jest.fn()
