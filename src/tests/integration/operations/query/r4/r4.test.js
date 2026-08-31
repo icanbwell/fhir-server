@@ -945,8 +945,7 @@ describe('r4 search Tests', () => {
                 ]
             });
         });
-        test.skip('r4 works with date with microseconds in Observation', async () => {
-            // TODO: Fix dateQueryBuilder() first
+        test('r4 works with date with milliseconds in Observation', async () => {
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
                 container.register('indexProvider', (c) => new MockIndexProvider({
@@ -978,44 +977,48 @@ describe('r4 search Tests', () => {
             });
             expect(result.query).toStrictEqual(
                 {
-                    $or: [
+                    $and: [
                         {
-                            effectiveDateTime: {
-                                $options: 'i',
-                                $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
-                            }
-                        },
-                        {
-                            $and: [
+                            $or: [
                                 {
-                                    'effectivePeriod.start': {
+                                    effectiveDateTime: {
+                                        $options: 'i',
+                                        $regex: /^(?:2019-10-16T22:12)|(?:2019-10-16T22:12:29.000Z)|(?:2019$)|(?:2019-10$)|(?:2019-10-16$)|(?:2019-10-16T22:12Z?$)/
+                                    }
+                                },
+                                {
+                                    'effectiveTiming.event': {
                                         $lte: '2019-10-16T22:12:29+00:00'
                                     }
                                 },
                                 {
-                                    $or: [
-                                        {
-                                            'effectivePeriod.end': {
-                                                $gte: '2019-10-16T22:12:29+00:00'
-                                            }
-                                        },
-                                        {
-                                            'effectivePeriod.end': null
-                                        }
-                                    ]
+                                    effectiveInstant: {
+                                        $gte: new Date('2019-10-16T00:00:00.000Z'),
+                                        $lte: new Date('2019-10-16T23:59:59.999Z')
+                                    }
+                                },
+                                {
+                                    'effectivePeriod.start': { $lte: '2019-10-16T22:12:29+00:00' },
+                                    'effectivePeriod.end': { $gte: '2019-10-16T22:12:29+00:00' }
+                                },
+                                {
+                                    'effectivePeriod.start': { $lte: '2019-10-16T22:12:29+00:00' },
+                                    'effectivePeriod.end': null
+                                },
+                                {
+                                    'effectivePeriod.end': { $gte: '2019-10-16T22:12:29+00:00' },
+                                    'effectivePeriod.start': null
                                 }
                             ]
                         },
                         {
-                            effectiveTiming: {
-                                $options: 'i',
-                                $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
-                            }
-                        },
-                        {
-                            effectiveInstant: {
-                                $options: 'i',
-                                $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
+                            'meta.tag': {
+                                $not: {
+                                    $elemMatch: {
+                                        system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
+                                        code: 'hidden'
+                                    }
+                                }
                             }
                         }
                     ]

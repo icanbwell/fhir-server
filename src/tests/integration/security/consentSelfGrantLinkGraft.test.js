@@ -148,12 +148,10 @@ describe('SEC-1580 W-chain: consent self-grant + Person.link graft (Task 1.1)', 
         await commonAfterEach();
     });
 
-    // Confirmed open against current main: Tenant A's patient demographic record leaks into
-    // Tenant B's $everything bundle. Root cause is the Person.link write path (resourceValidator's
-    // isUser-gated array check never runs for user/*+access/* callers) -- DCON-4844 closes that
-    // gap but is not yet merged. Skipped (not file-quarantined) so the file's other two tests --
-    // real, currently-passing regression guards -- still run in CI. See DCON-4847.
-    test.skip('the full exploit sequence: self-granted consent + link graft leaks tenant A data via $everything', async () => {
+    // DCON-4844 closed this gap (resourceValidator's isUser-gated array check now applies to
+    // user/*+access/* callers too, blocking the Person.link graft) -- un-skipped since this now
+    // passes against current main. See DCON-4847.
+    test('the full exploit sequence: self-granted consent + link graft leaks tenant A data via $everything', async () => {
         const request = await createTestRequest();
 
         // Tenant A: owns patA (PROA-connectionType-tagged, matching the default consent-connection
