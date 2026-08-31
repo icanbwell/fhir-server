@@ -467,7 +467,7 @@ describe('Base64DataManager — BLOB_OP.DELETE (unit-only)', () => {
             _blobMeta: { hash, rawSize: 1, lastUpdated }
         };
         await mgr.transformAsync(resource, BLOB_OP.DELETE);
-        expect(historyClient.uploadedData[`Binary_4_0_0/uuid-d1/${hash}`]).toBe(data);
+        expect(historyClient.uploadedData[`Binary_4_0_0_History/uuid-d1/${hash}`]).toBe(data);
         expect(resource.data).toBeUndefined();
         expect(resource._blobMeta).toEqual({ hash, rawSize: 1, lastUpdated });
     });
@@ -484,7 +484,7 @@ describe('Base64DataManager — BLOB_OP.DELETE (unit-only)', () => {
         };
         await mgr.transformAsync(resource, BLOB_OP.DELETE);
         expect(downloadSpy).not.toHaveBeenCalled();
-        expect(historyClient.uploadedData[`Binary_4_0_0/uuid-d2/${hash}`]).toBe(data);
+        expect(historyClient.uploadedData[`Binary_4_0_0_History/uuid-d2/${hash}`]).toBe(data);
         expect(resource.data).toBeUndefined();
     });
 
@@ -493,7 +493,7 @@ describe('Base64DataManager — BLOB_OP.DELETE (unit-only)', () => {
         const data = 'QQ==';
         const hash = await computeContentHashAsync(data);
         const lastUpdated = new Date('2026-07-10T00:00:00.000Z');
-        const historyKey = `Binary_4_0_0/uuid-d3/${hash}`;
+        const historyKey = `Binary_4_0_0_History/uuid-d3/${hash}`;
         // Seeded — simulates an earlier version with identical content already persisted to history.
         historyClient.uploadedData[historyKey] = data;
         const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
@@ -515,7 +515,7 @@ describe('Base64DataManager — BLOB_OP.DELETE (unit-only)', () => {
         const resource = { resourceType: 'Binary', id: 'd4', _uuid: 'uuid-d4', meta: { lastUpdated }, data };
         await mgr.transformAsync(resource, BLOB_OP.DELETE);
         const hash = await computeContentHashAsync(data);
-        expect(historyClient.uploadedData[`Binary_4_0_0/uuid-d4/${hash}`]).toBe(data);
+        expect(historyClient.uploadedData[`Binary_4_0_0_History/uuid-d4/${hash}`]).toBe(data);
         expect(resource.data).toBeUndefined();
         expect(resource._blobMeta).toEqual({ hash, rawSize: 2, lastUpdated });
     });

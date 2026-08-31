@@ -40,7 +40,7 @@ const UNCHANGED_LEAF_CACHE_NAME = 'base64DataManager.unchangedLeaf';
  *              via `If-None-Match` and never regenerated once superseded, so a stale key can be
  *              deleted with no cross-check.
  *            - history (`historyResourceCloudStorageClient`): every version, keyed by content hash
- *              `{Type}_4_0_0/{uuid}/{hash}` (`_buildHistoryKey`).
+ *              `{Type}_4_0_0_History/{uuid}/{hash}` (`_buildHistoryKey`).
  *
  *            Flows (detailed on each method): INSERT (`transformAsync` + `BLOB_OP.INSERT`) uploads
  *            over-threshold leaves and writes the sidecar; RETRIEVE downloads bytes back onto `data`
@@ -1450,7 +1450,7 @@ class Base64DataManager {
      * @private
      */
     _buildHistoryKey (resourceType, uuid, hash) {
-        return `${resourceType}_4_0_0/${uuid}/${hash}`;
+        return `${resourceType}_4_0_0_History/${uuid}/${hash}`;
     }
 
     /**
