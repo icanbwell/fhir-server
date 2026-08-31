@@ -8,12 +8,12 @@
 const { describe, test, expect, afterEach, jest: jestGlobal } = require('@jest/globals');
 const supertest = require('supertest');
 
-const actualMcpServerModule = jestGlobal.requireActual('../../routeHandlers/mcpServer');
+const actualMcpServerModule = jestGlobal.requireActual('../../../routeHandlers/mcpServer');
 const mcpServerConstructorSpy = jestGlobal.fn().mockImplementation(
     (...args) => new actualMcpServerModule.McpServer(...args)
 );
 
-jestGlobal.mock('../../routeHandlers/mcpServer', () => ({
+jestGlobal.mock('../../../routeHandlers/mcpServer', () => ({
     McpServer: function (...args) {
         return mcpServerConstructorSpy(...args);
     }
