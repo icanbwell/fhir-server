@@ -51,7 +51,7 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/subscription/subscription.crossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/subscription/webhookPhiLeakage.test.js',
         // personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js entry removed here:
-        // DCON-4894 closed this gap (Person.link assurance enforcement) and the test now
+        // the underlying gap (Person.link assurance enforcement) is closed and the test now
         // passes against current main -- see the file's updated top-of-file comment.
     ],
     transformIgnorePatterns: ['node_modules/(?!(uuid|jose|@kubernetes/client-node|luxon|openid-client|oauth4webapi)/)'],

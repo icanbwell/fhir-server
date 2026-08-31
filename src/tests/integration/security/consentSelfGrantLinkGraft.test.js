@@ -136,7 +136,7 @@ function uuidOf (mergeResults, id) {
     return mergeResults.find(r => r.id === id).uuid;
 }
 
-describe('SEC-1580 W-chain: consent self-grant + Person.link graft (Task 1.1)', () => {
+describe('W-chain: consent self-grant + Person.link graft (Task 1.1)', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {
@@ -148,9 +148,9 @@ describe('SEC-1580 W-chain: consent self-grant + Person.link graft (Task 1.1)', 
         await commonAfterEach();
     });
 
-    // DCON-4844 closed this gap (resourceValidator's isUser-gated array check now applies to
+    // The underlying gap is closed (resourceValidator's isUser-gated array check now applies to
     // user/*+access/* callers too, blocking the Person.link graft) -- un-skipped since this now
-    // passes against current main. See DCON-4847.
+    // passes against current main.
     test('the full exploit sequence: self-granted consent + link graft leaks tenant A data via $everything', async () => {
         const request = await createTestRequest();
 
