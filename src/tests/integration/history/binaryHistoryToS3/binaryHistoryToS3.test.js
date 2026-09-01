@@ -46,19 +46,31 @@ const { MigrateToCloudStorageRunner } = require('../../../../operations/history/
 
 describe('Binary history resource S3 read test', () => {
     let requestId;
-    let historyResourceCloudStorageBucket;
-    let historyResourceCloudStorageClient;
+    let savedEnv;
 
     beforeAll(() => {
-        historyResourceCloudStorageBucket = process.env.HISTORY_RESOURCE_BUCKET_NAME;
-        historyResourceCloudStorageClient = process.env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT;
+        savedEnv = {
+            HISTORY_RESOURCE_BUCKET_NAME: process.env.HISTORY_RESOURCE_BUCKET_NAME,
+            HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT: process.env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT,
+            BASE64_FIELD_CLOUD_STORAGE_ENABLED: process.env.BASE64_FIELD_CLOUD_STORAGE_ENABLED,
+            BASE64_FIELD_CLOUD_STORAGE_CLIENT: process.env.BASE64_FIELD_CLOUD_STORAGE_CLIENT,
+            RESOURCE_BUCKET_NAME: process.env.RESOURCE_BUCKET_NAME
+        };
         process.env.HISTORY_RESOURCE_BUCKET_NAME = 'test';
         process.env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT = CLOUD_STORAGE_CLIENTS.S3_CLIENT;
+        process.env.BASE64_FIELD_CLOUD_STORAGE_ENABLED = '1';
+        process.env.BASE64_FIELD_CLOUD_STORAGE_CLIENT = CLOUD_STORAGE_CLIENTS.S3_CLIENT;
+        process.env.RESOURCE_BUCKET_NAME = 'test-live';
     });
 
     afterAll(() => {
-        process.env.HISTORY_RESOURCE_BUCKET_NAME = historyResourceCloudStorageBucket;
-        process.env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT = historyResourceCloudStorageClient;
+        for (const [key, value] of Object.entries(savedEnv)) {
+            if (value === undefined) {
+                delete process.env[key];
+            } else {
+                process.env[key] = value;
+            }
+        }
     });
 
     beforeEach(async () => {
@@ -79,6 +91,18 @@ describe('Binary history resource S3 read test', () => {
                     if (c.configManager.historyResourceCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT){
                         return new MockS3Client({
                             bucketName: c.configManager.historyResourceBucketName,
+                            region: c.configManager.awsRegion
+                        })
+                    }
+                    return null;
+                }
+            );
+            c.register(
+                'base64FieldCloudStorageClient',
+                (c) => {
+                    if (c.configManager.base64FieldCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT){
+                        return new MockS3Client({
+                            bucketName: c.configManager.resourceBucketName,
                             region: c.configManager.awsRegion
                         })
                     }
@@ -311,6 +335,90 @@ describe('Binary history resource S3 read test', () => {
 
         expect(mockDownloadInBatchAsync).toHaveBeenCalledTimes(0);
         expect(mockDownloadAsync).toHaveBeenCalledTimes(0);
-        process.env.CLOUD_STORAGE_HISTORY_RESOURCES = cloudStorageHistoryResources;
+        if (cloudStorageHistoryResources === undefined) {
+            delete process.env.CLOUD_STORAGE_HISTORY_RESOURCES;
+        } else {
+            process.env.CLOUD_STORAGE_HISTORY_RESOURCES = cloudStorageHistoryResources;
+        }
+    });
+
+    test('Binary history already migrated to S3 with a base64 _blobMeta sidecar can still be read after disabling ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION', async () => {
+        const enableHistoryToCloudStorageMigration = process.env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION;
+
+        const request = await createTestRequest();
+        const container = getTestContainer();
+        for (const methodName of ['downloadInBatchAsync', 'downloadAsync', 'uploadAsync']) {
+            const method = container.historyResourceCloudStorageClient[methodName];
+            if (jest.isMockFunction(method)) {
+                method.mockRestore();
+            }
+        }
+
+        const id = 'binary-double-externalized';
+        const largeData = 'A'.repeat(80 * 1024);
+
+        const binaryResource = {
+            resourceType: 'Binary',
+            id,
+            meta: {
+                source: 'https://connect.medlineplus.gov/service',
+                security: [
+                    { system: 'https://www.icanbwell.com/owner', code: 'client1' },
+                    { system: 'https://www.icanbwell.com/access', code: 'client1' },
+                    { system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'client1' }
+                ]
+            },
+            contentType: 'text/html',
+            data: largeData
+        };
+
+        let resp = await request.put(`/4_0_0/Binary/${id}`).send(binaryResource).set(getHeaders());
+        expect(resp.statusCode).toBe(201);
+
+        const postRequestProcessor = container.postRequestProcessor;
+        await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+        const mongoDatabaseManager = container.mongoDatabaseManager;
+        const resourceHistoryDb = await mongoDatabaseManager.getResourceHistoryDbAsync();
+        const binaryHistoryCollection = resourceHistoryDb.collection('Binary_4_0_0_History');
+
+        const historyDocsBeforeMigration = await binaryHistoryCollection.find({ 'resource._sourceId': id }).toArray();
+        expect(historyDocsBeforeMigration.length).toBe(1);
+        expect(historyDocsBeforeMigration[0].resource._blobMeta).toBeDefined();
+        expect(historyDocsBeforeMigration[0].resource.data).toBeUndefined();
+
+        await binaryHistoryCollection.updateMany(
+            { 'resource._sourceId': id },
+            { $set: { 'resource.meta.lastUpdated': new Date(Date.now() - 2 * HISTORY_MIGRATION_LAST_UPDATED_DEFAULT_TIME) } }
+        );
+
+        const migrateToCloudStorageRunner = container.migrateToCloudStorageRunner;
+        await migrateToCloudStorageRunner.processAsync();
+
+        const historyDocsAfterMigration = await binaryHistoryCollection.find({ 'resource._sourceId': id }).toArray();
+        expect(historyDocsAfterMigration.length).toBe(1);
+        expect(historyDocsAfterMigration[0]._ref).toBeDefined();
+        expect(historyDocsAfterMigration[0].resource._blobMeta).toBeUndefined();
+
+        process.env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION = 'false';
+        expect(container.configManager.enableHistoryToCloudStorageMigration).toBe(false);
+
+        try {
+            resp = await request.get(`/4_0_0/Binary/${id}/_history`).set(getHeaders());
+            expect(resp.statusCode).toBe(200);
+            expect(resp.body.entry.length).toBe(1);
+            expect(resp.body.entry[0].resource.data).toBe(largeData);
+            expect(resp.body.entry[0].resource._blobMeta).toBeUndefined();
+
+            resp = await request.get(`/4_0_0/Binary/${id}/_history/1`).set(getHeaders());
+            expect(resp.statusCode).toBe(200);
+            expect(resp.body.data).toBe(largeData);
+        } finally {
+            if (enableHistoryToCloudStorageMigration === undefined) {
+                delete process.env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION;
+            } else {
+                process.env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION = enableHistoryToCloudStorageMigration;
+            }
+        }
     });
 });

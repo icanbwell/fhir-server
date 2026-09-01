@@ -911,6 +911,13 @@ class ConfigManager {
         return env.HISTORY_CRON_JOB_MIGRATION_LIMIT ? parseInt(env.HISTORY_CRON_JOB_MIGRATION_LIMIT) : 100000;
     }
 
+    get enableHistoryToCloudStorageMigration() {
+        if (env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION === null || env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION === undefined) {
+            return true;
+        }
+        return isTrue(env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION);
+    }
+
     /**
      * Number of elements in a batch of MongoDB IN query
      * @returns {boolean}
