@@ -329,6 +329,57 @@ class EverythingHelper {
     }
 
     /**
+     * Resolves the caller's own requested Person id(s) (scopedPersonIds -- only ever populated
+     * for a genuine Person/$everything request, or a client-issued proxy-patient
+     * Patient/person.<id>/$everything request) to their canonical Person `_uuid`s. Used to seed
+     * the Subscription-family (Subscription/SubscriptionStatus/SubscriptionTopic) `client_person_id`
+     * match independent of Patient-rooted traversal discovery, so that a broken Patient<->Person
+     * link (e.g. after a data connection is deleted) doesn't make this resource family
+     * unreachable -- see personUuidsForCustomQuery in retrieveEverythingAsync.
+     *
+     * Deliberately NOT re-applying a tenant/access-tag filter here: this id was already
+     * access-tag-verified upstream (PatientProxyQueryRewriter / PersonToPatientIdsExpander
+     * unconditionally checks access tags at every Person hop it resolves, for every
+     * Person/$everything and proxy-patient request, regardless of the PROA/consent feature
+     * flag) before this code ever runs. The uuids returned here are only ever combined via a
+     * `$and` on top of the already tenant/access-tag-scoped `query` built by
+     * searchManager.constructQueryAsync earlier in retriveveRelatedResourcesParallelyAsync (the
+     * standard security-tag filter, or the PROA-consent OR-branch) -- a uuid that doesn't belong
+     * to the caller's tenant simply won't match any Subscription* document that already passed
+     * that filter, so this cannot be used to widen access. If this result is ever consumed
+     * anywhere NOT already gated by that same base `query` via `$and`, this reasoning no longer
+     * holds and a tenant/access-tag check must be added at that call site directly.
+     * @param {string[]} scopedPersonIds
+     * @param {string} base_version
+     * @returns {Promise<string[]>}
+     */
+    async resolvePersonUuidsFromScopedIdsAsync({ scopedPersonIds, base_version }) {
+        if (!scopedPersonIds || scopedPersonIds.length === 0) {
+            return [];
+        }
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Person',
+            base_version
+        });
+        const query = FilterById.getListFilter(scopedPersonIds);
+        const options = {
+            projection: {
+                _uuid: 1,
+                _id: 0
+            }
+        };
+        const cursor = await databaseQueryManager.findAsync({ query, options });
+        const uuids = [];
+        while (await cursor.hasNext()) {
+            const personDoc = await cursor.next();
+            if (personDoc?._uuid) {
+                uuids.push(personDoc._uuid);
+            }
+        }
+        return uuids;
+    }
+
+    /**
      * Get cache key for a given request
      * @param {ParsedArgs} parsedArgs
      * @param {FhirRequestInfo} requestInfo
@@ -792,8 +843,12 @@ class EverythingHelper {
             // Subscription custom queries match on Person as well, so Person must be fetched (to
             // collect its identifiers) even when a _type filter would otherwise exclude it.
             // allowedToBeSent('Person') still governs whether Person is emitted in the response.
+            // Only needed when the dedicated subscription fetch step below will actually run
+            // (isPersonEverything) -- see that step for why Subscription-family resources are
+            // skipped entirely otherwise.
             if (
                 subscriptionRelatedResources.length > 0 &&
+                isPersonEverything &&
                 !clinicalRelatedResources.some((r) => r.type === 'Person')
             ) {
                 clinicalRelatedResources.push(
@@ -991,13 +1046,33 @@ class EverythingHelper {
 
             // Dedicated subscription fetch step. Runs after all clinical resources (so every Person
             // has been discovered) but before non-clinical expansion (so non-clinical resources
-            // referenced by subscriptions are still expanded). Subscriptions match on the patient
-            // identifiers AND on any discovered Person _uuid (client_person_id).
-            if (subscriptionRelatedResources.length > 0) {
-                // Sorted so the generated $in clause is deterministic (stable query across runs).
-                const personUuidsForCustomQuery = Array.from(personResourcesProcessedTracker.uuidSet)
-                    .map((uuidKey) => uuidKey.split('/')[1])
-                    .sort();
+            // referenced by subscriptions are still expanded).
+            //
+            // Subscription/SubscriptionStatus/SubscriptionTopic are only ever fetched for a genuine
+            // Person/$everything request (isPersonEverything) -- they are intentionally not returned
+            // for Patient/$everything (real Patient id) or a client-issued proxy-patient
+            // Patient/person.<id>/$everything request, per the Person-scoping RFC. They match on any
+            // discovered Person _uuid (client_person_id), seeded both from Person resources found
+            // during clinical traversal AND from the caller's own requested Person id(s)
+            // (scopedPersonIds) directly -- the latter so a broken Patient<->Person link (e.g. after
+            // a data connection is deleted) doesn't make this resource family unreachable, which was
+            // the bug this resolves. bypassParentIdentifierGuard tells
+            // retriveveRelatedResourcesParallelyAsync not to require any Patient-side identifier for
+            // this call, since Subscription-family resolution is Person-only here.
+            if (subscriptionRelatedResources.length > 0 && isPersonEverything) {
+                let personUuidsForCustomQuery = Array.from(personResourcesProcessedTracker.uuidSet)
+                    .map((uuidKey) => uuidKey.split('/')[1]);
+
+                if (scopedPersonIds?.length > 0) {
+                    const scopedPersonUuids = await this.resolvePersonUuidsFromScopedIdsAsync({
+                        scopedPersonIds,
+                        base_version
+                    });
+                    personUuidsForCustomQuery = personUuidsForCustomQuery.concat(scopedPersonUuids);
+                }
+
+                // Dedupe and sort so the generated $in clause is deterministic (stable query across runs).
+                personUuidsForCustomQuery = Array.from(new Set(personUuidsForCustomQuery)).sort();
 
                 let { entities: subscriptionEntities, queryItems: subscriptionQueryItems, optionsForQueries: subscriptionOptions } = await this.retriveveRelatedResourcesParallelyAsync({
                     requestInfo,
@@ -1022,6 +1097,7 @@ class EverythingHelper {
                     personUuidsForCustomQuery,
                     scopedPersonIds,
                     isPersonEverything,
+                    bypassParentIdentifierGuard: true,
                     streamedResources
                 });
 
@@ -1410,6 +1486,12 @@ class EverythingHelper {
      *  the requested Person ids, used to restrict returned Person resources to only these ids
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
+     * @property {boolean} [bypassParentIdentifierGuard] - when true, skip the "no Patient-side
+     *  identifier -> return/skip nothing" behavior (both the whole-function early return and the
+     *  per-relatedResourceType patient-match skip) and resolve purely via matchPerson/
+     *  personUuidsForCustomQuery instead. Only ever set from the dedicated Subscription-family
+     *  fetch step for a genuine Person/$everything request -- never from the main clinical-resource
+     *  traversal, which must still require a real Patient-side identifier.
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {_uuid: string, resourceType: string}[]}>}
@@ -1438,6 +1520,7 @@ class EverythingHelper {
         personUuidsForCustomQuery = [],
         scopedPersonIds,
         isPersonEverything,
+        bypassParentIdentifierGuard = false,
         streamedResources = []
     }
     ) {
@@ -1472,7 +1555,7 @@ class EverythingHelper {
             parentResourceTypeAndIdList = [...parentResourceTypeAndIdList, ...proxyPatientIds.map(id => PATIENT_REFERENCE_PREFIX + id)]
         }
 
-        if (parentResourceTypeAndIdList.length === 0) {
+        if (parentResourceTypeAndIdList.length === 0 && !bypassParentIdentifierGuard) {
             return {
                 entities: bundleEntries,
                 queryItems
@@ -1624,15 +1707,19 @@ class EverythingHelper {
                         query.$and.push(customParentQuery[0]);
                     } else if (customParentQuery.length > 1) {
                         query.$or = (query.$or || []).concat(customParentQuery);
-                    } else {
+                    } else if (!bypassParentIdentifierGuard) {
                         continue;
                     }
+                    // else (bypassParentIdentifierGuard): no Patient-side identifier to constrain
+                    // on -- leave `query` as the already tenant/access-tag-scoped base query
+                    // untouched here, and fall through to resolve purely via matchPerson below.
                 }
 
                 // Subscription resources also link to the member via the Person _uuid stored under
                 // the client_person_id system. Apply this as a top-level $and so the returned
                 // subscriptions are restricted to any discovered Person, in addition to the
-                // patient match above.
+                // patient match above (or, when bypassParentIdentifierGuard is set, as the sole
+                // condition beyond the base tenant/access-tag-scoped query).
                 if (filterTemplateCustomQuery.matchPerson) {
                     if (personUuidsForCustomQuery.length > 0) {
                         const keyMap = SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField];
