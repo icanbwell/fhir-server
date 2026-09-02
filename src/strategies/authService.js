@@ -306,36 +306,32 @@ class AuthService {
             context.subject = jwt_payload['sub'];
             context.username = context.personIdFromJwtToken;
             const isAllowedUserType = this.allowedJWTUserTypes.includes(jwt_payload.user_type);
-            if (this.configManager.enableDelegatedAccessDetection && jwt_payload.act) {
-                if (isAllowedUserType) {
-                    // cms-partner takes precedence over delegation; act claim is ignored.
-                    logInfo('Ignoring act claim on a token with an allowed (cms-partner) user_type', {
-                        reason: 'cms_partner_token_with_act_claim',
-                        userType: jwt_payload.user_type
-                    });
-                } else {
-                    const result = this.processForDelegatedActor({ jwt_payload });
-                    if (result.failure) {
-                        done(null, false, { reason: 'delegated_actor_failure' });
-                        return;
-                    } else if (result.actor) {
-                        context.actor = result.actor;
-                        context.userType = AUTH_USER_TYPES.delegatedUser;
-
-                        if (Array.isArray(jwt_payload.entitlements)) {
-                            context.purposeOfUse = jwt_payload.entitlements;
-                        }
-                    }
-                }
-            }
-            // if userType is not already set through delegated access detection,
-            // accept user_type claim only when it is one of the allowed values
-            if (!context.userType && isAllowedUserType) {
+            if (isAllowedUserType) {
                 context.userType = jwt_payload.user_type;
                 // Initialized empty object to attach the consent policy
                 context.actor = {};
                 if (Array.isArray(jwt_payload.entitlements)) {
                     context.purposeOfUse = jwt_payload.entitlements;
+                }
+                if (jwt_payload.act) {
+                    logInfo('cms-partner token also carries an act claim; act claim is not used', {
+                        reason: 'cms_partner_token_with_act_claim',
+                        userType: jwt_payload.user_type
+                    });
+                }
+            }
+            if (this.configManager.enableDelegatedAccessDetection && jwt_payload.act && !context.userType) {
+                const result = this.processForDelegatedActor({ jwt_payload });
+                if (result.failure) {
+                    done(null, false, { reason: 'delegated_actor_failure' });
+                    return;
+                } else if (result.actor) {
+                    context.actor = result.actor;
+                    context.userType = AUTH_USER_TYPES.delegatedUser;
+
+                    if (Array.isArray(jwt_payload.entitlements)) {
+                    context.purposeOfUse = jwt_payload.entitlements;
+                }
                 }
             }
         }
