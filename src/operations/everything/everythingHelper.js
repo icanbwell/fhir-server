@@ -1056,9 +1056,9 @@ class EverythingHelper {
             // during clinical traversal AND from the caller's own requested Person id(s)
             // (scopedPersonIds) directly -- the latter so a broken Patient<->Person link (e.g. after
             // a data connection is deleted) doesn't make this resource family unreachable, which was
-            // the bug this resolves. bypassParentIdentifierGuard tells
-            // retriveveRelatedResourcesParallelyAsync not to require any Patient-side identifier for
-            // this call, since Subscription-family resolution is Person-only here.
+            // the bug this resolves. retriveveRelatedResourcesParallelyAsync itself drops the
+            // Patient-side requirement for a matchPerson (Subscription-family) customQuery when
+            // isPersonEverything is true, since resolution is Person-only here -- see there.
             if (subscriptionRelatedResources.length > 0 && isPersonEverything) {
                 let personUuidsForCustomQuery = Array.from(personResourcesProcessedTracker.uuidSet)
                     .map((uuidKey) => uuidKey.split('/')[1]);
@@ -1097,7 +1097,6 @@ class EverythingHelper {
                     personUuidsForCustomQuery,
                     scopedPersonIds,
                     isPersonEverything,
-                    bypassParentIdentifierGuard: true,
                     streamedResources
                 });
 
@@ -1485,13 +1484,9 @@ class EverythingHelper {
      * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
      *  the requested Person ids, used to restrict returned Person resources to only these ids
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
-     *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
-     * @property {boolean} [bypassParentIdentifierGuard] - when true, skip the "no Patient-side
-     *  identifier -> return/skip nothing" behavior (both the whole-function early return and the
-     *  per-relatedResourceType patient-match skip) and resolve purely via matchPerson/
-     *  personUuidsForCustomQuery instead. Only ever set from the dedicated Subscription-family
-     *  fetch step for a genuine Person/$everything request -- never from the main clinical-resource
-     *  traversal, which must still require a real Patient-side identifier.
+     *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion.
+     *  Also lets a matchPerson (Subscription-family) customQuery resolve without any Patient-side
+     *  identifier -- see the matchPerson handling below.
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {_uuid: string, resourceType: string}[]}>}
@@ -1520,7 +1515,6 @@ class EverythingHelper {
         personUuidsForCustomQuery = [],
         scopedPersonIds,
         isPersonEverything,
-        bypassParentIdentifierGuard = false,
         streamedResources = []
     }
     ) {
@@ -1555,7 +1549,12 @@ class EverythingHelper {
             parentResourceTypeAndIdList = [...parentResourceTypeAndIdList, ...proxyPatientIds.map(id => PATIENT_REFERENCE_PREFIX + id)]
         }
 
-        if (parentResourceTypeAndIdList.length === 0 && !bypassParentIdentifierGuard) {
+        // isPersonEverything: don't bail out here just because there's no Patient-side identifier --
+        // a matchPerson (Subscription-family) customQuery can still resolve via personUuidsForCustomQuery
+        // alone below. Every other resource type in this loop still requires a real identifier match
+        // (see the matchPerson-scoped check further down) and simply returns nothing for itself if
+        // there isn't one, so this relaxation cannot widen what a non-matchPerson resource type returns.
+        if (parentResourceTypeAndIdList.length === 0 && !isPersonEverything) {
             return {
                 entities: bundleEntries,
                 queryItems
@@ -1707,19 +1706,23 @@ class EverythingHelper {
                         query.$and.push(customParentQuery[0]);
                     } else if (customParentQuery.length > 1) {
                         query.$or = (query.$or || []).concat(customParentQuery);
-                    } else if (!bypassParentIdentifierGuard) {
+                    } else if (!(isPersonEverything && filterTemplateCustomQuery.matchPerson)) {
                         continue;
                     }
-                    // else (bypassParentIdentifierGuard): no Patient-side identifier to constrain
-                    // on -- leave `query` as the already tenant/access-tag-scoped base query
-                    // untouched here, and fall through to resolve purely via matchPerson below.
+                    // else (isPersonEverything && matchPerson -- the Subscription-family, Person/
+                    // $everything case): no Patient-side identifier to constrain on -- leave `query`
+                    // as the already tenant/access-tag-scoped base query untouched here, and fall
+                    // through to resolve purely via matchPerson below. Every other customQuery
+                    // resource type (e.g. BiologicallyDerivedProduct, which has no matchPerson) still
+                    // hits the `continue` above and correctly returns nothing for itself when there's
+                    // no Patient-side identifier -- this drop only ever applies to a matchPerson query.
                 }
 
                 // Subscription resources also link to the member via the Person _uuid stored under
                 // the client_person_id system. Apply this as a top-level $and so the returned
                 // subscriptions are restricted to any discovered Person, in addition to the
-                // patient match above (or, when bypassParentIdentifierGuard is set, as the sole
-                // condition beyond the base tenant/access-tag-scoped query).
+                // patient match above (or, for a genuine Person/$everything request, as the sole
+                // condition beyond the base tenant/access-tag-scoped query -- see above).
                 if (filterTemplateCustomQuery.matchPerson) {
                     if (personUuidsForCustomQuery.length > 0) {
                         const keyMap = SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField];
