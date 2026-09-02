@@ -330,8 +330,8 @@ class AuthService {
                     context.userType = AUTH_USER_TYPES.delegatedUser;
 
                     if (Array.isArray(jwt_payload.entitlements)) {
-                    context.purposeOfUse = jwt_payload.entitlements;
-                }
+                        context.purposeOfUse = jwt_payload.entitlements;
+                    }
                 }
             }
         }
