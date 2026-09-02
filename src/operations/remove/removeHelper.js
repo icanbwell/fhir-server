@@ -112,13 +112,16 @@ class RemoveHelper {
                 resource.meta.lastUpdated = new Date(
                     moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
                 );
-                // Snapshot which live-bucket objects this resource still references, for cleanup
-                // AFTER the Mongo delete commits (not here — deleting the live object before the
-                // Mongo write commits would orphan it if that write then failed). Captured BEFORE
+                // Snapshot the live-bucket cleanup boundary per configured leaf, for cleanup AFTER
+                // the Mongo delete commits (not here — deleting the live object before the Mongo
+                // write commits would orphan it if that write then failed). Captured BEFORE
                 // transformAsync below, not after: a leaf that gets newly externalized at delete
                 // time (never externalized, over threshold) gets a brand-new `_blobMeta` with no
-                // corresponding live object, so capturing first correctly excludes it here.
-                const liveRefs = this.base64DataManager.getLiveObjectRefs(resource);
+                // corresponding live object, so capturing first correctly excludes it here. A leaf
+                // with no `_blobMeta` at all still gets a boundary (`resource.meta.lastUpdated`, set
+                // above) so a stray object from an earlier externalized version whose own supersede
+                // cleanup never ran still gets swept.
+                const liveRefs = this.base64DataManager.getLiveObjectRefsOrResourceLastUpdated(resource);
                 // Ensure this version's base64 data (if any) is durably in the history bucket, and
                 // strip it from `resource` to `_blobMeta`-only, BEFORE it's snapshotted into history
                 // below — a no-op for a resource type with no configured base64 paths.
