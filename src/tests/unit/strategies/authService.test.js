@@ -790,6 +790,85 @@ describe('AuthService', () => {
             );
         });
 
+        test('cms-partner user_type takes precedence over a delegated act claim, and logs it', () => {
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager
+            });
+
+            const done = jest.fn();
+            authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    user_type: 'cms-partner',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' }
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.any(Object),
+                expect.objectContaining({
+                    context: expect.objectContaining({
+                        userType: 'cms-partner',
+                        actor: {}
+                    })
+                })
+            );
+            expect(logInfo).toHaveBeenCalledWith(
+                'cms-partner token also carries an act claim; act claim is not used',
+                expect.objectContaining({ reason: 'cms_partner_token_with_act_claim', userType: 'cms-partner' })
+            );
+        });
+
+        test('logs a cms-partner token carrying an act claim even when delegated access detection is disabled', () => {
+            // enableDelegatedAccessDetection defaults to false via the outer beforeEach
+            const done = jest.fn();
+            authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    user_type: 'cms-partner',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' }
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.any(Object),
+                expect.objectContaining({
+                    context: expect.objectContaining({
+                        userType: 'cms-partner',
+                        actor: {}
+                    })
+                })
+            );
+            expect(logInfo).toHaveBeenCalledWith(
+                'cms-partner token also carries an act claim; act claim is not used',
+                expect.objectContaining({ reason: 'cms_partner_token_with_act_claim', userType: 'cms-partner' })
+            );
+        });
+
         test('ignores non-allowed user_type values', () => {
             const done = jest.fn();
             authService.processUserInfo({

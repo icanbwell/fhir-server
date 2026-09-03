@@ -336,6 +336,54 @@ describe('/mcp endpoint', () => {
         expect(resp.body.resourceType).toBe('OperationOutcome');
     });
 
+    test('a token with both cms-partner user_type and a delegated act claim is still blocked from /mcp as cms-partner (act claim ignored)', async () => {
+        // cms-partner user_type takes precedence over a delegated act claim (act is ignored),
+        // so this is still blocked as cms-partner -- same 403 as the plain cms-partner test above.
+        const ENABLE_DELEGATED_ACCESS_DETECTION = process.env.ENABLE_DELEGATED_ACCESS_DETECTION;
+        process.env.ENABLE_DELEGATED_ACCESS_DETECTION = '1';
+        try {
+            const request = await createTestRequest(registerRealAuditLogger);
+
+            const conflictingToken = getHeadersWithCustomPayload({
+                scope: 'patient/*.read user/*.* access/*.*',
+                username: 'cms-partner@example.com',
+                clientFhirPersonId: 'mcp-t7b-cms-person',
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: 'mcp-t7b-cms-person',
+                bwellFhirPatientId: 'bwellFhirPatient',
+                user_type: AUTH_USER_TYPES.cmsPartnerUser,
+                act: { reference: 'RelatedPerson/mcp-t7b-rp', sub: 'delegate-sub' },
+                token_use: 'access'
+            }).Authorization.replace(/^Bearer /, '');
+
+            const resp = await request
+                .post('/mcp')
+                .set({
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json, text/event-stream',
+                    Authorization: `Bearer ${conflictingToken}`
+                })
+                .send({
+                    jsonrpc: '2.0',
+                    id: 1,
+                    method: 'tools/call',
+                    params: { name: 'search_patient', arguments: {} }
+                });
+
+            expect(resp.status).toBe(403);
+            expect(resp.body).toEqual({
+                resourceType: 'OperationOutcome',
+                issue: [{
+                    severity: 'error',
+                    code: 'forbidden',
+                    details: { text: 'cms-partner does not have access to this endpoint' }
+                }]
+            });
+        } finally {
+            process.env.ENABLE_DELEGATED_ACCESS_DETECTION = ENABLE_DELEGATED_ACCESS_DETECTION;
+        }
+    });
+
     test('a patient-scoped caller does not see a resource hidden via data-connection-view-control consent', async () => {
         const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
         process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'client';

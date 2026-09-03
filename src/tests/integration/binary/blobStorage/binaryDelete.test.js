@@ -171,6 +171,28 @@ describe('Binary delete — S3 history persistence', () => {
         expect(deleteHistoryEntry.resource.data).toBe(SMALL_DATA);
     });
 
+    test('REST DELETE of a never-externalized Binary also sweeps a stray older live object left under the uuid prefix, but never a newer one', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-delete-stray-sweep';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary(id, SMALL_DATA)).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+        const doc = await readBinaryFromMongo(container, id);
+        expect(doc._blobMeta).toBeUndefined();
+
+        const staleStrayKey = `Binary_4_0_0/${doc._uuid}/${Date.now() - 60_000}`;
+        const futureKey = `Binary_4_0_0/${doc._uuid}/${Date.now() + 60_000}`;
+        liveClient.uploadedData[staleStrayKey] = 'orphaned-by-an-earlier-partial-failure';
+        liveClient.uploadedData[futureKey] = 'a-concurrent-writers-fresh-upload';
+
+        await request.delete(`/4_0_0/Binary/${id}`).set(getHeaders()).expect(204);
+
+        expect(liveClient.uploadedData[staleStrayKey]).toBeUndefined();
+        expect(liveClient.uploadedData[futureKey]).toBe('a-concurrent-writers-fresh-upload');
+    });
+
     test('$graph DELETE on Binary as the root resource strips pre-hydrated data before writing history, and cleans up the live object after commit', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();

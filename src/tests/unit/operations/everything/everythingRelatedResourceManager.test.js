@@ -132,14 +132,22 @@ describe('EverythingRelatedResourceManager', () => {
             expect(manager.nonClinicalResources.size).toBe(0);
         });
 
-        test('should set topLevelResourceType to Patient', () => {
-            const manager = new EverythingRelatedResourceManager({
+        test('should set topLevelResourceType from the constructor argument', () => {
+            const patientManager = new EverythingRelatedResourceManager({
                 resourceFilterList: undefined,
                 everythingRelatedResourceMapper: mockMapper,
-                userType: null
+                userType: null,
+                topLevelResourceType: 'Patient'
+            });
+            const personManager = new EverythingRelatedResourceManager({
+                resourceFilterList: undefined,
+                everythingRelatedResourceMapper: mockMapper,
+                userType: null,
+                topLevelResourceType: 'Person'
             });
 
-            expect(manager.topLevelResourceType).toBe('Patient');
+            expect(patientManager.topLevelResourceType).toBe('Patient');
+            expect(personManager.topLevelResourceType).toBe('Person');
         });
     });
 
@@ -552,7 +560,8 @@ describe('EverythingRelatedResourceManager', () => {
             const manager = new EverythingRelatedResourceManager({
                 resourceFilterList: undefined,
                 everythingRelatedResourceMapper: mockMapper,
-                userType: null
+                userType: null,
+                topLevelResourceType: 'Patient'
             });
 
             const result = manager.getRelatedResourcesMap();
@@ -568,7 +577,8 @@ describe('EverythingRelatedResourceManager', () => {
             const manager = new EverythingRelatedResourceManager({
                 resourceFilterList: ['Observation', 'Practitioner'],
                 everythingRelatedResourceMapper: mockMapper,
-                userType: null
+                userType: null,
+                topLevelResourceType: 'Patient'
             });
 
             const result = manager.getRelatedResourcesMap();

@@ -1,0 +1,421 @@
+[
+  {
+    "resourceType": "Person",
+    "id": "person1",
+    "meta": {
+      "source": "client",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client"
+        }
+      ]
+    },
+    "name": [
+      {
+        "use": "usual",
+        "family": "PERSON1",
+        "given": [
+          "SUBSCRIPTION"
+        ]
+      }
+    ],
+    "link": [
+      {
+        "target": {
+          "reference": "Patient/patientLinked|client",
+          "type": "Patient"
+        },
+        "assurance": "level4"
+      },
+      {
+        "target": {
+          "reference": "Patient/patientOther|client",
+          "type": "Patient"
+        },
+        "assurance": "level4"
+      }
+    ]
+  },
+  {
+    "resourceType": "Patient",
+    "id": "patientLinked",
+    "meta": {
+      "source": "client",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client"
+        }
+      ]
+    },
+    "gender": "female",
+    "birthDate": "2017-01-01"
+  },
+  {
+    "resourceType": "Patient",
+    "id": "patientOther",
+    "meta": {
+      "source": "client",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client"
+        }
+      ]
+    },
+    "gender": "female",
+    "birthDate": "2017-01-01"
+  },
+  {
+    "resourceType": "Patient",
+    "id": "patientUnlinked",
+    "meta": {
+      "source": "client",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client"
+        }
+      ]
+    },
+    "gender": "female",
+    "birthDate": "2017-01-01"
+  },
+  {
+    "resourceType": "Observation",
+    "id": "observation1",
+    "meta": {
+      "source": "client",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client"
+        }
+      ]
+    },
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "8302-2",
+          "display": "Body height"
+        }
+      ]
+    },
+    "subject": {
+      "reference": "Patient/patientLinked|client"
+    }
+  },
+  {
+    "resourceType": "Subscription",
+    "id": "subscriptionLinkedPatient",
+    "meta": {
+      "source": "client",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client"
+        }
+      ]
+    },
+    "status": "active",
+    "reason": "Monitor all changes to the Topic",
+    "criteria": "Topic/123",
+    "channel": {
+      "type": "rest-hook",
+      "endpoint": "https://www.icanbwell.com/Subscription/123"
+    },
+    "extension": [
+      {
+        "url": "https://icanbwell.com/codes/client_person_id",
+        "valueString": "7b99904f-2f85-51a3-9398-e2eed6854639"
+      },
+      {
+        "url": "https://icanbwell.com/codes/source_patient_id",
+        "valueString": "patientLinked"
+      },
+      {
+        "url": "https://icanbwell.com/codes/service_slug",
+        "valueString": "client"
+      },
+      {
+        "url": "https://icanbwell.com/codes/connection_type",
+        "valueString": "proa"
+      }
+    ]
+  },
+  {
+    "resourceType": "Subscription",
+    "id": "subscriptionUnlinkedPatient",
+    "meta": {
+      "source": "client",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client"
+        }
+      ]
+    },
+    "status": "active",
+    "reason": "Monitor all changes to the Topic",
+    "criteria": "Topic/123",
+    "channel": {
+      "type": "rest-hook",
+      "endpoint": "https://www.icanbwell.com/Subscription/123"
+    },
+    "extension": [
+      {
+        "url": "https://icanbwell.com/codes/client_person_id",
+        "valueString": "7b99904f-2f85-51a3-9398-e2eed6854639"
+      },
+      {
+        "url": "https://icanbwell.com/codes/source_patient_id",
+        "valueString": "patientUnlinked"
+      },
+      {
+        "url": "https://icanbwell.com/codes/service_slug",
+        "valueString": "client"
+      },
+      {
+        "url": "https://icanbwell.com/codes/connection_type",
+        "valueString": "proa"
+      }
+    ]
+  },
+  {
+    "resourceType": "Subscription",
+    "id": "subscriptionOtherPerson",
+    "meta": {
+      "source": "client",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client"
+        }
+      ]
+    },
+    "status": "active",
+    "reason": "Monitor all changes to the Topic",
+    "criteria": "Topic/123",
+    "channel": {
+      "type": "rest-hook",
+      "endpoint": "https://www.icanbwell.com/Subscription/123"
+    },
+    "extension": [
+      {
+        "url": "https://icanbwell.com/codes/client_person_id",
+        "valueString": "35c6fb57-5115-5917-a295-12f4a253973f"
+      },
+      {
+        "url": "https://icanbwell.com/codes/source_patient_id",
+        "valueString": "patientLinked"
+      },
+      {
+        "url": "https://icanbwell.com/codes/service_slug",
+        "valueString": "client"
+      },
+      {
+        "url": "https://icanbwell.com/codes/connection_type",
+        "valueString": "proa"
+      }
+    ]
+  },
+  {
+    "resourceType": "SubscriptionStatus",
+    "id": "subscriptionStatusLinkedPatient",
+    "meta": {
+      "source": "client",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client"
+        }
+      ]
+    },
+    "status": "active",
+    "type": "query-status",
+    "subscription": {
+      "reference": "Subscription/subscriptionLinkedPatient"
+    },
+    "topic": "SubscriptionTopic/subscriptionTopicLinkedPatient",
+    "notificationEvent": [
+      {
+        "eventNumber": "1",
+        "timestamp": "2023-02-02T20:33:41.000Z"
+      }
+    ],
+    "extension": [
+      {
+        "url": "https://icanbwell.com/codes/client_person_id",
+        "valueString": "7b99904f-2f85-51a3-9398-e2eed6854639"
+      },
+      {
+        "url": "https://icanbwell.com/codes/source_patient_id",
+        "valueString": "patientLinked"
+      },
+      {
+        "url": "https://icanbwell.com/codes/service_slug",
+        "valueString": "client"
+      }
+    ]
+  },
+  {
+    "resourceType": "SubscriptionStatus",
+    "id": "subscriptionStatusUnlinkedPatient",
+    "meta": {
+      "source": "client",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client"
+        }
+      ]
+    },
+    "status": "active",
+    "type": "query-status",
+    "subscription": {
+      "reference": "Subscription/subscriptionUnlinkedPatient"
+    },
+    "topic": "SubscriptionTopic/subscriptionTopicLinkedPatient",
+    "notificationEvent": [
+      {
+        "eventNumber": "1",
+        "timestamp": "2023-02-02T20:33:41.000Z"
+      }
+    ],
+    "extension": [
+      {
+        "url": "https://icanbwell.com/codes/client_person_id",
+        "valueString": "7b99904f-2f85-51a3-9398-e2eed6854639"
+      },
+      {
+        "url": "https://icanbwell.com/codes/source_patient_id",
+        "valueString": "patientUnlinked"
+      },
+      {
+        "url": "https://icanbwell.com/codes/service_slug",
+        "valueString": "client"
+      }
+    ]
+  },
+  {
+    "resourceType": "SubscriptionTopic",
+    "id": "subscriptionTopicLinkedPatient",
+    "meta": {
+      "source": "client",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client"
+        }
+      ]
+    },
+    "status": "active",
+    "url": "https://fhir.icanbwell.com/SubscriptionTopic/subscriptionTopicLinkedPatient",
+    "version": "R4",
+    "resourceTrigger": [
+      {
+        "resource": "Observation"
+      }
+    ],
+    "identifier": [
+      {
+        "system": "https://icanbwell.com/codes/client_person_id",
+        "value": "7b99904f-2f85-51a3-9398-e2eed6854639"
+      },
+      {
+        "system": "https://icanbwell.com/codes/source_patient_id",
+        "value": "patientLinked"
+      },
+      {
+        "system": "https://icanbwell.com/codes/service_slug",
+        "value": "client"
+      }
+    ]
+  },
+  {
+    "resourceType": "SubscriptionTopic",
+    "id": "subscriptionTopicUnlinkedPatient",
+    "meta": {
+      "source": "client",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client"
+        }
+      ]
+    },
+    "status": "active",
+    "url": "https://fhir.icanbwell.com/SubscriptionTopic/subscriptionTopicUnlinkedPatient",
+    "version": "R4",
+    "resourceTrigger": [
+      {
+        "resource": "Observation"
+      }
+    ],
+    "identifier": [
+      {
+        "system": "https://icanbwell.com/codes/client_person_id",
+        "value": "7b99904f-2f85-51a3-9398-e2eed6854639"
+      },
+      {
+        "system": "https://icanbwell.com/codes/source_patient_id",
+        "value": "patientUnlinked"
+      },
+      {
+        "system": "https://icanbwell.com/codes/service_slug",
+        "value": "client"
+      }
+    ]
+  }
+]
