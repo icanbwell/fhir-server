@@ -141,6 +141,10 @@ describe('CronJobRunner', () => {
             get: () => 1000,
             configurable: true
         });
+        Object.defineProperty(mockConfigManager, 'enableHistoryToCloudStorageMigration', {
+            get: () => true,
+            configurable: true
+        });
 
         mockPostSaveProcessor = Object.create(PostSaveProcessor.prototype);
         mockPostSaveProcessor.afterSaveAsync = jestGlobal.fn().mockResolvedValue(undefined);
@@ -496,6 +500,20 @@ describe('CronJobRunner', () => {
             await runner.triggerHistoryMigrationJob();
 
             expect(mockK8sClient.createJob).toHaveBeenCalledTimes(2);
+        });
+
+        test('does not create any k8s jobs when enableHistoryToCloudStorageMigration is false', async () => {
+            Object.defineProperty(mockConfigManager, 'enableHistoryToCloudStorageMigration', {
+                get: () => false,
+                configurable: true
+            });
+
+            await runner.triggerHistoryMigrationJob();
+
+            expect(mockK8sClient.createJob).not.toHaveBeenCalled();
+            expect(logInfo).toHaveBeenCalledWith(
+                expect.stringContaining('History to Cloud Storage migration cron is disabled')
+            );
         });
     });
 });

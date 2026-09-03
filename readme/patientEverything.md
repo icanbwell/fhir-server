@@ -67,13 +67,27 @@ Sample $everything result for patient
 ## Person $everything
 Person $everything operation is mapped to Patient $everything under the hood as proxy Patient $everything
 
-`<base_url>/4_0_0/Person/\<person1>/$everything` is same as `<base_url>/4_0_0/Patient/person.\<person1>/$everything`
+`<base_url>/4_0_0/Person/\<person1>/$everything` resolves the same underlying patient graph as `<base_url>/4_0_0/Patient/person.\<person1>/$everything`
+
+The two are not fully interchangeable, though — `Subscription`, `SubscriptionStatus` and `SubscriptionTopic` are returned only for a request against the `Person` resource type. See below.
 
 ### Patient $everything includes all linked persons
 
 A patient can be linked to more than one Person resource. Patient $everything has no notion of "which person the caller asked about", so it returns **every** Person resource linked to the resolved patient(s).
 
 This is different from calling Person $everything directly, which scopes the result down to only the Person id(s) that were explicitly requested. See [Person $everything](personEverything.md) for details and an example.
+
+### Patient $everything does not return Subscription resources
+
+`Subscription`, `SubscriptionStatus` and `SubscriptionTopic` identify the person they belong to via a `client_person_id` extension/identifier, not via a patient reference. Patient $everything has no notion of "which person the caller asked about", so it never returns these three resource types. This applies to:
+
+-   `<base_url>/4_0_0/Patient/\<patient1>/$everything` and `<base_url>/4_0_0/Patient/$everything?id=\<patient1>`
+-   the proxy patient id form, `<base_url>/4_0_0/Patient/person.\<person1>/$everything`
+-   requests whose token carries `Subscription`/`SubscriptionStatus`/`SubscriptionTopic` scopes, and requests that name them explicitly in `_type`
+
+To retrieve them, call Person $everything against the `Person` resource type instead — see [Person $everything](personEverything.md).
+
+This applies to GET only. Person and Patient DELETE $everything both still delete these resource types; see [everything.md](everything.md).
 
 ## Notes
 - If loading the result of each resource for $everything to node.js takes more than the specified time in MONGO_TIMEOUT (default 2 mins), a error is returned.
