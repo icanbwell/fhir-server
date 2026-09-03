@@ -407,15 +407,23 @@ class MergeOperation {
         // The streaming $merge path reads the raw request stream directly (it can't use
         // express.json(), which only supports buffered bodies), so unlike the buffered
         // $merge path it does not get express.json()'s automatic Content-Encoding
-        // decompression for free - resolve it explicitly so a compressed streaming
-        // request doesn't get fed still-compressed bytes into the ndjson line parser.
+        // decompression - or its payloadLimit body-size cap - for free. Resolve both
+        // explicitly: a compressed streaming request must not be fed still-compressed
+        // bytes into the ndjson line parser, and decompression must not be allowed to
+        // produce an unbounded amount of data (a decompression-bomb DoS the buffered
+        // path doesn't have to worry about, since express.json() enforces its limit
+        // during the read itself).
         // Resolved before constructing any of the pipeline streams below:
         // HttpResponseWriter's _construct() runs automatically once the object exists,
         // independent of whether pipeline() itself ever runs, so throwing after
         // constructing it (but before calling pipeline()) would leave a dangling
         // _construct() call that fires after the error response below has already been
         // sent and crashes trying to mutate it.
-        const decompressor = getRequestDecompressor(req.headers['content-encoding'], 'streaming $merge');
+        const decompressors = getRequestDecompressor(
+            req.headers['content-encoding'],
+            'streaming $merge',
+            this.configManager.payloadLimit
+        );
 
         const currentOperationName = 'merge';
         const startTime = Date.now();
@@ -558,7 +566,7 @@ class MergeOperation {
                 // Run pipeline
                 await pipeline(
                     req,
-                    ...(decompressor ? [decompressor] : []),
+                    ...decompressors,
                     new NdjsonParser({ configManager: self.configManager }),
                     mergeTransform,
                     fhirWriter,

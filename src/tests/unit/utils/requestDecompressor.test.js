@@ -1,31 +1,53 @@
 'use strict';
 
 const zlib = require('zlib');
+const { pipeline } = require('stream/promises');
+const { PassThrough } = require('stream');
 const { describe, test, expect } = require('@jest/globals');
 
 const { getRequestDecompressor } = require('../../../utils/requestDecompressor');
 
+/**
+ * Runs a compressed buffer through the full decompressor chain (as merge.js's pipeline()
+ * call does) and collects the output, or rejects if any stream in the chain errors.
+ */
+async function runThroughDecompressor (compressed, contentEncoding, maxDecompressedSize) {
+    const streams = getRequestDecompressor(contentEncoding, 'streaming $merge', maxDecompressedSize);
+    const source = new PassThrough();
+    const sink = new PassThrough();
+    const chunks = [];
+    sink.on('data', (chunk) => chunks.push(chunk));
+
+    source.end(compressed);
+    await pipeline(source, ...streams, sink);
+
+    return Buffer.concat(chunks);
+}
+
 describe('getRequestDecompressor', () => {
-    test('returns null for identity encoding', () => {
-        expect(getRequestDecompressor('identity')).toBeNull();
+    test('returns no transforms for identity encoding', () => {
+        expect(getRequestDecompressor('identity')).toEqual([]);
     });
 
-    test('returns null when no content-encoding header is present', () => {
-        expect(getRequestDecompressor(undefined)).toBeNull();
+    test('returns no transforms when no content-encoding header is present', () => {
+        expect(getRequestDecompressor(undefined)).toEqual([]);
     });
 
-    test('returns a gunzip stream for gzip encoding', () => {
-        const stream = getRequestDecompressor('gzip');
-        expect(stream).toBeInstanceOf(zlib.Gunzip);
+    test('returns a gunzip stream followed by a size-limit transform for gzip encoding', () => {
+        const streams = getRequestDecompressor('gzip');
+        expect(streams).toHaveLength(2);
+        expect(streams[0]).toBeInstanceOf(zlib.Gunzip);
     });
 
-    test('returns an inflate stream for deflate encoding', () => {
-        const stream = getRequestDecompressor('deflate');
-        expect(stream).toBeInstanceOf(zlib.Inflate);
+    test('returns an inflate stream followed by a size-limit transform for deflate encoding', () => {
+        const streams = getRequestDecompressor('deflate');
+        expect(streams).toHaveLength(2);
+        expect(streams[0]).toBeInstanceOf(zlib.Inflate);
     });
 
     test('is case-insensitive', () => {
-        expect(getRequestDecompressor('GZIP')).toBeInstanceOf(zlib.Gunzip);
+        const streams = getRequestDecompressor('GZIP');
+        expect(streams[0]).toBeInstanceOf(zlib.Gunzip);
     });
 
     test('throws for an unsupported encoding (e.g. brotli)', () => {
@@ -52,17 +74,49 @@ describe('getRequestDecompressor', () => {
     test('a real gzip payload actually decompresses back to the original bytes', async () => {
         const original = Buffer.from('{"resourceType":"Patient","id":"1"}\n{"resourceType":"Patient","id":"2"}');
         const compressed = zlib.gzipSync(original);
-        const decompressor = getRequestDecompressor('gzip');
 
-        const chunks = [];
-        decompressor.on('data', (chunk) => chunks.push(chunk));
-        const done = new Promise((resolve, reject) => {
-            decompressor.on('end', resolve);
-            decompressor.on('error', reject);
+        const result = await runThroughDecompressor(compressed, 'gzip');
+
+        expect(result.toString('utf8')).toBe(original.toString('utf8'));
+    });
+
+    test('a real deflate payload actually decompresses back to the original bytes', async () => {
+        const original = Buffer.from('{"resourceType":"Patient","id":"1"}');
+        const compressed = zlib.deflateSync(original);
+
+        const result = await runThroughDecompressor(compressed, 'deflate');
+
+        expect(result.toString('utf8')).toBe(original.toString('utf8'));
+    });
+
+    test('passes through when decompressed size is under the configured limit', async () => {
+        const original = Buffer.from('a'.repeat(1000));
+        const compressed = zlib.gzipSync(original);
+
+        const result = await runThroughDecompressor(compressed, 'gzip', '1kb');
+
+        expect(result.length).toBe(1000);
+    });
+
+    test('rejects with a 413 PayloadTooLargeError once decompressed bytes exceed the configured limit', async () => {
+        // Highly compressible input (all zeros) so the compressed size stays tiny while the
+        // decompressed size comfortably exceeds a small limit - this is exactly the
+        // decompression-bomb shape being guarded against.
+        const original = Buffer.alloc(100_000, 0);
+        const compressed = zlib.gzipSync(original);
+
+        await expect(runThroughDecompressor(compressed, 'gzip', '1kb')).rejects.toMatchObject({
+            statusCode: 413
         });
-        decompressor.end(compressed);
-        await done;
+    });
 
-        expect(Buffer.concat(chunks).toString('utf8')).toBe(original.toString('utf8'));
+    test('defaults to a 50mb limit when none is specified', async () => {
+        // A payload well under the default should still pass through untouched.
+        const original = Buffer.from('small payload');
+        const compressed = zlib.gzipSync(original);
+
+        const result = await runThroughDecompressor(compressed, 'gzip');
+
+        expect(result.toString('utf8')).toBe(original.toString('utf8'));
     });
 });
