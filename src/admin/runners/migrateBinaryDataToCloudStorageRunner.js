@@ -132,20 +132,20 @@ class MigrateBinaryDataToCloudStorageRunner extends BaseScriptRunner {
 
             const rawSize = Math.ceil(Buffer.byteLength(current.data, 'utf8') / 1024);
 
-            if (this.dryRun) {
-                this.documentsMigrated += 1;
-                this.bytesMoved += rawSize * 1024;
-                this.adminLogger.logInfo(
-                    `[DRY RUN] resource with _uuid: ${current._uuid} would be migrated (${rawSize} KB)`
-                );
-                return;
-            }
-
             const lastUpdatedMs = this._toEpochMs(current.meta.lastUpdated);
             if (lastUpdatedMs === null) {
                 this.documentsSkippedInvalidLastUpdated += 1;
                 this.adminLogger.logError(
                     `Cannot migrate _uuid ${current._uuid}: meta.lastUpdated is missing or unparseable`
+                );
+                return;
+            }
+
+            if (this.dryRun) {
+                this.documentsMigrated += 1;
+                this.bytesMoved += rawSize * 1024;
+                this.adminLogger.logInfo(
+                    `[DRY RUN] resource with _uuid: ${current._uuid} would be migrated (${rawSize} KB)`
                 );
                 return;
             }
@@ -165,11 +165,17 @@ class MigrateBinaryDataToCloudStorageRunner extends BaseScriptRunner {
             }
 
             if (uploadResponse === null) {
-                this.documentsSkippedKeyCollision += 1;
-                this.adminLogger.logError(
-                    `Live key collision for _uuid ${current._uuid} at ${liveKey}: an object already exists at this path and was not overwritten. Skipping.`
+                const isOwnPriorUpload = await this._isOwnPriorUploadAsync(liveKey, hash);
+                if (!isOwnPriorUpload) {
+                    this.documentsSkippedKeyCollision += 1;
+                    this.adminLogger.logError(
+                        `Live key collision for _uuid ${current._uuid} at ${liveKey}: an object already exists at this path and was not overwritten. Skipping.`
+                    );
+                    return;
+                }
+                this.adminLogger.logInfo(
+                    `Live key collision for _uuid ${current._uuid} at ${liveKey} matches this document's own data; resuming after a prior interrupted run.`
                 );
-                return;
             }
 
             try {
@@ -203,6 +209,21 @@ class MigrateBinaryDataToCloudStorageRunner extends BaseScriptRunner {
         }
         this.documentsFailed += 1;
         this.adminLogger.logError(`Exhausted retries for _uuid ${doc._uuid} due to concurrent writes`);
+    }
+
+    async _isOwnPriorUploadAsync (liveKey, expectedHash) {
+        let existingData;
+        try {
+            existingData = await this.base64FieldCloudStorageClient.downloadAsync(liveKey);
+        } catch (err) {
+            this.adminLogger.logError(`Failed to verify existing object at ${liveKey}: ${err.message}`);
+            return false;
+        }
+        if (typeof existingData !== 'string') {
+            return false;
+        }
+        const existingHash = await computeContentHashAsync(existingData);
+        return existingHash === expectedHash;
     }
 
     async _deleteOrphanedUploadAsync (liveKey, uuid) {

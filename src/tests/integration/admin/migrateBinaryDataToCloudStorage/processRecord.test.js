@@ -99,6 +99,23 @@ describe('MigrateBinaryDataToCloudStorageRunner processRecordAsync', () => {
         expect(Object.keys(mockS3Client.uploadedData).length).toBe(0);
     });
 
+    test('dry run agrees with a real run: a document with invalid lastUpdated is not counted as migratable', async () => {
+        const runner = buildRunner({ dryRun: true });
+        const largeData = 'I'.repeat(2000);
+        const insertResult = await collection.insertOne({
+            _uuid: 'uuid-10',
+            resourceType: 'Binary',
+            meta: { versionId: '1', lastUpdated: 'not-a-date' },
+            data: largeData
+        });
+        const doc = await collection.findOne({ _id: insertResult.insertedId });
+
+        await runner.processRecordAsync(doc, collection);
+
+        expect(runner.documentsSkippedInvalidLastUpdated).toBe(1);
+        expect(runner.documentsMigrated).toBe(0);
+    });
+
     test('retries and cleans up the orphaned upload on a version conflict', async () => {
         const runner = buildRunner();
         const largeData = 'C'.repeat(2000);
@@ -221,6 +238,33 @@ describe('MigrateBinaryDataToCloudStorageRunner processRecordAsync', () => {
         expect(unchanged._blobMeta).toBeUndefined();
         expect(mockS3Client.uploadedData[liveKey]).toBe('preexisting');
         expect(runner.documentsOrphanCleanups).toBe(0);
+    });
+
+    test('recovers from its own prior upload after a crash between S3 upload and Mongo update', async () => {
+        const runner = buildRunner();
+        const largeData = 'H'.repeat(2000);
+        const insertResult = await collection.insertOne({
+            _uuid: 'uuid-9',
+            resourceType: 'Binary',
+            meta: { versionId: '1', lastUpdated: new Date('2024-01-01T00:00:00Z') },
+            data: largeData
+        });
+        const doc = await collection.findOne({ _id: insertResult.insertedId });
+
+        const liveKey = runner._buildLiveKey('uuid-9', new Date('2024-01-01T00:00:00Z').getTime());
+        await mockS3Client.uploadAsync({
+            filePath: liveKey, data: Buffer.from(largeData), ifNoneMatch: true
+        });
+
+        await runner.processRecordAsync(doc, collection);
+
+        expect(runner.documentsSkippedKeyCollision).toBe(0);
+        expect(runner.documentsMigrated).toBe(1);
+        const migrated = await collection.findOne({ _id: insertResult.insertedId });
+        expect(migrated.data).toBeUndefined();
+        expect(migrated._blobMeta).toBeDefined();
+        expect(migrated._blobMeta.hash).toBe(await computeContentHashAsync(largeData));
+        expect(mockS3Client.uploadedData[liveKey]).toBe(largeData);
     });
 
     test('skips when document deleted during retry after version conflict', async () => {

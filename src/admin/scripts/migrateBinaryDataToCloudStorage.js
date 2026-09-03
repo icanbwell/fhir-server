@@ -17,7 +17,9 @@ async function main () {
 
     const batchSize = parameters.batchSize || 1000;
     const concurrency = parameters.concurrency || 10;
-    const thresholdKB = parameters.thresholdKB || container.configManager.base64FieldDataThresholdKB;
+    const thresholdKB = parameters.thresholdKB !== undefined
+        ? parameters.thresholdKB
+        : container.configManager.base64FieldDataThresholdKB;
     const dryRun = parameters.dryRun || false;
 
     container.register(
