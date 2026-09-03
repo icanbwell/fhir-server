@@ -112,9 +112,14 @@ class HttpResponseWriter extends Writable {
                         this.response.setHeader('Transfer-Encoding', 'chunked');
                         this.response.flushHeaders();
                     }
+                    // response.write()'s own callback fires once this chunk is actually
+                    // flushed - do not also call callback() unconditionally below, or the
+                    // stream's _write callback gets invoked twice per chunk, violating the
+                    // Writable contract (exactly one call per _write invocation).
                     this.response.write(chunk, encoding, callback);
+                } else {
+                    callback();
                 }
-                callback();
             } else {
                 callback();
             }

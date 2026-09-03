@@ -49,7 +49,15 @@ describe('HttpResponseWriter', () => {
             removeHeader: jestObj.fn(),
             setHeader: jestObj.fn(),
             setTimeout: jestObj.fn(),
-            write: jestObj.fn(),
+            // Mirrors real http.ServerResponse.write(): invokes its callback once the
+            // chunk is "flushed". _write must rely on this rather than also calling
+            // its own callback unconditionally (that double-invokes the stream's
+            // _write callback - see the dedicated test below).
+            write: jestObj.fn((chunk, encoding, cb) => {
+                if (cb) {
+                    cb();
+                }
+            }),
             writable: true,
             headersSent: false,
             flushHeaders: jestObj.fn(),
@@ -202,6 +210,34 @@ describe('HttpResponseWriter', () => {
                 expect(mockResponse.write).not.toHaveBeenCalled();
                 done();
             });
+        });
+
+        test('invokes the _write callback exactly once when writable', () => {
+            // Regression guard: _write used to call response.write(chunk, encoding,
+            // callback) - which itself invokes callback once the chunk is flushed -
+            // and then call callback() again unconditionally right after, double-
+            // invoking the stream's _write callback and violating the Writable
+            // contract (exactly one call per _write invocation).
+            let callCount = 0;
+
+            writer._write('data', 'utf8', (err) => {
+                callCount += 1;
+                expect(err).toBeUndefined();
+            });
+
+            expect(callCount).toBe(1);
+        });
+
+        test('invokes the _write callback exactly once when not writable', () => {
+            mockResponse.writable = false;
+            let callCount = 0;
+
+            writer._write('data', 'utf8', (err) => {
+                callCount += 1;
+                expect(err).toBeUndefined();
+            });
+
+            expect(callCount).toBe(1);
         });
 
         test('logs verbose when logStreamSteps is enabled and content is ndjson', (done) => {
