@@ -36,12 +36,7 @@ module.exports = function createPostRequestCleanupMiddleware() {
                         logError('postRequestCleanup: executeAsync failed', {error: e, requestId});
                         captureException(e);
                     } finally {
-                        try {
-                            await requestSpecificCache.clearAsync({requestId});
-                        } catch (e) {
-                            logError('postRequestCleanup: clearAsync failed', {error: e, requestId});
-                            captureException(e);
-                        }
+                        await requestSpecificCache.clearAsync({requestId});
                     }
                 }
             }
