@@ -5,7 +5,7 @@ const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
 const { RethrownError } = require('../utils/rethrownError');
 const { BLOB_OP, BINARY_DATA_VALUE_PLACEHOLDER } = require('../constants');
-const { logError } = require('../operations/common/logging');
+const { logError, logInfo } = require('../operations/common/logging');
 const base64DataResources = require('./base64DataResources.json');
 const { CloudStorageClient } = require('../utils/cloudStorageClient');
 const { computeContentHashAsync } = require('../utils/contentHash');
@@ -344,20 +344,17 @@ class Base64DataManager {
     /**
      * Best-effort delete of every live-bucket object for `{resourceType, uuid}` at or before
      * `lastUpdated`'s timestamp: lists everything under the uuid's live-folder prefix and deletes
-     * each key whose parsed timestamp is <= the target ms, leaving any strictly newer key (a
-     * concurrent writer's fresh upload) untouched. A live key is never regenerated once superseded,
-     * so anything at-or-below the target is provably safe to delete — either the key the caller asked
-     * for, or an orphan stray left behind by an earlier race or partial failure. Once nothing remains
-     * under the prefix, the folder (a virtual grouping of keys — S3 has no real folder object) stops
-     * appearing in any listing.
+     * each key whose parsed timestamp is <= the target ms. Once nothing remains under the prefix,
+     * the folder (a virtual grouping of keys — S3 has no real folder object) stops appearing in any
+     * listing.
      *
-     * Used by `removeHelper.js` (full resource DELETE), `deleteSupersededLiveObjectsAsync` (PUT/PATCH
-     * supersede), and `cleanupPreviousLiveObjectAsync` ($merge/bulk supersede) — each passes the
-     * timestamp of an OLDER, already-superseded key, so the sweep only reaches backward and never
-     * touches a newer, still-committed key. Do NOT call this from the write-failure rollback path
-     * (`deleteOwnUploadedLiveObjectsAsync`): there the target is THIS request's own (newer) key, so
-     * sweeping backward would also delete a still-committed OLDER version's live object — see
-     * `_deleteExactLiveObjectAsync` for that case. No-op on falsy `lastUpdated`; never throws.
+     * Used only by `removeHelper.js` (full resource DELETE), where sweeping the whole prefix is
+     * unconditionally correct — the resource is gone, so no key under it is ever "still committed".
+     * Do NOT call this for a supersede/rollback cleanup on a resource that still exists: the target
+     * timestamp isn't guaranteed to stay older than whatever key ends up committed (a concurrent
+     * writer's reconciliation can reuse an older key than the one it's superseding), so the <= sweep
+     * can delete a still-referenced object. Those callers use the exact-key
+     * `_deleteExactLiveObjectAsync` instead. No-op on falsy `lastUpdated`; never throws.
      * @param {string} resourceType
      * @param {string} uuid
      * @param {Date|string|number|null|undefined} lastUpdated
@@ -369,6 +366,7 @@ class Base64DataManager {
         if (!ms) { return; }
         const prefix = this._buildLiveFolderKey(resourceType, uuid);
         let keys;
+        logInfo('S3 listObjects', { source: 'Base64DataManager', resourceType, uuid, prefix });
         try {
             keys = await this.base64FieldCloudStorageClient.listObjectsAsync({ prefix });
         } catch (err) {
@@ -384,6 +382,7 @@ class Base64DataManager {
         if (keysToDelete.length === 0) {
             return;
         }
+        logInfo('S3 deleteObjects', { source: 'Base64DataManager', resourceType, uuid, keys: keysToDelete });
         try {
             const { errors } = await this.base64FieldCloudStorageClient.deleteObjectsAsync({
                 filePaths: keysToDelete
@@ -454,6 +453,10 @@ class Base64DataManager {
                     // exists — a stale read can look "unchanged" after another writer superseded it.
                     const priorMs = this._toEpochMs(priorBlobMeta.lastUpdated);
                     const priorKey = this._buildLiveKey(resource.resourceType, resource._uuid, priorMs);
+                    logInfo('S3 exists', {
+                        source: 'Base64DataManager', resourceType: resource.resourceType,
+                        uuid: resource._uuid, key: priorKey
+                    });
                     const stillExists = await this.base64FieldCloudStorageClient.existsAsync(priorKey);
                     if (stillExists) {
                         // True no-op: strip the inline `data` (Mongo keeps only the sidecar) and stash
@@ -510,6 +513,10 @@ class Base64DataManager {
         let uploadResponse;
         const MAX_ATTEMPTS = 5;
         for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+            logInfo('S3 upload', {
+                source: 'Base64DataManager', resourceType: resource.resourceType,
+                uuid: resource._uuid, key: liveKey
+            });
             try {
                 uploadResponse = await this.base64FieldCloudStorageClient.uploadAsync({
                     filePath: liveKey, data: Buffer.from(value, 'utf8'), ifNoneMatch: true
@@ -570,7 +577,7 @@ class Base64DataManager {
                 const previousMs = this._toEpochMs(stashed.previousLastUpdated);
                 const currentMs = currentBlobMeta ? this._toEpochMs(currentBlobMeta.lastUpdated) : null;
                 if (previousMs !== currentMs) {
-                    await this.deleteLiveObjectAsync(resource.resourceType, resource._uuid, stashed.previousLastUpdated);
+                    await this._deleteExactLiveObjectAsync(resource.resourceType, resource._uuid, stashed.previousLastUpdated);
                 }
             });
         }
@@ -607,6 +614,31 @@ class Base64DataManager {
         return refs;
     }
 
+    getLiveObjectRefsOrResourceLastUpdated (resource) {
+        const refs = new Map();
+        if (!resource || !this.enableBase64FieldCloudStorage) {
+            return refs;
+        }
+        const entries = this.resourcePaths[resource.resourceType];
+        if (!entries) {
+            return refs;
+        }
+        const fallback = this._normalizeStamp(resource.meta && resource.meta.lastUpdated);
+        for (const entry of entries) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+            this._processPathsSync(resource, dataSegments, [], ({ parent, indices }) => {
+                const blobMeta = parent[blobMetaLeaf];
+                const lastUpdated = (blobMeta && blobMeta.lastUpdated) || fallback;
+                if (lastUpdated) {
+                    refs.set(this._substituteIndices(dataSegments, indices), lastUpdated);
+                }
+            });
+        }
+        return refs;
+    }
+
     /**
      * Delete the live objects `currentResource` superseded relative to a pre-write snapshot from
      * `getLiveObjectRefs`. For each previously-referenced leaf now absent or pointing at a different
@@ -623,7 +655,7 @@ class Base64DataManager {
         for (const [leafKey, previousLastUpdated] of previousRefs) {
             const currentLastUpdated = currentRefs.get(leafKey);
             if (!currentLastUpdated || this._toEpochMs(currentLastUpdated) !== this._toEpochMs(previousLastUpdated)) {
-                await this.deleteLiveObjectAsync(currentResource.resourceType, currentResource._uuid, previousLastUpdated);
+                await this._deleteExactLiveObjectAsync(currentResource.resourceType, currentResource._uuid, previousLastUpdated);
             }
         }
     }
@@ -660,11 +692,12 @@ class Base64DataManager {
 
     /**
      * Best-effort, unconditional delete of exactly the live object at `{uuid}/{epochMsOf(lastUpdated)}`
-     * — no sweep of neighboring keys. Used only by `deleteOwnUploadedLiveObjectsAsync` (write-failure
-     * rollback), which must remove nothing but the key THIS request itself created: a committed prior
-     * version's live object (if any) is untouched by a failed write and must survive it.
-     * `deleteLiveObjectAsync`'s broader sweep is unsafe here — it would also delete that still-
-     * committed older key, since it is always at-or-below this request's own (newer) timestamp.
+     * — no sweep of neighboring keys, no `listObjectsAsync` call. Used by `deleteOwnUploadedLiveObjectsAsync`
+     * (write-failure rollback), `deleteSupersededLiveObjectsAsync` (PUT/PATCH supersede), and
+     * `cleanupPreviousLiveObjectAsync` ($merge/bulk supersede) — each already knows the one specific
+     * key it wants gone and must never touch any other key under the same uuid prefix, including
+     * whatever key the write just committed: `deleteLiveObjectAsync`'s <= sweep can't guarantee that,
+     * since a concurrent writer's reconciliation may reuse a key older than the one it superseded.
      * No-op on falsy `lastUpdated`; never throws.
      * @param {string} resourceType
      * @param {string} uuid
@@ -677,6 +710,7 @@ class Base64DataManager {
         const ms = this._toEpochMs(lastUpdated);
         if (!ms) { return; }
         const key = this._buildLiveKey(resourceType, uuid, ms);
+        logInfo('S3 delete', { source: 'Base64DataManager', resourceType, uuid, key });
         try {
             await this.base64FieldCloudStorageClient.deleteAsync(key);
         } catch (err) {
@@ -806,6 +840,10 @@ class Base64DataManager {
         if (incomingLastUpdated) {
             const incomingMs = this._toEpochMs(incomingLastUpdated);
             const incomingKey = this._buildLiveKey(docToWrite.resourceType, docToWrite._uuid, incomingMs);
+            logInfo('S3 exists', {
+                source: 'Base64DataManager', resourceType: docToWrite.resourceType,
+                uuid: docToWrite._uuid, key: incomingKey
+            });
             if (await this.base64FieldCloudStorageClient.existsAsync(incomingKey)) {
                 lastUpdatedMs = incomingMs;
             }
@@ -893,6 +931,10 @@ class Base64DataManager {
                         ? this.historyResourceCloudStorageClient
                         : this.base64FieldCloudStorageClient;
                     let downloaded;
+                    logInfo('S3 download', {
+                        source: 'Base64DataManager', resourceType: resource.resourceType,
+                        uuid: resource._uuid, key: s3Key
+                    });
                     try {
                         downloaded = await client.downloadAsync(s3Key);
                     } catch (err) {
@@ -976,6 +1018,10 @@ class Base64DataManager {
                     const liveKey = this._buildLiveKey(
                         resource.resourceType, resource._uuid, this._toEpochMs(blobMeta.lastUpdated)
                     );
+                    logInfo('S3 download', {
+                        source: 'Base64DataManager', resourceType: resource.resourceType,
+                        uuid: resource._uuid, key: liveKey
+                    });
                     return this.base64FieldCloudStorageClient.downloadAsync(liveKey);
                 };
                 await this._ensureHistoryObjectAsync(resource, entry, blobMeta.hash, bytesProvider);
@@ -1016,6 +1062,10 @@ class Base64DataManager {
     async _ensureHistoryObjectAsync (resource, entry, hash, bytesProvider) {
         const historyKey = this._buildHistoryKey(resource.resourceType, resource._uuid, hash);
         try {
+            logInfo('S3 copyObject', {
+                source: 'Base64DataManager', resourceType: resource.resourceType,
+                uuid: resource._uuid, key: historyKey
+            });
             const refreshed = await this.historyResourceCloudStorageClient.copyObjectAsync({
                 sourcePath: historyKey, filePath: historyKey
             });
@@ -1041,6 +1091,10 @@ class Base64DataManager {
                 });
                 return;
             }
+            logInfo('S3 upload', {
+                source: 'Base64DataManager', resourceType: resource.resourceType,
+                uuid: resource._uuid, key: historyKey
+            });
             await this.historyResourceCloudStorageClient.uploadAsync({
                 filePath: historyKey, data: Buffer.from(bytes, 'utf8')
             });
@@ -1242,6 +1296,10 @@ class Base64DataManager {
                     if (!content) {
                         return;
                     }
+                    logInfo('S3 upload', {
+                        source: 'Base64DataManager', resourceType: snapshot.resourceType,
+                        uuid: snapshot._uuid, key: historyKey
+                    });
                     await this.historyResourceCloudStorageClient.uploadAsync({
                         filePath: historyKey,
                         data: Buffer.from(content, 'utf8')
@@ -1249,11 +1307,19 @@ class Base64DataManager {
                 } else {
                     // Unchanged content: refresh the existing object's TTL. If it has
                     // already expired (copy reports the source missing), re-upload it.
+                    logInfo('S3 copyObject', {
+                        source: 'Base64DataManager', resourceType: snapshot.resourceType,
+                        uuid: snapshot._uuid, key: historyKey
+                    });
                     const refreshed = await this.historyResourceCloudStorageClient.copyObjectAsync({
                         sourcePath: historyKey,
                         filePath: historyKey
                     });
                     if (!refreshed && content) {
+                        logInfo('S3 upload', {
+                            source: 'Base64DataManager', resourceType: snapshot.resourceType,
+                            uuid: snapshot._uuid, key: historyKey
+                        });
                         await this.historyResourceCloudStorageClient.uploadAsync({
                             filePath: historyKey,
                             data: Buffer.from(content, 'utf8')
