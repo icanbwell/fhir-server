@@ -174,7 +174,7 @@ class MigrateBinaryDataToCloudStorageRunner extends BaseScriptRunner {
 
             try {
                 const result = await collection.updateOne(
-                    { _id: current._id, 'meta.versionId': current.meta.versionId },
+                    { _id: { $eq: current._id }, 'meta.versionId': { $eq: current.meta.versionId } },
                     { $set: { _blobMeta: { hash, rawSize, lastUpdated: current.meta.lastUpdated } }, $unset: { data: '' } }
                 );
 
