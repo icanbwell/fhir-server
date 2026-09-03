@@ -756,7 +756,8 @@ class EverythingHelper {
             const everythingRelatedResourceManager = new EverythingRelatedResourceManager({
                 resourceFilterList: parsedArgs.resourceFilterList,
                 everythingRelatedResourceMapper: this.everythingRelatedResourceMapper,
-                userType: requestInfo.userType
+                userType: requestInfo.userType,
+                topLevelResourceType: isPersonEverything ? "Person" : "Patient"
             });
 
             /**
@@ -932,10 +933,13 @@ class EverythingHelper {
                 baseResourcesProcessedTracker.add(resourceIdentifier);
             })
 
-            // Tracks Person resources discovered while fetching clinical related resources. Their
-            // _uuids feed the subscription custom query (client_person_id) and their identifiers
-            // seed the subscription send-safety check.
-            const personResourcesProcessedTracker = new ResourceProccessedTracker();
+            // Person resources discovered while fetching clinical related resources, keyed by
+            // _uuid so a Person reached through several patients is only templated once. Their
+            // identifiers drive the subscription custom query (client_person_id).
+            /**
+             * @type {Map<string, ResourceIdentifier>}
+             */
+            const personResourceIdentifierMap = new Map();
 
             // Fetch related resources
             /**
@@ -962,7 +966,7 @@ class EverythingHelper {
                     resourceMapper,
                     cachedStreamer,
                     everythingChunkIndex,
-                    personResourcesProcessedTracker,
+                    personResourceIdentifierMap,
                     scopedPersonIds,
                     isPersonEverything,
                     streamedResources
@@ -991,13 +995,12 @@ class EverythingHelper {
 
             // Dedicated subscription fetch step. Runs after all clinical resources (so every Person
             // has been discovered) but before non-clinical expansion (so non-clinical resources
-            // referenced by subscriptions are still expanded). Subscriptions match on the patient
-            // identifiers AND on any discovered Person _uuid (client_person_id).
+            // referenced by subscriptions are still expanded). Subscriptions match on the
+            // discovered Person _uuids (client_person_id).
             if (subscriptionRelatedResources.length > 0) {
-                // Sorted so the generated $in clause is deterministic (stable query across runs).
-                const personUuidsForCustomQuery = Array.from(personResourcesProcessedTracker.uuidSet)
-                    .map((uuidKey) => uuidKey.split('/')[1])
-                    .sort();
+                // Sorted so the generated query is deterministic (stable across runs).
+                const personResourceIdentifiers = Array.from(personResourceIdentifierMap.values())
+                    .sort((a, b) => a._uuid.localeCompare(b._uuid));
 
                 let { entities: subscriptionEntities, queryItems: subscriptionQueryItems, optionsForQueries: subscriptionOptions } = await this.retriveveRelatedResourcesParallelyAsync({
                     requestInfo,
@@ -1019,7 +1022,7 @@ class EverythingHelper {
                     resourceMapper,
                     cachedStreamer,
                     everythingChunkIndex,
-                    personUuidsForCustomQuery,
+                    personResourceIdentifiers,
                     scopedPersonIds,
                     isPersonEverything,
                     streamedResources
@@ -1404,8 +1407,8 @@ class EverythingHelper {
      * @property {ResourceMapper} resourceMapper
      * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
      * @property {number|undefined} [everythingChunkIndex]
-     * @property {ResourceProccessedTracker|null} [personResourcesProcessedTracker] - when provided, Person resources found are added to it
-     * @property {string[]} [personUuidsForCustomQuery] - Person _uuids to include in subscription custom queries (client_person_id match)
+     * @property {Map<string, ResourceIdentifier>|null} [personResourceIdentifierMap] - when provided, Person resources found are added to it, keyed by _uuid
+     * @property {ResourceIdentifier[]} [personResourceIdentifiers] - Person identifiers used to build the customQuery of related resources flagged with matchPerson
      * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
      *  the requested Person ids, used to restrict returned Person resources to only these ids
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
@@ -1434,8 +1437,8 @@ class EverythingHelper {
         resourceToExcludeIdsMap,
         resourceMapper = new ResourceMapper(),
         cachedStreamer = null,
-        personResourcesProcessedTracker = null,
-        personUuidsForCustomQuery = [],
+        personResourceIdentifierMap = null,
+        personResourceIdentifiers = [],
         scopedPersonIds,
         isPersonEverything,
         streamedResources = []
@@ -1570,17 +1573,31 @@ class EverythingHelper {
             if (filterTemplateCustomQuery) {
                 let customParentQuery = [];
                 parentLookupField = filterTemplateCustomQuery.fieldForParentLookup;
-                parentResourceIdentifiers.forEach((parentResourceIdentifier) => {
-                    let patientQuery = filterTemplateCustomQuery.query;
+
+                // Subscription resources link to the member via the Person _uuid stored under the
+                // client_person_id system, so their customQuery is templated against the Persons
+                // discovered during the clinical fetch rather than the base Patient identifiers.
+                const customQueryIdentifiers = filterTemplateCustomQuery.matchPerson
+                    ? personResourceIdentifiers
+                    : parentResourceIdentifiers;
+
+                // No Person discovered means no subscription can be attributed to this request.
+                // Skip the resource type rather than falling through to an unrestricted query.
+                if (filterTemplateCustomQuery.matchPerson && customQueryIdentifiers.length === 0) {
+                    continue;
+                }
+
+                customQueryIdentifiers.forEach((customQueryIdentifier) => {
+                    let identifierQuery = filterTemplateCustomQuery.query;
                     filterTemplateCustomQuery.requiredValues.forEach((requiredValue) => {
-                        if (!parentResourceIdentifier[requiredValue]) {
+                        if (!customQueryIdentifier[requiredValue]) {
                             throw new Error(`${requiredValue} is not present in parent resource identifier`);
                         }
-                        patientQuery = patientQuery.replace(
-                            `{${requiredValue}}`, escapeForJsonTemplate(parentResourceIdentifier[requiredValue])
+                        identifierQuery = identifierQuery.replace(
+                            `{${requiredValue}}`, escapeForJsonTemplate(customQueryIdentifier[requiredValue])
                         );
                     })
-                    customParentQuery.push(JSON.parse(patientQuery));
+                    customParentQuery.push(JSON.parse(identifierQuery));
                 });
 
                 if (filterTemplateCustomQuery.includeProxyPatient && proxyPatientIds.length > 0) {
@@ -1626,30 +1643,6 @@ class EverythingHelper {
                         query.$or = (query.$or || []).concat(customParentQuery);
                     } else {
                         continue;
-                    }
-                }
-
-                // Subscription resources also link to the member via the Person _uuid stored under
-                // the client_person_id system. Apply this as a top-level $and so the returned
-                // subscriptions are restricted to any discovered Person, in addition to the
-                // patient match above.
-                if (filterTemplateCustomQuery.matchPerson) {
-                    if (personUuidsForCustomQuery.length > 0) {
-                        const keyMap = SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField];
-                        query.$and = query.$and || [];
-                        query.$and.push({
-                            [parentLookupField]: {
-                                $elemMatch: {
-                                    [keyMap.key]: SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person,
-                                    [keyMap.value]: { $in: personUuidsForCustomQuery }
-                                }
-                            }
-                        });
-                    } else {
-                        logError(
-                            `${relatedResourceType} resource needed Person filter but no person resource was found`
-                        );
-                        query = { _uuid: '__invalid__' };
                     }
                 }
 
@@ -1745,7 +1738,8 @@ class EverythingHelper {
                 useUuidProjection,
                 resourceMapper,
                 cachedStreamer,
-                personResourcesProcessedTracker,
+                personResourceIdentifierMap,
+                personResourceIdentifiers,
                 streamedResources
             })
 
@@ -1791,7 +1785,8 @@ class EverythingHelper {
      *  useUuidProjection: boolean,
      *  resourceMapper?: ResourceMapper,
      *  cachedStreamer?: CachedFhirResponseStreamer|null,
-     *  personResourcesProcessedTracker?: ResourceProccessedTracker|null,
+     *  personResourceIdentifierMap?: Map<string, ResourceIdentifier>|null,
+     *  personResourceIdentifiers?: ResourceIdentifier[],
      *  streamedResources?: {_uuid: string, resourceType: string}[],
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {_uuid: string, resourceType: string}[]}>}
@@ -1812,7 +1807,8 @@ class EverythingHelper {
         useUuidProjection,
         resourceMapper = new ResourceMapper(),
         cachedStreamer = null,
-        personResourcesProcessedTracker = null,
+        personResourceIdentifierMap = null,
+        personResourceIdentifiers = [],
         streamedResources = []
     }) {
         /**
@@ -1877,41 +1873,35 @@ class EverythingHelper {
                      */
                     let matchingParentReferences = [];
 
-                    let useUuidSet = true;
+                    /**
+                     * @type {Set<string>}
+                     */
+                    let parentReferenceKeys = parentResourcesProcessedTracker.uuidSet;
 
-                    // for handling case for subscription resources where instead of
-                    // reference we only have id of person/patient resource in extension/identifier
+                    // Subscription resources carry the parent as a bare id inside extension/identifier
+                    // rather than as a reference. They resolve by Person identity, so validate the
+                    // client_person_id against the Persons this request discovered -- the accompanying
+                    // source_patient_id may name a patient no longer linked to that Person.
                     if (
                         references.length == 0 &&
                         SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS.includes(parentLookupField)
                     ) {
-
-                        properties.flat().map((r) => {
-                            if (
-                                r[
-                                SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['key']
-                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person
-                            ) {
-                                references.push(
-                                    PERSON_REFERENCE_PREFIX +
-                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
-                                );
-                            } else if (
-                                r[
-                                SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['key']
-                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient
-                            ) {
-                                references.push(
-                                    PATIENT_REFERENCE_PREFIX +
-                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
-                                );
+                        const keyMap = SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField];
+                        properties.flat().forEach((r) => {
+                            if (r[keyMap.key] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person) {
+                                references.push(PERSON_REFERENCE_PREFIX + r[keyMap.value]);
                             }
                         });
-                        useUuidSet = false;
+                        parentReferenceKeys = new Set(
+                            personResourceIdentifiers.map(
+                                (personResourceIdentifier) =>
+                                    `${personResourceIdentifier.resourceType}/${personResourceIdentifier._uuid}`
+                            )
+                        );
                     }
 
                     const referencesSet = new Set(references);
-                    parentResourcesProcessedTracker[useUuidSet ? 'uuidSet' : 'sourceIdSet'].forEach(parentReference => {
+                    parentReferenceKeys.forEach(parentReference => {
                         if (referencesSet.has(parentReference)) {
                             matchingParentReferences.push(parentReference);
                         }
@@ -1954,13 +1944,13 @@ class EverythingHelper {
                     }
 
                     // Collect Person identifiers so the subscription step can match on the Person
-                    // _uuid (client_person_id). This must happen OUTSIDE the bundleEntryIdsProcessedTracker
-                    // guard: that tracker is shared across all id-chunks of the request, while
-                    // personResourcesProcessedTracker is per-chunk. A Person already emitted in an earlier
-                    // chunk would otherwise be skipped here and missing from this chunk's person set, which
-                    // would drop this chunk's subscription results (the matchPerson clause is a mandatory $and).
-                    if (personResourcesProcessedTracker && resourceIdentifier.resourceType === 'Person') {
-                        personResourcesProcessedTracker.add(resourceIdentifier);
+                    // _uuid (client_person_id). Kept OUTSIDE the bundleEntryIdsProcessedTracker guard:
+                    // that tracker spans every id-chunk of the request while this map is per-chunk, so a
+                    // Person first seen in an earlier chunk would never reach this chunk's subscription
+                    // query -- which applies its own per-chunk view-control exclusions. The Map itself is
+                    // the dedupe.
+                    if (personResourceIdentifierMap && resourceIdentifier.resourceType === 'Person') {
+                        personResourceIdentifierMap.set(resourceIdentifier._uuid, resourceIdentifier);
                     }
 
                     if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {

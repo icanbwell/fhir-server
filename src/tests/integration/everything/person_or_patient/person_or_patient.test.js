@@ -28,6 +28,7 @@ const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscri
 // expected
 const expectedPersonTopLevelResources = require('./fixtures/expected/expected_Person_personTopLevel.json');
 const expectedPerson1Resources = require('./fixtures/expected/expected_Person_person1_no_graph.json');
+const expectedProxyPerson1Resources = require('./fixtures/expected/expected_Patient_proxy_person1_no_graph.json');
 const expectedMultiplePersonResources = require('./fixtures/expected/expected_multiple_person_response.json');
 const expectedNoIdResponse = require('./fixtures/expected/expected_no_id_response.json');
 const expectedPersonResourcesType = require('./fixtures/expected/expected_Person_type.json');
@@ -243,7 +244,7 @@ describe('Person and Patient $everything Tests', () => {
                 .get('/4_0_0/Patient/person.person1/$everything')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPerson1Resources);
+            expect(resp).toHaveResponse(expectedProxyPerson1Resources);
 
             resp = await request
                 .get('/4_0_0/Person/person1,personTopLevel/$everything?_debug=1')
@@ -877,7 +878,7 @@ describe('Person and Patient $everything Tests', () => {
                 .set(getHeaders());
 
             expect(Array.from(streams.keys())).toHaveLength(0);
-            expect(resp).toHaveResourceCount(10);
+            expect(resp).toHaveResourceCount(7);
             expect(resp.headers).toHaveProperty('x-cache', 'Miss');
 
             // Test with redis enabled
@@ -887,10 +888,10 @@ describe('Person and Patient $everything Tests', () => {
                 .get('/4_0_0/Patient/patient1/$everything')
                 .set(patientHeader);
 
-            expect(resp).toHaveResourceCount(8);
+            expect(resp).toHaveResourceCount(5);
             let cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044:Everything:Generation:1:Scopes:41b78b54-0a8e-5477-af30-d99864d04833:AllowProa:false';
             expect(streams.keys()).toContain(cacheKey);
-            expect(streams.get(cacheKey)).toHaveLength(8);
+            expect(streams.get(cacheKey)).toHaveLength(5);
 
             // Test cache Miss when redis read disabled
             resp = await request
@@ -906,7 +907,7 @@ describe('Person and Patient $everything Tests', () => {
                 .set(patientHeader);
             expect(redisReadSpy).toHaveBeenCalled();
             expect(resp.headers).toHaveProperty('x-cache', 'Hit');
-            expect(resp).toHaveResourceCount(8);
+            expect(resp).toHaveResourceCount(5);
             streams.clear();
             redisReadSpy.mockClear();
 
@@ -979,7 +980,7 @@ describe('Person and Patient $everything Tests', () => {
                 .get('/4_0_0/Patient/patient1/$everything')
                 .set(patientHeader);
 
-            expect(resp).toHaveResourceCount(9);
+            expect(resp).toHaveResourceCount(6);
             expect(Array.from(streams.keys())).toHaveLength(0);
 
             // Testing redis
@@ -988,7 +989,7 @@ describe('Person and Patient $everything Tests', () => {
                 .set(patientHeader);
 
             expect(redisReadSpy).not.toHaveBeenCalled();
-            expect(resp).toHaveResourceCount(9);
+            expect(resp).toHaveResourceCount(6);
             expect(resp.headers).toHaveProperty('x-cache', 'Miss');
 
             // Test no cached response in case of cache-control:no-cache

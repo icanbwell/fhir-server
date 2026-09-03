@@ -27,10 +27,11 @@ class EverythingRelatedResourceManager {
      * @property {string[]} resourceFilterList Resources which all allowed to be sent in response
      * @property {EverythingRelatedResourcesMapper} everythingRelatedResourceMapper
      * @property {string|null} userType - type of user making the request, used for determining resource restrictions
+     * @property {string} topLevelResourceType - signify the top level resource type the request is for
      *
      * @param {EverythingRelatedResourceManagerConstructor} options
      */
-    constructor({ resourceFilterList, everythingRelatedResourceMapper, userType }) {
+    constructor({ resourceFilterList, everythingRelatedResourceMapper, userType, topLevelResourceType }) {
         /**
          * @type {boolean}
          */
@@ -83,7 +84,7 @@ class EverythingRelatedResourceManager {
         this.everythingRelatedResourceMapper = everythingRelatedResourceMapper;
         assertTypeEquals(everythingRelatedResourceMapper, EverythingRelatedResourcesMapper);
 
-        this.topLevelResourceType = 'Patient';
+        this.topLevelResourceType = topLevelResourceType;
     }
 
     /**
