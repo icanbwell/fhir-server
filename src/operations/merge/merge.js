@@ -20,6 +20,7 @@ const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isTrue } = require('../../utils/isTrue');
 const { Transform } = require('stream'); // <- for Transform stream class
 const { pipeline } = require('stream/promises'); // <- for async pipeline
+const { getRequestDecompressor } = require('../../utils/requestDecompressor');
 const { HttpResponseWriter } = require('../streaming/responseWriter');
 const { ObjectSerializedFhirResourceNdJsonWriter } = require('../streaming/resourceWriters/objectSerializedFhirResourceNdJsonWriter');
 const { fhirContentTypes } = require('../../utils/contentTypes');
@@ -403,6 +404,19 @@ class MergeOperation {
         assertIsValid(resourceType);
         assertTypeEquals(parsedArgs, ParsedArgs);
 
+        // The streaming $merge path reads the raw request stream directly (it can't use
+        // express.json(), which only supports buffered bodies), so unlike the buffered
+        // $merge path it does not get express.json()'s automatic Content-Encoding
+        // decompression for free - resolve it explicitly so a compressed streaming
+        // request doesn't get fed still-compressed bytes into the ndjson line parser.
+        // Resolved before constructing any of the pipeline streams below:
+        // HttpResponseWriter's _construct() runs automatically once the object exists,
+        // independent of whether pipeline() itself ever runs, so throwing after
+        // constructing it (but before calling pipeline()) would leave a dangling
+        // _construct() call that fires after the error response below has already been
+        // sent and crashes trying to mutate it.
+        const decompressor = getRequestDecompressor(req.headers['content-encoding'], 'streaming $merge');
+
         const currentOperationName = 'merge';
         const startTime = Date.now();
 
@@ -544,6 +558,7 @@ class MergeOperation {
                 // Run pipeline
                 await pipeline(
                     req,
+                    ...(decompressor ? [decompressor] : []),
                     new NdjsonParser({ configManager: self.configManager }),
                     mergeTransform,
                     fhirWriter,

@@ -59,8 +59,14 @@ class HttpResponseWriter extends Writable {
         if (this.configManager.logStreamSteps) {
             logger.info(`HttpResponseWriter: _construct: requestId: ${this.requestId}`);
         }
+        // Transfer-Encoding is deliberately NOT set here (see _write below) - setting it
+        // eagerly at construction, before any data has actually been written, left it
+        // queued on the response even when the pipeline fails before its first successful
+        // write. A generic error handler responding with res.json(operationOutcome) in that
+        // case sets Content-Length without clearing the already-queued Transfer-Encoding,
+        // producing a response with both headers - which violates HTTP/1.1 (RFC 7230
+        // section 3.3.1) and gets rejected outright by strict clients (e.g. aiohttp).
         this.response.removeHeader('Content-Length');
-        this.response.setHeader('Transfer-Encoding', 'chunked');
         this.response.setHeader('X-Request-ID', this.requestId);
         this.response.setHeader('Content-Type', this.contentType);
         // noinspection DynamicallyGeneratedCodeJS
@@ -101,6 +107,9 @@ class HttpResponseWriter extends Writable {
                         }
                     }
                     if (!this.response.headersSent) {
+                        // Set here, immediately before the first flush, rather than in
+                        // _construct - see the comment there for why.
+                        this.response.setHeader('Transfer-Encoding', 'chunked');
                         this.response.flushHeaders();
                     }
                     this.response.write(chunk, encoding, callback);
