@@ -9,8 +9,10 @@
  *   1. clearAsync never ran, so request-scoped cache entries leaked past the request.
  *   2. the rejection was never consumed, producing an unhandled promise rejection
  *      inside an Express event listener.
- * Fixed by wrapping executeAsync in try/catch (logging via logError) and moving
- * clearAsync into the finally block, so it always runs.
+ * Fixed by wrapping executeAsync in try/catch (logging via logError and reporting via
+ * Sentry's captureException) and moving clearAsync into the finally block, itself
+ * wrapped in the same try/catch/report shape, so neither await can produce an
+ * unhandled rejection or silently drop Sentry visibility.
  */
 const { describe, test, expect, beforeEach, afterEach, jest: jestGlobal } = require('@jest/globals');
 const { EventEmitter } = require('events');
@@ -27,8 +29,13 @@ jestGlobal.mock('../../../operations/common/logging', () => ({
     logWarn: jestGlobal.fn()
 }));
 
+jestGlobal.mock('../../../operations/common/sentry', () => ({
+    captureException: jestGlobal.fn()
+}));
+
 const createPostRequestCleanupMiddleware = require('../../../middleware/postRequestCleanup.middleware');
 const { logError } = require('../../../operations/common/logging');
+const { captureException } = require('../../../operations/common/sentry');
 
 /**
  * Lets the microtask queue (promise rejections included) drain before the
@@ -36,7 +43,7 @@ const { logError } = require('../../../operations/common/logging');
  */
 const flushAsync = () => new Promise((resolve) => setImmediate(resolve));
 
-describe('postRequestCleanup.middleware — executeAsync failure handling', () => {
+describe('postRequestCleanup.middleware — executeAsync/clearAsync failure handling', () => {
     let mockPostRequestProcessor;
     let mockRequestSpecificCache;
     let req;
@@ -64,6 +71,7 @@ describe('postRequestCleanup.middleware — executeAsync failure handling', () =
         next = jestGlobal.fn();
 
         logError.mockClear();
+        captureException.mockClear();
 
         unhandledRejections = [];
         onUnhandledRejection = (reason) => unhandledRejections.push(reason);
@@ -86,7 +94,7 @@ describe('postRequestCleanup.middleware — executeAsync failure handling', () =
         expect(mockRequestSpecificCache.clearAsync).toHaveBeenCalledTimes(1);
     });
 
-    test('the executeAsync failure is logged instead of thrown', async () => {
+    test('the executeAsync failure is logged and reported to Sentry instead of thrown', async () => {
         const middleware = createPostRequestCleanupMiddleware();
         middleware(req, res, next);
 
@@ -97,9 +105,10 @@ describe('postRequestCleanup.middleware — executeAsync failure handling', () =
             'postRequestCleanup: executeAsync failed',
             expect.objectContaining({ error: thrownError })
         );
+        expect(captureException).toHaveBeenCalledWith(thrownError);
     });
 
-    test('no unhandled promise rejection leaks out of the finish handler', async () => {
+    test('no unhandled promise rejection leaks out of the finish handler when executeAsync throws', async () => {
         const middleware = createPostRequestCleanupMiddleware();
         middleware(req, res, next);
 
@@ -109,7 +118,7 @@ describe('postRequestCleanup.middleware — executeAsync failure handling', () =
         expect(unhandledRejections).toHaveLength(0);
     });
 
-    test('clearAsync still runs and no error is logged when executeAsync succeeds', async () => {
+    test('clearAsync still runs and nothing is logged/reported when executeAsync succeeds', async () => {
         mockPostRequestProcessor.executeAsync.mockResolvedValue(undefined);
 
         const middleware = createPostRequestCleanupMiddleware();
@@ -120,5 +129,38 @@ describe('postRequestCleanup.middleware — executeAsync failure handling', () =
 
         expect(mockRequestSpecificCache.clearAsync).toHaveBeenCalledTimes(1);
         expect(logError).not.toHaveBeenCalled();
+        expect(captureException).not.toHaveBeenCalled();
+    });
+
+    describe('when clearAsync itself rejects', () => {
+        beforeEach(() => {
+            mockPostRequestProcessor.executeAsync.mockResolvedValue(undefined);
+            mockRequestSpecificCache.clearAsync.mockRejectedValue(new Error('cache backend unavailable'));
+        });
+
+        test('executeAsync still ran and no unhandled promise rejection leaks out', async () => {
+            const middleware = createPostRequestCleanupMiddleware();
+            middleware(req, res, next);
+
+            res.emit('finish');
+            await flushAsync();
+
+            expect(mockPostRequestProcessor.executeAsync).toHaveBeenCalledTimes(1);
+            expect(unhandledRejections).toHaveLength(0);
+        });
+
+        test('the clearAsync failure is logged and reported to Sentry instead of thrown', async () => {
+            const middleware = createPostRequestCleanupMiddleware();
+            middleware(req, res, next);
+
+            res.emit('finish');
+            await flushAsync();
+
+            expect(logError).toHaveBeenCalledWith(
+                'postRequestCleanup: clearAsync failed',
+                expect.objectContaining({ error: expect.any(Error) })
+            );
+            expect(captureException).toHaveBeenCalledWith(expect.any(Error));
+        });
     });
 });
