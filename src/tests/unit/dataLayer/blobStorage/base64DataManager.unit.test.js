@@ -117,6 +117,30 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
         expect(refs.get('content/1/attachment/data').getTime()).toBe(lu1.getTime());
     });
 
+    test('getLiveObjectRefsOrResourceLastUpdated falls back to resource.meta.lastUpdated for a leaf with no _blobMeta, but keeps the sidecar timestamp where one exists', () => {
+        const metaLu = new Date('2026-07-10T00:00:10.000Z');
+        const blobLu = new Date('2026-07-10T00:00:01.000Z');
+        const resource = {
+            resourceType: 'DocRefFake', id: 'd1', _uuid: 'uuid-fallback', meta: { lastUpdated: metaLu },
+            content: [
+                { attachment: { _blobMeta: { hash: 'h', rawSize: 1, lastUpdated: blobLu } } },
+                { attachment: {} }
+            ]
+        };
+        const refs = ctx.mgr.getLiveObjectRefsOrResourceLastUpdated(resource);
+        expect(refs.get('content/0/attachment/data').getTime()).toBe(blobLu.getTime());
+        expect(refs.get('content/1/attachment/data').getTime()).toBe(metaLu.getTime());
+    });
+
+    test('getLiveObjectRefsOrResourceLastUpdated returns nothing for a leaf when both _blobMeta and resource.meta.lastUpdated are missing', () => {
+        const resource = {
+            resourceType: 'DocRefFake', id: 'd2', _uuid: 'uuid-fallback-2', meta: {},
+            content: [{ attachment: {} }]
+        };
+        const refs = ctx.mgr.getLiveObjectRefsOrResourceLastUpdated(resource);
+        expect(refs.size).toBe(0);
+    });
+
     test('deleteSupersededLiveObjectsAsync deletes only the leaves whose ref changed', async () => {
         const lu0 = new Date('2026-07-10T00:00:00.000Z');
         const lu1 = new Date('2026-07-10T00:00:01.000Z');
@@ -131,6 +155,21 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
         await ctx.mgr.deleteSupersededLiveObjectsAsync(current, previousRefs);
         expect(ctx.client.uploadedData[key0]).toBeUndefined(); // superseded → deleted
         expect(ctx.client.uploadedData[key1]).toBe('old1'); // unchanged → kept
+    });
+
+    test('deleteSupersededLiveObjectsAsync must NOT sweep away the currently-committed live object when the previous ref is numerically NEWER (concurrent-write key reuse)', async () => {
+        const uuid = 'uuid-supersede-guard';
+        const ownReusedLu = new Date('2026-07-10T00:00:00.000Z'); // this write's own, reused (older) key — now committed
+        const raceLostLu = new Date('2026-07-10T00:00:05.000Z'); // a concurrent writer's key seen mid-retry — actually superseded
+        const ownReusedKey = `DocRefFake_4_0_0/${uuid}/${ownReusedLu.getTime()}`;
+        const raceLostKey = `DocRefFake_4_0_0/${uuid}/${raceLostLu.getTime()}`;
+        ctx.client.uploadedData[ownReusedKey] = 'just-committed';
+        ctx.client.uploadedData[raceLostKey] = 'superseded-by-this-write';
+        const previousRefs = ctx.mgr.getLiveObjectRefs(makeDoc(uuid, { lastUpdated: raceLostLu }, undefined));
+        const current = makeDoc(uuid, { lastUpdated: ownReusedLu }, undefined);
+        await ctx.mgr.deleteSupersededLiveObjectsAsync(current, previousRefs);
+        expect(ctx.client.uploadedData[ownReusedKey]).toBe('just-committed'); // just-committed → MUST survive
+        expect(ctx.client.uploadedData[raceLostKey]).toBeUndefined(); // superseded → deleted
     });
 
     test('resolveWriteForExternalizedDataChange (nested): a diverged leaf re-uploads R\'s bytes and wins; a matching leaf is left alone', async () => {
@@ -208,6 +247,25 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
         await ctx.mgr.deleteOwnUploadedLiveObjectsAsync(doc, requestInfo);
         expect(ctx.client.uploadedData[ownUploadedKey]).toBeUndefined(); // this request's own orphan → deleted
         expect(ctx.client.uploadedData[committedKey]).toBe('still-committed-v1'); // still-committed prior → MUST survive
+    });
+
+    test('cleanupPreviousLiveObjectAsync must NOT sweep away the currently-committed live object when the stashed previousLastUpdated is numerically NEWER (concurrent-write key reuse)', async () => {
+        const requestInfo = { requestId: 'r-cleanup-sweep-guard' };
+        const uuid = 'uuid-cleanup-guard';
+        const dataSegments = ['content', '[]', 'attachment', 'data'];
+        const ownReusedLu = new Date('2026-07-10T00:00:00.000Z');
+        const raceLostLu = new Date('2026-07-10T00:00:05.000Z');
+        const ownReusedKey = `DocRefFake_4_0_0/${uuid}/${ownReusedLu.getTime()}`;
+        const raceLostKey = `DocRefFake_4_0_0/${uuid}/${raceLostLu.getTime()}`;
+        ctx.client.uploadedData[ownReusedKey] = 'just-committed';
+        ctx.client.uploadedData[raceLostKey] = 'superseded-by-this-write';
+        ctx.mgr._stashOriginalData(requestInfo, uuid, dataSegments, [0], {
+            changed: true, previousLastUpdated: raceLostLu
+        });
+        const resource = makeDoc(uuid, { lastUpdated: ownReusedLu }, undefined);
+        await ctx.mgr.cleanupPreviousLiveObjectAsync(resource, requestInfo);
+        expect(ctx.client.uploadedData[ownReusedKey]).toBe('just-committed'); // just-committed → MUST survive
+        expect(ctx.client.uploadedData[raceLostKey]).toBeUndefined(); // superseded → deleted
     });
 });
 
