@@ -1,5 +1,6 @@
 const httpContext = require('express-http-context');
 const {REQUEST_ID_TYPE} = require('../constants');
+const {logError} = require('../operations/common/logging');
 
 /**
  * @description Middleware factory for flushing PostRequestProcessor/RequestSpecificCache after the
@@ -28,8 +29,13 @@ module.exports = function createPostRequestCleanupMiddleware() {
                      * @type {RequestSpecificCache}
                      */
                     const requestSpecificCache = container1.requestSpecificCache;
-                    await postRequestProcessor.executeAsync({requestId});
-                    await requestSpecificCache.clearAsync({requestId});
+                    try {
+                        await postRequestProcessor.executeAsync({requestId});
+                    } catch (e) {
+                        logError('postRequestCleanup: executeAsync failed', {error: e, requestId});
+                    } finally {
+                        await requestSpecificCache.clearAsync({requestId});
+                    }
                 }
             }
         });
