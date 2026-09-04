@@ -127,8 +127,10 @@ describe('HttpResponseWriter', () => {
 
     describe('_write', () => {
         test('writes chunk to response when signal is not aborted', (done) => {
+            // No callback is passed to response.write() - see the comment in _write for
+            // why (compression middleware's res.write override silently drops it).
             writer._write('{"id":"123"}', 'utf8', () => {
-                expect(mockResponse.write).toHaveBeenCalledWith('{"id":"123"}', 'utf8', expect.any(Function));
+                expect(mockResponse.write).toHaveBeenCalledWith('{"id":"123"}', 'utf8');
                 done();
             });
         });
@@ -215,6 +217,52 @@ describe('HttpResponseWriter', () => {
                 expect(mockResponse.write).not.toHaveBeenCalled();
                 done();
             });
+        });
+
+        test('invokes the _write callback exactly once when writable', () => {
+            // Regression guard: _write must call its callback exactly once per
+            // invocation (the Writable contract), whether or not response.write()
+            // itself honors a callback argument (it doesn't, when compression
+            // middleware is active - see the comment in _write).
+            let callCount = 0;
+
+            writer._write('data', 'utf8', (err) => {
+                callCount += 1;
+                expect(err).toBeUndefined();
+            });
+
+            expect(callCount).toBe(1);
+        });
+
+        test('completes even when response.write ignores a callback argument (compression middleware)', () => {
+            // Regression guard for the real bug: node_modules/compression overrides
+            // res.write with `function write (chunk, encoding)` - two arguments only -
+            // and is active on every response by default (configureMiddleware's
+            // app.use(compression(...))). Passing a callback to response.write() and
+            // relying on it to fire would hang this stream forever in production,
+            // since compression's override silently drops any third argument. Model
+            // that here: a write() that takes no callback parameter at all.
+            mockResponse.write = jestObj.fn((chunk, encoding) => true);
+            let callCount = 0;
+
+            writer._write('data', 'utf8', (err) => {
+                callCount += 1;
+                expect(err).toBeUndefined();
+            });
+
+            expect(callCount).toBe(1);
+        });
+
+        test('invokes the _write callback exactly once when not writable', () => {
+            mockResponse.writable = false;
+            let callCount = 0;
+
+            writer._write('data', 'utf8', (err) => {
+                callCount += 1;
+                expect(err).toBeUndefined();
+            });
+
+            expect(callCount).toBe(1);
         });
 
         test('logs verbose when logStreamSteps is enabled and content is ndjson', (done) => {

@@ -112,9 +112,18 @@ class HttpResponseWriter extends Writable {
                         this.response.setHeader('Transfer-Encoding', 'chunked');
                         this.response.flushHeaders();
                     }
-                    this.response.write(chunk, encoding, callback);
+                    // Do NOT pass callback to response.write(): the compression
+                    // middleware (see configureMiddleware's app.use(compression(...)),
+                    // active on every response by default) overrides res.write with its
+                    // own `function write (chunk, encoding)` (node_modules/compression/
+                    // index.js) that only accepts two arguments and silently drops any
+                    // third callback - it would never fire, and this stream would hang
+                    // forever waiting for it. Call back directly instead, exactly once.
+                    this.response.write(chunk, encoding);
+                    callback();
+                } else {
+                    callback();
                 }
-                callback();
             } else {
                 callback();
             }
