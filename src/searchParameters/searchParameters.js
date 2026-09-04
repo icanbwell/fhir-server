@@ -171,7 +171,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -830,59 +830,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -890,58 +838,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -1284,7 +1180,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -1378,7 +1274,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -1791,59 +1687,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -1851,58 +1695,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -2157,59 +1949,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -2217,58 +1957,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -2510,59 +2198,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -2570,58 +2206,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -4068,7 +3652,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -4146,7 +3730,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -4203,7 +3787,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -4286,7 +3870,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -4364,7 +3948,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -4681,59 +4265,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -4741,58 +4273,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -4854,7 +4334,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'characteristic' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'characteristic' })
+					new SearchParameterDefinition({ type: 'token', fields: ['valueCodeableConcept', 'valueBoolean'], arrayField: 'characteristic' })
 				] }
 			]
 		})
@@ -5312,59 +4792,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -5372,58 +4800,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -5752,7 +5128,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -6071,7 +5447,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -6810,59 +6186,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -6870,58 +6194,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -7071,9 +6343,9 @@ const searchParameterQueries = {
 			type: 'composite',
 			scopes: [
 				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'chromosome', arrayField: 'referenceSeq' }),
-					new SearchParameterDefinition({ type: 'number', field: 'windowStart', arrayField: 'referenceSeq' }),
-					new SearchParameterDefinition({ type: 'number', field: 'windowEnd', arrayField: 'referenceSeq' })
+					new SearchParameterDefinition({ type: 'token', field: 'referenceSeq.chromosome', arrayField: null }),
+					new SearchParameterDefinition({ type: 'number', field: 'referenceSeq.windowStart', arrayField: null }),
+					new SearchParameterDefinition({ type: 'number', field: 'referenceSeq.windowEnd', arrayField: null })
 				] }
 			]
 		}),
@@ -7093,9 +6365,9 @@ const searchParameterQueries = {
 			type: 'composite',
 			scopes: [
 				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'referenceSeqId', arrayField: 'referenceSeq' }),
-					new SearchParameterDefinition({ type: 'number', field: 'windowStart', arrayField: 'referenceSeq' }),
-					new SearchParameterDefinition({ type: 'number', field: 'windowEnd', arrayField: 'referenceSeq' })
+					new SearchParameterDefinition({ type: 'token', field: 'referenceSeq.referenceSeqId', arrayField: null }),
+					new SearchParameterDefinition({ type: 'number', field: 'referenceSeq.windowStart', arrayField: null }),
+					new SearchParameterDefinition({ type: 'number', field: 'referenceSeq.windowEnd', arrayField: null })
 				] }
 			]
 		})
@@ -7194,59 +6466,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -7254,58 +6474,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -7596,7 +6764,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: null }),
-					new SearchParameterDefinition({ type: 'date', field: 'valueDateTime', arrayField: null, fieldTypesObj: { valueDateTime: 'datetime' } })
+					new SearchParameterDefinition({ type: 'date', fields: ['valueDateTime', 'valuePeriod'], arrayField: null, fieldTypesObj: { valueDateTime: 'datetime', valuePeriod: 'period' } })
 				] }
 			]
 		}),
@@ -7780,59 +6948,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -7840,58 +6956,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -8563,7 +7627,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -8999,7 +8063,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -9407,7 +8471,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -9541,7 +8605,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -9890,59 +8954,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -9950,58 +8962,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -10385,59 +9345,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -10445,58 +9353,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -10577,59 +9433,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -10637,58 +9441,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -11094,59 +9846,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -11154,58 +9854,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
@@ -11325,7 +9973,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -11428,59 +10076,7 @@ const searchParameterQueries = {
 			scopes: [
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity', arrayField: 'useContext' })
+					new SearchParameterDefinition({ type: 'quantity', fields: ['valueQuantity', 'valueRange'], arrayField: 'useContext' })
 				] }
 			]
 		}),
@@ -11488,58 +10084,6 @@ const searchParameterQueries = {
 			description: 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			type: 'composite',
 			scopes: [
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
-				{ components: [
-					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
-					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })
-				] },
 				{ components: [
 					new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: 'useContext' }),
 					new SearchParameterDefinition({ type: 'token', field: 'valueCodeableConcept', arrayField: 'useContext' })

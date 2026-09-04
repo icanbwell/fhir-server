@@ -13,6 +13,7 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Union
 
 # Add the project root to the Python path to resolve imports
 project_root = Path(__file__).parent.parent.parent
@@ -177,6 +178,30 @@ def _parse_cast_alternatives(expr: str) -> List[str]:
     return alternatives
 
 
+def _field_type_info(resource_name: str, dotted_path: str, resource_field_types: Dict) -> Optional[Dict]:
+    return resource_field_types.get(f"{resource_name}.{dotted_path}")
+
+
+def _is_true_array_path(resource_name: str, array_path: str, resource_field_types: Dict) -> bool:
+    """Only trust a scope's array path as a genuine repeating array (max cardinality '*') if
+    resource_field_types confirms it. A few composite scopes name a singular (0..1/1..1) element
+    instead -- e.g. MolecularSequence.referenceSeq is max '1', not a repeating BackboneElement --
+    and those must be treated as root-equivalent (no $elemMatch-style array scope)."""
+    field_info = _field_type_info(resource_name, array_path, resource_field_types)
+    return bool(field_info) and field_info.get('max') == '*'
+
+
+def _array_path_is_backbone(resource_name: str, array_path: str, resource_field_types: Dict) -> bool:
+    """True only if the array path's own element type is BackboneElement, meaning its sub-fields
+    are themselves directly enumerated in resource_field_types (which only parses
+    profiles-resources.xml, i.e. resource-level and BackboneElement-nested elements -- it never
+    descends into complex datatypes like UsageContext, Range, etc.). Used to decide whether an
+    absent synthesized sub-path is trustworthy evidence of a bogus path, or just a datatype whose
+    internals resource_field_types was never going to have."""
+    field_info = _field_type_info(resource_name, array_path, resource_field_types)
+    return bool(field_info) and field_info.get('code') == 'BackboneElement'
+
+
 def resolve_composite_component(
     component_expression: str,      # e.g. "code", "value.as(Quantity)", "%resource.referenceSeq.chromosome"
     definition_url: str,             # component["definition"]
@@ -185,9 +210,14 @@ def resolve_composite_component(
     all_array_paths_for_this_composite: List[str],  # e.g. ["component"] for combo-*, [] for root-only/array-only composites
     url_to_code: Dict[str, str],     # built once: {entry["resource"]["url"]: entry["resource"]["code"]}
     sample_dict: Dict[str, Dict[str, List[QueryEntry]]],
-) -> QueryEntry:
-    """Returns the single QueryEntry this component resolves to for this scope, or raises
-    ValueError if it can't be resolved to exactly one."""
+    resource_field_types: Dict,      # from get_resources_fields_data(): "<Resource>.<dotted.path>" -> {code, min, max}
+) -> Union[QueryEntry, List[QueryEntry]]:
+    """Returns the QueryEntry this component resolves to for this scope, or -- when a component's
+    expression is a union of 2+ polymorphic `.as(Type)` casts that EACH resolve to exactly one
+    live candidate (e.g. 'value.as(Quantity) | value.as(Range)' where both Quantity and Range
+    fields genuinely exist) -- a LIST of the QueryEntrys for all of them, so the caller can render
+    a plural fields[]/fieldTypesObj instead of silently dropping every alternative but one.
+    Raises ValueError if it can't be resolved to at least one."""
 
     # 1. %resource. override: always resolves against the resource root, regardless of this
     #    scope's own array path.
@@ -237,52 +267,72 @@ def resolve_composite_component(
             # this array scope by rewriting its field to carry the expected prefix.
             other_prefixes = tuple(p + '.' for p in all_array_paths_for_this_composite)
             if not any(c.field.startswith(other_prefixes) for c in candidates):
-                scoped = [replace(c, field=prefix + c.field) for c in candidates]
+                synthesized = [replace(c, field=prefix + c.field) for c in candidates]
+                if _array_path_is_backbone(outer_resource, effective_array_path, resource_field_types):
+                    # Guard against synthesizing a path that doesn't actually exist on this
+                    # BackboneElement -- resource_field_types enumerates BackboneElement
+                    # sub-fields directly, so absence here IS evidence of a bogus path. Skip
+                    # this check entirely when the array path's own type isn't a BackboneElement
+                    # (e.g. UsageContext, Range) -- resource_field_types never has datatype
+                    # internals, so absence there proves nothing.
+                    synthesized = [
+                        c for c in synthesized
+                        if _field_type_info(outer_resource, c.field, resource_field_types) is not None
+                    ]
+                scoped = synthesized
     else:
         other_prefixes = tuple(p + '.' for p in all_array_paths_for_this_composite)
         scoped = [c for c in candidates if not c.field.startswith(other_prefixes)]
     if not scoped:
         raise ValueError(f"composite component code {referenced_code!r} has no field matching scope (array_path={effective_array_path!r}) for resource {outer_resource!r}")
 
-    # 5. Cast-filter: if more than one candidate remains (polymorphic value[x]), narrow to the
-    #    one whose leaf field name (after stripping the array prefix) matches one of the
-    #    FHIRPath casts, preferring the earliest-declared alternative that has exactly one live
-    #    candidate (e.g. 'value.as(Quantity) | value.as(Range)' picks the Quantity field when
-    #    both exist for this resource).
+    # 5. Cast-filter: if more than one candidate remains (polymorphic value[x]), match each
+    #    declared `.as(Type)` alternative to the (at most one) candidate whose leaf field name
+    #    (after stripping the array prefix) matches it. If exactly ONE alternative resolves,
+    #    return that single field (the common case). If MULTIPLE alternatives each resolve to
+    #    exactly one live candidate (e.g. 'value.as(Quantity) | value.as(Range)' where both a
+    #    Quantity and a Range field genuinely exist for this resource), return ALL of them --
+    #    the caller renders a plural fields[]/fieldTypesObj instead of silently keeping only one
+    #    and dropping real, matchable data.
     if len(scoped) > 1:
         if not expected_leaf_suffixes:
             raise ValueError(f"composite component code {referenced_code!r} is ambiguous ({len(scoped)} candidates) for resource {outer_resource!r} and has no .as(Type) cast to disambiguate")
         def leaf(entry: QueryEntry) -> str:
             f = entry.field
             return f[len(effective_array_path) + 1:] if effective_array_path else f
-        narrowed = None
+        resolved_alternatives: List[QueryEntry] = []
         for expected_leaf_suffix in expected_leaf_suffixes:
             matching = [c for c in scoped if leaf(c) == expected_leaf_suffix]
             if len(matching) == 1:
-                narrowed = matching
-                break
-        if narrowed is None:
+                resolved_alternatives.append(matching[0])
+            elif len(matching) > 1:
+                raise ValueError(f"composite component code {referenced_code!r} cast {expected_leaf_suffix!r} matched {len(matching)} candidates (expected at most 1) for resource {outer_resource!r}")
+        if not resolved_alternatives:
             raise ValueError(f"composite component code {referenced_code!r} cast(s) {expected_leaf_suffixes!r} did not resolve to exactly one field for resource {outer_resource!r} (got {len(scoped)} candidates)")
-        scoped = narrowed
+        return resolved_alternatives[0] if len(resolved_alternatives) == 1 else resolved_alternatives
 
     return scoped[0]
 
 
 def build_composite_scopes(
     resource: Dict[str, Any],
+    base_resource: str,
     sample_dict: Dict[str, Dict[str, List[QueryEntry]]],
     url_to_code: Dict[str, str],
+    resource_field_types: Dict,
 ) -> List[Dict[str, Any]]:
-    """Returns [{'components': [QueryEntry-with-array_field, ...]}, ...] for one composite
-    SearchParameter resource dict, one entry per '|'-separated scope in its own expression.
+    """Returns [{'components': [QueryEntry-with-array_field, ...]}, ...] for the ONE base
+    resource `base_resource`, one entry per '|'-separated scope in the composite's own
+    `expression` that actually belongs to it.
 
     Most composites have a single base resource and every '|'-separated scope in `expression`
     is relative to it (e.g. combo-* composites: 'Observation | Observation.component'). A few
     "Multiple Resources" composites (e.g. context-type-quantity) instead have multiple base
     resources with exactly one scope per base, each relative to its OWN resource name (e.g.
-    'CapabilityStatement.useContext | CodeSystem.useContext | ...'). Resolve each scope against
-    whichever base resource it's actually relative to, rather than assuming they're all relative
-    to base[0].
+    'CapabilityStatement.useContext | CodeSystem.useContext | ...'). `main()` calls this once per
+    base resource; only the scope(s) belonging to `base_resource` are built here -- e.g.
+    CapabilityStatement's call gets just its own 'CapabilityStatement.useContext' scope, not all
+    14 base resources' scopes.
     """
     bases = resource["base"]
     scope_exprs = [s.strip() for s in resource["expression"].split('|')]
@@ -297,37 +347,83 @@ def build_composite_scopes(
 
     scope_resources = [resource_for_scope(scope_expr) for scope_expr in scope_exprs]
 
-    array_paths_by_resource: Dict[str, List[str]] = {}
-    for scope_expr, scope_resource in zip(scope_exprs, scope_resources):
-        if scope_expr != scope_resource:
-            array_paths_by_resource.setdefault(scope_resource, []).append(scope_expr[len(scope_resource) + 1:])
+    own_scope_exprs = [
+        scope_expr for scope_expr, scope_resource in zip(scope_exprs, scope_resources)
+        if scope_resource == base_resource
+    ]
+    if not own_scope_exprs:
+        raise ValueError(f"composite {resource.get('code')!r} has no scope expression for base resource {base_resource!r}")
+
+    raw_array_paths = [
+        None if scope_expr == base_resource else scope_expr[len(base_resource) + 1:]
+        for scope_expr in own_scope_exprs
+    ]
+
+    # A scope's array path is only a genuine repeating array -- and thus emits arrayField plus a
+    # stripped relative field -- if resource_field_types confirms max cardinality '*'. A handful
+    # of composites (e.g. MolecularSequence.referenceSeq, max '1') name a singular element
+    # instead; treat those as root-equivalent: arrayField None, full dotted field path kept.
+    effective_array_paths = [
+        raw_array_path if raw_array_path and _is_true_array_path(base_resource, raw_array_path, resource_field_types)
+        else None
+        for raw_array_path in raw_array_paths
+    ]
+
+    # Only genuinely-array scopes should make the root scope exclude their fields.
+    array_paths = [p for p in effective_array_paths if p is not None]
 
     scopes = []
-    for scope_expr, scope_resource in zip(scope_exprs, scope_resources):
-        array_path = None if scope_expr == scope_resource else scope_expr[len(scope_resource) + 1:]
+    for array_path in effective_array_paths:
         components = []
         for component in resource["component"]:
             resolved = resolve_composite_component(
                 component_expression=component["expression"],
                 definition_url=component["definition"],
-                outer_resource=scope_resource,
+                outer_resource=base_resource,
                 scope_array_path=array_path,
-                all_array_paths_for_this_composite=array_paths_by_resource.get(scope_resource, []),
+                all_array_paths_for_this_composite=array_paths,
                 url_to_code=url_to_code,
                 sample_dict=sample_dict,
+                resource_field_types=resource_field_types,
             )
+            resolved_list = resolved if isinstance(resolved, list) else [resolved]
             effective_array_path = None if component["expression"].startswith('%resource.') else array_path
-            relative_field = (
-                resolved.field[len(effective_array_path) + 1:]
-                if effective_array_path else resolved.field
-            )
-            components.append({
-                'type_': resolved.type_,
-                'field': relative_field,
-                'array_field': effective_array_path,
-                'target': resolved.target,  # needed by FilterByReference-typed components
-                'field_type': resolved.field_type if resolved.type_ == 'date' else None,  # -> fieldTypesObj, needed by FilterByDateTime's period/timing branch
-            })
+
+            def relative(field: str) -> str:
+                return field[len(effective_array_path) + 1:] if effective_array_path else field
+
+            if len(resolved_list) == 1:
+                r = resolved_list[0]
+                components.append({
+                    'type_': r.type_,
+                    'field': relative(r.field),
+                    'fields': None,
+                    'array_field': effective_array_path,
+                    'target': r.target,  # needed by FilterByReference-typed components
+                    'field_type': r.field_type if r.type_ == 'date' else None,  # -> fieldTypesObj, needed by FilterByDateTime's period/timing branch
+                    'field_types': None,
+                })
+            else:
+                # 2+ polymorphic .as(Type) alternatives each resolved to exactly one live
+                # candidate (e.g. 'value.as(Quantity) | value.as(Range)') -- keep ALL of them,
+                # mirroring how pass-1's own multi-field rendering already works for the
+                # non-composite equivalent, instead of silently dropping every alternative but
+                # one.
+                relative_fields = [relative(r.field) for r in resolved_list]
+                field_types = {
+                    relative(r.field): r.field_type.lower()
+                    for r in resolved_list
+                    if r.type_ == 'date' and r.field_type
+                }
+                components.append({
+                    'type_': resolved_list[0].type_,  # all alternatives share the referenced SearchParameter's declared type
+                    'field': None,
+                    'fields': relative_fields,
+                    'array_field': effective_array_path,
+                    'target': resolved_list[0].target,
+                    'field_type': None,
+                    'field_types': field_types or None,
+                })
         scopes.append({'components': components})
     return scopes
 
@@ -355,7 +451,7 @@ def main() -> int:
         for base_resource in resource["base"]:
             composite_scopes_by_resource_and_code.setdefault(base_resource, {})[resource["code"]] = {
                 'description': resource.get("description", ""),
-                'scopes': build_composite_scopes(resource, sample_dict, url_to_code),
+                'scopes': build_composite_scopes(resource, base_resource, sample_dict, url_to_code, resource_field_types),
             }
 
     # generate the file
@@ -548,12 +644,25 @@ def write_search_parameter_dict(field_filter_regex, file2, sample_dict, composit
                     if comp['target']:
                         target_list = ", ".join(f"'{t}'" for t in comp['target'])
                         extra_fields += f", 'target': [{target_list}]"
-                    if comp['field_type']:
-                        extra_fields += f", 'fieldTypesObj': {{ '{comp['field']}': '{comp['field_type'].lower()}' }}"
-                    if is_python:
-                        file2.write(f"\t\t\t\t\t{{ 'type': '{comp['type_']}', 'field': '{comp['field']}', 'array_field': {array_field_literal} }},\n")
+                    if comp.get('fields'):
+                        # 2+ polymorphic .as(Type) alternatives each resolved to a live field --
+                        # mirror the plural fields[]/fieldTypesObj rendering used above for the
+                        # non-composite, multi-field case, instead of the singular 'field'.
+                        fields_list = ", ".join(f"'{f}'" for f in comp['fields'])
+                        if comp['field_types']:
+                            field_types_str = ", ".join(f"'{k}': '{v}'" for k, v in comp['field_types'].items())
+                            extra_fields += f", 'fieldTypesObj': {{ {field_types_str} }}"
+                        if is_python:
+                            file2.write(f"\t\t\t\t\t{{ 'type': '{comp['type_']}', 'fields': [{fields_list}], 'array_field': {array_field_literal} }},\n")
+                        else:
+                            file2.write(f"\t\t\t\t\tnew SearchParameterDefinition({{ 'type': '{comp['type_']}', 'fields': [{fields_list}], 'arrayField': {array_field_literal}{extra_fields} }}),\n")
                     else:
-                        file2.write(f"\t\t\t\t\tnew SearchParameterDefinition({{ 'type': '{comp['type_']}', 'field': '{comp['field']}', 'arrayField': {array_field_literal}{extra_fields} }}),\n")
+                        if comp['field_type']:
+                            extra_fields += f", 'fieldTypesObj': {{ '{comp['field']}': '{comp['field_type'].lower()}' }}"
+                        if is_python:
+                            file2.write(f"\t\t\t\t\t{{ 'type': '{comp['type_']}', 'field': '{comp['field']}', 'array_field': {array_field_literal} }},\n")
+                        else:
+                            file2.write(f"\t\t\t\t\tnew SearchParameterDefinition({{ 'type': '{comp['type_']}', 'field': '{comp['field']}', 'arrayField': {array_field_literal}{extra_fields} }}),\n")
                 file2.write("\t\t\t\t] },\n")
             file2.write("\t\t\t],\n")
             if is_python:

@@ -165,7 +165,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -824,59 +824,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -884,58 +832,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -1278,7 +1174,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -1372,7 +1268,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -1785,59 +1681,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -1845,58 +1689,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -2151,59 +1943,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -2211,58 +1951,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -2504,59 +2192,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -2564,58 +2200,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -4062,7 +3646,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -4140,7 +3724,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -4197,7 +3781,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -4280,7 +3864,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -4358,7 +3942,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -4675,59 +4259,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -4735,58 +4267,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -4848,7 +4328,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'characteristic' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'characteristic' },
+					{ 'type': 'token', 'fields': ['valueCodeableConcept', 'valueBoolean'], 'array_field': 'characteristic' },
 				] },
 			],
 		},
@@ -5306,59 +4786,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -5366,58 +4794,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -5746,7 +5122,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -6065,7 +5441,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -6804,59 +6180,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -6864,58 +6188,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -7065,9 +6337,9 @@ search_parameter_queries = {
 			'type': 'composite',
 			'scopes': [
 				{ 'components': [
-					{ 'type': 'token', 'field': 'chromosome', 'array_field': 'referenceSeq' },
-					{ 'type': 'number', 'field': 'windowStart', 'array_field': 'referenceSeq' },
-					{ 'type': 'number', 'field': 'windowEnd', 'array_field': 'referenceSeq' },
+					{ 'type': 'token', 'field': 'referenceSeq.chromosome', 'array_field': None },
+					{ 'type': 'number', 'field': 'referenceSeq.windowStart', 'array_field': None },
+					{ 'type': 'number', 'field': 'referenceSeq.windowEnd', 'array_field': None },
 				] },
 			],
 		},
@@ -7087,9 +6359,9 @@ search_parameter_queries = {
 			'type': 'composite',
 			'scopes': [
 				{ 'components': [
-					{ 'type': 'token', 'field': 'referenceSeqId', 'array_field': 'referenceSeq' },
-					{ 'type': 'number', 'field': 'windowStart', 'array_field': 'referenceSeq' },
-					{ 'type': 'number', 'field': 'windowEnd', 'array_field': 'referenceSeq' },
+					{ 'type': 'token', 'field': 'referenceSeq.referenceSeqId', 'array_field': None },
+					{ 'type': 'number', 'field': 'referenceSeq.windowStart', 'array_field': None },
+					{ 'type': 'number', 'field': 'referenceSeq.windowEnd', 'array_field': None },
 				] },
 			],
 		},
@@ -7188,59 +6460,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -7248,58 +6468,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -7590,7 +6758,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': None },
-					{ 'type': 'date', 'field': 'valueDateTime', 'array_field': None },
+					{ 'type': 'date', 'fields': ['valueDateTime', 'valuePeriod'], 'array_field': None },
 				] },
 			],
 		},
@@ -7774,59 +6942,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -7834,58 +6950,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -8557,7 +7621,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -8993,7 +8057,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -9401,7 +8465,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -9535,7 +8599,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -9884,59 +8948,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -9944,58 +8956,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -10379,59 +9339,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -10439,58 +9347,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -10571,59 +9427,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -10631,58 +9435,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -11088,59 +9840,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -11148,58 +9848,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
@@ -11319,7 +9967,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -11422,59 +10070,7 @@ search_parameter_queries = {
 			'scopes': [
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'fields': ['valueQuantity', 'valueRange'], 'array_field': 'useContext' },
 				] },
 			],
 		},
@@ -11482,58 +10078,6 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
 			'type': 'composite',
 			'scopes': [
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
-				{ 'components': [
-					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
-					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
-				] },
 				{ 'components': [
 					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
 					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
