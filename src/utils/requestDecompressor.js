@@ -2,6 +2,14 @@ const zlib = require('zlib');
 const { Transform } = require('stream');
 const bytesParse = require('bytes');
 const { UnsupportedMediaTypeError, PayloadTooLargeError } = require('./httpErrors');
+const { logWarn } = require('../operations/common/logging');
+
+/**
+ * Fallback cap on decompressed request bodies, used when no limit is passed in or the one that
+ * was passed in can't be parsed. Matches ConfigManager.payloadLimit's own default.
+ * @type {string}
+ */
+const DEFAULT_MAX_DECOMPRESSED_SIZE = '50mb';
 
 /**
  * Guards against decompression-bomb DoS: the buffered $merge path gets a body-size cap for
@@ -35,6 +43,30 @@ class DecompressedSizeLimitTransform extends Transform {
 }
 
 /**
+ * Parses a payload-limit string (e.g. '50mb') into a byte count, falling back to the default if
+ * it can't be parsed. `bytes()` returns null for an unparseable value, and a null maxBytes would
+ * make every size comparison below true - failing every compressed request with a 413 - so an
+ * unparseable PAYLOAD_LIMIT must not be passed through silently. Falling back keeps the limit
+ * enforced (unlike body-parser, which treats an unparseable limit as no limit at all) while the
+ * warning surfaces the misconfiguration.
+ *
+ * @param {string|number} maxDecompressedSize
+ * @returns {number} the cap in bytes
+ */
+function resolveMaxBytes (maxDecompressedSize) {
+    const maxBytes = bytesParse(maxDecompressedSize);
+    if (maxBytes !== null && maxBytes !== undefined) {
+        return maxBytes;
+    }
+    logWarn(
+        `requestDecompressor: could not parse "${maxDecompressedSize}" as a size ` +
+        `(check the PAYLOAD_LIMIT env var); falling back to ${DEFAULT_MAX_DECOMPRESSED_SIZE}`,
+        {}
+    );
+    return bytesParse(DEFAULT_MAX_DECOMPRESSED_SIZE);
+}
+
+/**
  * Returns the decompression Transform stream(s) for the given Content-Encoding header value,
  * as an array suitable for spreading directly into a stream.pipeline() call - empty if the
  * body is not compressed (identity encoding). Mirrors body-parser's own supported encodings
@@ -50,7 +82,7 @@ class DecompressedSizeLimitTransform extends Transform {
  * @returns {import('stream').Transform[]}
  * @throws {UnsupportedMediaTypeError} if the encoding is not identity/gzip/deflate
  */
-function getRequestDecompressor (contentEncodingHeader, operationName = 'request', maxDecompressedSize = '50mb') {
+function getRequestDecompressor (contentEncodingHeader, operationName = 'request', maxDecompressedSize = DEFAULT_MAX_DECOMPRESSED_SIZE) {
     const contentEncoding = (contentEncodingHeader || 'identity').toLowerCase();
     switch (contentEncoding) {
         case 'identity':
@@ -59,7 +91,7 @@ function getRequestDecompressor (contentEncodingHeader, operationName = 'request
         case 'deflate': {
             const decompressStream = contentEncoding === 'gzip' ? zlib.createGunzip() : zlib.createInflate();
             const sizeLimitTransform = new DecompressedSizeLimitTransform({
-                maxBytes: bytesParse(maxDecompressedSize),
+                maxBytes: resolveMaxBytes(maxDecompressedSize),
                 operationName
             });
             return [decompressStream, sizeLimitTransform];
