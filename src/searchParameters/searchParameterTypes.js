@@ -116,7 +116,9 @@ class SearchParameterDefinition {
                 fieldType: this.fieldType,
                 fieldTypesObj: this.fieldTypesObj,
                 scopes: this.scopes
-                    ? this.scopes.map(scope => ({ components: scope.components.map(c => c.clone()) }))
+                    ? this.scopes.map((scope) => ({
+                          components: scope.components.map((c) => c.clone()),
+                      }))
                     : undefined,
                 arrayField: this.arrayField
             }
@@ -138,7 +140,9 @@ class SearchParameterDefinition {
             fieldType: this.fieldType,
             fieldTypesObj: this.fieldTypesObj,
             scopes: this.scopes
-                ? this.scopes.map(scope => ({ components: scope.components.map(c => c.toJSON()) }))
+                ? this.scopes.map((scope) => ({
+                      components: scope.components.map((c) => c.toJSON()),
+                  }))
                 : undefined,
             arrayField: this.arrayField
         };

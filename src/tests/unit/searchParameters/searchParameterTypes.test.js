@@ -3,10 +3,14 @@ const { SearchParameterDefinition } = require('../../../searchParameters/searchP
 
 describe('SearchParameterDefinition composite support', () => {
     test('stores scopes and exposes them unchanged', () => {
-        const component = new SearchParameterDefinition({ type: 'token', field: 'code', arrayField: null });
+        const component = new SearchParameterDefinition({
+            type: 'token',
+            field: 'code',
+            arrayField: null,
+        });
         const def = new SearchParameterDefinition({
             type: 'composite',
-            scopes: [{ components: [component] }]
+            scopes: [{ components: [component] }],
         });
         expect(def.type).toBe('composite');
         expect(def.scopes).toHaveLength(1);
@@ -20,8 +24,15 @@ describe('SearchParameterDefinition composite support', () => {
     });
 
     test('clone() deep-copies scopes and each component (including arrayField)', () => {
-        const component = new SearchParameterDefinition({ type: 'token', field: 'component.code', arrayField: 'component' });
-        const def = new SearchParameterDefinition({ type: 'composite', scopes: [{ components: [component] }] });
+        const component = new SearchParameterDefinition({
+            type: 'token',
+            field: 'component.code',
+            arrayField: 'component',
+        });
+        const def = new SearchParameterDefinition({
+            type: 'composite',
+            scopes: [{ components: [component] }],
+        });
         const cloned = def.clone();
         expect(cloned).not.toBe(def);
         expect(cloned.scopes[0].components[0]).not.toBe(component);
@@ -30,8 +41,14 @@ describe('SearchParameterDefinition composite support', () => {
     });
 
     test('toJSON() includes scopes', () => {
-        const component = new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity' });
-        const def = new SearchParameterDefinition({ type: 'composite', scopes: [{ components: [component] }] });
+        const component = new SearchParameterDefinition({
+            type: 'quantity',
+            field: 'valueQuantity',
+        });
+        const def = new SearchParameterDefinition({
+            type: 'composite',
+            scopes: [{ components: [component] }],
+        });
         const json = def.toJSON();
         expect(json.scopes[0].components[0].field).toBe('valueQuantity');
     });
