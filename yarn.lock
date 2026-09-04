@@ -5386,7 +5386,7 @@ __metadata:
     graphql-parse-resolve-info: "npm:^4.14.1"
     graphql-schema-linter: "npm:^3.0.1"
     helmet: "npm:^8.2.0"
-    hono: "npm:^4.13.1"
+    hono: "npm:^4.13.5"
     jest: "npm:^30.4.2"
     jest-diff: "npm:^30.4.1"
     jest-extended: "npm:^7.0.0"
@@ -7332,10 +7332,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hono@npm:^4.13.1":
-  version: 4.13.1
-  resolution: "hono@npm:4.13.1"
-  checksum: 10c0/83524961f806293464e6c3b31a7fd2ab8cd8e9cb66e65dea1fbbefb70744844c13b7409ed9b49b43e8543e5c0f1b851f2586fa759eea9da0b69503b58cd0d985
+"hono@npm:^4.13.5":
+  version: 4.13.5
+  resolution: "hono@npm:4.13.5"
+  checksum: 10c0/c4ec94e9d6fdefbdfc011b3f06a201ed134c38c8db77fb65ef7282ef445526ce188ce3f80a2f2638ad30d93bb2a03e43bb34ed254a82b8e82011e5d7e0dc02ba
   languageName: node
   linkType: hard
 
