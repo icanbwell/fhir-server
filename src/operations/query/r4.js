@@ -1,4 +1,5 @@
 const { OPERATIONS: { DELETE }, RESOURCE_HIDDEN_TAG } = require('../../constants');
+const { BadRequestError } = require('../../utils/httpErrors');
 const { fhirFilterTypes } = require('./customQueries');
 const { FilterByString } = require('./filters/string');
 const { FilterByUri } = require('./filters/uri');
@@ -25,6 +26,7 @@ const { FilterByQuantity } = require('./filters/quantity');
 const { isTrue } = require('../../utils/isTrue');
 const { FilterByOfType } = require('./filters/ofType');
 const { FilterByNumber } = require('./filters/number');
+const { FilterByComposite } = require('./filters/composite');
 
 class R4SearchQueryCreator {
     /**
@@ -111,7 +113,12 @@ class R4SearchQueryCreator {
 
                 // replace andSegments according to modifiers
                 // noinspection IfStatementWithTooManyBranchesJS
-                if (parsedArg.modifiers.includes('missing')) {
+                if (parsedArg.propertyObj.type === fhirFilterTypes.composite &&
+                    ['missing', 'contains', 'above', 'below', 'text', 'of-type'].some(m => parsedArg.modifiers.includes(m))) {
+                    throw new BadRequestError(new Error(
+                        `Modifiers [missing, contains, above, below, text, of-type] are not supported on composite search parameters (queryParameter=${parsedArg.queryParameter})`
+                    ));
+                } else if (parsedArg.modifiers.includes('missing')) {
                     andSegments = new FilterByMissing(filterParameters).filter();
                 } else if (parsedArg.modifiers.includes('contains')) {
                     andSegments = new FilterByContains(filterParameters).filter();
@@ -251,6 +258,9 @@ class R4SearchQueryCreator {
                     break;
                 case fhirFilterTypes.number:
                     andSegments = new FilterByNumber(filterParameters).filter();
+                    break;
+                case fhirFilterTypes.composite:
+                    andSegments = new FilterByComposite(filterParameters).filter();
                     break;
                 default:
                     throw new Error('Unknown type=' + propertyObj.type);
