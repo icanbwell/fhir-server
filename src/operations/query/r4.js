@@ -143,7 +143,10 @@ class R4SearchQueryCreator {
                 } else {
                     andSegments.forEach(q => totalAndSegments.push(q));
                 }
-                if (parsedArg.propertyObj.type === 'quantity') {
+                if (parsedArg.propertyObj.type === 'quantity' ||
+                    (parsedArg.propertyObj.type === fhirFilterTypes.composite &&
+                        parsedArg.propertyObj.scopes.some(scope =>
+                            scope.components.some(c => c.type === 'quantity')))) {
                     includesQuantityType = true;
                 }
             }

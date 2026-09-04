@@ -74,6 +74,14 @@ class FilterByComposite extends BaseFilter {
      */
     filterOneValue(value) {
         const parts = value.split('$');
+        if (parts.some((p) => !p || !p.trim())) {
+            throw new BadRequestError(
+                new Error(
+                    `Composite search parameter value '${value}' has an empty component value -- ` +
+                        "every '$'-separated part must be non-empty"
+                )
+            );
+        }
         const scopeConditions = this.propertyObj.scopes.map((scope) => {
             if (parts.length !== scope.components.length) {
                 throw new BadRequestError(
@@ -98,6 +106,20 @@ class FilterByComposite extends BaseFilter {
 
         scope.components.forEach((component, i) => {
             const segments = this.filterOneComponent(component, parts[i]);
+            // belt-and-suspenders: filterOneValue already rejects empty/whitespace-only parts,
+            // so a non-empty value reaching here should always produce at least one segment. If
+            // some future filter class silently no-ops on a value it can't handle instead of
+            // throwing, fail loudly here rather than let filterOneScope quietly drop this
+            // component's constraint from the AND (which would widen the query instead of
+            // rejecting the request).
+            if (segments.length === 0) {
+                throw new BadRequestError(
+                    new Error(
+                        `Composite component (field=${component.firstField}, type=${component.type}) ` +
+                            `produced no filter for value '${parts[i]}'`
+                    )
+                );
+            }
             if (component.arrayField) {
                 if (!segmentsByArrayField.has(component.arrayField)) {
                     segmentsByArrayField.set(component.arrayField, []);

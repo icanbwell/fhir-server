@@ -170,6 +170,48 @@ describe('FilterByComposite', () => {
         expectBadRequestError(() => makeFilter(composite, { value: 'only-one-part' }).filter());
     });
 
+    test('trailing empty $-part (e.g. code-value-quantity=8480-6$) throws BadRequestError', () => {
+        const component1 = new SearchParameterDefinition({
+            type: 'token',
+            field: 'code',
+            fieldType: 'CodeableConcept'
+        });
+        const component2 = new SearchParameterDefinition({
+            type: 'quantity',
+            field: 'valueQuantity'
+        });
+        const composite = makeComposite([{ components: [component1, component2] }]);
+        expectBadRequestError(() => makeFilter(composite, { value: '8480-6$' }).filter());
+    });
+
+    test('all-empty $-parts (e.g. code-value-quantity=$) throws BadRequestError instead of matching everything', () => {
+        const component1 = new SearchParameterDefinition({
+            type: 'token',
+            field: 'code',
+            fieldType: 'CodeableConcept'
+        });
+        const component2 = new SearchParameterDefinition({
+            type: 'quantity',
+            field: 'valueQuantity'
+        });
+        const composite = makeComposite([{ components: [component1, component2] }]);
+        expectBadRequestError(() => makeFilter(composite, { value: '$' }).filter());
+    });
+
+    test('whitespace-only $-part throws BadRequestError', () => {
+        const component1 = new SearchParameterDefinition({
+            type: 'token',
+            field: 'code',
+            fieldType: 'CodeableConcept'
+        });
+        const component2 = new SearchParameterDefinition({
+            type: 'quantity',
+            field: 'valueQuantity'
+        });
+        const composite = makeComposite([{ components: [component1, component2] }]);
+        expectBadRequestError(() => makeFilter(composite, { value: '8480-6$   ' }).filter());
+    });
+
     test('rejected modifier (contains) throws BadRequestError', () => {
         const component1 = new SearchParameterDefinition({ type: 'token', field: 'code' });
         const component2 = new SearchParameterDefinition({
