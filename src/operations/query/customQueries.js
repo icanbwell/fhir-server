@@ -65,7 +65,11 @@ const fhirFilterTypes = {
     /**
      * usage: ?param=<lt...>number
      */
-    number: 'number'
+    number: 'number',
+    /**
+     * usage: ?param=componentValue1$componentValue2 (one $-joined part per component)
+     */
+    composite: 'composite'
 };
 
 const vulcanIgSearchQueries = {
