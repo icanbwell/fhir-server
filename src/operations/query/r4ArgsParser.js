@@ -193,7 +193,9 @@ class R4ArgsParser {
                             ? this.fhirTypesManager.getTypeForField(
                                 {
                                     resourceType,
-                                    field: component.firstField
+                                    field: component.arrayField
+                                        ? `${component.arrayField}.${component.firstField}`
+                                        : component.firstField
                                 }
                             ) : null;
                     }

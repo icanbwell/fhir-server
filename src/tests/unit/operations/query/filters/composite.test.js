@@ -236,6 +236,62 @@ describe('FilterByComposite', () => {
         );
     });
 
+    test('array-scoped token component on a Coding-shaped field (e.g. useContext.code) uses the ' +
+        'type-agnostic fallback -- not the CodeableConcept branch, which can never match', () => {
+        // Regression guard for the r4ArgsParser fieldType-resolution bug (fixed by resolving via
+        // `${arrayField}.${firstField}`, not the bare relative field): useContext.code is a Coding
+        // per the FHIR UsageContext datatype, but that nested path isn't present in the generated
+        // field-types data (UsageContext isn't a backbone element), so the correctly-resolved
+        // fieldType for it is `undefined` -- which routes FilterByToken to its type-agnostic
+        // fallback ($or of exact-match / token-match on the bare field / token-match on
+        // `field.coding`). Before the fix, resolving fieldType off the bare relative field name
+        // (e.g. 'ActivityDefinition.code') incorrectly returned 'CodeableConcept', forcing the
+        // filter onto `code.coding` alone -- a shape that never matches a real Coding value.
+        const contextCode = new SearchParameterDefinition({
+            type: 'token',
+            field: 'code',
+            arrayField: 'useContext'
+            // fieldType intentionally omitted -- matches the real resolved value (undefined) for
+            // this path, per FhirTypesManager.getTypeForField({resourceType, field: 'useContext.code'})
+        });
+        const contextValue = new SearchParameterDefinition({
+            type: 'quantity',
+            field: 'valueQuantity',
+            arrayField: 'useContext'
+        });
+        const composite = makeComposite([{ components: [contextCode, contextValue] }]);
+        const result = makeFilter(composite, { value: 'system|program$ge140' }).filter();
+        const [
+            {
+                $and: [andSegments]
+            }
+        ] = result;
+        const [codeSegment] = andSegments.useContext.$elemMatch.$and;
+        const codeSegmentJson = JSON.stringify(codeSegment);
+        // Type-agnostic fallback: tries the bare field directly (matches a Coding stored at
+        // useContext.code) as one of several $or branches.
+        expect(codeSegmentJson).toMatch(/"code\.system"/);
+        expect(codeSegmentJson).toMatch(/"code\.code"/);
+
+        // Now prove the CodeableConcept branch this guards against really would produce a
+        // different, narrower shape that omits the bare-field match entirely.
+        const wrongContextCode = new SearchParameterDefinition({
+            type: 'token',
+            field: 'code',
+            arrayField: 'useContext',
+            fieldType: 'CodeableConcept'
+        });
+        const wrongComposite = makeComposite([{ components: [wrongContextCode, contextValue] }]);
+        const wrongResult = makeFilter(wrongComposite, { value: 'system|program$ge140' }).filter();
+        const [
+            {
+                $and: [wrongAndSegments]
+            }
+        ] = wrongResult;
+        const [wrongCodeSegment] = wrongAndSegments.useContext.$elemMatch.$and;
+        expect(JSON.stringify(wrongCodeSegment)).not.toMatch(/"code\.system"/);
+    });
+
     test('useHistoryTable prefixes the array field once, not the fields inside $elemMatch', () => {
         const component1 = new SearchParameterDefinition({
             type: 'token',
