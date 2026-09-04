@@ -2,7 +2,7 @@
  * @desc Type of operation
  * @desc and = do an AND operation between the array items
  * @desc or = do an OR operation between the array items
- * @typedef {('token'|'string'|'reference'|'date'|'quantity'|'uri'|'datetime'|'instant'|'period'|'email'|'phone'|'canonical'|'number'|'special')} SearchParameterDefinitionType
+ * @typedef {('token'|'string'|'reference'|'date'|'quantity'|'uri'|'datetime'|'instant'|'period'|'email'|'phone'|'canonical'|'number'|'special'|'composite')} SearchParameterDefinitionType
  **/
 
 /**
@@ -19,6 +19,10 @@ class SearchParameterDefinition {
      * @param {string[]|undefined} [target]
      * @param {string|undefined} [fieldType]
      * @param {Object|undefined} [fieldTypesObj]
+     * @param {{components: SearchParameterDefinition[]}[]|undefined} [scopes] composite params only
+     * @param {string|null|undefined} [arrayField] composite components only: the array field
+     *   this component's `field` lives under (e.g. 'component'), or null for a root-scoped
+     *   component
      */
     constructor (
         {
@@ -29,7 +33,9 @@ class SearchParameterDefinition {
             fieldFilter,
             target,
             fieldType,
-            fieldTypesObj
+            fieldTypesObj,
+            scopes,
+            arrayField
         }
     ) {
         /**
@@ -64,6 +70,22 @@ class SearchParameterDefinition {
          * @type {Object|undefined}
          */
         this.fieldTypesObj = fieldTypesObj;
+        /**
+         * @type {{components: SearchParameterDefinition[]}[]|undefined}
+         */
+        this.scopes = scopes;
+        /**
+         * @type {string|null}
+         */
+        this.arrayField = arrayField || null;
+    }
+
+    /**
+     * Return the field for this search parameter (convenience getter for _field)
+     * @return {string|undefined}
+     */
+    get field () {
+        return this._field;
     }
 
     /**
@@ -92,7 +114,11 @@ class SearchParameterDefinition {
                 fieldFilter: this.fieldFilter,
                 target: this.target,
                 fieldType: this.fieldType,
-                fieldTypesObj: this.fieldTypesObj
+                fieldTypesObj: this.fieldTypesObj,
+                scopes: this.scopes
+                    ? this.scopes.map(scope => ({ components: scope.components.map(c => c.clone()) }))
+                    : undefined,
+                arrayField: this.arrayField
             }
         );
     }
@@ -110,7 +136,11 @@ class SearchParameterDefinition {
             fieldFilter: this.fieldFilter,
             target: this.target,
             fieldType: this.fieldType,
-            fieldTypesObj: this.fieldTypesObj
+            fieldTypesObj: this.fieldTypesObj,
+            scopes: this.scopes
+                ? this.scopes.map(scope => ({ components: scope.components.map(c => c.toJSON()) }))
+                : undefined,
+            arrayField: this.arrayField
         };
     }
 }
