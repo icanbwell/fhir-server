@@ -1161,12 +1161,31 @@ class EverythingHelper {
             if (responseStreamer) {
                 entries = [];
             } else {
+                // Derive security context for enrichment providers that need tenant filtering
+                const accessCodes = this.searchManager.scopesManager.getAccessCodesFromScopes(
+                    'read', requestInfo.user, requestInfo.scope
+                );
+                const hasFullAccess = accessCodes.includes('*');
+                const accessViaPatientScopes = this.searchManager.scopesManager.isAccessAllowedByPatientScopes({
+                    scope: requestInfo.scope, resourceType
+                });
+                const accessTags = this.searchManager.securityTagManager.getSecurityTagsFromScope({
+                    user: requestInfo.user,
+                    scope: requestInfo.scope,
+                    accessRequested: 'read',
+                    accessViaPatientScopes
+                });
+                const securityContext = { accessTags, ownerTags: [], hasFullAccess };
+
                 entries = await this.enrichmentManager.enrichBundleEntriesAsync({
                     entries,
                     parsedArgs,
                     enrichmentContext: {
                         userType: requestInfo.userType,
-                        actor: requestInfo.actor
+                        actor: requestInfo.actor,
+                        user: requestInfo.user,
+                        scope: requestInfo.scope,
+                        securityContext
                     }
                 });
             }
@@ -1980,12 +1999,31 @@ class EverythingHelper {
                                         bundleEntry: current_entity
                                     });
                                 }
+                                // Derive security context for enrichment providers that need tenant filtering
+                                const accessCodes = this.searchManager.scopesManager.getAccessCodesFromScopes(
+                                    'read', requestInfo.user, requestInfo.scope
+                                );
+                                const hasFullAccess = accessCodes.includes('*');
+                                const accessViaPatientScopes = this.searchManager.scopesManager.isAccessAllowedByPatientScopes({
+                                    scope: requestInfo.scope, resourceType: entryResourceType
+                                });
+                                const accessTags = this.searchManager.securityTagManager.getSecurityTagsFromScope({
+                                    user: requestInfo.user,
+                                    scope: requestInfo.scope,
+                                    accessRequested: 'read',
+                                    accessViaPatientScopes
+                                });
+                                const securityContext = { accessTags, ownerTags: [], hasFullAccess };
+
                                 [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                                     entries: [current_entity],
                                     parsedArgs: parentParsedArgs,
                                     enrichmentContext: {
                                         userType: requestInfo.userType,
-                                        actor: requestInfo.actor
+                                        actor: requestInfo.actor,
+                                        user: requestInfo.user,
+                                        scope: requestInfo.scope,
+                                        securityContext
                                     }
                                 });
 

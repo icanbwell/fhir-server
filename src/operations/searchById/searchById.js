@@ -243,11 +243,22 @@ class SearchByIdOperation {
                 // remove any nulls or empty objects or arrays
                 resource = removeNull(resource);
 
+                // Derive security context for enrichment providers that need tenant filtering
+                const accessCodes = this.searchManager.scopesManager.getAccessCodesFromScopes('read', user, scope);
+                const hasFullAccess = accessCodes.includes('*');
+                const accessViaPatientScopes = this.searchManager.scopesManager.isAccessAllowedByPatientScopes({
+                    scope, resourceType
+                });
+                const accessTags = this.securityTagManager.getSecurityTagsFromScope({
+                    user, scope, accessRequested: 'read', accessViaPatientScopes
+                });
+                const securityContext = { accessTags, ownerTags: [], hasFullAccess };
+
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
                             resources: [resource],
                             parsedArgs,
-                            enrichmentContext: { userType, actor }
+                            enrichmentContext: { userType, actor, user, scope, securityContext }
                         }
                     )
                 )[0];
