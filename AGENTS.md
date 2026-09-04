@@ -1,435 +1,790 @@
-# icanbwell - AI Agent Instructions
+# AGENTS.md — HP Validation Tests
 
-> **Scope:** Organization-wide baseline. Applies to all repositories in the icanbwell GitHub organization.
-> **Owner:** Enterprise Architecture (@icanbwell/enterprise-architecture)
-> **Precedence:** This file sets the floor. Repo-level instruction files (copilot-instructions.md, CLAUDE.md) may add stricter requirements or repo-specific context but must not weaken or contradict these directives. If there is a conflict, this baseline wins. Repo-level overrides may only tighten rules, never loosen them. Any true exception to this baseline requires EA approval with documented rationale, scope, owner, JIRA ticket, and expiry date.
+This document describes the conventions, patterns, and execution instructions for authoring and running the Karate-based end-to-end validation tests in this project.
 
 ---
 
-## Platform Identity
+## Table of Contents
 
-You are working in the icanbwell GitHub organization. b.well is a cloud-native, multi-tenant, microservice-based, event-driven distributed system. It is a healthcare data platform operating under HIPAA compliance requirements. The platform is FHIR-native and exposes capabilities through a federated GraphQL gateway.
-
-This is a distributed system. Design accordingly. Services are independently deployable, communicate asynchronously by default, and own their private datastores. The shared platform system-of-record is the FHIR server, accessed only via approved APIs and contracts (FHIR APIs, federated graph, events). Workflows that span multiple services use sagas and event choreography, not distributed transactions or synchronous orchestration chains.
-
-Treat these as hard constraints, not suggestions. Code that violates tenant isolation, leaks PHI, bypasses the gateway, introduces unapproved technology, or creates tight coupling between services is incorrect regardless of whether it compiles and passes tests.
-
----
-
-## Architecture Non-Negotiables
-
-### Event-Driven First
-Default to asynchronous communication via Kafka with CloudEvents. If you are choosing a synchronous call between services, document why asynchronous does not work. Do not default to REST calls for cross-service workflows. Synchronous service-to-service calls create temporal coupling - the caller blocks, the callee must be available, and cascading failures propagate. Use sync only for queries where the response is needed immediately to serve a user request and the data cannot be pre-materialized.
-
-### Distributed Systems Patterns
-
-**Sagas, not distributed transactions.** Multi-service workflows use the saga pattern with compensating actions for rollback. Each step publishes an event on success; each step has a defined compensation if a downstream step fails. There is no distributed transaction coordinator. If you are implementing a saga:
-- Each step must be independently completable and compensatable.
-- Compensating actions must be idempotent (they may execute more than once).
-- Use Kafka topics for saga events. Do not use synchronous callback chains disguised as a saga.
-- The saga must be resilient to out-of-order delivery and duplicate events.
-- Document the saga flow, including the compensation path, in an ADR.
-
-**Choreography over orchestration for cross-service workflows.** Services react to events they care about rather than being directed by a central orchestrator. If you find yourself building a service whose sole purpose is calling other services in sequence and waiting for responses, you are building synchronous orchestration. Redesign it as event choreography where each service publishes domain events and downstream services subscribe. Orchestration is acceptable within a bounded context when it stays async, avoids request-reply chains, and does not become a cross-domain god orchestrator. If orchestration crosses domain boundaries or requires request-reply chains to function, redesign it as choreography.
-
-**Service data ownership.** Services must not read from or write to another service's private datastore directly. The platform system-of-record is the FHIR server; services interact with it through approved APIs and contracts (FHIR APIs, federated graph, events), not by directly accessing its underlying storage. If you need data owned by another service, consume it via events (preferred) or query it via the service's public API. No shared private databases between services.
-
-**Kafka usage patterns:**
-- Use CloudEvents envelope format for event metadata.
-- Partition keys must ensure ordering for the same entity (typically entity ID or tenant + entity ID).
-- Consumers must be idempotent. Assume at-least-once delivery.
-- Use consumer groups appropriately for scaling. Understand that repartitioning affects ordering guarantees.
-- Dead letter topics for messages that fail processing after retries.
-- Do not use Kafka as a request-reply mechanism. That is synchronous communication disguised as async.
-
-**Eventually consistent, not immediately consistent.** In a distributed system, cross-service data will be eventually consistent. Design read paths and user experiences to accommodate this. Do not build features that assume immediate consistency across service boundaries. If strong consistency is required within a bounded context, that logic belongs in a single service.
-
-### FHIR-Native Data Modeling
-Use standard FHIR resources before inventing custom schemas. Model workflow state using FHIR-native resources where applicable. Extensions are a last resort - if you need one, flag it as an architectural decision requiring review, not a casual convenience.
-
-FHIR data modeling decisions go through the FDR (FHIR Design Review) process. If your change introduces new FHIR resource usage or modifies how existing resources are structured, reference the relevant FDR or flag that one is needed.
-
-### Federated GraphQL Gateway
-Client-facing capabilities go through the federated graph. Do not create point-to-point service APIs that bypass the gateway for client access. Public API changes and schema evolution require breaking-change discipline and a Tech Design Review.
-
-### Tenant Isolation
-Tenant isolation is mandatory on every persistence model and every query path. This is a correctness constraint, not a best-effort optimization. Every read and write must enforce tenant ownership boundaries. If you are adding a new data access path, verify tenant filtering is present. If you cannot confirm it, flag it.
-
-### No Unapproved Technology
-Do not introduce new datastores, caches, queues, search engines, observability sinks, vendors, or significant libraries without checking `approved-tech.yaml` first. The approved technology list lives in the org-level `icanbwell/.github` repository and is distributed to repos via the policy sync workflow. If the technology is not listed, the change requires a Tech Design Review with EA. Infrastructure changes go through Terraform PRs - never provide console instructions or manual steps as the solution.
+1. [Project Overview](#project-overview)
+2. [Repository Structure](#repository-structure)
+3. [Configuration (`karate-config.js`)](#configuration-karate-configjs)
+4. [Required Credentials](#required-credentials)
+5. [Utility Features Reference](#utility-features-reference)
+6. [Authoring CQL Evaluation Tests — Patterns & Conventions](#authoring-cql-evaluation-tests--patterns--conventions)
+7. [Payload Files](#payload-files)
+8. [Executing Tests](#executing-tests)
+9. [Test Reports](#test-reports)
 
 ---
 
-## Object-Oriented Analysis and Design
+## Project Overview
 
-### Composition Over Inheritance
-Build behavior by composing small, focused objects. Do not build deep class hierarchies. If you are extending a base class, evaluate whether delegation or composition would be cleaner. Keep inheritance to a maximum of two levels. If you are going deeper, refactor to composition.
+This project validates health-plan (HP) CQL measure libraries deployed to the bSights CQL Engine. Each feature file exercises a named CQL library (`libraryId`) against a synthetic patient with specific FHIR resources loaded, then asserts that the CQL evaluation returns the expected cohort membership, numerator, and completion date values.
 
-### Program to Interfaces, Not Implementations
-Define behavior through protocols (Python), interfaces (TypeScript/Java), or abstract base classes. Consumers depend on the abstraction, never the concrete class. Use structural typing (Python Protocol, TypeScript interfaces) to define contracts. Favor protocols over subclassing.
-
-### Vendor Integrations Behind Abstractions
-When integrating a vendor or third-party service, define an interface for the *capability* the vendor provides, not the vendor itself. The vendor is an implementation detail behind an adapter. If the vendor changes tomorrow, the blast radius should be one adapter, not every file that touches that capability.
-
-Bad: `ValidicDeviceDataService`, `ValidicClient`, `ValidicTransformer` spread across the codebase.
-Good: `DeviceDataProvider` interface with a `ValidicDeviceDataAdapter` as the concrete implementation.
-
-### Encapsulate What Varies
-Identify what changes and isolate it behind an interface. Use the Strategy pattern when behavior varies based on context - inject a strategy rather than adding conditionals or subclass overrides. Use the Template Method pattern when the overall algorithm is fixed but individual steps vary.
-
-### No God Objects
-If a class has more than one axis of change or knows about too many concerns, decompose it. Single Responsibility applies at the class level, not just the method level.
-
-### Value Objects for Domain Concepts
-Use immutable value types for concepts like identifiers, measurements, date ranges, and money. Equality by value, not identity. Use frozen dataclasses (Python), readonly types (TypeScript), or records (Java).
-
-### Law of Demeter
-Do not chain through objects. If you are writing `a.b.c.doThing()`, something is leaking its internals. Ask, don't reach.
+The test suite also covers DQM workflows, questionnaire service flows, and task lifecycle scenarios, but the primary focus documented here is the `feature/cql/` suite.
 
 ---
 
-## SOLID Principles
+## Repository Structure
 
-### Single Responsibility
-One reason to change per class or module. If a function does transformation AND persistence, split it. If a service handles both business logic and infrastructure concerns, separate them.
-
-### Open/Closed
-Extend behavior through new classes, not by modifying existing ones. No growing conditional chains - use strategy pattern or composition for extensibility.
-
-### Liskov Substitution
-Any implementation of an interface must be fully swappable without breaking callers. Do not override methods to throw NotImplementedError or silently change expected behavior.
-
-### Interface Segregation
-Keep interfaces small and focused. If a consumer only needs read access, do not force it to depend on an interface that also includes write methods. Split large interfaces into focused ones.
-
-### Dependency Inversion
-Depend on abstractions at module and service boundaries. Inject dependencies through constructors. Never instantiate infrastructure inside business logic. Never use service locators when constructor injection is available.
-
----
-
-## Architectural Boundaries
-
-### Separate Domain from Infrastructure
-
-Keep business logic independent of frameworks, databases, and external services. Domain logic should not import infrastructure concerns. Infrastructure adapts to domain interfaces, not the other way around.
-
-In repos using ports and adapters (hexagonal architecture), respect the layering:
-- **Domain layer**: Business logic, domain models, port interfaces. No infrastructure imports.
-- **Application layer**: Use case orchestration, service interfaces. Coordinates domain and ports.
-- **Infrastructure layer**: Adapters implementing ports (database, HTTP clients, message brokers, vendor integrations).
-
-If the repo does not use explicit hexagonal structure, follow the principle spiritually: domain code exposes interfaces, infrastructure code implements them. Do not let database schemas, REST frameworks, or vendor SDKs leak into business logic.
-
----
-
-## General Design Principles
-
-### DRY, Pragmatically
-Prefer duplication over the wrong abstraction. Extract shared logic only when the pattern is stable and repeats across multiple call sites, or when there is clear semantic reuse. Premature abstraction creates coupling that is harder to undo than duplicated code. If you are unsure whether to extract, leave it duplicated until the pattern is clear.
-
-### Explicit Over Clever
-Readable code over compact code. Name things for what they do, not how they are implemented. Prefer explicit types and contracts at boundaries over inference.
-
-### Fail Fast
-Validate inputs at the boundary and reject early. Do not let bad data propagate through layers. Typed and structured errors at boundaries, not stringly-typed error messages or raw exception forwarding.
-
-### No Hidden Global State
-All dependencies must be explicit and injectable. No module-level singletons that hold state. No implicit service locators.
-
-### Idempotency by Default
-Any consumer that processes events or handles retries must be idempotent. This is not optional in a distributed system with at-least-once delivery. Duplicate processing must produce the same result. Use idempotency keys, deduplication checks, or upsert semantics. Design every Kafka consumer, webhook handler, and retry-capable operation with the assumption that it will be called more than once with the same input.
-
-### Minimal Diff
-Make the smallest change that satisfies the requirement. Do not rename, reformat, or reorganize unrelated code in the same PR. Do not refactor modules you were not asked to change. Scope the change to what was requested.
-
----
-
-## Modern, Idiomatic Code
-
-Use current language idioms for the repo's language version. Do not write legacy-style code.
-
-**Java:** Use records for data carriers, not POJOs with boilerplate getters/setters. Use sealed interfaces for closed type hierarchies. Use pattern matching where available. Use `var` for local variables when the type is obvious from the right side. Use streams and Optional appropriately, not for every operation.
-
-**Python:** Use dataclasses or Pydantic models, not manual dict manipulation. Use type hints everywhere. Use structural pattern matching (3.10+) where it improves clarity. Use `Protocol` for structural typing. Use `async`/`await` for IO-bound operations in async services.
-
-**TypeScript:** Use discriminated unions for variant types, not type casting chains. Use strict mode. Use `readonly` and `as const` where appropriate. Use modern `satisfies` operator for type-safe object literals. Use optional chaining and nullish coalescing instead of manual null checks.
-
----
-
-## Security
-
-### PHI/PII Protection
-Never put PHI or PII in logs, test fixtures, example payloads, comments, commit messages, PR descriptions, or screenshots. Use synthetic or redacted data by default. If you need realistic test data, use a generator that produces synthetic records.
-
-### Authentication and Authorization
-All auth flows use OAuth/OIDC. No custom authentication schemes. No hardcoded credentials, tokens, or secrets in code, configuration files, or tests.
-
----
-
-## Testing
-
-### Testing Is Part of the Change
-Every behavioral change ships with tests. Tests are not a follow-up task.
-
-### Parameterized Tests
-Use parameterized tests (Jest `test.each`, pytest `@pytest.mark.parametrize`, JUnit `@ParameterizedTest`) for any function with more than two input variations. Data-driven test cases, not copy-pasted test methods with one value changed.
-
-### Arrange-Act-Assert
-Structure every test with clear setup, execution, and verification phases. One behavior per test. Multiple asserts are fine when they verify that single behavior.
-
-### Mock Only at External Boundaries
-Mock external services, databases, and third-party APIs. Do not mock internal implementation details. If you need extensive mocking to test a unit, the design is too coupled - fix the design, not the test.
-
-### Test Error Paths
-Test failure modes, error handling, retries, and edge cases explicitly. Do not test only the happy path.
-
-### Contract Tests at Boundaries
-API request/response shapes, event schemas, and external integration contracts must have contract tests. When you change a public API or event schema, update the contract test in the same PR.
-
-### Tenant Isolation in Integration Tests
-Integration tests must verify that tenant boundaries are enforced. Cross-tenant data leakage is a correctness bug, not a nice-to-have test case.
-
-### Test Behavior, Not Implementation
-Assert on what happened, not how it happened internally. Tests should survive refactoring of internals without breaking.
-
----
-
-## Event Contracts
-
-Event schemas are real contracts with consumers. Treat them accordingly.
-
-### Schema Evolution
-Additive changes only unless there is an explicit exception with a migration plan approved by EA. Do not remove fields, rename fields, or change field types on existing events.
-
-### Contract Co-Location
-If you add or modify an event, update the AsyncAPI specification (or the canonical contract definition) as part of the same change. Do not ship event changes without updating the contract.
-
----
-
-## Operational Realism
-
-Services run in a distributed environment, fail independently, and must handle partial failures gracefully.
-
-### Timeouts and Retries
-Every external call must have an explicit timeout. Retries must use exponential backoff with jitter. Do not use unbounded retries. Implement DLQ (dead letter queue) patterns for messages that fail after retry exhaustion.
-
-### Circuit Breakers
-Use circuit breaker patterns for synchronous calls to external services. When a dependency is failing, fail fast rather than accumulating blocked threads and cascading the failure upstream.
-
-### Performance Awareness
-Do not introduce "fetch the entire record" behavior unless it is an explicit, reviewed decision. Be aware of N+1 query patterns, unbounded list fetches, and full-collection scans. Healthcare records can be large - assume they are. In a microservice architecture, a single slow query can cascade through downstream consumers via backpressure.
-
-### Observability Is a Deliverable
-OpenTelemetry tracing propagation must be maintained across service boundaries. Trace context must flow through Kafka headers, HTTP headers, and any other transport. Logs must be structured (JSON) with correlation IDs. Metrics must be meaningful, not just counters. If you add a new service interaction or failure mode, add the corresponding observability. In a distributed system, observability is how you debug production - it is not optional.
-
----
-
-## Architecture Decision Records
-
-When you make a non-trivial implementation decision - choosing a caching strategy, selecting a library, picking an architectural pattern for a new component, deciding between implementation approaches - create an ADR in the repo's `adrs/` directory.
-
-### When to Write an ADR
-- Introducing a new dependency or library
-- Choosing between competing implementation approaches (e.g., Caffeine vs. Kafka Streams/RocksDB for state management)
-- Adding a new architectural pattern not previously used in the repo
-- Making a significant trade-off that future developers will need to understand
-
-### ADR Discipline
-Use the MADR (Markdown Any/Architectural Decision Records) format from https://adr.github.io/madr/. The canonical template is in the repo's `adrs/` directory or in the org-wide `.github` repository. Show your work. The value of an ADR is the options considered and the reasoning, not just the conclusion. A reviewer should be able to understand why you chose Option 2 over Option 1 without asking. If there is an idiomatic or platform-standard way to solve the problem, prefer it over introducing something new. Document why if you diverge.
-
----
-
-## Process References
-
-These are the governing processes. If your change falls into one of these categories, reference or initiate the appropriate process.
-
-- **New technology, vendor, or significant pattern:** Requires a Tech Design Review with EA. Create a JIRA ticket (type: "Tech Design Review") in the EA project with a link to your Technical Design Document.
-- **FHIR data modeling decisions:** Requires an FDR (FHIR Design Review). Create or update the FDR Confluence page and get FHIR SME approval.
-- **Public API changes, cross-team impact, significant system changes:** Requires a Tech Design Review.
-- **Repo-local implementation decisions:** Document in an ADR in the repo's `adrs/` directory.
-
-If you are unsure whether your change requires a review, apply the "Is it NEW?" test: are you introducing a new technology, a new vendor, or a new pattern that has not been used in this codebase before? If yes, it needs EA review.
-
----
-
-## Agent Behavior
-
-### Plan Before Acting
-Before making non-trivial changes, propose a short plan. Call out risks: does this touch tenant isolation, PHI, public contracts, event schemas, or introduce a new dependency? Identify which governing artifacts (Tech Design Doc, FDR, ADR, AsyncAPI) are relevant before writing code. Before coding, briefly restate the applicable constraints you are following for this change (tenancy, PHI, contracts, dependencies).
-
-### Diagnose Before Escalating
-When encountering failures or blocked operations, diagnose the actual root cause before proposing solutions that require elevated permissions, org admin intervention, or process escalation. Simple configuration issues (missing credential setup, incorrect paths, malformed syntax) are not permission problems. Read logs carefully. Check for obvious mistakes first: Are you using the right token variable? Is the remote URL configured? Did the command actually fail or just warn?
-
-Do not jump to "this needs org admin" or "this requires a PAT" without evidence that the current approach is architecturally insufficient. If a similar workflow works elsewhere in the codebase, investigate what that workflow does differently before concluding new infrastructure is needed.
-
-### Respect System Constraints
-Understand the constraints of the system you are working in. If branch protection requires reviews, you cannot merge - do not repeatedly offer to merge. If CI checks are failing, you cannot bypass them - do not offer workarounds. If a process requires approval, you cannot skip it - do not suggest shortcuts.
-
-When a user tells you an action is blocked or explains a constraint, internalize it. Do not re-propose the same blocked action with different wording. If you are unsure whether a constraint applies, ask once. If the answer is "no, that won't work", do not ask again or try to find a loophole.
-
-### Don't Guess Commands
-Find and use the repo's canonical build, test, and lint commands. Check the Makefile, package.json scripts, build.gradle, or Pipfile. If the commands are unclear, say so and point to where you looked. Do not invent commands.
-
-### Don't Introduce Dependencies Casually
-Check `approved-tech.yaml` before adding any new dependency. If the dependency is not listed, flag it for review. Do not assume a library is approved because it is popular.
-
-### Reference Governing Artifacts
-If your change touches a public API, event contract, or cross-service behavior, reference the governing document (Tech Design Doc, FDR, ADR, AsyncAPI spec) in the PR description or commit message. If no governing artifact exists and one should, say so.
-
-### Look for Abstraction Opportunities
-Before implementing, consider whether the change introduces a concept that should be abstracted. If you are adding a vendor integration, wrap it behind a capability interface. If you are adding branching logic, consider whether a strategy pattern is more appropriate. If you see existing code that couples to a concrete implementation where an interface would reduce blast radius, flag it.
-
-### Flag What Looks Wrong
-If you encounter code that violates these principles - tenant isolation missing on a query path, PHI in test fixtures, a vendor name baked into business logic, a synchronous call where an event would be appropriate - flag it in a comment. Do not silently work around it.
-
-### Code Ownership
-Do not add "Co-Authored-By", "Generated by", or any other AI attribution to commits, PRs, or code comments. Engineers own their code regardless of what tool assisted in writing it. The tool is irrelevant. The author on the commit is the owner.
-
-
-### Branch Naming
-Branch names must follow the pattern: `{initials}-{project}-{ticket-number}`
-
-**Format:** `XX-PROJ-123` where:
-- `XX` = your initials (e.g., WF for Bill Field)
-- `PROJ` = JIRA project key (EA, HP, PAY, etc.)
-- `123` = ticket number
-
-**Valid branch names:**
 ```
-WF-EA-2136
-JD-HP-456
-SK-PAY-789
+src/test/java/
+├── karate-config.js               # Global Karate configuration, env switching, shared helpers
+├── runner/
+│   └── KarateTestRunner.java      # JUnit5 parallel runner (entry point for Gradle)
+├── feature/
+│   └── cql/                       # One .feature file per CQL measure library
+│       ├── bcs1-evaluation.feature
+│       ├── bcs3-evaluation.feature
+│       └── ...
+├── util/                          # Reusable callable feature utilities
+│   ├── get-dates.feature
+│   ├── get-token.feature
+│   ├── get-user-token.feature
+│   ├── create-resource.feature
+│   ├── load-resource.feature
+│   ├── delete-resource.feature
+│   ├── execute-cql.feature
+│   ├── cql-evaluation.feature
+│   ├── identifier-validators.feature
+│   ├── task-constants.feature
+│   ├── task-setup.feature
+│   ├── task-search.feature
+│   ├── task-search-rest.feature
+│   ├── consent-creation.feature
+│   └── user-creation.feature
+└── payload/
+    ├── cqlrequest.json            # CQL engine request template
+    └── cql/                       # FHIR resource payload templates
+        ├── observation-mammography.json
+        ├── condition-diabetes.json
+        └── ...
 ```
 
-**Invalid branch names:**
-```
-feature/add-new-feature
-fix-bug-123
-EA-2136 (missing initials)
-feature/ai-dev-infrastructure-item-1
-```
+---
 
-Do not use conventional branch prefixes like `feature/`, `fix/`, `bugfix/`, or `hotfix/`. The JIRA ticket key provides all necessary context.
-### Commit Messages
-Every commit message must begin with a JIRA issue key. Do not use conventional commit prefixes like `feat:`, `fix:`, `chore:`, or similar. The JIRA key is the only required prefix.
+## Configuration (`karate-config.js`)
 
-**Valid commit message format:**
-```
-PROJ-123 implement user authentication API
-HP-456 resolve timeout in data sync service
-EA-789 add FHIR resource validation
-```
+`karate-config.js` is the global Karate bootstrap. It runs before every feature and populates a `config` object that is available as top-level variables in every scenario.
 
-**Invalid commit messages:**
-```
-feat: implement user authentication API
-fix(api): resolve timeout issue
-chore: update dependencies
-```
+### Environment selection
 
-**Exceptions:** The following patterns are allowed without JIRA keys:
-- Automated dependency updates: `Bump version`, `build(deps): bump library-name`
-- Git operations: `Merge`, `Revert`, `Reapply`
+The active environment is set via the `karate.env` system property (defaults to `dev`). Supported values:
 
-All commits are validated automatically. If you do not have a JIRA ticket for your work, create one before committing.
+| Value | Description |
+|-------|-------------|
+| `dev` | Development environment (`*.dev.bwell.zone`) |
+| `staging` | Staging environment (`*.staging.bwell.zone`) |
+| `client-sandbox` | Client sandbox (`*.client-sandbox.bwell.zone`) |
+| `prod` | Production (`*.prod.bwell.zone`) |
 
-### Working with icanbwell Infrastructure
+### Key config variables
 
-**Atlassian (JIRA & Confluence):** https://icanbwell.atlassian.net/  
-**Slack Workspace:** icanbwell
+| Variable | Description |
+|----------|-------------|
+| `fhirServerUrl` | Base URL for the FHIR R4 server (used by resource utilities) |
+| `cqlEngineUrl` | Base URL for the bSights CQL Engine (`/api/v1/library`) |
+| `apiGatewayUrl` | API Gateway base URL (used by task/questionnaire tests) |
+| `tokenUrl` | Cognito OAuth2 token endpoint |
+| `bigUrl` | bWell Identity Gateway (BIG) base URL |
+| `bwellIdentityGatewayUrl` | Alternate identity gateway URL used by `user-creation.feature` |
+| `clientId` | OAuth2 client ID (from `-Dclient.id`) |
+| `clientSecret` | OAuth2 client secret (from `-Dclient.secret`) |
+| `clientKey` | Client key used for JWE patient token generation (from `-Dclient.key`) |
+| `generateCorrelationId(prefix)` | Helper function — returns `"PREFIX-<8-char-uuid>"` |
 
-#### Creating JIRA Tickets
+### Global retry defaults
 
-Use the Atlassian MCP to create tickets programmatically. The MCP server connects via `plugin:atlassian:atlassian`.
-
-**Required steps:**
-1. Get cloudId: `mcp__plugin_atlassian_atlassian__getAccessibleAtlassianResources()`
-2. Create issue: `mcp__plugin_atlassian_atlassian__createJiraIssue(cloudId, projectKey, issueTypeName, summary, description, parent)`
-
-**Example:**
-```
-cloudId: "<from-step-1-above>"  # Use getAccessibleAtlassianResources() to get current value
-projectKey: "EA" (Enterprise Architecture) or team-specific project
-issueTypeName: "Task", "Story", "Bug"
-parent: "EA-XXXX" (for linking to epics)
+```js
+karate.configure('retry', { count: 45, interval: 3000 });
 ```
 
-**Common Projects:**
-- EA: Enterprise Architecture
-- HP: Health Plan projects  
-- PAY: Payment projects
-- RNGR: Clinical projects
-
-If Atlassian MCP tools are not available:
-1. Check MCP connection: `claude mcp list`
-2. Tool naming pattern: `mcp__plugin_atlassian_atlassian__[tool_name]`
-3. Search tools: Use ToolSearch to find `mcp__plugin_atlassian` tools
-4. Restart if needed: Session restart may be required to load MCP tools
-
-#### Reading Confluence Pages
-
-Use `mcp__plugin_atlassian_atlassian__getConfluencePage(cloudId, pageId, contentFormat)` to read documentation.
-
-**Finding pages:** `mcp__plugin_atlassian_atlassian__searchConfluenceUsingCql(cloudId, cql, limit)`
-
-Common spaces:
-- ENTARCH: Enterprise Architecture documentation
-- DEV: Developer documentation  
-- OPS: Operations & infrastructure
-
-#### Slack Integration
-
-Use Slack MCP for posting messages and searching conversations.
-
-**Post messages:** `mcp__plugin_slack_slack__slack_send_message(channel_id, text)`  
-**Search:** `mcp__plugin_slack_slack__slack_search_public(query, content_types, limit)`
-
-Common channels:
-- #tech-enterprise-architecture: EA team channel
-- #tech-dev: Engineering announcements
-- #possible-sdk-impact: SDK change notifications
-
-
-
-### Schema and Client Resilience
-Assume clients may receive unknown enum values and new fields at any time. Design for forward compatibility. Do not write exhaustive enum switches without a default/unknown handler. Do not fail on unrecognized fields. GraphQL schema evolution and event schema evolution must be additive - new fields and enum values must not break existing consumers.
+Individual utilities may override these defaults inline.
 
 ---
 
-## Code Style
+## Required Credentials
 
-Follow whatever linter, formatter, and static analysis configuration exists in the repo. Do not duplicate what automated tooling already enforces. These instructions are for architectural and design decisions that linters cannot catch.
+| Property | Gradle flag | How to obtain |
+|----------|-------------|---------------|
+| OAuth2 Client ID | `-Dclient.id=…` | Request from the team |
+| OAuth2 Client Secret | `-Dclient.secret=…` | Request from the team |
+| Client Key | `-Dclient.key=…` | Retrieve from the b.well admin tools UI — see [README.md](README.md) |
 
+---
 
-----
+## Utility Features Reference
 
-## Terraform
+All utilities are tagged `@ignore` so they are never executed directly. They are invoked via `call read('classpath:util/<name>.feature')` from within a scenario or background.
 
-Create simple modules and compose from them
-    A base module should do just as much as needed to create a single resource, e.g. an S3 bucket, a VPC private link, 
-    Compose more complex infrastructure from these base modules
-    You should never create a resource directly in the root module
-Avoid code that creates singletons
-    Never expect you will only create one instance of an object
-    Use Terraform nested data structures and for_each to allow multiple instantiation of a resource/module with different input values
-Start from the API and work toward the implementation
-    Think first of how a user/engineer will add a new instance of the infrastructure component, what values can/should they provide?
-        Make it as simple as possible
-    From these inputs, build toward the desired implementation
-        Make use of data sources where possible instead of requiring the user to provide the value(s)
-    If the inputs start getting complex, it is a sign to refactor your design
-Never use terraform_remote_state
-    This pattern introduces a cascading dependency between projects
-        A single terraform/tofu plan is no longer sufficient for a change, you have to plan/apply the dependency project to get the most updated state
-    Use data sources to fetch the live current state of the infrastructure
-    Use AWS Tags as labels and filter on those labels in data sources
-        Example: subnets to be used for a transit gateway attachment are tagged bwell/transit-gateway = main
-        Tag names should be prefixed with bwell/
-Use of OpenTofu quality-of-life features are encouraged
-    OpenTofu adds a number of features on top of Terraform, use them
-Do not use count
-    Resources created by count have the collection index as part of the resource key
-        Creates problems when selectively cleaning resources
-    Use enabled meta-argument, or
-    Use for_each = { for v in var.vpc_names : v => v }
-When updating modules in this repository, always increment the module version and the module README.
+---
+
+### `util/get-dates.feature`
+
+Populates a set of pre-calculated date variables using Java's `ZonedDateTime` (UTC). Call this once in the `Background`.
+
+**Variables exposed after call:**
+
+| Variable | Format | Example |
+|----------|--------|---------|
+| `currentDate` | `yyyy-MM-dd` | `2026-02-26` |
+| `currentDateTime` | ISO-8601 with offset | `2026-02-26T13:00:00+00:00` |
+| `yesterdayDate` | `yyyy-MM-dd` | `2026-02-25` |
+| `yesterdayDateTime` | ISO-8601 with offset | `2026-02-25T13:00:00+00:00` |
+| `yesterdayDateTimeNoTimezone` | `yyyy-MM-dd'T'HH:mm:ss` | `2026-02-25T13:00:00` |
+| `threeDaysAgo` | ISO-8601 with offset | |
+| `threeDaysAgoNoTimezone` | no offset | |
+| `oneWeekAgo` | ISO-8601 with offset | |
+| `oneMonthAgo` | ISO-8601 with offset | |
+| `threeMonthsAgo` | ISO-8601 with offset | |
+| `oneYearAgo` | ISO-8601 with offset | |
+| `twoYearsAgo` | ISO-8601 with offset | |
+| `threeYearsAgo` | ISO-8601 with offset | |
+
+---
+
+### `util/get-token.feature`
+
+Obtains a service-level OAuth2 access token from Cognito using the `client_credentials` grant.
+
+**Requires (from config):** `clientId`, `clientSecret`, `tokenUrl`
+
+**Returns:** `access_token`
+
+**Usage:**
+```gherkin
+* def auth_service_token_response = call read('classpath:util/get-token.feature')
+* def serviceToken = 'Bearer ' + auth_service_token_response.access_token
+```
+
+---
+
+### `util/get-user-token.feature`
+
+Creates a synthetic patient via the BIG identity gateway and returns a user access token along with FHIR person/patient identifiers.
+
+**Input parameters (passed as JSON argument):**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `patientAge` | Yes | Age of the synthetic patient (drives cohort eligibility) |
+| `gender` | Yes | `'male'` or `'female'` |
+
+**Returns (as `user_token_response`):**
+
+| Field | Description |
+|-------|-------------|
+| `accessToken` | JWT access token object |
+| `clientPersonId` | Client-scoped FHIR Person ID |
+| `clientPatientId` | Client-scoped FHIR Patient ID |
+| `bwellPersonId` | bWell FHIR Person ID |
+| `bwellPatientId` | bWell FHIR Patient ID |
+| `managingOrganizationId` | Managing organization ID |
+
+**Usage:**
+```gherkin
+* def user_token_response = call read('classpath:util/get-user-token.feature') { patientAge: 45, gender: 'female' }
+* def clientPersonId = user_token_response.clientPersonId
+* def patientId = user_token_response.clientPatientId
+```
+
+---
+
+### `util/load-resource.feature`
+
+POSTs a FHIR resource from a payload template in `src/test/java/payload/cql/` to the FHIR server, associating it with the current patient.
+
+**Input parameters:**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `filename` | Yes | Filename within `payload/cql/` (e.g., `'observation-mammography.json'`) |
+| `resourceType` | Yes | FHIR resource type (e.g., `'Observation'`, `'Condition'`) |
+| `date` | Yes | Date/datetime string to inject into the payload (typically a variable from `get-dates`) |
+
+**Returns:** `resourceId` — the server-assigned ID of the created resource.
+
+**Usage:**
+```gherkin
+* call read('classpath:util/load-resource.feature') { filename: 'observation-mammography.json', resourceType: 'Observation', date: #(yesterdayDateTime) }
+* def observationId = resourceId
+```
+
+> **Note:** The `date` argument uses the Karate expression syntax `#(variableName)` to pass a variable by reference.
+
+---
+
+### `util/create-resource.feature`
+
+Lower-level FHIR resource creation utility. POSTs an arbitrary `payload` object you supply directly.
+
+**Input parameters:**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `resourceType` | Yes | FHIR resource type |
+| `payload` | Yes | Full JSON payload object |
+
+**Returns:** `resourceId`
+
+---
+
+### `util/delete-resource.feature`
+
+DELETEs a FHIR resource by ID.
+
+**Input parameters:**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `resourceId` | Yes | Server-assigned resource ID |
+| `resourceType` | Yes | FHIR resource type |
+
+**Usage:**
+```gherkin
+* call read('classpath:util/delete-resource.feature') { resourceId: #(observationId), resourceType: 'Observation' }
+```
+
+> **Cleanup convention:** The last scenario in each feature file is responsible for deleting all shared resources (loaded in `Background`) **and** the patient record itself (`resourceType: 'Patient'`, `resourceId: #(patientId)`).
+
+---
+
+### `util/execute-cql.feature`
+
+Sends a POST request to the CQL Engine and makes the evaluation results available as `results`.
+
+**Requires (in scope):** `cqlEngineUrl`, `serviceToken`, `libraryId`, `clientPersonId`, `patientId`
+
+**Optional overrides:**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `createResources` | `false` | Whether the CQL engine should create task resources |
+| `maxRetries` | `4` | Retry count for the HTTP call |
+| `retryInterval` | `1000` | Retry interval in ms |
+
+**Returns:** `results` — the `evaluationResults` object from the CQL Engine response.
+
+**Usage:**
+```gherkin
+* call read('classpath:util/execute-cql.feature')
+And match results.InCohort_Out_Bool == true
+And match results.Numerator == false
+And match results.Completed_Out_Date == null
+```
+
+The request body is built from `payload/cqlrequest.json`:
+```json
+{
+  "clientPersonId": "#(clientPersonId)",
+  "libraryId": "#(libraryId)",
+  "createResources": "#(createResources)",
+  "refreshLibraryCache": true,
+  "refreshClientPersonCache": true
+}
+```
+
+---
+
+### `util/cql-evaluation.feature`
+
+Higher-level CQL evaluation wrapper with built-in logging. Used for scenarios that need more orchestration around the CQL call.
+
+**Requires:** `cqlEngineUrl`, `serviceToken`, `libraryId`, `clientPersonId`, `patientId`
+
+**Optional inputs:** `shouldCreateResources` (default `false`), `correlationId`
+
+---
+
+### `util/identifier-validators.feature`
+
+Provides a reusable JavaScript function `validateIdentifier` for asserting FHIR identifier values.
+
+**Usage:**
+```gherkin
+* def identifierUtils = call read('classpath:util/identifier-validators.feature')
+* def validateIdentifier = identifierUtils.validateIdentifier
+* call validateIdentifier(identifierArray, 'some-id', 'https://system.url', 'expected-value')
+```
+
+---
+
+### `util/task-constants.feature`
+
+Defines shared constants used by task-related tests.
+
+**Variables exposed:**
+
+```js
+TASK_STATUSES  = { READY, COMPLETED, CANCELLED }
+TASK_CODES     = { CARE_NEED, HEALTH_ACTIVITY }
+IDENTIFIERS    = { ELIGIBILITY_SOURCE, ACTIVITY_TITLE, WORKFLOW_EVENT, CQL_ENGINE }
+ACTIVITIES     = { ANNUAL_PHYSICAL }
+```
+
+---
+
+### `util/task-setup.feature`
+
+Bootstraps the full task-test environment in a single call: loads constants, obtains a service token, loads identifier validators, and exposes helper functions (`sleep`, `timestamp`).
+
+---
+
+### `util/task-search.feature` (GraphQL)
+
+Searches for Tasks via the HP Facade GraphQL endpoint with retry-until logic.
+
+**Input parameters:**
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `userToken` | required | Bearer token |
+| `clientPatientId` | required | Patient ID |
+| `status` | — | Task status filter |
+| `payloadFile` | `payload/task/get-tasks-graphql.json` | GraphQL request payload |
+| `activityTitle` | — | Optional filter |
+| `activityType` | — | Optional filter |
+| `eligibilitySource` | — | Optional filter |
+| `expectedCount` | `1` | Minimum task count to satisfy retry |
+| `expectEmpty` | `false` | When `true`, retries until result is empty |
+
+**Returns:** `tasks` — array of task resources.
+
+---
+
+### `util/task-search-rest.feature` (REST)
+
+Searches for Tasks via the FHIR REST endpoint with retry-until logic.
+
+**Input parameters:**
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `userToken` | required | Bearer token |
+| `clientPatientId` | required | Patient ID |
+| `status` | — | Task status filter |
+| `code` | — | Task code filter |
+| `identifier` | — | FHIR identifier filter |
+| `expectedCount` | `1` | Minimum entry count to satisfy retry |
+| `expectEmpty` | `false` | When `true`, retries until result is empty |
+
+**Returns:** `tasks` — array of FHIR Bundle entry objects.
+
+---
+
+### `util/consent-creation.feature`
+
+Creates a Terms-of-Service consent via the consent GraphQL endpoint.
+
+**Requires:** `userToken`, `apiGatewayUrl`
+
+---
+
+### `util/user-creation.feature`
+
+Standalone user/patient creation utility (alternative to `get-user-token.feature`). Uses `NewUserPayloadGenerator` Java helper.
+
+**Input parameters:** `patientAge`, `gender` (optional, default `'male'`)
+
+**Returns:** `userToken`, `accessToken`, `clientPersonId`, `clientPatientId`, `bwellPersonId`, `bwellPatientId`
+
+---
+
+## Authoring CQL Evaluation Tests — Patterns & Conventions
+
+### 1. Feature-level tags
+
+Every CQL feature file carries two tags:
+
+```gherkin
+@e2e @cql
+Feature: Evaluate <LibraryName>
+```
+
+Use `@e2e` to run all end-to-end tests; use `@cql` to run only CQL measure tests.
+
+---
+
+### 2. Standard Background block
+
+Every CQL feature `Background` follows this exact sequence:
+
+```gherkin
+Background:
+  # 1. Set the CQL library ID — must match the library name in the CQL Engine
+  * def libraryId = 'YourLibraryId'
+
+  # 2. Load date variables
+  * call read('classpath:util/get-dates.feature')
+
+  # 3. Get a service token
+  * def auth_service_token_response = call read('classpath:util/get-token.feature')
+  * def serviceToken = 'Bearer ' + auth_service_token_response.access_token
+
+  # 4. Create a synthetic patient; specify age and gender to satisfy cohort criteria
+  * def user_token_response = call read('classpath:util/get-user-token.feature') { patientAge: 45, gender: 'female' }
+
+  # 5. Extract patient identifiers
+  * def clientPersonId = user_token_response.clientPersonId
+  * def patientId = user_token_response.clientPatientId
+
+  # 6. (Optional) Load shared FHIR resources needed by all scenarios
+  * call read('classpath:util/load-resource.feature') { filename: 'condition-diabetes.json', resourceType: 'Condition', date: #(yesterdayDateTime) }
+  * def conditionId = resourceId
+```
+
+> **Note:** The `Background` runs before *every* scenario. Resources loaded here are shared across all scenarios. Use scenario-local `call load-resource` when a resource should only exist for that scenario.
+
+---
+
+### 3. Correlation IDs for traceability
+
+Every scenario begins by generating a correlation ID and logging the start state:
+
+```gherkin
+Scenario: Care need is open
+  * def correlationId = generateCorrelationId('LIBRARY_PREFIX')
+  * print correlationId, '| Starting scenario: Care need is open | clientPersonId:', clientPersonId, '| patientId:', patientId
+```
+
+The `generateCorrelationId(prefix)` helper (defined in `karate-config.js`) returns `"PREFIX-<8-char-uuid>"`. Use a short, readable prefix (e.g., `'BCS1'`, `'KED1'`, `'STATIN_CVD1'`).
+
+---
+
+### 4. Loading FHIR test data
+
+Use `load-resource.feature` to POST a FHIR resource and capture its ID:
+
+```gherkin
+* call read('classpath:util/load-resource.feature') { filename: 'observation-egfr.json', resourceType: 'Observation', date: #(yesterdayDateTime) }
+* def observationId = resourceId
+* print correlationId, '| Loaded Observation | observationId:', observationId, '| date:', yesterdayDateTime
+```
+
+- **`filename`** — relative to `src/test/java/payload/cql/`
+- **`date`** — use the `#(variable)` expression syntax to pass a pre-calculated date from `get-dates`
+- Always assign `resourceId` to a uniquely named variable immediately after the call so it can be cleaned up later
+
+---
+
+### 5. Executing CQL and asserting results
+
+After loading all required FHIR resources, invoke the CQL engine and assert the response fields:
+
+```gherkin
+* call read('classpath:util/execute-cql.feature')
+And match results.InCohort_Out_Bool == true
+And match results.Numerator == false
+And match results.Completed_Out_Date == null
+* print correlationId, '| Results | InCohort:', results.InCohort_Out_Bool, '| Numerator:', results.Numerator
+```
+
+**Common result fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `InCohort_Out_Bool` | `Boolean` | Whether the patient is in the measure cohort |
+| `Numerator` | `Boolean` | Whether the numerator condition is met |
+| `Numerator_Output_MR` | `Integer` | Count of numerator-qualifying records |
+| `Completed_Out_Bool` | `Boolean` | Whether the care need is completed |
+| `Completed_Out_Date` | `String \| null` | Completion date (`yyyy-MM-dd`) or `null` |
+| `Exclusions` | `Boolean` | Whether an optional exclusion is present |
+| `RequiredExclusions_Output_MR` | `Integer` | Count of required exclusion records |
+| `HasHospice` | `Boolean` | Hospice exclusion flag (measure-specific) |
+| `HasExclusion` | `Boolean` | Generic exclusion flag (measure-specific) |
+| `TotalRiskFactor` | `Integer` | Count of risk factors (measure-specific) |
+| `InAgeCohort` | `Boolean` | Age-specific cohort flag (measure-specific) |
+
+Use `contains` for partial date matches when only the date portion (without timezone) needs to be asserted:
+
+```gherkin
+And match results.Completed_Out_Date contains threeDaysAgoNoTimezone
+```
+
+---
+
+### 6. Scenario coverage pattern
+
+Every CQL feature covers three scenario types in order:
+
+| Scenario | Setup | Expected outcome |
+|----------|-------|-----------------|
+| **Care need is open** | Patient meets cohort criteria but no numerator data | `InCohort == true`, `Numerator == false`, `Completed_Out_Date == null` |
+| **Care need is closed** | All numerator-satisfying FHIR resources present | `InCohort == true`, `Numerator == true`, `Completed_Out_Date` set |
+| **Exclusion** | Exclusion-triggering resource present | `InCohort == false` or exclusion flag `== true` |
+
+---
+
+### 7. Resource cleanup
+
+Clean up all FHIR resources created during a scenario immediately after assertions, and log each deletion:
+
+```gherkin
+* call read('classpath:util/delete-resource.feature') { resourceId: #(observationId), resourceType: 'Observation' }
+* print correlationId, '| Cleaned up | observationId:', observationId
+```
+
+**The last scenario in every feature file is responsible for final full cleanup:**
+
+```gherkin
+# Remove all shared Background resources and the patient itself
+* call read('classpath:util/delete-resource.feature') { resourceId: #(conditionId), resourceType: 'Condition' }
+* call read('classpath:util/delete-resource.feature') { resourceId: #(patientId), resourceType: 'Patient' }
+* print correlationId, '| ✅ Scenario completed with full cleanup'
+```
+
+Mark the final scenario's closing print with the `✅ Scenario completed with full cleanup` convention to make it easy to identify in logs.
+
+---
+
+### 8. Scenario completion logging
+
+End every scenario with a completion log line:
+
+```gherkin
+* print correlationId, '| ✅ Scenario completed'
+```
+
+For the final scenario (with full patient cleanup):
+
+```gherkin
+* print correlationId, '| ✅ Scenario completed with full cleanup'
+```
+
+---
+
+### 9. Overriding patient demographics mid-scenario
+
+When a scenario requires a different patient than the one created in `Background` (e.g., testing an age-based exclusion), override `clientPersonId` and `patientId` locally:
+
+```gherkin
+Scenario: Exclusion - under age 18
+  * def correlationId = generateCorrelationId('METAB_SYN')
+  * def user_token_response_minor = call read('classpath:util/get-user-token.feature') { patientAge: 16, gender: 'male' }
+  * def clientPersonId = user_token_response_minor.clientPersonId
+  * def patientId = user_token_response_minor.clientPatientId
+```
+
+This creates a second patient scoped to that scenario. Remember to delete this patient during cleanup.
+
+---
+
+## Payload Files
+
+FHIR resource templates live in `src/test/java/payload/cql/`. Each file is a FHIR resource JSON with Karate expression placeholders:
+
+- **`subject.reference`** is automatically injected by `load-resource.feature` as `"Patient/<patientId>"`
+- The `date` field in the payload is replaced by the `date` argument passed to `load-resource.feature`
+
+Available payload files:
+
+| File | Resource Type | Description |
+|------|---------------|-------------|
+| `condition-diabetes.json` | Condition | Diabetes diagnosis |
+| `condition-esrd.json` | Condition | End-stage renal disease |
+| `condition-primary-htn.json` | Condition | Primary hypertension |
+| `condition-secondary-htn.json` | Condition | Secondary hypertension |
+| `encounter-er.json` | Encounter | Emergency room encounter |
+| `medicationrequest-statin.json` | MedicationRequest | Statin medication request |
+| `observation-a1c.json` | Observation | HbA1c lab result |
+| `observation-bp-controlled-code.json` | Observation | Controlled BP (code-based) |
+| `observation-bp-controlled-value.json` | Observation | Controlled BP (value-based) |
+| `observation-bp-uncontrolled.json` | Observation | Uncontrolled BP |
+| `observation-bp.json` | Observation | Generic BP |
+| `observation-cancer.json` | Observation | Cancer diagnosis |
+| `observation-cirrhosis.json` | Observation | Cirrhosis |
+| `observation-egfr.json` | Observation | eGFR kidney function |
+| `observation-fbg-high.json` | Observation | High fasting blood glucose |
+| `observation-hdl-low.json` | Observation | Low HDL cholesterol |
+| `observation-mammectomy.json` | Observation | Mastectomy (BCS exclusion) |
+| `observation-mammography.json` | Observation | Mammography screening |
+| `observation-mi.json` | Observation | Myocardial infarction |
+| `observation-obesity.json` | Observation | Obesity/BMI |
+| `observation-prostate-dysplasia.json` | Observation | Prostate dysplasia |
+| `observation-psa-abnormal.json` | Observation | Abnormal PSA |
+| `observation-psa-value.json` | Observation | PSA value |
+| `observation-qua.json` | Observation | QUA observation |
+| `observation-retinal-exam.json` | Observation | Retinal exam |
+| `observation-triglycerides.json` | Observation | Triglycerides |
+| `observation-uacr.json` | Observation | Urine albumin-to-creatinine ratio |
+| `observation-uc.json` | Observation | Ulcerative colitis |
+| `observation-waist-high.json` | Observation | High waist circumference |
+| `procedure-hospice.json` | Procedure | Hospice care (common exclusion) |
+| `procedure-prostectomy.json` | Procedure | Prostatectomy |
+
+---
+
+## Executing Tests
+
+### Prerequisites
+
+- **Java 17** — the Gradle 8.0 wrapper does not support Java 21+ (fails with "Unsupported class file major version"). If your default JVM is newer, set `JAVA_HOME` explicitly:
+  ```bash
+  export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+  ```
+- Gradle (use the included `./gradlew` wrapper — do not use a system-installed Gradle)
+- Valid `client.id`, `client.secret`, and `client.key` (see [Required Credentials](#required-credentials))
+
+---
+
+### Run all tests (default env: `dev`)
+
+```bash
+JAVA_HOME=$(/usr/libexec/java_home -v 17) ./gradlew test \
+  -Dkarate.env=dev \
+  -Dclient.id=YOUR_CLIENT_ID \
+  -Dclient.key=YOUR_CLIENT_KEY \
+  -Dclient.secret=YOUR_CLIENT_SECRET
+```
+
+Tests run in parallel with 3 threads (configured in `KarateTestRunner.java`).
+
+---
+
+### Run all tests against a specific environment
+
+```bash
+JAVA_HOME=$(/usr/libexec/java_home -v 17) ./gradlew test \
+  -Dkarate.env=staging \
+  -Dclient.id=YOUR_CLIENT_ID \
+  -Dclient.key=YOUR_CLIENT_KEY \
+  -Dclient.secret=YOUR_CLIENT_SECRET
+```
+
+Supported values for `-Dkarate.env`: `dev`, `staging`, `client-sandbox`, `prod`
+
+---
+
+### Run a single feature file
+
+```bash
+JAVA_HOME=$(/usr/libexec/java_home -v 17) ./gradlew clean test \
+  -Dkarate.options="classpath:feature/cql/bcs1-evaluation.feature" \
+  -Dkarate.env=dev \
+  -Dclient.id=YOUR_CLIENT_ID \
+  -Dclient.key=YOUR_CLIENT_KEY \
+  -Dclient.secret=YOUR_CLIENT_SECRET
+```
+
+---
+
+### Run by tag
+
+Filter by a Karate tag using `--tags`:
+
+```bash
+# Run all CQL measure tests
+JAVA_HOME=$(/usr/libexec/java_home -v 17) ./gradlew clean test \
+  -Dkarate.options="--tags @cql" \
+  -Dkarate.env=dev \
+  -Dclient.id=YOUR_CLIENT_ID \
+  -Dclient.key=YOUR_CLIENT_KEY \
+  -Dclient.secret=YOUR_CLIENT_SECRET
+
+# Run all end-to-end tests
+JAVA_HOME=$(/usr/libexec/java_home -v 17) ./gradlew clean test \
+  -Dkarate.options="--tags @e2e" \
+  -Dkarate.env=dev \
+  -Dclient.id=YOUR_CLIENT_ID \
+  -Dclient.key=YOUR_CLIENT_KEY \
+  -Dclient.secret=YOUR_CLIENT_SECRET
+```
+
+---
+
+### Clean build before running
+
+Use `clean` to avoid Gradle's up-to-date checks (the `build.gradle` already sets `outputs.upToDateWhen { false }`, but `clean` is recommended for CI):
+
+```bash
+JAVA_HOME=$(/usr/libexec/java_home -v 17) ./gradlew clean test ...
+```
+
+---
+
+## Test Reports
+
+After a test run, HTML and JUnit XML reports are generated at:
+
+```
+build/reports/tests/test/         # Gradle HTML report
+build/karate-reports/             # Karate HTML report (karate-summary.html)
+build/surefire-reports/           # JUnit XML reports
+```
+
+Open the Karate summary report:
+
+```bash
+open build/karate-reports/karate-summary.html
+<!-- SYNC:PRESERVE-BELOW (do not edit this line -- content below survives the AGENTS.md sync) -->
+
+<!-- REPO-SPECIFIC ADDENDUM — complaint-parser only. Everything above this line is the org-wide
+     baseline, synced from icanbwell/.github (see CODEOWNERS, PR review by @icanbwell/enterprise-architecture).
+     This section is preserved across syncs automatically by the SYNC:PRESERVE-BELOW sentinel above
+     (icanbwell/.github .github/workflows/sync-agents-md.yml) -- no manual restoration needed on
+     future sync PRs. -->
+
+## complaint-parser: repo-specific pointers
+
+Two things below are always relevant at the start of a session in this repo — check them early,
+not just when a task obviously needs them:
+
+- **`sessions/index.md`** — a pending → complete lifecycle for self-contained implementation
+  plans. Read it first if you're picking up work with no other specific instruction; it names a
+  recommended next session.
+- **`.claude/guidelines/index.md`** — repo-specific process guidance (deploying, etc.), organized
+  so each file is read only when the task at hand actually needs it. Not duplicated here to avoid
+  this baseline file growing unbounded as more guidance accumulates.
+
+<!-- SYNC:PRESERVE-BELOW (do not edit this line -- content below survives the AGENTS.md sync) -->
+
+## Repo-Specific: ai-health-optimization — Cross-Repo Impact Checklist
+
+<!-- Everything above this line is the org-wide baseline, synced from icanbwell/.github
+     (see CODEOWNERS, PR review by @icanbwell/enterprise-architecture). This section is
+     preserved across syncs automatically by the SYNC:PRESERVE-BELOW sentinel above
+     (icanbwell/.github .github/workflows/sync-agents-md.yml) -- no manual restoration
+     needed on future sync PRs. -->
+
+> Repo-specific context, additive to the baseline above. When changing aggregation, unit handling, validation, scoring, or composition output, check **both ends** of the dependency chain before merging:
+
+- **Upstream — `device-codex`** (GitHub `icanbwell/device-codex`, pip package `devicecodex`): the source of truth for LOINC metadata, unit families, canonical units, valid ranges, and FHIR unit/code normalization (`interop.normalize_fhir_unit`, `is_plausible_unit`, `normalize_code`; `registry.get_metric_by_code`). Fix unit/range/code-alias gaps upstream there rather than patching locally; this repo should consume device-codex, not re-implement it.
+- **Downstream — `bwell-databricks`** (GitHub `icanbwell/bwell-databricks`): within that repo, `bundle/device-data-ingest-job/src/bwell/device_data_ingest_job/health_insights.py` calls `aihealthoptimization.pipeline.create_compositions_from_observations` and writes the returned Compositions to FHIR. It **exact-pins** `aihealthoptimization`/`devicecodex` in that bundle's `requirements.txt`, so scoring/value changes reach production only when the pin is bumped — coordinate that as a score-recompute / data-quality event, not a silent rollout. Keep the pipeline signature and composition keys (`device_metrics` + body-system names) stable.
+
+<!-- SYNC:PRESERVE-BELOW (do not edit this line -- content below survives the AGENTS.md sync) -->
+
+## Repo-Specific: ai-care-gap-scoring — Context
+
+<!-- Everything above this line is the org-wide baseline, synced from icanbwell/.github
+     (see CODEOWNERS, PR review by @icanbwell/enterprise-architecture). This section is
+     preserved across syncs automatically by the SYNC:PRESERVE-BELOW sentinel above
+     (icanbwell/.github .github/workflows/sync-agents-md.yml) -- no manual restoration
+     needed on future sync PRs. -->
+
+> Repo-specific context, additive to the baseline above.
+
+- **Purpose & phase:** Care gap closure **propensity scoring**. Currently **Phase 0 — feasibility**: produce PHI-safe aggregate feasibility/EDA reports (no model, no FHIR writes) to decide GO/NO-GO per measure. First measure: Breast Cancer Screening. See `docs/superpowers/specs/` and `docs/superpowers/plans/`.
+- **Data source — Databricks.** Reads normalized FHIR from `silver.fhir_lite.*` and quality-measure data from `bronze.dqm.*` via **`bwell-databricks-valet`** (`get_spark()` + env→catalog resolution). Catalogs are env-scoped (`nophi_dev` test, `silver_dev`/`silver` dev/prod). Do not read another service's private datastore directly.
+- **PHI is paramount.** Every emitted artifact is an aggregate only (counts/rates/correlations/binned distributions) with small-cell suppression (n<11) and no identifiers or exact dates. An output guard fails the run on PHI-like content. Never write row-level patient data to disk or logs.
+- **Eventual downstream (deferred to a later phase):** propensity scores will be written to the FHIR server as **`RiskAssessment`** resources, pending a new FDR ("Care Gap Propensity Score"). Nothing is written to FHIR in Phase 0.
+
+<!-- SYNC:PRESERVE-BELOW (do not edit this line -- content below survives the AGENTS.md sync) -->
+
+<!-- REPO-SPECIFIC ADDENDUM — complaint-parser only. Everything above this line is the org-wide
+     baseline, synced from icanbwell/.github (see CODEOWNERS, PR review by @icanbwell/enterprise-architecture).
+     This section is preserved across syncs automatically by the SYNC:PRESERVE-BELOW sentinel above
+     (icanbwell/.github .github/workflows/sync-agents-md.yml) -- no manual restoration needed on
+     future sync PRs. -->
+
+## complaint-parser: repo-specific pointers
+
+Two things below are always relevant at the start of a session in this repo — check them early,
+not just when a task obviously needs them:
+
+- **`sessions/index.md`** — a pending → complete lifecycle for self-contained implementation
+  plans. Read it first if you're picking up work with no other specific instruction; it names a
+  recommended next session.
+- **`.claude/guidelines/index.md`** — repo-specific process guidance (deploying, etc.), organized
+  so each file is read only when the task at hand actually needs it. Not duplicated here to avoid
+  this baseline file growing unbounded as more guidance accumulates.
