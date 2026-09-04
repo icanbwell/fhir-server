@@ -181,6 +181,25 @@ class R4ArgsParser {
                     }
                 ) : null;
 
+            // composite params resolve fieldType per component instead of on the top-level
+            // propertyObj (which has no field/fields of its own -- only scopes). Mutating each
+            // component in place mirrors the existing top-level fieldType assignment above;
+            // idempotent across requests since it depends only on resourceType + that
+            // component's own field.
+            if (propertyObj.type === 'composite' && propertyObj.scopes) {
+                for (const scope of propertyObj.scopes) {
+                    for (const component of scope.components) {
+                        component.fieldType = component.fields.length > 0
+                            ? this.fhirTypesManager.getTypeForField(
+                                {
+                                    resourceType,
+                                    field: component.firstField
+                                }
+                            ) : null;
+                    }
+                }
+            }
+
             let orQueryParameterValue, andQueryParameterValue, notQueryParameterValue, newModifiers = [];
             ({ orQueryParameterValue, andQueryParameterValue, notQueryParameterValue, newModifiers } = convertGraphQLParameters(
                 queryParameterValue

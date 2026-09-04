@@ -358,3 +358,33 @@ describe('R4ArgsParser', () => {
         });
     });
 });
+
+describe('R4ArgsParser composite fieldType resolution', () => {
+    test('sets fieldType on every composite component after parseArgs', () => {
+        const component1 = new SearchParameterDefinition({ type: 'token', field: 'code' });
+        const component2 = new SearchParameterDefinition({
+            type: 'quantity',
+            field: 'valueQuantity'
+        });
+        const compositeDef = new SearchParameterDefinition({
+            type: 'composite',
+            scopes: [{ components: [component1, component2] }]
+        });
+        const searchParametersManager = new SearchParametersManager();
+        searchParametersManager.getPropertyObject = () => compositeDef;
+
+        const r4ArgsParser = new R4ArgsParser({
+            fhirTypesManager: new FhirTypesManager(),
+            configManager: new ConfigManager(),
+            searchParametersManager
+        });
+
+        r4ArgsParser.parseArgs({
+            resourceType: 'Observation',
+            args: { 'code-value-quantity': '8480-6$ge140', base_version: '4_0_0' }
+        });
+
+        expect(component1.fieldType).toBe('CodeableConcept');
+        expect(component2.fieldType).toBe('Quantity');
+    });
+});
