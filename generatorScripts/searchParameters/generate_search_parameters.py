@@ -186,9 +186,21 @@ def _is_true_array_path(resource_name: str, array_path: str, resource_field_type
     """Only trust a scope's array path as a genuine repeating array (max cardinality '*') if
     resource_field_types confirms it. A few composite scopes name a singular (0..1/1..1) element
     instead -- e.g. MolecularSequence.referenceSeq is max '1', not a repeating BackboneElement --
-    and those must be treated as root-equivalent (no $elemMatch-style array scope)."""
+    and those must be treated as root-equivalent (no $elemMatch-style array scope).
+
+    Raises ValueError if resource_field_types has no entry at all for
+    "<resource_name>.<array_path>" -- unlike a confirmed max != '*' (a real, legitimate
+    singular-element case), a missing lookup means we have no evidence either way, and silently
+    treating that as "not an array" would collapse a genuine array scope to root-equivalent,
+    dropping the $elemMatch correlation between components and letting them silently match
+    different array elements."""
     field_info = _field_type_info(resource_name, array_path, resource_field_types)
-    return bool(field_info) and field_info.get('max') == '*'
+    if not field_info:
+        raise ValueError(
+            f"_is_true_array_path: no resource_field_types entry for "
+            f"{resource_name!r}.{array_path!r} -- cannot determine array cardinality"
+        )
+    return field_info.get('max') == '*'
 
 
 def _array_path_is_backbone(resource_name: str, array_path: str, resource_field_types: Dict) -> bool:
