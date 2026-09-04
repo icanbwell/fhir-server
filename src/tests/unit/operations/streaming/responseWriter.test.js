@@ -94,9 +94,22 @@ describe('HttpResponseWriter', () => {
             writer._construct((err) => {
                 expect(err).toBeUndefined();
                 expect(mockResponse.removeHeader).toHaveBeenCalledWith('Content-Length');
-                expect(mockResponse.setHeader).toHaveBeenCalledWith('Transfer-Encoding', 'chunked');
                 expect(mockResponse.setHeader).toHaveBeenCalledWith('X-Request-ID', 'test-request-123');
                 expect(mockResponse.setHeader).toHaveBeenCalledWith('Content-Type', 'application/fhir+json');
+                done();
+            });
+        });
+
+        test('does NOT set Transfer-Encoding (deferred to the first _write)', (done) => {
+            // Regression guard: Transfer-Encoding used to be set here, eagerly, before any
+            // data was written. If the pipeline errors before ever reaching _write (e.g. a
+            // malformed/undecodable request body), that left Transfer-Encoding queued on the
+            // response even though nothing was ever sent - a later generic error handler
+            // setting Content-Length via res.json() would then ship a response with both
+            // headers present, which violates HTTP/1.1 and gets rejected by strict clients.
+            writer._construct((err) => {
+                expect(err).toBeUndefined();
+                expect(mockResponse.setHeader).not.toHaveBeenCalledWith('Transfer-Encoding', 'chunked');
                 done();
             });
         });
@@ -155,11 +168,42 @@ describe('HttpResponseWriter', () => {
             });
         });
 
+        test('sets Transfer-Encoding immediately before the first header flush', (done) => {
+            mockResponse.headersSent = false;
+
+            writer._write('data', 'utf8', (err) => {
+                expect(mockResponse.setHeader).toHaveBeenCalledWith('Transfer-Encoding', 'chunked');
+
+                // Ordering is the whole point of the fix: setting the header *after*
+                // flushHeaders() would be a no-op, and asserting only that setHeader was called
+                // would pass either way. Compare invocation order to pin it down.
+                const transferEncodingCallIndex = mockResponse.setHeader.mock.calls
+                    .findIndex(([name]) => name === 'Transfer-Encoding');
+                expect(transferEncodingCallIndex).toBeGreaterThanOrEqual(0);
+                const setHeaderOrder =
+                    mockResponse.setHeader.mock.invocationCallOrder[transferEncodingCallIndex];
+                const flushOrder = mockResponse.flushHeaders.mock.invocationCallOrder[0];
+
+                expect(flushOrder).toBeDefined();
+                expect(setHeaderOrder).toBeLessThan(flushOrder);
+                done();
+            });
+        });
+
         test('does not flush headers if already sent', (done) => {
             mockResponse.headersSent = true;
 
             writer._write('data', 'utf8', (err) => {
                 expect(mockResponse.flushHeaders).not.toHaveBeenCalled();
+                done();
+            });
+        });
+
+        test('does not re-set Transfer-Encoding if headers already sent', (done) => {
+            mockResponse.headersSent = true;
+
+            writer._write('data', 'utf8', (err) => {
+                expect(mockResponse.setHeader).not.toHaveBeenCalledWith('Transfer-Encoding', 'chunked');
                 done();
             });
         });
