@@ -159,6 +159,26 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the activity definition',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the activity definition',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'AdministrableProductDefinition': {
 		'device': {
@@ -798,6 +818,130 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'CarePlan': {
 		'activity-code': {
@@ -1128,6 +1272,26 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the charge item definition',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the charge item definition',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'Citation': {
 		'context': {
@@ -1201,6 +1365,26 @@ search_parameter_queries = {
 			'description': 'The business version of the citation',
 			'type': 'token',
 			'field': 'version',
+		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the citation',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the citation',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
 		},
 	},
 	'Claim': {
@@ -1595,6 +1779,130 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'Communication': {
 		'based-on': {
@@ -1837,6 +2145,130 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'Composition': {
 		'attester': {
@@ -2065,6 +2497,130 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The business version of the capability statement* [CodeSystem](codesystem.html): The business version of the code system* [CompartmentDefinition](compartmentdefinition.html): The business version of the compartment definition* [ConceptMap](conceptmap.html): The business version of the concept map* [GraphDefinition](graphdefinition.html): The business version of the graph definition* [ImplementationGuide](implementationguide.html): The business version of the implementation guide* [MessageDefinition](messagedefinition.html): The business version of the message definition* [OperationDefinition](operationdefinition.html): The business version of the operation definition* [SearchParameter](searchparameter.html): The business version of the search parameter* [StructureDefinition](structuredefinition.html): The business version of the structure definition* [StructureMap](structuremap.html): The business version of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The business version of the terminology capabilities* [ValueSet](valueset.html): The business version of the value set',
 			'type': 'token',
 			'field': 'version',
+		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
 		},
 	},
 	'Condition': {
@@ -3092,6 +3648,16 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'type',
 		},
+		'relationship': {
+			'description': 'Combination of relation and relatesTo',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'reference', 'field': 'target', 'array_field': 'relatesTo' },
+					{ 'type': 'token', 'field': 'code', 'array_field': 'relatesTo' },
+				] },
+			],
+		},
 	},
 	'Encounter': {
 		'_locationPeriodEnd': {
@@ -3490,6 +4056,26 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the event definition',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the event definition',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'Evidence': {
 		'context': {
@@ -3548,6 +4134,26 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the evidence',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the evidence',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'EvidenceReport': {
 		'context': {
@@ -3584,6 +4190,26 @@ search_parameter_queries = {
 			'description': 'The uri that identifies the evidence report',
 			'type': 'uri',
 			'field': 'url',
+		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the evidence report',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the evidence report',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
 		},
 	},
 	'EvidenceVariable': {
@@ -3648,6 +4274,26 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the evidence variable',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the evidence variable',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'ExampleScenario': {
 		'context': {
@@ -3705,6 +4351,26 @@ search_parameter_queries = {
 			'description': 'The business version of the example scenario',
 			'type': 'token',
 			'field': 'version',
+		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the example scenario',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the example scenario',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
 		},
 	},
 	'ExplanationOfBenefit': {
@@ -4003,6 +4669,130 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'Group': {
 		'actual': {
@@ -4051,6 +4841,16 @@ search_parameter_queries = {
 			'description': 'Value held by characteristic',
 			'type': 'token',
 			'fields': ['characteristic.valueCodeableConcept', 'characteristic.valueBoolean', 'characteristic.valueQuantity', 'characteristic.valueRange', 'characteristic.valueReference'],
+		},
+		'characteristic-value': {
+			'description': 'A composite of both characteristic and value',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'characteristic' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'characteristic' },
+				] },
+			],
 		},
 	},
 	'GuidanceResponse': {
@@ -4500,6 +5300,130 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'Ingredient': {
 		'for': {
@@ -4816,6 +5740,26 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the library',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the library',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'Linkage': {
 		'author': {
@@ -5114,6 +6058,26 @@ search_parameter_queries = {
 			'description': 'The business version of the measure',
 			'type': 'token',
 			'field': 'version',
+		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the measure',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the measure',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
 		},
 	},
 	'MeasureReport': {
@@ -5834,6 +6798,130 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'MessageHeader': {
 		'author': {
@@ -5961,6 +7049,50 @@ search_parameter_queries = {
 			'type': 'number',
 			'field': 'referenceSeq.windowStart',
 		},
+		'chromosome-variant-coordinate': {
+			'description': 'Search parameter by chromosome and variant coordinate. This will refer to part of a locus or part of a gene where search region will be represented in 1-based system. Since the coordinateSystem can either be 0-based or 1-based, this search query will include the result of both coordinateSystem that contains the equivalent segment of the gene or whole genome sequence. For example, a search for sequence can be represented as `chromosome-variant-coordinate=1$lt345$gt123`, this means it will search for the MolecularSequence resource with variants on chromosome 1 and with position >123 and <345, where in 1-based system resource, all strings within region 1:124-344 will be revealed, while in 0-based system resource, all strings within region 1:123-344 will be revealed. You may want to check detail about 0-based v.s. 1-based above.',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'referenceSeq.chromosome', 'array_field': None },
+					{ 'type': 'number', 'field': 'start', 'array_field': 'variant' },
+					{ 'type': 'number', 'field': 'end', 'array_field': 'variant' },
+				] },
+			],
+		},
+		'chromosome-window-coordinate': {
+			'description': 'Search parameter by chromosome and window. This will refer to part of a locus or part of a gene where search region will be represented in 1-based system. Since the coordinateSystem can either be 0-based or 1-based, this search query will include the result of both coordinateSystem that contains the equivalent segment of the gene or whole genome sequence. For example, a search for sequence can be represented as `chromosome-window-coordinate=1$lt345$gt123`, this means it will search for the MolecularSequence resource with a window on chromosome 1 and with position >123 and <345, where in 1-based system resource, all strings within region 1:124-344 will be revealed, while in 0-based system resource, all strings within region 1:123-344 will be revealed. You may want to check detail about 0-based v.s. 1-based above.',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'chromosome', 'array_field': 'referenceSeq' },
+					{ 'type': 'number', 'field': 'windowStart', 'array_field': 'referenceSeq' },
+					{ 'type': 'number', 'field': 'windowEnd', 'array_field': 'referenceSeq' },
+				] },
+			],
+		},
+		'referenceseqid-variant-coordinate': {
+			'description': 'Search parameter by reference sequence and variant coordinate. This will refer to part of a locus or part of a gene where search region will be represented in 1-based system. Since the coordinateSystem can either be 0-based or 1-based, this search query will include the result of both coordinateSystem that contains the equivalent segment of the gene or whole genome sequence. For example, a search for sequence can be represented as `referenceSeqId-variant-coordinate=NC_000001.11$lt345$gt123`, this means it will search for the MolecularSequence resource with variants on NC_000001.11 and with position >123 and <345, where in 1-based system resource, all strings within region NC_000001.11:124-344 will be revealed, while in 0-based system resource, all strings within region NC_000001.11:123-344 will be revealed. You may want to check detail about 0-based v.s. 1-based above.',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'referenceSeq.referenceSeqId', 'array_field': None },
+					{ 'type': 'number', 'field': 'start', 'array_field': 'variant' },
+					{ 'type': 'number', 'field': 'end', 'array_field': 'variant' },
+				] },
+			],
+		},
+		'referenceseqid-window-coordinate': {
+			'description': 'Search parameter by reference sequence and window. This will refer to part of a locus or part of a gene where search region will be represented in 1-based system. Since the coordinateSystem can either be 0-based or 1-based, this search query will include the result of both coordinateSystem that contains the equivalent segment of the gene or whole genome sequence. For example, a search for sequence can be represented as `referenceSeqId-window-coordinate=NC_000001.11$lt345$gt123`, this means it will search for the MolecularSequence resource with a window on NC_000001.11 and with position >123 and <345, where in 1-based system resource, all strings within region NC_000001.11:124-344 will be revealed, while in 0-based system resource, all strings within region NC_000001.11:123-344 will be revealed. You may want to check detail about 0-based v.s. 1-based above.',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'referenceSeqId', 'array_field': 'referenceSeq' },
+					{ 'type': 'number', 'field': 'windowStart', 'array_field': 'referenceSeq' },
+					{ 'type': 'number', 'field': 'windowEnd', 'array_field': 'referenceSeq' },
+				] },
+			],
+		},
 	},
 	'NamingSystem': {
 		'contact': {
@@ -6049,6 +7181,130 @@ search_parameter_queries = {
 			'description': 'The unique identifier',
 			'type': 'string',
 			'field': 'uniqueId.value',
+		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
 		},
 	},
 	'NutritionOrder': {
@@ -6318,6 +7574,94 @@ search_parameter_queries = {
 			'type': 'string',
 			'fields': ['valueQuantity', 'valueCodeableConcept', 'valueString', 'valueBoolean', 'valueInteger', 'valueRange', 'valueRatio', 'valueSampledData', 'valueTime', 'valueDateTime', 'valuePeriod'],
 		},
+		'code-value-concept': {
+			'description': 'Code and coded value parameter pair',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': None },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': None },
+				] },
+			],
+		},
+		'code-value-date': {
+			'description': 'Code and date/time value parameter pair',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': None },
+					{ 'type': 'date', 'field': 'valueDateTime', 'array_field': None },
+				] },
+			],
+		},
+		'code-value-quantity': {
+			'description': 'Code and quantity value parameter pair',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': None },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': None },
+				] },
+			],
+		},
+		'code-value-string': {
+			'description': 'Code and string value parameter pair',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': None },
+					{ 'type': 'string', 'field': 'valueString', 'array_field': None },
+				] },
+			],
+		},
+		'combo-code-value-concept': {
+			'description': 'Code and coded value parameter pair, including in components',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': None },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': None },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'component' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'component' },
+				] },
+			],
+		},
+		'combo-code-value-quantity': {
+			'description': 'Code and quantity value parameter pair, including in components',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': None },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': None },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'component' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'component' },
+				] },
+			],
+		},
+		'component-code-value-concept': {
+			'description': 'Component code and component coded value parameter pair',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'component' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'component' },
+				] },
+			],
+		},
+		'component-code-value-quantity': {
+			'description': 'Component code and component quantity value parameter pair',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'component' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'component' },
+				] },
+			],
+		},
 	},
 	'OperationDefinition': {
 		'base': {
@@ -6423,6 +7767,130 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The business version of the capability statement* [CodeSystem](codesystem.html): The business version of the code system* [CompartmentDefinition](compartmentdefinition.html): The business version of the compartment definition* [ConceptMap](conceptmap.html): The business version of the concept map* [GraphDefinition](graphdefinition.html): The business version of the graph definition* [ImplementationGuide](implementationguide.html): The business version of the implementation guide* [MessageDefinition](messagedefinition.html): The business version of the message definition* [OperationDefinition](operationdefinition.html): The business version of the operation definition* [SearchParameter](searchparameter.html): The business version of the search parameter* [StructureDefinition](structuredefinition.html): The business version of the structure definition* [StructureMap](structuremap.html): The business version of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The business version of the terminology capabilities* [ValueSet](valueset.html): The business version of the value set',
 			'type': 'token',
 			'field': 'version',
+		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
 		},
 	},
 	'Organization': {
@@ -7083,6 +8551,26 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the plan definition',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the plan definition',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'Practitioner': {
 		'active': {
@@ -7499,6 +8987,26 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the questionnaire',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the questionnaire',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'QuestionnaireResponse': {
 		'author': {
@@ -7887,6 +9395,26 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the research definition',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the research definition',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'ResearchElementDefinition': {
 		'composed-of': {
@@ -8000,6 +9528,26 @@ search_parameter_queries = {
 			'description': 'The business version of the research element definition',
 			'type': 'token',
 			'field': 'version',
+		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the research element definition',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the research element definition',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
 		},
 	},
 	'ResearchStudy': {
@@ -8329,6 +9877,130 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The business version of the capability statement* [CodeSystem](codesystem.html): The business version of the code system* [CompartmentDefinition](compartmentdefinition.html): The business version of the compartment definition* [ConceptMap](conceptmap.html): The business version of the concept map* [GraphDefinition](graphdefinition.html): The business version of the graph definition* [ImplementationGuide](implementationguide.html): The business version of the implementation guide* [MessageDefinition](messagedefinition.html): The business version of the message definition* [OperationDefinition](operationdefinition.html): The business version of the operation definition* [SearchParameter](searchparameter.html): The business version of the search parameter* [StructureDefinition](structuredefinition.html): The business version of the structure definition* [StructureMap](structuremap.html): The business version of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The business version of the terminology capabilities* [ValueSet](valueset.html): The business version of the value set',
 			'type': 'token',
 			'field': 'version',
+		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
 		},
 	},
 	'ServiceRequest': {
@@ -8701,6 +10373,130 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'StructureMap': {
 		'context': {
@@ -8768,6 +10564,130 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The business version of the capability statement* [CodeSystem](codesystem.html): The business version of the code system* [CompartmentDefinition](compartmentdefinition.html): The business version of the compartment definition* [ConceptMap](conceptmap.html): The business version of the concept map* [GraphDefinition](graphdefinition.html): The business version of the graph definition* [ImplementationGuide](implementationguide.html): The business version of the implementation guide* [MessageDefinition](messagedefinition.html): The business version of the message definition* [OperationDefinition](operationdefinition.html): The business version of the operation definition* [SearchParameter](searchparameter.html): The business version of the search parameter* [StructureDefinition](structuredefinition.html): The business version of the structure definition* [StructureMap](structuremap.html): The business version of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The business version of the terminology capabilities* [ValueSet](valueset.html): The business version of the value set',
 			'type': 'token',
 			'field': 'version',
+		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
 		},
 	},
 	'Subscription': {
@@ -9162,6 +11082,130 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'TestReport': {
 		'identifier': {
@@ -9269,6 +11313,26 @@ search_parameter_queries = {
 			'type': 'token',
 			'field': 'version',
 		},
+		'context-type-quantity': {
+			'description': 'A use context type and quantity- or range-based value assigned to the test script',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'A use context type and value assigned to the test script',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
+		},
 	},
 	'ValueSet': {
 		'code': {
@@ -9351,6 +11415,130 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The business version of the capability statement* [CodeSystem](codesystem.html): The business version of the code system* [CompartmentDefinition](compartmentdefinition.html): The business version of the compartment definition* [ConceptMap](conceptmap.html): The business version of the concept map* [GraphDefinition](graphdefinition.html): The business version of the graph definition* [ImplementationGuide](implementationguide.html): The business version of the implementation guide* [MessageDefinition](messagedefinition.html): The business version of the message definition* [OperationDefinition](operationdefinition.html): The business version of the operation definition* [SearchParameter](searchparameter.html): The business version of the search parameter* [StructureDefinition](structuredefinition.html): The business version of the structure definition* [StructureMap](structuremap.html): The business version of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The business version of the terminology capabilities* [ValueSet](valueset.html): The business version of the value set',
 			'type': 'token',
 			'field': 'version',
+		},
+		'context-type-quantity': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'quantity', 'field': 'valueQuantity', 'array_field': 'useContext' },
+				] },
+			],
+		},
+		'context-type-value': {
+			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set',
+			'type': 'composite',
+			'scopes': [
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+				{ 'components': [
+					{ 'type': 'token', 'field': 'code', 'array_field': 'useContext' },
+					{ 'type': 'token', 'field': 'valueCodeableConcept', 'array_field': 'useContext' },
+				] },
+			],
 		},
 	},
 	'VerificationResult': {
