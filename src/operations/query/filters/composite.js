@@ -178,5 +178,6 @@ class FilterByComposite extends BaseFilter {
 }
 
 module.exports = {
-    FilterByComposite
+    FilterByComposite,
+    REJECTED_MODIFIERS
 };

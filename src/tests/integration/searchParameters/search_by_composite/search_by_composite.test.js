@@ -75,6 +75,7 @@ describe('Composite search parameter tests', () => {
         resp = await request
             .get('/4_0_0/Observation?code-value-quantity=55284-4$ge140&_bundle=1')
             .set(getHeadersWithAdmin());
+        expect(resp.statusCode).toBe(200);
         const ids = (resp.body.entry || []).map((e) => e.resource.id);
         expect(ids).toEqual(['composite-search-obs-root']);
     });
@@ -100,6 +101,7 @@ describe('Composite search parameter tests', () => {
         const { rpc } = await callMcpTool(request, bearerToken, 'search_observation', {
             'component-code-value-quantity': '8480-6$ge140'
         });
+        expect(rpc.result.isError).toBeUndefined();
         const bundle = bundleFromToolResult(rpc);
         expect(idsInBundle(bundle)).toEqual(['composite-search-obs-1']);
     });
