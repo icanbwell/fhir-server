@@ -173,6 +173,19 @@ describe('HttpResponseWriter', () => {
 
             writer._write('data', 'utf8', (err) => {
                 expect(mockResponse.setHeader).toHaveBeenCalledWith('Transfer-Encoding', 'chunked');
+
+                // Ordering is the whole point of the fix: setting the header *after*
+                // flushHeaders() would be a no-op, and asserting only that setHeader was called
+                // would pass either way. Compare invocation order to pin it down.
+                const transferEncodingCallIndex = mockResponse.setHeader.mock.calls
+                    .findIndex(([name]) => name === 'Transfer-Encoding');
+                expect(transferEncodingCallIndex).toBeGreaterThanOrEqual(0);
+                const setHeaderOrder =
+                    mockResponse.setHeader.mock.invocationCallOrder[transferEncodingCallIndex];
+                const flushOrder = mockResponse.flushHeaders.mock.invocationCallOrder[0];
+
+                expect(flushOrder).toBeDefined();
+                expect(setHeaderOrder).toBeLessThan(flushOrder);
                 done();
             });
         });

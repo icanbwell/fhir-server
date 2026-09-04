@@ -4085,13 +4085,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/bytes@npm:^3":
-  version: 3.1.6
-  resolution: "@types/bytes@npm:3.1.6"
-  checksum: 10c0/2d9fff3d0aa5487f71a94a719b04336f03832211353927b9e1b3dc02a566f38c96b7a5ccb260af3893b4900f5bc5ee1b5adc3074a061b7a0522787ed57a8a5be
-  languageName: node
-  linkType: hard
-
 "@types/connect@npm:3.4.38":
   version: 3.4.38
   resolution: "@types/connect@npm:3.4.38"
@@ -5363,7 +5356,6 @@ __metadata:
     "@opentelemetry/sdk-node": "npm:0.220.0"
     "@sentry/node": "npm:10.54.0"
     "@testcontainers/clickhouse": "npm:^12.0.0"
-    "@types/bytes": "npm:^3"
     accepts: "npm:^1.3.8"
     ajv: "npm:^6.15.0"
     async: "npm:^3.2.6"

@@ -162,7 +162,6 @@
     "@graphql-eslint/eslint-plugin": "^4.4.0",
     "@jest/globals": "^30.4.1",
     "@testcontainers/clickhouse": "^12.0.0",
-    "@types/bytes": "^3",
     "csv42": "^5.0.3",
     "dotenv": "^17.4.2",
     "eslint": "^10.4.0",

@@ -3,9 +3,14 @@
 const zlib = require('zlib');
 const { pipeline } = require('stream/promises');
 const { PassThrough } = require('stream');
-const { describe, test, expect } = require('@jest/globals');
+const { describe, test, expect, jest: jestObj } = require('@jest/globals');
 
-const { getRequestDecompressor } = require('../../../utils/requestDecompressor');
+jestObj.mock('../../../operations/common/logging', () => ({
+    logWarn: jestObj.fn()
+}));
+
+const { getRequestDecompressor, DecompressedSizeLimitTransform } = require('../../../utils/requestDecompressor');
+const { logWarn } = require('../../../operations/common/logging');
 
 /**
  * Runs a compressed buffer through the full decompressor chain (as merge.js's pipeline()
@@ -118,5 +123,79 @@ describe('getRequestDecompressor', () => {
         const result = await runThroughDecompressor(compressed, 'gzip');
 
         expect(result.toString('utf8')).toBe(original.toString('utf8'));
+    });
+
+    test('falls back to the default limit (not an unlimited or always-413 one) when PAYLOAD_LIMIT is unparseable', async () => {
+        // bytes() returns null for an unparseable value. Passing that straight through as
+        // maxBytes would make `bytesSeen > null` true from the very first chunk, failing every
+        // compressed streaming request with a 413 - so a config typo has to fall back instead.
+        const original = Buffer.from('a'.repeat(1000));
+        const compressed = zlib.gzipSync(original);
+
+        const result = await runThroughDecompressor(compressed, 'gzip', 'not-a-size');
+
+        expect(result.length).toBe(1000);
+        expect(logWarn).toHaveBeenCalledWith(
+            expect.stringContaining('PAYLOAD_LIMIT'),
+            expect.anything()
+        );
+    });
+
+    test('the fallback limit is still enforced, not disabled', async () => {
+        // Guards the other half of the fallback: dropping to the default must not mean
+        // "no limit" (which is how body-parser treats an unparseable limit).
+        const original = Buffer.alloc(60 * 1024 * 1024, 0);
+
+        await expect(
+            runThroughDecompressor(zlib.gzipSync(original), 'gzip', 'not-a-size')
+        ).rejects.toMatchObject({ statusCode: 413 });
+    });
+});
+
+describe('DecompressedSizeLimitTransform', () => {
+    /**
+     * Feeds fixed-size chunks through the transform on its own (no decompression stage) so the
+     * exact byte at which it trips is observable.
+     */
+    async function runChunks (maxBytes, chunks) {
+        const transform = new DecompressedSizeLimitTransform({ maxBytes, operationName: 'test op' });
+        const source = new PassThrough();
+        const sink = new PassThrough();
+        const collected = [];
+        sink.on('data', (chunk) => collected.push(chunk));
+
+        for (const chunk of chunks) {
+            source.write(chunk);
+        }
+        source.end();
+        await pipeline(source, transform, sink);
+
+        return Buffer.concat(collected);
+    }
+
+    test('passes through a body exactly at the limit', async () => {
+        const result = await runChunks(100, [Buffer.alloc(100, 0x61)]);
+
+        expect(result.length).toBe(100);
+    });
+
+    test('rejects a body one byte over the limit', async () => {
+        await expect(runChunks(100, [Buffer.alloc(101, 0x61)]))
+            .rejects.toMatchObject({ statusCode: 413 });
+    });
+
+    test('counts bytes cumulatively across chunks, not per chunk', async () => {
+        // Each chunk on its own is under the limit; only the running total exceeds it.
+        await expect(runChunks(100, [Buffer.alloc(60, 0x61), Buffer.alloc(60, 0x61)]))
+            .rejects.toMatchObject({ statusCode: 413 });
+    });
+
+    test('names the operation and the limit in the error message', async () => {
+        await expect(runChunks(100, [Buffer.alloc(101, 0x61)])).rejects.toMatchObject({
+            message: expect.stringContaining('test op')
+        });
+        await expect(runChunks(100, [Buffer.alloc(101, 0x61)])).rejects.toMatchObject({
+            message: expect.stringContaining('100 bytes')
+        });
     });
 });
