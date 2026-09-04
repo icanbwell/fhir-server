@@ -34,7 +34,7 @@ const tool = {
         setting: z.string().optional().describe('Additional details about where the content was created (e.g. clinical specialty) (token) Format: \'system|code\', or bare \'code\' to match any system.'),
         status: z.string().optional().describe('current | superseded | entered-in-error (token) Format: \'system|code\', or bare \'code\' to match any system.'),
         subject: z.string().optional().describe('Who/what is the subject of the document (reference: Practitioner | Group | Device | Patient) Format: \'ResourceType/id\', or bare \'id\' to match against any of this parameter\'s allowed target types.'),
-        relationship: z.string().optional().describe('Combination of relation and relatesTo (composite)')
+        relationship: z.string().optional().describe('Combination of relation and relatesTo (composite) Format: \'$\'-joined value, one part per component in order (e.g. \'code$value\' for a 2-component pair, or \'code$value$value\' for a 3-component pair). Comma-separate multiple \'$\'-joined pairs to OR them, same as any other parameter.')
     }).passthrough()
 };
 
