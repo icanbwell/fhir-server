@@ -6,11 +6,11 @@ describe('SearchParameterDefinition composite support', () => {
         const component = new SearchParameterDefinition({
             type: 'token',
             field: 'code',
-            arrayField: null,
+            arrayField: null
         });
         const def = new SearchParameterDefinition({
             type: 'composite',
-            scopes: [{ components: [component] }],
+            scopes: [{ components: [component] }]
         });
         expect(def.type).toBe('composite');
         expect(def.scopes).toHaveLength(1);
@@ -27,11 +27,11 @@ describe('SearchParameterDefinition composite support', () => {
         const component = new SearchParameterDefinition({
             type: 'token',
             field: 'component.code',
-            arrayField: 'component',
+            arrayField: 'component'
         });
         const def = new SearchParameterDefinition({
             type: 'composite',
-            scopes: [{ components: [component] }],
+            scopes: [{ components: [component] }]
         });
         const cloned = def.clone();
         expect(cloned).not.toBe(def);
@@ -43,11 +43,11 @@ describe('SearchParameterDefinition composite support', () => {
     test('toJSON() includes scopes', () => {
         const component = new SearchParameterDefinition({
             type: 'quantity',
-            field: 'valueQuantity',
+            field: 'valueQuantity'
         });
         const def = new SearchParameterDefinition({
             type: 'composite',
-            scopes: [{ components: [component] }],
+            scopes: [{ components: [component] }]
         });
         const json = def.toJSON();
         expect(json.scopes[0].components[0].field).toBe('valueQuantity');
