@@ -598,7 +598,8 @@ class SearchManager {
                     base_version,
                     query,
                     maxMongoTimeMS,
-                    extraInfo
+                    extraInfo,
+                    atlasSearchCompound
                 });
         }
 
@@ -743,12 +744,13 @@ class SearchManager {
      * @param {string} base_version
      * @param {Object} query
      * @param {number} maxMongoTimeMS
+     * @param {{must: object[]}|null} [atlasSearchCompound]
      * @return {Promise<number>}
      */
     async handleGetTotalsAsync (
         {
             resourceType, base_version,
-            query, maxMongoTimeMS, extraInfo
+            query, maxMongoTimeMS, extraInfo, atlasSearchCompound
         }
     ) {
         try {
@@ -758,6 +760,25 @@ class SearchManager {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
             );
+            if (atlasSearchCompound) {
+                const pipeline = [
+                    { $search: { index: ATLAS_SEARCH_INDEX_NAME, compound: atlasSearchCompound } },
+                    { $match: query },
+                    { $count: 'total' }
+                ];
+                let countCursor = await databaseQueryManager.findUsingAggregationAsync({
+                    query: pipeline,
+                    projection: {},
+                    options: {},
+                    extraInfo: { ...extraInfo, matchQueryProvided: true }
+                });
+                countCursor = countCursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+                if (!(await countCursor.hasNext())) {
+                    return 0;
+                }
+                const result = await countCursor.next();
+                return result.total || 0;
+            }
             return await databaseQueryManager.exactDocumentCountAsync({
                 query,
                 options: { maxTimeMS: maxMongoTimeMS },

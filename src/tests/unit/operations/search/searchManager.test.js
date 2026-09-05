@@ -544,6 +544,68 @@ describe('SearchManager', () => {
             await expect(searchManager.handleGetTotalsAsync({ resourceType: 'Observation', base_version: '4_0_0', query: {}, maxMongoTimeMS: 30000, extraInfo: {} }))
                 .rejects.toThrow('Error getting totals');
         });
+
+        it('runs a $count pipeline when atlasSearchCompound is present', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
+                next: jest.fn().mockResolvedValue({ total: 42 })
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                exactDocumentCountAsync: jest.fn()
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const total = await searchManager.handleGetTotalsAsync({
+                resourceType: 'Patient', base_version: '4_0_0', query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, atlasSearchCompound
+            });
+
+            expect(total).toBe(42);
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.query).toEqual([
+                { $search: { index: 'hybrid-full-text-search', compound: atlasSearchCompound } },
+                { $match: { 'meta.security': 'x' } },
+                { $count: 'total' }
+            ]);
+            expect(mockDatabaseQueryManager.exactDocumentCountAsync).not.toHaveBeenCalled();
+        });
+
+        it('returns 0 when the $count pipeline has no results', async () => {
+            const atlasSearchCompound = { must: [] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(false)
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const total = await searchManager.handleGetTotalsAsync({
+                resourceType: 'Patient', base_version: '4_0_0', query: {},
+                maxMongoTimeMS: 30000, atlasSearchCompound
+            });
+
+            expect(total).toBe(0);
+        });
+
+        it('uses exactDocumentCountAsync when atlasSearchCompound is absent (unchanged behavior)', async () => {
+            const mockDatabaseQueryManager = {
+                exactDocumentCountAsync: jest.fn().mockResolvedValue(7),
+                findUsingAggregationAsync: jest.fn()
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const total = await searchManager.handleGetTotalsAsync({
+                resourceType: 'Patient', base_version: '4_0_0', query: {}, maxMongoTimeMS: 30000
+            });
+
+            expect(total).toBe(7);
+            expect(mockDatabaseQueryManager.findUsingAggregationAsync).not.toHaveBeenCalled();
+        });
     });
 
     describe('getCursorForQueryAsync', () => {
