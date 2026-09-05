@@ -761,23 +761,34 @@ class SearchManager {
                 { resourceType, base_version }
             );
             if (atlasSearchCompound) {
-                const pipeline = [
-                    { $search: { index: ATLAS_SEARCH_INDEX_NAME, compound: atlasSearchCompound } },
-                    { $match: query },
-                    { $count: 'total' }
-                ];
-                let countCursor = await databaseQueryManager.findUsingAggregationAsync({
-                    query: pipeline,
-                    projection: {},
-                    options: {},
-                    extraInfo: { ...extraInfo, matchQueryProvided: true }
-                });
-                countCursor = countCursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
-                if (!(await countCursor.hasNext())) {
-                    return 0;
+                try {
+                    const pipeline = [
+                        { $search: { index: ATLAS_SEARCH_INDEX_NAME, compound: atlasSearchCompound } },
+                        { $match: query },
+                        { $count: 'total' }
+                    ];
+                    let countCursor = await databaseQueryManager.findUsingAggregationAsync({
+                        query: pipeline,
+                        projection: {},
+                        options: {},
+                        extraInfo: { ...extraInfo, matchQueryProvided: true }
+                    });
+                    countCursor = countCursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+                    if (!(await countCursor.hasNext())) {
+                        return 0;
+                    }
+                    const result = await countCursor.next();
+                    return result.total || 0;
+                } catch (e) {
+                    // The Atlas Search index is owned/maintained by a different service
+                    // (person-matching-service) and can disappear, be renamed, or go into
+                    // INITIAL_SYNC at any time. Degrade gracefully like the cursor path
+                    // (getCursorForQueryAsync) does, instead of 500ing on _total=accurate.
+                    logWarn(
+                        'Atlas $search count pipeline failed; falling back to the standard count path',
+                        { args: { resourceType, error: e.message } }
+                    );
                 }
-                const result = await countCursor.next();
-                return result.total || 0;
             }
             return await databaseQueryManager.exactDocumentCountAsync({
                 query,

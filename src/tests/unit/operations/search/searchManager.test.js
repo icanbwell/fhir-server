@@ -606,6 +606,27 @@ describe('SearchManager', () => {
             expect(total).toBe(7);
             expect(mockDatabaseQueryManager.findUsingAggregationAsync).not.toHaveBeenCalled();
         });
+
+        it('falls back to exactDocumentCountAsync when the Atlas $count pipeline throws', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockRejectedValue(new Error('index not found')),
+                exactDocumentCountAsync: jest.fn().mockResolvedValue(99)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const total = await searchManager.handleGetTotalsAsync({
+                resourceType: 'Patient', base_version: '4_0_0', query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, extraInfo: {}, atlasSearchCompound
+            });
+
+            expect(total).toBe(99);
+            expect(mockDatabaseQueryManager.exactDocumentCountAsync).toHaveBeenCalledWith({
+                query: { 'meta.security': 'x' },
+                options: { maxTimeMS: 30000 },
+                extraInfo: {}
+            });
+        });
     });
 
     describe('getCursorForQueryAsync', () => {
