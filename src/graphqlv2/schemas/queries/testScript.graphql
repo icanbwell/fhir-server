@@ -120,6 +120,17 @@ extend type Query {
         """
         version: SearchToken
 
+        """
+        context-type-quantity (FHIR type: composite)
+        A use context type and quantity- or range-based value assigned to the test script
+        """
+        context_type_quantity: SearchString
+        """
+        context-type-value (FHIR type: composite)
+        A use context type and value assigned to the test script
+        """
+        context_type_value: SearchString
+
         # miscellaneous parameters
         """
         return total number of records that meet this query
