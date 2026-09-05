@@ -546,6 +546,7 @@ class SearchManager {
                     { user, args: { resourceType, error: e.message } }
                 );
                 cursorQuery = await databaseQueryManager.findAsync({ query, options, extraInfo });
+                cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
                 // The page of results is now coming from the standard `query` alone, so any later
                 // _total=accurate handling must use the standard count path too -- otherwise it
                 // would compute the total via the Atlas $count pipeline (a possibly-smaller
@@ -564,11 +565,11 @@ class SearchManager {
                 options,
                 extraInfo
             });
+            cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
         } else {
             cursorQuery = await databaseQueryManager.findAsync({ query, options, extraInfo });
+            cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
         }
-
-        cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
 
         // set batch size if specified
         if (process.env.MONGO_BATCH_SIZE || parsedArgs._cursorBatchSize) {

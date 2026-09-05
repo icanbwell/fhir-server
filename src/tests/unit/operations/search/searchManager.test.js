@@ -659,6 +659,12 @@ describe('SearchManager', () => {
             expect(callArgs.query[1]).toEqual({ $match: { 'meta.security': 'x' } });
             expect(mockCursor.hasNext).toHaveBeenCalledTimes(1);
             expect(mockDatabaseQueryManager.findAsync).not.toHaveBeenCalled();
+            // Regression guard: maxTimeMS() must be called exactly once on the Atlas cursor.
+            // The mongo driver's maxTimeMS() throws MongoCursorInUseError if called after the
+            // cursor has been initialized (which hasNext() does internally), so a second call
+            // here -- e.g. from a leftover shared trailing maxTimeMS() elsewhere in the method --
+            // would have thrown on every successful Atlas request.
+            expect(mockCursor.maxTimeMS).toHaveBeenCalledTimes(1);
         });
 
         it('falls back to findAsync when findUsingAggregationAsync resolves but the cursor\'s hasNext() rejects on first server round-trip', async () => {
@@ -692,6 +698,10 @@ describe('SearchManager', () => {
                 query: { 'meta.security': 'x' }, options: expect.any(Object), extraInfo: expect.any(Object)
             });
             expect(result.cursor).toBe(mockFallbackCursor);
+            // Each cursor gets maxTimeMS() exactly once: the (doomed) Atlas cursor before its
+            // hasNext() peek, and the fallback cursor once after findAsync resolves.
+            expect(mockAtlasCursor.maxTimeMS).toHaveBeenCalledTimes(1);
+            expect(mockFallbackCursor.maxTimeMS).toHaveBeenCalledTimes(1);
         });
 
         it('resets atlasSearchCompound to null after a fallback so a later _total=accurate count uses the standard path, not the Atlas $count pipeline', async () => {
@@ -769,6 +779,7 @@ describe('SearchManager', () => {
 
             expect(mockDatabaseQueryManager.findUsingAggregationAsync).not.toHaveBeenCalled();
             expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledTimes(1);
+            expect(mockCursor.maxTimeMS).toHaveBeenCalledTimes(1);
         });
 
         it('omits the $project stage when options.projection is absent, since {$project: {}} is rejected by MongoDB', async () => {
