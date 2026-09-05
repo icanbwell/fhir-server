@@ -292,6 +292,44 @@ describe('FilterByComposite', () => {
         expect(JSON.stringify(wrongCodeSegment)).not.toMatch(/"code\.system"/);
     });
 
+    test('multi-field token component (polymorphic value[x]) uses each field\'s own type from ' +
+        'fieldTypesObj, not the firstField-derived fieldType for every field', () => {
+        // Regression guard for Group.characteristic-value: fields: ['valueCodeableConcept',
+        // 'valueBoolean'] sharing a single fieldType ('CodeableConcept', from firstField) would
+        // route valueBoolean through the CodeableConcept branch (queries `valueBoolean.coding`,
+        // a shape that can never match a raw boolean). fieldTypesObj (populated per-field by
+        // r4ArgsParser.js) must take precedence so valueBoolean gets the boolean branch instead.
+        const codeComponent = new SearchParameterDefinition({
+            type: 'token',
+            field: 'code',
+            arrayField: 'characteristic',
+            fieldType: 'CodeableConcept'
+        });
+        const valueComponent = new SearchParameterDefinition({
+            type: 'token',
+            fields: ['valueCodeableConcept', 'valueBoolean'],
+            arrayField: 'characteristic',
+            fieldType: 'CodeableConcept', // firstField (valueCodeableConcept)'s type
+            fieldTypesObj: {
+                valueCodeableConcept: 'CodeableConcept',
+                valueBoolean: 'boolean'
+            }
+        });
+        const composite = makeComposite([{ components: [codeComponent, valueComponent] }]);
+        const result = makeFilter(composite, { value: 'code$true' }).filter();
+        const [
+            {
+                $and: [andSegments]
+            }
+        ] = result;
+        const [, valueSegment] = andSegments.characteristic.$elemMatch.$and;
+        const valueSegmentJson = JSON.stringify(valueSegment);
+        // boolean branch: exact-match on the bare field
+        expect(valueSegmentJson).toMatch(/"valueBoolean":true/);
+        // not the CodeableConcept branch, which queries the (nonexistent for a boolean) .coding path
+        expect(valueSegmentJson).not.toMatch(/valueBoolean\.coding/);
+    });
+
     test('useHistoryTable prefixes the array field once, not the fields inside $elemMatch', () => {
         const component1 = new SearchParameterDefinition({
             type: 'token',

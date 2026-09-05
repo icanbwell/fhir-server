@@ -441,4 +441,41 @@ describe('R4ArgsParser composite fieldType resolution', () => {
         expect(arrayScopedComponent.fieldType).toBe(fullPathFieldType);
         expect(arrayScopedComponent.fieldType).not.toBe(bareRelativeFieldType);
     });
+
+    test('resolves a per-field fieldTypesObj for a multi-field token component (polymorphic ' +
+        'value[x], e.g. Group.characteristic-value), instead of one shared fieldType off ' +
+        'firstField', () => {
+        const codeComponent = new SearchParameterDefinition({
+            type: 'token',
+            field: 'code',
+            arrayField: 'characteristic'
+        });
+        const valueComponent = new SearchParameterDefinition({
+            type: 'token',
+            fields: ['valueCodeableConcept', 'valueBoolean'],
+            arrayField: 'characteristic'
+        });
+        const compositeDef = new SearchParameterDefinition({
+            type: 'composite',
+            scopes: [{ components: [codeComponent, valueComponent] }]
+        });
+        const searchParametersManager = new SearchParametersManager();
+        searchParametersManager.getPropertyObject = () => compositeDef;
+
+        const r4ArgsParser = new R4ArgsParser({
+            fhirTypesManager: new FhirTypesManager(),
+            configManager: new ConfigManager(),
+            searchParametersManager
+        });
+
+        r4ArgsParser.parseArgs({
+            resourceType: 'Group',
+            args: { 'characteristic-value': 'code$true', base_version: '4_0_0' }
+        });
+
+        // sanity: the two fields really do resolve to different types -- otherwise this test
+        // wouldn't catch a regression back to a single fieldType derived from firstField alone
+        expect(valueComponent.fieldTypesObj.valueCodeableConcept).toBe('CodeableConcept');
+        expect(valueComponent.fieldTypesObj.valueBoolean).toBe('boolean');
+    });
 });
