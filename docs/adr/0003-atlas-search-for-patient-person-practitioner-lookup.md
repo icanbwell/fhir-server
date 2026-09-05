@@ -10,12 +10,11 @@ Proposed
   index instead of the current regex-based path. It does not attempt to replace FHIR search
   generally — anything outside that field set keeps using the existing query path unchanged.
 - Enablement is per resource type via three new env vars (`ATLAS_SEARCH_ENABLED_PATIENT`,
-  `ATLAS_SEARCH_ENABLED_PERSON`, `ATLAS_SEARCH_ENABLED_PRACTITIONER`), default off.
-- Index lifecycle (creation, schema, tuning) is **not** owned by this repo — see "Cross-repo
-  ownership" under Consequences.
-- This document is the artifact to bring to an EA Tech Design Review before implementation,
-  since it introduces a new Mongo query pattern (`$search` aggregation) not previously used in
-  fhir-server (see AGENTS.md "Process References").
+  `ATLAS_SEARCH_ENABLED_PERSON`, `ATLAS_SEARCH_ENABLED_PRACTITIONER`), default off, and applies
+  transparently to all eligible queries once on — no request-level opt-in (see Decision Log #1).
+- Index lifecycle (creation, schema, tuning) is **not** owned by this repo — accepted as-is, see
+  "Cross-repo ownership" under Consequences (Decision Log #4).
+- No formal EA Tech Design Review gate for this work (Decision Log #5).
 
 ## Context
 
@@ -172,6 +171,26 @@ shape the index can't represent.
   `PatientQueryCreator` — and it must remain the single source of truth for authorization. Atlas
   `filter` clauses in this design are relevance/blocking keys only, never an authorization
   boundary.
+- **Must preserve FHIR AND/OR search semantics — cannot port the blocking compound verbatim.**
+  `AtlasSearchStrategy._build_search_compound` puts every name/telecom clause into `should`
+  (compound semantics: "at least one should must match" only when there's no `must`/`filter`).
+  That's correct for blocking, whose job is to over-generate candidates for a downstream scorer.
+  It is **not** correct for FHIR search: `?family=Smith&given=John` must return patients matching
+  *both*, not either. If the compound builder here reused `should`-for-everything, enabling this
+  transparently for all traffic would silently degrade multi-parameter AND queries into OR
+  queries — a correctness regression, not just "more fuzzy." The builder must instead:
+  - Emit one `must` clause per *distinct* FHIR search parameter supplied (`family`, `given`,
+    `identifier`, `gender`, `birthdate`, `telecom` each become a required clause when present),
+    preserving AND-across-parameters.
+  - Within a single parameter's `must` clause, use `autocomplete`/`fuzzy`/`text` for recall
+    (typo tolerance, prefix matching) and wrap repeated values for the *same* parameter (FHIR's
+    comma-separated-list-or-repeated-param OR convention) in a nested `should` with
+    `minimumShouldMatch: 1`.
+  - Only `identifier`/`gender`/`birthDate` — already exact/token fields — map directly to a
+    non-scoring `filter` clause, same as today's exact matching.
+  This is why enabling transparently for all eligible queries (rather than gating behind a
+  request-level opt-in) is fine: the correctness risk is in the compound-builder implementation,
+  not in the on/off decision itself. Fix it once here and there's no separate "fuzzy mode" needed.
 
 **Hook point — `SearchManager`:** When `AtlasSearchQueryBuilder` returns a compound, build:
 
@@ -196,6 +215,17 @@ computed against the security-filtered set, never against raw, unfiltered `$sear
 > It does not change *what* is authorized — the same `$match` document that constrains `find()`
 > today constrains this pipeline too — but the execution-order change is exactly the kind of
 > thing review.md asks reviewers to check explicitly rather than assume is fine.
+
+**`_total=accurate` under the aggregation path:** `handleGetTotalsAsync` today runs a *separate*
+query from the main cursor (`exactDocumentCountAsync` → `collection.countDocuments(query, options)`
+— deliberately not reusing `options.limit`/`skip`). The aggregation path follows the same shape:
+`SearchManager` retains the `$search`+`$match` prefix (before `$sort`/`$skip`/`$limit`/`$project`)
+as its own value, and when `_total=accurate` is requested and that prefix exists,
+`handleGetTotalsAsync` runs `[...prefix, { $count: 'total' }]` via the same
+`findUsingAggregationAsync({ query: pipeline, extraInfo: { matchQueryProvided: true } })`
+mechanism instead of `exactDocumentCountAsync`, reading `result[0]?.total ?? 0`. No new data-layer
+method needed — just a branch in `handleGetTotalsAsync` on whether the Atlas path was used for
+this request.
 
 **Fallback / resilience:** wrap the `$search` aggregation call in try/catch. On any Mongo error
 (index missing, `INITIAL_SYNC`, unsupported operator), fall back to the standard `find()` path for
@@ -232,38 +262,43 @@ existing `isTrue()` helper (`src/utils/isTrue.js`), default `false`:
   `person-matching-service`'s are owned today; fhir-server only reads.
 - Not porting `PRACTITIONER_ALLOWED_OWNERS`/owner-scope logic — fhir-server's existing
   access-tag filtering is the authorization boundary.
-- Not addressing GraphQL-specific query construction beyond however it already delegates to
-  `SearchManager` — needs verification during implementation (see Open Questions).
-- Not building a `$count`-based total for `_total=accurate` in this phase (see Open Questions) —
-  can ship with `_total` falling back to the non-aggregation count path initially if needed.
+- No GraphQL-specific handling needed: confirmed in code that both `src/graphql/dataSource.js`
+  and `src/graphqlv2/dataSource.js` call `SearchBundleOperation.searchBundleAsync`
+  (`src/operations/search/searchBundle.js`), which itself calls
+  `SearchManager.constructQueryAsync`/`getCursorForQueryAsync` — the identical shared path REST
+  uses. Neither GraphQL layer builds a Patient/Person/Practitioner query independently, so the
+  `SearchManager` hook point covers both automatically with no special-casing.
 
 ## Consequences
 
 - Patient/Person/Practitioner name/identifier/gender/birthDate/telecom search gets indexed,
   fuzzy/typo-tolerant, relevance-ranked matching where enabled, without new infrastructure.
-- **Cross-repo ownership risk:** fhir-server becomes a second, implicit consumer of an index it
-  doesn't provision or version. If `person-matching-service` changes the index's field mapping,
-  renames it, or drops it, fhir-server's Atlas path fails closed (falls back automatically per the
-  resilience design above) — but *silently*, from fhir-server's perspective, until someone checks
-  logs. Recommend flagging this dependency to EA and/or coordinating an explicit
-  ownership/change-notification agreement between the two repos before enabling in production.
-- **Behavior change, not just performance:** fuzzy `autocomplete` matching can return a broader,
-  differently-ranked result set than today's exact/regex matching for the same query. This needs
-  explicit sign-off (is this desired for typeahead-style UX, and should it be opt-in per request
-  rather than a transparent server-side swap? — see Open Questions) before enabling for any
-  resource type in an environment users depend on for exact-match behavior.
+- **Cross-repo ownership risk (accepted):** fhir-server becomes a second, implicit consumer of an
+  index it doesn't provision or version. If `person-matching-service` changes the index's field
+  mapping, renames it, or drops it, fhir-server's Atlas path fails closed (falls back
+  automatically per the resilience design above) — but *silently*, from fhir-server's
+  perspective, until someone checks logs. **Decision: accepted as-is, no coordination mechanism
+  being set up now** (see Decision Log #4) — the automatic fallback is judged sufficient
+  mitigation on its own.
+- **Behavior change, not just performance:** fuzzy `autocomplete`/`text` matching can return a
+  broader, differently-ranked result set than today's exact/regex matching for the same query.
+  **Decision: this is intentional and applies transparently to all eligible queries once a
+  resource type's flag is on** (no per-request opt-in), provided the compound builder preserves
+  FHIR AND/OR semantics as specified above (see Decision Log #1).
 - Adds one more per-resource-type env var family to track (`ATLAS_SEARCH_ENABLED_*`), consistent
   with the existing `ACCESS_TAGS_INDEXED_*` pattern.
 
-## Open Questions
+## Decision Log
 
-| # | Question | Needed From | Impact on Proposal |
-|---|---|---|---|
-| 1 | Should fuzzy/broader matching be opt-in per request (e.g. a query param) rather than a transparent swap for all eligible queries once the flag is on? | Imran / API consumers | Changes eligibility-check design and API contract |
-| 2 | How is `_total=accurate` computed for the aggregation path — a parallel `$count` pipeline, or fall back to the existing `find()`-based count even when `$search` served the results? | Implementer | Affects correctness of `_total` under the new path |
-| 3 | Does the GraphQL layer construct any Patient/Person/Practitioner query independently of `SearchManager.constructQueryAsync`, or does it always delegate? (review.md §A asks this explicitly for any new search path) | Implementer, verify in code | If GraphQL has an independent path, it needs the same eligibility/fallback logic or must be explicitly excluded |
-| 4 | What's the coordination mechanism with `person-matching-service`'s owners for index schema/lifecycle changes going forward? | Imran / EA | Determines whether this is safe to enable in production at all |
-| 5 | Does this warrant a formal EA Tech Design Review before implementation, per AGENTS.md's "new pattern" trigger? | Imran / EA | Gates when implementation can start |
+Resolved during design review (2026-09-04):
+
+| # | Question | Resolution |
+|---|---|---|
+| 1 | Is there harm in enabling transparently for all eligible queries, vs. a per-request opt-in? | Yes, but it's a fixable implementation risk, not a reason for an opt-in flag: naively porting the blocking service's `should`-only compound would collapse FHIR's AND-across-parameters semantics into OR. Fixed in the design above (`must` per distinct parameter, `filter` for exact fields, nested `should` only for same-parameter repeats). With that fix, transparent enablement is safe. |
+| 2 | How does `_total=accurate` work under the aggregation path? | `handleGetTotalsAsync` runs `[...($search+$match prefix), { $count: 'total' }]` via the existing `findUsingAggregationAsync`/`matchQueryProvided` mechanism when the Atlas path was used for the request — see Implementation Details above. |
+| 3 | Does GraphQL construct Patient/Person/Practitioner queries independently of `SearchManager`? | No — verified in code. Both `src/graphql/dataSource.js` and `src/graphqlv2/dataSource.js` delegate through `SearchBundleOperation.searchBundleAsync` to `SearchManager.constructQueryAsync`/`getCursorForQueryAsync`, the same shared path REST uses. No special-casing needed. |
+| 4 | What's the coordination mechanism with `person-matching-service`'s owners for index changes? | None being set up now — accepted risk; automatic fallback on any Atlas error is the mitigation. |
+| 5 | Does this need a formal EA Tech Design Review before implementation? | No. |
 
 ## Success Criteria
 
