@@ -1,0 +1,34 @@
+{
+    "resourceType": "Observation",
+    "id": "composite-search-obs-1",
+    "meta": {
+        "source": "test",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "A" },
+            { "system": "https://www.icanbwell.com/access", "code": "A" }
+        ]
+    },
+    "status": "final",
+    "code": { "coding": [{ "system": "http://loinc.org", "code": "55284-4" }] },
+    "subject": { "reference": "Patient/composite-search-patient" },
+    "component": [
+        {
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "8480-6" }] },
+            "valueQuantity": {
+                "value": 150,
+                "unit": "mm[Hg]",
+                "system": "http://unitsofmeasure.org",
+                "code": "mm[Hg]"
+            }
+        },
+        {
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "8462-4" }] },
+            "valueQuantity": {
+                "value": 75,
+                "unit": "mm[Hg]",
+                "system": "http://unitsofmeasure.org",
+                "code": "mm[Hg]"
+            }
+        }
+    ]
+}

@@ -49,6 +49,8 @@ extend type Query {
         {{ search_parameter_name.replace("-", "_") }}: String
         {% elif search_parameter.type == "number" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchNumber
+        {% elif search_parameter.type == "composite" %}
+        {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% else %}
         ERROR: {{ search_parameter_name.replace("-", "_") }} has invalid type {{ search_parameter.type }}
         {% endif %}
@@ -87,6 +89,8 @@ extend type Query {
         {{ search_parameter_name.replace("-", "_") }}: String
         {% elif search_parameter.type == "number" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchNumber
+        {% elif search_parameter.type == "composite" %}
+        {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% else %}
         ERROR: {{ search_parameter_name.replace("-", "_") }} has invalid type {{ search_parameter.type }}
         {% endif %}

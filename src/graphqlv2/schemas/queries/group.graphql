@@ -97,6 +97,12 @@ extend type Query {
         """
         value: SearchToken
 
+        """
+        characteristic-value (FHIR type: composite)
+        A composite of both characteristic and value
+        """
+        characteristic_value: SearchString
+
         # miscellaneous parameters
         """
         return total number of records that meet this query
