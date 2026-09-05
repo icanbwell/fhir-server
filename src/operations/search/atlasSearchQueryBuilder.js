@@ -36,7 +36,13 @@ const ATLAS_DATE_FIELDS = {
 const ATLAS_SEARCH_IGNORABLE_PARAMS = [
     '_sort', '_count', '_getpagesoffset', '_elements', '_total',
     '_cursorBatchSize', '_bundle', '_format', '_includeHidden',
-    '_isGraphQLRequest', '_explain', '_debug', '_streamResponse'
+    '_isGraphQLRequest', '_explain', '_debug', '_streamResponse',
+    // base_version and version_id are special-cased in R4ArgsParser.parseArgs (they never get a
+    // propertyObj and are exempted from the '_'-prefix normalization) but are still pushed as
+    // real ParsedArgsItems -- base_version is present on every real request. Without these here,
+    // getEligibleParsedArgItemsOrNull returns null for every real request (see
+    // r4ArgsParser.js parseArgs()).
+    'base_version', 'version_id'
 ];
 
 /** Full-precision, no-comparator-prefix ISO date -- the only birthdate shape v1 supports */

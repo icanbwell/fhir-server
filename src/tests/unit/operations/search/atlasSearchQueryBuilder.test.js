@@ -1,9 +1,19 @@
-const { describe, test, expect, beforeEach } = require('@jest/globals');
+const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 const { AtlasSearchQueryBuilder } = require('../../../../operations/search/atlasSearchQueryBuilder');
 const { ConfigManager } = require('../../../../utils/configManager');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../../../../operations/query/queryParameterValue');
+const { R4ArgsParser } = require('../../../../operations/query/r4ArgsParser');
+const { FhirTypesManager } = require('../../../../fhir/fhirTypesManager');
+const { SearchParametersManager } = require('../../../../searchParameters/searchParametersManager');
+
+jest.mock('../../../../operations/common/logging', () => ({
+    logError: jest.fn(),
+    logInfo: jest.fn(),
+    logWarn: jest.fn(),
+    logDebug: jest.fn()
+}));
 
 function makeParsedArgs(items) {
     const parsedArgs = new ParsedArgs({ base_version: '4_0_0' });
@@ -143,6 +153,67 @@ describe('AtlasSearchQueryBuilder', () => {
                 { queryParameter: 'constructor', values: ['foo'] }
             ]);
             expect(builder.getEligibleParsedArgItemsOrNull({ resourceType: 'Patient', parsedArgs })).toBeNull();
+        });
+
+        test('does not disqualify on a hand-built base_version ParsedArgsItem (mirrors what R4ArgsParser.parseArgs actually pushes)', () => {
+            // Regression test for the bug where base_version -- present on every real request --
+            // was not in ATLAS_SEARCH_IGNORABLE_PARAMS, so getEligibleParsedArgItemsOrNull
+            // returned null unconditionally in production despite every hand-built ParsedArgs
+            // test helper (including makeParsedArgs above) never including it.
+            const parsedArgs = makeParsedArgs([
+                { queryParameter: 'family', values: ['Smith'] },
+                { queryParameter: 'given', values: ['John'] },
+                { queryParameter: 'base_version', values: ['4_0_0'] }
+            ]);
+            const result = builder.getEligibleParsedArgItemsOrNull({ resourceType: 'Patient', parsedArgs });
+            expect(result).not.toBeNull();
+            expect(result.map(r => r.queryParameter).sort()).toEqual(['family', 'given']);
+            expect(result.some(r => r.queryParameter === 'base_version')).toBe(false);
+        });
+
+        test('does not disqualify on a hand-built version_id ParsedArgsItem (same normalization-exempt risk profile as base_version in r4ArgsParser.js)', () => {
+            const parsedArgs = makeParsedArgs([
+                { queryParameter: 'family', values: ['Smith'] },
+                { queryParameter: 'version_id', values: ['1'] }
+            ]);
+            const result = builder.getEligibleParsedArgItemsOrNull({ resourceType: 'Patient', parsedArgs });
+            expect(result).not.toBeNull();
+            expect(result.map(r => r.queryParameter)).toEqual(['family']);
+        });
+
+        test('does not disqualify on base_version when parsed through the real R4ArgsParser.parseArgs path (not a hand-built ParsedArgs)', () => {
+            // Traces the real bug through the actual parsing path rather than a hand-built
+            // ParsedArgs, so this class of bug (a real parser output disqualifying every
+            // request) cannot recur silently again.
+            const mockFhirTypesManager = Object.create(FhirTypesManager.prototype);
+            mockFhirTypesManager.getTypeForField = () => 'string';
+
+            const mockConfigManagerForParser = Object.create(ConfigManager.prototype);
+            Object.defineProperty(mockConfigManagerForParser, 'defaultSortId', { get: () => '_uuid', configurable: true });
+
+            const mockSearchParametersManager = Object.create(SearchParametersManager.prototype);
+            mockSearchParametersManager.getPropertyObject = () => null;
+            mockSearchParametersManager.combinedSearchParameters = {};
+
+            const r4ArgsParser = new R4ArgsParser({
+                fhirTypesManager: mockFhirTypesManager,
+                configManager: mockConfigManagerForParser,
+                searchParametersManager: mockSearchParametersManager
+            });
+
+            const parsedArgs = r4ArgsParser.parseArgs({
+                resourceType: 'Patient',
+                args: { base_version: '4_0_0', family: 'Smith', given: 'John' }
+            });
+
+            // Confirms the parser really does push base_version as a real ParsedArgsItem (the
+            // premise of the bug), before asserting the builder correctly ignores it.
+            expect(parsedArgs.parsedArgItems.some(item => item.queryParameter === 'base_version')).toBe(true);
+
+            const result = builder.getEligibleParsedArgItemsOrNull({ resourceType: 'Patient', parsedArgs });
+            expect(result).not.toBeNull();
+            expect(result.map(r => r.queryParameter).sort()).toEqual(['family', 'given']);
+            expect(result.some(r => r.queryParameter === 'base_version')).toBe(false);
         });
     });
 

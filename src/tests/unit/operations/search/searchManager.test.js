@@ -634,6 +634,7 @@ describe('SearchManager', () => {
             const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
             const mockCursor = {
                 maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
                 getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
             };
             const mockDatabaseQueryManager = {
@@ -656,7 +657,71 @@ describe('SearchManager', () => {
                 $search: { index: 'hybrid-full-text-search', compound: atlasSearchCompound }
             });
             expect(callArgs.query[1]).toEqual({ $match: { 'meta.security': 'x' } });
+            expect(mockCursor.hasNext).toHaveBeenCalledTimes(1);
             expect(mockDatabaseQueryManager.findAsync).not.toHaveBeenCalled();
+        });
+
+        it('falls back to findAsync when findUsingAggregationAsync resolves but the cursor\'s hasNext() rejects on first server round-trip', async () => {
+            // Models the real bug: aggregation cursors execute lazily, so a bad Atlas index/
+            // pipeline (missing index, INITIAL_SYNC, unsupported stage) only surfaces on first
+            // iteration -- not when findUsingAggregationAsync itself resolves.
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockAtlasCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockRejectedValue(new Error('Atlas Search index not found'))
+            };
+            const mockFallbackCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockAtlasCursor),
+                findAsync: jest.fn().mockResolvedValue(mockFallbackCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const result = await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            expect(mockAtlasCursor.hasNext).toHaveBeenCalledTimes(1);
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({
+                query: { 'meta.security': 'x' }, options: expect.any(Object), extraInfo: expect.any(Object)
+            });
+            expect(result.cursor).toBe(mockFallbackCursor);
+        });
+
+        it('resets atlasSearchCompound to null after a fallback so a later _total=accurate count uses the standard path, not the Atlas $count pipeline', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockAtlasCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockRejectedValue(new Error('Atlas Search index not found'))
+            };
+            const mockFallbackCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockAtlasCursor),
+                findAsync: jest.fn().mockResolvedValue(mockFallbackCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+            const handleGetTotalsAsyncSpy = jest.spyOn(searchManager, 'handleGetTotalsAsync').mockResolvedValue(42);
+
+            const result = await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: { _total: 'accurate' },
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            expect(handleGetTotalsAsyncSpy).toHaveBeenCalledWith(
+                expect.objectContaining({ atlasSearchCompound: null })
+            );
+            expect(result.total_count).toBe(42);
         });
 
         it('falls back to findAsync when the Atlas pipeline throws', async () => {
@@ -710,6 +775,7 @@ describe('SearchManager', () => {
             const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
             const mockCursor = {
                 maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
                 getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
             };
             const mockDatabaseQueryManager = {
@@ -729,10 +795,35 @@ describe('SearchManager', () => {
             expect(callArgs.query.some((stage) => Object.prototype.hasOwnProperty.call(stage, '$project'))).toBe(false);
         });
 
+        it('omits the $limit stage when options.limit is 0, since {$limit: 0} is rejected by MongoDB', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: { _count: '0' },
+                columns: new Set(), options: { limit: 0, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.query.some((stage) => Object.prototype.hasOwnProperty.call(stage, '$limit'))).toBe(false);
+        });
+
         it('builds the full [$search, $match, $sort, $skip, $limit, $project] pipeline in order when sort, skip and projection are all set', async () => {
             const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
             const mockCursor = {
                 maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
                 getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
             };
             const mockDatabaseQueryManager = {
@@ -770,6 +861,7 @@ describe('SearchManager', () => {
                 const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
                 const mockCursor = {
                     maxTimeMS: jest.fn().mockReturnThis(),
+                    hasNext: jest.fn().mockResolvedValue(true),
                     getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
                 };
                 const mockDatabaseQueryManager = {

@@ -523,7 +523,7 @@ class SearchManager {
                     { $match: query },
                     ...(options.sort && Object.keys(options.sort).length ? [{ $sort: options.sort }] : []),
                     ...(options.skip ? [{ $skip: options.skip }] : []),
-                    { $limit: options.limit },
+                    ...(options.limit ? [{ $limit: options.limit }] : []),
                     ...(options.projection && Object.keys(options.projection).length ? [{ $project: options.projection }] : [])
                 ];
                 cursorQuery = await databaseQueryManager.findUsingAggregationAsync({
@@ -532,12 +532,25 @@ class SearchManager {
                     options: {},
                     extraInfo: { ...extraInfo, matchQueryProvided: true }
                 });
+                cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
+                // Aggregation cursors execute lazily -- the server isn't actually contacted until
+                // the cursor is first iterated. Without this, an Atlas index/pipeline error (e.g.
+                // the index doesn't exist, or is in INITIAL_SYNC) would only surface later in the
+                // streaming/read loop, outside this try/catch, defeating the fallback below.
+                // hasNext() peeks/buffers internally -- it does not consume the cursor, so the
+                // normal read loop's first next() call afterward still returns the first document.
+                await cursorQuery.hasNext();
             } catch (e) {
                 logWarn(
                     'Atlas $search pipeline failed; falling back to the standard query path',
                     { user, args: { resourceType, error: e.message } }
                 );
                 cursorQuery = await databaseQueryManager.findAsync({ query, options, extraInfo });
+                // The page of results is now coming from the standard `query` alone, so any later
+                // _total=accurate handling must use the standard count path too -- otherwise it
+                // would compute the total via the Atlas $count pipeline (a possibly-smaller
+                // |atlas ∩ query| count) while describing a page that came from `query` alone.
+                atlasSearchCompound = null;
             }
         } else if (useAggregationPipeline) {
             // Projection arguement to be used for aggregation query
