@@ -524,7 +524,7 @@ class SearchManager {
                     ...(options.sort && Object.keys(options.sort).length ? [{ $sort: options.sort }] : []),
                     ...(options.skip ? [{ $skip: options.skip }] : []),
                     { $limit: options.limit },
-                    { $project: options.projection || {} }
+                    ...(options.projection && Object.keys(options.projection).length ? [{ $project: options.projection }] : [])
                 ];
                 cursorQuery = await databaseQueryManager.findUsingAggregationAsync({
                     query: pipeline,

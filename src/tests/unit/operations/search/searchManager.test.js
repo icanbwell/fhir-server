@@ -622,5 +622,91 @@ describe('SearchManager', () => {
             expect(mockDatabaseQueryManager.findUsingAggregationAsync).not.toHaveBeenCalled();
             expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledTimes(1);
         });
+
+        it('omits the $project stage when options.projection is absent, since {$project: {}} is rejected by MongoDB', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.query.some((stage) => Object.prototype.hasOwnProperty.call(stage, '$project'))).toBe(false);
+        });
+
+        it('builds the full [$search, $match, $sort, $skip, $limit, $project] pipeline in order when sort, skip and projection are all set', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                // _count is set so setDefaultLimit's DB_SEARCH_LIMIT default doesn't clobber
+                // the explicit options.limit used to assert the $limit stage below.
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: { _count: '10' },
+                columns: new Set(),
+                options: { limit: 10, sort: { _uuid: 1 }, skip: 5, projection: { _uuid: 1 } },
+                query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.query).toEqual([
+                { $search: { index: 'hybrid-full-text-search', compound: atlasSearchCompound } },
+                { $match: { 'meta.security': 'x' } },
+                { $sort: { _uuid: 1 } },
+                { $skip: 5 },
+                { $limit: 10 },
+                { $project: { _uuid: 1 } }
+            ]);
+        });
+
+        it('does not invoke the index-hint mechanism when atlasSearchCompound is present, even when SET_INDEX_HINTS is set', async () => {
+            const originalEnv = process.env.SET_INDEX_HINTS;
+            process.env.SET_INDEX_HINTS = 'true';
+            try {
+                const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+                const mockCursor = {
+                    maxTimeMS: jest.fn().mockReturnThis(),
+                    getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+                };
+                const mockDatabaseQueryManager = {
+                    findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                    findAsync: jest.fn().mockResolvedValue(mockCursor)
+                };
+                mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+                mockIndexHinter.findIndexForFields = jest.fn().mockReturnValue('idx_security');
+
+                await searchManager.getCursorForQueryAsync({
+                    resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                    columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                    maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                    atlasSearchCompound
+                });
+
+                expect(mockIndexHinter.findIndexForFields).not.toHaveBeenCalled();
+            } finally {
+                process.env.SET_INDEX_HINTS = originalEnv;
+            }
+        });
     });
 });
