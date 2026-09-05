@@ -92,6 +92,7 @@ describe('Resource Authorization §6b — CMS partner data-sharing consent', () 
         let mockSearchQueryBuilder;
         let mockSecurityTagManager;
         let mockQueryRewriterManager;
+        let mockAtlasSearchQueryBuilder;
 
         beforeEach(() => {
             mockDataSharingManager = createMockInstance(DataSharingManager);
@@ -126,6 +127,9 @@ describe('Resource Authorization §6b — CMS partner data-sharing consent', () 
                 async ({ query, columns }) => ({ query, columns })
             );
 
+            mockAtlasSearchQueryBuilder = createMockInstance(AtlasSearchQueryBuilder);
+            mockAtlasSearchQueryBuilder.buildSearchQuery = () => null;
+
             searchManager = new SearchManager({
                 databaseQueryFactory: createMockInstance(DatabaseQueryFactory),
                 resourceLocatorFactory: createMockInstance(ResourceLocatorFactory),
@@ -141,7 +145,7 @@ describe('Resource Authorization §6b — CMS partner data-sharing consent', () 
                 fhirResourceWriterFactory: createMockInstance(FhirResourceWriterFactory),
                 dataSharingManager: mockDataSharingManager,
                 searchQueryBuilder: mockSearchQueryBuilder,
-                atlasSearchQueryBuilder: createMockInstance(AtlasSearchQueryBuilder),
+                atlasSearchQueryBuilder: mockAtlasSearchQueryBuilder,
                 patientScopeManager: mockPatientScopeManager,
                 patientQueryCreator: mockPatientQueryCreator,
                 searchParametersManager: createMockInstance(SearchParametersManager)

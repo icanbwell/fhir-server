@@ -216,7 +216,7 @@ class SearchManager {
      * @param {boolean} useProxyPatientToPersonCache true when the original request was
      *   Person/proxy-patient $everything -- signals DataSharingManager.getValidatedPatientIdsMap
      *   to use the RequestSpecificCache-backed path instead of BwellPersonFinder.
-     * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
+     * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document, atlasSearchCompound: {must: object[]}|null}>}
      */
     async constructQueryAsync (
         {
@@ -373,7 +373,23 @@ class SearchManager {
             if (query) {
                 query = MongoQuerySimplifier.simplifyFilter({ filter: query });
             }
-            return { base_version, query, columns };
+
+            /**
+             * @type {{must: object[]}|null}
+             */
+            let atlasSearchCompound = null;
+            if (
+                operation === READ &&
+                !useHistoryTable &&
+                ['Patient', 'Person', 'Practitioner'].includes(resourceType)
+            ) {
+                atlasSearchCompound = this.atlasSearchQueryBuilder.buildSearchQuery({
+                    resourceType,
+                    parsedArgs
+                });
+            }
+
+            return { base_version, query, columns, atlasSearchCompound };
         } catch (e) {
             throw new RethrownError({
                     message: 'Error in constructQueryAsync(): ' + (e.message || ''),

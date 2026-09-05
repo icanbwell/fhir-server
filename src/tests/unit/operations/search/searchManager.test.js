@@ -192,6 +192,59 @@ describe('SearchManager', () => {
             });
             expect(mockDataSharingManager.updateQueryForDelegatedAccessSensitiveData).toHaveBeenCalled();
         });
+
+        it('returns atlasSearchCompound from the builder for an eligible READ request', async () => {
+            mockAtlasSearchQueryBuilder.buildSearchQuery = jest.fn().mockReturnValue({ must: [{ equals: { path: 'gender', value: 'male' } }] });
+            mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({ query: {}, columns: new Set() });
+            mockSecurityTagManager.getSecurityTagsFromScope = jest.fn().mockReturnValue([]);
+            mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(false);
+            mockQueryRewriterManager.rewriteQueryAsync = jest.fn().mockResolvedValue({ query: {}, columns: new Set() });
+
+            const result = await searchManager.constructQueryAsync({
+                user: 'user1', scope: 'scope1', isUser: false, userType: null,
+                resourceType: 'Patient', useAccessIndex: false, personIdFromJwtToken: null,
+                requestId: 'req1', parsedArgs: mockParsedArgs, operation: 'READ'
+            });
+
+            expect(result.atlasSearchCompound).toEqual({ must: [{ equals: { path: 'gender', value: 'male' } }] });
+            expect(mockAtlasSearchQueryBuilder.buildSearchQuery).toHaveBeenCalledWith({
+                resourceType: 'Patient', parsedArgs: mockParsedArgs
+            });
+        });
+
+        it('returns null atlasSearchCompound for a WRITE operation without calling the builder', async () => {
+            mockAtlasSearchQueryBuilder.buildSearchQuery = jest.fn().mockReturnValue({ must: [] });
+            mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({ query: {}, columns: new Set() });
+            mockSecurityTagManager.getSecurityTagsFromScope = jest.fn().mockReturnValue([]);
+            mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(false);
+            mockQueryRewriterManager.rewriteQueryAsync = jest.fn().mockResolvedValue({ query: {}, columns: new Set() });
+
+            const result = await searchManager.constructQueryAsync({
+                user: 'user1', scope: 'scope1', isUser: false, userType: null,
+                resourceType: 'Patient', useAccessIndex: false, personIdFromJwtToken: null,
+                requestId: 'req1', parsedArgs: mockParsedArgs, operation: 'WRITE'
+            });
+
+            expect(result.atlasSearchCompound).toBeNull();
+            expect(mockAtlasSearchQueryBuilder.buildSearchQuery).not.toHaveBeenCalled();
+        });
+
+        it('returns null atlasSearchCompound when useHistoryTable is true', async () => {
+            mockAtlasSearchQueryBuilder.buildSearchQuery = jest.fn().mockReturnValue({ must: [] });
+            mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({ query: {}, columns: new Set() });
+            mockSecurityTagManager.getSecurityTagsFromScope = jest.fn().mockReturnValue([]);
+            mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(false);
+            mockQueryRewriterManager.rewriteQueryAsync = jest.fn().mockResolvedValue({ query: {}, columns: new Set() });
+
+            const result = await searchManager.constructQueryAsync({
+                user: 'user1', scope: 'scope1', isUser: false, userType: null,
+                resourceType: 'Patient', useAccessIndex: false, personIdFromJwtToken: null,
+                requestId: 'req1', parsedArgs: mockParsedArgs, operation: 'READ', useHistoryTable: true
+            });
+
+            expect(result.atlasSearchCompound).toBeNull();
+            expect(mockAtlasSearchQueryBuilder.buildSearchQuery).not.toHaveBeenCalled();
+        });
     });
 
     describe('handleCountOption', () => {
