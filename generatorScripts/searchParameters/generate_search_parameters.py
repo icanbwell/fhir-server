@@ -574,6 +574,36 @@ def write_parameter_files(parameters_folder: Path, sample_dict):
         index_file.write("};\n")
 
 
+def write_composite_component(file2, comp, is_python):
+    none_literal = 'None' if is_python else 'null'
+    array_field_literal = f"'{comp['array_field']}'" if comp['array_field'] else none_literal
+    extra_fields = ""
+    if comp['target']:
+        target_list = ", ".join(f"'{t}'" for t in comp['target'])
+        extra_fields += f", 'target': [{target_list}]"
+
+    if comp.get('fields'):
+        # 2+ polymorphic .as(Type) alternatives each resolved to a live field --
+        # mirror the plural fields[]/fieldTypesObj rendering used above for the
+        # non-composite, multi-field case, instead of the singular 'field'.
+        fields_list = ", ".join(f"'{f}'" for f in comp['fields'])
+        if comp['field_types']:
+            field_types_str = ", ".join(f"'{k}': '{v}'" for k, v in comp['field_types'].items())
+            extra_fields += f", 'fieldTypesObj': {{ {field_types_str} }}"
+        if is_python:
+            file2.write(f"\t\t\t\t\t{{ 'type': '{comp['type_']}', 'fields': [{fields_list}], 'array_field': {array_field_literal} }},\n")
+        else:
+            file2.write(f"\t\t\t\t\tnew SearchParameterDefinition({{ 'type': '{comp['type_']}', 'fields': [{fields_list}], 'arrayField': {array_field_literal}{extra_fields} }}),\n")
+        return
+
+    if comp['field_type']:
+        extra_fields += f", 'fieldTypesObj': {{ '{comp['field']}': '{comp['field_type'].lower()}' }}"
+    if is_python:
+        file2.write(f"\t\t\t\t\t{{ 'type': '{comp['type_']}', 'field': '{comp['field']}', 'array_field': {array_field_literal} }},\n")
+    else:
+        file2.write(f"\t\t\t\t\tnew SearchParameterDefinition({{ 'type': '{comp['type_']}', 'field': '{comp['field']}', 'arrayField': {array_field_literal}{extra_fields} }}),\n")
+
+
 def write_search_parameter_dict(field_filter_regex, file2, sample_dict, composite_scopes_by_resource_and_code, is_python=False):
     resource: str
     resource_entries_dict: Dict[str, List[QueryEntry]]
@@ -650,31 +680,7 @@ def write_search_parameter_dict(field_filter_regex, file2, sample_dict, composit
             for scope in composite_def['scopes']:
                 file2.write("\t\t\t\t{ 'components': [\n")
                 for comp in scope['components']:
-                    none_literal = 'None' if is_python else 'null'
-                    array_field_literal = f"'{comp['array_field']}'" if comp['array_field'] else none_literal
-                    extra_fields = ""
-                    if comp['target']:
-                        target_list = ", ".join(f"'{t}'" for t in comp['target'])
-                        extra_fields += f", 'target': [{target_list}]"
-                    if comp.get('fields'):
-                        # 2+ polymorphic .as(Type) alternatives each resolved to a live field --
-                        # mirror the plural fields[]/fieldTypesObj rendering used above for the
-                        # non-composite, multi-field case, instead of the singular 'field'.
-                        fields_list = ", ".join(f"'{f}'" for f in comp['fields'])
-                        if comp['field_types']:
-                            field_types_str = ", ".join(f"'{k}': '{v}'" for k, v in comp['field_types'].items())
-                            extra_fields += f", 'fieldTypesObj': {{ {field_types_str} }}"
-                        if is_python:
-                            file2.write(f"\t\t\t\t\t{{ 'type': '{comp['type_']}', 'fields': [{fields_list}], 'array_field': {array_field_literal} }},\n")
-                        else:
-                            file2.write(f"\t\t\t\t\tnew SearchParameterDefinition({{ 'type': '{comp['type_']}', 'fields': [{fields_list}], 'arrayField': {array_field_literal}{extra_fields} }}),\n")
-                    else:
-                        if comp['field_type']:
-                            extra_fields += f", 'fieldTypesObj': {{ '{comp['field']}': '{comp['field_type'].lower()}' }}"
-                        if is_python:
-                            file2.write(f"\t\t\t\t\t{{ 'type': '{comp['type_']}', 'field': '{comp['field']}', 'array_field': {array_field_literal} }},\n")
-                        else:
-                            file2.write(f"\t\t\t\t\tnew SearchParameterDefinition({{ 'type': '{comp['type_']}', 'field': '{comp['field']}', 'arrayField': {array_field_literal}{extra_fields} }}),\n")
+                    write_composite_component(file2, comp, is_python)
                 file2.write("\t\t\t\t] },\n")
             file2.write("\t\t\t],\n")
             if is_python:

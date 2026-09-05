@@ -81,6 +81,15 @@ class R4SearchQueryCreator {
         let includesQuantityType = false;
         for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs.parsedArgItems) {
             if (parsedArg.queryParameterValue && parsedArg.propertyObj) {
+                // reject unsupported modifiers on composite search parameters before
+                // constructing FieldMapper/FilterParameters, which this error path never uses
+                if (parsedArg.propertyObj.type === fhirFilterTypes.composite &&
+                    REJECTED_MODIFIERS.some(m => parsedArg.modifiers.includes(m))) {
+                    throw new BadRequestError(new Error(
+                        `Modifiers [${REJECTED_MODIFIERS.join(', ')}] are not supported on composite search parameters (queryParameter=${parsedArg.queryParameter})`
+                    ));
+                }
+
                 /**
                  * @type {FieldMapper}
                  */
@@ -113,12 +122,7 @@ class R4SearchQueryCreator {
 
                 // replace andSegments according to modifiers
                 // noinspection IfStatementWithTooManyBranchesJS
-                if (parsedArg.propertyObj.type === fhirFilterTypes.composite &&
-                    REJECTED_MODIFIERS.some(m => parsedArg.modifiers.includes(m))) {
-                    throw new BadRequestError(new Error(
-                        `Modifiers [${REJECTED_MODIFIERS.join(', ')}] are not supported on composite search parameters (queryParameter=${parsedArg.queryParameter})`
-                    ));
-                } else if (parsedArg.modifiers.includes('missing')) {
+                if (parsedArg.modifiers.includes('missing')) {
                     andSegments = new FilterByMissing(filterParameters).filter();
                 } else if (parsedArg.modifiers.includes('contains')) {
                     andSegments = new FilterByContains(filterParameters).filter();
