@@ -80,10 +80,10 @@ class AtlasSearchQueryBuilder {
                 continue;
             }
 
-            const isNameField = code in ATLAS_NAME_FIELDS;
-            const isTokenField = code in ATLAS_TOKEN_FIELDS;
+            const isNameField = Object.hasOwn(ATLAS_NAME_FIELDS, code);
+            const isTokenField = Object.hasOwn(ATLAS_TOKEN_FIELDS, code);
             const isTelecomParam = ATLAS_TELECOM_PARAMS.includes(code);
-            const isDateField = code in ATLAS_DATE_FIELDS;
+            const isDateField = Object.hasOwn(ATLAS_DATE_FIELDS, code);
 
             if (!isNameField && !isTokenField && !isTelecomParam && !isDateField) {
                 // Any other parameter (_id, bare name, phonetic, address*, etc.) has no
@@ -101,9 +101,13 @@ class AtlasSearchQueryBuilder {
                 continue;
             }
 
-            if (code === 'identifier' && values.some(v => v.includes('|'))) {
-                // v1 only supports plain-value identifier search (no system|value form) --
-                // the index maps identifier.value only for Patient/Person.
+            if ((isTokenField || isTelecomParam) && values.some(v => v.includes('|'))) {
+                // v1 only supports plain-value token search (no system|value form) for
+                // identifier, gender, telecom, email, and phone -- the index maps these as
+                // bare-value fields, so a system-qualified value would silently mismatch.
+                // identifier.value is mapped for all three resource types (Patient, Person,
+                // and Practitioner); Practitioner additionally maps identifier.system
+                // (for NPI-boost) and meta.security (for owner scoping).
                 return null;
             }
 

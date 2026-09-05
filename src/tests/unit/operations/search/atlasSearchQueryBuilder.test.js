@@ -92,6 +92,13 @@ describe('AtlasSearchQueryBuilder', () => {
             expect(builder.getEligibleParsedArgItemsOrNull({ resourceType: 'Practitioner', parsedArgs })).toBeNull();
         });
 
+        test('falls back for gender with a system component (system|value)', () => {
+            const parsedArgs = makeParsedArgs([
+                { queryParameter: 'gender', values: ['http://hl7.org/fhir/administrative-gender|male'] }
+            ]);
+            expect(builder.getEligibleParsedArgItemsOrNull({ resourceType: 'Patient', parsedArgs })).toBeNull();
+        });
+
         test('allows a plain-value identifier', () => {
             const parsedArgs = makeParsedArgs([{ queryParameter: 'identifier', values: ['1234567890'] }]);
             const result = builder.getEligibleParsedArgItemsOrNull({ resourceType: 'Practitioner', parsedArgs });
@@ -127,6 +134,14 @@ describe('AtlasSearchQueryBuilder', () => {
 
         test('returns null when there are no eligible items at all', () => {
             const parsedArgs = makeParsedArgs([{ queryParameter: '_count', values: ['10'] }]);
+            expect(builder.getEligibleParsedArgItemsOrNull({ resourceType: 'Patient', parsedArgs })).toBeNull();
+        });
+
+        test('falls back when a parameter matches an inherited Object.prototype property name', () => {
+            const parsedArgs = makeParsedArgs([
+                { queryParameter: 'family', values: ['Smith'] },
+                { queryParameter: 'constructor', values: ['foo'] }
+            ]);
             expect(builder.getEligibleParsedArgItemsOrNull({ resourceType: 'Patient', parsedArgs })).toBeNull();
         });
     });
