@@ -28,6 +28,7 @@ const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhir
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
 const { DataSharingManager } = require('./dataSharingManager');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
+const { AtlasSearchQueryBuilder } = require('./atlasSearchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
@@ -62,6 +63,7 @@ class SearchManager {
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
+     * @param {AtlasSearchQueryBuilder} atlasSearchQueryBuilder
      * @param {PatientScopeManager} patientScopeManager
      * @param {PatientQueryCreator} patientQueryCreator
      * @param {SearchParametersManager} searchParametersManager
@@ -82,6 +84,7 @@ class SearchManager {
             fhirResourceWriterFactory,
             dataSharingManager,
             searchQueryBuilder,
+            atlasSearchQueryBuilder,
             patientScopeManager,
             patientQueryCreator,
             searchParametersManager
@@ -165,6 +168,12 @@ class SearchManager {
          */
         this.searchQueryBuilder = searchQueryBuilder;
         assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
+
+        /**
+         * @type {AtlasSearchQueryBuilder}
+         */
+        this.atlasSearchQueryBuilder = atlasSearchQueryBuilder;
+        assertTypeEquals(atlasSearchQueryBuilder, AtlasSearchQueryBuilder);
 
         /**
          * @type {PatientScopeManager}

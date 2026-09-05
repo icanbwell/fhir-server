@@ -26,6 +26,7 @@ const { Base64DataManager } = require('../../../../dataLayer/base64DataManager')
 const { FhirResourceWriterFactory } = require('../../../../operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const { DataSharingManager } = require('../../../../operations/search/dataSharingManager');
 const { SearchQueryBuilder } = require('../../../../operations/search/searchQueryBuilder');
+const { AtlasSearchQueryBuilder } = require('../../../../operations/search/atlasSearchQueryBuilder');
 const { PatientScopeManager } = require('../../../../operations/security/patientScopeManager');
 const { PatientQueryCreator } = require('../../../../operations/common/patientQueryCreator');
 const { SearchParametersManager } = require('../../../../searchParameters/searchParametersManager');
@@ -59,6 +60,7 @@ describe('SearchManager', () => {
     let mockFhirResourceWriterFactory;
     let mockDataSharingManager;
     let mockSearchQueryBuilder;
+    let mockAtlasSearchQueryBuilder;
     let mockPatientScopeManager;
     let mockPatientQueryCreator;
     let mockSearchParametersManager;
@@ -86,6 +88,8 @@ describe('SearchManager', () => {
         mockFhirResourceWriterFactory = Object.create(FhirResourceWriterFactory.prototype);
         mockDataSharingManager = Object.create(DataSharingManager.prototype);
         mockSearchQueryBuilder = Object.create(SearchQueryBuilder.prototype);
+        mockAtlasSearchQueryBuilder = Object.create(AtlasSearchQueryBuilder.prototype);
+        mockAtlasSearchQueryBuilder.buildSearchQuery = () => null;
         mockPatientScopeManager = Object.create(PatientScopeManager.prototype);
         mockPatientQueryCreator = Object.create(PatientQueryCreator.prototype);
         mockSearchParametersManager = Object.create(SearchParametersManager.prototype);
@@ -106,6 +110,7 @@ describe('SearchManager', () => {
             fhirResourceWriterFactory: mockFhirResourceWriterFactory,
             dataSharingManager: mockDataSharingManager,
             searchQueryBuilder: mockSearchQueryBuilder,
+            atlasSearchQueryBuilder: mockAtlasSearchQueryBuilder,
             patientScopeManager: mockPatientScopeManager,
             patientQueryCreator: mockPatientQueryCreator,
             searchParametersManager: mockSearchParametersManager
@@ -114,6 +119,13 @@ describe('SearchManager', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+    });
+
+    describe('constructor', () => {
+        it('requires an AtlasSearchQueryBuilder', () => {
+            const { AtlasSearchQueryBuilder } = require('../../../../operations/search/atlasSearchQueryBuilder');
+            expect(searchManager.atlasSearchQueryBuilder).toBeInstanceOf(AtlasSearchQueryBuilder);
+        });
     });
 
     describe('constructQueryAsync', () => {
