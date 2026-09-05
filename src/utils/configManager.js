@@ -162,6 +162,27 @@ class ConfigManager {
     }
 
     /**
+     * Whether Patient/Person/Practitioner search should route eligible queries through the
+     * MongoDB Atlas Search index (`hybrid-full-text-search`) instead of the regex-based path.
+     * Gated per resource type; default false everywhere. See
+     * docs/adr/0003-atlas-search-for-patient-person-practitioner-lookup.md
+     * @param {string} resourceType
+     * @returns {boolean}
+     */
+    isAtlasSearchEnabled(resourceType) {
+        switch (resourceType) {
+            case 'Patient':
+                return isTrue(env.ATLAS_SEARCH_ENABLED_PATIENT);
+            case 'Person':
+                return isTrue(env.ATLAS_SEARCH_ENABLED_PERSON);
+            case 'Practitioner':
+                return isTrue(env.ATLAS_SEARCH_ENABLED_PRACTITIONER);
+            default:
+                return false;
+        }
+    }
+
+    /**
      * username for kafka auth
      * @return {string|null}
      */
