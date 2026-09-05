@@ -28,7 +28,7 @@ const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhir
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
 const { DataSharingManager } = require('./dataSharingManager');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
-const { AtlasSearchQueryBuilder } = require('./atlasSearchQueryBuilder');
+const { AtlasSearchQueryBuilder, ATLAS_SEARCH_INDEX_NAME } = require('./atlasSearchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
@@ -422,6 +422,7 @@ class SearchManager {
      * @param {boolean} useAccessIndex
      * @param {boolean} useAggregationPipeline
      * @param {Object} extraInfo
+     * @param {{must: object[]}|null} [atlasSearchCompound]
      * @returns {Promise<GetCursorResult>}
      */
     async getCursorForQueryAsync (
@@ -437,7 +438,8 @@ class SearchManager {
             isStreaming,
             useAccessIndex,
             useAggregationPipeline = false,
-            extraInfo
+            extraInfo = {},
+            atlasSearchCompound
         }
     ) {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
@@ -514,7 +516,30 @@ class SearchManager {
          * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
          */
         let cursorQuery;
-        if (useAggregationPipeline) {
+        if (atlasSearchCompound) {
+            try {
+                const pipeline = [
+                    { $search: { index: ATLAS_SEARCH_INDEX_NAME, compound: atlasSearchCompound } },
+                    { $match: query },
+                    ...(options.sort && Object.keys(options.sort).length ? [{ $sort: options.sort }] : []),
+                    ...(options.skip ? [{ $skip: options.skip }] : []),
+                    { $limit: options.limit },
+                    { $project: options.projection || {} }
+                ];
+                cursorQuery = await databaseQueryManager.findUsingAggregationAsync({
+                    query: pipeline,
+                    projection: options.projection || {},
+                    options: {},
+                    extraInfo: { ...extraInfo, matchQueryProvided: true }
+                });
+            } catch (e) {
+                logWarn(
+                    'Atlas $search pipeline failed; falling back to the standard query path',
+                    { user, args: { resourceType, error: e.message } }
+                );
+                cursorQuery = await databaseQueryManager.findAsync({ query, options, extraInfo });
+            }
+        } else if (useAggregationPipeline) {
             // Projection arguement to be used for aggregation query
             let projection = parsedArgs.projection || {};
             if (options.projection) {
@@ -546,7 +571,7 @@ class SearchManager {
 
         // find columns being queried and match them to an index
         // noinspection JSUnresolvedReference
-        if (isTrue(process.env.SET_INDEX_HINTS) || parsedArgs._setIndexHint) {
+        if (!atlasSearchCompound && (isTrue(process.env.SET_INDEX_HINTS) || parsedArgs._setIndexHint)) {
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
                 { resourceType, base_version });
             const collectionName = resourceLocator.getCollectionName();

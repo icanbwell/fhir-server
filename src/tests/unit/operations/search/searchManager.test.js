@@ -545,4 +545,82 @@ describe('SearchManager', () => {
                 .rejects.toThrow('Error getting totals');
         });
     });
+
+    describe('getCursorForQueryAsync', () => {
+        it('runs the $search + $match pipeline via findUsingAggregationAsync when atlasSearchCompound is present', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            expect(mockDatabaseQueryManager.findUsingAggregationAsync).toHaveBeenCalledTimes(1);
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.extraInfo.matchQueryProvided).toBe(true);
+            expect(callArgs.query[0]).toEqual({
+                $search: { index: 'hybrid-full-text-search', compound: atlasSearchCompound }
+            });
+            expect(callArgs.query[1]).toEqual({ $match: { 'meta.security': 'x' } });
+            expect(mockDatabaseQueryManager.findAsync).not.toHaveBeenCalled();
+        });
+
+        it('falls back to findAsync when the Atlas pipeline throws', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockRejectedValue(new Error('index not found')),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const result = await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({
+                query: { 'meta.security': 'x' }, options: expect.any(Object), extraInfo: expect.any(Object)
+            });
+            expect(result.cursor).toBe(mockCursor);
+        });
+
+        it('uses findAsync directly when atlasSearchCompound is null (unchanged behavior)', async () => {
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn(),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound: null
+            });
+
+            expect(mockDatabaseQueryManager.findUsingAggregationAsync).not.toHaveBeenCalled();
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledTimes(1);
+        });
+    });
 });
