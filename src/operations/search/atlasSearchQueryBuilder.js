@@ -123,6 +123,100 @@ class AtlasSearchQueryBuilder {
 
         return eligibleItems.length > 0 ? eligibleItems : null;
     }
+
+    /**
+     * Returns the Atlas Search `compound` document for this request, or null if the request
+     * should fall back to the standard query path.
+     * @param {string} resourceType
+     * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
+     * @returns {{must: object[]}|null}
+     */
+    buildSearchQuery ({ resourceType, parsedArgs }) {
+        const eligibleItems = this.getEligibleParsedArgItemsOrNull({ resourceType, parsedArgs });
+        if (!eligibleItems) {
+            return null;
+        }
+
+        const must = [];
+        for (const parsedArg of eligibleItems) {
+            const code = parsedArg.queryParameter;
+            const values = parsedArg.queryParameterValue.values;
+
+            if (Object.hasOwn(ATLAS_NAME_FIELDS, code)) {
+                const path = ATLAS_NAME_FIELDS[code];
+                must.push(this._orClause(values, v => this._nameClause(path, v)));
+            } else if (Object.hasOwn(ATLAS_TOKEN_FIELDS, code)) {
+                const path = ATLAS_TOKEN_FIELDS[code];
+                must.push(this._orClause(values, v => ({ equals: { path, value: v } })));
+            } else if (Object.hasOwn(ATLAS_DATE_FIELDS, code)) {
+                const path = ATLAS_DATE_FIELDS[code];
+                must.push(this._orClause(values, v => ({ equals: { path, value: v } })));
+            } else if (code === 'telecom') {
+                must.push(this._orClause(values, v => ({ text: { path: 'telecom.value', query: v } })));
+            } else if (code === 'email' || code === 'phone') {
+                must.push(this._orClause(values, v => this._telecomSystemClause(code, v)));
+            }
+        }
+
+        return { must };
+    }
+
+    /**
+     * Wraps a per-value clause builder so that multiple values of the SAME parameter combine
+     * with OR (nested should/minimumShouldMatch), while a single value contributes its clause
+     * directly. Distinct parameters are never combined here -- each call to this method produces
+     * exactly one `must` entry for one parameter.
+     * @param {string[]} values
+     * @param {function(string): object} clauseFn
+     * @returns {object}
+     */
+    _orClause (values, clauseFn) {
+        if (values.length === 1) {
+            return clauseFn(values[0]);
+        }
+        return {
+            compound: {
+                should: values.map(clauseFn),
+                minimumShouldMatch: 1
+            }
+        };
+    }
+
+    /**
+     * Fuzzy/prefix name match: FHIR's default (no-modifier) string search is case-insensitive
+     * prefix matching (see FilterByString / stringQueryBuilder) -- `autocomplete` is Atlas's
+     * prefix+fuzzy operator, the direct semantic match. `text` is added for token-level recall.
+     * @param {string} path
+     * @param {string} value
+     * @returns {object}
+     */
+    _nameClause (path, value) {
+        return {
+            compound: {
+                should: [
+                    { autocomplete: { path, query: value, fuzzy: { maxEdits: 1, prefixLength: 2 } } },
+                    { text: { path, query: value } }
+                ],
+                minimumShouldMatch: 1
+            }
+        };
+    }
+
+    /**
+     * @param {'email'|'phone'} system
+     * @param {string} value
+     * @returns {object}
+     */
+    _telecomSystemClause (system, value) {
+        return {
+            compound: {
+                must: [
+                    { equals: { path: 'telecom.system', value: system } },
+                    { text: { path: 'telecom.value', query: value } }
+                ]
+            }
+        };
+    }
 }
 
 module.exports = {
