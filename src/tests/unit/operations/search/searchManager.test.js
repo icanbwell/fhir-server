@@ -81,6 +81,7 @@ describe('SearchManager', () => {
         Object.defineProperty(mockConfigManager, 'useAccessIndex', { value: false, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'mongoTimeout', { value: 30000, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'streamingHighWaterMark', { value: 100, writable: true, configurable: true });
+        Object.defineProperty(mockConfigManager, 'isAtlasSearchNativeSortEnabled', { value: false, writable: true, configurable: true });
         mockQueryRewriterManager = Object.create(QueryRewriterManager.prototype);
         mockScopesManager = Object.create(ScopesManager.prototype);
         mockDatabaseAttachmentManager = Object.create(DatabaseAttachmentManager.prototype);
@@ -665,6 +666,67 @@ describe('SearchManager', () => {
             // here -- e.g. from a leftover shared trailing maxTimeMS() elsewhere in the method --
             // would have thrown on every successful Atlas request.
             expect(mockCursor.maxTimeMS).toHaveBeenCalledTimes(1);
+        });
+
+        it('sorts by score then defaultSortId inside $search, and omits the trailing $sort stage, when native sort is enabled', async () => {
+            Object.defineProperty(mockConfigManager, 'isAtlasSearchNativeSortEnabled', { value: true, writable: true, configurable: true });
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.query[0]).toEqual({
+                $search: {
+                    index: 'hybrid-full-text-search',
+                    compound: atlasSearchCompound,
+                    sort: { score: { $meta: 'searchScore' }, _uuid: 1 }
+                }
+            });
+            expect(callArgs.query[1]).toEqual({ $match: { 'meta.security': 'x' } });
+            // No separate $sort stage -- sorting now happens natively inside $search.
+            expect(callArgs.query.some(stage => '$sort' in stage)).toBe(false);
+        });
+
+        it('keeps the trailing $sort stage and a plain $search (no sort key) when native sort is disabled (default)', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.query[0]).toEqual({
+                $search: { index: 'hybrid-full-text-search', compound: atlasSearchCompound }
+            });
+            expect(callArgs.query.find(stage => '$sort' in stage)).toEqual({ $sort: { _uuid: 1 } });
         });
 
         it('falls back to findAsync when findUsingAggregationAsync resolves but the cursor\'s hasNext() rejects on first server round-trip', async () => {

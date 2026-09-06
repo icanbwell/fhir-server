@@ -370,4 +370,15 @@ describe('ConfigManager', () => {
             expect(configManager.isAtlasSearchEnabled('Patient')).toBe(false);
         });
     });
+
+    describe('isAtlasSearchNativeSortEnabled', () => {
+        test('returns false by default', () => {
+            expect(configManager.isAtlasSearchNativeSortEnabled).toBe(false);
+        });
+
+        test('returns true when ATLAS_SEARCH_NATIVE_SORT_ENABLED is set', () => {
+            setEnv('ATLAS_SEARCH_NATIVE_SORT_ENABLED', 'true');
+            expect(configManager.isAtlasSearchNativeSortEnabled).toBe(true);
+        });
+    });
 });

@@ -518,10 +518,28 @@ class SearchManager {
         let cursorQuery;
         if (atlasSearchCompound) {
             try {
+                // Native sort requires defaultSortId to be mapped as a sortable (token-type)
+                // field in the Atlas index -- independently toggled from isAtlasSearchEnabled so
+                // the index change and this code path can roll out to each environment on their
+                // own schedules. See docs/adr/0003-atlas-search-for-patient-person-practitioner-lookup.md
+                // Decision Log #8. When enabled, sorting happens inside $search itself (by
+                // relevance score, then defaultSortId as a tie-break) instead of a separate
+                // $sort stage -- this is the first time relevance ordering reaches the caller,
+                // a deliberate behavior change beyond the pure performance optimization.
+                const useNativeSort = this.configManager.isAtlasSearchNativeSortEnabled;
+                const searchStage = useNativeSort
+                    ? {
+                        $search: {
+                            index: ATLAS_SEARCH_INDEX_NAME,
+                            compound: atlasSearchCompound,
+                            sort: { score: { $meta: 'searchScore' }, [defaultSortId]: 1 }
+                        }
+                    }
+                    : { $search: { index: ATLAS_SEARCH_INDEX_NAME, compound: atlasSearchCompound } };
                 const pipeline = [
-                    { $search: { index: ATLAS_SEARCH_INDEX_NAME, compound: atlasSearchCompound } },
+                    searchStage,
                     { $match: query },
-                    ...(options.sort && Object.keys(options.sort).length ? [{ $sort: options.sort }] : []),
+                    ...(!useNativeSort && options.sort && Object.keys(options.sort).length ? [{ $sort: options.sort }] : []),
                     ...(options.skip ? [{ $skip: options.skip }] : []),
                     ...(options.limit ? [{ $limit: options.limit }] : []),
                     ...(options.projection && Object.keys(options.projection).length ? [{ $project: options.projection }] : [])
