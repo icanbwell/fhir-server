@@ -134,6 +134,7 @@ The FHIR Server supports all the standard FHIR search parameters: https://www.hl
 | By url                    | url={url}                                                                                                                          | http://localhost:3000/4_0_0/ValueSet?url=foo                                                                                                                                                                | ValueSet                                                                          |     |
 | By code                   | code={system}&#124;{value}                                                                                                         | [http://localhost:3000/4_0_0/Observation/?code=http://www.icanbwell.com/cql/library&#124;BMI001](http://localhost:3000/4_0_0/Observation/?code=http://www.icanbwell.com/cql/library\|BMI001)            | Resources in https://www.hl7.org/fhir/R4B/searchparameter-registry.html#clinical-code |     |
 | By date                   | date=lt{date}&date=gt{date}                                                                                                        | http://localhost:3000/4_0_0/Observation?date=gt2021-01-16&date=lt2021-01-17                                                                                                                                 | Resources in https://www.hl7.org/fhir/R4B/searchparameter-registry.html#clinical-date |     |
+| By a composite of related component values (matched on the same element) | {param}={value1}${value2} | http://localhost:3000/4_0_0/Observation?code-value-quantity=55284-4$ge140 | See [1.9 Composite Search Parameters](#19-composite-search-parameters) |     |
 
 FHIR Specification: https://www.hl7.org/fhir/R4B/search.html.
 
@@ -187,6 +188,28 @@ For parameter types of number, date, and quantity
 | le |[base]/RiskAssessment?probability=le5.40e-3 | less than or equal to: the value for the parameter in the resource is less or equal to the provided value |
 
 FHIR specification: https://www.hl7.org/fhir/R4B/search.html#prefix
+
+### 1.9 Composite Search Parameters
+
+A composite search parameter combines two or more related component values into a single query parameter, matched against the *same* element (e.g. the same `Observation.component` entry) rather than as independent filters. This matters when a resource can have multiple repeats of the same array (e.g. multiple `component`s on an `Observation`): filtering on the components separately would match if *any* component satisfied the code and *any* (possibly different) component satisfied the value, while the composite form guarantees both are satisfied by the *same* component.
+
+**Format**: `'$'`-joined value, one part per component, in the component's declared order. Comma-separate multiple `'$'`-joined values to OR them together, same as any other search parameter.
+
+| Resource            | Parameter                     | Example                                                                                                     | Components (in order)                          |
+| ------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
+| Observation          | `code-value-quantity`          | http://localhost:3000/4_0_0/Observation?code-value-quantity=55284-4$ge140                                    | code (token) $ value (quantity, with prefix)    |
+| Observation          | `component-code-value-quantity`| http://localhost:3000/4_0_0/Observation?component-code-value-quantity=8480-6$ge140                           | component.code (token) $ component.value (quantity) |
+| DocumentReference     | `relationship`                 | http://localhost:3000/4_0_0/DocumentReference?relationship=DocumentReference/456$replaces                   | relatesTo.target (reference) $ relatesTo.code (token) |
+| MolecularSequence     | `chromosome-variant-coordinate`| http://localhost:3000/4_0_0/MolecularSequence?chromosome-variant-coordinate=1$lt345$gt123                     | chromosome (token) $ variant start (number) $ variant end (number) |
+| Group                | `characteristic-value`         | http://localhost:3000/4_0_0/Group?characteristic-value=some-code$true                                        | characteristic.code (token) $ characteristic.value (token) |
+
+**Notes:**
+
+- Each part must be non-empty (a trailing or missing `$` part, e.g. `code-value-quantity=55284-4$`, returns a 400).
+- The `missing`, `contains`, `above`, `below`, `text`, `of-type`, and `exact` modifiers are not supported on composite parameters and return a 400 rather than silently producing an incorrect filter.
+- The same composite parameters are also available via [GraphQL](graphql.md) (e.g. `code_value_quantity: { value: "55284-4$ge140" }`) and via MCP tool calls (same `'$'`-joined string), with identical semantics.
+
+FHIR specification: https://www.hl7.org/fhir/R4B/search.html#composite
 
 ## 2. Requesting a single resource
 
