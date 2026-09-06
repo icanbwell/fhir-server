@@ -1379,9 +1379,20 @@ correctness checks below no longer require coordinating cluster access first.
 
 Before enabling any `ATLAS_SEARCH_ENABLED_*` flag in an environment with real traffic:
 
-- [ ] Create the `hybrid-full-text-search` index on `Patient_4_0_0`/`Person_4_0_0`/
-      `Practitioner_4_0_0` against the local `mongodb-atlas-local` instance (via `make up`), using
-      the mapping in the ADR's Appendix, then run these checks locally:
+- [x] Automated: `make create_atlas_search_indexes` (after `make create_all_collections`, or
+      just `make up` which runs both) creates the `hybrid-full-text-search` index on
+      `Patient_4_0_0`/`Person_4_0_0`/`Practitioner_4_0_0` against the local `mongodb-atlas-local`
+      instance, reading definitions from `src/admin/scripts/atlasSearchIndexes/*.json`, and waits
+      for each to become `READY`. Idempotent (drops and recreates if already present, so editing
+      a definition file and re-running picks up the change). Verified end-to-end outside `make up`
+      (to avoid a port conflict with another worktree's containers): connected across a real
+      Docker network via the `mongo` alias, created all three indexes, and ran the exact
+      `must`-per-parameter/nested-`should` pipeline shape `AtlasSearchQueryBuilder` produces
+      against a real inserted Patient document — correctly matched. These local dev index
+      definitions include `_uuid` (for the `ATLAS_SEARCH_NATIVE_SORT_ENABLED` follow-up, Decision
+      Log #8) even though the real, `person-matching-service`-owned production index does not
+      have that field yet — don't confuse the two.
+- [ ] Run these checks locally, with the indexes created above:
   - `GET /4_0_0/Patient?family=Smith&given=John` returns the expected AND-combined result set.
   - `GET /4_0_0/Patient?family=Smith,Jones` returns the OR-combined result set.
   - A request outside the eligible field set (e.g. `?address-city=Boston`) still returns identical

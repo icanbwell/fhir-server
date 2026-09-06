@@ -147,7 +147,12 @@ services:
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: ['CMD', 'mongosh', 'mongo:27017/test', '--quiet', '--eval', "db.runCommand('ping').ok"]
+      # A plain `mongosh ping` only proves mongod is up -- mongot (the search process this
+      # image bundles alongside mongod) starts later and isn't covered by it. `runner
+      # healthcheck` is the image's own combined mongod+mongot readiness check (confirmed via
+      # person-matching-service's own testcontainers setup, tests/containers/mongodb.py, which
+      # hit and documented this exact gap).
+      test: ['CMD', 'runner', 'healthcheck']
       interval: 10s
       timeout: 5s
       retries: 5
