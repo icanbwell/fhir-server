@@ -1392,13 +1392,29 @@ Before enabling any `ATLAS_SEARCH_ENABLED_*` flag in an environment with real tr
       definitions include `_uuid` (for the `ATLAS_SEARCH_NATIVE_SORT_ENABLED` follow-up, Decision
       Log #8) even though the real, `person-matching-service`-owned production index does not
       have that field yet — don't confuse the two.
+- [x] **Now automated** (no longer manual-only): `yarn test:atlas-search`
+      (`src/tests/integration/atlasSearch/`) starts a real `mongodb-atlas-local` container via
+      `testcontainers`, creates the indexes, `$merge`s two Patients, and confirms
+      `GET /4_0_0/Patient?family=Smith&given=John` returns exactly the AND-combined match through
+      the real `$search` pipeline (not a mock) — asserted by checking `logWarn` was *not* called
+      with the fallback message, since a correct fallback would produce an identical response
+      body. Had to poll/retry past Atlas's real indexing lag (confirmed via `_debug=1` explain
+      showing `lucene.totalDocs: 0` immediately after write) rather than assume immediate
+      consistency.
 - [ ] Run these checks locally, with the indexes created above:
-  - `GET /4_0_0/Patient?family=Smith&given=John` returns the expected AND-combined result set.
   - `GET /4_0_0/Patient?family=Smith,Jones` returns the OR-combined result set.
   - A request outside the eligible field set (e.g. `?address-city=Boston`) still returns identical
     results to today (fallback path), confirmed by diffing against the flag turned off.
   - Killing/renaming the index (or testing against a cluster where it doesn't exist) still returns
-    correct results via automatic fallback, with a `logWarn` line in the logs.
+    correct results via automatic fallback, with a `logWarn` line in the logs. **Known gap:**
+    attempted to automate this specific check and could not make it reliable against
+    `mongodb-atlas-local` — even after `listSearchIndexes()` confirmed the index gone from
+    `mongod`'s own metadata, `mongot` kept transparently honoring `$search` against it well past
+    a 15s poll. This may be a local-dev-image-only propagation quirk, or it may mean a real
+    hosted Atlas cluster behaves differently — worth confirming manually against one before
+    relying on this fallback path for the specific "index doesn't exist" failure mode (as opposed
+    to connection/syntax errors, which the mocked unit tests in `searchManager.test.js` do cover
+    deterministically).
 - [ ] Additionally repeat the above against a real Atlas-backed dev/staging Mongo cluster before
       enabling in an environment with real traffic (coordinate with whoever owns the index in
       `person-matching-service` for read access — see the ADR's accepted cross-repo-ownership
