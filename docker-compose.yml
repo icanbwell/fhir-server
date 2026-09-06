@@ -131,15 +131,27 @@ services:
       test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:8.0.15
+    # mongodb/mongodb-atlas-local (not a Docker Official Image -- may flag in the org's
+    # Root-Mirror audit the same way mongodb/atlas did for complaint-parser, CIE-8534;
+    # accepted for this local-dev-only compose file, matching mcp-fhir-agent's precedent)
+    # runs a real Atlas Search (mongot) process alongside mongod, so $search queries --
+    # including this repo's Atlas Search Patient/Person/Practitioner lookup -- actually
+    # work locally. Plain mongo:8.0.15 has no $search support at all.
+    image: mongodb/mongodb-atlas-local:8.2.5
     ports:
       - '27017:27017'
     environment:
-      - ALLOW_EMPTY_PASSWORD=yes
+      # Disable atlas-local internal telemetry to avoid a Go panic ("close of closed
+      # channel" in telemetry.(*Collector).collect) seen in mcp-fhir-agent with this image.
+      DO_NOT_TRACK: "1"
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/test --quiet
+      test: ['CMD', 'mongosh', 'mongo:27017/test', '--quiet', '--eval', "db.runCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   keycloak:
     # https://github.com/keycloak/keycloak/releases
