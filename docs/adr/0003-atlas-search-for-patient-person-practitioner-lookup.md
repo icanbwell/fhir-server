@@ -321,7 +321,7 @@ Resolved during design review (2026-09-04):
 | 1 | Is there harm in enabling transparently for all eligible queries, vs. a per-request opt-in? | Yes, but it's a fixable implementation risk, not a reason for an opt-in flag: naively porting the blocking service's `should`-only compound would collapse FHIR's AND-across-parameters semantics into OR. Fixed in the design above (`must` per distinct parameter, `filter` for exact fields, nested `should` only for same-parameter repeats). With that fix, transparent enablement is safe. |
 | 2 | How does `_total=accurate` work under the aggregation path? | `handleGetTotalsAsync` runs `[...($search+$match prefix), { $count: 'total' }]` via the existing `findUsingAggregationAsync`/`matchQueryProvided` mechanism when the Atlas path was used for the request — see Implementation Details above. |
 | 3 | Does GraphQL construct Patient/Person/Practitioner queries independently of `SearchManager`? | No — verified in code. Both `src/graphql/dataSource.js` and `src/graphqlv2/dataSource.js` delegate through `SearchBundleOperation.searchBundleAsync` to `SearchManager.constructQueryAsync`/`getCursorForQueryAsync`, the same shared path REST uses. No special-casing needed. |
-| 4 | What's the coordination mechanism with `person-matching-service`'s owners for index changes? | None being set up now — accepted risk; automatic fallback on any Atlas error is the mitigation. |
+| 4 | What's the coordination mechanism with `person-matching-service`'s owners for index changes? | Revised (see #8 below): fhir-server's team is *not* locked out of changing this index — it's a shared, changeable resource, not a hard external dependency. No formal coordination process is being set up now, but this is looser than originally framed: additive, non-breaking changes (like #8's proposed field addition) are within reach directly, not blocked on another team. |
 | 5 | Does this need a formal EA Tech Design Review before implementation? | No. |
 
 Resolved after implementation, during final review (2026-09-06):
@@ -330,6 +330,7 @@ Resolved after implementation, during final review (2026-09-06):
 |---|---|---|
 | 6 | The implementation's `$match` re-applies the full query (search filters + tenant tags combined), so results are always a subset of today's — never the "broader, fuzzy-matched" results this ADR originally claimed. Accept as intersection-only, or redesign to split `$match` and actually deliver broader/fuzzy recall? | Accept as intersection-only. Tenant/access-tag checks are mandatory on every FHIR server call, full stop — splitting `$match` to let Atlas hits through un-narrowed would reopen exactly the "silently dropped filter" risk this ADR rejected Option 1 over, on a resource type explicitly flagged as security-sensitive in CLAUDE.md. This ADR's Consequences section is corrected accordingly. Real fuzzy/typo-tolerant search remains unsolved and is left as a candidate for a future, separately-reviewed initiative. |
 | 7 | Given the intersection means an eventually-consistent/lagging Atlas index can silently under-return results, should that be observable (a log line or metric), or accepted silently? | Accepted silently — it's a best-effort performance optimization, and a brief staleness window on a newly-written resource is judged an acceptable tradeoff for the perf gain, consistent with how any other eventually-consistent dependency in this system is treated. No new logging/metric added for this specifically. |
+| 8 | Our pipeline always adds a separate `$sort` stage (on `_uuid`, for deterministic pagination) after `$search`, discarding relevance order. MongoDB Atlas Search has a native `sort` option *inside* the `$search` stage that's specifically optimized when paired with `$limit` (our shape) and avoids the in-memory sort penalty of a trailing `$sort` stage — but it requires the sort field to be indexed (strings need explicit `token`-type mapping; `_uuid` isn't currently mapped in `hybrid-full-text-search` at all). Is changing the index in scope? | Yes — confirmed with Imran that fhir-server's team can change this index; it is not a hard external dependency requiring another team's sign-off for a change of this shape. **Recommended follow-up (not done in this PR):** add `_uuid` to the index mapping as `type: "token"` (confirmed via code trace: `_uuid` is a plain string from `crypto.randomUUID()`/`uuidv5`, never converted to BSON UUID type, so per MongoDB's docs it must be mapped as `token` to be sortable) — see the proposed index definition in the Appendix. This is purely additive to the existing mapping and doesn't touch any field `person-matching-service` already depends on, so it carries no breaking-change risk to that service even though the index is shared. Doing this would let `SearchManager` use the native `$search.sort` option instead of a trailing `$sort` stage, resolving the performance risk in Decision Log #7's sibling concern (relevance/sort cost) rather than just deferring it to real-cluster measurement. Left as a follow-up, not bundled into this PR, since it requires an actual Atlas index change (an infrastructure action) and a corresponding code change to use the native `sort` option — both deserve their own review. |
 
 ## Success Criteria
 
@@ -345,6 +346,54 @@ Resolved after implementation, during final review (2026-09-06):
       Patient/Person/Practitioner search is explicitly in CLAUDE.md's security-sensitive list.
 
 ## Appendix
+
+### Proposed index change (follow-up, not done in this PR): add `_uuid` sortability
+
+Per Decision Log #8. Adds one field to the existing `hybrid-full-text-search` mapping so
+`SearchManager` can eventually use Atlas's native `$search.sort` option (paired with `$limit`)
+instead of a trailing `$sort` aggregation stage. Purely additive — every existing mapped field
+(`name.*`, `identifier.*`, `gender`, `birthDate`, `telecom.*`, and, for Practitioner,
+`meta.security.*`) is unchanged, so this carries no risk to `person-matching-service`'s existing
+usage of the same index.
+
+**Patient / Person** (`docs/hybrid-full-text-search.json` in `person-matching-service`) — add:
+
+```json
+{
+  "mappings": {
+    "dynamic": false,
+    "fields": {
+      "_uuid": { "type": "token" },
+      "birthDate": { "type": "token" },
+      "gender": { "type": "token" },
+      "identifier": { "fields": { "value": { "type": "token" } }, "type": "document" },
+      "name": {
+        "fields": {
+          "family": [{ "type": "autocomplete" }, { "type": "string" }],
+          "given": [{ "type": "autocomplete" }, { "type": "string" }]
+        },
+        "type": "document"
+      },
+      "telecom": {
+        "fields": {
+          "system": { "type": "token" },
+          "value": [{ "type": "string" }]
+        },
+        "type": "document"
+      }
+    }
+  }
+}
+```
+
+**Practitioner** (`docs/hybrid-full-text-search-practitioner.json`) — same addition, on top of its
+existing superset mapping (`identifier.system`, `meta.security.*`).
+
+`_uuid` must be mapped as `token` (not left to dynamic mapping) because it's stored as a plain
+JS string (`crypto.randomUUID()` / `uuidv5` in `src/utils/uid.util.js`, never converted to a BSON
+UUID type) — MongoDB's Atlas Search docs require explicit `token`-type mapping for sortable
+string fields; dynamic mapping only auto-supports sortable `boolean`/`date`/`number`/`objectId`/
+`uuid` (the BSON type) fields, not plain strings.
 
 ### Related Work
 
