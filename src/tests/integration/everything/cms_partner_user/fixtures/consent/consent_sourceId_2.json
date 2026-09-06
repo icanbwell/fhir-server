@@ -21,7 +21,7 @@
   "performer": [{ "reference": "Patient/person.dc2dd384-7258-5c0f-87cb-4b8f0499a01d" }],
   "provision": {
     "type": "permit",
-    "period": { "start": "2026-03-04T15:48:47.679Z", "end": "2026-09-04T14:48:47.679Z" },
+    "period": { "start": "2026-03-04T15:48:47.679Z", "end": "2031-09-04T14:48:47.679Z" },
     "actor": [
       {
         "reference": { "reference": "Patient/person.9fc1f393-d33e-491a-8e58-9d3065f24d05" },
