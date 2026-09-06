@@ -155,16 +155,18 @@ shape the index can't represent.
 ### Proposed Solution
 
 **New component — `AtlasSearchQueryBuilder`** (parallel to `person-matching-service`'s
-`AtlasSearchStrategy`, and reusing the same `should`/`filter` compound-construction approach):
+`AtlasSearchStrategy`, but see the AND/OR semantics note below for why its compound structure
+cannot be a direct port):
 
 - Input: `resourceType`, `parsedArgs`.
 - Returns `null` (signal to fall back) if:
   - `ConfigManager.isAtlasSearchEnabled(resourceType)` is false, or
   - any supplied search parameter isn't one of the index-mapped fields for that resource type, or
-  - an unsupported modifier is present (see Open Questions on `_sort`, `_include`, chaining).
-- Otherwise returns an Atlas `compound` query: `should` clauses for fuzzy `autocomplete` + `text`
-  matching on `name.family`/`name.given` and boosted `telecom` matches; `filter` clauses for exact
-  `identifier.value`/`gender`/`birthDate`.
+  - an unsupported modifier is present.
+- Otherwise returns an Atlas `compound` query: one `must` clause per distinct search parameter
+  (fuzzy `autocomplete`/`text` for `name.family`/`name.given`/`telecom`; exact `equals` for
+  `identifier.value`/`gender`/`birthDate`) — see the AND/OR semantics note immediately below for
+  why this is `must`-per-parameter, not the blocking service's `should`-for-everything shape.
 - Deliberately does **not** port `person-matching-service`'s `PRACTITIONER_ALLOWED_OWNERS` /
   `meta.security` owner-scope clause. That clause exists there because blocking has no other
   authorization layer. fhir-server already has one — `SecurityTagManager` /
@@ -197,7 +199,7 @@ shape the index can't represent.
 ```
 [
   { $search: { index: 'hybrid-full-text-search', compound } },
-  { $match: <the exact tenant/access-tag query constructQueryAsync already produces today> },
+  { $match: <the exact query constructQueryAsync already produces today> },
   { $sort }, { $skip }, { $limit }, { $project }
 ]
 ```
@@ -206,9 +208,17 @@ and execute it via the **existing** `DatabaseQueryManager.findUsingAggregationAs
 pipeline, extraInfo: { matchQueryProvided: true } })` escape hatch (already used for
 `matchQueryProvided`-style raw pipelines) — no new data-layer plumbing needed.
 
-`$match` (tenant/access-tag filtering, produced by the same code path as today — unmodified)
-always runs **after** `$search` and **before** `$skip`/`$limit`, so paging and counts are
-computed against the security-filtered set, never against raw, unfiltered `$search` hits.
+**`$match` is the full, unmodified query — search-parameter filters and tenant/access-tag
+filters together, exactly as `constructQueryAsync` builds them today, in the same combined
+object.** This is deliberate, not an oversight: `constructQueryAsync` has no seam that separates
+"tenant/access-tag portion" from "search-param portion" — `securityTagManager` ANDs security tags
+onto the same query object `searchQueryBuilder` already populated with the FHIR search filters.
+Tenant/access-tag checks are mandatory on every FHIR server call, full stop, and this design never
+weakens that: `$match` always runs **after** `$search` and **before** `$skip`/`$limit`, so paging
+and counts are computed against the fully-filtered set, never against raw, unfiltered `$search`
+hits. The direct consequence — Atlas hits are intersected with, not merged into, today's existing
+filter — is discussed under Consequences below; it is an accepted tradeoff, not a bug to fix by
+splitting `$match` later (see Decision Log #6).
 
 > **Flag for adversarial review (`review.md` §A):** this reorders *where in the pipeline* security
 > filtering happens relative to relevance ranking, compared to today's single-filter `find()`.
@@ -271,8 +281,27 @@ existing `isTrue()` helper (`src/utils/isTrue.js`), default `false`:
 
 ## Consequences
 
-- Patient/Person/Practitioner name/identifier/gender/birthDate/telecom search gets indexed,
-  fuzzy/typo-tolerant, relevance-ranked matching where enabled, without new infrastructure.
+- **This is a performance/precision optimization on a narrow exact-match field set, not a
+  broader-recall feature.** Earlier drafts of this ADR claimed fuzzy `autocomplete`/`text`
+  matching could return a "broader, differently-ranked result set than today's exact/regex
+  matching." That claim doesn't hold given the design above: because `$match` always re-applies
+  the full existing query (search-param filters *and* tenant/access tags, combined — see the
+  Hook Point section), every result is `(Atlas $search hits) ∩ (today's exact filter) ∩
+  (tenant/access tags)`. That intersection can only ever be a subset of what today's `find()`
+  already returns for the same query — never broader, and no typo-tolerant recall actually
+  reaches the caller. What this *does* deliver: indexed, relevance-scored candidate retrieval on
+  `name`/`identifier`/`gender`/`birthDate`/`telecom` in place of the current unindexed `contains`
+  regex, which is a real perf/precision win for exact-shaped queries at scale. **Decision:
+  tenant/access-tag checks are mandatory on every FHIR server call and are never weakened or
+  split out to let Atlas hits through un-narrowed — Atlas is accepted as a best-effort
+  performance layer under that constraint, not a recall-expanding feature** (see Decision Log
+  #6). Treat real fuzzy/typo-tolerant search as a separate, future initiative with its own design
+  and security review, not something this change delivers.
+- **Silent under-return on index lag (accepted):** because results are an intersection, an
+  eventually-consistent or lagging Atlas index (owned by a different service, see below) can
+  make a just-written resource briefly invisible to search — fewer results than today, with no
+  error and no visible signal. **Decision: accepted silently as a best-effort tradeoff, no
+  additional logging/metric added for this** (see Decision Log #7).
 - **Cross-repo ownership risk (accepted):** fhir-server becomes a second, implicit consumer of an
   index it doesn't provision or version. If `person-matching-service` changes the index's field
   mapping, renames it, or drops it, fhir-server's Atlas path fails closed (falls back
@@ -280,11 +309,6 @@ existing `isTrue()` helper (`src/utils/isTrue.js`), default `false`:
   perspective, until someone checks logs. **Decision: accepted as-is, no coordination mechanism
   being set up now** (see Decision Log #4) — the automatic fallback is judged sufficient
   mitigation on its own.
-- **Behavior change, not just performance:** fuzzy `autocomplete`/`text` matching can return a
-  broader, differently-ranked result set than today's exact/regex matching for the same query.
-  **Decision: this is intentional and applies transparently to all eligible queries once a
-  resource type's flag is on** (no per-request opt-in), provided the compound builder preserves
-  FHIR AND/OR semantics as specified above (see Decision Log #1).
 - Adds one more per-resource-type env var family to track (`ATLAS_SEARCH_ENABLED_*`), consistent
   with the existing `ACCESS_TAGS_INDEXED_*` pattern.
 
@@ -299,6 +323,13 @@ Resolved during design review (2026-09-04):
 | 3 | Does GraphQL construct Patient/Person/Practitioner queries independently of `SearchManager`? | No — verified in code. Both `src/graphql/dataSource.js` and `src/graphqlv2/dataSource.js` delegate through `SearchBundleOperation.searchBundleAsync` to `SearchManager.constructQueryAsync`/`getCursorForQueryAsync`, the same shared path REST uses. No special-casing needed. |
 | 4 | What's the coordination mechanism with `person-matching-service`'s owners for index changes? | None being set up now — accepted risk; automatic fallback on any Atlas error is the mitigation. |
 | 5 | Does this need a formal EA Tech Design Review before implementation? | No. |
+
+Resolved after implementation, during final review (2026-09-06):
+
+| # | Question | Resolution |
+|---|---|---|
+| 6 | The implementation's `$match` re-applies the full query (search filters + tenant tags combined), so results are always a subset of today's — never the "broader, fuzzy-matched" results this ADR originally claimed. Accept as intersection-only, or redesign to split `$match` and actually deliver broader/fuzzy recall? | Accept as intersection-only. Tenant/access-tag checks are mandatory on every FHIR server call, full stop — splitting `$match` to let Atlas hits through un-narrowed would reopen exactly the "silently dropped filter" risk this ADR rejected Option 1 over, on a resource type explicitly flagged as security-sensitive in CLAUDE.md. This ADR's Consequences section is corrected accordingly. Real fuzzy/typo-tolerant search remains unsolved and is left as a candidate for a future, separately-reviewed initiative. |
+| 7 | Given the intersection means an eventually-consistent/lagging Atlas index can silently under-return results, should that be observable (a log line or metric), or accepted silently? | Accepted silently — it's a best-effort performance optimization, and a brief staleness window on a newly-written resource is judged an acceptable tradeoff for the perf gain, consistent with how any other eventually-consistent dependency in this system is treated. No new logging/metric added for this specifically. |
 
 ## Success Criteria
 
