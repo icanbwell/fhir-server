@@ -24,6 +24,10 @@ module.exports = {
     ],
     testPathIgnorePatterns: [
         '<rootDir>/src/tests/integration/performance/',
+        // Has its own dedicated config (jest.atlasSearch.config.js) -- needs a real Atlas
+        // Search deployment (mongodb-atlas-local), not this suite's MongoMemoryReplSet, which
+        // has no $search support at all.
+        '<rootDir>/src/tests/integration/atlasSearch/',
         '<rootDir>/.claude/',
         '<rootDir>/src/tests/unit/'
     ],
