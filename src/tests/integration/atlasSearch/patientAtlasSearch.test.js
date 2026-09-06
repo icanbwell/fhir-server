@@ -16,6 +16,7 @@ jest.mock('../../../operations/common/logging', () => {
 const { createAllAtlasSearchIndexesAsync } = require('../../../admin/scripts/atlasSearchIndexHelper');
 const patientSmithJohn = require('./fixtures/patientSmithJohn.json');
 const patientSmithJane = require('./fixtures/patientSmithJane.json');
+const patientSmithJohnOtherTenant = require('./fixtures/patientSmithJohnOtherTenant.json');
 
 const {
     commonBeforeEach,
@@ -73,17 +74,26 @@ async function recreateAtlasSearchIndexesAsync () {
  * @param {object} headers
  * @returns {Promise<import('supertest').Response>}
  */
-async function searchUntilNonEmptyAsync (request, headers) {
+async function searchUntilAsync (request, headers, predicate) {
     const deadline = Date.now() + POLL_TIMEOUT_MS;
     let lastResp;
     while (Date.now() < deadline) {
         lastResp = await request.get(SEARCH_URL).set(headers);
-        if (lastResp.body.entry && lastResp.body.entry.length > 0) {
+        if (predicate(lastResp)) {
             return lastResp;
         }
         await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
     }
     return lastResp;
+}
+
+/**
+ * @param {import('supertest').Test} request
+ * @param {object} headers
+ * @returns {Promise<import('supertest').Response>}
+ */
+async function searchUntilNonEmptyAsync (request, headers) {
+    return searchUntilAsync(request, headers, (resp) => resp.body.entry && resp.body.entry.length > 0);
 }
 
 describe('Atlas Search: Patient (real mongodb-atlas-local)', () => {
@@ -135,6 +145,51 @@ describe('Atlas Search: Patient (real mongodb-atlas-local)', () => {
 
         // Distinguishes "Atlas actually ran" from "silently fell back" -- both produce this
         // exact same correct result by design, so this is the only way to tell them apart.
+        expect(mockLogWarn).not.toHaveBeenCalledWith(
+            expect.stringContaining('Atlas $search pipeline failed'),
+            expect.anything()
+        );
+    });
+
+    test('does not leak another tenant\'s Atlas-matched Patient to a tenant-scoped search', async () => {
+        // AtlasSearchQueryBuilder's $search compound is built purely from the caller's search
+        // parameters -- it has no tenant/access-tag awareness at all (see
+        // atlasSearchQueryBuilder.js). The *only* thing keeping a cross-tenant Atlas hit out of
+        // the response is the trailing $match re-applying the full tenant-scoped `query` object
+        // that constructQueryAsync already builds today. That is a single point of failure this
+        // test exists to prove against a real Atlas engine and a real tenant-scoped token, not
+        // a mocked query object (see searchManager.test.js:634, which only proves the plumbing
+        // "whatever query object is passed in gets applied as $match").
+        process.env.ATLAS_SEARCH_ENABLED_PATIENT = 'true';
+        const request = await createTestRequest();
+
+        let resp = await request
+            .post('/4_0_0/Patient/$merge')
+            .send(patientSmithJohn)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Patient/$merge')
+            .send(patientSmithJohnOtherTenant)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // Same family+given as patientSmithJohn, so it textually matches the identical $search
+        // compound and would come back from Atlas -- but is tagged access/healthsystem2, not
+        // access/healthsystem1.
+        const tenant1Headers = getHeaders('user/*.read access/healthsystem1.*');
+
+        resp = await searchUntilAsync(
+            request,
+            tenant1Headers,
+            (r) => r.body.entry && r.body.entry.length > 0
+        );
+
+        expect(resp.status).toBe(200);
+        const ids = resp.body.entry.map((e) => e.resource.id);
+        expect(ids).toEqual(['atlas-search-smith-john']);
+
         expect(mockLogWarn).not.toHaveBeenCalledWith(
             expect.stringContaining('Atlas $search pipeline failed'),
             expect.anything()
