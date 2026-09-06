@@ -1360,20 +1360,38 @@ git commit -m "Compute _total=accurate via a \$count pipeline under the Atlas Se
 ## Manual / follow-up verification (not automated in CI)
 
 MongoDB Memory Server (used by `make tests`) does not run Atlas — there is no `$search` stage
-available in the test database, so nothing above can be integration-tested against a real index.
-Everything in this plan is unit-tested against mocked `DatabaseQueryManager`/cursor objects, which
-verifies the pipeline shape and fallback behavior but not actual Atlas relevance/ranking. Before
-enabling any `ATLAS_SEARCH_ENABLED_*` flag in an environment with real traffic:
+available in the automated test database, so nothing above is integration-tested by Jest against a
+real index. Everything in this plan is unit-tested against mocked `DatabaseQueryManager`/cursor
+objects, which verifies the pipeline shape and fallback behavior but not actual Atlas
+relevance/ranking.
 
-- [ ] Manually verify against a real Atlas-backed dev/staging Mongo cluster that has the
-      `hybrid-full-text-search` index on `Patient_4_0_0`/`Person_4_0_0`/`Practitioner_4_0_0`
-      (coordinate with whoever owns the index in `person-matching-service` to get read access to
-      a cluster that has it — see the ADR's accepted cross-repo-ownership risk).
+**Update:** `docker-compose.yml`'s `mongo` service now runs `mongodb/mongodb-atlas-local:8.2.5`
+instead of plain `mongo:8.0.15` — a real local Atlas Search engine (`mongot`), not a mock. This
+makes the manual checks below actually runnable via `make up` (once port/isolation conflicts with
+any other running worktree are resolved), without needing a real hosted Atlas dev/staging cluster
+for basic functional verification. Confirmed standalone (outside `make up`, to avoid a port
+conflict with another active worktree on this machine): pulled the image, created a real Atlas
+Search index with the same `compound`/`must`/`should`/`autocomplete`/`fuzzy` shape
+`AtlasSearchQueryBuilder` produces, and it correctly fuzzy-matched `"Smit"` to `"Smith"`. Still
+worth validating against a real hosted Atlas cluster before production traffic, since local Atlas
+and hosted Atlas can differ in version/behavior/performance characteristics — but the basic
+correctness checks below no longer require coordinating cluster access first.
+
+Before enabling any `ATLAS_SEARCH_ENABLED_*` flag in an environment with real traffic:
+
+- [ ] Create the `hybrid-full-text-search` index on `Patient_4_0_0`/`Person_4_0_0`/
+      `Practitioner_4_0_0` against the local `mongodb-atlas-local` instance (via `make up`), using
+      the mapping in the ADR's Appendix, then run these checks locally:
   - `GET /4_0_0/Patient?family=Smith&given=John` returns the expected AND-combined result set.
   - `GET /4_0_0/Patient?family=Smith,Jones` returns the OR-combined result set.
   - A request outside the eligible field set (e.g. `?address-city=Boston`) still returns identical
     results to today (fallback path), confirmed by diffing against the flag turned off.
   - Killing/renaming the index (or testing against a cluster where it doesn't exist) still returns
     correct results via automatic fallback, with a `logWarn` line in the logs.
+- [ ] Additionally repeat the above against a real Atlas-backed dev/staging Mongo cluster before
+      enabling in an environment with real traffic (coordinate with whoever owns the index in
+      `person-matching-service` for read access — see the ADR's accepted cross-repo-ownership
+      risk), specifically to catch any local-vs-hosted-Atlas behavioral differences local testing
+      can't surface.
 - [ ] Confirm with whoever owns `person-matching-service`'s index that fhir-server reading from it
       is expected and won't be surprised by unrelated query volume.
