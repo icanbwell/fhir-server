@@ -96,7 +96,7 @@ const buildConsentFixture = ({
         type: provisionType,
         period: {
             start: '2026-03-04T15:48:47.679Z',
-            end: '2026-09-04T14:48:47.679Z'
+            end: '2031-09-04T14:48:47.679Z'
         },
         actor: [
             {
