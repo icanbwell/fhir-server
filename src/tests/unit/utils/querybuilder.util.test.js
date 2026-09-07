@@ -366,6 +366,12 @@ describe('querybuilder.util', () => {
             expect(result['vQ.value']).toHaveProperty('$exists', true);
             expect(result['vQ.value'].$not).toHaveProperty('$gte');
         });
+
+        test('unescapes an escaped pipe within the system portion', () => {
+            const result = quantityQueryBuilder({ target: '5.4|http://unitsofmeasure\\|org|mg', field: 'vQ' });
+            expect(result['vQ.system']).toBe('http://unitsofmeasure|org');
+            expect(result['vQ.code']).toBe('mg');
+        });
     });
 
     // ========== dateQueryBuilder (largest method) ==========
@@ -595,6 +601,12 @@ describe('querybuilder.util', () => {
         test('required overrides url', () => {
             const result = extensionQueryBuilder({ target: 'http://x|val', type: 'valueString', field: 'extension', required: 'http://override', resourceType: 'Patient' });
             expect(result.extension.$elemMatch.url).toBe('http://override');
+        });
+
+        test('unescapes an escaped pipe within the url portion', () => {
+            const result = extensionQueryBuilder({ target: 'http://x\\|y|val', type: 'valueString', field: 'extension', resourceType: 'Patient' });
+            expect(result.extension.$elemMatch.url).toBe('http://x|y');
+            expect(result.extension.$elemMatch.valueString).toBe('val');
         });
     });
 });

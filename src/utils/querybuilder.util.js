@@ -467,12 +467,16 @@ const quantityQueryBuilder = function ({ target, field }) {
         return qB;
     }
     // split by the two pipes
-    let [num, system, code] = target.split('|');
+    let [num, system, code] = splitUnescaped(target, '|');
 
     if (system) {
+        // num is parsed as a number below (Number(strNum)/isNaN(num)) and never legitimately
+        // contains an escape sequence, so it's deliberately left un-unescaped.
+        system = unescapeSearchValue(system);
         qB[`${field}.system`] = system;
     }
     if (code) {
+        code = unescapeSearchValue(code);
         qB[`${field}.code`] = code;
     }
 
@@ -1292,7 +1296,9 @@ const extensionQueryBuilder = function ({ target, type, field, required, exists_
     }
 
     if (typeof target === 'string' && target.includes('|')) {
-        [url, value] = target.split('|');
+        // splitUnescaped only, never unescapeSearchValue here -- `value` may still need its own
+        // comma-split below, which must see any escaped comma still escaped.
+        [url, value] = splitUnescaped(target, '|');
     } else {
         value = target;
     }
@@ -1303,13 +1309,14 @@ const extensionQueryBuilder = function ({ target, type, field, required, exists_
 
     const queryBuilderElementMatch = {};
     if (url) {
+        url = unescapeSearchValue(url);
         queryBuilder[`${field}.url`] = url;
         queryBuilderElementMatch.url = url;
     }
 
     if (value) {
-        if (typeof value === 'string' && value.includes(',')) {
-            const values = value.split(',');
+        if (typeof value === 'string' && splitUnescaped(value, ',').length > 1) {
+            const values = splitUnescaped(value, ',').map(unescapeSearchValue);
             queryBuilder[`${field}.${type}`] = {
                 $in: values
             };
@@ -1317,6 +1324,7 @@ const extensionQueryBuilder = function ({ target, type, field, required, exists_
                 $in: values
             };
         } else {
+            value = typeof value === 'string' ? unescapeSearchValue(value) : value;
             queryBuilder[`${field}.${type}`] = value;
             queryBuilderElementMatch[`${type}`] = value;
         }
