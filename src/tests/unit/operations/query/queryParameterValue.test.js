@@ -38,6 +38,28 @@ describe('QueryParameterValue', () => {
             const qpv = new QueryParameterValue({ value: 'a,b', operator: '$and' });
             expect(qpv.operator).toBe('$or');
         });
+
+        test('does not set operator to $or when the only comma is escaped', () => {
+            const qpv = new QueryParameterValue({ value: 'Smith\\, John' });
+            expect(qpv.operator).toBe('$and');
+        });
+
+        test('still sets operator to $or when an unescaped comma follows an escaped one', () => {
+            const qpv = new QueryParameterValue({ value: 'Smith\\, John,Patient/2' });
+            expect(qpv.operator).toBe('$or');
+        });
+    });
+
+    describe('values (escaping)', () => {
+        test('keeps an escaped comma inside a single value', () => {
+            const qpv = new QueryParameterValue({ value: 'Smith\\, John' });
+            expect(qpv.values).toEqual(['Smith\\, John']);
+        });
+
+        test('splits on an unescaped comma after an escaped one', () => {
+            const qpv = new QueryParameterValue({ value: 'Smith\\, John,Patient/2' });
+            expect(qpv.values).toEqual(['Smith\\, John', 'Patient/2']);
+        });
     });
 
     describe('values getter', () => {
