@@ -160,10 +160,14 @@ const tokenQueryBuilder = function ({ target, type, field, required, exists_flag
         return queryBuilder;
     }
 
-    if (typeof target === 'string' && target.includes('|')) {
+    const targetPipeParts = typeof target === 'string' ? splitUnescaped(target, '|') : null;
+    if (targetPipeParts && targetPipeParts.length > 1) {
         // splitUnescaped only, never unescapeSearchValue here -- `value` may still need its own
-        // comma-split below, which must see any escaped comma still escaped.
-        [system, value] = splitUnescaped(target, '|');
+        // comma-split below, which must see any escaped comma still escaped. Gating on the
+        // split's own length (not the escape-oblivious target.includes('|')) matters: a
+        // value-only target whose only '|' is escaped (e.g. 'a\|b', meaning literal value
+        // 'a|b') must fall into the value-only branch below, not be mistaken for system|value.
+        [system, value] = targetPipeParts;
     } else {
         value = target;
     }
@@ -242,10 +246,14 @@ const tokenQueryContainsBuilder = function ({ target, type, field, required, exi
         return queryBuilder;
     }
 
-    if (typeof target === 'string' && target.includes('|')) {
+    const targetPipeParts = typeof target === 'string' ? splitUnescaped(target, '|') : null;
+    if (targetPipeParts && targetPipeParts.length > 1) {
         // splitUnescaped only, never unescapeSearchValue here -- `value` may still need its own
-        // comma-split below, which must see any escaped comma still escaped.
-        [system, value] = splitUnescaped(target, '|');
+        // comma-split below, which must see any escaped comma still escaped. Gating on the
+        // split's own length (not the escape-oblivious target.includes('|')) matters: a
+        // value-only target whose only '|' is escaped (e.g. 'a\|b', meaning literal value
+        // 'a|b') must fall into the value-only branch below, not be mistaken for system|value.
+        [system, value] = targetPipeParts;
     } else {
         value = target;
     }
@@ -1297,10 +1305,14 @@ const extensionQueryBuilder = function ({ target, type, field, required, exists_
         return queryBuilder;
     }
 
-    if (typeof target === 'string' && target.includes('|')) {
+    const targetPipeParts = typeof target === 'string' ? splitUnescaped(target, '|') : null;
+    if (targetPipeParts && targetPipeParts.length > 1) {
         // splitUnescaped only, never unescapeSearchValue here -- `value` may still need its own
-        // comma-split below, which must see any escaped comma still escaped.
-        [url, value] = splitUnescaped(target, '|');
+        // comma-split below, which must see any escaped comma still escaped. Gating on the
+        // split's own length (not the escape-oblivious target.includes('|')) matters: a
+        // value-only target whose only '|' is escaped (e.g. 'a\|b', meaning literal value
+        // 'a|b') must fall into the value-only branch below, not be mistaken for url|value.
+        [url, value] = targetPipeParts;
     } else {
         value = target;
     }

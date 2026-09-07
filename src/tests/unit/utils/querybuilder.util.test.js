@@ -183,6 +183,14 @@ describe('querybuilder.util', () => {
             expect(result.coding.$elemMatch.system).toBe('sys');
             expect(result.coding.$elemMatch.code).toBe('a,b');
         });
+
+        test('a value-only target whose only pipe is escaped is not mistaken for system|value', () => {
+            // 'a\|b' means the literal value 'a|b' with no system -- must NOT be split into
+            // system='a|b'/value=undefined just because the raw string contains a '|' character.
+            const result = tokenQueryBuilder({ target: 'a\\|b', type: 'code', field: 'coding', resourceType: 'Observation' });
+            expect(result['coding.code']).toBe('a|b');
+            expect(result['coding.system']).toBeUndefined();
+        });
     });
 
     // ========== tokenQueryContainsBuilder ==========
@@ -213,6 +221,12 @@ describe('querybuilder.util', () => {
         test('does not split an escaped comma within the value portion', () => {
             const result = tokenQueryContainsBuilder({ target: 'a\\,b', type: 'value', field: 'identifier' });
             expect(result['identifier.value'].$regex).toBe('a,b');
+        });
+
+        test('a value-only target whose only pipe is escaped is not mistaken for system|value', () => {
+            const result = tokenQueryContainsBuilder({ target: 'a\\|b', type: 'value', field: 'identifier' });
+            expect(result['identifier.value'].$regex).toBe('a\\|b');
+            expect(result['identifier.system']).toBeUndefined();
         });
     });
 
@@ -622,6 +636,12 @@ describe('querybuilder.util', () => {
             const result = extensionQueryBuilder({ target: 'http://x\\|y|val', type: 'valueString', field: 'extension', resourceType: 'Patient' });
             expect(result.extension.$elemMatch.url).toBe('http://x|y');
             expect(result.extension.$elemMatch.valueString).toBe('val');
+        });
+
+        test('a value-only target whose only pipe is escaped is not mistaken for url|value', () => {
+            const result = extensionQueryBuilder({ target: 'a\\|b', type: 'valueString', field: 'extension', resourceType: 'Patient' });
+            expect(result['extension.valueString']).toBe('a|b');
+            expect(result['extension.url']).toBeUndefined();
         });
     });
 });
