@@ -166,6 +166,18 @@ describe('querybuilder.util', () => {
             expect(result.coding.$elemMatch.system).toBe('sys');
             expect(result.coding.$elemMatch.value).toBe('val');
         });
+
+        test('unescapes an escaped pipe within the system portion', () => {
+            const result = tokenQueryBuilder({ target: 'http://x\\|y|actual-code', type: 'code', field: 'coding', resourceType: 'Observation' });
+            expect(result.coding.$elemMatch.system).toBe('http://x|y');
+            expect(result.coding.$elemMatch.code).toBe('actual-code');
+        });
+
+        test('unescapes an escaped comma within the value portion (single value, not split)', () => {
+            const result = tokenQueryBuilder({ target: 'sys|a\\,b', type: 'code', field: 'coding', resourceType: 'Observation' });
+            expect(result.coding.$elemMatch.system).toBe('sys');
+            expect(result.coding.$elemMatch.code).toBe('a,b');
+        });
     });
 
     // ========== tokenQueryContainsBuilder ==========
@@ -186,6 +198,17 @@ describe('querybuilder.util', () => {
             expect(result.identifier.$elemMatch.system).toHaveProperty('$regex');
             expect(result.identifier.$elemMatch.value).toHaveProperty('$regex');
         });
+
+        test('unescapes an escaped pipe within the system portion, not splitting on it', () => {
+            const result = tokenQueryContainsBuilder({ target: 'http://x\\|y|actual', type: 'value', field: 'identifier' });
+            expect(result.identifier.$elemMatch.system.$regex).toBe('http://x\\|y');
+            expect(result.identifier.$elemMatch.value.$regex).toBe('actual');
+        });
+
+        test('does not split an escaped comma within the value portion', () => {
+            const result = tokenQueryContainsBuilder({ target: 'a\\,b', type: 'value', field: 'identifier' });
+            expect(result['identifier.value'].$regex).toBe('a,b');
+        });
     });
 
     // ========== tokenIdentifierOfTypeQueryBuilder ==========
@@ -202,6 +225,13 @@ describe('querybuilder.util', () => {
             expect(result.$and[0].identifier.$elemMatch['type.coding.system']).toBe('sys');
             expect(result.$and[0].identifier.$elemMatch['type.coding.code']).toBe('code');
             expect(result.$and[1]['identifier.value']).toBe('val');
+        });
+
+        test('unescapes an escaped pipe within one of the three parts', () => {
+            const result = tokenIdentifierOfTypeQueryBuilder({ target: 'http://x\\|y|SB|123456', field: 'identifier' });
+            expect(result.$and[0].identifier.$elemMatch['type.coding.system']).toBe('http://x|y');
+            expect(result.$and[0].identifier.$elemMatch['type.coding.code']).toBe('SB');
+            expect(result.$and[1]['identifier.value']).toBe('123456');
         });
     });
 
