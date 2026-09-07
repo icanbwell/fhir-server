@@ -516,6 +516,14 @@ class SearchManager {
          * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
          */
         let cursorQuery;
+        /**
+         * Tracks whether the Atlas $search path actually served this request's cursor, separate
+         * from the caller-provided atlasSearchCompound param -- an Atlas failure falls back to
+         * the standard query path, at which point index-hint and totals-count handling below must
+         * follow the standard path too, even though the caller still passed a non-null compound.
+         * @type {{must: object[]}|null}
+         */
+        let effectiveAtlasSearchCompound = atlasSearchCompound;
         if (atlasSearchCompound) {
             try {
                 // Native sort requires defaultSortId to be mapped as a sortable (token-type)
@@ -569,7 +577,7 @@ class SearchManager {
                 // _total=accurate handling must use the standard count path too -- otherwise it
                 // would compute the total via the Atlas $count pipeline (a possibly-smaller
                 // |atlas ∩ query| count) while describing a page that came from `query` alone.
-                atlasSearchCompound = null;
+                effectiveAtlasSearchCompound = null;
             }
         } else if (useAggregationPipeline) {
             // Projection arguement to be used for aggregation query
@@ -603,7 +611,7 @@ class SearchManager {
 
         // find columns being queried and match them to an index
         // noinspection JSUnresolvedReference
-        if (!atlasSearchCompound && (isTrue(process.env.SET_INDEX_HINTS) || parsedArgs._setIndexHint)) {
+        if (!effectiveAtlasSearchCompound && (isTrue(process.env.SET_INDEX_HINTS) || parsedArgs._setIndexHint)) {
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
                 { resourceType, base_version });
             const collectionName = resourceLocator.getCollectionName();
@@ -631,7 +639,7 @@ class SearchManager {
                     query,
                     maxMongoTimeMS,
                     extraInfo,
-                    atlasSearchCompound
+                    atlasSearchCompound: effectiveAtlasSearchCompound
                 });
         }
 
