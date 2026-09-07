@@ -4,6 +4,7 @@ const { QueryParameterValue } = require('./queryParameterValue');
 const { SearchParameterDefinition } = require('../../searchParameters/searchParameterTypes');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { removeNull } = require('../../utils/nullRemover');
+const { splitUnescaped } = require('../../utils/searchValueEscaping');
 
 /**
  * @classdesc This class holds the parsed structure for an arg on the url
@@ -85,7 +86,7 @@ class ParsedArgsItem {
         const modifiedQueryParameterValues = [];
         this.modifiers.forEach(modifier => {
             if (this.propertyObj.target && this.propertyObj.target.includes(modifier) && this.queryParameterValue.value) {
-                const queryParameterValues = this.queryParameterValue.value.split(',');
+                const queryParameterValues = splitUnescaped(this.queryParameterValue.value, ',');
                 queryParameterValues.forEach(value => {
                     if (value && value.includes('/')) {
                         modifiedQueryParameterValues.push(`${value}`);
