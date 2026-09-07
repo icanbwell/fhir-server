@@ -58,6 +58,11 @@ describe('querybuilder.util', () => {
             const result = stringQueryBuilder({ target: 'ABC' });
             expect(result.$regex.flags).toContain('i');
         });
+
+        test('unescapes an escaped comma so a literal comma in the value actually matches', () => {
+            const result = stringQueryBuilder({ target: 'Foo\\, Bar' });
+            expect(result.$regex.test('Foo, Bar')).toBe(true);
+        });
     });
 
     // ========== addressQueryBuilder ==========
@@ -260,6 +265,16 @@ describe('querybuilder.util', () => {
         test('boolean target is set directly', () => {
             const result = exactMatchQueryBuilder({ target: true, field: 'active' });
             expect(result).toEqual({ active: true });
+        });
+
+        test('does not split an escaped comma, and unescapes it in the single-value result', () => {
+            const result = exactMatchQueryBuilder({ target: 'Foo\\, Bar', field: 'title' });
+            expect(result).toEqual({ title: 'Foo, Bar' });
+        });
+
+        test('unescapes each value of a real comma-separated $in list', () => {
+            const result = exactMatchQueryBuilder({ target: 'a\\,b,c', field: 'title' });
+            expect(result.title).toEqual({ $in: ['a,b', 'c'] });
         });
     });
 

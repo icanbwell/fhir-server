@@ -18,6 +18,7 @@ const stringQueryBuilder = function ({ target }) {
     if (typeof target !== 'string') {
         return {};
     }
+    target = unescapeSearchValue(target);
     let t2 = target.replace(/[\\(\\)\\-\\_\\+\\=\\/\\.]/g, '\\$&');
     return { $regex: new RegExp('^' + escapeRegExp(t2), 'i') };
 };
@@ -351,15 +352,16 @@ const exactMatchQueryBuilder = function ({ target, field, exists_flag }) {
         return queryBuilder;
     }
 
-    const value = target;
+    let value = target;
 
     if (value !== undefined) {
-        if (typeof value === 'string' && value.includes(',')) {
-            const values = value.split(',');
+        if (typeof value === 'string' && splitUnescaped(value, ',').length > 1) {
+            const values = splitUnescaped(value, ',').map(unescapeSearchValue);
             queryBuilder[`${field}`] = {
                 $in: values
             };
         } else {
+            value = typeof value === 'string' ? unescapeSearchValue(value) : value;
             queryBuilder[`${field}`] = value;
         }
     }
