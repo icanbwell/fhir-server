@@ -17,6 +17,7 @@ const { FilterById } = require('../../../operations/query/filters/id');
 const { FilterParameters } = require('../../../operations/query/filters/filterParameters');
 const { FieldMapper } = require('../../../operations/query/filters/fieldMapper');
 const { fhirBundleOutputSchema } = require('../../../mcp/fhirBundleOutputSchema');
+const { RethrownError } = require('../../../utils/rethrownError');
 
 function createPrototypedMock (RealClass) {
     return Object.create(RealClass.prototype);
@@ -281,6 +282,42 @@ describe('McpToolHandler', () => {
             const operationOutcome = JSON.parse(result.content[0].text);
             expect(operationOutcome.issue[0].details.text).toBe('Internal Server Error');
             expect(result.content[0].text).not.toContain('boom');
+        });
+
+        test('surfaces a Mongo query-timeout (MaxTimeMSExpired) as FHIR IssueType "timeout", not generic "internal"', async () => {
+            const { handler, searchBundleOperation } = createHandler();
+            jestGlobal.spyOn(httpContext, 'get').mockReturnValue({ user: 'test-user' });
+            // Mirrors the real wrapping chain (see DCON-5311): mongoStreamReader.js's
+            // readCursorAsync wraps the raw Mongo error in a RethrownError, and searchManager.js
+            // wraps that again with a query-shaped message. RethrownError.original_error resolves
+            // through both layers to the innermost error, which is what isMongoTimeoutError checks.
+            const rawMongoTimeout = new Error(
+                'Executor error during find command: fhir.Patient_4_0_0 :: caused by :: operation exceeded time limit'
+            );
+            rawMongoTimeout.code = 50;
+            rawMongoTimeout.codeName = 'MaxTimeMSExpired';
+            const innerRethrown = new RethrownError({
+                message: rawMongoTimeout.message,
+                error: rawMongoTimeout,
+                source: 'readAsync'
+            });
+            const outerRethrown = new RethrownError({
+                message: 'Error reading resources for Patient with query: {"telecom.value":"redacted@example.com"}',
+                error: innerRethrown
+            });
+            searchBundleOperation.searchBundleAsync.mockRejectedValue(outerRethrown);
+
+            const result = await handler.handleSearchToolCall({ resourceType: 'Patient', args: {} });
+
+            expect(result.isError).toBe(true);
+            const operationOutcome = JSON.parse(result.content[0].text);
+            expect(operationOutcome.issue[0].code).toBe('timeout');
+            expect(operationOutcome.issue[0].details.text).toBe(
+                'The search timed out. Try narrowing your search criteria.'
+            );
+            // Still must not leak the wrapped error's query/PHI-adjacent details.
+            expect(result.content[0].text).not.toContain('redacted@example.com');
+            expect(result.content[0].text).not.toContain('operation exceeded time limit');
         });
     });
 

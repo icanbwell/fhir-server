@@ -5362,6 +5362,7 @@ __metadata:
     async-mutex: "npm:^0.5.0"
     aws-msk-iam-sasl-signer-js: "npm:^1.0.3"
     axios: "npm:^1.16.1"
+    bytes: "npm:^3.1.2"
     cloudevents: "npm:^10.0.0"
     compression: "npm:^1.8.1"
     content-type: "npm:^2.0.0"
@@ -5385,7 +5386,7 @@ __metadata:
     graphql-parse-resolve-info: "npm:^4.14.1"
     graphql-schema-linter: "npm:^3.0.1"
     helmet: "npm:^8.2.0"
-    hono: "npm:^4.13.1"
+    hono: "npm:^4.13.5"
     jest: "npm:^30.4.2"
     jest-diff: "npm:^30.4.1"
     jest-extended: "npm:^7.0.0"
@@ -7331,10 +7332,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hono@npm:^4.13.1":
-  version: 4.13.1
-  resolution: "hono@npm:4.13.1"
-  checksum: 10c0/83524961f806293464e6c3b31a7fd2ab8cd8e9cb66e65dea1fbbefb70744844c13b7409ed9b49b43e8543e5c0f1b851f2586fa759eea9da0b69503b58cd0d985
+"hono@npm:^4.13.5":
+  version: 4.13.5
+  resolution: "hono@npm:4.13.5"
+  checksum: 10c0/c4ec94e9d6fdefbdfc011b3f06a201ed134c38c8db77fb65ef7282ef445526ce188ce3f80a2f2638ad30d93bb2a03e43bb34ed254a82b8e82011e5d7e0dc02ba
   languageName: node
   linkType: hard
 
@@ -7507,9 +7508,9 @@ __metadata:
   linkType: hard
 
 "ip-address@npm:^10.1.1":
-  version: 10.4.0
-  resolution: "ip-address@npm:10.4.0"
-  checksum: 10c0/d7b0bd2624fd861afbae6e49036a9b56f9506eaff7ff38592b7b4492dd5c272b53f5356dc8cc019e318acf29a96c90a3d1af1df761960267d23efa96858270fa
+  version: 10.7.0
+  resolution: "ip-address@npm:10.7.0"
+  checksum: 10c0/bb6f514708b84ec75ad4d8156f3d571a5b8e592a15359386100f4f8d7366a4b7723d54b88a30d80b3f51ca5f4dee239e94ef4b53765b9c41a8ea46b421307d14
   languageName: node
   linkType: hard
 
