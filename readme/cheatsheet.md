@@ -208,6 +208,13 @@ A composite search parameter combines two or more related component values into 
 - Each part must be non-empty (a trailing or missing `$` part, e.g. `code-value-quantity=55284-4$`, returns a 400).
 - The `missing`, `contains`, `above`, `below`, `text`, `of-type`, and `exact` modifiers are not supported on composite parameters and return a 400 rather than silently producing an incorrect filter.
 - The same composite parameters are also available via [GraphQL](graphql.md) (e.g. `code_value_quantity: { value: "55284-4$ge140" }`) and via MCP tool calls (same `'$'`-joined string), with identical semantics.
+- If a component's own value needs to contain a literal `,`, `|`, or `$`, escape it with a
+  backslash (`\,`, `\|`, `\$`) per the FHIR spec's
+  [escaping rules](https://www.hl7.org/fhir/R4B/search.html#escaping) — e.g.
+  `code-value-quantity=http://example.org/sys\|extra|8480-6$ge140` searches for a token whose
+  system is literally `http://example.org/sys|extra`. This applies to every search parameter
+  type that uses `,`/`|` as a separator (token `system|code`, quantity `num|system|code`,
+  comma-separated OR values), not just composite parameters.
 
 FHIR specification: https://www.hl7.org/fhir/R4B/search.html#composite
 

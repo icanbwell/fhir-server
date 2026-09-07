@@ -1,4 +1,5 @@
 const { BadRequestError } = require('../../../utils/httpErrors');
+const { splitUnescaped } = require('../../../utils/searchValueEscaping');
 const { BaseFilter } = require('./baseFilter');
 const { FilterParameters } = require('./filterParameters');
 const { FieldMapper } = require('./fieldMapper');
@@ -73,7 +74,7 @@ class FilterByComposite extends BaseFilter {
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
     filterOneValue(value) {
-        const parts = value.split('$');
+        const parts = splitUnescaped(value, '$');
         if (parts.some((p) => !p || !p.trim())) {
             throw new BadRequestError(
                 new Error(

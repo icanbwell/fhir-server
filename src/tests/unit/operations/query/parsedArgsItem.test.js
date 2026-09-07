@@ -151,6 +151,16 @@ describe('ParsedArgsItem', () => {
             expect(item.queryParameterValue.value).toContain('Patient/456');
         });
 
+        test('does not split an escaped comma when applying a target modifier', () => {
+            const item = createParsedArgsItem({
+                value: 'Smith\\, John',
+                target: ['Patient'],
+                modifiers: ['Patient']
+            });
+
+            expect(item.queryParameterValue.value).toBe('Patient/Smith\\, John');
+        });
+
         test('does NOT prepend resourceType to values already containing a slash', () => {
             const item = createParsedArgsItem({
                 value: 'Practitioner/789,123',
