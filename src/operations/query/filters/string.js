@@ -1,4 +1,5 @@
 const { nameQueryBuilder, addressQueryBuilder, stringQueryBuilder } = require('../../../utils/querybuilder.util');
+const { unescapeSearchValue } = require('../../../utils/searchValueEscaping');
 const { BaseFilter } = require('./baseFilter');
 
 /**
@@ -22,7 +23,7 @@ class FilterByString extends BaseFilter {
             const ors = addressQueryBuilder({ target: value, useExactSearch: useExactSearch });
             return { $or: ors };
         } else {
-            return useExactSearch ? { [this.fieldMapper.getFieldName(field)]: value } : { [`${this.fieldMapper.getFieldName(field)}`]: stringQueryBuilder({ target: value }) };
+            return useExactSearch ? { [this.fieldMapper.getFieldName(field)]: unescapeSearchValue(value) } : { [`${this.fieldMapper.getFieldName(field)}`]: stringQueryBuilder({ target: value }) };
         }
     }
 }

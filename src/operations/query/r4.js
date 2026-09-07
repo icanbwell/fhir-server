@@ -1,4 +1,5 @@
 const { OPERATIONS: { DELETE }, RESOURCE_HIDDEN_TAG } = require('../../constants');
+const { BadRequestError } = require('../../utils/httpErrors');
 const { fhirFilterTypes } = require('./customQueries');
 const { FilterByString } = require('./filters/string');
 const { FilterByUri } = require('./filters/uri');
@@ -25,6 +26,7 @@ const { FilterByQuantity } = require('./filters/quantity');
 const { isTrue } = require('../../utils/isTrue');
 const { FilterByOfType } = require('./filters/ofType');
 const { FilterByNumber } = require('./filters/number');
+const { FilterByComposite, REJECTED_MODIFIERS } = require('./filters/composite');
 
 class R4SearchQueryCreator {
     /**
@@ -79,6 +81,15 @@ class R4SearchQueryCreator {
         let includesQuantityType = false;
         for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs.parsedArgItems) {
             if (parsedArg.queryParameterValue && parsedArg.propertyObj) {
+                // reject unsupported modifiers on composite search parameters before
+                // constructing FieldMapper/FilterParameters, which this error path never uses
+                if (parsedArg.propertyObj.type === fhirFilterTypes.composite &&
+                    REJECTED_MODIFIERS.some(m => parsedArg.modifiers.includes(m))) {
+                    throw new BadRequestError(new Error(
+                        `Modifiers [${REJECTED_MODIFIERS.join(', ')}] are not supported on composite search parameters (queryParameter=${parsedArg.queryParameter})`
+                    ));
+                }
+
                 /**
                  * @type {FieldMapper}
                  */
@@ -136,7 +147,10 @@ class R4SearchQueryCreator {
                 } else {
                     andSegments.forEach(q => totalAndSegments.push(q));
                 }
-                if (parsedArg.propertyObj.type === 'quantity') {
+                if (parsedArg.propertyObj.type === 'quantity' ||
+                    (parsedArg.propertyObj.type === fhirFilterTypes.composite &&
+                        parsedArg.propertyObj.scopes.some(scope =>
+                            scope.components.some(c => c.type === 'quantity')))) {
                     includesQuantityType = true;
                 }
             }
@@ -251,6 +265,9 @@ class R4SearchQueryCreator {
                     break;
                 case fhirFilterTypes.number:
                     andSegments = new FilterByNumber(filterParameters).filter();
+                    break;
+                case fhirFilterTypes.composite:
+                    andSegments = new FilterByComposite(filterParameters).filter();
                     break;
                 default:
                     throw new Error('Unknown type=' + propertyObj.type);

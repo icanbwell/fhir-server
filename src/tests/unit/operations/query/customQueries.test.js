@@ -17,6 +17,7 @@ describe('customQueries', () => {
             expect(fhirFilterTypes.canonical).toBe('canonical');
             expect(fhirFilterTypes.quantity).toBe('quantity');
             expect(fhirFilterTypes.number).toBe('number');
+            expect(fhirFilterTypes.composite).toBe('composite');
         });
 
         test('all filter type values are unique strings', () => {

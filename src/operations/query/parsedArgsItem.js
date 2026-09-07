@@ -4,6 +4,7 @@ const { QueryParameterValue } = require('./queryParameterValue');
 const { SearchParameterDefinition } = require('../../searchParameters/searchParameterTypes');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { removeNull } = require('../../utils/nullRemover');
+const { splitUnescaped } = require('../../utils/searchValueEscaping');
 
 /**
  * @classdesc This class holds the parsed structure for an arg on the url
@@ -85,7 +86,7 @@ class ParsedArgsItem {
         const modifiedQueryParameterValues = [];
         this.modifiers.forEach(modifier => {
             if (this.propertyObj.target && this.propertyObj.target.includes(modifier) && this.queryParameterValue.value) {
-                const queryParameterValues = this.queryParameterValue.value.split(',');
+                const queryParameterValues = splitUnescaped(this.queryParameterValue.value, ',');
                 queryParameterValues.forEach(value => {
                     if (value && value.includes('/')) {
                         modifiedQueryParameterValues.push(`${value}`);
@@ -97,6 +98,12 @@ class ParsedArgsItem {
         });
 
         if (modifiedQueryParameterValues.length) {
+            // .join() (plain ',') is not a true inverse of the escape-aware splitUnescaped()
+            // used above: if a value ended in an odd number of trailing backslashes, the comma
+            // this inserts would misread as escaped on the next split. Not fixed with proper
+            // escaping here because these values are always `${modifier}/${id}` or a bare id,
+            // and real FHIR ids can only contain [A-Za-z0-9-.] (REGEX.ID_FIELD, constants.js) --
+            // never a backslash -- so no real query can trigger this asymmetry.
             this.queryParameterValue = new QueryParameterValue({
                 value: modifiedQueryParameterValues.join(), operator: this.queryParameterValue.operator
             });
