@@ -160,6 +160,31 @@ describe('FilterByComposite', () => {
         expect(variantCondition.variant.$elemMatch.$and).toHaveLength(2);
     });
 
+    test('does not split an escaped $ within a component value', () => {
+        const component1 = new SearchParameterDefinition({
+            type: 'token',
+            field: 'code',
+            fieldType: 'CodeableConcept'
+        });
+        const component2 = new SearchParameterDefinition({
+            type: 'quantity',
+            field: 'valueQuantity'
+        });
+        const composite = makeComposite([{ components: [component1, component2] }]);
+        // 'a\$b' must stay one $-delimited part (unescaped to 'a$b' by tokenQueryBuilder), not
+        // get mis-split into ['a\\', 'b', 'ge140'] (3 parts against a 2-component composite,
+        // which would throw a mismatched-part-count BadRequestError instead).
+        const result = makeFilter(composite, { value: 'a\\$b$ge140' }).filter();
+        expect(result).toHaveLength(1);
+        const [
+            {
+                $and: [andSegments]
+            }
+        ] = result;
+        expect(JSON.stringify(andSegments)).toContain('a$b');
+        expect(JSON.stringify(andSegments)).not.toContain('a\\\\$b');
+    });
+
     test('mismatched $-part count throws BadRequestError', () => {
         const component1 = new SearchParameterDefinition({ type: 'token', field: 'code' });
         const component2 = new SearchParameterDefinition({
