@@ -69,7 +69,8 @@ const LABEL = Object.freeze({
     TOPIC: 'topic',
     ERROR_CODE: 'error_code',
     SUBSYSTEM: 'subsystem',
-    PATH: 'path'
+    PATH: 'path',
+    STAGE: 'stage'
 });
 
 const OUTCOME = Object.freeze({
@@ -97,6 +98,16 @@ const OPERATION = Object.freeze({
 
 const SUBSYSTEM = Object.freeze({
     KAFKA: 'kafka'
+});
+
+// How far a merge got before it was abandoned because the client disconnected.
+// 'execute' is the last stage at which abandoning is safe -- past that the bulk
+// inserter has begun writing, and stopping would risk a resource without its
+// history row.
+const MERGE_ABORT_STAGE = Object.freeze({
+    VALIDATE: 'validate',
+    MERGE: 'merge',
+    EXECUTE: 'execute'
 });
 
 // Distinguishes save-time validation (POST/PUT/$merge) from validate-time
@@ -248,6 +259,10 @@ const importFileSizeHistogram = meter.createHistogram('fhir_import_file_size_byt
     advice: {
         explicitBucketBoundaries: [1000, 10000, 100000, 1000000, 5000000, 10000000, 50000000, 100000000, 500000000]
     }
+});
+
+const mergeAbortedCounter = meter.createCounter('fhir_merge_aborted_total', {
+    description: 'Merges abandoned because the client disconnected before the work was done, by the stage reached (validate|merge|execute). Each increment is write capacity reclaimed from a request whose response nobody was waiting for.'
 });
 
 /**
@@ -447,6 +462,14 @@ function recordImportFileSize (fileSizeBytes) {
     importFileSizeHistogram.record(fileSizeBytes);
 }
 
+/**
+ * Emit fhir_merge_aborted_total for a merge abandoned mid-flight.
+ * @param {string} stage One of MERGE_ABORT_STAGE.
+ */
+function recordMergeAborted (stage) {
+    mergeAbortedCounter.add(1, { [LABEL.STAGE]: stage || UNKNOWN });
+}
+
 module.exports = {
     // Instruments — exported so integration tests can spy on `.add` / `.record`.
     mergeOutcomeCounter,
@@ -460,6 +483,7 @@ module.exports = {
     importRangeDurationHistogram,
     importS3ReadThroughputHistogram,
     importFileSizeHistogram,
+    mergeAbortedCounter,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -472,6 +496,7 @@ module.exports = {
     recordImportRangeDuration,
     recordImportS3ReadThroughput,
     recordImportFileSize,
+    recordMergeAborted,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,
@@ -485,5 +510,6 @@ module.exports = {
     OPERATION,
     SUBSYSTEM,
     PATH,
+    MERGE_ABORT_STAGE,
     UNKNOWN
 };

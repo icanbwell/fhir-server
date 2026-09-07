@@ -32,6 +32,8 @@ const {
     recordImportRangeDuration,
     recordImportS3ReadThroughput,
     recordImportFileSize,
+    recordMergeAborted,
+    mergeAbortedCounter,
     mergeOutcomeCounter,
     validationFailureCounter,
     bundleSizeHistogram,
@@ -44,6 +46,7 @@ const {
     importS3ReadThroughputHistogram,
     importFileSizeHistogram,
     LABEL,
+    MERGE_ABORT_STAGE,
     OUTCOME,
     VALIDATION_STAGE,
     DIRECTION,
@@ -498,6 +501,22 @@ describe('metrics.js', () => {
         test('records the histogram with the given file size', () => {
             recordImportFileSize(2048);
             expect(importFileSizeHistogram.record).toHaveBeenCalledWith(2048);
+        });
+    });
+
+    describe('recordMergeAborted', () => {
+        test('labels the abandoned merge with the stage it stopped at', () => {
+            recordMergeAborted(MERGE_ABORT_STAGE.VALIDATE);
+            expect(mergeAbortedCounter.add).toHaveBeenCalledWith(1, {
+                [LABEL.STAGE]: 'validate'
+            });
+        });
+
+        test('falls back to unknown when the stage is missing', () => {
+            recordMergeAborted(undefined);
+            expect(mergeAbortedCounter.add).toHaveBeenCalledWith(1, {
+                [LABEL.STAGE]: UNKNOWN
+            });
         });
     });
 

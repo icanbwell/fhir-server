@@ -671,12 +671,31 @@ class FhirOperationsManager {
                 res
             });
         } else {
-            // Fallback to standard merge
-            return await this.mergeOperation.mergeAsync({
-                requestInfo: requestInfo,
-                parsedArgs,
-                resourceType
-            });
+            // The streaming path above already aborts its pipeline when the response
+            // closes (mergeAsyncStream builds its own AbortController). The
+            // non-streaming path had no equivalent: Traefik abandons a slow $merge at
+            // its 120s timeout, but nothing cancelled this handler -- a CPU-starved pod
+            // would wake up minutes later, run the whole merge (two S3 PutObjects and
+            // three Mongo round trips), and write a 200 into a socket nobody was
+            // reading. MergeOperation.mergeAsync checks this signal at stage boundaries.
+            const ac = new AbortController();
+            const onResponseClose = () => ac.abort();
+            // `res` is absent on some call paths (see fhirOperationsManager tests), in
+            // which case there is no disconnect to detect and the signal never fires.
+            res?.on?.('close', onResponseClose);
+            try {
+                return await this.mergeOperation.mergeAsync({
+                    requestInfo: requestInfo,
+                    parsedArgs,
+                    resourceType,
+                    signal: ac.signal
+                });
+            } finally {
+                // `close` also fires on normal completion, so drop the listener as soon
+                // as the merge is done -- otherwise a successful response would look
+                // like an abort to anything else holding this signal.
+                res?.off?.('close', onResponseClose);
+            }
         }
     }
 

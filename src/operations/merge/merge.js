@@ -15,7 +15,7 @@ const { MergeResultEntry } = require('../common/mergeResultEntry');
 const { QueryItem } = require('../graph/queryItem');
 const { ConfigManager } = require('../../utils/configManager');
 const { MergeValidator } = require('./mergeValidator');
-const { logError } = require('../common/logging');
+const { logError, logInfo } = require('../common/logging');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isTrue } = require('../../utils/isTrue');
 const { Transform } = require('stream'); // <- for Transform stream class
@@ -24,7 +24,7 @@ const { getRequestDecompressor } = require('../../utils/requestDecompressor');
 const { HttpResponseWriter } = require('../streaming/responseWriter');
 const { ObjectSerializedFhirResourceNdJsonWriter } = require('../streaming/resourceWriters/objectSerializedFhirResourceNdJsonWriter');
 const { fhirContentTypes } = require('../../utils/contentTypes');
-const { recordMergeOutcomes, recordInboundBundleSize, OPERATION } = require('../../utils/metrics');
+const { recordMergeOutcomes, recordInboundBundleSize, recordMergeAborted, OPERATION, MERGE_ABORT_STAGE } = require('../../utils/metrics');
 const { CustomTracer } = require('../../utils/customTracer');
 
 
@@ -97,6 +97,36 @@ class MergeOperation {
      * @param {MergeResultEntry[]} currentMergeResults
      * @return {MergeResultEntry[]}
      */
+    /**
+     * True when the client has disconnected and the remaining merge work would be
+     * thrown away. Records the abandonment before returning so the caller only has
+     * to decide whether to stop.
+     * @param {AbortSignal|undefined} signal
+     * @param {string} stage One of MERGE_ABORT_STAGE
+     * @param {FhirRequestInfo} requestInfo
+     * @returns {boolean}
+     */
+    isClientGone (signal, stage, requestInfo) {
+        if (!signal?.aborted) {
+            return false;
+        }
+        recordMergeAborted(stage);
+        // Not logError: an abandoned request is the client's choice, not a server
+        // fault, and at burst volume error-level noise here would drown real faults.
+        logInfo('Merge abandoned: client disconnected', {
+            stage,
+            requestId: requestInfo?.requestId,
+            userRequestId: requestInfo?.userRequestId
+        });
+        return true;
+    }
+
+    /**
+     * Adds unchanged placeholders for resources that merged without a recorded outcome.
+     * @param {Resource[]} resourcesIncomingArray
+     * @param {MergeResultEntry[]} currentMergeResults
+     * @returns {MergeResultEntry[]}
+     */
     addSuccessfulMergesToMergeResult (resourcesIncomingArray, currentMergeResults) {
         /**
          * @type {MergeResultEntry[]}
@@ -131,7 +161,7 @@ class MergeOperation {
      * @param {string} resourceType
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
-    async mergeAsync ({ requestInfo, parsedArgs, resourceType }) {
+    async mergeAsync ({ requestInfo, parsedArgs, resourceType, signal }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -198,6 +228,19 @@ class MergeOperation {
                     ? incomingObjects.length
                     : (incomingObjects ? 1 : 0);
 
+            // Client-disconnect checkpoints. Traefik abandons a $merge at its 120s
+            // timeout, but nothing cancelled the handler: a starved pod would sit
+            // ~100s in the event-loop queue, wake up, then run the full merge --
+            // two S3 PutObjects and three Mongo round trips -- and return 200 into a
+            // closed socket. These checks stop that at stage boundaries.
+            //
+            // Deliberately NOT cancelling in-flight I/O: `executeAsync` below writes
+            // the resource and its history row, so aborting partway could leave a
+            // resource with no history. `execute` is the last safe checkpoint.
+            if (this.isClientGone(signal, MERGE_ABORT_STAGE.VALIDATE, requestInfo)) {
+                return wasIncomingAList ? mergeResults : mergeResults[0];
+            }
+
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
                 /** @type {Resource[]} */ resourcesIncomingArray,
@@ -217,6 +260,10 @@ class MergeOperation {
             // mergeManager / databaseBulkInserter below. recordMergeOutcomes in
             // the finally would otherwise see an empty array and lose signal.
             mergeResults = mergeResults.concat(mergePreCheckErrors);
+
+            if (this.isClientGone(signal, MERGE_ABORT_STAGE.MERGE, requestInfo)) {
+                return wasIncomingAList ? mergeResults : mergeResults[0];
+            }
 
             // merge the resources
             /**
@@ -246,6 +293,10 @@ class MergeOperation {
             );
             // Capture per-resource merge errors immediately for the same reason.
             mergeResults = mergeResults.concat(mergeErrors);
+
+            if (this.isClientGone(signal, MERGE_ABORT_STAGE.EXECUTE, requestInfo)) {
+                return wasIncomingAList ? mergeResults : mergeResults[0];
+            }
 
             const inserted = await this.customTracer.trace({
                 name: 'MergeOperation.executeAsync',

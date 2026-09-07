@@ -28,7 +28,9 @@ jest.mock('../../../../utils/isTrue', () => ({
 jest.mock('../../../../utils/metrics', () => ({
     recordMergeOutcomes: jest.fn(),
     recordInboundBundleSize: jest.fn(),
-    OPERATION: { MERGE: 'merge', NDJSON: 'ndjson' }
+    recordMergeAborted: jest.fn(),
+    OPERATION: { MERGE: 'merge', NDJSON: 'ndjson' },
+    MERGE_ABORT_STAGE: { VALIDATE: 'validate', MERGE: 'merge', EXECUTE: 'execute' }
 }));
 
 const httpContext = require('express-http-context');
@@ -333,6 +335,120 @@ describe('MergeOperation', () => {
             ).rejects.toThrow('validation exploded');
 
             expect(mockFhirLoggingManager.logOperationFailureAsync).toHaveBeenCalled();
+        });
+    });
+
+    describe('mergeAsync client disconnect', () => {
+        /**
+         * Builds the minimal valid inputs mergeAsync needs, so each disconnect test
+         * differs only in its signal.
+         */
+        function buildMergeArgs () {
+            const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+            const { assertTypeEquals, assertIsValid } = require('../../../../utils/assertType');
+            assertTypeEquals.mockImplementation(() => {});
+            assertIsValid.mockImplementation(() => {});
+
+            const parsedArgs = Object.create(ParsedArgs.prototype);
+            parsedArgs.base_version = '4_0_0';
+            parsedArgs.smartMerge = true;
+            parsedArgs.resource = null;
+            parsedArgs.getRawArgs = jest.fn().mockReturnValue({});
+
+            return {
+                requestInfo: {
+                    user: 'testUser',
+                    originalUrl: '/Patient',
+                    protocol: 'https',
+                    host: 'localhost',
+                    requestId: 'req-1',
+                    userRequestId: 'ureq-1',
+                    headers: {},
+                    body: { resourceType: 'Patient', id: 'p1' }
+                },
+                parsedArgs,
+                resourceType: 'Patient'
+            };
+        }
+
+        test('skips validation entirely when the client disconnected before work began', async () => {
+            await mergeOperation.mergeAsync({
+                ...buildMergeArgs(),
+                signal: AbortSignal.abort()
+            });
+
+            expect(mockMergeValidator.validateAsync).not.toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
+        });
+
+        test('skips the bulk insert when the client disconnects during validation', async () => {
+            const ac = new AbortController();
+            mockMergeValidator.validateAsync.mockImplementation(async () => {
+                ac.abort();
+                return {
+                    mergePreCheckErrors: [],
+                    resourcesIncomingArray: [],
+                    wasIncomingAList: false
+                };
+            });
+
+            await mergeOperation.mergeAsync({
+                ...buildMergeArgs(),
+                signal: ac.signal
+            });
+
+            expect(mockMergeValidator.validateAsync).toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
+        });
+
+        test('completes the merge normally when the client stays connected', async () => {
+            const ac = new AbortController();
+
+            await mergeOperation.mergeAsync({
+                ...buildMergeArgs(),
+                signal: ac.signal
+            });
+
+            expect(mockMergeValidator.validateAsync).toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalled();
+        });
+
+        test('completes the merge normally when no signal is supplied', async () => {
+            await mergeOperation.mergeAsync(buildMergeArgs());
+
+            expect(mockMergeValidator.validateAsync).toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalled();
+        });
+
+        test('counts the abandoned merge, labelled with the stage it stopped at', async () => {
+            const { recordMergeAborted } = require('../../../../utils/metrics');
+
+            await mergeOperation.mergeAsync({
+                ...buildMergeArgs(),
+                signal: AbortSignal.abort()
+            });
+
+            expect(recordMergeAborted).toHaveBeenCalledWith('validate');
+        });
+
+        test('labels the stage as merge when the client leaves after validation', async () => {
+            const { recordMergeAborted } = require('../../../../utils/metrics');
+            const ac = new AbortController();
+            mockMergeValidator.validateAsync.mockImplementation(async () => {
+                ac.abort();
+                return {
+                    mergePreCheckErrors: [],
+                    resourcesIncomingArray: [],
+                    wasIncomingAList: false
+                };
+            });
+
+            await mergeOperation.mergeAsync({
+                ...buildMergeArgs(),
+                signal: ac.signal
+            });
+
+            expect(recordMergeAborted).toHaveBeenCalledWith('merge');
         });
     });
 

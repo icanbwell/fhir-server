@@ -460,6 +460,88 @@ describe('FhirOperationsManager', () => {
             expect(mockMergeOperation.mergeAsync).not.toHaveBeenCalled();
         });
 
+        test('gives mergeAsync an abort signal tied to the response', async () => {
+            const { EventEmitter } = require('events');
+            manager.getRequestInfo = jest.fn().mockReturnValue({
+                user: 'u', requestId: 'r', method: 'POST', headers: {}
+            });
+            manager.parseParametersFromBody = jest.fn().mockImplementation(({ combined_args }) => combined_args);
+
+            const { get_all_args } = require('../../../operations/common/get_all_args');
+            get_all_args.mockReturnValue({ base_version: '4_0_0' });
+
+            const req = { headers: { 'content-type': 'application/json' }, body: {} };
+            const res = new EventEmitter();
+            await manager.merge([], { req, res }, 'Patient');
+
+            const { signal } = mockMergeOperation.mergeAsync.mock.calls[0][0];
+            expect(signal).toBeDefined();
+            expect(signal.aborted).toBe(false);
+        });
+
+        test('aborts that signal when the client disconnects mid-merge', async () => {
+            const { EventEmitter } = require('events');
+            manager.getRequestInfo = jest.fn().mockReturnValue({
+                user: 'u', requestId: 'r', method: 'POST', headers: {}
+            });
+            manager.parseParametersFromBody = jest.fn().mockImplementation(({ combined_args }) => combined_args);
+
+            const { get_all_args } = require('../../../operations/common/get_all_args');
+            get_all_args.mockReturnValue({ base_version: '4_0_0' });
+
+            const req = { headers: { 'content-type': 'application/json' }, body: {} };
+            const res = new EventEmitter();
+
+            let capturedSignal;
+            mockMergeOperation.mergeAsync.mockImplementationOnce(async ({ signal }) => {
+                capturedSignal = signal;
+                // The realistic sequence: the client gives up while the merge is still
+                // running, which is exactly when there is work left to abandon.
+                res.emit('close');
+                return [];
+            });
+
+            await manager.merge([], { req, res }, 'Patient');
+
+            expect(capturedSignal.aborted).toBe(true);
+        });
+
+        test('stops listening after the merge, so a normal close is not an abort', async () => {
+            const { EventEmitter } = require('events');
+            manager.getRequestInfo = jest.fn().mockReturnValue({
+                user: 'u', requestId: 'r', method: 'POST', headers: {}
+            });
+            manager.parseParametersFromBody = jest.fn().mockImplementation(({ combined_args }) => combined_args);
+
+            const { get_all_args } = require('../../../operations/common/get_all_args');
+            get_all_args.mockReturnValue({ base_version: '4_0_0' });
+
+            const req = { headers: { 'content-type': 'application/json' }, body: {} };
+            const res = new EventEmitter();
+            await manager.merge([], { req, res }, 'Patient');
+
+            const { signal } = mockMergeOperation.mergeAsync.mock.calls[0][0];
+            // `close` fires on successful completion too; that must not read as an abort.
+            res.emit('close');
+
+            expect(signal.aborted).toBe(false);
+            expect(res.listenerCount('close')).toBe(0);
+        });
+
+        test('still merges when no response object is supplied', async () => {
+            manager.getRequestInfo = jest.fn().mockReturnValue({
+                user: 'u', requestId: 'r', method: 'POST', headers: {}
+            });
+            manager.parseParametersFromBody = jest.fn().mockImplementation(({ combined_args }) => combined_args);
+
+            const { get_all_args } = require('../../../operations/common/get_all_args');
+            get_all_args.mockReturnValue({ base_version: '4_0_0' });
+
+            const req = { headers: { 'content-type': 'application/json' }, body: {} };
+            await expect(manager.merge([], { req }, 'Patient')).resolves.not.toThrow();
+            expect(mockMergeOperation.mergeAsync).toHaveBeenCalled();
+        });
+
         // Regression: merge()'s nested getParsedArgsAsync call (inside its
         // customTracer.trace(() => ...) closure) never threaded requestInfo through to
         // queryRewriterManager.rewriteArgsAsync, unlike every other operation in this class.
