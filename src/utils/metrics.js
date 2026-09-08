@@ -69,7 +69,9 @@ const LABEL = Object.freeze({
     TOPIC: 'topic',
     ERROR_CODE: 'error_code',
     SUBSYSTEM: 'subsystem',
-    PATH: 'path'
+    PATH: 'path',
+    POOL: 'pool',
+    REASON: 'reason'
 });
 
 const OUTCOME = Object.freeze({
@@ -97,6 +99,16 @@ const OPERATION = Object.freeze({
 
 const SUBSYSTEM = Object.freeze({
     KAFKA: 'kafka'
+});
+
+// The MongoDB driver's ConnectionCheckOutFailedEvent.reason values (mongodb 7.3.0,
+// cmap/connection_pool.js). Bounded here rather than passed through, so a future driver
+// version introducing a new reason string cannot silently widen label cardinality --
+// anything unrecognized collapses to UNKNOWN.
+const POOL_CHECKOUT_FAILURE_REASON = Object.freeze({
+    TIMEOUT: 'timeout',
+    POOL_CLOSED: 'poolClosed',
+    CONNECTION_ERROR: 'connectionError'
 });
 
 // Distinguishes save-time validation (POST/PUT/$merge) from validate-time
@@ -248,6 +260,29 @@ const importFileSizeHistogram = meter.createHistogram('fhir_import_file_size_byt
     advice: {
         explicitBucketBoundaries: [1000, 10000, 100000, 1000000, 5000000, 10000000, 50000000, 100000000, 500000000]
     }
+});
+
+const mongoPoolCheckoutDurationHistogram = meter.createHistogram('fhir_mongo_pool_checkout_duration_seconds', {
+    description: 'Time a request waited to check a connection out of a MongoDB pool, by pool. Recorded for successful and failed checkouts alike. This wait is invisible to the OTel mongodb instrumentation, which spans only the wire command -- a starved pool shows up there as a fast query preceded by nothing.',
+    unit: 's',
+    // A healthy checkout is sub-millisecond, so the low buckets are tight. The high buckets
+    // exist because real incidents land there: a staging $merge burst produced a 13s pool
+    // wait, and a checkout that hits waitQueueTimeoutMS would land at that timeout's value.
+    advice: {
+        explicitBucketBoundaries: [0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10, 30]
+    }
+});
+
+const mongoPoolCheckoutFailedCounter = meter.createCounter('fhir_mongo_pool_checkout_failed_total', {
+    description: 'MongoDB connection checkout failures by pool and reason (timeout|poolClosed|connectionError|unknown).'
+});
+
+const mongoPoolClearedCounter = meter.createCounter('fhir_mongo_pool_cleared_total', {
+    description: 'MongoDB connection pool clears by pool. The driver clears a pool when it marks a server Unknown, so this rising alongside latency means SDAM churn rather than slow queries.'
+});
+
+const mongoPoolConnectionCreatedCounter = meter.createCounter('fhir_mongo_pool_connection_created_total', {
+    description: 'MongoDB connections created by pool. On a warm pool this should sit near zero; a sustained rate means churn, which puts the SCRAM auth handshake on the request hot path.'
 });
 
 /**
@@ -447,6 +482,51 @@ function recordImportFileSize (fileSizeBytes) {
     importFileSizeHistogram.record(fileSizeBytes);
 }
 
+/**
+ * Emit fhir_mongo_pool_checkout_duration_seconds. The driver reports the wait in
+ * milliseconds; the instrument is in seconds to match the other duration histograms here.
+ * @param {string} pool
+ * @param {number} durationMS
+ */
+function recordMongoPoolCheckoutDuration (pool, durationMS) {
+    if (typeof durationMS !== 'number' || !Number.isFinite(durationMS)) {
+        return;
+    }
+    mongoPoolCheckoutDurationHistogram.record(durationMS / 1000, {
+        [LABEL.POOL]: pool || UNKNOWN
+    });
+}
+
+/**
+ * Emit fhir_mongo_pool_checkout_failed_total, collapsing any reason outside the driver's
+ * known set to UNKNOWN so label cardinality stays bounded.
+ * @param {string} pool
+ * @param {string} reason
+ */
+function recordMongoPoolCheckoutFailed (pool, reason) {
+    const isKnownReason = Object.values(POOL_CHECKOUT_FAILURE_REASON).includes(reason);
+    mongoPoolCheckoutFailedCounter.add(1, {
+        [LABEL.POOL]: pool || UNKNOWN,
+        [LABEL.REASON]: isKnownReason ? reason : UNKNOWN
+    });
+}
+
+/**
+ * Emit fhir_mongo_pool_cleared_total.
+ * @param {string} pool
+ */
+function recordMongoPoolCleared (pool) {
+    mongoPoolClearedCounter.add(1, { [LABEL.POOL]: pool || UNKNOWN });
+}
+
+/**
+ * Emit fhir_mongo_pool_connection_created_total.
+ * @param {string} pool
+ */
+function recordMongoPoolConnectionCreated (pool) {
+    mongoPoolConnectionCreatedCounter.add(1, { [LABEL.POOL]: pool || UNKNOWN });
+}
+
 module.exports = {
     // Instruments — exported so integration tests can spy on `.add` / `.record`.
     mergeOutcomeCounter,
@@ -460,6 +540,10 @@ module.exports = {
     importRangeDurationHistogram,
     importS3ReadThroughputHistogram,
     importFileSizeHistogram,
+    mongoPoolCheckoutDurationHistogram,
+    mongoPoolCheckoutFailedCounter,
+    mongoPoolClearedCounter,
+    mongoPoolConnectionCreatedCounter,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -472,6 +556,10 @@ module.exports = {
     recordImportRangeDuration,
     recordImportS3ReadThroughput,
     recordImportFileSize,
+    recordMongoPoolCheckoutDuration,
+    recordMongoPoolCheckoutFailed,
+    recordMongoPoolCleared,
+    recordMongoPoolConnectionCreated,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,
@@ -485,5 +573,6 @@ module.exports = {
     OPERATION,
     SUBSYSTEM,
     PATH,
+    POOL_CHECKOUT_FAILURE_REASON,
     UNKNOWN
 };

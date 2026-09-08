@@ -5,6 +5,7 @@ const { logSystemEventAsync } = require('../operations/common/systemEventLogging
 const { MongoClient, GridFSBucket } = require('mongodb');
 const { ConfigManager } = require('./configManager');
 const { assertTypeEquals } = require('./assertType');
+const { registerMongoPoolMonitoring } = require('./mongoPoolMonitor');
 
 /**
  * client connection
@@ -194,6 +195,12 @@ class MongoDatabaseManager {
          * @type {import('mongodb').MongoClient}
          */
         const client = new MongoClient(clientConfig.connection, clientConfig.options);
+
+        // Subscribe before connect() so the connections the driver opens to satisfy
+        // minPoolSize are counted too. Always on -- this is a fixed set of four
+        // instruments, unlike the per-command logging gated behind LOG_ALL_MONGO_CALLS
+        // below, which is far too chatty to leave enabled.
+        registerMongoPoolMonitoring({ client, poolName: clientConfig.db_name });
 
         try {
             await client.connect();
