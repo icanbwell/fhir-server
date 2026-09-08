@@ -302,6 +302,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the activity definition
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the activity definition
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -1835,6 +1847,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -2543,6 +2567,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the charge item definition
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the charge item definition
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -2700,6 +2736,18 @@ type Query
     The business version of the citation
     """
     version: SearchToken
+
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the citation
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the citation
+    """
+    context_type_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType
@@ -3483,6 +3531,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -3955,6 +4015,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -4356,6 +4428,18 @@ type Query
     Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The business version of the capability statement* [CodeSystem](codesystem.html): The business version of the code system* [CompartmentDefinition](compartmentdefinition.html): The business version of the compartment definition* [ConceptMap](conceptmap.html): The business version of the concept map* [GraphDefinition](graphdefinition.html): The business version of the graph definition* [ImplementationGuide](implementationguide.html): The business version of the implementation guide* [MessageDefinition](messagedefinition.html): The business version of the message definition* [OperationDefinition](operationdefinition.html): The business version of the operation definition* [SearchParameter](searchparameter.html): The business version of the search parameter* [StructureDefinition](structuredefinition.html): The business version of the structure definition* [StructureMap](structuremap.html): The business version of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The business version of the terminology capabilities* [ValueSet](valueset.html): The business version of the value set
     """
     version: SearchToken
+
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType
@@ -6478,6 +6562,12 @@ type Query
     """
     type: SearchToken
 
+    """
+    relationship (FHIR type: composite)
+    Combination of relation and relatesTo
+    """
+    relationship: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -7296,6 +7386,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the event definition
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the event definition
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -7435,6 +7537,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the evidence
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the evidence
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -7548,6 +7662,18 @@ type Query
     The uri that identifies the evidence report
     """
     url: SearchString
+
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the evidence report
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the evidence report
+    """
+    context_type_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType
@@ -7692,6 +7818,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the evidence variable
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the evidence variable
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -7827,6 +7965,18 @@ type Query
     The business version of the example scenario
     """
     version: SearchToken
+
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the example scenario
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the example scenario
+    """
+    context_type_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType
@@ -8497,6 +8647,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -8623,6 +8785,12 @@ type Query
     Value held by characteristic
     """
     value: SearchToken
+
+    """
+    characteristic-value (FHIR type: composite)
+    A composite of both characteristic and value
+    """
+    characteristic_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType
@@ -9607,6 +9775,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -10232,6 +10412,18 @@ type Query
     The business version of the library
     """
     version: SearchToken
+
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the library
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the library
+    """
+    context_type_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType
@@ -10904,6 +11096,18 @@ type Query
     The business version of the measure
     """
     version: SearchToken
+
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the measure
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the measure
+    """
+    context_type_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType
@@ -12418,6 +12622,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -12700,6 +12916,30 @@ type Query
     """
     window_start: SearchNumber
 
+    """
+    chromosome-variant-coordinate (FHIR type: composite)
+    Search parameter by chromosome and variant coordinate. This will refer to part of a locus or part of a gene where search region will be represented in 1-based system. Since the coordinateSystem can either be 0-based or 1-based, this search query will include the result of both coordinateSystem that contains the equivalent segment of the gene or whole genome sequence. For example, a search for sequence can be represented as `chromosome-variant-coordinate=1$lt345$gt123`, this means it will search for the MolecularSequence resource with variants on chromosome 1 and with position >123 and <345, where in 1-based system resource, all strings within region 1:124-344 will be revealed, while in 0-based system resource, all strings within region 1:123-344 will be revealed. You may want to check detail about 0-based v.s. 1-based above.
+    """
+    chromosome_variant_coordinate: SearchString
+
+    """
+    chromosome-window-coordinate (FHIR type: composite)
+    Search parameter by chromosome and window. This will refer to part of a locus or part of a gene where search region will be represented in 1-based system. Since the coordinateSystem can either be 0-based or 1-based, this search query will include the result of both coordinateSystem that contains the equivalent segment of the gene or whole genome sequence. For example, a search for sequence can be represented as `chromosome-window-coordinate=1$lt345$gt123`, this means it will search for the MolecularSequence resource with a window on chromosome 1 and with position >123 and <345, where in 1-based system resource, all strings within region 1:124-344 will be revealed, while in 0-based system resource, all strings within region 1:123-344 will be revealed. You may want to check detail about 0-based v.s. 1-based above.
+    """
+    chromosome_window_coordinate: SearchString
+
+    """
+    referenceseqid-variant-coordinate (FHIR type: composite)
+    Search parameter by reference sequence and variant coordinate. This will refer to part of a locus or part of a gene where search region will be represented in 1-based system. Since the coordinateSystem can either be 0-based or 1-based, this search query will include the result of both coordinateSystem that contains the equivalent segment of the gene or whole genome sequence. For example, a search for sequence can be represented as `referenceSeqId-variant-coordinate=NC_000001.11$lt345$gt123`, this means it will search for the MolecularSequence resource with variants on NC_000001.11 and with position >123 and <345, where in 1-based system resource, all strings within region NC_000001.11:124-344 will be revealed, while in 0-based system resource, all strings within region NC_000001.11:123-344 will be revealed. You may want to check detail about 0-based v.s. 1-based above.
+    """
+    referenceseqid_variant_coordinate: SearchString
+
+    """
+    referenceseqid-window-coordinate (FHIR type: composite)
+    Search parameter by reference sequence and window. This will refer to part of a locus or part of a gene where search region will be represented in 1-based system. Since the coordinateSystem can either be 0-based or 1-based, this search query will include the result of both coordinateSystem that contains the equivalent segment of the gene or whole genome sequence. For example, a search for sequence can be represented as `referenceSeqId-window-coordinate=NC_000001.11$lt345$gt123`, this means it will search for the MolecularSequence resource with a window on NC_000001.11 and with position >123 and <345, where in 1-based system resource, all strings within region NC_000001.11:124-344 will be revealed, while in 0-based system resource, all strings within region NC_000001.11:123-344 will be revealed. You may want to check detail about 0-based v.s. 1-based above.
+    """
+    referenceseqid_window_coordinate: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -12873,6 +13113,18 @@ type Query
     The unique identifier
     """
     value: SearchString
+
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType
@@ -13350,6 +13602,54 @@ type Query
     """
     value_string: SearchString
 
+    """
+    code-value-concept (FHIR type: composite)
+    Code and coded value parameter pair
+    """
+    code_value_concept: SearchString
+
+    """
+    code-value-date (FHIR type: composite)
+    Code and date/time value parameter pair
+    """
+    code_value_date: SearchString
+
+    """
+    code-value-quantity (FHIR type: composite)
+    Code and quantity value parameter pair
+    """
+    code_value_quantity: SearchString
+
+    """
+    code-value-string (FHIR type: composite)
+    Code and string value parameter pair
+    """
+    code_value_string: SearchString
+
+    """
+    combo-code-value-concept (FHIR type: composite)
+    Code and coded value parameter pair, including in components
+    """
+    combo_code_value_concept: SearchString
+
+    """
+    combo-code-value-quantity (FHIR type: composite)
+    Code and quantity value parameter pair, including in components
+    """
+    combo_code_value_quantity: SearchString
+
+    """
+    component-code-value-concept (FHIR type: composite)
+    Component code and component coded value parameter pair
+    """
+    component_code_value_concept: SearchString
+
+    """
+    component-code-value-quantity (FHIR type: composite)
+    Component code and component quantity value parameter pair
+    """
+    component_code_value_quantity: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -13611,6 +13911,18 @@ type Query
     Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The business version of the capability statement* [CodeSystem](codesystem.html): The business version of the code system* [CompartmentDefinition](compartmentdefinition.html): The business version of the compartment definition* [ConceptMap](conceptmap.html): The business version of the concept map* [GraphDefinition](graphdefinition.html): The business version of the graph definition* [ImplementationGuide](implementationguide.html): The business version of the implementation guide* [MessageDefinition](messagedefinition.html): The business version of the message definition* [OperationDefinition](operationdefinition.html): The business version of the operation definition* [SearchParameter](searchparameter.html): The business version of the search parameter* [StructureDefinition](structuredefinition.html): The business version of the structure definition* [StructureMap](structuremap.html): The business version of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The business version of the terminology capabilities* [ValueSet](valueset.html): The business version of the value set
     """
     version: SearchToken
+
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType
@@ -15035,6 +15347,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the plan definition
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the plan definition
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -15837,6 +16161,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the questionnaire
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the questionnaire
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -16611,6 +16947,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the research definition
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the research definition
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -16801,6 +17149,18 @@ type Query
     The business version of the research element definition
     """
     version: SearchToken
+
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the research element definition
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the research element definition
+    """
+    context_type_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType
@@ -17477,6 +17837,18 @@ type Query
     Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The business version of the capability statement* [CodeSystem](codesystem.html): The business version of the code system* [CompartmentDefinition](compartmentdefinition.html): The business version of the compartment definition* [ConceptMap](conceptmap.html): The business version of the concept map* [GraphDefinition](graphdefinition.html): The business version of the graph definition* [ImplementationGuide](implementationguide.html): The business version of the implementation guide* [MessageDefinition](messagedefinition.html): The business version of the message definition* [OperationDefinition](operationdefinition.html): The business version of the operation definition* [SearchParameter](searchparameter.html): The business version of the search parameter* [StructureDefinition](structuredefinition.html): The business version of the structure definition* [StructureMap](structuremap.html): The business version of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The business version of the terminology capabilities* [ValueSet](valueset.html): The business version of the value set
     """
     version: SearchToken
+
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType
@@ -18239,6 +18611,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -18387,6 +18771,18 @@ type Query
     Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The business version of the capability statement* [CodeSystem](codesystem.html): The business version of the code system* [CompartmentDefinition](compartmentdefinition.html): The business version of the compartment definition* [ConceptMap](conceptmap.html): The business version of the concept map* [GraphDefinition](graphdefinition.html): The business version of the graph definition* [ImplementationGuide](implementationguide.html): The business version of the implementation guide* [MessageDefinition](messagedefinition.html): The business version of the message definition* [OperationDefinition](operationdefinition.html): The business version of the operation definition* [SearchParameter](searchparameter.html): The business version of the search parameter* [StructureDefinition](structuredefinition.html): The business version of the structure definition* [StructureMap](structuremap.html): The business version of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The business version of the terminology capabilities* [ValueSet](valueset.html): The business version of the value set
     """
     version: SearchToken
+
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType
@@ -19454,6 +19850,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -19715,6 +20123,18 @@ type Query
     """
     version: SearchToken
 
+    """
+    context-type-quantity (FHIR type: composite)
+    A use context type and quantity- or range-based value assigned to the test script
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    A use context type and value assigned to the test script
+    """
+    context_type_value: SearchString
+
     """return total number of records that meet this query"""
     _total: TotalType
 
@@ -19883,6 +20303,18 @@ type Query
     Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The business version of the capability statement* [CodeSystem](codesystem.html): The business version of the code system* [CompartmentDefinition](compartmentdefinition.html): The business version of the compartment definition* [ConceptMap](conceptmap.html): The business version of the concept map* [GraphDefinition](graphdefinition.html): The business version of the graph definition* [ImplementationGuide](implementationguide.html): The business version of the implementation guide* [MessageDefinition](messagedefinition.html): The business version of the message definition* [OperationDefinition](operationdefinition.html): The business version of the operation definition* [SearchParameter](searchparameter.html): The business version of the search parameter* [StructureDefinition](structuredefinition.html): The business version of the structure definition* [StructureMap](structuremap.html): The business version of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The business version of the terminology capabilities* [ValueSet](valueset.html): The business version of the value set
     """
     version: SearchToken
+
+    """
+    context-type-quantity (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and quantity- or range-based value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and quantity- or range-based value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and quantity- or range-based value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and quantity- or range-based value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and quantity- or range-based value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and quantity- or range-based value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and quantity- or range-based value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and quantity- or range-based value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and quantity- or range-based value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and quantity- or range-based value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and quantity- or range-based value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and quantity- or range-based value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and quantity- or range-based value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and quantity- or range-based value assigned to the value set
+    """
+    context_type_quantity: SearchString
+
+    """
+    context-type-value (FHIR type: composite)
+    Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context type and value assigned to the capability statement* [CodeSystem](codesystem.html): A use context type and value assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context type and value assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context type and value assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context type and value assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context type and value assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context type and value assigned to the message definition* [NamingSystem](namingsystem.html): A use context type and value assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context type and value assigned to the operation definition* [SearchParameter](searchparameter.html): A use context type and value assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context type and value assigned to the structure definition* [StructureMap](structuremap.html): A use context type and value assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context type and value assigned to the terminology capabilities* [ValueSet](valueset.html): A use context type and value assigned to the value set
+    """
+    context_type_value: SearchString
 
     """return total number of records that meet this query"""
     _total: TotalType

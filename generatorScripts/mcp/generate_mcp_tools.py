@@ -111,6 +111,7 @@ TYPE_VALUE_SYNTAX_HINTS: Dict[str, str] = {
     "string": "Case-insensitive; matches values starting with the given text by default. Append ':exact' to the parameter name for an exact match, or ':contains' for a substring match anywhere in the value.",
     "uri": "Exact match by default. Append ':above' or ':below' to the parameter name for hierarchical URI matching.",
     "canonical": "Exact match on the canonical URL value.",
+    "composite": "Format: '$'-joined value, one part per component in order (e.g. 'code$value' for a 2-component pair, or 'code$value$value' for a 3-component pair). Comma-separate multiple '$'-joined pairs to OR them, same as any other parameter.",
     "email": "Bare email value, e.g. 'foo@example.com'.",
     "phone": "Bare phone value.",
 }

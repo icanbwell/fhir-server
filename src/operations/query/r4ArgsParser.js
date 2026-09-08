@@ -181,6 +181,49 @@ class R4ArgsParser {
                     }
                 ) : null;
 
+            // FilterByToken dispatches once per field (baseFilter.filter() calls
+            // filterByItem(field, v) for every entry in propertyObj.fields), so a token
+            // property with 2+ fields of different underlying FHIR types (e.g. polymorphic
+            // value[x] alternatives resolved to ['valueCodeableConcept', 'valueBoolean'])
+            // needs each field's own type -- otherwise every field but the first is queried
+            // against the wrong shape.
+            if (propertyObj.type === 'token' && propertyObj.fields.length > 1) {
+                propertyObj.fieldTypesObj = {};
+                for (const field of propertyObj.fields) {
+                    propertyObj.fieldTypesObj[field] = this.fhirTypesManager.getTypeForField({ resourceType, field });
+                }
+            }
+
+            // composite params resolve fieldType per component instead of on the top-level
+            // propertyObj (which has no field/fields of its own -- only scopes). Mutating each
+            // component in place mirrors the existing top-level fieldType assignment above;
+            // idempotent across requests since it depends only on resourceType + that
+            // component's own field.
+            if (propertyObj.type === 'composite' && propertyObj.scopes) {
+                for (const scope of propertyObj.scopes) {
+                    for (const component of scope.components) {
+                        component.fieldType = component.fields.length > 0
+                            ? this.fhirTypesManager.getTypeForField(
+                                {
+                                    resourceType,
+                                    field: component.arrayField
+                                        ? `${component.arrayField}.${component.firstField}`
+                                        : component.firstField
+                                }
+                            ) : null;
+
+                        // same per-field fix as above, scoped to this component's own fields
+                        if (component.type === 'token' && component.fields.length > 1) {
+                            component.fieldTypesObj = {};
+                            for (const field of component.fields) {
+                                const dottedField = component.arrayField ? `${component.arrayField}.${field}` : field;
+                                component.fieldTypesObj[field] = this.fhirTypesManager.getTypeForField({ resourceType, field: dottedField });
+                            }
+                        }
+                    }
+                }
+            }
+
             let orQueryParameterValue, andQueryParameterValue, notQueryParameterValue, newModifiers = [];
             ({ orQueryParameterValue, andQueryParameterValue, notQueryParameterValue, newModifiers } = convertGraphQLParameters(
                 queryParameterValue

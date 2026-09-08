@@ -99,6 +99,33 @@ describe('MongoDatabaseManager', () => {
             expect(client.db).toBeDefined();
         });
 
+        test('subscribes the client to CMAP pool events so checkout waits are measured', async () => {
+            const { isTrue } = require('../../../utils/isTrue');
+            isTrue.mockReturnValue(false);
+            const metrics = require('../../../utils/metrics');
+            const recordSpy = jest
+                .spyOn(metrics.mongoPoolCheckoutDurationHistogram, 'record')
+                .mockImplementation(() => {});
+
+            await manager.createClientAsync({
+                connection: 'mongodb://user:pass@localhost:27017',
+                db_name: 'testdb',
+                options: { maxPoolSize: 10 }
+            });
+
+            // Drive the handler the manager actually registered, rather than asserting that
+            // registerMongoPoolMonitoring was called -- this exercises the real recording path.
+            const checkedOutHandler = mockOn.mock.calls.find(
+                ([event]) => event === 'connectionCheckedOut'
+            )?.[1];
+            expect(checkedOutHandler).toBeDefined();
+
+            checkedOutHandler({ durationMS: 13000 });
+
+            expect(recordSpy).toHaveBeenCalledWith(13, { pool: 'testdb' });
+            recordSpy.mockRestore();
+        });
+
         test('BUG: throws TypeError when connection is undefined', async () => {
             const config = {
                 connection: undefined,
