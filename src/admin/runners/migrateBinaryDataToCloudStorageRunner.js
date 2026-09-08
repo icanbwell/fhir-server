@@ -5,6 +5,7 @@ const { assertTypeEquals } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
+const { isUuid } = require('../../utils/uid.util');
 const { BaseScriptRunner } = require('./baseScriptRunner');
 const { computeContentHashAsync } = require('../../utils/contentHash');
 const { RethrownError } = require('../../utils/rethrownError');
@@ -20,6 +21,7 @@ class MigrateBinaryDataToCloudStorageRunner extends BaseScriptRunner {
         count,
         fromDate,
         toDate,
+        uuids,
         dryRun,
         base64FieldCloudStorageClient,
         configManager
@@ -36,6 +38,18 @@ class MigrateBinaryDataToCloudStorageRunner extends BaseScriptRunner {
         this.startId = startId;
 
         this.count = count;
+
+        if (uuids && uuids.length) {
+            const invalidUuids = uuids.filter((u) => !isUuid(u));
+            if (invalidUuids.length) {
+                throw new Error(`Invalid uuid(s) in --ids: ${invalidUuids.join(', ')}`);
+            }
+        }
+        // Retry mode: restrict the migration to this exact set of _uuid's (e.g. re-running just the
+        // handful reported as `failed` in a prior run's summary log). Combines with the other filters
+        // rather than replacing them, so an id that was already migrated (or no longer eligible) is
+        // still safely skipped and reported the same way as any other run.
+        this.uuids = (uuids && uuids.length) ? uuids : null;
 
         if (fromDate && Number.isNaN(new Date(fromDate).getTime())) {
             throw new Error(`Invalid fromDate: ${fromDate}`);
@@ -93,7 +107,8 @@ class MigrateBinaryDataToCloudStorageRunner extends BaseScriptRunner {
         return {
             data: { $exists: true, $type: 'string' },
             _blobMeta: { $exists: false },
-            ...(Object.keys(idFilter).length ? { _id: idFilter } : {})
+            ...(Object.keys(idFilter).length ? { _id: idFilter } : {}),
+            ...(this.uuids ? { _uuid: { $in: this.uuids } } : {})
         };
     }
 
@@ -274,6 +289,10 @@ class MigrateBinaryDataToCloudStorageRunner extends BaseScriptRunner {
             const collection = db.collection('Binary_4_0_0');
 
             const query = this._buildQuery();
+            const foundUuids = this.uuids ? new Set() : null;
+            if (this.uuids) {
+                this.adminLogger.logInfo(`Restricting migration to ${this.uuids.length} specific _uuid(s): ${this.uuids.join(', ')}`);
+            }
 
             let cursor = collection
                 .find(query, { session })
@@ -306,6 +325,9 @@ class MigrateBinaryDataToCloudStorageRunner extends BaseScriptRunner {
                 this.currentBatch.push(doc);
                 this.lastProcessedId = doc._id;
                 this.lastProcessedUuid = doc._uuid;
+                if (foundUuids) {
+                    foundUuids.add(doc._uuid);
+                }
 
                 if (this.currentBatch.length >= this.batchSize) {
                     await this.processBatch(collection);
@@ -313,6 +335,16 @@ class MigrateBinaryDataToCloudStorageRunner extends BaseScriptRunner {
             }
             if (this.currentBatch.length > 0) {
                 await this.processBatch(collection);
+            }
+
+            if (foundUuids) {
+                const notFound = this.uuids.filter((u) => !foundUuids.has(u));
+                if (notFound.length) {
+                    this.adminLogger.logError(
+                        `The following requested _uuid(s) did not match the migration criteria (already migrated, ` +
+                        `not found, or data no longer inline) and were skipped: ${notFound.join(', ')}`
+                    );
+                }
             }
 
             this.adminLogger.logInfo('Finished script');

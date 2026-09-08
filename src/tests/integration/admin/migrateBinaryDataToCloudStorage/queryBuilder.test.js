@@ -133,4 +133,27 @@ describe('MigrateBinaryDataToCloudStorageRunner query builder', () => {
         const runner = buildRunner();
         expect(runner._buildLiveKey('uuid-123', 1700000000000)).toBe('Binary_4_0_0/uuid-123/1700000000000');
     });
+
+    test('--ids restricts the migration to only the given _uuid(s), ANDed with the normal filters', async () => {
+        const targetUuid = '11111111-1111-4111-8111-111111111111';
+        const otherUuid = '22222222-2222-4222-8222-222222222222';
+        const alreadyMigratedUuid = '33333333-3333-4333-8333-333333333333';
+        await seedBinary({ uuid: targetUuid, data: 'a'.repeat(2000) });
+        await seedBinary({ uuid: otherUuid, data: 'a'.repeat(2000) });
+        // Requested via --ids, but no longer eligible (already migrated) — should be reported as
+        // not-found rather than reprocessed, never crash the run.
+        await seedBinary({
+            uuid: alreadyMigratedUuid,
+            blobMeta: { hash: 'h', rawSize: 5, lastUpdated: new Date('2024-01-01T00:00:00Z') }
+        });
+        const runner = buildRunner({ uuids: [targetUuid, alreadyMigratedUuid] });
+
+        const matched = await runQuery(runner);
+
+        expect(matched.map((d) => d._uuid)).toEqual([targetUuid]);
+    });
+
+    test('throws on an invalid uuid in --ids', () => {
+        expect(() => buildRunner({ uuids: ['not-a-uuid'] })).toThrow('Invalid uuid(s) in --ids: not-a-uuid');
+    });
 });

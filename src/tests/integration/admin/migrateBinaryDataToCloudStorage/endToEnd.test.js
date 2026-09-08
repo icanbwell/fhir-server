@@ -143,4 +143,54 @@ describe('MigrateBinaryDataToCloudStorageRunner end-to-end', () => {
             downloadSpy.mockRestore();
         }
     });
+
+    test('--ids retries only the specified resource, leaving an equally-eligible sibling untouched', async () => {
+        const request = await createTestRequest(registerMockClient);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const retryId = 'binary-retry-target';
+        const siblingId = 'binary-retry-sibling';
+
+        for (const id of [retryId, siblingId]) {
+            await request
+                .put(`/4_0_0/Binary/${id}`)
+                .send(buildBinary({ id, data: SMALL_DATA }))
+                .set(getHeaders())
+                .expect(201);
+        }
+
+        const db = await container.mongoDatabaseManager.getClientDbAsync();
+        const collection = db.collection('Binary_4_0_0');
+        const retryDoc = await collection.findOne({ id: retryId });
+        const siblingDoc = await collection.findOne({ id: siblingId });
+        await collection.updateOne({ _id: retryDoc._id }, { $set: { data: LARGE_DATA } });
+        await collection.updateOne({ _id: siblingDoc._id }, { $set: { data: LARGE_DATA } });
+
+        const runner = new MigrateBinaryDataToCloudStorageRunner({
+            mongoDatabaseManager: container.mongoDatabaseManager,
+            adminLogger: new AdminLogger(),
+            batchSize: 10,
+            concurrency: 2,
+            thresholdKB: 1,
+            startId: undefined,
+            count: undefined,
+            fromDate: undefined,
+            toDate: undefined,
+            uuids: [retryDoc._uuid],
+            dryRun: false,
+            base64FieldCloudStorageClient: liveClient,
+            configManager: container.configManager
+        });
+        await runner.processAsync();
+
+        expect(runner.documentsMigrated).toBe(1);
+
+        const retriedAfter = await collection.findOne({ _id: retryDoc._id });
+        expect(retriedAfter.data).toBeUndefined();
+        expect(retriedAfter._blobMeta).toBeDefined();
+
+        const siblingAfter = await collection.findOne({ _id: siblingDoc._id });
+        expect(siblingAfter.data).toBe(LARGE_DATA);
+        expect(siblingAfter._blobMeta).toBeUndefined();
+    });
 });
