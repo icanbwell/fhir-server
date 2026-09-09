@@ -103,6 +103,19 @@ async function settleAllOrThrow(promises) {
 }
 
 /**
+ * @param {*[]} target
+ * @param {*[]|undefined} [source]
+ */
+function pushAll(target, source) {
+    if (!source) {
+        return;
+    }
+    for (const item of source) {
+        target.push(item);
+    }
+}
+
+/**
  * This class is for $everything operation
  */
 class EverythingHelper {
@@ -973,7 +986,7 @@ class EverythingHelper {
                 });
 
                 if (!responseStreamer) {
-                    entries.push(...(relatedEntities || []))
+                    pushAll(entries, relatedEntities);
                 }
 
                 for (const q of queryItems) {
@@ -1029,7 +1042,7 @@ class EverythingHelper {
                 });
 
                 if (!responseStreamer) {
-                    entries.push(...(subscriptionEntities || []))
+                    pushAll(entries, subscriptionEntities);
                 }
 
                 for (const q of subscriptionQueryItems) {
@@ -1123,11 +1136,11 @@ class EverythingHelper {
                             if (depthParallelProcess.length >= this.configManager.everythingMaxParallelProcess) {
                                 const depthResults = await settleAllOrThrow(depthParallelProcess);
                                 depthResults.forEach((result) => {
-                                    queries.push(...(result.queryItems || []));
-                                    explanations.push(...(result.explanations || []));
-                                    optionsForQueries.push(...(result.options || []));
+                                    pushAll(queries, result.queryItems);
+                                    pushAll(explanations, result.explanations);
+                                    pushAll(optionsForQueries, result.options);
                                     if (!responseStreamer) {
-                                        entries.push(...(result.entries || []));
+                                        pushAll(entries, result.entries);
                                     }
                                 });
                                 depthParallelProcess = [];
@@ -1138,11 +1151,11 @@ class EverythingHelper {
                     if (depthParallelProcess.length > 0) {
                         const depthResults = await settleAllOrThrow(depthParallelProcess);
                         depthResults.forEach((result) => {
-                            queries.push(...(result.queryItems || []));
-                            explanations.push(...(result.explanations || []));
-                            optionsForQueries.push(...(result.options || []));
+                            pushAll(queries, result.queryItems);
+                            pushAll(explanations, result.explanations);
+                            pushAll(optionsForQueries, result.options);
                             if (!responseStreamer) {
-                                entries.push(...(result.entries || []));
+                                pushAll(entries, result.entries);
                             }
                         });
                     }
@@ -1371,7 +1384,7 @@ class EverythingHelper {
                 streamedResources
             });
 
-            entries.push(...(bundleEntries || []));
+            pushAll(entries, bundleEntries);
         }
 
         return new ProcessMultipleIdsAsyncResult({
@@ -1755,7 +1768,7 @@ class EverythingHelper {
 
         const result = await settleAllOrThrow(parallelProcess);
         result.forEach(entry => {
-            bundleEntries.push(...(entry.bundleEntries || []));
+            pushAll(bundleEntries, entry.bundleEntries);
         })
 
 
@@ -2090,5 +2103,6 @@ class EverythingHelper {
 
 module.exports = {
     EverythingHelper,
-    escapeForJsonTemplate
+    escapeForJsonTemplate,
+    pushAll
 };
