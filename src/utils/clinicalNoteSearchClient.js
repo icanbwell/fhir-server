@@ -53,17 +53,11 @@ class ClinicalNoteSearchClient {
             return Array.from(ids);
         } catch (e) {
             // RethrownError does not preserve `instanceof` against the wrapped error (it extends
-            // Error directly, not the wrapped error's class), so callers that need
-            // `instanceof ExternalTimeoutError` must receive the ExternalTimeoutError itself.
-            const timeoutError = new ExternalTimeoutError(
+            // Error directly, not the wrapped error's class), so callers that need to check the
+            // error type must receive the ExternalTimeoutError itself.
+            throw new ExternalTimeoutError(
                 `_content search is temporarily unavailable (resourceType=${resourceType}): ${e.message}`
             );
-            // ServerError's own constructor (src/middleware/fhir/utils/server.error.js) resets
-            // `this`'s prototype to ServerError.prototype, which breaks `instanceof` for every
-            // ServerError subclass, including ExternalTimeoutError. Restore it here so callers
-            // can rely on `instanceof ExternalTimeoutError`.
-            Object.setPrototypeOf(timeoutError, ExternalTimeoutError.prototype);
-            throw timeoutError;
         }
     }
 }

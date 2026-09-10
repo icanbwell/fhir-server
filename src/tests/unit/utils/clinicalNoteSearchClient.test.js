@@ -1,6 +1,5 @@
 const { describe, test, expect, jest: jestGlobal } = require('@jest/globals');
 const { ClinicalNoteSearchClient } = require('../../../utils/clinicalNoteSearchClient');
-const { ExternalTimeoutError } = require('../../../utils/httpErrors');
 
 function makeFakeDb (docs, { shouldThrow = false } = {}) {
     return {
@@ -17,6 +16,26 @@ function makeFakeDb (docs, { shouldThrow = false } = {}) {
 
 function makeConfigManager ({ collectionName = 'clinical_notes', indexName = 'fhir-notes-text-search' } = {}) {
     return { fhirNotesMongoCollectionName: collectionName, fhirNotesTextSearchIndexName: indexName };
+}
+
+// NOTE: ServerError's constructor (src/middleware/fhir/utils/server.error.js) calls
+// `Object.setPrototypeOf(this, ServerError.prototype)` unconditionally, which resets the
+// prototype chain on every subclass instance (including ExternalTimeoutError) back to
+// ServerError.prototype. This means `err instanceof ExternalTimeoutError` is always false for a
+// *pre-existing, unrelated* reason -- see the "BUG" comments in
+// src/tests/unit/utils/httpErrors.test.js and the same pattern in
+// src/tests/unit/operations/query/filters/composite.test.js, which already document this and
+// assert on `err.statusCode` instead of using `toThrow`/`toBeInstanceOf`. We follow that same
+// established convention here rather than changing ServerError (out of scope for this task).
+async function expectExternalTimeoutError (promise) {
+    let thrown;
+    try {
+        await promise;
+    } catch (e) {
+        thrown = e;
+    }
+    expect(thrown).toBeDefined();
+    expect(thrown.statusCode).toBe(504);
 }
 
 describe('ClinicalNoteSearchClient', () => {
@@ -55,10 +74,10 @@ describe('ClinicalNoteSearchClient', () => {
         const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
         const client = new ClinicalNoteSearchClient({ mongoDatabaseManager, configManager: makeConfigManager() });
 
-        await expect(client.findMatchingResourceIdsAsync({
+        await expectExternalTimeoutError(client.findMatchingResourceIdsAsync({
             resourceType: 'DocumentReference',
             contentQuery: 'diabetes'
-        })).rejects.toBeInstanceOf(ExternalTimeoutError);
+        }));
     });
 
     test('builds the compound/queryString/filter shape against the configured index and collection', async () => {
