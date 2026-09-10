@@ -2,6 +2,7 @@ const {isTrue, isTrueWithFallback} = require('./isTrue');
 const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
 const { DEFAULT_ASSURANCE_MINIMUM_LEVEL } = require('./personLinkAssuranceLevel');
+const { fhirNotesMongoConfig } = require('../config');
 
 const env = process.env;
 
@@ -568,6 +569,35 @@ class ConfigManager {
             return false;
         }
         return isTrue(env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ);
+    }
+
+    /**
+     * True only when every field needed to reach the fhir-notes-vector-store cluster and its
+     * Atlas Search index is present, AND the ENABLE_FULL_TEXT_SEARCH flag is explicitly on. The
+     * flag is separate from connection config so an operator can deploy the connection ahead of a
+     * rollout and flip this one flag to enable/disable, or use it as an emergency kill switch
+     * without touching connection env vars (mirrors enableAuditEventArchiveRead's pattern above).
+     * `_content` search and derived-text enrichment/reverse-lookup are all gated on this.
+     * @returns {boolean}
+     */
+    get fhirNotesFullTextSearchConfigured() {
+        if (!isTrue(env.ENABLE_FULL_TEXT_SEARCH)) {
+            return false;
+        }
+        return Boolean(
+            fhirNotesMongoConfig.connection &&
+            fhirNotesMongoConfig.db_name &&
+            fhirNotesMongoConfig.collection_name &&
+            fhirNotesMongoConfig.index_name
+        );
+    }
+
+    get fhirNotesMongoCollectionName() {
+        return fhirNotesMongoConfig.collection_name;
+    }
+
+    get fhirNotesTextSearchIndexName() {
+        return fhirNotesMongoConfig.index_name;
     }
 
     /**

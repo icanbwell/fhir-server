@@ -43,7 +43,8 @@ jest.mock('../../../config', () => ({
         connection: 'mongodb://user:pass@localhost:27017',
         db_name: 'resource_history',
         options: { maxPoolSize: 10 }
-    }
+    },
+    fhirNotesMongoConfig: {}
 }));
 
 // Mock MongoClient
@@ -492,6 +493,44 @@ describe('MongoDatabaseManager', () => {
             const mongoDatabaseManager = new MongoDatabaseManager({ configManager: new ConfigManager() });
             const db = await mongoDatabaseManager.getFhirNotesDbAsync();
             expect(db).toBeNull();
+        });
+
+        test('returns non-null db when fhirNotesFullTextSearchConfigured is true and attempts to connect', async () => {
+            // Create a mock configManager with fhirNotesFullTextSearchConfigured returning true
+            const mockConfigManagerWithFhirNotes = Object.create(ConfigManager.prototype);
+            Object.defineProperty(mockConfigManagerWithFhirNotes, 'enableAuditEventArchiveRead', {
+                get: () => false,
+                configurable: true
+            });
+            Object.defineProperty(mockConfigManagerWithFhirNotes, 'fhirNotesFullTextSearchConfigured', {
+                get: () => true,
+                configurable: true
+            });
+
+            // Reset mocks for this test
+            mockConnect.mockClear();
+            mockDb.mockClear();
+
+            const mongoDatabaseManagerWithFhirNotes = new MongoDatabaseManager({ configManager: mockConfigManagerWithFhirNotes });
+
+            // Mock getFhirNotesConfigAsync to return a valid config with connection
+            mongoDatabaseManagerWithFhirNotes.getFhirNotesConfigAsync = jest.fn().mockResolvedValue({
+                connection: 'mongodb://user:pass@localhost:27017',
+                db_name: 'fhir_notes',
+                collection_name: 'clinical_notes',
+                index_name: 'fhir-notes-text-search',
+                options: { maxPoolSize: 10 }
+            });
+
+            // Call getFhirNotesDbAsync which should trigger connection attempt
+            const db = await mongoDatabaseManagerWithFhirNotes.getFhirNotesDbAsync();
+
+            // Verify that connect was attempted
+            expect(mockConnect).toHaveBeenCalled();
+            // Verify that db() was called on the client
+            expect(mockDb).toHaveBeenCalled();
+            // Verify that we got a non-null db object
+            expect(db).not.toBeNull();
         });
     });
 });
