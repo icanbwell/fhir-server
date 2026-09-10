@@ -79,6 +79,27 @@ describe('RethrownError', () => {
             const result = rethrown.buildCombinedStacks('just a stack', null);
             expect(result).toBe('just a stack');
         });
+
+        test('stack is a combined string, not undefined', () => {
+            const inner = new Error('inner failure');
+            const rethrown = new RethrownError({ message: 'outer context', error: inner });
+
+            expect(typeof rethrown.stack).toBe('string');
+            expect(rethrown.stack).toContain('inner failure');
+            expect(rethrown.stack).toContain('Causes:');
+            expect(rethrown.stack).toContain('RethrownError: outer context');
+        });
+
+        test('stack remains a combined string through multiple rethrows', () => {
+            const rootCause = new Error('root cause');
+            const firstRethrow = new RethrownError({ message: 'first wrap', error: rootCause });
+            const secondRethrow = new RethrownError({ message: 'second wrap', error: firstRethrow });
+
+            expect(typeof secondRethrow.stack).toBe('string');
+            expect(secondRethrow.stack).toContain('root cause');
+            expect(secondRethrow.stack).toContain('first wrap');
+            expect(secondRethrow.stack).toContain('second wrap');
+        });
     });
 
     describe('original_error unwrapping', () => {

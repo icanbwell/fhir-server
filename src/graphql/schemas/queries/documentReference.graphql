@@ -173,6 +173,12 @@ extend type Query {
         """
         type: SearchToken
 
+        """
+        relationship (FHIR type: composite)
+        Combination of relation and relatesTo
+        """
+        relationship: SearchString
+
         # miscellaneous parameters
         """
         return total number of records that meet this query

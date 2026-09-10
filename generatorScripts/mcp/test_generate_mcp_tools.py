@@ -43,6 +43,13 @@ def test_format_mcp_description_includes_quantity_syntax_hint():
     assert "\\'[comparator]value|system|code\\'" in result
 
 
+def test_format_mcp_description_includes_composite_syntax_hint():
+    param = {"code": "code-value-quantity", "type": "composite", "description": "Code and quantity value parameter pair", "target": []}
+    result = generate_mcp_tools.format_mcp_description(param, "Observation")
+    assert "$" in result
+    assert "composite" in result  # the '(composite)' type suffix
+
+
 def test_format_mcp_description_falls_back_gracefully_for_unmapped_type():
     param = {"code": "special-param", "type": "special", "description": "Something unusual", "target": []}
     result = generate_mcp_tools.format_mcp_description(param, "Patient")

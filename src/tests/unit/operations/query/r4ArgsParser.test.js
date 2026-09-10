@@ -358,3 +358,124 @@ describe('R4ArgsParser', () => {
         });
     });
 });
+
+describe('R4ArgsParser composite fieldType resolution', () => {
+    test('sets fieldType on every composite component after parseArgs', () => {
+        const component1 = new SearchParameterDefinition({ type: 'token', field: 'code' });
+        const component2 = new SearchParameterDefinition({
+            type: 'quantity',
+            field: 'valueQuantity'
+        });
+        const compositeDef = new SearchParameterDefinition({
+            type: 'composite',
+            scopes: [{ components: [component1, component2] }]
+        });
+        const searchParametersManager = new SearchParametersManager();
+        searchParametersManager.getPropertyObject = () => compositeDef;
+
+        const r4ArgsParser = new R4ArgsParser({
+            fhirTypesManager: new FhirTypesManager(),
+            configManager: new ConfigManager(),
+            searchParametersManager
+        });
+
+        r4ArgsParser.parseArgs({
+            resourceType: 'Observation',
+            args: { 'code-value-quantity': '8480-6$ge140', base_version: '4_0_0' }
+        });
+
+        expect(component1.fieldType).toBe('CodeableConcept');
+        expect(component2.fieldType).toBe('Quantity');
+    });
+
+    test('resolves fieldType for an array-scoped component off the full arrayField.firstField ' +
+        'path, not the bare relative field', () => {
+        // ActivityDefinition.code (bare relative field) is a CodeableConcept, but this
+        // component's `code` is relative to the `useContext` array (a UsageContext), whose real
+        // field is ActivityDefinition.useContext.code -- a Coding. Resolving off the bare field
+        // finds the wrong data and silently produces a filter that can never match (see
+        // src/operations/query/filters/composite.test.js for the filter-shape regression test).
+        const arrayScopedComponent = new SearchParameterDefinition({
+            type: 'token',
+            field: 'code',
+            arrayField: 'useContext'
+        });
+        const valueComponent = new SearchParameterDefinition({
+            type: 'quantity',
+            fields: ['valueQuantity', 'valueRange'],
+            arrayField: 'useContext'
+        });
+        const compositeDef = new SearchParameterDefinition({
+            type: 'composite',
+            scopes: [{ components: [arrayScopedComponent, valueComponent] }]
+        });
+        const searchParametersManager = new SearchParametersManager();
+        searchParametersManager.getPropertyObject = () => compositeDef;
+
+        const fhirTypesManager = new FhirTypesManager();
+        const r4ArgsParser = new R4ArgsParser({
+            fhirTypesManager,
+            configManager: new ConfigManager(),
+            searchParametersManager
+        });
+
+        r4ArgsParser.parseArgs({
+            resourceType: 'ActivityDefinition',
+            args: { 'context-type-quantity': 'a$ge140', base_version: '4_0_0' }
+        });
+
+        const fullPathFieldType = fhirTypesManager.getTypeForField({
+            resourceType: 'ActivityDefinition',
+            field: 'useContext.code'
+        });
+        const bareRelativeFieldType = fhirTypesManager.getTypeForField({
+            resourceType: 'ActivityDefinition',
+            field: 'code'
+        });
+
+        // Sanity check that this scenario actually exercises a case where the two lookups
+        // disagree -- otherwise the assertion below wouldn't catch a regression.
+        expect(bareRelativeFieldType).toBe('CodeableConcept');
+        expect(fullPathFieldType).not.toBe(bareRelativeFieldType);
+
+        expect(arrayScopedComponent.fieldType).toBe(fullPathFieldType);
+        expect(arrayScopedComponent.fieldType).not.toBe(bareRelativeFieldType);
+    });
+
+    test('resolves a per-field fieldTypesObj for a multi-field token component (polymorphic ' +
+        'value[x], e.g. Group.characteristic-value), instead of one shared fieldType off ' +
+        'firstField', () => {
+        const codeComponent = new SearchParameterDefinition({
+            type: 'token',
+            field: 'code',
+            arrayField: 'characteristic'
+        });
+        const valueComponent = new SearchParameterDefinition({
+            type: 'token',
+            fields: ['valueCodeableConcept', 'valueBoolean'],
+            arrayField: 'characteristic'
+        });
+        const compositeDef = new SearchParameterDefinition({
+            type: 'composite',
+            scopes: [{ components: [codeComponent, valueComponent] }]
+        });
+        const searchParametersManager = new SearchParametersManager();
+        searchParametersManager.getPropertyObject = () => compositeDef;
+
+        const r4ArgsParser = new R4ArgsParser({
+            fhirTypesManager: new FhirTypesManager(),
+            configManager: new ConfigManager(),
+            searchParametersManager
+        });
+
+        r4ArgsParser.parseArgs({
+            resourceType: 'Group',
+            args: { 'characteristic-value': 'code$true', base_version: '4_0_0' }
+        });
+
+        // sanity: the two fields really do resolve to different types -- otherwise this test
+        // wouldn't catch a regression back to a single fieldType derived from firstField alone
+        expect(valueComponent.fieldTypesObj.valueCodeableConcept).toBe('CodeableConcept');
+        expect(valueComponent.fieldTypesObj.valueBoolean).toBe('boolean');
+    });
+});

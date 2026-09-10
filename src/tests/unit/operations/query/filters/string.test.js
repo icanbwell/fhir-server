@@ -46,6 +46,12 @@ describe('FilterByString', () => {
         expect(result.name).toBe('Smith');
     });
 
+    test('exact modifier unescapes an escaped comma so it matches the literal value', () => {
+        const filter = createFilter(null, ['exact']);
+        const result = filter.filterByItem('name', 'Smith\\, Jones');
+        expect(result.name).toBe('Smith, Jones');
+    });
+
     test('HumanName field uses nameQueryBuilder with $or', () => {
         const filter = createFilter('HumanName');
         const result = filter.filterByItem('name', 'Smith');
