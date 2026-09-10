@@ -338,11 +338,15 @@ authorized to read that specific `Binary`.
 | `FHIR_NOTES_MONGO_DATABASE` | Database name on that cluster |
 | `FHIR_NOTES_MONGO_COLLECTION` | Collection name (the `ClinicalNote` collection) |
 | `FHIR_NOTES_TEXT_SEARCH_INDEX_NAME` | Atlas Search index name already created by that service |
+| `ENABLE_FULL_TEXT_SEARCH` | Explicit on/off flag for the whole feature, independent of the connection vars above |
 
-All four are required together for `_content` search and the enrichment/reverse-lookup features to
-function; if unset, `_content` search returns `BadRequestError` (feature not configured in this
-environment — same posture as an unsupported resourceType) and the enrichment/reverse-lookup
-triggers are simply no-ops (resource returned without derived text).
+The four connection vars are required together; `ENABLE_FULL_TEXT_SEARCH` is a separate, additional
+gate on top of them — this lets an operator deploy the connection config ahead of a rollout and flip
+one flag to enable/disable, or use it as an emergency kill switch without touching connection config.
+The feature is "configured" only when all four connection vars are set **and** the flag is on; if
+not, `_content` search returns `BadRequestError` (feature not configured in this environment — same
+posture as an unsupported resourceType) and the enrichment/reverse-lookup triggers are simply no-ops
+(resource returned without derived text).
 
 ## Testing Plan
 

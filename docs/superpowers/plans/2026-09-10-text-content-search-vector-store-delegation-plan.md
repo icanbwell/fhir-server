@@ -1,0 +1,1794 @@
+# `_content` Search via `fhir-notes-vector-store` Delegation — Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Implement the FHIR `_content` search parameter for `DocumentReference`/`DiagnosticReport`/
+`CarePlan` by delegating to `fhir-notes-vector-store`'s existing MongoDB Atlas Search index, plus
+derived-text read enrichment and a `Binary` reverse lookup, all re-authorized through fhir-server's
+normal tenant-scoped query path.
+
+**Architecture:** A new, read-only Mongo connection to the `fhir-notes-vector-store` cluster.
+`ClinicalNoteSearchClient` runs a `$search`/`queryString` Atlas Search query against that cluster to
+get candidate FHIR ids, which `SearchManager.constructQueryAsync` folds into the request as a normal
+`_id ∈ [...]` filter (via the existing `FilterById`) *before* tenant/patient/access-tag scoping is
+applied — so every candidate is re-authorized by code that already runs for every other search
+parameter, never by a separate path. `ClinicalNoteTextRetriever` reassembles chunked text for the
+read-enrichment and `Binary` reverse-lookup features, both implemented as `EnrichmentProvider`s that
+run after (never before) a resource's own authorized fetch.
+
+**Tech Stack:** Node.js / CommonJS, Jest, MongoDB (`mongodb` driver, Atlas Search `$search`).
+
+**Spec:** `docs/superpowers/specs/2026-09-10-text-content-search-design.md`
+
+## Global Constraints
+
+- Supported resource types for `_content` search and read enrichment: exactly `DocumentReference`,
+  `DiagnosticReport`, `CarePlan` (search) — `CarePlan` needs no read enrichment (its `note[].text` is
+  already plain text). `_content` on any other resource type is a `BadRequestError`, never a silent
+  no-op and never a silent full scan.
+- A candidate resource id returned by the vector-store cluster is **never** the authorization
+  boundary — it becomes an ordinary `_id ∈ [...]` filter that flows through the *same, unmodified*
+  tenant/patient/access-tag scoping every other search request already goes through. No new
+  "vector store says yes" code path is introduced anywhere in this plan.
+- An empty vector-store candidate list must produce zero search results (`FilterById.getListFilter([])`
+  already returns `{ _uuid: { $in: [] } }` — never "no filter, so return everything").
+- If the vector-store cluster is unreachable during a `_content` **search**, fail the request
+  (`ExternalTimeoutError`, HTTP 504) — never silently fall back to an unfiltered result set.
+- If the vector-store cluster is unreachable during **read enrichment** or the **`Binary` reverse
+  lookup**, degrade gracefully: return the base resource without the derived text, log it. This is
+  never a request-failing error.
+- The read-enrichment / reverse-lookup trigger is `_content` present with an **empty string** value,
+  and only applies when the request targets exactly one resource by id — detected via
+  `parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id')` having exactly one value (the same
+  signal `searchById.js` itself uses to detect a by-id read). This works whether the request reached
+  the enrichment provider via a true `read`/`vread` operation or via a `search` with an explicit
+  `_id=` param — both are bounded to one resource, so both are safe.
+- All new config (`FHIR_NOTES_MONGO_URL`, `FHIR_NOTES_MONGO_DB_NAME`,
+  `FHIR_NOTES_MONGO_COLLECTION_NAME`, `FHIR_NOTES_TEXT_SEARCH_INDEX_NAME`) must be set together for
+  the feature to be considered "configured"; if any is missing, `_content` search throws
+  `BadRequestError` (feature not configured) and the enrichment/reverse-lookup providers no-op.
+- The feature also requires an explicit `ENABLE_FULL_TEXT_SEARCH=1` flag, independent of whether the
+  connection is wired up — this separates "is the cross-cluster connection configured" from "is the
+  feature turned on," mirroring this codebase's existing `enableAuditEventArchiveRead`-style
+  kill-switch pattern (`src/utils/configManager.js:566`). An operator can deploy the connection
+  config ahead of a rollout and flip this one flag to enable/disable, or use it as an emergency kill
+  switch without touching connection env vars. `fhirNotesFullTextSearchConfigured` (Task 3) is `true`
+  only when **both** the connection is fully configured **and** this flag is set.
+
+---
+
+## Task 1: `fhirNotesMongoConfig` — config for the read-only cross-cluster connection
+
+**Files:**
+- Modify: `src/config.js:216` (insert after `resourceHistoryMongoConfig`, before the whitelist section)
+- Test: `src/tests/unit/config/fhirNotesMongoConfig.test.js` (new)
+
+**Interfaces:**
+- Produces: `fhirNotesMongoConfig: {connection: string|undefined, db_name: string|undefined,
+  collection_name: string|undefined, index_name: string|undefined, options:
+  import('mongodb').MongoClientOptions} | {}` exported from `src/config.js`. `connection` is
+  `undefined` (object has no `connection` key at all) when `FHIR_NOTES_MONGO_URL` isn't set — this is
+  the "feature not configured" signal Task 3's `ConfigManager` getter checks.
+
+- [ ] **Step 1: Write the failing test**
+
+```js
+const { describe, test, expect, afterEach } = require('@jest/globals');
+
+describe('fhirNotesMongoConfig', () => {
+    const ORIGINAL_ENV = process.env;
+
+    afterEach(() => {
+        process.env = ORIGINAL_ENV;
+        jest.resetModules();
+    });
+
+    test('has no connection when FHIR_NOTES_MONGO_URL is unset', () => {
+        jest.resetModules();
+        process.env = { ...ORIGINAL_ENV };
+        delete process.env.FHIR_NOTES_MONGO_URL;
+        const { fhirNotesMongoConfig } = require('../../../config');
+        expect(fhirNotesMongoConfig.connection).toBeUndefined();
+    });
+
+    test('builds connection/db_name/collection_name/index_name from env when set', () => {
+        jest.resetModules();
+        process.env = {
+            ...ORIGINAL_ENV,
+            FHIR_NOTES_MONGO_URL: 'mongodb://fhir-notes-host:27017',
+            FHIR_NOTES_MONGO_DB_NAME: 'fhir_notes',
+            FHIR_NOTES_MONGO_COLLECTION_NAME: 'clinical_notes',
+            FHIR_NOTES_TEXT_SEARCH_INDEX_NAME: 'fhir-notes-text-search'
+        };
+        const { fhirNotesMongoConfig } = require('../../../config');
+        expect(fhirNotesMongoConfig.connection).toEqual('mongodb://fhir-notes-host:27017');
+        expect(fhirNotesMongoConfig.db_name).toEqual('fhir_notes');
+        expect(fhirNotesMongoConfig.collection_name).toEqual('clinical_notes');
+        expect(fhirNotesMongoConfig.index_name).toEqual('fhir-notes-text-search');
+    });
+
+    test('embeds username/password into the connection string when provided', () => {
+        jest.resetModules();
+        process.env = {
+            ...ORIGINAL_ENV,
+            FHIR_NOTES_MONGO_URL: 'mongodb://fhir-notes-host:27017',
+            FHIR_NOTES_MONGO_USERNAME: 'reader',
+            FHIR_NOTES_MONGO_PASSWORD: 'secret',
+            FHIR_NOTES_MONGO_DB_NAME: 'fhir_notes',
+            FHIR_NOTES_MONGO_COLLECTION_NAME: 'clinical_notes',
+            FHIR_NOTES_TEXT_SEARCH_INDEX_NAME: 'fhir-notes-text-search'
+        };
+        const { fhirNotesMongoConfig } = require('../../../config');
+        expect(fhirNotesMongoConfig.connection).toContain('reader:secret@');
+    });
+});
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/config/fhirNotesMongoConfig.test.js -v`
+Expected: FAIL — `fhirNotesMongoConfig` is not exported from `../../../config`.
+
+- [ ] **Step 3: Write minimal implementation**
+
+Insert into `src/config.js`, immediately after the closing brace of the `resourceHistoryMongoConfig`
+block (after line 216, before the `// Set up whitelist` comment):
+
+```js
+/**
+ * @name fhirNotesMongoConfig
+ * @summary Configuration for the read-only fhir-notes-vector-store Mongo cluster. Absent
+ * `connection` means the feature is not configured in this environment.
+ * @type {{connection: string, db_name: string, collection_name: string, index_name: string, options: import('mongodb').MongoClientOptions }}
+ */
+let fhirNotesMongoConfig = {};
+if (env.FHIR_NOTES_MONGO_URL) {
+    let fhirNotesMongoUrl = env.FHIR_NOTES_MONGO_URL;
+    if (env.FHIR_NOTES_MONGO_USERNAME !== undefined) {
+        fhirNotesMongoUrl = fhirNotesMongoUrl.replace(
+            'mongodb://',
+            `mongodb://${env.FHIR_NOTES_MONGO_USERNAME}:${env.FHIR_NOTES_MONGO_PASSWORD}@`
+        );
+        fhirNotesMongoUrl = fhirNotesMongoUrl.replace(
+            'mongodb+srv://',
+            `mongodb+srv://${env.FHIR_NOTES_MONGO_USERNAME}:${env.FHIR_NOTES_MONGO_PASSWORD}@`
+        );
+    }
+    // url-encode the url
+    fhirNotesMongoUrl = encodeURI(fhirNotesMongoUrl);
+    const fhirNotesQueryParams = getQueryParams(fhirNotesMongoUrl);
+    delete fhirNotesQueryParams.w;
+    fhirNotesMongoConfig = {
+        connection: fhirNotesMongoUrl,
+        db_name: env.FHIR_NOTES_MONGO_DB_NAME ? String(env.FHIR_NOTES_MONGO_DB_NAME) : undefined,
+        collection_name: env.FHIR_NOTES_MONGO_COLLECTION_NAME
+            ? String(env.FHIR_NOTES_MONGO_COLLECTION_NAME)
+            : undefined,
+        index_name: env.FHIR_NOTES_TEXT_SEARCH_INDEX_NAME
+            ? String(env.FHIR_NOTES_TEXT_SEARCH_INDEX_NAME)
+            : undefined,
+        options: {
+            ...options,
+            ...fhirNotesQueryParams,
+            // read-only workload against a dependency-of-a-dependency cluster: small pool,
+            // short timeout so an outage there can't stall fhir-server's primary request path
+            minPoolSize: env.FHIR_NOTES_MIN_POOL_SIZE ? parseInt(env.FHIR_NOTES_MIN_POOL_SIZE) : 1,
+            maxPoolSize: env.FHIR_NOTES_MAX_POOL_SIZE ? parseInt(env.FHIR_NOTES_MAX_POOL_SIZE) : 10,
+            connectTimeoutMS: env.FHIR_NOTES_MONGO_CONNECT_TIMEOUT
+                ? parseInt(env.FHIR_NOTES_MONGO_CONNECT_TIMEOUT)
+                : 5000,
+            serverSelectionTimeoutMS: env.FHIR_NOTES_MONGO_SERVER_SELECTION_TIMEOUT
+                ? parseInt(env.FHIR_NOTES_MONGO_SERVER_SELECTION_TIMEOUT)
+                : 5000
+        }
+    };
+}
+```
+
+Add `fhirNotesMongoConfig` to the `module.exports` block at the bottom of `src/config.js` (alongside
+the existing `auditEventMongoConfig, resourceHistoryMongoConfig` export line).
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/config/fhirNotesMongoConfig.test.js -v`
+Expected: PASS
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/config.js src/tests/unit/config/fhirNotesMongoConfig.test.js
+git commit -m "feat: add fhirNotesMongoConfig for the read-only vector-store connection"
+```
+
+---
+
+## Task 2: `MongoDatabaseManager` — connect to the vector-store cluster
+
+**Files:**
+- Modify: `src/utils/mongoDatabaseManager.js`
+- Test: `src/tests/unit/utils/mongoDatabaseManager.test.js` (existing file — add new test cases)
+
+**Interfaces:**
+- Consumes: `fhirNotesMongoConfig` from Task 1.
+- Produces: `MongoDatabaseManager.getFhirNotesDbAsync(): Promise<import('mongodb').Db|null>` — `null`
+  when `fhirNotesMongoConfig.connection` is unset (feature not configured). Task 5/7 consume this.
+
+- [ ] **Step 1: Write the failing test**
+
+Read the existing `src/tests/unit/utils/mongoDatabaseManager.test.js` first to match its exact mocking
+style for `MongoClient`/`connectAsync`, then add:
+
+```js
+test('getFhirNotesDbAsync returns null when fhirNotesMongoConfig has no connection', async () => {
+    jest.doMock('../../../config', () => ({
+        ...jest.requireActual('../../../config'),
+        fhirNotesMongoConfig: {}
+    }));
+    jest.resetModules();
+    const { MongoDatabaseManager } = require('../../../utils/mongoDatabaseManager');
+    const { ConfigManager } = require('../../../utils/configManager');
+    const mongoDatabaseManager = new MongoDatabaseManager({ configManager: new ConfigManager() });
+    const db = await mongoDatabaseManager.getFhirNotesDbAsync();
+    expect(db).toBeNull();
+});
+```
+
+(This test's exact double-mocking mechanics must match whatever pattern the existing file already
+uses to stub `MongoClient.connect` for the primary/audit/history connections — reuse that pattern
+rather than introducing a new one, since `connectAsync()` will call `createClientAsync` for every
+configured cluster including this new one.)
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/mongoDatabaseManager.test.js -v`
+Expected: FAIL — `getFhirNotesDbAsync is not a function`.
+
+- [ ] **Step 3: Write minimal implementation**
+
+In `src/utils/mongoDatabaseManager.js`:
+
+1. Add `fhirNotesMongoConfig` to the destructured import on line 1.
+2. Add a new module-level `let fhirNotesDb = null;` near the other `let ...Db = null;` declarations.
+3. Add:
+
+```js
+/**
+ * Gets the fhir-notes-vector-store db (read-only). Returns null when the feature isn't
+ * configured in this environment (FHIR_NOTES_MONGO_URL unset).
+ * @returns {Promise<import('mongodb').Db|null>}
+ */
+async getFhirNotesDbAsync () {
+    if (!this.configManager.fhirNotesFullTextSearchConfigured) {
+        return null;
+    }
+    if (!fhirNotesDb) {
+        await this.connectAsync();
+    }
+    return fhirNotesDb;
+}
+
+async getFhirNotesConfigAsync () {
+    return fhirNotesMongoConfig;
+}
+```
+
+4. In `connectAsync()`, after the `resourceHistoryDb` block, add:
+
+```js
+if (this.configManager.fhirNotesFullTextSearchConfigured) {
+    const fhirNotesConfig = await this.getFhirNotesConfigAsync();
+    const fhirNotesClient = await this.createClientAsync(fhirNotesConfig);
+    fhirNotesDb = fhirNotesClient.db(fhirNotesConfig.db_name);
+}
+```
+
+(Note: unlike `resourceHistoryConfig`/`auditConfig`, there is deliberately no
+"fall back to the primary `client` if not configured" branch — this is a genuinely separate,
+externally-owned cluster with its own schema; there is no sensible fallback, only "configured" or
+"feature unavailable.")
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/mongoDatabaseManager.test.js -v`
+Expected: PASS (this step depends on Task 3's `configManager.fhirNotesFullTextSearchConfigured`
+getter existing — do Task 3 first if running tests standalone, or stub it in this test file).
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/utils/mongoDatabaseManager.js src/tests/unit/utils/mongoDatabaseManager.test.js
+git commit -m "feat: connect MongoDatabaseManager to the fhir-notes-vector-store cluster"
+```
+
+---
+
+## Task 3: `ConfigManager` getters
+
+**Files:**
+- Modify: `src/utils/configManager.js`
+- Test: `src/tests/unit/utils/configManager.test.js` (existing — add new `describe` block)
+
+**Interfaces:**
+- Consumes: `fhirNotesMongoConfig` from Task 1 (via `require('../config')`, matching how other
+  getters in this file already read from `../config`), `env.ENABLE_FULL_TEXT_SEARCH`.
+- Produces: `ConfigManager.fhirNotesFullTextSearchConfigured: boolean`,
+  `ConfigManager.fhirNotesMongoCollectionName: string|undefined`,
+  `ConfigManager.fhirNotesTextSearchIndexName: string|undefined`. Tasks 2, 5, 7 consume these.
+
+- [ ] **Step 1: Write the failing test**
+
+```js
+const { describe, test, expect } = require('@jest/globals');
+
+describe('ConfigManager fhirNotes getters', () => {
+    const ORIGINAL_ENV = process.env;
+
+    afterEach(() => {
+        process.env = ORIGINAL_ENV;
+    });
+
+    function loadFreshConfigManager ({ fhirNotesMongoConfig, enableFullTextSearch }) {
+        jest.resetModules();
+        process.env = { ...ORIGINAL_ENV };
+        if (enableFullTextSearch === undefined) {
+            delete process.env.ENABLE_FULL_TEXT_SEARCH;
+        } else {
+            process.env.ENABLE_FULL_TEXT_SEARCH = enableFullTextSearch;
+        }
+        jest.doMock('../../../config', () => ({
+            ...jest.requireActual('../../../config'),
+            fhirNotesMongoConfig
+        }));
+        const { ConfigManager: FreshConfigManager } = require('../../../utils/configManager');
+        return new FreshConfigManager();
+    }
+
+    test('fhirNotesFullTextSearchConfigured is false when config is empty, even if the flag is on', () => {
+        const configManager = loadFreshConfigManager({ fhirNotesMongoConfig: {}, enableFullTextSearch: '1' });
+        expect(configManager.fhirNotesFullTextSearchConfigured).toBe(false);
+    });
+
+    test('fhirNotesFullTextSearchConfigured is false when fully configured but ENABLE_FULL_TEXT_SEARCH is unset', () => {
+        const configManager = loadFreshConfigManager({
+            fhirNotesMongoConfig: {
+                connection: 'mongodb://host:27017', db_name: 'fhir_notes',
+                collection_name: 'clinical_notes', index_name: 'fhir-notes-text-search'
+            }
+        });
+        expect(configManager.fhirNotesFullTextSearchConfigured).toBe(false);
+    });
+
+    test('fhirNotesFullTextSearchConfigured is true only when both fully configured and ENABLE_FULL_TEXT_SEARCH=1', () => {
+        const configManager = loadFreshConfigManager({
+            fhirNotesMongoConfig: {
+                connection: 'mongodb://host:27017', db_name: 'fhir_notes',
+                collection_name: 'clinical_notes', index_name: 'fhir-notes-text-search'
+            },
+            enableFullTextSearch: '1'
+        });
+        expect(configManager.fhirNotesFullTextSearchConfigured).toBe(true);
+        expect(configManager.fhirNotesMongoCollectionName).toEqual('clinical_notes');
+        expect(configManager.fhirNotesTextSearchIndexName).toEqual('fhir-notes-text-search');
+    });
+
+    test('fhirNotesFullTextSearchConfigured is false when any required connection field is missing, even with the flag on', () => {
+        const configManager = loadFreshConfigManager({
+            fhirNotesMongoConfig: { connection: 'mongodb://host:27017', db_name: 'fhir_notes' },
+            enableFullTextSearch: '1'
+        });
+        expect(configManager.fhirNotesFullTextSearchConfigured).toBe(false);
+    });
+});
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/configManager.test.js -v`
+Expected: FAIL — `fhirNotesFullTextSearchConfigured` is undefined, not `false`/`true`.
+
+- [ ] **Step 3: Write minimal implementation**
+
+Add to `src/utils/configManager.js` (find the `require('../config')` destructuring at the top of the
+file and add `fhirNotesMongoConfig` to it; add these getters anywhere in the class body, near the
+other feature-flag-style getters):
+
+```js
+/**
+ * True only when every field needed to reach the fhir-notes-vector-store cluster and its
+ * Atlas Search index is present, AND the ENABLE_FULL_TEXT_SEARCH flag is explicitly on. The
+ * flag is separate from connection config so an operator can deploy the connection ahead of a
+ * rollout and flip this one flag to enable/disable, or use it as an emergency kill switch
+ * without touching connection env vars (mirrors enableAuditEventArchiveRead's pattern above).
+ * `_content` search and derived-text enrichment/reverse-lookup are all gated on this.
+ * @returns {boolean}
+ */
+get fhirNotesFullTextSearchConfigured () {
+    if (!isTrue(env.ENABLE_FULL_TEXT_SEARCH)) {
+        return false;
+    }
+    return Boolean(
+        fhirNotesMongoConfig.connection &&
+        fhirNotesMongoConfig.db_name &&
+        fhirNotesMongoConfig.collection_name &&
+        fhirNotesMongoConfig.index_name
+    );
+}
+
+get fhirNotesMongoCollectionName () {
+    return fhirNotesMongoConfig.collection_name;
+}
+
+get fhirNotesTextSearchIndexName () {
+    return fhirNotesMongoConfig.index_name;
+}
+```
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/configManager.test.js -v`
+Expected: PASS
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/utils/configManager.js src/tests/unit/utils/configManager.test.js
+git commit -m "feat: add ConfigManager getters for fhir-notes-vector-store configuration"
+```
+
+---
+
+## Task 4: `FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES` constant
+
+**Files:**
+- Modify: `src/constants.js` (add near `SPECIFIED_QUERY_PARAMS`)
+- Test: `src/tests/unit/constants.test.js` (new, or add to existing constants test if one exists)
+
+**Interfaces:**
+- Produces: `FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES: string[]` = exactly
+  `['DocumentReference', 'DiagnosticReport', 'CarePlan']`. Tasks 5, 8 consume this.
+
+- [ ] **Step 1: Write the failing test**
+
+```js
+const { describe, test, expect } = require('@jest/globals');
+const { FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES } = require('../../constants');
+
+describe('FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES', () => {
+    test('is exactly the three resource types fhir-notes-vector-store indexes', () => {
+        expect(FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES).toEqual(
+            ['DocumentReference', 'DiagnosticReport', 'CarePlan']
+        );
+    });
+});
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/constants.test.js -v`
+Expected: FAIL — not exported.
+
+- [ ] **Step 3: Write minimal implementation**
+
+Add to `src/constants.js`, near `SPECIFIED_QUERY_PARAMS`:
+
+```js
+/**
+ * Resource types fhir-notes-vector-store extracts and Atlas-Search-indexes attachment/note
+ * text for. `_content` search and derived-text enrichment are only supported for these.
+ * @type {string[]}
+ */
+FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES: ['DocumentReference', 'DiagnosticReport', 'CarePlan'],
+```
+
+(Add as a new top-level key in the exported constants object, matching `SPECIFIED_QUERY_PARAMS`'s
+style.)
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/constants.test.js -v`
+Expected: PASS
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/constants.js src/tests/unit/constants.test.js
+git commit -m "feat: add FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES constant"
+```
+
+---
+
+## Task 5: `ClinicalNoteSearchClient`
+
+**Files:**
+- Create: `src/utils/clinicalNoteSearchClient.js`
+- Test: `src/tests/unit/utils/clinicalNoteSearchClient.test.js` (new)
+
+**Interfaces:**
+- Consumes: `MongoDatabaseManager.getFhirNotesDbAsync()` (Task 2),
+  `configManager.fhirNotesMongoCollectionName`/`fhirNotesTextSearchIndexName` (Task 3).
+- Produces: `ClinicalNoteSearchClient.findMatchingResourceIdsAsync({ resourceType: string,
+  contentQuery: string }): Promise<string[]>` — deduped FHIR ids (resourceType prefix stripped),
+  throws `ExternalTimeoutError` on any Mongo error. Task 6 consumes this.
+
+- [ ] **Step 1: Write the failing test**
+
+```js
+const { describe, test, expect, jest: jestGlobal } = require('@jest/globals');
+const { ClinicalNoteSearchClient } = require('../../../utils/clinicalNoteSearchClient');
+const { ExternalTimeoutError } = require('../../../utils/httpErrors');
+
+function makeFakeDb (docs, { shouldThrow = false } = {}) {
+    return {
+        collection: () => ({
+            aggregate: () => {
+                if (shouldThrow) {
+                    return { toArray: async () => { throw new Error('connection reset'); } };
+                }
+                return { toArray: async () => docs };
+            }
+        })
+    };
+}
+
+function makeConfigManager ({ collectionName = 'clinical_notes', indexName = 'fhir-notes-text-search' } = {}) {
+    return { fhirNotesMongoCollectionName: collectionName, fhirNotesTextSearchIndexName: indexName };
+}
+
+describe('ClinicalNoteSearchClient', () => {
+    test('extracts and dedupes ids from debug.resource_reference', async () => {
+        const fakeDb = makeFakeDb([
+            { debug: { resource_reference: 'DocumentReference/abc123' } },
+            { debug: { resource_reference: 'DocumentReference/abc123' } },
+            { debug: { resource_reference: 'DocumentReference/def456' } }
+        ]);
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const client = new ClinicalNoteSearchClient({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const ids = await client.findMatchingResourceIdsAsync({
+            resourceType: 'DocumentReference',
+            contentQuery: '(bone OR liver) AND metastases'
+        });
+
+        expect(ids.sort()).toEqual(['abc123', 'def456']);
+    });
+
+    test('returns empty array when no chunks match', async () => {
+        const fakeDb = makeFakeDb([]);
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const client = new ClinicalNoteSearchClient({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const ids = await client.findMatchingResourceIdsAsync({
+            resourceType: 'DocumentReference',
+            contentQuery: 'nonexistent-term'
+        });
+
+        expect(ids).toEqual([]);
+    });
+
+    test('throws ExternalTimeoutError when the vector-store aggregate call fails', async () => {
+        const fakeDb = makeFakeDb([], { shouldThrow: true });
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const client = new ClinicalNoteSearchClient({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        await expect(client.findMatchingResourceIdsAsync({
+            resourceType: 'DocumentReference',
+            contentQuery: 'diabetes'
+        })).rejects.toBeInstanceOf(ExternalTimeoutError);
+    });
+
+    test('builds the compound/queryString/filter shape against the configured index and collection', async () => {
+        let capturedPipeline = null;
+        const fakeCollection = {
+            aggregate: (pipeline) => {
+                capturedPipeline = pipeline;
+                return { toArray: async () => [] };
+            }
+        };
+        const fakeDb = { collection: (name) => { expect(name).toEqual('clinical_notes'); return fakeCollection; } };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const client = new ClinicalNoteSearchClient({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        await client.findMatchingResourceIdsAsync({ resourceType: 'DiagnosticReport', contentQuery: 'diabetes' });
+
+        expect(capturedPipeline[0].$search.index).toEqual('fhir-notes-text-search');
+        expect(capturedPipeline[0].$search.compound.must[0].queryString.query).toEqual('diabetes');
+        expect(capturedPipeline[0].$search.compound.must[0].queryString.defaultPath).toEqual('text');
+        expect(capturedPipeline[0].$search.compound.filter).toContainEqual(
+            { equals: { path: 'meta.resource_type', value: 'DiagnosticReport' } }
+        );
+    });
+});
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/clinicalNoteSearchClient.test.js -v`
+Expected: FAIL — module doesn't exist.
+
+- [ ] **Step 3: Write minimal implementation**
+
+```js
+// src/utils/clinicalNoteSearchClient.js
+const { ExternalTimeoutError } = require('./httpErrors');
+const { RethrownError } = require('./rethrownError');
+
+/**
+ * Delegates full-text search candidate lookup to fhir-notes-vector-store's existing Atlas
+ * Search index. Returned ids are candidates only -- callers must re-authorize every id through
+ * the normal tenant-scoped query path before using them (see review.md, Search / read).
+ */
+class ClinicalNoteSearchClient {
+    /**
+     * @param {Object} params
+     * @param {import('./mongoDatabaseManager').MongoDatabaseManager} params.mongoDatabaseManager
+     * @param {import('./configManager').ConfigManager} params.configManager
+     */
+    constructor ({ mongoDatabaseManager, configManager }) {
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        this.configManager = configManager;
+    }
+
+    /**
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {string} params.contentQuery Lucene-syntax query string (the raw `_content` value)
+     * @returns {Promise<string[]>} deduped FHIR ids (resourceType prefix stripped)
+     */
+    async findMatchingResourceIdsAsync ({ resourceType, contentQuery }) {
+        try {
+            const db = await this.mongoDatabaseManager.getFhirNotesDbAsync();
+            const collection = db.collection(this.configManager.fhirNotesMongoCollectionName);
+            const pipeline = [
+                {
+                    $search: {
+                        index: this.configManager.fhirNotesTextSearchIndexName,
+                        compound: {
+                            must: [
+                                { queryString: { defaultPath: 'text', query: contentQuery } }
+                            ],
+                            filter: [
+                                { equals: { path: 'meta.resource_type', value: resourceType } }
+                            ]
+                        }
+                    }
+                },
+                { $project: { 'debug.resource_reference': 1 } }
+            ];
+            const docs = await collection.aggregate(pipeline).toArray();
+            const ids = new Set();
+            for (const doc of docs) {
+                const reference = doc.debug && doc.debug.resource_reference;
+                if (reference && reference.includes('/')) {
+                    ids.add(reference.split('/')[1]);
+                }
+            }
+            return Array.from(ids);
+        } catch (e) {
+            throw new RethrownError({
+                message: `fhir-notes-vector-store text search failed for resourceType=${resourceType}`,
+                error: new ExternalTimeoutError(
+                    `_content search is temporarily unavailable: ${e.message}`
+                ),
+                args: { resourceType, contentQuery }
+            });
+        }
+    }
+}
+
+module.exports = { ClinicalNoteSearchClient };
+```
+
+Note: `RethrownError` wraps the underlying error but the test asserts
+`rejects.toBeInstanceOf(ExternalTimeoutError)` — check `RethrownError`'s implementation (`src/utils/rethrownError.js`) before finalizing this step: if it doesn't preserve `instanceof` on the wrapped error, throw the `ExternalTimeoutError` directly instead of wrapping it in `RethrownError`, e.g.:
+
+```js
+} catch (e) {
+    throw new ExternalTimeoutError(
+        `_content search is temporarily unavailable (resourceType=${resourceType}): ${e.message}`
+    );
+}
+```
+
+Use whichever form actually satisfies the `rejects.toBeInstanceOf(ExternalTimeoutError)` assertion.
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/clinicalNoteSearchClient.test.js -v`
+Expected: PASS
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/utils/clinicalNoteSearchClient.js src/tests/unit/utils/clinicalNoteSearchClient.test.js
+git commit -m "feat: add ClinicalNoteSearchClient for delegated _content search"
+```
+
+---
+
+## Task 6: Wire `_content` search into `SearchManager`
+
+**Files:**
+- Modify: `src/operations/search/searchManager.js`
+- Modify: `src/createContainer.js:503-524` (add `clinicalNoteSearchClient` to the `SearchManager`
+  registration, and register `clinicalNoteSearchClient` itself)
+- Test: `src/tests/unit/operations/search/searchManager.test.js` (existing — add new test cases; if
+  no such file exists, create it following this codebase's existing unit-test conventions for
+  classes with many constructor dependencies, e.g. `src/tests/unit/operations/query/filters/id.test.js`
+  for style)
+
+**Interfaces:**
+- Consumes: `ClinicalNoteSearchClient.findMatchingResourceIdsAsync` (Task 5),
+  `FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES` (Task 4), `configManager.fhirNotesFullTextSearchConfigured`
+  (Task 3), `FilterById.getListFilter` (existing, `src/operations/query/filters/id.js:18`),
+  `this.r4SearchQueryCreator.appendAndQuery` (existing, `src/operations/query/r4.js`).
+- Produces: `SearchManager.buildContentSearchIdFilterAsync({ resourceType, parsedArgs }):
+  Promise<import('mongodb').Document|null>` — `null` when `_content` isn't present on the request
+  (no-op); otherwise a `{_uuid: {$in: [...]}}`-shaped filter (via `FilterById.getListFilter`), or
+  throws `BadRequestError`/`ExternalTimeoutError`.
+
+- [ ] **Step 1: Write the failing test**
+
+```js
+const { describe, test, expect } = require('@jest/globals');
+const { SearchManager } = require('../../../../operations/search/searchManager');
+const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
+const { QueryParameterValue } = require('../../../../operations/query/queryParameterValue');
+const { BadRequestError, ExternalTimeoutError } = require('../../../../utils/httpErrors');
+
+function makeParsedArgsWithContent (value) {
+    const parsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+    parsedArgs.add(new ParsedArgsItem({
+        queryParameter: '_content',
+        queryParameterValue: new QueryParameterValue({ value, operator: '$and' })
+    }));
+    return parsedArgs;
+}
+
+// Minimal SearchManager instantiation helper: fill every other constructor dependency with a
+// harmless stub object, since buildContentSearchIdFilterAsync only touches configManager and
+// clinicalNoteSearchClient. Follow this file's existing full-constructor test setup if one exists
+// instead of duplicating stubs here.
+function makeSearchManager ({ configManager, clinicalNoteSearchClient }) {
+    return new SearchManager({
+        databaseQueryFactory: {}, resourceLocatorFactory: {}, securityTagManager: {},
+        resourcePreparer: {}, indexHinter: {}, r4SearchQueryCreator: {}, configManager,
+        queryRewriterManager: {}, scopesManager: {}, databaseAttachmentManager: {},
+        base64DataManager: {}, fhirResourceWriterFactory: {}, dataSharingManager: {},
+        searchQueryBuilder: {}, patientScopeManager: {}, patientQueryCreator: {},
+        searchParametersManager: {}, clinicalNoteSearchClient
+    });
+}
+
+describe('SearchManager.buildContentSearchIdFilterAsync', () => {
+    test('returns null when _content is not present', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient: {}
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: new ParsedArgs({ base_version: '4_0_0' })
+        });
+        expect(result).toBeNull();
+    });
+
+    test('throws BadRequestError for an unsupported resourceType', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient: {}
+        });
+        await expect(searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'Condition',
+            parsedArgs: makeParsedArgsWithContent('diabetes')
+        })).rejects.toBeInstanceOf(BadRequestError);
+    });
+
+    test('throws BadRequestError when the feature is not configured', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: false },
+            clinicalNoteSearchClient: {}
+        });
+        await expect(searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes')
+        })).rejects.toBeInstanceOf(BadRequestError);
+    });
+
+    test('returns an _uuid $in filter built from candidate ids', async () => {
+        const clinicalNoteSearchClient = {
+            findMatchingResourceIdsAsync: async () => ['abc123', 'def456']
+        };
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes')
+        });
+        expect(result.$or || result._uuid).toBeDefined();
+    });
+
+    test('returns a filter matching nothing when candidate list is empty', async () => {
+        const clinicalNoteSearchClient = { findMatchingResourceIdsAsync: async () => [] };
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes')
+        });
+        expect(result).toEqual({ _uuid: { $in: [] } });
+    });
+
+    test('propagates ExternalTimeoutError from the search client unchanged', async () => {
+        const clinicalNoteSearchClient = {
+            findMatchingResourceIdsAsync: async () => { throw new ExternalTimeoutError('down'); }
+        };
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient
+        });
+        await expect(searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes')
+        })).rejects.toBeInstanceOf(ExternalTimeoutError);
+    });
+});
+```
+
+Before writing this test, read `src/operations/query/parsedArgsItem.js` and
+`src/operations/query/queryParameterValue.js` constructors to confirm the exact param names used
+above (`queryParameter`, `queryParameterValue`, `value`, `operator`) match reality — adjust the test
+setup to match if they differ.
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/operations/search/searchManager.test.js -v`
+Expected: FAIL — `buildContentSearchIdFilterAsync is not a function`, and the constructor rejects the
+unknown `clinicalNoteSearchClient` param (or ignores it, depending on whether `assertTypeEquals`
+guards are strict) until Step 3 is done.
+
+- [ ] **Step 3: Write minimal implementation**
+
+In `src/operations/search/searchManager.js`:
+
+1. Add imports:
+```js
+const { FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES } = require('../../constants');
+const { FilterById } = require('../query/filters/id');
+const { BadRequestError } = require('../../utils/httpErrors');
+```
+
+2. Add `clinicalNoteSearchClient` to the constructor's destructured params and JSDoc, with an
+   `assertTypeEquals(clinicalNoteSearchClient, ClinicalNoteSearchClient)` guard (import
+   `ClinicalNoteSearchClient` from `../../utils/clinicalNoteSearchClient`), following the exact
+   pattern every other constructor dependency in this class already uses (see
+   `this.configManager = configManager; assertTypeEquals(configManager, ConfigManager);` for the
+   template).
+
+3. Add the new method, anywhere in the class body:
+
+```js
+/**
+ * Resolves the `_content` search parameter (if present) into an `_id`-shaped Mongo filter by
+ * delegating candidate lookup to fhir-notes-vector-store's Atlas Search index. The returned
+ * filter is meant to be AND'd into the request's normal query via
+ * `this.r4SearchQueryCreator.appendAndQuery` -- every candidate id still passes through the
+ * same tenant/patient/access-tag scoping every other search parameter goes through.
+ * @param {Object} params
+ * @param {string} params.resourceType
+ * @param {ParsedArgs} params.parsedArgs
+ * @returns {Promise<import('mongodb').Document|null>} null when `_content` is absent
+ */
+async buildContentSearchIdFilterAsync ({ resourceType, parsedArgs }) {
+    const contentArg = parsedArgs.get('_content');
+    if (!contentArg) {
+        return null;
+    }
+    if (!FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.includes(resourceType)) {
+        throw new BadRequestError(new Error(
+            `_content search is not supported for resourceType=${resourceType}. ` +
+            `Supported types: ${FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.join(', ')}`
+        ));
+    }
+    if (!this.configManager.fhirNotesFullTextSearchConfigured) {
+        throw new BadRequestError(new Error(
+            '_content search is not configured in this environment'
+        ));
+    }
+    const contentQuery = contentArg.queryParameterValue.value;
+    if (Array.isArray(contentQuery)) {
+        throw new BadRequestError(new Error(
+            '_content does not support multiple repeated values'
+        ));
+    }
+    // The empty-string form is the derived-text read-enrichment trigger (see
+    // AttachmentTextEnrichmentProvider), not a search filter -- do not attempt a vector-store
+    // search for it.
+    if (!contentQuery) {
+        return null;
+    }
+    const candidateIds = await this.clinicalNoteSearchClient.findMatchingResourceIdsAsync({
+        resourceType,
+        contentQuery
+    });
+    return FilterById.getListFilter(candidateIds);
+}
+```
+
+4. In `constructQueryAsync`, immediately after the existing
+   `assertIsValid(base_version, 'base_version is not set');` line and before the
+   `this.searchQueryBuilder.buildSearchQueryBasedOnVersion(...)` call, add:
+
+```js
+const contentSearchIdFilter = await this.buildContentSearchIdFilterAsync({ resourceType, parsedArgs });
+```
+
+5. Immediately after the `({ query, columns } = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({...}));`
+   call, add:
+
+```js
+if (contentSearchIdFilter) {
+    query = this.r4SearchQueryCreator.appendAndQuery({ query, andQuery: contentSearchIdFilter });
+}
+```
+
+In `src/createContainer.js`, register the new client and add it to `SearchManager`'s registration:
+
+```js
+container.register('clinicalNoteSearchClient', (c) => new ClinicalNoteSearchClient({
+    mongoDatabaseManager: c.mongoDatabaseManager,
+    configManager: c.configManager
+}));
+```
+
+and add `clinicalNoteSearchClient: c.clinicalNoteSearchClient` to the existing `searchManager`
+registration's params object (`src/createContainer.js:503-524`). Add the corresponding
+`const { ClinicalNoteSearchClient } = require('./utils/clinicalNoteSearchClient');` near the other
+`require`s at the top of the file.
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/operations/search/searchManager.test.js -v`
+Expected: PASS
+
+- [ ] **Step 5: Integration test — end-to-end against `mongodb-atlas-local`**
+
+Add `src/tests/integration/search/contentSearch.test.js` reusing whatever Atlas-local test
+infrastructure already exists in this repo (check for `jest.atlasSearch.config.js` /
+`atlasSearchGlobalSetup.js` under `src/tests/` — these were referenced as existing infra by the
+`atlas-search-tech-design` branch; if that branch is still unmerged and this infra doesn't exist on
+`main` yet, this integration test instead needs to spin up its own local Atlas Search index against
+a `mongodb-atlas-local` test container, mirroring `create_text_search_index`'s mapping from
+`fhir-notes-vector-store`'s `mongo_atlas_vector_store.py:599-657` — `{mappings: {fields: {text:
+{type: 'string'}, patient_id: {type: 'token'}, meta.resource_type: {type: 'token'}}}}`). Cover:
+- A `_content=diabetes` search on `DocumentReference` returns only ids the vector store matched.
+- An empty candidate list yields zero results, not everything.
+- `_content` on `Condition` is rejected with `BadRequestError`.
+- Simulated vector-store connection failure yields `ExternalTimeoutError` (504), not an unfiltered
+  result set.
+
+- [ ] **Step 6: Cross-tenant regression test**
+
+Add to the same integration test file: seed a `ClinicalNote` chunk whose `debug.resource_reference`
+points at a `DocumentReference` belonging to tenant B, then issue a `_content` search as a
+service-account scoped only to tenant A. Assert the response is empty — proving the `_id ∈ [...]`
+filter is genuinely re-authorized through the normal access-tag query path, not just present in code.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add src/operations/search/searchManager.js src/createContainer.js \
+    src/tests/unit/operations/search/searchManager.test.js \
+    src/tests/integration/search/contentSearch.test.js
+git commit -m "feat: resolve _content search via ClinicalNoteSearchClient in SearchManager"
+```
+
+---
+
+## Task 7: `ClinicalNoteTextRetriever` — chunk reassembly
+
+**Files:**
+- Create: `src/utils/clinicalNoteTextRetriever.js`
+- Test: `src/tests/unit/utils/clinicalNoteTextRetriever.test.js` (new)
+
+**Interfaces:**
+- Consumes: `MongoDatabaseManager.getFhirNotesDbAsync()` (Task 2), `configManager` getters (Task 3).
+- Produces:
+  - `ClinicalNoteTextRetriever.getReassembledTextAsync({ chunkGroupId: string }): Promise<string|null>`
+    — `null` when no chunks exist for that group (not yet indexed, or indexing failed).
+  - `ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync({ binaryReference: string }):
+    Promise<string|null>` — `binaryReference` is e.g. `"Binary/abc123"`.
+  Task 8 and Task 9 consume both.
+
+- [ ] **Step 1: Write the failing test**
+
+```js
+const { describe, test, expect } = require('@jest/globals');
+const { ClinicalNoteTextRetriever } = require('../../../utils/clinicalNoteTextRetriever');
+
+function makeConfigManager () {
+    return { fhirNotesFullTextSearchConfigured: true, fhirNotesMongoCollectionName: 'clinical_notes' };
+}
+
+describe('ClinicalNoteTextRetriever.getReassembledTextAsync', () => {
+    test('concatenates chunks in chunk_index order', async () => {
+        const docs = [
+            { meta: { chunk_index: 1 }, text: 'second. ' },
+            { meta: { chunk_index: 0 }, text: 'first. ' }
+        ];
+        const fakeCollection = {
+            find: () => ({
+                sort: () => ({ toArray: async () => docs.sort((a, b) => a.meta.chunk_index - b.meta.chunk_index) })
+            })
+        };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const text = await retriever.getReassembledTextAsync({ chunkGroupId: 'docRef123-0' });
+
+        expect(text).toEqual('first. second. ');
+    });
+
+    test('returns null when no chunks exist for the group', async () => {
+        const fakeCollection = { find: () => ({ sort: () => ({ toArray: async () => [] }) }) };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const text = await retriever.getReassembledTextAsync({ chunkGroupId: 'missing-0' });
+
+        expect(text).toBeNull();
+    });
+
+    test('returns null when the feature is not configured, without querying', async () => {
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => { throw new Error('should not be called'); } };
+        const retriever = new ClinicalNoteTextRetriever({
+            mongoDatabaseManager,
+            configManager: { fhirNotesFullTextSearchConfigured: false }
+        });
+
+        const text = await retriever.getReassembledTextAsync({ chunkGroupId: 'docRef123-0' });
+
+        expect(text).toBeNull();
+    });
+});
+
+describe('ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync', () => {
+    test('finds the owning attachment via debug.resource.content.attachment.url and reassembles it', async () => {
+        const docs = [
+            { meta: { chunk_index: 0, chunk_group_id: 'docRef123-1' }, text: 'note text' }
+        ];
+        const fakeCollection = {
+            find: (query) => {
+                expect(query['debug.resource.content.attachment.url']).toEqual({ $in: ['Binary/bin789', '#bin789'] });
+                return { toArray: async () => docs };
+            }
+        };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const text = await retriever.getReassembledTextForBinaryAsync({ binaryReference: 'Binary/bin789' });
+
+        expect(text).toEqual('note text');
+    });
+
+    test('returns null when no attachment references this Binary', async () => {
+        const fakeCollection = { find: () => ({ toArray: async () => [] }) };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const text = await retriever.getReassembledTextForBinaryAsync({ binaryReference: 'Binary/unreferenced' });
+
+        expect(text).toBeNull();
+    });
+});
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/clinicalNoteTextRetriever.test.js -v`
+Expected: FAIL — module doesn't exist.
+
+- [ ] **Step 3: Write minimal implementation**
+
+```js
+// src/utils/clinicalNoteTextRetriever.js
+const { logWarn } = require('../operations/common/logging');
+
+/**
+ * Reassembles chunked clinical-note text from fhir-notes-vector-store's ClinicalNote
+ * collection. Used only for read-time enrichment/reverse-lookup, both of which run after a
+ * resource's own authorized fetch has already succeeded -- this class never gates access to
+ * anything, it only fetches more data about a resource the caller can already see.
+ */
+class ClinicalNoteTextRetriever {
+    /**
+     * @param {Object} params
+     * @param {import('./mongoDatabaseManager').MongoDatabaseManager} params.mongoDatabaseManager
+     * @param {import('./configManager').ConfigManager} params.configManager
+     */
+    constructor ({ mongoDatabaseManager, configManager }) {
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        this.configManager = configManager;
+    }
+
+    /**
+     * @param {Object} params
+     * @param {string} params.chunkGroupId `"{resourceId}-{contentIndex}"`
+     * @returns {Promise<string|null>}
+     */
+    async getReassembledTextAsync ({ chunkGroupId }) {
+        if (!this.configManager.fhirNotesFullTextSearchConfigured) {
+            return null;
+        }
+        try {
+            const db = await this.mongoDatabaseManager.getFhirNotesDbAsync();
+            const collection = db.collection(this.configManager.fhirNotesMongoCollectionName);
+            const chunks = await collection
+                .find({ 'meta.chunk_group_id': chunkGroupId })
+                .sort({ 'meta.chunk_index': 1 })
+                .toArray();
+            if (chunks.length === 0) {
+                return null;
+            }
+            return chunks.map(c => c.text || '').join('');
+        } catch (e) {
+            logWarn(`Failed to reassemble clinical note text for chunkGroupId=${chunkGroupId}`, { error: e });
+            return null;
+        }
+    }
+
+    /**
+     * @param {Object} params
+     * @param {string} params.binaryReference e.g. "Binary/abc123"
+     * @returns {Promise<string|null>}
+     */
+    async getReassembledTextForBinaryAsync ({ binaryReference }) {
+        if (!this.configManager.fhirNotesFullTextSearchConfigured) {
+            return null;
+        }
+        const binaryId = binaryReference.split('/')[1];
+        try {
+            const db = await this.mongoDatabaseManager.getFhirNotesDbAsync();
+            const collection = db.collection(this.configManager.fhirNotesMongoCollectionName);
+            const urlVariants = [`Binary/${binaryId}`, `#${binaryId}`];
+            const matches = await collection.find({
+                $or: [
+                    { 'debug.resource.content.attachment.url': { $in: urlVariants } },
+                    { 'debug.resource.presentedForm.url': { $in: urlVariants } }
+                ]
+            }).toArray();
+            if (matches.length === 0) {
+                return null;
+            }
+            const chunkGroupId = matches[0].meta.chunk_group_id;
+            return this.getReassembledTextAsync({ chunkGroupId });
+        } catch (e) {
+            logWarn(`Failed to reverse-lookup clinical note text for binaryReference=${binaryReference}`, { error: e });
+            return null;
+        }
+    }
+}
+
+module.exports = { ClinicalNoteTextRetriever };
+```
+
+Note the first unit test above (`'debug.resource.content.attachment.url'` query assertion) expects
+`getReassembledTextForBinaryAsync` to call `collection.find` with a `$or` at the top level, but the
+mock in that test asserts on `query['debug.resource.content.attachment.url']` directly rather than
+`query.$or[0][...]` — fix the mock's assertion to match the actual `$or` shape this implementation
+produces (`query.$or[0]['debug.resource.content.attachment.url']`) before running Step 4.
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/clinicalNoteTextRetriever.test.js -v`
+Expected: PASS
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/utils/clinicalNoteTextRetriever.js src/tests/unit/utils/clinicalNoteTextRetriever.test.js
+git commit -m "feat: add ClinicalNoteTextRetriever for chunk reassembly"
+```
+
+---
+
+## Task 8: `AttachmentTextEnrichmentProvider` (`DocumentReference` / `DiagnosticReport`)
+
+**Files:**
+- Create: `src/enrich/providers/attachmentTextEnrichmentProvider.js`
+- Modify: `src/createContainer.js` (register provider, add to `enrichmentManager`'s provider list)
+- Test: `src/tests/unit/enrich/providers/attachmentTextEnrichmentProvider.test.js` (new)
+
+**Interfaces:**
+- Consumes: `ClinicalNoteTextRetriever.getReassembledTextAsync` (Task 7),
+  `FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES` (Task 4), `EnrichmentProvider` base class
+  (`src/enrich/providers/enrichmentProvider.js`).
+- Produces: an `EnrichmentProvider` subclass consumed only by `createContainer.js`'s
+  `enrichmentManager` registration.
+
+- [ ] **Step 1: Write the failing test**
+
+```js
+const { describe, test, expect } = require('@jest/globals');
+const { AttachmentTextEnrichmentProvider } = require('../../../../enrich/providers/attachmentTextEnrichmentProvider');
+const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
+const { QueryParameterValue } = require('../../../../operations/query/queryParameterValue');
+
+function makeSingleIdParsedArgs (id) {
+    const parsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+    parsedArgs.add(new ParsedArgsItem({
+        queryParameter: 'id',
+        queryParameterValue: new QueryParameterValue({ value: id, operator: '$and' })
+    }));
+    parsedArgs.add(new ParsedArgsItem({
+        queryParameter: '_content',
+        queryParameterValue: new QueryParameterValue({ value: '', operator: '$and' })
+    }));
+    return parsedArgs;
+}
+
+describe('AttachmentTextEnrichmentProvider', () => {
+    test('adds a derived text/plain sibling attachment per content entry with reassembled text', async () => {
+        const clinicalNoteTextRetriever = {
+            getReassembledTextAsync: async ({ chunkGroupId }) =>
+                chunkGroupId === 'doc1-0' ? 'the extracted note text' : null
+        };
+        const provider = new AttachmentTextEnrichmentProvider({ clinicalNoteTextRetriever });
+        const resource = {
+            resourceType: 'DocumentReference',
+            id: 'doc1',
+            content: [{ attachment: { contentType: 'application/pdf', data: 'JVBER...' } }]
+        };
+
+        const [enriched] = await provider.enrichAsync({
+            resources: [resource],
+            parsedArgs: makeSingleIdParsedArgs('doc1'),
+            enrichmentContext: undefined
+        });
+
+        expect(enriched.content.length).toEqual(2);
+        const derived = enriched.content[1].attachment;
+        expect(derived.contentType).toEqual('text/plain');
+        expect(Buffer.from(derived.data, 'base64').toString('utf-8')).toEqual('the extracted note text');
+        expect(derived.extension).toContainEqual({
+            url: 'https://www.icanbwell.com/attachment-derived-text',
+            valueBoolean: true
+        });
+    });
+
+    test('adds a derived sibling per presentedForm entry for DiagnosticReport', async () => {
+        const clinicalNoteTextRetriever = {
+            getReassembledTextAsync: async () => 'lab narrative text'
+        };
+        const provider = new AttachmentTextEnrichmentProvider({ clinicalNoteTextRetriever });
+        const resource = {
+            resourceType: 'DiagnosticReport',
+            id: 'diag1',
+            presentedForm: [{ contentType: 'application/pdf', data: 'JVBER...' }]
+        };
+
+        const [enriched] = await provider.enrichAsync({
+            resources: [resource],
+            parsedArgs: makeSingleIdParsedArgs('diag1'),
+            enrichmentContext: undefined
+        });
+
+        expect(enriched.presentedForm.length).toEqual(2);
+        expect(enriched.presentedForm[1].contentType).toEqual('text/plain');
+    });
+
+    test('skips silently when no clinical note exists yet for an attachment', async () => {
+        const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => null };
+        const provider = new AttachmentTextEnrichmentProvider({ clinicalNoteTextRetriever });
+        const resource = {
+            resourceType: 'DocumentReference',
+            id: 'doc1',
+            content: [{ attachment: { contentType: 'application/pdf', data: 'JVBER...' } }]
+        };
+
+        const [enriched] = await provider.enrichAsync({
+            resources: [resource],
+            parsedArgs: makeSingleIdParsedArgs('doc1'),
+            enrichmentContext: undefined
+        });
+
+        expect(enriched.content.length).toEqual(1);
+    });
+
+    test('does not run when _content is absent', async () => {
+        const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => { throw new Error('should not be called'); } };
+        const provider = new AttachmentTextEnrichmentProvider({ clinicalNoteTextRetriever });
+        const resource = {
+            resourceType: 'DocumentReference',
+            id: 'doc1',
+            content: [{ attachment: { contentType: 'application/pdf', data: 'JVBER...' } }]
+        };
+        const parsedArgsWithoutContent = new ParsedArgs({ base_version: '4_0_0' });
+        parsedArgsWithoutContent.add(new ParsedArgsItem({
+            queryParameter: 'id',
+            queryParameterValue: new QueryParameterValue({ value: 'doc1', operator: '$and' })
+        }));
+
+        const [enriched] = await provider.enrichAsync({
+            resources: [resource],
+            parsedArgs: parsedArgsWithoutContent,
+            enrichmentContext: undefined
+        });
+
+        expect(enriched.content.length).toEqual(1);
+    });
+
+    test('does not run when _content is non-empty (that is a search filter, not an enrichment trigger)', async () => {
+        const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => { throw new Error('should not be called'); } };
+        const provider = new AttachmentTextEnrichmentProvider({ clinicalNoteTextRetriever });
+        const resource = { resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: { contentType: 'application/pdf', data: 'JVBER...' } }] };
+        const parsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+        parsedArgs.add(new ParsedArgsItem({ queryParameter: 'id', queryParameterValue: new QueryParameterValue({ value: 'doc1', operator: '$and' }) }));
+        parsedArgs.add(new ParsedArgsItem({ queryParameter: '_content', queryParameterValue: new QueryParameterValue({ value: 'diabetes', operator: '$and' }) }));
+
+        const [enriched] = await provider.enrichAsync({ resources: [resource], parsedArgs, enrichmentContext: undefined });
+
+        expect(enriched.content.length).toEqual(1);
+    });
+
+    test('does not run for CarePlan (its note text is already plain)', async () => {
+        const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => { throw new Error('should not be called'); } };
+        const provider = new AttachmentTextEnrichmentProvider({ clinicalNoteTextRetriever });
+        const resource = { resourceType: 'CarePlan', id: 'cp1', note: [{ text: 'already plain' }] };
+
+        const [enriched] = await provider.enrichAsync({
+            resources: [resource],
+            parsedArgs: makeSingleIdParsedArgs('cp1'),
+            enrichmentContext: undefined
+        });
+
+        expect(enriched.note).toEqual([{ text: 'already plain' }]);
+    });
+});
+```
+
+Before finalizing this test file, read `src/operations/query/parsedArgsItem.js` and
+`src/operations/query/queryParameterValue.js` to confirm the constructor argument names
+(`queryParameter`, `queryParameterValue`, `value`, `operator`) match what Task 6's test already
+assumed — reuse the exact same construction helper across both test files rather than diverging.
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/enrich/providers/attachmentTextEnrichmentProvider.test.js -v`
+Expected: FAIL — module doesn't exist.
+
+- [ ] **Step 3: Write minimal implementation**
+
+```js
+// src/enrich/providers/attachmentTextEnrichmentProvider.js
+const { EnrichmentProvider } = require('./enrichmentProvider');
+
+const DERIVED_TEXT_EXTENSION_URL = 'https://www.icanbwell.com/attachment-derived-text';
+const ENRICHABLE_RESOURCE_TYPES = new Set(['DocumentReference', 'DiagnosticReport']);
+
+/**
+ * Attaches reassembled attachment text (from fhir-notes-vector-store) as a sibling
+ * text/plain content/presentedForm entry, triggered by an empty `_content` value on a
+ * single-resource request. Runs after the resource's own authorized fetch -- see
+ * docs/superpowers/specs/2026-09-10-text-content-search-design.md, "Security model".
+ */
+class AttachmentTextEnrichmentProvider extends EnrichmentProvider {
+    /**
+     * @param {Object} params
+     * @param {import('../../utils/clinicalNoteTextRetriever').ClinicalNoteTextRetriever} params.clinicalNoteTextRetriever
+     */
+    constructor ({ clinicalNoteTextRetriever }) {
+        super();
+        this.clinicalNoteTextRetriever = clinicalNoteTextRetriever;
+    }
+
+    /**
+     * True only when the caller asked for exactly one specific resource by id -- whether via a
+     * true read/vread operation or a search with an explicit `_id=`/`id=` param. Both are
+     * bounded to one resource, so both are safe triggers; a broad search is never a trigger
+     * even if it happens to return exactly one bundle entry.
+     * @param {ParsedArgs} parsedArgs
+     * @returns {boolean}
+     */
+    static isSingleResourceRequest (parsedArgs) {
+        const idArg = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
+        return Boolean(
+            idArg &&
+            idArg.queryParameterValue &&
+            idArg.queryParameterValue.values &&
+            idArg.queryParameterValue.values.length === 1
+        );
+    }
+
+    /**
+     * @param {ParsedArgs} parsedArgs
+     * @returns {boolean}
+     */
+    static isDerivedTextTrigger (parsedArgs) {
+        const contentArg = parsedArgs.get('_content');
+        return Boolean(contentArg && contentArg.queryParameterValue.value === '');
+    }
+
+    /**
+     * @param {Object} params
+     * @param {Resource[]} params.resources
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {EnrichmentContext|undefined} params.enrichmentContext
+     * @returns {Promise<Resource[]>}
+     */
+    async enrichAsync ({ resources, parsedArgs, enrichmentContext }) {
+        if (!AttachmentTextEnrichmentProvider.isDerivedTextTrigger(parsedArgs) ||
+            !AttachmentTextEnrichmentProvider.isSingleResourceRequest(parsedArgs)) {
+            return resources;
+        }
+        for (const resource of resources) {
+            if (!resource || !ENRICHABLE_RESOURCE_TYPES.has(resource.resourceType)) {
+                continue;
+            }
+            if (resource.resourceType === 'DocumentReference' && Array.isArray(resource.content)) {
+                await this.enrichAttachmentArrayAsync({
+                    resourceId: resource.id,
+                    array: resource.content,
+                    getAttachment: (entry) => entry.attachment,
+                    wrapAttachment: (attachment) => ({ attachment })
+                });
+            } else if (resource.resourceType === 'DiagnosticReport' && Array.isArray(resource.presentedForm)) {
+                await this.enrichAttachmentArrayAsync({
+                    resourceId: resource.id,
+                    array: resource.presentedForm,
+                    getAttachment: (entry) => entry,
+                    wrapAttachment: (attachment) => attachment
+                });
+            }
+        }
+        return resources;
+    }
+
+    /**
+     * Mutates `array` in place, appending a derived text/plain sibling per original entry that
+     * has reassembled text available.
+     * @param {Object} params
+     * @param {string} params.resourceId
+     * @param {Array<Object>} params.array
+     * @param {(entry: Object) => Object} params.getAttachment
+     * @param {(attachment: Object) => Object} params.wrapAttachment
+     */
+    async enrichAttachmentArrayAsync ({ resourceId, array, getAttachment, wrapAttachment }) {
+        const originalLength = array.length;
+        for (let index = 0; index < originalLength; index++) {
+            const chunkGroupId = `${resourceId}-${index}`;
+            const text = await this.clinicalNoteTextRetriever.getReassembledTextAsync({ chunkGroupId });
+            if (!text) {
+                continue;
+            }
+            const derivedAttachment = {
+                contentType: 'text/plain',
+                data: Buffer.from(text, 'utf-8').toString('base64'),
+                extension: [{ url: DERIVED_TEXT_EXTENSION_URL, valueBoolean: true }]
+            };
+            array.push(wrapAttachment(derivedAttachment));
+        }
+    }
+
+    /**
+     * @param {Object} params
+     * @param {BundleEntry[]} params.entries
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {EnrichmentContext|undefined} params.enrichmentContext
+     * @returns {Promise<BundleEntry[]>}
+     */
+    async enrichBundleEntriesAsync ({ entries, parsedArgs, enrichmentContext }) {
+        for (const entry of entries) {
+            if (entry.resource) {
+                entry.resource = (await this.enrichAsync({
+                    resources: [entry.resource], parsedArgs, enrichmentContext
+                }))[0];
+            }
+        }
+        return entries;
+    }
+}
+
+module.exports = { AttachmentTextEnrichmentProvider };
+```
+
+In `src/createContainer.js`:
+```js
+const { AttachmentTextEnrichmentProvider } = require('./enrich/providers/attachmentTextEnrichmentProvider');
+// ...
+container.register('attachmentTextEnrichmentProvider', (c) => new AttachmentTextEnrichmentProvider({
+    clinicalNoteTextRetriever: c.clinicalNoteTextRetriever
+}));
+```
+and add `c.attachmentTextEnrichmentProvider` to the `enrichmentProviders` array in the
+`enrichmentManager` registration (`src/createContainer.js:208-224`).
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/enrich/providers/attachmentTextEnrichmentProvider.test.js -v`
+Expected: PASS
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/enrich/providers/attachmentTextEnrichmentProvider.js src/createContainer.js \
+    src/tests/unit/enrich/providers/attachmentTextEnrichmentProvider.test.js
+git commit -m "feat: add AttachmentTextEnrichmentProvider for derived-text reads"
+```
+
+---
+
+## Task 9: `BinaryDerivedTextEnrichmentProvider` (`Binary` reverse lookup)
+
+**Files:**
+- Create: `src/enrich/providers/binaryDerivedTextEnrichmentProvider.js`
+- Modify: `src/createContainer.js` (register provider, add to `enrichmentManager`'s provider list)
+- Test: `src/tests/unit/enrich/providers/binaryDerivedTextEnrichmentProvider.test.js` (new)
+
+**Interfaces:**
+- Consumes: `ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync` (Task 7), the same
+  `isSingleResourceRequest`/`isDerivedTextTrigger` gating logic as Task 8 (duplicated here rather
+  than shared, since this provider only ever handles `resourceType === 'Binary'` and the two
+  providers have no other coupling — see YAGNI note below).
+- Produces: an `EnrichmentProvider` subclass consumed only by `createContainer.js`.
+
+- [ ] **Step 1: Write the failing test**
+
+```js
+const { describe, test, expect } = require('@jest/globals');
+const { BinaryDerivedTextEnrichmentProvider } = require('../../../../enrich/providers/binaryDerivedTextEnrichmentProvider');
+const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
+const { QueryParameterValue } = require('../../../../operations/query/queryParameterValue');
+
+function makeSingleIdParsedArgsWithContentTrigger (id) {
+    const parsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+    parsedArgs.add(new ParsedArgsItem({ queryParameter: 'id', queryParameterValue: new QueryParameterValue({ value: id, operator: '$and' }) }));
+    parsedArgs.add(new ParsedArgsItem({ queryParameter: '_content', queryParameterValue: new QueryParameterValue({ value: '', operator: '$and' }) }));
+    return parsedArgs;
+}
+
+describe('BinaryDerivedTextEnrichmentProvider', () => {
+    test('adds a top-level extension with the reassembled plain text', async () => {
+        const clinicalNoteTextRetriever = {
+            getReassembledTextForBinaryAsync: async ({ binaryReference }) =>
+                binaryReference === 'Binary/bin789' ? 'reassembled plain text' : null
+        };
+        const provider = new BinaryDerivedTextEnrichmentProvider({ clinicalNoteTextRetriever });
+        const resource = { resourceType: 'Binary', id: 'bin789', contentType: 'application/pdf', data: 'JVBER...' };
+
+        const [enriched] = await provider.enrichAsync({
+            resources: [resource],
+            parsedArgs: makeSingleIdParsedArgsWithContentTrigger('bin789'),
+            enrichmentContext: undefined
+        });
+
+        expect(enriched.extension).toContainEqual({
+            url: 'https://www.icanbwell.com/attachment-derived-text',
+            valueString: 'reassembled plain text'
+        });
+        // original fields untouched -- never repurpose Binary's own contentType/data
+        expect(enriched.contentType).toEqual('application/pdf');
+        expect(enriched.data).toEqual('JVBER...');
+    });
+
+    test('does not add an extension when no attachment referenced this Binary', async () => {
+        const clinicalNoteTextRetriever = { getReassembledTextForBinaryAsync: async () => null };
+        const provider = new BinaryDerivedTextEnrichmentProvider({ clinicalNoteTextRetriever });
+        const resource = { resourceType: 'Binary', id: 'bin789', contentType: 'application/pdf', data: 'JVBER...' };
+
+        const [enriched] = await provider.enrichAsync({
+            resources: [resource],
+            parsedArgs: makeSingleIdParsedArgsWithContentTrigger('bin789'),
+            enrichmentContext: undefined
+        });
+
+        expect(enriched.extension).toBeUndefined();
+    });
+
+    test('does not run for non-Binary resources', async () => {
+        const clinicalNoteTextRetriever = { getReassembledTextForBinaryAsync: async () => { throw new Error('should not be called'); } };
+        const provider = new BinaryDerivedTextEnrichmentProvider({ clinicalNoteTextRetriever });
+        const resource = { resourceType: 'DocumentReference', id: 'doc1' };
+
+        const [enriched] = await provider.enrichAsync({
+            resources: [resource],
+            parsedArgs: makeSingleIdParsedArgsWithContentTrigger('doc1'),
+            enrichmentContext: undefined
+        });
+
+        expect(enriched.extension).toBeUndefined();
+    });
+});
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/enrich/providers/binaryDerivedTextEnrichmentProvider.test.js -v`
+Expected: FAIL — module doesn't exist.
+
+- [ ] **Step 3: Write minimal implementation**
+
+```js
+// src/enrich/providers/binaryDerivedTextEnrichmentProvider.js
+const { EnrichmentProvider } = require('./enrichmentProvider');
+
+const DERIVED_TEXT_EXTENSION_URL = 'https://www.icanbwell.com/attachment-derived-text';
+
+/**
+ * Reverse-lookup for `Binary` resources: fhir-notes-vector-store never indexes Binary as an
+ * independent source (see design doc's "Binary reverse lookup" section) -- its content only
+ * appears indirectly, as bytes resolved from a DocumentReference/DiagnosticReport attachment
+ * `url`. This finds whichever attachment referenced this Binary and reuses its derived text,
+ * via a top-level extension since Binary's own `contentType`/`data` describe its actual stored
+ * bytes and must not be repurposed. Runs after the Binary's own authorized fetch.
+ */
+class BinaryDerivedTextEnrichmentProvider extends EnrichmentProvider {
+    /**
+     * @param {Object} params
+     * @param {import('../../utils/clinicalNoteTextRetriever').ClinicalNoteTextRetriever} params.clinicalNoteTextRetriever
+     */
+    constructor ({ clinicalNoteTextRetriever }) {
+        super();
+        this.clinicalNoteTextRetriever = clinicalNoteTextRetriever;
+    }
+
+    static isSingleResourceRequest (parsedArgs) {
+        const idArg = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
+        return Boolean(
+            idArg && idArg.queryParameterValue &&
+            idArg.queryParameterValue.values && idArg.queryParameterValue.values.length === 1
+        );
+    }
+
+    static isDerivedTextTrigger (parsedArgs) {
+        const contentArg = parsedArgs.get('_content');
+        return Boolean(contentArg && contentArg.queryParameterValue.value === '');
+    }
+
+    /**
+     * @param {Object} params
+     * @param {Resource[]} params.resources
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {EnrichmentContext|undefined} params.enrichmentContext
+     * @returns {Promise<Resource[]>}
+     */
+    async enrichAsync ({ resources, parsedArgs, enrichmentContext }) {
+        if (!BinaryDerivedTextEnrichmentProvider.isDerivedTextTrigger(parsedArgs) ||
+            !BinaryDerivedTextEnrichmentProvider.isSingleResourceRequest(parsedArgs)) {
+            return resources;
+        }
+        for (const resource of resources) {
+            if (!resource || resource.resourceType !== 'Binary') {
+                continue;
+            }
+            const text = await this.clinicalNoteTextRetriever.getReassembledTextForBinaryAsync({
+                binaryReference: `Binary/${resource.id}`
+            });
+            if (!text) {
+                continue;
+            }
+            resource.extension = resource.extension || [];
+            resource.extension.push({ url: DERIVED_TEXT_EXTENSION_URL, valueString: text });
+        }
+        return resources;
+    }
+
+    /**
+     * @param {Object} params
+     * @param {BundleEntry[]} params.entries
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {EnrichmentContext|undefined} params.enrichmentContext
+     * @returns {Promise<BundleEntry[]>}
+     */
+    async enrichBundleEntriesAsync ({ entries, parsedArgs, enrichmentContext }) {
+        for (const entry of entries) {
+            if (entry.resource) {
+                entry.resource = (await this.enrichAsync({
+                    resources: [entry.resource], parsedArgs, enrichmentContext
+                }))[0];
+            }
+        }
+        return entries;
+    }
+}
+
+module.exports = { BinaryDerivedTextEnrichmentProvider };
+```
+
+In `src/createContainer.js`:
+```js
+const { BinaryDerivedTextEnrichmentProvider } = require('./enrich/providers/binaryDerivedTextEnrichmentProvider');
+// ...
+container.register('binaryDerivedTextEnrichmentProvider', (c) => new BinaryDerivedTextEnrichmentProvider({
+    clinicalNoteTextRetriever: c.clinicalNoteTextRetriever
+}));
+```
+and add `c.binaryDerivedTextEnrichmentProvider` to the `enrichmentProviders` array alongside
+`c.attachmentTextEnrichmentProvider` from Task 8.
+
+Also register `clinicalNoteTextRetriever` itself (used by both Task 8 and this task):
+```js
+const { ClinicalNoteTextRetriever } = require('./utils/clinicalNoteTextRetriever');
+// ...
+container.register('clinicalNoteTextRetriever', (c) => new ClinicalNoteTextRetriever({
+    mongoDatabaseManager: c.mongoDatabaseManager,
+    configManager: c.configManager
+}));
+```
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `nvm use && node node_modules/.bin/jest src/tests/unit/enrich/providers/binaryDerivedTextEnrichmentProvider.test.js -v`
+Expected: PASS
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/enrich/providers/binaryDerivedTextEnrichmentProvider.js src/createContainer.js \
+    src/tests/unit/enrich/providers/binaryDerivedTextEnrichmentProvider.test.js
+git commit -m "feat: add BinaryDerivedTextEnrichmentProvider reverse lookup"
+```
+
+---
+
+## Task 10: Config documentation
+
+**Files:**
+- Modify: `readme/cheatsheet.md` (or wherever this repo documents environment configuration —
+  check for an existing `.env.example`/config reference doc and mirror whichever already documents
+  `RESOURCE_HISTORY_MONGO_URL`/`AUDIT_EVENT_MONGO_URL`)
+
+**Interfaces:** none (documentation only).
+
+- [ ] **Step 1: Add a new section documenting `_content` search**
+
+Document: the four required connection env vars (`FHIR_NOTES_MONGO_URL`, `FHIR_NOTES_MONGO_DB_NAME`,
+`FHIR_NOTES_MONGO_COLLECTION_NAME`, `FHIR_NOTES_TEXT_SEARCH_INDEX_NAME`, all required together) plus
+the separate `ENABLE_FULL_TEXT_SEARCH=1` kill-switch flag required on top of them; the three
+supported resource types; the Lucene `queryString` syntax with the spec's own example; the
+empty-`_content` derived-text trigger and its single-resource-only restriction; the
+`attachment-derived-text` extension marker semantics for both the `content[]` sibling-attachment
+case and the `Binary` top-level-extension case.
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add readme/cheatsheet.md
+git commit -m "docs: document _content search and derived-text enrichment"
+```
+
+---
+
+## Self-Review Notes (for the implementer)
+
+- **Spec coverage check:** every capability in the spec's Scope section (§`_content` search on the
+  three resource types, derived-text read enrichment, `Binary` reverse lookup) has a task; every
+  item in Error Handling has an explicit test (Task 5 Step 1's `BadRequestError`/`ExternalTimeoutError`
+  cases, Task 6's graceful-degradation-on-failure behavior baked into `ClinicalNoteTextRetriever`
+  catching and logging rather than throwing).
+- **Deliberate scope simplification vs. the spec's exact wording:** the spec's "Security model"
+  section describes the vector-store candidate query as patient-scoped (`patientIds` filter) as a
+  defense-in-depth measure. Task 5's actual `SearchManager.constructQueryAsync` hook point runs
+  *before* `allPatientIdsFromJwtToken` is computed in that function today (patient-scope resolution
+  currently happens only inside the `buildSearchQueryBasedOnVersion`-dependent branch). Rather than
+  reordering `constructQueryAsync`'s existing, security-sensitive logic to hoist that computation
+  earlier -- a change with its own regression risk -- this plan omits the patient-scoped pre-filter
+  for v1 and relies entirely on the mandatory `_id ∈ [...]` post-filter re-validation for
+  correctness and security (which is unaffected by this simplification: every candidate id is still
+  fully re-authorized). The vector-store query is somewhat less precise as a result (candidates
+  aren't narrowed by patient before the Atlas Search call). Hoisting patient-scope resolution to
+  enable a patient-scoped pre-filter is a reasonable fast-follow, not required for correctness.
+- **Type consistency check:** `ClinicalNoteSearchClient.findMatchingResourceIdsAsync` (Task 5) and
+  `ClinicalNoteTextRetriever.getReassembledTextAsync`/`getReassembledTextForBinaryAsync` (Task 7) are
+  the only two consumer-facing methods introduced by the new utility classes, and both are called
+  with the exact same parameter names throughout Tasks 6, 8, and 9 — verified consistent.
