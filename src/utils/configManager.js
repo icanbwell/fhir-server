@@ -1335,6 +1335,33 @@ class ConfigManager {
         return isTrue(env.ENFORCE_PERSON_LINK_ASSURANCE_MINIMUM);
     }
 
+    /**
+     * Whether to collapse duplicate Composition resources (same subject + type, written by
+     * different generators) down to the one with the newest meta.lastUpdated on read.
+     * @return {boolean}
+     */
+    get enableCompositionLatestVersionDedup() {
+        return isTrue(env.ENABLE_COMPOSITION_LATEST_VERSION_DEDUP);
+    }
+
+    /**
+     * meta.source values that identify a Composition as coming from one of the generators that
+     * produce intentionally-duplicate Compositions for the same subject + type (the Databricks
+     * batch pipeline and the low-latency composition service). Only Compositions carrying one of
+     * these sources are considered for latest-version dedup -- everything else (including legacy
+     * V1 Compositions with no comparable duplicate) passes through untouched.
+     * @return {string[]}
+     */
+    get compositionLatestVersionSources() {
+        return this._parseCommaSeparatedList(
+            env.COMPOSITION_LATEST_VERSION_SOURCES,
+            [
+                'https://www.icanbwell.com/',
+                'https://www.icanbwell.com/fhir-composition-service'
+            ]
+        );
+    }
+
     get dataSharingAccessCodes() {
         return this._parseCommaSeparatedList(
             env.DATA_SHARING_ACCESS_CONSENT_CODES,

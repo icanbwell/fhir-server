@@ -4,6 +4,7 @@ const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const { pipeline } = require('stream/promises');
 const { ResourcePreparerTransform } = require('../streaming/resourcePreparerTransform');
+const { CompositionLatestVersionTransform } = require('../streaming/compositionLatestVersionTransform');
 const { Transform } = require('stream');
 const { IndexHinter } = require('../../indexes/indexHinter');
 const { HttpResponseWriter } = require('../streaming/responseWriter');
@@ -896,7 +897,7 @@ class SearchManager {
                 configManager: this.configManager
             });
 
-            await pipeline(
+            const pipelineStages = [
                 readableMongoStream,
                 // new ObjectChunker(batchObjectCount),
                 new ResourcePreparerTransform(
@@ -909,7 +910,23 @@ class SearchManager {
                         configManager: this.configManager,
                         enrichmentContext
                     }
-                ),
+                )
+            ];
+            // scoped to Composition only: two independent, intentionally different generators
+            // can each write a Composition for the same subject + type, so only this resource
+            // type ever needs latest-version dedup
+            if (resourceType === 'Composition') {
+                pipelineStages.push(
+                    new CompositionLatestVersionTransform(
+                        {
+                            signal: ac.signal,
+                            highWaterMark,
+                            configManager: this.configManager
+                        }
+                    )
+                );
+            }
+            pipelineStages.push(
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
                 new Transform({
                     writableObjectMode: true,
@@ -930,6 +947,8 @@ class SearchManager {
                     }
                 })
             );
+
+            await pipeline(...pipelineStages);
         } catch (e) {
             logError('', { user, error: e });
             ac.abort();
@@ -1145,7 +1164,7 @@ class SearchManager {
 
         try {
             // now setup and run the pipeline
-            await pipeline(
+            const pipelineStages = [
                 readableMongoStream,
                 // new Transform({
                 //     objectMode: true,
@@ -1153,11 +1172,31 @@ class SearchManager {
                 //         sleep(60 * 1000).then(callback);
                 //     }
                 // }),
-                resourcePreparerTransform,
+                resourcePreparerTransform
+            ];
+            // scoped to Composition only: two independent, intentionally different generators
+            // can each write a Composition for the same subject + type, so only this resource
+            // type ever needs latest-version dedup. Note this defers the first byte written to
+            // the response until the whole cursor drains for Composition searches specifically,
+            // since the winner per group can't be known until every candidate has been seen --
+            // acceptable here because Composition searches are person-scoped (small result sets).
+            if (resourceType === 'Composition') {
+                pipelineStages.push(
+                    new CompositionLatestVersionTransform(
+                        {
+                            signal: ac.signal,
+                            highWaterMark,
+                            configManager: this.configManager
+                        }
+                    )
+                );
+            }
+            pipelineStages.push(
                 resourceIdTracker,
                 fhirWriter,
                 responseWriter
             );
+            await pipeline(...pipelineStages);
         } catch (e) {
             logError(`SearchManager.streamResourcesFromCursorAsync: ${e.message} `, {
                 user,
