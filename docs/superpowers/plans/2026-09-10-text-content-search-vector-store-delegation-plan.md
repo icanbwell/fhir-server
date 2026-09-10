@@ -711,10 +711,24 @@ git commit -m "feat: add ClinicalNoteSearchClient for delegated _content search"
 - Modify: `src/operations/search/searchManager.js`
 - Modify: `src/createContainer.js:503-524` (add `clinicalNoteSearchClient` to the `SearchManager`
   registration, and register `clinicalNoteSearchClient` itself)
-- Test: `src/tests/unit/operations/search/searchManager.test.js` (existing — add new test cases; if
-  no such file exists, create it following this codebase's existing unit-test conventions for
-  classes with many constructor dependencies, e.g. `src/tests/unit/operations/query/filters/id.test.js`
-  for style)
+- Modify: `src/tests/unit/operations/search/searchManager.test.js:94` (existing `new SearchManager({...})`
+  call — add `clinicalNoteSearchClient: createMockInstance(ClinicalNoteSearchClient)`)
+- Modify: `src/tests/unit/resourceAuthorization/03_scopesAndAuditEventGate.test.js:333` (existing
+  `new SearchManager({...})` call — add the same)
+- Modify: `src/tests/unit/resourceAuthorization/06b_cmsPartnerConsent.test.js:128` (existing
+  `new SearchManager({...})` call — add the same)
+- Test: `src/tests/unit/operations/search/searchManager.test.js` (add new test cases per Step 1 below)
+
+**IMPORTANT — pre-flight finding:** `SearchManager` is constructed directly (not via the DI
+container) in three existing test files beyond the one this task already modifies. Adding
+`clinicalNoteSearchClient` as a new constructor dependency with an `assertTypeEquals` guard (Step 3
+below) will break all three at construction time unless each is updated to pass one. All three
+already use this suite's `createMockInstance(SomeClass)` convention for other constructor deps
+(see `03_scopesAndAuditEventGate.test.js:333` and `06b_cmsPartnerConsent.test.js:128` for the exact
+existing shape) — add `clinicalNoteSearchClient: createMockInstance(ClinicalNoteSearchClient)` to
+all three `new SearchManager({...})` call sites, plus the corresponding
+`const { ClinicalNoteSearchClient } = require(...)` import in each file. Run each of these three
+test files (not just the one this task's new tests live in) before considering this task done.
 
 **Interfaces:**
 - Consumes: `ClinicalNoteSearchClient.findMatchingResourceIdsAsync` (Task 5),
@@ -1501,10 +1515,16 @@ class AttachmentTextEnrichmentProvider extends EnrichmentProvider {
 module.exports = { AttachmentTextEnrichmentProvider };
 ```
 
-In `src/createContainer.js`:
+In `src/createContainer.js`, register `clinicalNoteTextRetriever` itself first (this task is its
+first consumer; Task 9 reuses this same registration rather than re-registering it):
 ```js
+const { ClinicalNoteTextRetriever } = require('./utils/clinicalNoteTextRetriever');
 const { AttachmentTextEnrichmentProvider } = require('./enrich/providers/attachmentTextEnrichmentProvider');
 // ...
+container.register('clinicalNoteTextRetriever', (c) => new ClinicalNoteTextRetriever({
+    mongoDatabaseManager: c.mongoDatabaseManager,
+    configManager: c.configManager
+}));
 container.register('attachmentTextEnrichmentProvider', (c) => new AttachmentTextEnrichmentProvider({
     clinicalNoteTextRetriever: c.clinicalNoteTextRetriever
 }));
@@ -1535,10 +1555,13 @@ git commit -m "feat: add AttachmentTextEnrichmentProvider for derived-text reads
 - Test: `src/tests/unit/enrich/providers/binaryDerivedTextEnrichmentProvider.test.js` (new)
 
 **Interfaces:**
-- Consumes: `ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync` (Task 7), the same
-  `isSingleResourceRequest`/`isDerivedTextTrigger` gating logic as Task 8 (duplicated here rather
-  than shared, since this provider only ever handles `resourceType === 'Binary'` and the two
-  providers have no other coupling — see YAGNI note below).
+- Consumes: `ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync` (Task 7, already registered
+  as `clinicalNoteTextRetriever` in the container by Task 8 — do not re-register it here), the same
+  `isSingleResourceRequest`/`isDerivedTextTrigger` gating logic as Task 8. This logic is
+  intentionally duplicated (not extracted to a shared helper) — it's two 6-line static methods, this
+  provider only ever handles `resourceType === 'Binary'` with no other coupling to Task 8's
+  provider, and introducing a shared base class for two call sites this small is unnecessary
+  indirection. Treat this as a deliberate, plan-mandated decision, not a gap to fix.
 - Produces: an `EnrichmentProvider` subclass consumed only by `createContainer.js`.
 
 - [ ] **Step 1: Write the failing test**
@@ -1714,17 +1737,8 @@ container.register('binaryDerivedTextEnrichmentProvider', (c) => new BinaryDeriv
 }));
 ```
 and add `c.binaryDerivedTextEnrichmentProvider` to the `enrichmentProviders` array alongside
-`c.attachmentTextEnrichmentProvider` from Task 8.
-
-Also register `clinicalNoteTextRetriever` itself (used by both Task 8 and this task):
-```js
-const { ClinicalNoteTextRetriever } = require('./utils/clinicalNoteTextRetriever');
-// ...
-container.register('clinicalNoteTextRetriever', (c) => new ClinicalNoteTextRetriever({
-    mongoDatabaseManager: c.mongoDatabaseManager,
-    configManager: c.configManager
-}));
-```
+`c.attachmentTextEnrichmentProvider` from Task 8. `clinicalNoteTextRetriever` is already registered
+in the container by Task 8 — reuse `c.clinicalNoteTextRetriever` here, do not register it again.
 
 - [ ] **Step 4: Run test to verify it passes**
 
