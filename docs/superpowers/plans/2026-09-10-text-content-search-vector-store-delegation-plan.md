@@ -22,6 +22,16 @@ run after (never before) a resource's own authorized fetch.
 
 ## Global Constraints
 
+- **Never assert `instanceof`/`toBeInstanceOf` against any `src/utils/httpErrors.js` class**
+  (`BadRequestError`, `ExternalTimeoutError`, etc.) in a test. `ServerError`'s constructor
+  (`src/middleware/fhir/utils/server.error.js`) unconditionally calls
+  `Object.setPrototypeOf(this, ServerError.prototype)`, which resets every subclass instance's
+  prototype chain back to `ServerError.prototype` — a pre-existing, already-documented bug (see
+  `src/tests/unit/utils/httpErrors.test.js` and
+  `src/tests/unit/operations/query/filters/composite.test.js`). The established convention this
+  codebase already uses is to assert on `err.statusCode` instead. Do not work around this at any
+  throw site (e.g. via `Object.setPrototypeOf` before throwing) — that would be a one-off
+  deviation from how every other part of this codebase already handles it.
 - Supported resource types for `_content` search and read enrichment: exactly `DocumentReference`,
   `DiagnosticReport`, `CarePlan` (search) — `CarePlan` needs no read enrichment (its `note[].text` is
   already plain text). `_content` on any other resource type is a `BadRequestError`, never a silent
@@ -570,10 +580,27 @@ describe('ClinicalNoteSearchClient', () => {
         const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
         const client = new ClinicalNoteSearchClient({ mongoDatabaseManager, configManager: makeConfigManager() });
 
-        await expect(client.findMatchingResourceIdsAsync({
-            resourceType: 'DocumentReference',
-            contentQuery: 'diabetes'
-        })).rejects.toBeInstanceOf(ExternalTimeoutError);
+        // NOTE: ServerError's constructor (src/middleware/fhir/utils/server.error.js) calls
+        // `Object.setPrototypeOf(this, ServerError.prototype)` unconditionally, resetting the
+        // prototype chain on every subclass instance (including ExternalTimeoutError) back to
+        // ServerError.prototype. `instanceof ExternalTimeoutError`/`toBeInstanceOf` is therefore
+        // always false for this pre-existing, unrelated reason -- already documented in
+        // src/tests/unit/utils/httpErrors.test.js and src/tests/unit/operations/query/filters/composite.test.js
+        // (see their `expectBadRequestError`-style helpers). Follow that same established
+        // convention: assert on `statusCode` instead. Do not work around the prototype bug
+        // (e.g. via `Object.setPrototypeOf` at the throw site) -- that would be a one-off
+        // deviation from how the rest of this codebase already handles it.
+        let thrownError;
+        try {
+            await client.findMatchingResourceIdsAsync({
+                resourceType: 'DocumentReference',
+                contentQuery: 'diabetes'
+            });
+            throw new Error('expected findMatchingResourceIdsAsync to throw');
+        } catch (e) {
+            thrownError = e;
+        }
+        expect(thrownError.statusCode).toBe(504);
     });
 
     test('builds the compound/queryString/filter shape against the configured index and collection', async () => {
@@ -610,7 +637,6 @@ Expected: FAIL — module doesn't exist.
 ```js
 // src/utils/clinicalNoteSearchClient.js
 const { ExternalTimeoutError } = require('./httpErrors');
-const { RethrownError } = require('./rethrownError');
 
 /**
  * Delegates full-text search candidate lookup to fhir-notes-vector-store's existing Atlas
@@ -664,13 +690,9 @@ class ClinicalNoteSearchClient {
             }
             return Array.from(ids);
         } catch (e) {
-            throw new RethrownError({
-                message: `fhir-notes-vector-store text search failed for resourceType=${resourceType}`,
-                error: new ExternalTimeoutError(
-                    `_content search is temporarily unavailable: ${e.message}`
-                ),
-                args: { resourceType, contentQuery }
-            });
+            throw new ExternalTimeoutError(
+                `_content search is temporarily unavailable (resourceType=${resourceType}): ${e.message}`
+            );
         }
     }
 }
@@ -678,18 +700,13 @@ class ClinicalNoteSearchClient {
 module.exports = { ClinicalNoteSearchClient };
 ```
 
-Note: `RethrownError` wraps the underlying error but the test asserts
-`rejects.toBeInstanceOf(ExternalTimeoutError)` — check `RethrownError`'s implementation (`src/utils/rethrownError.js`) before finalizing this step: if it doesn't preserve `instanceof` on the wrapped error, throw the `ExternalTimeoutError` directly instead of wrapping it in `RethrownError`, e.g.:
-
-```js
-} catch (e) {
-    throw new ExternalTimeoutError(
-        `_content search is temporarily unavailable (resourceType=${resourceType}): ${e.message}`
-    );
-}
-```
-
-Use whichever form actually satisfies the `rejects.toBeInstanceOf(ExternalTimeoutError)` assertion.
+Throw `ExternalTimeoutError` directly — do not wrap it in `RethrownError`, and do not try to make
+`instanceof`/`toBeInstanceOf` work via a prototype workaround at the throw site. See the test's own
+inline note above: this codebase has a known, already-documented, pre-existing bug where
+`ServerError`'s constructor resets every subclass instance's prototype back to `ServerError.prototype`,
+so `instanceof` checks against any `httpErrors.js` class are unreliable everywhere in this codebase,
+not just here. The established convention (already used in `httpErrors.test.js` and
+`composite.test.js`) is to assert on `err.statusCode` instead — this task's test does exactly that.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -748,7 +765,7 @@ const { SearchManager } = require('../../../../operations/search/searchManager')
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../../../../operations/query/queryParameterValue');
-const { BadRequestError, ExternalTimeoutError } = require('../../../../utils/httpErrors');
+const { ExternalTimeoutError } = require('../../../../utils/httpErrors');
 
 function makeParsedArgsWithContent (value) {
     const parsedArgs = new ParsedArgs({ base_version: '4_0_0' });
@@ -757,6 +774,27 @@ function makeParsedArgsWithContent (value) {
         queryParameterValue: new QueryParameterValue({ value, operator: '$and' })
     }));
     return parsedArgs;
+}
+
+// NOTE: ServerError's constructor (src/middleware/fhir/utils/server.error.js) calls
+// `Object.setPrototypeOf(this, ServerError.prototype)` unconditionally, resetting the prototype
+// chain on every subclass instance (including BadRequestError/ExternalTimeoutError) back to
+// ServerError.prototype. `instanceof`/`toBeInstanceOf` against any httpErrors.js class is
+// therefore always false, for this pre-existing, unrelated reason -- already documented in
+// src/tests/unit/utils/httpErrors.test.js and
+// src/tests/unit/operations/query/filters/composite.test.js. Follow that same established
+// convention here: assert on `statusCode` instead of `instanceof`. Do not work around the
+// prototype bug at any throw site (e.g. via `Object.setPrototypeOf`) -- that would be a one-off
+// deviation from how the rest of this codebase already handles it.
+async function expectRejectionWithStatusCode (promise, statusCode) {
+    let thrownError;
+    try {
+        await promise;
+        throw new Error(`expected promise to reject with statusCode ${statusCode}, but it resolved`);
+    } catch (e) {
+        thrownError = e;
+    }
+    expect(thrownError.statusCode).toBe(statusCode);
 }
 
 // Minimal SearchManager instantiation helper: fill every other constructor dependency with a
@@ -792,10 +830,10 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
             configManager: { fhirNotesFullTextSearchConfigured: true },
             clinicalNoteSearchClient: {}
         });
-        await expect(searchManager.buildContentSearchIdFilterAsync({
+        await expectRejectionWithStatusCode(searchManager.buildContentSearchIdFilterAsync({
             resourceType: 'Condition',
             parsedArgs: makeParsedArgsWithContent('diabetes')
-        })).rejects.toBeInstanceOf(BadRequestError);
+        }), 400);
     });
 
     test('throws BadRequestError when the feature is not configured', async () => {
@@ -803,10 +841,10 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
             configManager: { fhirNotesFullTextSearchConfigured: false },
             clinicalNoteSearchClient: {}
         });
-        await expect(searchManager.buildContentSearchIdFilterAsync({
+        await expectRejectionWithStatusCode(searchManager.buildContentSearchIdFilterAsync({
             resourceType: 'DocumentReference',
             parsedArgs: makeParsedArgsWithContent('diabetes')
-        })).rejects.toBeInstanceOf(BadRequestError);
+        }), 400);
     });
 
     test('returns an _uuid $in filter built from candidate ids', async () => {
@@ -845,10 +883,10 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
             configManager: { fhirNotesFullTextSearchConfigured: true },
             clinicalNoteSearchClient
         });
-        await expect(searchManager.buildContentSearchIdFilterAsync({
+        await expectRejectionWithStatusCode(searchManager.buildContentSearchIdFilterAsync({
             resourceType: 'DocumentReference',
             parsedArgs: makeParsedArgsWithContent('diabetes')
-        })).rejects.toBeInstanceOf(ExternalTimeoutError);
+        }), 504);
     });
 });
 ```
