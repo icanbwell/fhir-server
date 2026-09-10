@@ -6,11 +6,9 @@
     "versionId": "1",
     "lastUpdated": "2022-01-01T00:00:00.000Z",
     "security": [
-      { "system": "https://www.icanbwell.com/owner", "code": "test_client" },
-      { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "test_client" }
+      { "system": "https://www.icanbwell.com/owner", "code": "test_client" }
     ]
   },
-  "_sourceAssigningAuthority": "test_client",
   "status": "current",
   "content": [
     {

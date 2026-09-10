@@ -6,7 +6,7 @@
     "versionId": "1",
     "lastUpdated": "2022-01-01T00:00:00.000Z",
     "security": [
-      { "system": "https://www.icanbwell.com/owner", "code": "no_authority_client" }
+      { "system": "https://www.icanbwell.com/owner", "code": "edge_client" }
     ]
   },
   "status": "current",
@@ -14,7 +14,7 @@
     {
       "attachment": {
         "contentType": "text/html",
-        "url": "Binary/legacyTokenNoAuthority.789"
+        "url": "Binary/legacyTokenEdge.999"
       }
     }
   ]

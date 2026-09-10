@@ -1,0 +1,8 @@
+{
+  "id": "8888ac95-28a6-5d8d-beff-bd81360d58e8",
+  "resourceType": "Binary",
+  "meta": {
+    "source": "https://mobileprod.arcmd.com/FHIR/api/FHIR/R4/Binary/legacyTokenAbc.123"
+  },
+  "contentType": "text/html"
+}
