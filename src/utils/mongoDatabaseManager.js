@@ -1,4 +1,4 @@
-const { mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig, accessLogsMongoConfig, resourceHistoryMongoConfig } = require('../config');
+const { mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig, accessLogsMongoConfig, resourceHistoryMongoConfig, fhirNotesMongoConfig } = require('../config');
 const { isTrue } = require('./isTrue');
 const { logInfo, logError } = require('../operations/common/logging');
 const { logSystemEventAsync } = require('../operations/common/systemEventLogging');
@@ -47,6 +47,12 @@ let resourceHistoryDb = null;
  * @type {import('mongodb').GridFSBucket}
 */
 let gridFSBucket = null;
+
+/**
+ * fhir-notes-vector-store db (read-only)
+ * @type {import('mongodb').Db}
+ */
+let fhirNotesDb = null;
 
 /**
  * @typedef MongoDatabaseManagerProps
@@ -122,6 +128,21 @@ class MongoDatabaseManager {
     }
 
     /**
+     * Gets the fhir-notes-vector-store db (read-only). Returns null when the feature isn't
+     * configured in this environment (FHIR_NOTES_MONGO_URL unset).
+     * @returns {Promise<import('mongodb').Db|null>}
+     */
+    async getFhirNotesDbAsync () {
+        if (!this.configManager.fhirNotesFullTextSearchConfigured) {
+            return null;
+        }
+        if (!fhirNotesDb) {
+            await this.connectAsync();
+        }
+        return fhirNotesDb;
+    }
+
+    /**
      * Gets db for resource type
      * @param {string} resourceType
      * @param {Object} extraInfo
@@ -169,6 +190,10 @@ class MongoDatabaseManager {
 
     async getAccessLogsConfigAsync () {
         return accessLogsMongoConfig;
+    }
+
+    async getFhirNotesConfigAsync () {
+        return fhirNotesMongoConfig;
     }
 
     /**
@@ -276,6 +301,12 @@ class MongoDatabaseManager {
             ? await this.createClientAsync(resourceHistoryConfig)
             : client;
         resourceHistoryDb = resourceHistoryClient.db(resourceHistoryConfig.db_name);
+
+        if (this.configManager.fhirNotesFullTextSearchConfigured) {
+            const fhirNotesConfig = await this.getFhirNotesConfigAsync();
+            const fhirNotesClient = await this.createClientAsync(fhirNotesConfig);
+            fhirNotesDb = fhirNotesClient.db(fhirNotesConfig.db_name);
+        }
     }
 
     /**

@@ -479,4 +479,19 @@ describe('MongoDatabaseManager', () => {
             delete process.env.LOG_ALL_MONGO_CALLS;
         });
     });
+
+    describe('getFhirNotesDbAsync', () => {
+        test('returns null when fhirNotesMongoConfig has no connection', async () => {
+            jest.doMock('../../../config', () => ({
+                ...jest.requireActual('../../../config'),
+                fhirNotesMongoConfig: {}
+            }));
+            jest.resetModules();
+            const { MongoDatabaseManager } = require('../../../utils/mongoDatabaseManager');
+            const { ConfigManager } = require('../../../utils/configManager');
+            const mongoDatabaseManager = new MongoDatabaseManager({ configManager: new ConfigManager() });
+            const db = await mongoDatabaseManager.getFhirNotesDbAsync();
+            expect(db).toBeNull();
+        });
+    });
 });
