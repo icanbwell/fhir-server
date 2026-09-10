@@ -116,7 +116,7 @@ describe('BulkDataExportRunner - null safety bugs', () => {
             mocks.resourceLocatorFactory.createResourceLocator = jest.fn().mockReturnValue(mockResourceLocator);
 
             mocks.enrichmentManager.enrichAsync = jest.fn().mockResolvedValue(undefined);
-            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockResolvedValue(undefined);
+            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockImplementation((doc) => doc);
             mocks.base64DataManager.transformAsync = jest.fn().mockImplementation((doc) => doc);
 
             // Math.floor(uploadPartSize / 0) would be Infinity, and `new Array(Infinity)`
@@ -166,7 +166,7 @@ describe('BulkDataExportRunner - null safety bugs', () => {
             mocks.resourceLocatorFactory.createResourceLocator = jest.fn().mockReturnValue(mockResourceLocator);
 
             mocks.enrichmentManager.enrichAsync = jest.fn().mockResolvedValue(undefined);
-            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockResolvedValue(undefined);
+            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockImplementation((doc) => doc);
             mocks.base64DataManager.transformAsync = jest.fn().mockImplementation((doc) => doc);
 
             // Set up multipartContext with existing previousBuffer
@@ -286,7 +286,7 @@ describe('BulkDataExportRunner - null safety bugs', () => {
             // Make enrichmentManager throw after multipart upload is started
             mocks.enrichmentManager.enrichAsync = jest.fn().mockRejectedValue(new Error('Enrichment failed'));
 
-            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockResolvedValue(undefined);
+            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockImplementation((doc) => doc);
             mocks.base64DataManager.transformAsync = jest.fn().mockImplementation((doc) => doc);
 
             // handlePatientExportAsync must abort the in-progress multipart upload when an

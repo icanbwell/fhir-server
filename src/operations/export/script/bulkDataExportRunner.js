@@ -571,9 +571,10 @@ class BulkDataExportRunner {
 
     /**
      * Turns a raw Mongo export doc into a serialized NDJSON-ready object.
-     * Full export (no projection) hydrates + enriches + attachment-transforms as before.
-     * The projected (_elements) path skips those re-expansions and serializes the doc
-     * as fetched; the resource serializer drops Mongo-internal fields (_uuid, _sourceId, ...).
+     * Full export (no projection) enriches the resource; the projected (_elements) path
+     * skips enrichment only - attachment (GridFS) and base64 (S3) rehydration always run,
+     * since both are no-ops when their sidecar field isn't present on the doc.
+     * The resource serializer then drops Mongo-internal fields (_uuid, _sourceId, ...).
      *
      * Raw-elements contract: with enrichment skipped, reference-valued elements are emitted
      * in their raw stored (uuid) form, not the enrichment-rewritten form a full export gives.
@@ -594,12 +595,9 @@ class BulkDataExportRunner {
         let resource = FhirResourceCreator.createByResourceType(doc, resourceType);
         if (!isProjected) {
             await this.enrichmentManager.enrichAsync({ resources: [resource], parsedArgs });
-            await this.databaseAttachmentManager.transformAttachments({
-                resource,
-                operation: GRIDFS.RETRIEVE
-            });
-            resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
         }
+        resource = await this.databaseAttachmentManager.transformAttachments(resource, GRIDFS.RETRIEVE);
+        resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
         return FhirResourceSerializer.serialize(resource.toJSONInternal());
     }
 
