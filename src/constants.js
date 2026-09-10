@@ -358,6 +358,14 @@ module.exports = {
             'searchById',
             'everything',
             'graph'
-        ]
+        ],
+        /**
+         * Resource types a JWT `act` claim's `reference` may name as the delegated actor.
+         * - RelatedPerson: a human delegate acting on a grantor's behalf (Health Circle / AoR flow).
+         * - Organization: a backend/service-integration client acting on a Person it has itself
+         *   onboarded, with no human grantee -- BIG's token-exchange grant for client-initiated
+         *   access (RFC: Delegated Token Generation for Client-Initiated Access, DCON-5236/DCON-5395).
+         */
+        ALLOWED_ACTOR_RESOURCE_TYPES: ['RelatedPerson', 'Organization']
     }
 };

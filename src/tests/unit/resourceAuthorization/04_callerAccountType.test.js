@@ -40,6 +40,7 @@ jest.mock('../../../operations/common/logging', () => ({
 const { AuthService } = require('../../../strategies/authService');
 const { ConfigManager } = require('../../../utils/configManager');
 const { WellKnownConfigurationManager } = require('../../../utils/wellKnownConfiguration/wellKnownConfigurationManager');
+const { DelegatedAccessRulesManager } = require('../../../utils/delegatedAccessRulesManager');
 const { AUTH_USER_TYPES } = require('../../../constants');
 
 function createMockInstance (ClassType) {
@@ -84,9 +85,12 @@ describe('Resource Authorization §4 — Caller / account type', () => {
 
         mockWellKnownConfigurationManager = createMockInstance(WellKnownConfigurationManager);
 
+        const mockDelegatedAccessRulesManager = createMockInstance(DelegatedAccessRulesManager);
+
         authService = new AuthService({
             configManager: mockConfigManager,
-            wellKnownConfigurationManager: mockWellKnownConfigurationManager
+            wellKnownConfigurationManager: mockWellKnownConfigurationManager,
+            delegatedAccessRulesManager: mockDelegatedAccessRulesManager
         });
     });
 

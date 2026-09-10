@@ -3,6 +3,7 @@ const nock = require('nock');
 const {WellKnownConfigurationManager} = require("../../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const {AuthService} = require("../../../strategies/authService");
 const {ConfigManager} = require("../../../utils/configManager");
+const {DelegatedAccessRulesManager} = require("../../../utils/delegatedAccessRulesManager");
 describe('JWT Bearer Strategy', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -38,7 +39,8 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager
                     }
-                )
+                ),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }
         );
 
@@ -82,7 +84,8 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager
                     }
-                )
+                ),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }
         );
         authService.clearAuthCache();
@@ -124,7 +127,8 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager
                     }
-                )
+                ),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }
         );
         const result = await authService.getExternalJwksAsync();
@@ -155,7 +159,8 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager: configManager
                     }
-                )
+                ),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }
         );
         const result = await authService.getExternalJwksAsync();
@@ -211,7 +216,8 @@ describe('JWT Bearer Strategy', () => {
         const authService = new AuthService(
             {
                 configManager: configManager,
-                wellKnownConfigurationManager: wellKnownManager
+                wellKnownConfigurationManager: wellKnownManager,
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }
         );
         // mockWellKnownConfig has no jwks_uri, so the well-known fallback resolves to

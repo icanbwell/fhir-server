@@ -52,6 +52,7 @@ jest.mock('../../../operations/common/logging', () => {
 const { AuthService } = require('../../../strategies/authService');
 const { ConfigManager } = require('../../../utils/configManager');
 const { WellKnownConfigurationManager } = require('../../../utils/wellKnownConfiguration/wellKnownConfigurationManager');
+const { DelegatedAccessRulesManager } = require('../../../utils/delegatedAccessRulesManager');
 
 function createMockInstance(ClassType) {
     const instance = Object.create(ClassType.prototype);
@@ -89,9 +90,12 @@ describe('INC-311/315: JWKS Cache Thundering Herd', () => {
         mockWellKnownConfigManager.getJwksUrlsAsync = jest.fn().mockResolvedValue([]);
         mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest.fn().mockResolvedValue(null);
 
+        const mockDelegatedAccessRulesManager = createMockInstance(DelegatedAccessRulesManager);
+
         authService = new AuthService({
             configManager: mockConfigManager,
-            wellKnownConfigurationManager: mockWellKnownConfigManager
+            wellKnownConfigurationManager: mockWellKnownConfigManager,
+            delegatedAccessRulesManager: mockDelegatedAccessRulesManager
         });
     });
 

@@ -5,12 +5,15 @@ const {
     DEFAULT_CACHE_EXPIRY_TIME,
     DEFAULT_CACHE_MAX_COUNT,
     USER_INFO_CACHE_EXPIRY_TIME,
-    AUTH_USER_TYPES
+    AUTH_USER_TYPES,
+    DELEGATED_ACCESS
 } = require('../constants');
 const {logDebug, logError, logInfo, logWarn} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
+const {DelegatedAccessRulesManager} = require('../utils/delegatedAccessRulesManager');
+const {ReferenceParser} = require('../utils/referenceParser');
 
 /**
  * @typedef {Object} UserInfo
@@ -47,10 +50,12 @@ class AuthService {
      * Constructor for the AuthService
      * @param {ConfigManager} configManager
      * @param {WellKnownConfigurationManager} wellKnownConfigurationManager
+     * @param {DelegatedAccessRulesManager} delegatedAccessRulesManager
      */
     constructor({
                     configManager,
-                    wellKnownConfigurationManager
+                    wellKnownConfigurationManager,
+                    delegatedAccessRulesManager
                 }) {
         /**
          * @type {ConfigManager}
@@ -63,6 +68,12 @@ class AuthService {
          */
         this.wellKnownConfigurationManager = wellKnownConfigurationManager;
         assertTypeEquals(wellKnownConfigurationManager, WellKnownConfigurationManager);
+
+        /**
+         * @type {DelegatedAccessRulesManager}
+         */
+        this.delegatedAccessRulesManager = delegatedAccessRulesManager;
+        assertTypeEquals(delegatedAccessRulesManager, DelegatedAccessRulesManager);
 
         this.requestTimeout = (this.configManager.externalRequestTimeoutSec || 30) * 1000;
         this.requiredJWTFields = {
@@ -261,9 +272,9 @@ class AuthService {
      * @param {import("passport-jwt").VerifiedCallback} done
      * @param {string} client_id
      * @param {string} scope
-     * @return {void}
+     * @return {Promise<void>}
      */
-    processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+    async processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope}) {
         // A token that resolves to a completely empty scope (nothing on the JWT itself,
         // no groups, and userinfo enrichment -- if attempted -- found nothing either) is
         // authenticated but carries zero permissions; treat it as an auth failure (401),
@@ -331,6 +342,39 @@ class AuthService {
 
                     if (Array.isArray(jwt_payload.entitlements)) {
                         context.purposeOfUse = jwt_payload.entitlements;
+                        // DCON-5395: BIG's token-exchange grant for client-initiated access
+                        // (DCON-5236) mints `entitlements` as a `Consent/<id>` reference instead
+                        // of a bare v3-ActReason code. Only take the async Consent-dereference
+                        // path when that shape is actually present -- the common case (a bare
+                        // code, or no entitlements) must stay fully synchronous so `done()` below
+                        // still fires in the same tick, matching every other branch in this method.
+                        const consentReferences = jwt_payload.entitlements.filter(
+                            (entitlement) => ReferenceParser.parseReference(entitlement).resourceType === 'Consent'
+                        );
+                        if (consentReferences.length > 0) {
+                            const resolvedPurposeOfUse = await this.delegatedAccessRulesManager.resolvePurposeOfEventCodesAsync({
+                                entitlements: jwt_payload.entitlements
+                            });
+                            // null means a Consent/<id> entitlement could not be resolved (the
+                            // Consent doesn't exist, or the lookup errored) -- fail closed rather
+                            // than silently proceeding with an empty purposeOfEvent on an
+                            // otherwise-successful request.
+                            if (resolvedPurposeOfUse === null) {
+                                logWarn('Auth rejected', {
+                                    reason: 'delegated_actor_consent_not_found',
+                                    username,
+                                    subject
+                                });
+                                done(null, false, { reason: 'delegated_actor_consent_not_found' });
+                                return;
+                            }
+                            context.purposeOfUse = resolvedPurposeOfUse;
+                            // Surface the org-level Consent that authorized this access as
+                            // agent.policy on the AuditEvent (FHIR's designated slot for "the
+                            // consent/policy that authorized this event"), alongside the
+                            // resolved purposeOfEvent code -- see AuditLogger.buildAgents.
+                            context.actor.entitlementsConsentPolicies = consentReferences;
+                        }
                     }
                 }
             }
@@ -530,8 +574,13 @@ class AuthService {
         }
 
         let isValidInput = true;
-        // validate reference
-        isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' && act[this.requiredActorFields.reference].startsWith('RelatedPerson/');
+        // validate reference: a human delegate (RelatedPerson, Health Circle/AoR flow) or a
+        // backend/service-integration client (Organization, BIG's token-exchange flow for
+        // client-initiated access -- RFC: Delegated Token Generation for Client-Initiated Access).
+        isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' &&
+            DELEGATED_ACCESS.ALLOWED_ACTOR_RESOURCE_TYPES.includes(
+                ReferenceParser.parseReference(act[this.requiredActorFields.reference]).resourceType
+            );
         // validate sub
         isValidInput &&= typeof act[this.requiredActorFields.sub] === 'string';
 
@@ -590,7 +639,7 @@ class AuthService {
                             subject: subject1,
                             clientId: clientId1
                         } = userInfo;
-                        this.processUserInfo({
+                        return this.processUserInfo({
                             username: username1 || username,
                             subject: subject1 || subject,
                             isUser: isUser1 || isUser,
@@ -600,7 +649,7 @@ class AuthService {
                             scope: scope1 || scope
                         });
                     } else {
-                        this.processUserInfo({
+                        return this.processUserInfo({
                             username: username,
                             subject: subject,
                             isUser,
@@ -648,6 +697,16 @@ class AuthService {
                     done,
                     client_id: clientId,
                     scope
+                }).catch((error) => {
+                    // processUserInfo is now async (DCON-5395: it may await a Consent lookup),
+                    // so a synchronous throw here would reject rather than propagate directly --
+                    // surface it the same way the userinfo-endpoint failure path above does,
+                    // rather than letting it become an unhandled rejection.
+                    logError(`Error while processing user info: ${error.message}`, {
+                        reason: 'process_user_info_error',
+                        error
+                    });
+                    done(error);
                 });
             }
         } else {

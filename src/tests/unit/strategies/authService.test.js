@@ -26,6 +26,7 @@ jest.mock('../../../operations/common/logging', () => {
 const { AuthService } = require('../../../strategies/authService');
 const { ConfigManager } = require('../../../utils/configManager');
 const { WellKnownConfigurationManager } = require('../../../utils/wellKnownConfiguration/wellKnownConfigurationManager');
+const { DelegatedAccessRulesManager } = require('../../../utils/delegatedAccessRulesManager');
 const { logError, logWarn, logInfo } = require('../../../operations/common/logging');
 const superagent = require('superagent');
 
@@ -38,6 +39,7 @@ describe('AuthService', () => {
     let authService;
     let mockConfigManager;
     let mockWellKnownConfigManager;
+    let mockDelegatedAccessRulesManager;
 
     beforeEach(() => {
         // Clear static caches
@@ -62,9 +64,17 @@ describe('AuthService', () => {
         mockWellKnownConfigManager.getJwksUrlsAsync = jest.fn().mockResolvedValue([]);
         mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest.fn().mockResolvedValue(null);
 
+        // Default: pass entitlements through unchanged, matching legacy bare-code behavior.
+        // DCON-5395 tests below override this to exercise Consent-reference resolution.
+        mockDelegatedAccessRulesManager = createMockInstance(DelegatedAccessRulesManager);
+        mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync = jest.fn().mockImplementation(
+            ({ entitlements }) => Promise.resolve(entitlements ?? null)
+        );
+
         authService = new AuthService({
             configManager: mockConfigManager,
-            wellKnownConfigurationManager: mockWellKnownConfigManager
+            wellKnownConfigurationManager: mockWellKnownConfigManager,
+            delegatedAccessRulesManager: mockDelegatedAccessRulesManager
         });
     });
 
@@ -79,7 +89,8 @@ describe('AuthService', () => {
             AuthService.userInfoCache = undefined;
             const svc = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             expect(svc.requestTimeout).toBe(30000);
         });
@@ -96,7 +107,8 @@ describe('AuthService', () => {
         test('initializes caches only once (static)', () => {
             const authService2 = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             expect(AuthService.jwksCache).toBeDefined();
             expect(AuthService.userInfoCache).toBeDefined();
@@ -109,7 +121,8 @@ describe('AuthService', () => {
             AuthService.userInfoCache = undefined;
             const svc = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             expect(svc.cidCheckIssuer).toBe('http://myissuer.com');
             expect(svc.cidCheckClientIds).toEqual(['cid-1', 'cid-2']);
@@ -169,7 +182,8 @@ describe('AuthService', () => {
             });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = await authService.getExternalJwksAsync();
             expect(result).toEqual([{ kid: 'key1' }]);
@@ -182,7 +196,8 @@ describe('AuthService', () => {
 
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = await authService.getExternalJwksAsync();
             expect(mockWellKnownConfigManager.getJwksUrlsAsync).toHaveBeenCalled();
@@ -196,7 +211,8 @@ describe('AuthService', () => {
 
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = await authService.getExternalJwksAsync();
             expect(result).toEqual([]);
@@ -208,7 +224,8 @@ describe('AuthService', () => {
             });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = await authService.getExternalJwksAsync();
             // Both return {keys: [{kid: 'key1'}]} so we get two keys flattened
@@ -223,7 +240,8 @@ describe('AuthService', () => {
             superagent.timeout.mockRejectedValueOnce(new Error('network error'));
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             // getJwksByUrlAsync now rejects on infra failure rather than swallowing to
             // {keys: []}, so getExternalJwksAsync must propagate that failure too,
@@ -250,7 +268,8 @@ describe('AuthService', () => {
             superagent.timeout.mockRejectedValueOnce(new Error('ECONNREFUSED'));
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = await authService.getExternalJwksAsync();
             expect(result).toEqual([{ kid: 'key1' }]);
@@ -273,7 +292,8 @@ describe('AuthService', () => {
                 .mockRejectedValueOnce(new Error('ECONNREFUSED'));
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             // Only when EVERY configured provider fails (zero usable keys) should this
             // surface a transient/503 error.
@@ -304,7 +324,8 @@ describe('AuthService', () => {
 
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
 
             await expect(
@@ -318,7 +339,8 @@ describe('AuthService', () => {
             });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = await authService.getExternalJwksAsync();
             expect(result).toEqual([{ kid: 'key1' }]);
@@ -386,7 +408,8 @@ describe('AuthService', () => {
             Object.defineProperty(mockConfigManager, 'authCustomScope', { get: () => ['scp'], configurable: true });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ scp: 'user/*.read patient/Patient.read' });
             expect(result.scope).toContain('user/*.read');
@@ -397,7 +420,8 @@ describe('AuthService', () => {
             Object.defineProperty(mockConfigManager, 'authCustomUserName', { get: () => ['preferred_username'], configurable: true });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ scope: 'user/*.read', preferred_username: 'custom-user' });
             expect(result.username).toBe('custom-user');
@@ -407,7 +431,8 @@ describe('AuthService', () => {
             Object.defineProperty(mockConfigManager, 'authCustomSubject', { get: () => ['sub'], configurable: true });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ scope: 'user/*.read', sub: 'my-sub' });
             expect(result.subject).toBe('my-sub');
@@ -417,7 +442,8 @@ describe('AuthService', () => {
             Object.defineProperty(mockConfigManager, 'authCustomClientId', { get: () => ['cid'], configurable: true });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ scope: 'user/*.read', cid: 'custom-cid' });
             expect(result.clientId).toBe('custom-cid');
@@ -427,7 +453,8 @@ describe('AuthService', () => {
             Object.defineProperty(mockConfigManager, 'authCustomGroup', { get: () => ['groups'], configurable: true });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({
                 scope: 'user/*.read',
@@ -441,7 +468,8 @@ describe('AuthService', () => {
             Object.defineProperty(mockConfigManager, 'authCustomGroup', { get: () => ['groups'], configurable: true });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ groups: 'patient/Patient.read' });
             expect(result.scope).toBe('patient/Patient.read');
@@ -454,7 +482,8 @@ describe('AuthService', () => {
             });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({
                 scope: 'myapp:user/*.read myapp:patient/Patient.read'
@@ -469,7 +498,8 @@ describe('AuthService', () => {
             });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ scope: 'user/*.read' });
             expect(result.scope).toBe('user/*.read');
@@ -487,7 +517,8 @@ describe('AuthService', () => {
             });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ scope: 'short:user/*.read' });
             expect(result.scope).toBe('user/*.read');
@@ -695,7 +726,8 @@ describe('AuthService', () => {
             AuthService.userInfoCache = undefined;
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
 
             const done = jest.fn();
@@ -729,13 +761,139 @@ describe('AuthService', () => {
             );
         });
 
+        test('resolves a Consent/<id> entitlement to the Consent purpose codes (DCON-5395)', async () => {
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync.mockResolvedValue(['TREAT']);
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+
+            const done = jest.fn();
+            await authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    entitlements: ['Consent/consent-uuid-123']
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            });
+
+            expect(mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync).toHaveBeenCalledWith({
+                entitlements: ['Consent/consent-uuid-123']
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.any(Object),
+                expect.objectContaining({
+                    context: expect.objectContaining({
+                        purposeOfUse: ['TREAT'],
+                        actor: expect.objectContaining({
+                            entitlementsConsentPolicies: ['Consent/consent-uuid-123']
+                        })
+                    })
+                })
+            );
+        });
+
+        test('rejects auth (401-style) when a Consent/<id> entitlement cannot be resolved', async () => {
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            // null signals "could not resolve" -- distinct from [] ("resolved to no codes").
+            mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync.mockResolvedValue(null);
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+
+            const done = jest.fn();
+            await authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    entitlements: ['Consent/does-not-exist']
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            });
+
+            expect(done).toHaveBeenCalledWith(null, false, { reason: 'delegated_actor_consent_not_found' });
+        });
+
+        test('does not touch delegatedAccessRulesManager for a bare v3-ActReason entitlement, and stays synchronous', () => {
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+
+            const done = jest.fn();
+            // Deliberately not awaited: a bare-code entitlement must still call done() in the
+            // same tick, without ever touching delegatedAccessRulesManager. This is what lets
+            // every other synchronous test in this file keep passing unmodified now that
+            // processUserInfo is declared `async` -- the await introduced for DCON-5395 must
+            // only ever be reached on the Consent-reference branch above.
+            authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    entitlements: ['FAMRQT']
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            });
+
+            expect(mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync).not.toHaveBeenCalled();
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.any(Object),
+                expect.objectContaining({
+                    context: expect.objectContaining({ purposeOfUse: ['FAMRQT'] })
+                })
+            );
+        });
+
         test('rejects when delegated actor processing fails', () => {
             Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
             AuthService.jwksCache = undefined;
             AuthService.userInfoCache = undefined;
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
 
             const done = jest.fn();
@@ -796,7 +954,8 @@ describe('AuthService', () => {
             AuthService.userInfoCache = undefined;
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
 
             const done = jest.fn();
@@ -953,7 +1112,8 @@ describe('AuthService', () => {
             AuthService.userInfoCache = undefined;
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
 
             const done = jest.fn();

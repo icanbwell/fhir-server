@@ -17,6 +17,8 @@ const {
     CONSENT_CATEGORY
 } = require('../constants');
 const { dateQueryBuilder } = require('./querybuilder.util');
+const { isUuid, generateUUIDv5 } = require('./uid.util');
+const { logWarn } = require('../operations/common/logging');
 
 /**
  * @typedef DelegatedAccessFilteringRules
@@ -93,6 +95,34 @@ class DelegatedAccessRulesManager {
         }
 
         const actorReference = actor.reference;
+
+        // RFC: Delegated Token Generation for Client-Initiated Access (DCON-5236/DCON-5395).
+        // An Organization-actor delegated token has no per-person Consent to fetch by design --
+        // BIG already verifies Person ownership and an org-level Consent before minting the
+        // token, and that org-level Consent has no `patient` field at all (it authorizes the
+        // Organization generally, not a specific person), so it can never satisfy this query's
+        // patient-match filter below. Skip the lookup entirely for this actor type rather than
+        // re-deriving a per-person consent that was never meant to exist -- fhir-server trusts
+        // BIG's mint-time verification here, the same way it trusts every other signed JWT claim.
+        if (ReferenceParser.parseReference(actorReference).resourceType === 'Organization') {
+            const filteringRules = {
+                consentId: null,
+                consentVersion: null,
+                provisionPeriodStart: null,
+                provisionPeriodEnd: null
+            };
+            Object.defineProperty(filteringRules, 'deniedSensitiveCategories', {
+                value: [],
+                enumerable: false
+            });
+            actor._filteringRules = filteringRules;
+            return {
+                filteringRules,
+                actorConsentQueries: [],
+                actorConsentQueryOptions: []
+            };
+        }
+
         const filteringRulesObj = await this.customTracer.trace({
             name: 'DelegatedAccessRulesManager.getFilteringRulesAsync',
             func: async () => {
@@ -364,11 +394,126 @@ class DelegatedAccessRulesManager {
             return false;
         }
         const { consentId, consentVersion } = filteringRules;
-        // set the actor policy
-        actor.consentPolicy = consentVersion
-            ? `Consent/${consentId}?version=${consentVersion}`
-            : `Consent/${consentId}`;
+        // set the actor policy -- only when there's an actual per-person Consent to point at.
+        // An Organization actor's filteringRules carries no consentId (see getFilteringRulesAsync)
+        // since there is no per-person Consent for this flow by design.
+        if (consentId) {
+            actor.consentPolicy = consentVersion
+                ? `Consent/${consentId}?version=${consentVersion}`
+                : `Consent/${consentId}`;
+        }
         return true;
+    }
+
+    /**
+     * Resolves the codes to surface as `purposeOfEvent.coding.code` on the AuditEvent from a
+     * delegated actor's JWT `entitlements` claim.
+     *
+     * Two shapes are supported:
+     * - Legacy: bare v3-ActReason codes (e.g. "FAMRQT") -- returned unchanged.
+     * - DCON-5395: a `Consent/<id>` reference (minted by BIG's token-exchange flow for
+     *   client-initiated access, DCON-5236), pointing at the org-level Consent created during
+     *   client onboarding -- the Consent is dereferenced and its `provision.purpose` codes are
+     *   substituted, so the audit event never carries a raw resource reference where an
+     *   ActReason code belongs.
+     *
+     * Returns `null` if any `Consent/<id>` entitlement could not be resolved (the Consent
+     * doesn't exist, or the lookup errored) -- distinct from an empty array, which means every
+     * entitlement resolved successfully but yielded no codes. The caller treats `null` as an
+     * authentication failure: entitlements naming a Consent that can't be found is treated the
+     * same as any other malformed/unverifiable claim, not silently downgraded to an empty
+     * `purposeOfEvent` on an otherwise-successful request.
+     *
+     * @param {Object} params
+     * @param {string[]|null} [params.entitlements]
+     * @param {string} [params.base_version]
+     * @return {Promise<string[]|null>}
+     */
+    async resolvePurposeOfEventCodesAsync({ entitlements, base_version = '4_0_0' }) {
+        if (!Array.isArray(entitlements) || entitlements.length === 0) {
+            return entitlements ?? null;
+        }
+
+        const resolvedCodes = [];
+        for (const entitlement of entitlements) {
+            const { resourceType } = ReferenceParser.parseReference(entitlement);
+            if (resourceType === 'Consent') {
+                const purposeCodes = await this.resolveConsentPurposeCodesAsync({
+                    consentReference: entitlement,
+                    base_version
+                });
+                if (purposeCodes === null) {
+                    return null;
+                }
+                resolvedCodes.push(...purposeCodes);
+            } else {
+                // Legacy shape: a bare v3-ActReason code, passed through unchanged.
+                resolvedCodes.push(entitlement);
+            }
+        }
+        return resolvedCodes;
+    }
+
+    /**
+     * Dereferences a `Consent/<id>` reference and returns its `provision.purpose` codes.
+     *
+     * Returns `null` (not `[]`) when the Consent can't be resolved (deleted, wrong id, transient
+     * DB error) -- `[]` is reserved for "the Consent exists but has no `provision.purpose`
+     * codes," a distinct, more benign case. Callers that need to fail closed on an unresolvable
+     * reference check specifically for `null`.
+     *
+     * @param {Object} params
+     * @param {string} params.consentReference
+     * @param {string} params.base_version
+     * @return {Promise<string[]|null>}
+     */
+    async resolveConsentPurposeCodesAsync({ consentReference, base_version }) {
+        try {
+            const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(consentReference);
+            if (!id) {
+                return null;
+            }
+
+            // Mirrors the by-reference lookup convention used elsewhere (e.g.
+            // resourceValidator.validateNewPersonLinkTargetsBelongToCallersTenant): a reference
+            // that names its target explicitly (UUID, or bare id + explicit authority) resolves
+            // to exactly one resource by construction.
+            let query;
+            if (isUuid(id)) {
+                query = { _uuid: id };
+            } else if (sourceAssigningAuthority) {
+                query = { _uuid: generateUUIDv5(`${id}|${sourceAssigningAuthority}`) };
+            } else {
+                query = { id };
+            }
+
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({
+                resourceType: 'Consent',
+                base_version
+            });
+            const cursor = await databaseQueryManager.findAsync({ query });
+            cursor.maxTimeMS({ milliSecs: this.configManager.mongoTimeout });
+            const consents = await cursor.toArrayAsync();
+            const [consent] = consents;
+
+            if (!consent) {
+                logWarn(`Consent referenced by entitlements could not be resolved: ${consentReference}`, {
+                    source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync'
+                });
+                return null;
+            }
+
+            const purposeCodings = consent.provision?.purpose;
+            return Array.isArray(purposeCodings)
+                ? purposeCodings.map(coding => coding?.code).filter(Boolean)
+                : [];
+        } catch (error) {
+            logWarn(`Error resolving Consent referenced by entitlements: ${consentReference}`, {
+                source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync',
+                error
+            });
+            return null;
+        }
     }
 }
 
