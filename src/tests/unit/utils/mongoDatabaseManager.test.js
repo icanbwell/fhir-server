@@ -496,31 +496,36 @@ describe('MongoDatabaseManager', () => {
         });
 
         test('returns non-null db when fhirNotesFullTextSearchConfigured is true and attempts to connect', async () => {
-            // Create a mock configManager with fhirNotesFullTextSearchConfigured returning true
-            const mockConfigManagerWithFhirNotes = Object.create(ConfigManager.prototype);
-            Object.defineProperty(mockConfigManagerWithFhirNotes, 'enableAuditEventArchiveRead', {
-                get: () => false,
-                configurable: true
-            });
-            Object.defineProperty(mockConfigManagerWithFhirNotes, 'fhirNotesFullTextSearchConfigured', {
-                get: () => true,
-                configurable: true
-            });
+            // Use proper isolation: set up mocks, reset modules, fresh require
+            // This avoids implicit ordering dependencies on module-level state (clientConnection, fhirNotesDb)
+            jest.doMock('../../../config', () => ({
+                ...jest.requireActual('../../../config'),
+                fhirNotesMongoConfig: {
+                    connection: 'mongodb://user:pass@localhost:27017',
+                    db_name: 'fhir_notes',
+                    collection_name: 'clinical_notes',
+                    index_name: 'fhir-notes-text-search',
+                    options: { maxPoolSize: 10 }
+                }
+            }));
+            jest.doMock('../../../utils/isTrue', () => ({
+                isTrue: jest.fn((s) => String(s).toLowerCase() === 'true' || String(s).toLowerCase() === '1'),
+                isTrueWithFallback: jest.fn()
+            }));
+            jest.resetModules();
+            process.env.ENABLE_FULL_TEXT_SEARCH = '1';
+
+            const { MongoDatabaseManager: FreshMongoDatabaseManager } = require('../../../utils/mongoDatabaseManager');
+            const { ConfigManager: FreshConfigManager } = require('../../../utils/configManager');
+
+            const freshConfigManager = new FreshConfigManager();
+            expect(freshConfigManager.fhirNotesFullTextSearchConfigured).toBe(true);
 
             // Reset mocks for this test
             mockConnect.mockClear();
             mockDb.mockClear();
 
-            const mongoDatabaseManagerWithFhirNotes = new MongoDatabaseManager({ configManager: mockConfigManagerWithFhirNotes });
-
-            // Mock getFhirNotesConfigAsync to return a valid config with connection
-            mongoDatabaseManagerWithFhirNotes.getFhirNotesConfigAsync = jest.fn().mockResolvedValue({
-                connection: 'mongodb://user:pass@localhost:27017',
-                db_name: 'fhir_notes',
-                collection_name: 'clinical_notes',
-                index_name: 'fhir-notes-text-search',
-                options: { maxPoolSize: 10 }
-            });
+            const mongoDatabaseManagerWithFhirNotes = new FreshMongoDatabaseManager({ configManager: freshConfigManager });
 
             // Call getFhirNotesDbAsync which should trigger connection attempt
             const db = await mongoDatabaseManagerWithFhirNotes.getFhirNotesDbAsync();
