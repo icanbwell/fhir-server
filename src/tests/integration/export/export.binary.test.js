@@ -173,4 +173,155 @@ describe('Export Binary S3 Hydration Tests', () => {
         expect(exportedBinary.data).toBe(LARGE_DATA);
         expect(exportedBinary._blobMeta).toBeUndefined();
     });
+
+    test('Export with _elements=id,data still rehydrates S3-offloaded data for a projected Binary', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const postRequestProcessor = getTestContainer().postRequestProcessor;
+        const postSaveProcessor = getTestContainer().postSaveProcessor;
+
+        const largeBinaryId = 'export-elements-large-binary';
+        await request
+            .put(`/4_0_0/Binary/${largeBinaryId}`)
+            .send(buildBinary({ id: largeBinaryId, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+
+        const smallBinaryId = 'export-elements-small-binary';
+        const smallData = 'c21hbGwtYmluYXJ5LWRhdGE=';
+        await request
+            .put(`/4_0_0/Binary/${smallBinaryId}`)
+            .send(buildBinary({ id: smallBinaryId, data: smallData }))
+            .set(getHeaders())
+            .expect(201);
+
+        let resp = await request
+            .post('/4_0_0/$export?_type=Binary&_elements=id,data')
+            .set(getHeaders())
+            .expect(202);
+
+        expect(resp.headers['content-location']).toBeDefined();
+        const exportStatusId = resp.headers['content-location'].split('/').pop();
+
+        const container = getTestContainer();
+        const requestId = generateUUID();
+        const exportS3Client = new MockS3Client({ bucketName: 'test', region: 'test' });
+
+        container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+            databaseQueryFactory: c.databaseQueryFactory,
+            databaseExportManager: c.databaseExportManager,
+            patientFilterManager: c.patientFilterManager,
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            base64DataManager: c.base64DataManager,
+            r4SearchQueryCreator: c.r4SearchQueryCreator,
+            patientQueryCreator: c.patientQueryCreator,
+            enrichmentManager: c.enrichmentManager,
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            r4ArgsParser: c.r4ArgsParser,
+            searchManager: c.searchManager,
+            postSaveProcessor: c.postSaveProcessor,
+            bulkExportEventProducer: c.bulkExportEventProducer,
+            storageProviderFactory: c.storageProviderFactory,
+            exportStatusId,
+            patientReferenceBatchSize: 1000,
+            uploadPartSize: 1024 * 1024,
+            s3Client: exportS3Client,
+            requestId
+        }));
+
+        const bulkDataExportRunner = container.bulkDataExportRunner;
+        await bulkDataExportRunner.processAsync();
+        await postRequestProcessor.executeAsync({ requestId });
+        await postSaveProcessor.flushAsync();
+
+        resp = await request
+            .get(`/4_0_0/$export/${exportStatusId}`)
+            .set(getHeaders())
+            .expect(200);
+
+        expect(resp.body.output).toHaveLength(1);
+        expect(resp.body.errors).toHaveLength(0);
+
+        const exportedFilePath = `${bulkDataExportRunner.baseS3Folder}/Binary.ndjson`;
+        const exportedNdjson = exportS3Client.uploadedData[exportedFilePath];
+        expect(exportedNdjson).toBeDefined();
+
+        const exportedBinaries = exportedNdjson
+            .trim()
+            .split('\n')
+            .map((line) => JSON.parse(line));
+        const exportedLarge = exportedBinaries.find((b) => b.id === largeBinaryId);
+        const exportedSmall = exportedBinaries.find((b) => b.id === smallBinaryId);
+
+        expect(exportedLarge.data).toBe(LARGE_DATA);
+        expect(exportedLarge._blobMeta).toBeUndefined();
+        expect(exportedSmall.data).toBe(smallData);
+    });
+
+    test('Export with _elements=id omits data entirely and does not leak _blobMeta', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const postRequestProcessor = getTestContainer().postRequestProcessor;
+        const postSaveProcessor = getTestContainer().postSaveProcessor;
+
+        const binaryId = 'export-elements-id-only-binary';
+        await request
+            .put(`/4_0_0/Binary/${binaryId}`)
+            .send(buildBinary({ id: binaryId, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+
+        let resp = await request
+            .post('/4_0_0/$export?_type=Binary&_elements=id')
+            .set(getHeaders())
+            .expect(202);
+
+        expect(resp.headers['content-location']).toBeDefined();
+        const exportStatusId = resp.headers['content-location'].split('/').pop();
+
+        const container = getTestContainer();
+        const requestId = generateUUID();
+        const exportS3Client = new MockS3Client({ bucketName: 'test', region: 'test' });
+
+        container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+            databaseQueryFactory: c.databaseQueryFactory,
+            databaseExportManager: c.databaseExportManager,
+            patientFilterManager: c.patientFilterManager,
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            base64DataManager: c.base64DataManager,
+            r4SearchQueryCreator: c.r4SearchQueryCreator,
+            patientQueryCreator: c.patientQueryCreator,
+            enrichmentManager: c.enrichmentManager,
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            r4ArgsParser: c.r4ArgsParser,
+            searchManager: c.searchManager,
+            postSaveProcessor: c.postSaveProcessor,
+            bulkExportEventProducer: c.bulkExportEventProducer,
+            storageProviderFactory: c.storageProviderFactory,
+            exportStatusId,
+            patientReferenceBatchSize: 1000,
+            uploadPartSize: 1024 * 1024,
+            s3Client: exportS3Client,
+            requestId
+        }));
+
+        const bulkDataExportRunner = container.bulkDataExportRunner;
+        await bulkDataExportRunner.processAsync();
+        await postRequestProcessor.executeAsync({ requestId });
+        await postSaveProcessor.flushAsync();
+
+        resp = await request
+            .get(`/4_0_0/$export/${exportStatusId}`)
+            .set(getHeaders())
+            .expect(200);
+
+        expect(resp.body.errors).toHaveLength(0);
+
+        const exportedFilePath = `${bulkDataExportRunner.baseS3Folder}/Binary.ndjson`;
+        const exportedNdjson = exportS3Client.uploadedData[exportedFilePath];
+        expect(exportedNdjson).toBeDefined();
+
+        const exportedBinary = JSON.parse(exportedNdjson.trim());
+        expect(exportedBinary.data).toBeUndefined();
+        expect(exportedBinary._blobMeta).toBeUndefined();
+        expect(exportedBinary.id).toBe(binaryId);
+    });
 });

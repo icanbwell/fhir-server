@@ -594,12 +594,9 @@ class BulkDataExportRunner {
         let resource = FhirResourceCreator.createByResourceType(doc, resourceType);
         if (!isProjected) {
             await this.enrichmentManager.enrichAsync({ resources: [resource], parsedArgs });
-            await this.databaseAttachmentManager.transformAttachments({
-                resource,
-                operation: GRIDFS.RETRIEVE
-            });
-            resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
         }
+        resource = await this.databaseAttachmentManager.transformAttachments(resource, GRIDFS.RETRIEVE);
+        resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
         return FhirResourceSerializer.serialize(resource.toJSONInternal());
     }
 

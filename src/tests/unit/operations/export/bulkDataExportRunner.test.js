@@ -60,6 +60,7 @@ describe('BulkDataExportRunner', () => {
         };
 
         // Setup mocks
+        mocks.databaseAttachmentManager.configManager = { enabledGridFsResources: [] };
         mocks.databaseExportManager.getExportStatusResourceWithId = jest.fn();
         mocks.databaseExportManager.updateExportStatusAsync = jest.fn().mockResolvedValue(undefined);
         mocks.postSaveProcessor.afterSaveAsync = jest.fn().mockResolvedValue(undefined);
@@ -385,8 +386,7 @@ describe('BulkDataExportRunner', () => {
                 patientReferences: ['Patient/1'],
                 multipartContext,
                 // Truthy projection -> isProjected=true -> serializeExportDoc skips
-                // enrichment/attachment/base64 entirely, matching the actual _elements
-                // path this fix targets (and avoiding the need to mock those out).
+                // enrichment only, matching the actual _elements path this fix targets.
                 elementsProjection: { resourceType: 1, id: 1 }
             });
 
