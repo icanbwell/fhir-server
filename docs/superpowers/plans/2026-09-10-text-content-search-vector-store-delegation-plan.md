@@ -126,7 +126,7 @@ describe('fhirNotesMongoConfig', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/config/fhirNotesMongoConfig.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/config/fhirNotesMongoConfig.test.js -v`
 Expected: FAIL — `fhirNotesMongoConfig` is not exported from `../../../config`.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -190,7 +190,7 @@ the existing `auditEventMongoConfig, resourceHistoryMongoConfig` export line).
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/config/fhirNotesMongoConfig.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/config/fhirNotesMongoConfig.test.js -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -240,7 +240,7 @@ configured cluster including this new one.)
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/mongoDatabaseManager.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/utils/mongoDatabaseManager.test.js -v`
 Expected: FAIL — `getFhirNotesDbAsync is not a function`.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -289,7 +289,7 @@ externally-owned cluster with its own schema; there is no sensible fallback, onl
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/mongoDatabaseManager.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/utils/mongoDatabaseManager.test.js -v`
 Expected: PASS (this step depends on Task 3's `configManager.fhirNotesFullTextSearchConfigured`
 getter existing — do Task 3 first if running tests standalone, or stub it in this test file).
 
@@ -383,7 +383,7 @@ describe('ConfigManager fhirNotes getters', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/configManager.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/utils/configManager.test.js -v`
 Expected: FAIL — `fhirNotesFullTextSearchConfigured` is undefined, not `false`/`true`.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -425,7 +425,7 @@ get fhirNotesTextSearchIndexName () {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/configManager.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/utils/configManager.test.js -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -464,7 +464,7 @@ describe('FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/constants.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/constants.test.js -v`
 Expected: FAIL — not exported.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -485,7 +485,7 @@ style.)
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/constants.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/constants.test.js -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -602,7 +602,7 @@ describe('ClinicalNoteSearchClient', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/clinicalNoteSearchClient.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/utils/clinicalNoteSearchClient.test.js -v`
 Expected: FAIL — module doesn't exist.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -693,7 +693,7 @@ Use whichever form actually satisfies the `rejects.toBeInstanceOf(ExternalTimeou
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/clinicalNoteSearchClient.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/utils/clinicalNoteSearchClient.test.js -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -860,7 +860,7 @@ setup to match if they differ.
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/operations/search/searchManager.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/operations/search/searchManager.test.js -v`
 Expected: FAIL — `buildContentSearchIdFilterAsync is not a function`, and the constructor rejects the
 unknown `clinicalNoteSearchClient` param (or ignores it, depending on whether `assertTypeEquals`
 guards are strict) until Step 3 is done.
@@ -966,7 +966,7 @@ registration's params object (`src/createContainer.js:503-524`). Add the corresp
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/operations/search/searchManager.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/operations/search/searchManager.test.js -v`
 Expected: PASS
 
 - [ ] **Step 5: Integration test — end-to-end against `mongodb-atlas-local`**
@@ -1107,7 +1107,7 @@ describe('ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/clinicalNoteTextRetriever.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/utils/clinicalNoteTextRetriever.test.js -v`
 Expected: FAIL — module doesn't exist.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -1202,7 +1202,7 @@ produces (`query.$or[0]['debug.resource.content.attachment.url']`) before runnin
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/utils/clinicalNoteTextRetriever.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/utils/clinicalNoteTextRetriever.test.js -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -1377,7 +1377,7 @@ assumed — reuse the exact same construction helper across both test files rath
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/enrich/providers/attachmentTextEnrichmentProvider.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/enrich/providers/attachmentTextEnrichmentProvider.test.js -v`
 Expected: FAIL — module doesn't exist.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -1534,7 +1534,7 @@ and add `c.attachmentTextEnrichmentProvider` to the `enrichmentProviders` array 
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/enrich/providers/attachmentTextEnrichmentProvider.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/enrich/providers/attachmentTextEnrichmentProvider.test.js -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -1636,7 +1636,7 @@ describe('BinaryDerivedTextEnrichmentProvider', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/enrich/providers/binaryDerivedTextEnrichmentProvider.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/enrich/providers/binaryDerivedTextEnrichmentProvider.test.js -v`
 Expected: FAIL — module doesn't exist.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -1742,7 +1742,7 @@ in the container by Task 8 — reuse `c.clinicalNoteTextRetriever` here, do not 
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `nvm use && node node_modules/.bin/jest src/tests/unit/enrich/providers/binaryDerivedTextEnrichmentProvider.test.js -v`
+Run: `nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/enrich/providers/binaryDerivedTextEnrichmentProvider.test.js -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
