@@ -267,6 +267,42 @@ describe('SearchManager', () => {
             ]));
         });
 
+        it('threads the resolved patient-scope id list into the _content candidate lookup as a pre-filter', async () => {
+            // getPatientIdsFromScopeAsync must be resolved once, ahead of
+            // buildContentSearchIdFilterAsync, and the SAME resolved list reused later for the
+            // patient-scope query filter -- not a second, redundant resolution.
+            mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(true);
+            mockPatientScopeManager.getPatientIdsFromScopeAsync = jest.fn().mockResolvedValue(['patient-1', 'patient-2']);
+            mockPatientQueryCreator.getQueryWithPatientFilter = jest.fn().mockReturnValue({ resourceType: 'DocumentReference' });
+            mockConfigManager.doNotRequirePersonOrPatientIdForPatientScope = true;
+
+            const contentParsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+            contentParsedArgs.add(new ParsedArgsItem({
+                queryParameter: '_content',
+                queryParameterValue: new QueryParameterValue({ value: 'diabetes', operator: '$and' }),
+                modifiers: []
+            }));
+            Object.defineProperty(mockConfigManager, 'fhirNotesFullTextSearchConfigured', {
+                value: true, writable: true, configurable: true
+            });
+            mockClinicalNoteSearchClient.findMatchingResourceIdsAsync = jest.fn().mockResolvedValue([]);
+
+            await searchManager.constructQueryAsync({
+                user: 'user-1', scope: 'patient/DocumentReference.read', isUser: true, userType: null,
+                resourceType: 'DocumentReference', useAccessIndex: false, personIdFromJwtToken: 'person-1',
+                requestId: 'req-1', parsedArgs: contentParsedArgs, useHistoryTable: false, operation: 'READ',
+                accessRequested: 'read'
+            });
+
+            expect(mockPatientScopeManager.getPatientIdsFromScopeAsync).toHaveBeenCalledTimes(1);
+            expect(mockClinicalNoteSearchClient.findMatchingResourceIdsAsync).toHaveBeenCalledWith({
+                resourceType: 'DocumentReference', contentQuery: 'diabetes', patientIds: ['patient-1', 'patient-2']
+            });
+            expect(mockPatientQueryCreator.getQueryWithPatientFilter).toHaveBeenCalledWith(
+                expect.objectContaining({ patientIds: ['patient-1', 'patient-2'] })
+            );
+        });
+
         it('an empty _content candidate list survives MongoQuerySimplifier as __invalid__, never as "no filter, return everything"', async () => {
             // Regression test for a real bug found in review: MongoQuerySimplifier.simplifyFilter
             // (a real, unmocked static utility -- constructQueryAsync always runs it on the final

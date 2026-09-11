@@ -93,6 +93,27 @@
   rather than serving a partial document. See
   [`_content` search](#_content-search-documentreference--diagnosticreport--careplan) and
   [Derived-text delivery via `_format=text/plain`](#derived-text-delivery-via-formattextplain).
+- **2026-09-10 (e)** — closes the `patientIds` pre-filter gap (d) left open. Resolving it correctly
+  required first answering: fhir-server's patient-scope resolution
+  (`getPatientIdsFromScopeAsync`) can return a *mix* of raw source ids and fhir-server's own
+  internal `_uuid`s for the same patient, but the vector store only ever stored `patient_id` (the
+  raw source id) — so a caller whose resolved id happened to be uuid-shaped would have silently
+  matched nothing if the filter had been implemented against `patient_id` alone. Rather than guess
+  at that risk, `fhir-notes-vector-store` gained a companion `patient_uuid` field
+  (icanbwell/fhir-notes-vector-store#80), computed via `UuidGenerator.generate_uuid_v5` — a utility
+  that repo already had and already used for its note `key` field, just not applied to `patient_id`
+  on its own until now, and which produces the *identical* value to `uuidColumnHandler.js`'s
+  `_uuid` independently, since `uuid.NAMESPACE_OID` is a standard, non-secret RFC 4122 constant.
+  On the fhir-server side: `accessViaPatientScopes`/`getPatientIdsFromScopeAsync` are now resolved
+  ahead of `buildContentSearchIdFilterAsync` (previously resolved only inside the
+  `accessViaPatientScopes` branch further down, after `_content` had already run) and the same
+  resolved list is reused for the request's own patient-filter query, rather than a second,
+  redundant resolution. `ClinicalNoteSearchClient` partitions that list by shape and matches
+  `patient_id`/`patient_uuid` respectively, OR'd together. Tenant/service-account callers (no
+  patient scope to derive from) are unaffected — `_content` still scans unfiltered for them, since
+  there is no bounded id list to narrow by without falling back to a raw request param, which the
+  original design explicitly rejected. See [`_content` search](#_content-search-documentreference
+  --diagnosticreport--careplan), step 2.
 
 ## Background
 
@@ -264,13 +285,25 @@ to decide *whether* they can see it.
    `SearchParameterDefinition{ type: 'special' }` instead of `undefined`, so it's reachable at all
    instead of being silently dropped by `r4.js`'s loop guard (same root cause as the composite-params
    bug, #2483).
-2. **`ClinicalNoteSearchClient`** (new) — given `{ resourceType, contentQuery }`, runs:
+2. **`ClinicalNoteSearchClient`** (new) — given `{ resourceType, contentQuery, patientIds }`, runs
+   (patient-scoped case shown; see below for the shape when `patientIds` is absent):
    ```json
    [
      {
        "$search": {
          "index": "<FHIR_NOTES_TEXT_SEARCH_INDEX_NAME>",
-         "queryString": { "defaultPath": "text", "query": "<_content value, near-verbatim>" }
+         "compound": {
+           "must": [{ "queryString": { "defaultPath": "text", "query": "<_content value, near-verbatim>" } }],
+           "filter": [{
+             "compound": {
+               "should": [
+                 { "in": { "path": "patient_id", "value": ["<raw-source-id-shaped patientIds>"] } },
+                 { "in": { "path": "patient_uuid", "value": ["<uuid-shaped patientIds>"] } }
+               ],
+               "minimumShouldMatch": 1
+             }
+           }]
+         }
        }
      },
      { "$limit": 1000 },
@@ -285,24 +318,34 @@ to decide *whether* they can see it.
    this path (contrast with the original design's `textQueryParser.js`, which is no longer needed
    for this scope).
    - `meta.resource_type` is **not** a mapped field in the vector store's text-search index (only
-     `text`, `patient_id`, and `key` are, per `create_text_search_index` in that repo) — an earlier
-     revision of this implementation put it inside `$search.compound.filter`, which Atlas Search
-     either ignores or errors on for an unmapped field, so `_content` matched nothing at all in
-     practice. It has to be a `$match` stage *after* `$search` instead, which is what's shown above.
-     `$limit` runs before that `$match` (the standard Atlas Search pattern for bounding an
-     aggregation pipeline with no other cap) — a query whose top 1000 hits are dominated by other
-     resourceTypes can therefore under-return true matches for the requested resourceType; that's
-     an accepted trade-off against unbounded memory/network use from an unmapped, un-indexed
-     collection scan, not a correctness guarantee.
-   - **Known gap, not yet implemented**: this pipeline has no `patient_id` pre-filter. An earlier
-     revision of this design specified one, derived from the request's already-computed patient
-     scope, specifically so the search couldn't itself be widened by a caller. As shipped, `_content`
-     searches across every patient of every tenant in the vector store before results are
-     re-authorized (see the security model above) — no direct disclosure results from this (every
-     candidate is still re-proven through fhir-server's own tenant/access-tag filtering), but it
-     does mean the `$limit` above is a much blunter instrument than intended, and a caller with
-     access to only their own tenant's data can still cause the vector store to do this work for
-     every tenant on every request. Restoring the `patient_id` filter is follow-up work.
+     `text`, `patient_id`, `patient_uuid`, and `key` are, per `create_text_search_index` in that
+     repo) — an earlier revision of this implementation put it inside `$search.compound.filter`,
+     which Atlas Search either ignores or errors on for an unmapped field, so `_content` matched
+     nothing at all in practice. It has to be a `$match` stage *after* `$search` instead, which is
+     what's shown above. `$limit` runs before that `$match` (the standard Atlas Search pattern for
+     bounding an aggregation pipeline with no other cap) — a query whose top 1000 hits are
+     dominated by other resourceTypes can therefore under-return true matches for the requested
+     resourceType; that's an accepted trade-off against unbounded memory/network use from an
+     unmapped, un-indexed collection scan, not a correctness guarantee.
+   - `patientIds` is the caller's already-resolved patient-scope id list (from
+     `patientScopeManager.getPatientIdsFromScopeAsync`, resolved once in `constructQueryAsync`
+     ahead of `buildContentSearchIdFilterAsync` and reused for the request's own patient-filter
+     query too) — never a raw request param, so a caller can't widen it. It's absent for
+     tenant/service-account callers, who have no such bounded id list to narrow by; in that case
+     `$search` falls back to the plain `queryString`-only shape (no `compound`), matching the
+     no-`patientIds` behavior below unchanged.
+   - That resolved list can contain a **mix** of raw source ids and fhir-server's own internal
+     `_uuid`s for the same patient (`patientQueryCreator.js` explicitly splits both shapes because
+     both occur), so the ids are partitioned by shape and matched against whichever field they're
+     shaped for — `patient_id` for raw ids, `patient_uuid` for uuids, OR'd together
+     (`minimumShouldMatch: 1`) since either form correctly identifies the same patient.
+     `patient_uuid` is a companion field fhir-notes-vector-store added (PR #80 there), computed via
+     the exact same `uuid.NAMESPACE_OID` + `"{id}|{sourceAssigningAuthority}"` scheme
+     `uuidColumnHandler.js` uses for `_uuid` — both sides compute the identical value independently
+     from data each already has, no cross-service ID mapping needed. **Caveat**: documents indexed
+     before `patient_uuid` existed won't have it until reindexed, so a uuid-shaped patientId will
+     silently miss content from those not-yet-reindexed chunks; a temporary condition that resolves
+     once the vector-store side backfills, not a permanent limitation.
    - Extracts each match's raw sourceId from `debug.resource_reference` (stripping the resourceType
      prefix) and its `sourceAssigningAuthority` from `debug.resource.meta.security`, then resolves
      the pair to a `_uuid` via `generateUUIDv5(\`${sourceId}|${sourceAssigningAuthority}\`)` — the
@@ -501,10 +544,11 @@ see [Error Handling](#error-handling).
 1. **`ClinicalNoteSearchClient` unit tests** — mock the read-only Mongo client; verify the
    `$search`/`$limit`/`$match` shape, `_uuid` resolution from
    `debug.resource_reference`+`debug.resource.meta.security` via
-   `generateUUIDv5(sourceId|sourceAssigningAuthority)`, and that a candidate with no
-   `sourceAssigningAuthority` tag is dropped rather than returned unscoped. (The `patientIds`
-   pre-filter described earlier is a known, not-yet-implemented gap — see the note in `_content`
-   search step 2 — so there is nothing to test for it yet.)
+   `generateUUIDv5(sourceId|sourceAssigningAuthority)`, that a candidate with no
+   `sourceAssigningAuthority` tag is dropped rather than returned unscoped, and the `patientIds`
+   pre-filter's `compound.filter`/`should`/`minimumShouldMatch` shape — raw ids route to
+   `patient_id`, uuid-shaped ids route to `patient_uuid`, and an absent/empty `patientIds` falls
+   back to the plain `queryString`-only shape unchanged.
 2. **`ClinicalNoteSearchClient` real-Atlas-Search test** — done:
    `src/tests/integration/atlasSearch/clinicalNoteSearchClientAtlasSearch.test.js`, reusing
    ADR-0003's `jest.atlasSearch.config.js`/`atlasSearchGlobalSetup.js` mongodb-atlas-local

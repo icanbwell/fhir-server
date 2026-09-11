@@ -1,6 +1,6 @@
 const { ExternalTimeoutError, BadRequestError } = require('./httpErrors');
 const { SecurityTagSystem } = require('./securityTagSystem');
-const { generateUUIDv5 } = require('./uid.util');
+const { generateUUIDv5, isUuid } = require('./uid.util');
 
 /**
  * Cap on how many chunk documents a single `_content` search pulls back from the vector store's
@@ -45,9 +45,22 @@ class ClinicalNoteSearchClient {
      * @param {Object} params
      * @param {string} params.resourceType
      * @param {string} params.contentQuery Lucene-syntax query string (the raw `_content` value)
+     * @param {string[]|undefined} [params.patientIds] The caller's already-resolved patient-scope
+     *   id list, if any (never derived from a raw request param -- see
+     *   `SearchManager.buildContentSearchIdFilterAsync`). Pushed into `$search.compound.filter`
+     *   as a defense-in-depth pre-filter, narrowing the scan before results are re-authorized;
+     *   never a substitute for that re-authorization. `patient_id`/`patient_uuid` are both mapped
+     *   `token` fields on the real index (unlike `meta.resource_type`), so this is a real
+     *   `$search`-level filter, not a post-`$search` `$match`. Ids are split by shape and matched
+     *   against whichever field they're shaped for (`patient_id` for raw source ids,
+     *   `patient_uuid` for fhir-server `_uuid`s) since the caller's resolved scope can contain
+     *   either -- see fhir-notes-vector-store's `patient_uuid` field. **Caveat**: chunks indexed
+     *   before that field existed won't have it until reindexed, so a uuid-shaped patientId will
+     *   silently miss not-yet-reindexed content; this is a temporary, disclosed limitation, not a
+     *   permanent one.
      * @returns {Promise<string[]>} deduped candidate `_uuid`s
      */
-    async findMatchingResourceIdsAsync ({ resourceType, contentQuery }) {
+    async findMatchingResourceIdsAsync ({ resourceType, contentQuery, patientIds }) {
         if (typeof contentQuery !== 'string' || contentQuery.trim().length === 0) {
             throw new BadRequestError(new Error(
                 `_content must be a single non-empty string value: ${JSON.stringify(contentQuery)}`
@@ -59,13 +72,28 @@ class ClinicalNoteSearchClient {
                 throw new Error('fhir-notes-vector-store connection is not available');
             }
             const collection = db.collection(this.configManager.fhirNotesMongoCollectionName);
-            const pipeline = [
-                {
-                    $search: {
-                        index: this.configManager.fhirNotesTextSearchIndexName,
-                        queryString: { defaultPath: 'text', query: contentQuery }
+            const searchBody = patientIds && patientIds.length > 0
+                ? {
+                    compound: {
+                        must: [{ queryString: { defaultPath: 'text', query: contentQuery } }],
+                        filter: [{
+                            compound: {
+                                should: [
+                                    ...(patientIds.some(id => !isUuid(id))
+                                        ? [{ in: { path: 'patient_id', value: patientIds.filter(id => !isUuid(id)) } }]
+                                        : []),
+                                    ...(patientIds.some(id => isUuid(id))
+                                        ? [{ in: { path: 'patient_uuid', value: patientIds.filter(id => isUuid(id)) } }]
+                                        : [])
+                                ],
+                                minimumShouldMatch: 1
+                            }
+                        }]
                     }
-                },
+                }
+                : { queryString: { defaultPath: 'text', query: contentQuery } };
+            const pipeline = [
+                { $search: { index: this.configManager.fhirNotesTextSearchIndexName, ...searchBody } },
                 { $limit: MAX_CANDIDATE_CHUNKS },
                 { $match: { 'meta.resource_type': resourceType } },
                 {

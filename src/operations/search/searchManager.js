@@ -217,9 +217,14 @@ class SearchManager {
      * @param {string} params.operation `'READ'|'WRITE'|'DELETE'` (any casing) -- `_content` only
      *   applies to read/search operations, see below
      * @param {boolean|undefined} [params.useHistoryTable]
+     * @param {string[]|undefined} [params.patientIds] The caller's already-resolved patient-scope
+     *   id list (from `patientScopeManager.getPatientIdsFromScopeAsync`), if this is a
+     *   patient-scoped request -- never derived from a raw request param, so a caller can't widen
+     *   it. Passed through to the vector-store query as a defense-in-depth pre-filter; absent for
+     *   tenant/service-account callers, who have no such bounded id list to narrow by.
      * @returns {Promise<import('mongodb').Document|null>} null when `_content` is absent
      */
-    async buildContentSearchIdFilterAsync ({ resourceType, parsedArgs, operation, useHistoryTable }) {
+    async buildContentSearchIdFilterAsync ({ resourceType, parsedArgs, operation, useHistoryTable, patientIds }) {
         const contentArg = parsedArgs.get('_content');
         if (!contentArg) {
             return null;
@@ -262,7 +267,8 @@ class SearchManager {
         }
         const candidateIds = await this.clinicalNoteSearchClient.findMatchingResourceIdsAsync({
             resourceType,
-            contentQuery
+            contentQuery,
+            patientIds: patientIds && patientIds.length > 0 ? patientIds : undefined
         });
         if (candidateIds.length === 0) {
             // FilterById.getListFilter([]) returns {_uuid: {$in: []}}, but MongoQuerySimplifier
@@ -328,8 +334,33 @@ class SearchManager {
              */
             const { base_version } = parsedArgs;
             assertIsValid(base_version, 'base_version is not set');
-            const contentSearchIdFilter = await this.buildContentSearchIdFilterAsync({ resourceType, parsedArgs, operation, useHistoryTable });
             const accessViaPatientScopes = this.scopesManager.isAccessAllowedByPatientScopes({ scope, resourceType });
+            /**
+             * Resolved ahead of buildContentSearchIdFilterAsync (rather than only inside the
+             * accessViaPatientScopes branch below, where it used to live) so `_content` can use
+             * this same, already-authorized id list as a vector-store pre-filter -- never a raw
+             * request param, so a caller can't widen it. `getPatientIdsFromScopeAsync` is
+             * idempotent per request; resolving it once here and reusing it below avoids a
+             * second, redundant resolution.
+             * @type {string[]|undefined}
+             */
+            let allPatientIdsFromJwtToken;
+            if (accessViaPatientScopes) {
+                allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
+                    base_version,
+                    isUser,
+                    personIdFromJwtToken,
+                    addPersonOwnerToContext,
+                    // Apply the caller's access-tag security filter while traversing Person.link so a
+                    // Person/Patient reachable only via a cross-tenant link on the caller's own Person
+                    // is not silently included in the patient-scope filter. Only supplied when we have
+                    // a real user identity to check against (see getSecurityTagsFromScope).
+                    requestInfo: typeof user === 'string' && scope ? { user, scope } : undefined
+                });
+            }
+            const contentSearchIdFilter = await this.buildContentSearchIdFilterAsync({
+                resourceType, parsedArgs, operation, useHistoryTable, patientIds: allPatientIdsFromJwtToken
+            });
 
             /**
              * @type {string[]}
@@ -366,20 +397,6 @@ class SearchManager {
 
             if (accessViaPatientScopes) {
                 shouldUpdateColumns = true;
-                /**
-                 * @type {string[]}
-                 */
-                const allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                    base_version,
-                    isUser,
-                    personIdFromJwtToken,
-                    addPersonOwnerToContext,
-                    // Apply the caller's access-tag security filter while traversing Person.link so a
-                    // Person/Patient reachable only via a cross-tenant link on the caller's own Person
-                    // is not silently included in the patient-scope filter. Only supplied when we have
-                    // a real user identity to check against (see getSecurityTagsFromScope).
-                    requestInfo: typeof user === 'string' && scope ? { user, scope } : undefined
-                });
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
                     allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {

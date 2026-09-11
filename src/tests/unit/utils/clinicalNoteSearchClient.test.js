@@ -178,4 +178,80 @@ describe('ClinicalNoteSearchClient', () => {
         expect(matchStageIndex).toBeGreaterThan(limitStageIndex);
         expect(capturedPipeline[matchStageIndex].$match).toEqual({ 'meta.resource_type': 'DiagnosticReport' });
     });
+
+    test('with patientIds, builds a compound filter matching patient_id (raw) OR patient_uuid (uuid-shaped)', async () => {
+        let capturedPipeline = null;
+        const fakeCollection = {
+            aggregate: (pipeline) => {
+                capturedPipeline = pipeline;
+                return { toArray: async () => [] };
+            }
+        };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const client = new ClinicalNoteSearchClient({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const uuidPatientId = '123e4567-e89b-12d3-a456-426614174000';
+        await client.findMatchingResourceIdsAsync({
+            resourceType: 'DocumentReference',
+            contentQuery: 'diabetes',
+            patientIds: ['patient-raw-1', uuidPatientId]
+        });
+
+        const searchStage = capturedPipeline[0].$search;
+        expect(searchStage.queryString).toBeUndefined();
+        expect(searchStage.compound.must).toEqual([
+            { queryString: { defaultPath: 'text', query: 'diabetes' } }
+        ]);
+        const filterClause = searchStage.compound.filter[0].compound;
+        expect(filterClause.minimumShouldMatch).toEqual(1);
+        expect(filterClause.should).toContainEqual({ in: { path: 'patient_id', value: ['patient-raw-1'] } });
+        expect(filterClause.should).toContainEqual({ in: { path: 'patient_uuid', value: [uuidPatientId] } });
+    });
+
+    test('with only raw-shaped patientIds, filters on patient_id only (no patient_uuid clause)', async () => {
+        let capturedPipeline = null;
+        const fakeCollection = {
+            aggregate: (pipeline) => {
+                capturedPipeline = pipeline;
+                return { toArray: async () => [] };
+            }
+        };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const client = new ClinicalNoteSearchClient({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        await client.findMatchingResourceIdsAsync({
+            resourceType: 'DocumentReference',
+            contentQuery: 'diabetes',
+            patientIds: ['patient-raw-1', 'patient-raw-2']
+        });
+
+        const filterClause = capturedPipeline[0].$search.compound.filter[0].compound;
+        expect(filterClause.should).toEqual([
+            { in: { path: 'patient_id', value: ['patient-raw-1', 'patient-raw-2'] } }
+        ]);
+    });
+
+    test('with an empty patientIds array, falls back to the plain queryString shape (no compound)', async () => {
+        let capturedPipeline = null;
+        const fakeCollection = {
+            aggregate: (pipeline) => {
+                capturedPipeline = pipeline;
+                return { toArray: async () => [] };
+            }
+        };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const client = new ClinicalNoteSearchClient({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        await client.findMatchingResourceIdsAsync({
+            resourceType: 'DocumentReference',
+            contentQuery: 'diabetes',
+            patientIds: []
+        });
+
+        expect(capturedPipeline[0].$search.compound).toBeUndefined();
+        expect(capturedPipeline[0].$search.queryString.query).toEqual('diabetes');
+    });
 });
