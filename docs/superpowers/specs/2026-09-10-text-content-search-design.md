@@ -4,8 +4,8 @@
 
 - **2026-09-06** — original design: build a new, fhir-server-owned Atlas Search index, generic
   across all resource types, with a Mongo regex fallback everywhere Atlas isn't configured.
-- **2026-09-10** — superseded by this revision. Discovered `~/git/fhir-notes-vector-store` — a
-  sibling service already extracting, chunking, and Atlas-Search-indexing attachment text for
+- **2026-09-10 (a)** — superseded by revision (b) below. Discovered `~/git/fhir-notes-vector-store`
+  — a sibling service already extracting, chunking, and Atlas-Search-indexing attachment text for
   `DocumentReference`/`DiagnosticReport`/`CarePlan`. Building a second, fhir-server-owned index for
   the same content types both duplicates that work and risks the two texts drifting (different
   extraction logic, different chunking, different update cadence). This revision replaces the
@@ -13,7 +13,24 @@
   the three resource types that index actually covers, and adds two capabilities the original
   design didn't have: attaching derived plain text to a resource read (not just filtering search
   results by it), and a `Binary` reverse-lookup. `_text` (narrative search) is dropped from scope
-  entirely — see [Scope](#scope).
+  entirely — see [Scope](#scope). The chosen trigger for the read-time capability was an empty
+  `_content=` value on a single-resource read, delivered as a sibling `content[]` attachment
+  (`DocumentReference`/`DiagnosticReport`) or a top-level `extension` (`Binary`).
+- **2026-09-10 (b)** — corrects two defects in (a) found during a final whole-branch review, both
+  caught only by actually executing the real code rather than trusting hand-built test fixtures:
+  (1) `r4ArgsParser.js` drops **every** empty-string query parameter value, for every parameter,
+  before a `ParsedArgsItem` is ever created — so `_content=` (empty) never reached the enrichment
+  trigger in production at all; every unit test for it had hand-built a `ParsedArgsItem` with
+  `value: ''`, a shape the real parser can never produce. (2) `Binary` extends `Resource`, not
+  `DomainResource`, in FHIR R4 — it has no `extension` element at all, so the top-level extension
+  the read-enrichment design relied on for `Binary` was silently dropped by `toJSON()` on every
+  response. This revision replaces the empty-`_content=`-triggered, resource-JSON-embedding
+  approach entirely with `_format=text/plain` content negotiation: a plain-text HTTP response
+  *instead of* `application/fhir+json`, handled in the response-writing layer rather than the
+  enrichment pipeline. This sidesteps both defects at once — `_format=text/plain` is an ordinary
+  non-empty value (no parser interaction needed), and nothing is ever embedded inside `Binary`'s
+  JSON shape, since the response isn't JSON at all when this format is requested. See
+  [Derived-text delivery via `_format=text/plain`](#derived-text-delivery-via-formattextplain).
 
 ## Background
 
@@ -100,13 +117,16 @@ Three capabilities, all keyed off the same underlying data source:
    exact three resource types `fhir-notes-vector-store` covers. `_content` on any other resource
    type is rejected with `BadRequestError` (not silently ignored, not silently unfiltered) — see
    [Error Handling](#error-handling) for why silent degradation is unacceptable here.
-2. **Derived-text enrichment on resource read** — attach the reassembled plain text as an
-   additional attachment/extension when a `DocumentReference` or `DiagnosticReport` is read directly
-   (see [Derived-text read enrichment](#derived-text-read-enrichment)). Not needed for `CarePlan`:
-   its `note[].text` is already plain text in the base resource, nothing to derive.
-3. **`Binary` reverse lookup** — `GET Binary/{id}` with the same empty-`_content` trigger returns
-   the derived text of whichever `DocumentReference`/`DiagnosticReport` attachment referenced that
-   `Binary`, since a `Binary` is never an independently-indexed source in the vector store.
+2. **Derived-text delivery on resource read** — `GET DocumentReference/{id}?_format=text/plain` (or
+   `DiagnosticReport`) returns the reassembled plain text as the entire HTTP response body, instead
+   of the normal FHIR JSON (see
+   [Derived-text delivery via `_format=text/plain`](#derived-text-delivery-via-formattextplain)).
+   Not needed for `CarePlan`: its `note[].text` is already plain text in the base resource, nothing
+   to derive.
+3. **`Binary` reverse lookup** — `GET Binary/{id}?_format=text/plain` returns the derived text of
+   whichever `DocumentReference`/`DiagnosticReport` attachment referenced that `Binary`, using the
+   same `_format` mechanism, since a `Binary` is never an independently-indexed source in the
+   vector store.
 
 **Explicitly out of scope:**
 
@@ -118,9 +138,12 @@ Three capabilities, all keyed off the same underlying data source:
   original design's generic regex-across-all-string-fields fallback could still be built later as
   genuinely separate work; this revision doesn't attempt it, to avoid two half-implementations of
   the same parameter with different semantics live at once.
-- **Broad-search derived-text enrichment** — the empty-`_content` "attach full text" trigger is
-  scoped to single-resource reads only (by `_id`), not search result sets. See
-  [Derived-text read enrichment](#derived-text-read-enrichment) for why.
+- **`_format=text/plain` on search/bundle responses** — the derived-text delivery mechanism only
+  applies to a single-resource read (`GET DocumentReference/{id}?_format=text/plain`, and the
+  `Binary`/`DiagnosticReport` equivalents), never to search result sets — there's no coherent single
+  plain-text body for a Bundle of many resources. A `_format=text/plain` search request behaves
+  exactly as it does today (ignored, falls through to JSON), since the response-writer change is
+  scoped specifically to the single-resource read path.
 
 ## Security model (read this before the architecture)
 
@@ -147,11 +170,13 @@ query-building code every other search parameter already goes through — see
 [`_content` search](#_content-search-documentreference--diagnosticreport--careplan). There is no
 separate "vector store says yes, so allow it" code path anywhere in this design.
 
-The read-enrichment and Binary-reverse-lookup capabilities are lower-risk by construction: they run
-*after* the resource's normal, already-authorized fetch has completed (enrichment providers execute
-post-fetch in this codebase's pipeline), so by the time the vector-store lookup runs, the caller is
-already proven authorized for that exact resource — the vector store is used purely to fetch
-*more data about* a resource the caller can already see, never to decide *whether* they can see it.
+The derived-text delivery and `Binary`-reverse-lookup capabilities are lower-risk by construction:
+they run *after* the resource's normal, already-authorized fetch has completed — `_format`-based
+response handling happens in the response-writing layer, which by construction only ever sees the
+resource `searchById`'s normal, fully tenant-scoped fetch already returned. By the time the
+vector-store lookup runs, the caller is already proven authorized for that exact resource — the
+vector store is used purely to fetch *more data about* a resource the caller can already see, never
+to decide *whether* they can see it.
 
 ## Architecture & Components
 
@@ -202,18 +227,33 @@ already proven authorized for that exact resource — the vector store is used p
      request's own patient/access-tag filtering already resolved to) — never from the raw request
      params directly, so this pre-filter can't itself be widened by a caller.
 3. **`SearchManager` hook** — before the normal query-building path runs, if `_content` is present
-   and `resourceType` is one of the three supported: call `ClinicalNoteSearchClient`, get candidate
-   ids, and inject `_id ∈ candidateIds` as an additional filter into the *normal, unmodified*
-   `R4SearchQueryCreator` pipeline — the same mechanism any other `_id`-based filtering already uses.
+   (a non-empty value — `_content` is search-only now, see below) and `resourceType` is one of the
+   three supported: call `ClinicalNoteSearchClient`, get candidate ids, and inject
+   `_id ∈ candidateIds` as an additional filter into the *normal, unmodified* `R4SearchQueryCreator`
+   pipeline — the same mechanism any other `_id`-based filtering already uses.
    No new merge/precedence logic with the ADR-0003 Atlas feature is needed: that feature's `$search`
    runs against fhir-server's own primary cluster/collection in the same aggregation pipeline;
    this one is a separate round-trip to a different cluster entirely, resolved to a plain `_id`
    filter *before* the primary pipeline is built. No mutual-exclusion conflict, unlike the original
    design's Atlas-vs-Atlas concern.
+   - **The resourceType-allowlist and configured-feature checks must run *only* when `_content` is
+     actually present with a non-empty value** — checking the allowlist first and unconditionally
+     would make an entirely unrelated `_content`-carrying request 400 even when the feature is
+     fully disabled (`ENABLE_FULL_TEXT_SEARCH` off), which is not "revert to prior behavior," it's
+     a regression: on `main` today, `_content` is a recognized-but-unresolved param that's silently
+     ignored. When the feature flag is off, `_content` must behave exactly like that — ignored, not
+     rejected — regardless of resourceType. Only once the flag is on does an unsupported
+     resourceType or missing connection config become a `BadRequestError`.
 4. **Empty candidate list is a real zero-result answer, not "no filter."** Per `review.md` §D's
    general warning about empty-filter-means-return-everything bugs: if `ClinicalNoteSearchClient`
    returns `[]`, the resulting `_id ∈ []` constraint must produce zero results, explicitly — not be
    treated as "no `_id` constraint, so don't filter."
+5. **An empty-string `_content` value never reaches this code at all.** `r4ArgsParser.js` drops
+   every empty-string query parameter value, for every parameter, before constructing a
+   `ParsedArgsItem` — this is generic parser behavior, not something `_content` opts into or out of.
+   There is therefore no "empty `_content` means something different" branch to write or test here;
+   `_content` is unconditionally a search filter, full stop. (Revision (a) of this design got this
+   wrong — see [Revision History](#revision-history).)
 
 ### Lucene syntax via `queryString`
 
@@ -248,62 +288,58 @@ zero matching chunks, the caller gets an empty Bundle — same as any other sear
 into that index (e.g. `_content=meta.note_category:progress AND diabetes`), without fhir-server
 writing any query-grammar parsing.
 
-### Derived-text read enrichment
+### Derived-text delivery via `_format=text/plain`
 
-New `AttachmentTextEnrichmentProvider`, registered in `createContainer.js`'s
-`enrichmentManager` provider list, gated to run only when: resourceType is `DocumentReference` or
-`DiagnosticReport`, **and** the request is a single-resource read/vread (by `_id`), **and**
-`parsedArgs` has `_content` present with an **empty** value. (Restricting to single-resource reads
-is a deliberate v1 boundary — see [Error Handling](#error-handling) for why an accidentally-blank
-`_content` on a broad search is a real risk worth avoiding rather than a hypothetical one; extending
-this to search result sets, behind an explicit result-count cap, is future work.)
+`_format` is an existing, ordinary FHIR search parameter already used by this codebase for content
+negotiation (`src/utils/contentTypes.js`'s `hasCsvContentType`/`hasExcelContentType`, consumed by
+`ResponseHandlerFactory` for the `$summary` operation). Unlike an empty `_content=` value, a value
+like `text/plain` is a normal, non-empty query parameter value — it survives `r4ArgsParser.js`'s
+parsing with zero special-casing, because there's nothing empty about it.
 
-For each `content[].attachment` (`DocumentReference`) or `presentedForm[]` entry
-(`DiagnosticReport`) on the fetched resource:
+`GET DocumentReference/{id}?_format=text/plain` (or `DiagnosticReport`/`Binary`) returns the
+reassembled derived text as the **entire HTTP response body**, `Content-Type: text/plain`, *instead
+of* the normal `application/fhir+json` resource representation — not embedded inside the resource's
+JSON. This is the key design difference from revision (a): nothing is ever appended to
+`content[]`/`presentedForm[]`, and nothing is ever assigned to `Binary.extension` (which
+[doesn't exist](#revision-history) in FHIR R4). The resource's JSON shape is completely unaffected
+by this feature; `_format=text/plain` simply chooses a different *representation* of the same
+underlying resource, which is exactly what `_format` is for.
 
-1. Query the vector-store collection for `meta.chunk_group_id == "{id}-{index}"`, sorted by
-   `meta.chunk_index`.
-2. Concatenate `text` across all chunks in order.
-3. Append a sibling attachment: `{ attachment: { contentType: "text/plain", data: <base64(text)>,
-   extension: [{ url: "https://www.icanbwell.com/attachment-derived-text", valueBoolean: true }] } }`.
-   The extension marker is required, not decorative — `text/plain` can legitimately be the
-   *original* format for some documents, and a consumer must be able to tell "this is the source"
-   from "this is a server-generated derivation" without guessing from position in the array.
-4. If no `ClinicalNote` exists yet for that `chunk_group_id` (not yet indexed, or indexing failed —
-   `debug.error` set), skip that attachment silently — no sibling is added for it. This is a
-   coverage gap, not an error: the vector store's indexing is asynchronous relative to
-   fhir-server's writes, so a just-created `DocumentReference` legitimately has no derived text yet.
+**Where this lives, concretely:**
 
-This runs *after* the resource's normal authorized fetch (enrichment providers are a post-fetch
-pipeline stage in this codebase), so it inherits that read's authorization for free — see
-[Security model](#security-model-read-this-before-the-architecture).
-
-### `Binary` reverse lookup (`_content` on `Binary/{id}`)
-
-`Binary` is never an independently-indexed `meta.resource_type` in the vector store — only
-`DocumentReference`/`DiagnosticReport`/`CarePlan` are. A `Binary`'s content only appears in the
-index indirectly, as bytes resolved from another resource's attachment `url`. So `GET
-Binary/{id}?_content=` (empty value, same trigger as above) requires a different query:
-
-```json
-{ "debug.resource.content.attachment.url": { "$in": ["Binary/{id}", "#{id}"] } }
-```
-OR'd with the `DiagnosticReport` equivalent path (`debug.resource.presentedForm.url`), against the
-vector-store collection directly (a plain `find`, not `$search` — this is an exact-match lookup on
-`debug.resource`, the full persisted source resource, not a text search). Take all matching chunks,
-group by `meta.chunk_group_id` (there should be exactly one group — the specific attachment that
-referenced this `Binary`), sort by `meta.chunk_index`, concatenate.
-
-**Response shape differs from the `content[]` sibling-attachment approach above**: `Binary`'s core
-fields (`contentType`, `data`) describe the resource's *actual* stored bytes and must not be
-repurposed to lie about that. Instead, add a top-level extension directly on the `Binary` resource:
-`{ url: "https://www.icanbwell.com/attachment-derived-text", valueString: "<plain text,
-un-encoded>" }` — no base64 layer needed here, since `Binary`'s extensions aren't constrained to
-`Attachment`'s `base64Binary`-typed `data` field the way `content[].attachment.data` is.
-
-As with the enrichment provider above, this runs after `Binary/{id}`'s own normal authorized fetch,
-never before it — the reverse-lookup query only executes once the caller is already proven
-authorized to read that specific `Binary`.
+- `src/utils/contentTypes.js` — add `plainText: 'text/plain'` to `fhirContentTypes` and a
+  `hasPlainTextContentType(text)` helper, mirroring `hasCsvContentType` exactly.
+- Single-resource reads do **not** go through `ResponseHandlerFactory` (that's bundle-only, used
+  solely by `$summary`) — they go through `FhirResponseWriter.readOne`
+  (`src/middleware/fhir/fhirResponseWriter.js`), which today unconditionally does
+  `res.status(200).json(resource)`, never consulting `_format` at all. This is the file that needs
+  the new branch: if `hasPlainTextContentType(parsedArgs._format)` and `resourceType` is
+  `DocumentReference`/`DiagnosticReport`/`Binary`, resolve the derived text (see below) and respond
+  `res.type('text/plain').status(200).send(text)` instead of the JSON path. `GenericController`'s
+  call site (`src/middleware/fhir/4_0_0/controllers/generic.controller.js`) needs to thread
+  `parsedArgs`/`resourceType` through to `readOne`, which it doesn't receive today.
+- **Text resolution reuses `ClinicalNoteTextRetriever` directly** (unchanged from revision (a) —
+  its chunk-reassembly logic was never the problem):
+  - `DocumentReference`/`DiagnosticReport`: for each `content[]`/`presentedForm[]` entry at index
+    `i`, call `getReassembledTextAsync({ chunkGroupId: "{resource.id}-{i}" })`; concatenate all
+    attachments' text (joined with a blank line) into one body. If none of the resource's
+    attachments have indexed text yet, respond with an empty `text/plain` body (200, not 404 — the
+    resource itself was found and is readable; it just has no derived text yet, same
+    "not-yet-indexed is a coverage gap, not an error" posture as revision (a)).
+  - `Binary`: call `getReassembledTextForBinaryAsync({ binaryReference: "Binary/{resource.id}" })`
+    directly — same method, same reverse-lookup query, from revision (a).
+- This runs *after* `searchById`'s normal, fully tenant-scoped fetch has already returned the
+  resource (`readOne` only ever receives an already-authorized resource) — same authorization
+  guarantee as revision (a)'s enrichment providers, just enforced by a different code path. See
+  [Security model](#security-model-read-this-before-the-architecture).
+- **No enrichment providers.** `AttachmentTextEnrichmentProvider` and
+  `BinaryDerivedTextEnrichmentProvider` (revision (a)) are removed entirely — there is no longer
+  anything to attach to the resource, so there is no enrichment step. This also resolves revision
+  (a)'s "Known Limitation" ($everything/$graph fan-out) as a side effect: that limitation existed
+  specifically because `EnrichmentManager` shares one `parsedArgs` across every entry in a
+  traversal-gathered bundle. `readOne` is called once, directly, for the single resource a plain
+  `GET .../{id}` returns — there is no shared-`parsedArgs`-across-many-resources mechanism in this
+  design at all, so the fan-out scenario cannot occur.
 
 ## Error Handling
 
@@ -317,11 +353,15 @@ authorized to read that specific `Binary`.
   delegated search — falling back would mean silently returning every patient-scoped
   `DocumentReference`/`DiagnosticReport`/`CarePlan` as if `_content` had matched all of them, which
   is a correctness violation a caller has no way to detect from the response alone.
-- **Vector-store cluster unreachable during derived-text enrichment or the `Binary` reverse
-  lookup** → degrade gracefully: skip the enrichment (return the resource without the derived
-  text/extension), log it. Unlike search, an enrichment failure doesn't misrepresent whether a
-  filter matched — the base resource is still correct and complete, just missing an optional
-  addition.
+- **Vector-store cluster unreachable during `_format=text/plain` text resolution** → degrade
+  gracefully: `ClinicalNoteTextRetriever`'s methods already catch and return `null`/skip on any
+  Mongo error (unchanged from revision (a)); respond with an empty `text/plain` body (200) rather
+  than failing the request. Unlike search, a missing-derived-text response doesn't misrepresent
+  whether a filter matched — the underlying resource read already succeeded independently.
+- **`_format=text/plain` on an unsupported resourceType, or when the feature isn't configured** →
+  fall through to the normal JSON response, silently. This is a response-*format* choice, not a
+  search filter — there's no correctness claim being made that a caller could be misled by, unlike
+  `_content` search's `BadRequestError` posture above.
 - **Malformed Lucene syntax in `_content`'s value** → Atlas Search's `queryString` operator returns
   its own parse error for malformed input; surface that as `BadRequestError` with the offending
   value, rather than a generic 500.
@@ -361,48 +401,32 @@ posture as an unsupported resourceType) and the enrichment/reverse-lookup trigge
    scoped to tenant A must not see resources belonging to tenant B even when the vector store
    returns candidate ids for tenant B's documents (confirms the `_id ∈ [...]` re-authorization is
    real, not just present in code but bypassable).
-4. **`AttachmentTextEnrichmentProvider` unit tests** — chunk reassembly ordering, missing-note
-   (not-yet-indexed) skip behavior, the derived-text extension marker, and that it never runs on
-   search result sets (only single-resource reads).
-5. **`Binary` reverse-lookup unit tests** — the `debug.resource.content.attachment.url` /
-   `presentedForm.url` OR-query, multi-chunk reassembly, and the `valueString` (not base64)
-   extension shape.
+4. **`_format=text/plain` response-writer unit/integration tests** — for each of
+   `DocumentReference`/`DiagnosticReport`/`Binary`: build a real `ParsedArgs` via the actual
+   `R4ArgsParser`/route path (not a hand-built `ParsedArgsItem` — this is precisely what revision
+   (a)'s tests failed to do, and why the empty-`_content` defect survived ten task-level reviews),
+   confirm the response is `text/plain` with the reassembled text, confirm an unrelated resourceType
+   or an unconfigured environment falls through to normal JSON, confirm a resource with no indexed
+   text yet returns an empty 200 body rather than an error, and confirm the JSON path (no `_format`)
+   is completely unaffected — same resource, same fields, no stray `content[]`/`extension` entries.
+5. **`Binary` reverse-lookup tests** — the `debug.resource.content.attachment.url` /
+   `presentedForm.url` OR-query, multi-chunk reassembly (unchanged from revision (a),
+   `ClinicalNoteTextRetriever` was already correct) — plus one test confirming a real
+   `Binary.toJSON()` round-trip is unaffected by this feature (no attempted `extension` write).
 6. **Config test** — all-four-required-together behavior; each individual missing var falls back
    to "feature not configured" behavior, not a partial/broken state.
-
-## Known Limitation (found during implementation)
-
-The derived-text enrichment gate (`AttachmentTextEnrichmentProvider`/`BinaryDerivedTextEnrichmentProvider`)
-checks whether the request's `parsedArgs` has a single-valued `id`/`_id` param
-(`getOriginal('id') || getOriginal('_id')`), intended to restrict enrichment to true
-single-resource reads. `EnrichmentManager.enrichBundleEntriesAsync` shares one `parsedArgs` across
-every entry in a bundle, so this correctly avoids firing per-entry on a broad *search* result set.
-However, `$everything`/`$graph` traversal (`everythingHelper.js`, `graphHelpers.js`) also share one
-top-level `parsedArgs` (scoped to a single Patient id) across every *descendant* resource gathered
-during traversal — including any `DocumentReference`/`DiagnosticReport` reachable from that
-patient. A request like `Patient/123/$everything?_content=` would satisfy the "single id" gate
-(the Patient's id is singular) while still enriching every reachable document, reintroducing the
-large-response fan-out this gate was designed to prevent — just via graph traversal instead of a
-broad search.
-
-This is **not** a tenant-isolation issue: `$everything`'s own authorization already scopes which
-documents are reachable, so this only affects response size/completeness, not who can see what.
-Deferred as a known limitation rather than fixed in this iteration. The precise fix is to check
-that the request's single id actually matches the *specific resource being enriched*
-(`resource.id === idArg.queryParameterValue.values[0]`, with the same uuid/sourceId handling
-`FilterById` already does), not merely that a single id exists somewhere in the shared
-`parsedArgs` — that would correctly enrich a true single-resource read while correctly declining
-to enrich a descendant resource reached via `$everything`/`$graph` traversal, whose id never
-matches the top-level request's id.
+7. **`ENABLE_FULL_TEXT_SEARCH=off` regression test** — confirm `_content=<value>` on any
+   resourceType (including ones outside the three-type allowlist) is silently ignored, not
+   `BadRequestError`, when the flag is off — this must match `_content`'s behavior on `main` today.
 
 ## Out of Scope
 
 - `_text` (narrative search) — different data source entirely; not addressed here (see
   [Scope](#scope)).
 - `_content` on resource types other than `DocumentReference`/`DiagnosticReport`/`CarePlan`.
-- Broad-search derived-text enrichment (empty `_content` on a multi-result search) — deliberately
-  restricted to single-resource reads in this revision; extending it would need an explicit
-  result-count safeguard first.
+- `_format=text/plain` on search/bundle responses — restricted to single-resource reads in this
+  revision (see [Scope](#scope)); there's no coherent single plain-text body for a multi-resource
+  Bundle.
 - Thesaurus/stemming/relevance ranking beyond what Atlas Search's `queryString` gives by default —
   spec marks this "MAY", not required.
 - Any change to `fhir-notes-vector-store` itself — this design consumes its existing Atlas Search
