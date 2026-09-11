@@ -519,12 +519,14 @@ see [Error Handling](#error-handling).
    `$search.compound.filter`), a candidate missing `sourceAssigningAuthority` is dropped, a
    non-matching query returns a genuine empty array from Atlas itself, and Lucene `AND`/`OR`
    syntax narrows correctly via `queryString`.
-   **Still not done** (narrower follow-up, not blocking): a full `SearchManager`-hook-through-HTTP
-   test (`GET /4_0_0/DocumentReference?_content=...` end-to-end, including
-   `constructQueryAsync`'s re-authorization AND-composition and cluster-down/`503` behavior) —
-   the test above proves the vector-store round trip itself is correct against a real index, but
-   doesn't exercise the rest of the request pipeline the way `patientAtlasSearch.test.js` does for
-   ADR-0003's feature.
+   The rest of the request pipeline is covered by
+   `src/tests/integration/atlasSearch/contentSearchAtlasSearch.test.js`: a real
+   `GET /4_0_0/DocumentReference?_content=...` end-to-end, mirroring `patientAtlasSearch.test.js`'s
+   own structure -- an eligible search narrows correctly and returns the re-authorized result, a
+   tenant-scoped caller does not see another tenant's Atlas-matched document even though the
+   vector store returns both as raw candidates, and an empty candidate list produces a real empty
+   Bundle over real HTTP (not an unfiltered one), all against the real container. Cluster-down/
+   `503` simulation is not covered by either test and remains a narrower follow-up.
 3. **Cross-tenant regression tests** (required given `review.md`'s scope) — a service account
    scoped to tenant A must not see resources belonging to tenant B even when the vector store
    returns candidate ids for tenant B's documents (confirms the `_id ∈ [...]` re-authorization is
