@@ -213,7 +213,8 @@ class FhirResponseWriter {
         const texts = [];
         for (let index = 0; index < attachmentArray.length; index++) {
             const text = await this.clinicalNoteTextRetriever.getReassembledTextAsync({
-                chunkGroupId: `${resource.id}-${index}`
+                chunkGroupId: `${resource.id}-${index}`,
+                resourceType: resource.resourceType
             });
             if (text) {
                 texts.push(text);

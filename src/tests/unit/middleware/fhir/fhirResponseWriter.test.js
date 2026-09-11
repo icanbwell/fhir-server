@@ -487,6 +487,24 @@ describe('FhirResponseWriter', () => {
             expect(res._json).toBeNull();
         });
 
+        test('returns reassembled text for a DiagnosticReport (presentedForm) when _format=text/plain', async () => {
+            const clinicalNoteTextRetriever = {
+                getReassembledTextAsync: async ({ chunkGroupId }) =>
+                    chunkGroupId === 'rep1-0' ? 'the diagnostic report note text' : null
+            };
+            const configManager = { fhirNotesFullTextSearchConfigured: true };
+            const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+            const resource = { resourceType: 'DiagnosticReport', id: 'rep1', presentedForm: [{}] };
+            const res = makeRes();
+
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+            expect(res._type).toEqual('text/plain');
+            expect(res._status).toEqual(200);
+            expect(res._sentText).toEqual('the diagnostic report note text');
+            expect(res._json).toBeNull();
+        });
+
         test('returns reassembled text for a Binary when _format=text/plain', async () => {
             const clinicalNoteTextRetriever = {
                 getReassembledTextForBinaryAsync: async ({ binaryReference }) =>
@@ -574,6 +592,37 @@ describe('FhirResponseWriter', () => {
             await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
 
             expect(res._sentText).toEqual('first attachment text\n\nsecond attachment text');
+        });
+
+        test('passes resourceType through to getReassembledTextAsync so a DocumentReference and a DiagnosticReport sharing the same raw id cannot cross-contaminate (Finding 4)', async () => {
+            // Simulates the real ClinicalNoteTextRetriever.getReassembledTextAsync's
+            // `meta.resource_type` filter: text is only returned when BOTH chunkGroupId and
+            // resourceType match. This proves readOne/resolveDerivedTextAsync actually thread
+            // resourceType through to the retriever, not just chunkGroupId.
+            const clinicalNoteTextRetriever = {
+                getReassembledTextAsync: async ({ chunkGroupId, resourceType }) => {
+                    if (chunkGroupId === 'shared1-0' && resourceType === 'DocumentReference') {
+                        return 'doc ref text';
+                    }
+                    if (chunkGroupId === 'shared1-0' && resourceType === 'DiagnosticReport') {
+                        return 'diagnostic report text';
+                    }
+                    return null;
+                }
+            };
+            const configManager = { fhirNotesFullTextSearchConfigured: true };
+            const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+
+            const documentReference = { resourceType: 'DocumentReference', id: 'shared1', content: [{ attachment: {} }] };
+            const documentReferenceRes = makeRes();
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res: documentReferenceRes, resource: documentReference });
+
+            const diagnosticReport = { resourceType: 'DiagnosticReport', id: 'shared1', presentedForm: [{}] };
+            const diagnosticReportRes = makeRes();
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res: diagnosticReportRes, resource: diagnosticReport });
+
+            expect(documentReferenceRes._sentText).toEqual('doc ref text');
+            expect(diagnosticReportRes._sentText).toEqual('diagnostic report text');
         });
     });
 });

@@ -18,11 +18,22 @@ class ClinicalNoteTextRetriever {
     }
 
     /**
+     * `chunkGroupId` is built from the resource's raw FHIR `id` (`"{resourceId}-{contentIndex}"`),
+     * which -- per IdEnrichmentProvider -- is the resource's raw `_sourceId` where present, not
+     * its globally-unique internal `_uuid`. Raw source ids are only guaranteed unique per
+     * (resourceType [+ sourceAssigningAuthority]), not globally, so a `DocumentReference` and a
+     * `DiagnosticReport` (or two different tenants' same-resourceType resources) could share the
+     * same raw id string and collide on `chunk_group_id`. `resourceType` is required and filtered
+     * on (`meta.resource_type`, which the vector store's schema always populates for indexed
+     * chunks) so this can never cross a resourceType boundary. See fhirResponseWriter.js's caller
+     * and task-11-report.md's Finding 4 fix-up for the residual same-resourceType,
+     * cross-sourceAssigningAuthority collision risk this does *not* close.
      * @param {Object} params
      * @param {string} params.chunkGroupId `"{resourceId}-{contentIndex}"`
+     * @param {string} params.resourceType e.g. "DocumentReference" -- must match `meta.resource_type`
      * @returns {Promise<string|null>}
      */
-    async getReassembledTextAsync ({ chunkGroupId }) {
+    async getReassembledTextAsync ({ chunkGroupId, resourceType }) {
         if (!this.configManager.fhirNotesFullTextSearchConfigured) {
             return null;
         }
@@ -30,7 +41,7 @@ class ClinicalNoteTextRetriever {
             const db = await this.mongoDatabaseManager.getFhirNotesDbAsync();
             const collection = db.collection(this.configManager.fhirNotesMongoCollectionName);
             const chunks = await collection
-                .find({ 'meta.chunk_group_id': chunkGroupId })
+                .find({ 'meta.chunk_group_id': chunkGroupId, 'meta.resource_type': resourceType })
                 .sort({ 'meta.chunk_index': 1 })
                 .toArray();
             if (chunks.length === 0) {
@@ -38,7 +49,7 @@ class ClinicalNoteTextRetriever {
             }
             return chunks.map(c => c.text || '').join('');
         } catch (e) {
-            logWarn(`Failed to reassemble clinical note text for chunkGroupId=${chunkGroupId}`, { error: e });
+            logWarn(`Failed to reassemble clinical note text for chunkGroupId=${chunkGroupId}, resourceType=${resourceType}`, { error: e });
             return null;
         }
     }

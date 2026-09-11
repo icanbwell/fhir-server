@@ -12,15 +12,18 @@ describe('ClinicalNoteTextRetriever.getReassembledTextAsync', () => {
             { meta: { chunk_index: 0 }, text: 'first. ' }
         ];
         const fakeCollection = {
-            find: () => ({
-                sort: () => ({ toArray: async () => docs.sort((a, b) => a.meta.chunk_index - b.meta.chunk_index) })
-            })
+            find: (query) => {
+                expect(query).toEqual({ 'meta.chunk_group_id': 'docRef123-0', 'meta.resource_type': 'DocumentReference' });
+                return {
+                    sort: () => ({ toArray: async () => docs.sort((a, b) => a.meta.chunk_index - b.meta.chunk_index) })
+                };
+            }
         };
         const fakeDb = { collection: () => fakeCollection };
         const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
         const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
 
-        const text = await retriever.getReassembledTextAsync({ chunkGroupId: 'docRef123-0' });
+        const text = await retriever.getReassembledTextAsync({ chunkGroupId: 'docRef123-0', resourceType: 'DocumentReference' });
 
         expect(text).toEqual('first. second. ');
     });
@@ -31,7 +34,7 @@ describe('ClinicalNoteTextRetriever.getReassembledTextAsync', () => {
         const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
         const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
 
-        const text = await retriever.getReassembledTextAsync({ chunkGroupId: 'missing-0' });
+        const text = await retriever.getReassembledTextAsync({ chunkGroupId: 'missing-0', resourceType: 'DocumentReference' });
 
         expect(text).toBeNull();
     });
@@ -43,9 +46,39 @@ describe('ClinicalNoteTextRetriever.getReassembledTextAsync', () => {
             configManager: { fhirNotesFullTextSearchConfigured: false }
         });
 
-        const text = await retriever.getReassembledTextAsync({ chunkGroupId: 'docRef123-0' });
+        const text = await retriever.getReassembledTextAsync({ chunkGroupId: 'docRef123-0', resourceType: 'DocumentReference' });
 
         expect(text).toBeNull();
+    });
+
+    test('does not return chunks belonging to a different resourceType with the same raw chunkGroupId (Finding 4)', async () => {
+        // Simulates two different resources -- a DocumentReference and a DiagnosticReport --
+        // that happen to share the same raw id string "shared1", and therefore the same
+        // chunk_group_id prefix "shared1-0". The `meta.resource_type` filter must make each
+        // resourceType only see its own chunks.
+        const allChunks = [
+            { meta: { chunk_group_id: 'shared1-0', chunk_index: 0, resource_type: 'DocumentReference' }, text: 'doc ref text' },
+            { meta: { chunk_group_id: 'shared1-0', chunk_index: 0, resource_type: 'DiagnosticReport' }, text: 'diagnostic report text' }
+        ];
+        const fakeCollection = {
+            find: (query) => ({
+                sort: () => ({
+                    toArray: async () => allChunks.filter(c =>
+                        c.meta.chunk_group_id === query['meta.chunk_group_id'] &&
+                        c.meta.resource_type === query['meta.resource_type']
+                    )
+                })
+            })
+        };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const docRefText = await retriever.getReassembledTextAsync({ chunkGroupId: 'shared1-0', resourceType: 'DocumentReference' });
+        const diagnosticReportText = await retriever.getReassembledTextAsync({ chunkGroupId: 'shared1-0', resourceType: 'DiagnosticReport' });
+
+        expect(docRefText).toEqual('doc ref text');
+        expect(diagnosticReportText).toEqual('diagnostic report text');
     });
 });
 

@@ -277,5 +277,13 @@ describe('contentTypes', () => {
         test('matches within an array (multi-valued _format)', () => {
             expect(hasPlainTextContentType(['application/fhir+json', 'text/plain'])).toBe(true);
         });
+
+        test('does not throw on a malformed percent-escape and returns false', () => {
+            // A malformed _format (e.g. `_format=abc%zz`) must not 500 a normal resource read --
+            // this runs unconditionally for every single-resource read via
+            // FhirResponseWriter.readOne, not just ones targeting this feature.
+            expect(() => hasPlainTextContentType('abc%zz')).not.toThrow();
+            expect(hasPlainTextContentType('abc%zz')).toBe(false);
+        });
     });
 });

@@ -126,6 +126,14 @@ const hasJsonContentType = (text) => {
  * "inconsistency between ndJson and csv/tsv/pipe/excel" tests for a documented example of this.
  * hasPlainTextContentType instead follows hasNdJsonContentType's pattern (check Array.isArray
  * first) so a real multi-valued `_format` array is matched correctly.
+ *
+ * Also, unlike those other helpers, decoding here is guarded: `decodeURIComponent` throws on a
+ * malformed percent-escape (e.g. `_format=abc%zz`), and this function runs unconditionally for
+ * *every* single-resource read via FhirResponseWriter.readOne -- not just ones targeting the
+ * text/plain feature's supported resource types. An unguarded throw here would 500 an otherwise
+ * normal read (e.g. `GET Patient/{id}?_format=abc%zz`) that has nothing to do with this feature.
+ * A malformed value simply can't match `fhirContentTypes.plainText`, so on decode failure this
+ * falls back to comparing the raw (un-decoded) value instead of throwing.
  * @param {string[]|string} text
  * @returns {boolean}
  */
@@ -136,7 +144,13 @@ const hasPlainTextContentType = (text) => {
     if (Array.isArray(text)) {
         return text.some(item => item === fhirContentTypes.plainText);
     }
-    return decodeURIComponent(text) === fhirContentTypes.plainText;
+    let decoded;
+    try {
+        decoded = decodeURIComponent(text);
+    } catch (e) {
+        decoded = text;
+    }
+    return decoded === fhirContentTypes.plainText;
 };
 
 module.exports = {
