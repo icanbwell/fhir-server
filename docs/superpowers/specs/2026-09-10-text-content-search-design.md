@@ -505,17 +505,26 @@ see [Error Handling](#error-handling).
    `sourceAssigningAuthority` tag is dropped rather than returned unscoped. (The `patientIds`
    pre-filter described earlier is a known, not-yet-implemented gap — see the note in `_content`
    search step 2 — so there is nothing to test for it yet.)
-2. **`SearchManager` hook integration tests** — `_content` search end-to-end against a real
-   `mongodb-atlas-local` instance (reusing ADR-0003's existing `jest.atlasSearch.config.js` /
-   `atlasSearchGlobalSetup.js` infra): matches narrow correctly, empty-candidate-list yields zero
-   results (not everything, and specifically survives `MongoQuerySimplifier` rather than being
-   erased by it), a request for an unsupported resourceType is rejected, cluster-down simulation
-   yields a `503`/`OperationOutcome` rather than an unfiltered result set. **Not yet done**: this
-   still needs a real `mongodb-atlas-local` run — every existing `ClinicalNoteSearchClient` test
-   mocks `collection.aggregate` rather than exercising a real Atlas Search index, which is exactly
-   how the `meta.resource_type`-unmapped-field bug (see `_content` search step 2) shipped
-   undetected. Tracked as follow-up work, not blocking this PR on its own given the fix has since
-   landed and is covered by unit tests of the corrected pipeline shape.
+2. **`ClinicalNoteSearchClient` real-Atlas-Search test** — done:
+   `src/tests/integration/atlasSearch/clinicalNoteSearchClientAtlasSearch.test.js`, reusing
+   ADR-0003's `jest.atlasSearch.config.js`/`atlasSearchGlobalSetup.js` mongodb-atlas-local
+   container (a second database on the same container stands in for
+   fhir-notes-vector-store's `clinical-notes` collection, with an index built from the *real*
+   `text`/`patient_id`/`key`-only mapping fhir-notes-vector-store's `create_text_search_index`
+   creates — not the initially-assumed-but-wrong `meta.resource_type`-mapped shape). Runs
+   `findMatchingResourceIdsAsync` directly (not through the full HTTP stack) against that real
+   index and proves: the `$match`-after-`$search` resourceType filter correctly discriminates two
+   resources sharing a raw sourceId (the exact regression this test exists to catch -- it would
+   fail against a real engine if `meta.resource_type` ever moved back inside
+   `$search.compound.filter`), a candidate missing `sourceAssigningAuthority` is dropped, a
+   non-matching query returns a genuine empty array from Atlas itself, and Lucene `AND`/`OR`
+   syntax narrows correctly via `queryString`.
+   **Still not done** (narrower follow-up, not blocking): a full `SearchManager`-hook-through-HTTP
+   test (`GET /4_0_0/DocumentReference?_content=...` end-to-end, including
+   `constructQueryAsync`'s re-authorization AND-composition and cluster-down/`503` behavior) —
+   the test above proves the vector-store round trip itself is correct against a real index, but
+   doesn't exercise the rest of the request pipeline the way `patientAtlasSearch.test.js` does for
+   ADR-0003's feature.
 3. **Cross-tenant regression tests** (required given `review.md`'s scope) — a service account
    scoped to tenant A must not see resources belonging to tenant B even when the vector store
    returns candidate ids for tenant B's documents (confirms the `_id ∈ [...]` re-authorization is
