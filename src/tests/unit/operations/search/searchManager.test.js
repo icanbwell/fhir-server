@@ -647,15 +647,28 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
         }), 400);
     });
 
-    test('throws BadRequestError when the feature is not configured', async () => {
+    test('ignores _content silently (returns null) when the feature is not configured', async () => {
         const searchManager = makeSearchManager({
             configManager: { fhirNotesFullTextSearchConfigured: false },
-            clinicalNoteSearchClient: {}
+            clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
         });
-        await expectRejectionWithStatusCode(searchManager.buildContentSearchIdFilterAsync({
+        const result = await searchManager.buildContentSearchIdFilterAsync({
             resourceType: 'DocumentReference',
             parsedArgs: makeParsedArgsWithContent('diabetes')
-        }), 400);
+        });
+        expect(result).toBeNull();
+    });
+
+    test('ignores _content silently (returns null) when the feature flag is off, even for an unsupported resourceType', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: false },
+            clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'Condition',
+            parsedArgs: makeParsedArgsWithContent('diabetes')
+        });
+        expect(result).toBeNull();
     });
 
     test('returns an _uuid $in filter built from uuid-shaped candidate ids', async () => {

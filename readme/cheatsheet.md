@@ -234,7 +234,7 @@ For `_content` search to be available, all of the following environment variable
 | `FHIR_NOTES_TEXT_SEARCH_INDEX_NAME` | Atlas Search index name (e.g., `fhir-notes-text-search`) |
 | `ENABLE_FULL_TEXT_SEARCH` | Feature flag; set to `1` to enable (must be set to `1` in addition to the above) |
 
-All four connection variables **and** the `ENABLE_FULL_TEXT_SEARCH` flag must be configured for the feature to be active. If any are missing or the flag is not set to `1`, requests with `_content` will return a `BadRequestError`.
+All four connection variables **and** the `ENABLE_FULL_TEXT_SEARCH` flag must be configured for the feature to be active. If `ENABLE_FULL_TEXT_SEARCH` is not set to `1`, `_content` is silently ignored (a recognized-but-unresolved search parameter) regardless of resourceType, matching its behavior before this feature existed. With the flag on, `_content` on an unsupported resourceType, or on an environment where the connection variables are missing, returns a `BadRequestError`.
 
 **Optional variables:** You can also set `FHIR_NOTES_MONGO_USERNAME` and `FHIR_NOTES_MONGO_PASSWORD` to embed credentials into the connection string, and `FHIR_NOTES_MIN_POOL_SIZE`, `FHIR_NOTES_MAX_POOL_SIZE`, `FHIR_NOTES_MONGO_CONNECT_TIMEOUT`, and `FHIR_NOTES_MONGO_SERVER_SELECTION_TIMEOUT` to tune connection pooling and timeouts (these have sensible defaults if not specified).
 
@@ -245,7 +245,7 @@ All four connection variables **and** the `ENABLE_FULL_TEXT_SEARCH` flag must be
 - `DiagnosticReport`
 - `CarePlan`
 
-Attempting `_content` on any other resource type returns `BadRequestError`.
+With the feature flag on, attempting `_content` on any other resource type returns `BadRequestError`.
 
 #### Query Syntax — Lucene `queryString` Format
 
@@ -261,55 +261,27 @@ GET /4_0_0/DocumentReference?patient=Patient/123&_content=(bone OR liver) AND me
 
 Returns all `DocumentReference` resources for the given patient whose content contains either "bone" or "liver", **and** also contains "metastases". Multiple criteria can be combined with standard Lucene operators.
 
-#### Derived-Text Enrichment on Single-Resource Read
+#### Retrieving Derived Text as Plain Text (`_format=text/plain`)
 
-When reading a single `DocumentReference` or `DiagnosticReport` by ID, you can request the server extract and attach the plain text from its attachments by passing an **empty** `_content` parameter:
-
-```
-GET /4_0_0/DocumentReference/abc-123?_content=
-```
-
-The server will add a sibling `content[]` attachment (for `DocumentReference`) or `presentedForm[]` entry (for `DiagnosticReport`) containing the derived plain text, marked with an extension to distinguish it from the original:
-
-```json
-{
-  "attachment": {
-    "contentType": "text/plain",
-    "data": "base64-encoded plain text here",
-    "extension": [
-      {
-        "url": "https://www.icanbwell.com/attachment-derived-text",
-        "valueBoolean": true
-      }
-    ]
-  }
-}
-```
-
-The `valueBoolean: true` signals that this is a server-generated derivation, not part of the original resource.
-
-#### Binary Reverse Lookup
-
-A `Binary` resource referenced by an attachment URL can also be read with the empty `_content` trigger to retrieve the derived text:
+For a single-resource read of a `DocumentReference`, `DiagnosticReport`, or `Binary` by ID, passing `_format=text/plain` returns the server-extracted plain text of the resource's attachment(s) directly as the HTTP response body — not embedded in the resource's JSON. This requires the same full-text-search configuration described above (`ENABLE_FULL_TEXT_SEARCH=1` and the `FHIR_NOTES_*` connection variables); otherwise the normal FHIR JSON response is returned instead.
 
 ```
-GET /4_0_0/Binary/xyz-789?_content=
+GET /4_0_0/DocumentReference/abc-123?_format=text/plain
 ```
 
-Since `Binary` itself is not indexed in the text-search service, the server looks up which `DocumentReference` or `DiagnosticReport` attachment references this `Binary`, retrieves its derived text, and returns it as a top-level extension:
-
-```json
-{
-  "url": "https://www.icanbwell.com/attachment-derived-text",
-  "valueString": "plain text content here (not base64-encoded)"
-}
+```
+GET /4_0_0/DiagnosticReport/def-456?_format=text/plain
 ```
 
-**Important:** The empty-`_content` enrichment trigger (`_content=`) is restricted to single-resource reads by `_id`. Using it on a broad search result set is not supported.
+The response `Content-Type` is `text/plain`, and the body is the reassembled plain text derived from the resource's attachment(s) — no JSON envelope, no extension markers.
 
-#### Known Limitation
+`Binary` resources are not indexed for text search directly, but can also be read this way: the server looks up which `DocumentReference` or `DiagnosticReport` attachment references the `Binary`, retrieves that resource's derived text, and returns it as the plain-text body:
 
-Derived-text enrichment can add substantial content to responses when traversing resource graphs. A request like `Patient/123/$everything?_content=` will attach derived text to all reachable `DocumentReference` and `DiagnosticReport` resources within that patient's graph, which may result in large response payloads. This is a response-size concern only — authorization is unaffected; the resources returned are already verified as accessible to the requesting user.
+```
+GET /4_0_0/Binary/xyz-789?_format=text/plain
+```
+
+**Important:** `_format=text/plain` derived-text retrieval is restricted to single-resource reads by `_id`. It is not supported on search result sets or graph/`$everything` traversals.
 
 FHIR Specification: https://hl7.org/fhir/R4B/search.html#content
 

@@ -212,15 +212,16 @@ class SearchManager {
         if (!contentArg) {
             return null;
         }
+        if (!this.configManager.fhirNotesFullTextSearchConfigured) {
+            // The feature is off (the default posture). `_content` is a recognized-but-unresolved
+            // search parameter in that case -- silently ignored for every resourceType, matching
+            // `_content`'s behavior on main today (before this feature existed at all).
+            return null;
+        }
         if (!FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.includes(resourceType)) {
             throw new BadRequestError(new Error(
                 `_content search is not supported for resourceType=${resourceType}. ` +
                 `Supported types: ${FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.join(', ')}`
-            ));
-        }
-        if (!this.configManager.fhirNotesFullTextSearchConfigured) {
-            throw new BadRequestError(new Error(
-                '_content search is not configured in this environment'
             ));
         }
         const contentQuery = contentArg.queryParameterValue.value;
@@ -228,14 +229,6 @@ class SearchManager {
             throw new BadRequestError(new Error(
                 '_content does not support multiple repeated values'
             ));
-        }
-        // An empty-string `_content` value carries no query text -- do not attempt a
-        // vector-store search for it. (In practice r4ArgsParser.js drops empty-string query
-        // parameter values before parsedArgs is ever built, so this branch is unreachable via a
-        // real HTTP request today; it's kept as a defensive guard against calling
-        // findMatchingResourceIdsAsync with an empty query.)
-        if (!contentQuery) {
-            return null;
         }
         const candidateIds = await this.clinicalNoteSearchClient.findMatchingResourceIdsAsync({
             resourceType,
