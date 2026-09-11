@@ -162,6 +162,41 @@ class ConfigManager {
     }
 
     /**
+     * Whether Patient/Person/Practitioner search should route eligible queries through the
+     * MongoDB Atlas Search index (`hybrid-full-text-search`) instead of the regex-based path.
+     * Gated per resource type; default false everywhere. See
+     * docs/adr/0003-atlas-search-for-patient-person-practitioner-lookup.md
+     * @param {string} resourceType
+     * @returns {boolean}
+     */
+    isAtlasSearchEnabled(resourceType) {
+        switch (resourceType) {
+            case 'Patient':
+                return isTrue(env.ATLAS_SEARCH_ENABLED_PATIENT);
+            case 'Person':
+                return isTrue(env.ATLAS_SEARCH_ENABLED_PERSON);
+            case 'Practitioner':
+                return isTrue(env.ATLAS_SEARCH_ENABLED_PRACTITIONER);
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Whether the Atlas Search pipeline should sort natively inside the `$search` stage
+     * (by relevance score, then `defaultSortId` as a tie-break) instead of appending a
+     * separate `$sort` aggregation stage. Requires `defaultSortId` (`_uuid`) to be mapped as a
+     * sortable (`token`-type) field in the `hybrid-full-text-search` index -- independent of,
+     * and default-off separately from, `isAtlasSearchEnabled`, so the index change and this
+     * code path can roll out to each environment on their own schedules. See
+     * docs/adr/0003-atlas-search-for-patient-person-practitioner-lookup.md Decision Log #8.
+     * @returns {boolean}
+     */
+    get isAtlasSearchNativeSortEnabled() {
+        return isTrue(env.ATLAS_SEARCH_NATIVE_SORT_ENABLED);
+    }
+
+    /**
      * username for kafka auth
      * @return {string|null}
      */

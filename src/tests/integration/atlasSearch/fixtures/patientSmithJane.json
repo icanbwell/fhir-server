@@ -1,0 +1,16 @@
+{
+    "resourceType": "Patient",
+    "id": "atlas-search-smith-jane",
+    "meta": {
+        "source": "http://healthsystem1health.org/provider",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/owner", "code": "healthsystem1" }
+        ]
+    },
+    "birthDate": "2018-02-02",
+    "gender": "female",
+    "name": [
+        { "use": "usual", "family": "Smith", "given": ["Jane"] }
+    ]
+}

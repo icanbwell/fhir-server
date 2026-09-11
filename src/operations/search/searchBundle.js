@@ -175,6 +175,8 @@ class SearchBundleOperation {
         let query = {};
         /** @type {Set} **/
         let columns;
+        /** @type {{must: object[]}|null} **/
+        let atlasSearchCompound = null;
 
         // check if required filters for AuditEvent are passed
         if (resourceType === 'AuditEvent') {
@@ -188,7 +190,8 @@ class SearchBundleOperation {
                 /** @type {import('mongodb').Document}**/
                 query,
                 /** @type {Set} **/
-                columns
+                columns,
+                atlasSearchCompound
             } = await this.searchManager.constructQueryAsync(
                 {
                     user,
@@ -246,7 +249,8 @@ class SearchBundleOperation {
                     useAccessIndex,
                     parsedArgs,
                     useAggregationPipeline,
-                    extraInfo
+                    extraInfo,
+                    atlasSearchCompound
                 });
             /**
              * @type {Set}

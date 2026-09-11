@@ -1,0 +1,44 @@
+{
+    "mappings": {
+        "dynamic": false,
+        "fields": {
+            "_uuid": { "type": "token" },
+            "birthDate": { "type": "token" },
+            "gender": { "type": "token" },
+            "identifier": {
+                "fields": {
+                    "system": { "type": "token" },
+                    "value": { "type": "token" }
+                },
+                "type": "document"
+            },
+            "meta": {
+                "fields": {
+                    "security": {
+                        "dynamic": false,
+                        "fields": {
+                            "code": { "type": "token" },
+                            "system": { "type": "token" }
+                        },
+                        "type": "embeddedDocuments"
+                    }
+                },
+                "type": "document"
+            },
+            "name": {
+                "fields": {
+                    "family": [{ "type": "autocomplete" }, { "type": "string" }],
+                    "given": [{ "type": "autocomplete" }, { "type": "string" }]
+                },
+                "type": "document"
+            },
+            "telecom": {
+                "fields": {
+                    "system": { "type": "token" },
+                    "value": [{ "type": "string" }]
+                },
+                "type": "document"
+            }
+        }
+    }
+}
