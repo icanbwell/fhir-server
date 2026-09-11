@@ -1356,10 +1356,23 @@ class ConfigManager {
         return this._parseCommaSeparatedList(
             env.COMPOSITION_LATEST_VERSION_SOURCES,
             [
-                'https://www.icanbwell.com/',
+                'https://www.icanbwell.com/intelligence-layer-databricks',
                 'https://www.icanbwell.com/fhir-composition-service'
             ]
         );
+    }
+
+    /**
+     * Hard cap on the number of distinct (subject, type) Composition groups
+     * CompositionLatestVersionTransform will buffer in memory for one request before it flushes
+     * and falls back to passthrough (no more dedup) for the rest of that stream. Bounds memory
+     * for an unscoped/service-account Composition search or NDJSON export -- those aren't
+     * inherently limited to one patient's handful of groups the way a typical patient-scoped
+     * search is.
+     * @return {number}
+     */
+    get compositionLatestVersionMaxGroups() {
+        return parseInt(env.COMPOSITION_LATEST_VERSION_MAX_GROUPS || '10000', 10);
     }
 
     get dataSharingAccessCodes() {

@@ -709,6 +709,16 @@ class SearchManager {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
             );
+            // Composition search results are reduced by CompositionLatestVersionTransform when
+            // dedup is enabled (duplicates from the two generators collapsed to one per subject +
+            // type), so a plain document count over-counts relative to what's actually returned.
+            // Count distinct dedup groups instead so bundle.total matches the entries a client
+            // actually gets back.
+            if (resourceType === 'Composition' && this.configManager.enableCompositionLatestVersionDedup) {
+                return await this.getCompositionLatestVersionDedupedTotalAsync(
+                    { databaseQueryManager, query, maxMongoTimeMS, extraInfo }
+                );
+            }
             return await databaseQueryManager.exactDocumentCountAsync({
                 query,
                 options: { maxTimeMS: maxMongoTimeMS },
@@ -720,6 +730,49 @@ class SearchManager {
                 error: e
             });
         }
+    }
+
+    /**
+     * Counts Composition search results the same way CompositionLatestVersionTransform reduces
+     * them: documents whose meta.source matches a known dedup-eligible generator are grouped by
+     * (subject.reference, type.coding[0].code) and counted once per group; everything else
+     * (including legacy V1 Compositions) counts individually via its own _uuid.
+     * @param {import('../../dataLayer/databaseQueryManager').DatabaseQueryManager} databaseQueryManager
+     * @param {Object} query
+     * @param {number} maxMongoTimeMS
+     * @param {Object} extraInfo
+     * @return {Promise<number>}
+     */
+    async getCompositionLatestVersionDedupedTotalAsync ({ databaseQueryManager, query, maxMongoTimeMS, extraInfo }) {
+        const dedupEligibleSources = this.configManager.compositionLatestVersionSources;
+        const pipeline = [
+            { $match: query },
+            {
+                $group: {
+                    _id: {
+                        $cond: [
+                            { $in: ['$meta.source', dedupEligibleSources] },
+                            {
+                                subject: '$subject.reference',
+                                type: { $arrayElemAt: ['$type.coding.code', 0] }
+                            },
+                            '$_uuid'
+                        ]
+                    }
+                }
+            },
+            { $count: 'total' }
+        ];
+        const cursor = await databaseQueryManager.findUsingAggregationAsync({
+            query: pipeline,
+            options: { maxTimeMS: maxMongoTimeMS },
+            extraInfo: { ...extraInfo, matchQueryProvided: true }
+        });
+        if (await cursor.hasNext()) {
+            const doc = await cursor.next();
+            return doc.total || 0;
+        }
+        return 0;
     }
 
     /**
@@ -921,7 +974,8 @@ class SearchManager {
                         {
                             signal: ac.signal,
                             highWaterMark,
-                            configManager: this.configManager
+                            configManager: this.configManager,
+                            defaultSortId: this.configManager.defaultSortId
                         }
                     )
                 );
@@ -1176,17 +1230,20 @@ class SearchManager {
             ];
             // scoped to Composition only: two independent, intentionally different generators
             // can each write a Composition for the same subject + type, so only this resource
-            // type ever needs latest-version dedup. Note this defers the first byte written to
-            // the response until the whole cursor drains for Composition searches specifically,
-            // since the winner per group can't be known until every candidate has been seen --
-            // acceptable here because Composition searches are person-scoped (small result sets).
+            // type ever needs latest-version dedup. A Composition search is NOT guaranteed to be
+            // patient-scoped (a service-account/tenant-scoped search or NDJSON export can span
+            // many subjects), so this defers the first byte written to the response until either
+            // the whole cursor drains or compositionLatestVersionMaxGroups distinct (subject,
+            // type) groups have been buffered, whichever comes first -- see
+            // CompositionLatestVersionTransform for the bounded-memory fallback.
             if (resourceType === 'Composition') {
                 pipelineStages.push(
                     new CompositionLatestVersionTransform(
                         {
                             signal: ac.signal,
                             highWaterMark,
-                            configManager: this.configManager
+                            configManager: this.configManager,
+                            defaultSortId: this.configManager.defaultSortId
                         }
                     )
                 );
