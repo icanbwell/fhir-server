@@ -79,6 +79,68 @@ describe('ClinicalNoteTextRetriever.getReassembledTextAsync', () => {
         expect(text).toBeNull();
     });
 
+    test('returns null (does not throw) when getFhirNotesDbAsync returns null (e.g. connection unavailable)', async () => {
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => null };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const text = await retriever.getReassembledTextAsync({
+            chunkGroupId: 'docRef123-0', resourceType: 'DocumentReference', sourceAssigningAuthority: 'client'
+        });
+
+        expect(text).toBeNull();
+    });
+
+    test('fails closed (returns null) when fewer chunks are found than meta.total_chunks reports, rather than serving a truncated note', async () => {
+        // A note read while the vector store is mid-reindex (some chunks written, others not
+        // yet) must not silently return a partial document -- see the design doc's revision (d),
+        // point 8.
+        const docs = [
+            { meta: { chunk_index: 0, total_chunks: 3 }, text: 'first. ' },
+            { meta: { chunk_index: 1, total_chunks: 3 }, text: 'second. ' }
+        ];
+        const fakeCollection = { find: () => ({ sort: () => ({ toArray: async () => docs }) }) };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const text = await retriever.getReassembledTextAsync({
+            chunkGroupId: 'docRef123-0', resourceType: 'DocumentReference', sourceAssigningAuthority: 'client'
+        });
+
+        expect(text).toBeNull();
+    });
+
+    test('returns the concatenated text when the chunk count matches meta.total_chunks', async () => {
+        const docs = [
+            { meta: { chunk_index: 0, total_chunks: 2 }, text: 'first. ' },
+            { meta: { chunk_index: 1, total_chunks: 2 }, text: 'second. ' }
+        ];
+        const fakeCollection = { find: () => ({ sort: () => ({ toArray: async () => docs }) }) };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const text = await retriever.getReassembledTextAsync({
+            chunkGroupId: 'docRef123-0', resourceType: 'DocumentReference', sourceAssigningAuthority: 'client'
+        });
+
+        expect(text).toEqual('first. second. ');
+    });
+
+    test('does not fail closed when meta.total_chunks is absent (older/unrelated data shape)', async () => {
+        const docs = [{ meta: { chunk_index: 0 }, text: 'only chunk' }];
+        const fakeCollection = { find: () => ({ sort: () => ({ toArray: async () => docs }) }) };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const text = await retriever.getReassembledTextAsync({
+            chunkGroupId: 'docRef123-0', resourceType: 'DocumentReference', sourceAssigningAuthority: 'client'
+        });
+
+        expect(text).toEqual('only chunk');
+    });
+
     test('does not return chunks belonging to a different resourceType with the same raw chunkGroupId (Finding 4)', async () => {
         // Simulates two different resources -- a DocumentReference and a DiagnosticReport --
         // that happen to share the same raw id string "shared1", and therefore the same
@@ -402,5 +464,16 @@ describe('ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync', () => {
 
         expect(binAText).toEqual('binA derived text');
         expect(binBText).toEqual('binB derived text');
+    });
+
+    test('returns null (does not throw) when getFhirNotesDbAsync returns null (e.g. connection unavailable)', async () => {
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => null };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const text = await retriever.getReassembledTextForBinaryAsync({
+            binaryReference: 'Binary/bin789', sourceAssigningAuthority: 'client'
+        });
+
+        expect(text).toBeNull();
     });
 });

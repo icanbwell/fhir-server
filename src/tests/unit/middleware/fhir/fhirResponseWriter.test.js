@@ -449,9 +449,9 @@ describe('FhirResponseWriter', () => {
     });
 
     describe('readOne with _format=text/plain', () => {
-        function makeReq ({ format, base_version = '4_0_0' }) {
+        function makeReq ({ format, base_version = '4_0_0', version_id }) {
             return {
-                params: { base_version },
+                params: version_id ? { base_version, version_id } : { base_version },
                 sanitized_args: format ? { _format: format } : {},
                 id: null
             };
@@ -495,6 +495,30 @@ describe('FhirResponseWriter', () => {
             expect(res._status).toEqual(200);
             expect(res._sentText).toEqual('the extracted note text');
             expect(res._json).toBeNull();
+        });
+
+        test('falls through to normal JSON (does not resolve derived text) for a vread with _format=text/plain', async () => {
+            // The vector store only stores the latest indexed text per chunk_group_id, with no
+            // version component -- GET .../_history/{version_id}?_format=text/plain must not
+            // silently serve current-version text for a request asking about a specific
+            // historical version (design doc revision (d), point 7).
+            const clinicalNoteTextRetriever = {
+                getReassembledTextAsync: async () => { throw new Error('should not be called for a vread'); }
+            };
+            const configManager = { fhirNotesFullTextSearchConfigured: true };
+            const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+            const resource = {
+                resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }],
+                meta: { ...makeSecurityMeta(), versionId: '1', lastUpdated: '2026-01-01T00:00:00Z' }
+            };
+            const res = makeRes();
+
+            await writer.readOne({
+                req: makeReq({ format: 'text/plain', version_id: '1' }), res, resource
+            });
+
+            expect(res._json).toEqual(resource);
+            expect(res._sentText).toBeNull();
         });
 
         test('returns reassembled text for a DiagnosticReport (presentedForm) when _format=text/plain', async () => {
