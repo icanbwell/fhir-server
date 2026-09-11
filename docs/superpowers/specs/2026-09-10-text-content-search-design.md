@@ -157,10 +157,8 @@ already proven authorized for that exact resource — the vector store is used p
 
 ### Cross-cluster connection
 
-- **New config**: `FHIR_NOTES_MONGO_URI`, `FHIR_NOTES_MONGO_DATABASE`,
-  `FHIR_NOTES_MONGO_COLLECTION` (mirrors `fhir-notes-vector-store`'s own
-  `mongo_vector_uri`/`mongo_vector_database`/`mongo_vector_embeddings_collection` naming, prefixed
-  to avoid confusion since this is a *different* service's env), plus
+- **New config**: `FHIR_NOTES_MONGO_URL`, `FHIR_NOTES_MONGO_DB_NAME`,
+  `FHIR_NOTES_MONGO_COLLECTION_NAME` (for the vector-store's MongoDB connection), plus
   `FHIR_NOTES_TEXT_SEARCH_INDEX_NAME` for the Atlas Search index name that repo already created.
   The index name is config, not a hardcoded string — it's a cross-repo contract, and if the owning
   team ever renames/recreates it, an env change should fix this side without a code deploy.
@@ -334,9 +332,9 @@ authorized to read that specific `Binary`.
 
 | Env var | Purpose |
 |---|---|
-| `FHIR_NOTES_MONGO_URI` | Connection string for the (read-only) `fhir-notes-vector-store` Mongo cluster |
-| `FHIR_NOTES_MONGO_DATABASE` | Database name on that cluster |
-| `FHIR_NOTES_MONGO_COLLECTION` | Collection name (the `ClinicalNote` collection) |
+| `FHIR_NOTES_MONGO_URL` | Connection string for the (read-only) `fhir-notes-vector-store` Mongo cluster |
+| `FHIR_NOTES_MONGO_DB_NAME` | Database name on that cluster |
+| `FHIR_NOTES_MONGO_COLLECTION_NAME` | Collection name (the `ClinicalNote` collection) |
 | `FHIR_NOTES_TEXT_SEARCH_INDEX_NAME` | Atlas Search index name already created by that service |
 | `ENABLE_FULL_TEXT_SEARCH` | Explicit on/off flag for the whole feature, independent of the connection vars above |
 

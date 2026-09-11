@@ -228,13 +228,15 @@ For `_content` search to be available, all of the following environment variable
 
 | Environment Variable | Purpose |
 |---|---|
-| `FHIR_NOTES_MONGO_URI` | Connection string for the clinical notes MongoDB cluster |
-| `FHIR_NOTES_MONGO_DATABASE` | Database name on that cluster |
-| `FHIR_NOTES_MONGO_COLLECTION` | Collection name (the `ClinicalNote` collection) |
+| `FHIR_NOTES_MONGO_URL` | Connection string for the clinical notes MongoDB cluster |
+| `FHIR_NOTES_MONGO_DB_NAME` | Database name on that cluster |
+| `FHIR_NOTES_MONGO_COLLECTION_NAME` | Collection name (the `ClinicalNote` collection) |
 | `FHIR_NOTES_TEXT_SEARCH_INDEX_NAME` | Atlas Search index name (e.g., `fhir-notes-text-search`) |
 | `ENABLE_FULL_TEXT_SEARCH` | Feature flag; set to `1` to enable (must be set to `1` in addition to the above) |
 
 All four connection variables **and** the `ENABLE_FULL_TEXT_SEARCH` flag must be configured for the feature to be active. If any are missing or the flag is not set to `1`, requests with `_content` will return a `BadRequestError`.
+
+**Optional variables:** You can also set `FHIR_NOTES_MONGO_USERNAME` and `FHIR_NOTES_MONGO_PASSWORD` to embed credentials into the connection string, and `FHIR_NOTES_MIN_POOL_SIZE`, `FHIR_NOTES_MAX_POOL_SIZE`, `FHIR_NOTES_MONGO_CONNECT_TIMEOUT`, and `FHIR_NOTES_MONGO_SERVER_SELECTION_TIMEOUT` to tune connection pooling and timeouts (these have sensible defaults if not specified).
 
 #### Supported Resource Types
 
