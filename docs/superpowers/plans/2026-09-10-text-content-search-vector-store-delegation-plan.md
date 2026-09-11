@@ -1252,7 +1252,16 @@ git commit -m "feat: add ClinicalNoteTextRetriever for chunk reassembly"
 
 ---
 
-## Task 8: `AttachmentTextEnrichmentProvider` (`DocumentReference` / `DiagnosticReport`)
+## Task 8: `AttachmentTextEnrichmentProvider` (`DocumentReference` / `DiagnosticReport`) — SUPERSEDED
+
+> **This task's deliverable was built, reviewed, and approved, then removed.** A final
+> whole-branch review found that its trigger (`_content=` empty value) never actually reaches this
+> provider in production — `r4ArgsParser.js` drops every empty-string query parameter value before
+> a `ParsedArgsItem` is ever created, so every test for this provider had exercised a
+> `ParsedArgsItem` shape the real parser can never produce. See the design spec's Revision History
+> (2026-09-10 (b)) for the full explanation. **Task 11 removes this provider entirely** and
+> replaces its capability with `_format=text/plain` content negotiation in the response-writing
+> layer. The task text below is kept for historical record — do not implement it.
 
 **Files:**
 - Create: `src/enrich/providers/attachmentTextEnrichmentProvider.js`
@@ -1585,7 +1594,17 @@ git commit -m "feat: add AttachmentTextEnrichmentProvider for derived-text reads
 
 ---
 
-## Task 9: `BinaryDerivedTextEnrichmentProvider` (`Binary` reverse lookup)
+## Task 9: `BinaryDerivedTextEnrichmentProvider` (`Binary` reverse lookup) — SUPERSEDED
+
+> **This task's deliverable was built, reviewed, and approved, then removed.** A final
+> whole-branch review found that `Binary` extends `Resource`, not `DomainResource`, in FHIR R4 — it
+> has no `extension` element at all, so the top-level extension this provider wrote was silently
+> dropped by `toJSON()` on every response; the derived text never actually reached a caller. See
+> the design spec's Revision History (2026-09-10 (b)). **Task 11 removes this provider entirely**
+> and replaces its capability with `_format=text/plain` content negotiation, reusing
+> `ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync` (Task 7, unchanged and still valid)
+> from the response-writing layer instead. The task text below is kept for historical record — do
+> not implement it.
 
 **Files:**
 - Create: `src/enrich/providers/binaryDerivedTextEnrichmentProvider.js`
@@ -1817,6 +1836,569 @@ case and the `Binary` top-level-extension case.
 ```bash
 git add readme/cheatsheet.md
 git commit -m "docs: document _content search and derived-text enrichment"
+```
+
+---
+
+## Task 11: Replace enrichment providers with `_format=text/plain` delivery
+
+> **Context:** A final whole-branch review of Tasks 1-10 found that Task 8's
+> `AttachmentTextEnrichmentProvider` and Task 9's `BinaryDerivedTextEnrichmentProvider` are dead
+> code in production — their trigger (`_content=` empty value) is stripped by `r4ArgsParser.js`
+> before a `ParsedArgsItem` is ever created (this parser drops every empty-string query parameter
+> value, for every parameter — not `_content`-specific), and separately, `Binary` has no
+> `extension` element in FHIR R4 (it extends `Resource`, not `DomainResource`), so the derived text
+> the Binary provider wrote was silently dropped by `toJSON()` regardless. See the design spec's
+> Revision History (2026-09-10 (b)) for the full account. This task removes both providers and
+> replaces their capability with `_format=text/plain` content negotiation in the response-writing
+> layer — a normal, non-empty query parameter value that needs no special-casing in the parser, and
+> a response format that never touches the resource's JSON shape at all.
+
+**Files:**
+- Delete: `src/enrich/providers/attachmentTextEnrichmentProvider.js`,
+  `src/tests/unit/enrich/providers/attachmentTextEnrichmentProvider.test.js`
+- Delete: `src/enrich/providers/binaryDerivedTextEnrichmentProvider.js`,
+  `src/tests/unit/enrich/providers/binaryDerivedTextEnrichmentProvider.test.js`
+- Modify: `src/createContainer.js` (remove `attachmentTextEnrichmentProvider`/
+  `binaryDerivedTextEnrichmentProvider` registrations and their two `require`s; remove both from
+  the `enrichmentManager`'s `enrichmentProviders` array; **keep** the `clinicalNoteTextRetriever`
+  registration — this task reuses it directly)
+- Modify: `src/utils/contentTypes.js` (add a `plainText` format + `hasPlainTextContentType` helper)
+- Modify: `src/middleware/fhir/fhirResponseWriter.js` (add a constructor, add the `_format`
+  branch to `readOne`)
+- Modify: `src/createContainer.js` (update the `fhirResponseWriter` registration to inject
+  `clinicalNoteTextRetriever`/`configManager`)
+- Modify: `src/tests/unit/middleware/fhir/fhirResponseWriter.test.js:24` (existing bare
+  `new FhirResponseWriter()` construction — add the new constructor deps)
+- Test: `src/tests/unit/utils/contentTypes.test.js` (new, or add to an existing test file if one
+  already covers `contentTypes.js` — check first)
+- Test: extend `src/tests/unit/middleware/fhir/fhirResponseWriter.test.js` with the new `readOne`
+  behavior (Step 1 below)
+
+**Interfaces:**
+- Consumes: `ClinicalNoteTextRetriever.getReassembledTextAsync`/`getReassembledTextForBinaryAsync`
+  (Task 7, unchanged), `configManager.fhirNotesFullTextSearchConfigured` (Task 3, unchanged).
+- Produces: `hasPlainTextContentType(text): boolean` (mirrors `hasCsvContentType`'s exact shape),
+  and `FhirResponseWriter.readOne`'s new behavior — no new public methods beyond that.
+
+**Verified facts this task's implementation relies on** (confirmed by direct code reading, not
+assumed — re-verify if anything looks different by the time you implement this):
+- `req.sanitized_args` (available on `req` inside `readOne` already, since `readOne` already
+  receives `req`) is the raw merged query/path-param object set by
+  `src/middleware/fhir/utils/getArgs.utils.js:61` — `req.sanitized_args._format` gives the raw
+  `_format` string with **no signature changes needed anywhere upstream** of `readOne`.
+  `resource.resourceType` is already on the resource object passed into `readOne` — no need to
+  thread `resourceType` through separately either.
+- `FhirResponseWriter` currently has no explicit constructor (implicit default) and is constructed
+  in exactly two places: `src/createContainer.js:1092` (`new FhirResponseWriter()`) and
+  `src/tests/unit/middleware/fhir/fhirResponseWriter.test.js:24` (`new FhirResponseWriter()`) — both
+  need updating, low blast radius.
+- Single-resource reads (`searchById`/`searchByVersionId`) both call `readOne`
+  (`src/middleware/fhir/4_0_0/controllers/generic.controller.js`) — this task's change applies to
+  both automatically, which is correct (a `GET .../{id}/_history/{vid}?_format=text/plain` should
+  behave the same way as a plain read).
+
+- [ ] **Step 1: Write the failing tests**
+
+`src/tests/unit/utils/contentTypes.test.js` (check first whether a test file for `contentTypes.js`
+already exists elsewhere — if so, add to it instead of creating a new one):
+
+```js
+const { describe, test, expect } = require('@jest/globals');
+const { hasPlainTextContentType, fhirContentTypes } = require('../../../utils/contentTypes');
+
+describe('hasPlainTextContentType', () => {
+    test('matches the plainText content type exactly', () => {
+        expect(hasPlainTextContentType(fhirContentTypes.plainText)).toBe(true);
+        expect(hasPlainTextContentType('text/plain')).toBe(true);
+    });
+
+    test('does not match other content types', () => {
+        expect(hasPlainTextContentType('application/fhir+json')).toBe(false);
+        expect(hasPlainTextContentType('text/csv')).toBe(false);
+    });
+
+    test('returns false for empty/undefined input', () => {
+        expect(hasPlainTextContentType('')).toBe(false);
+        expect(hasPlainTextContentType(undefined)).toBe(false);
+    });
+
+    test('matches within an array (multi-valued _format)', () => {
+        expect(hasPlainTextContentType(['application/fhir+json', 'text/plain'])).toBe(true);
+    });
+});
+```
+
+Add to `src/tests/unit/middleware/fhir/fhirResponseWriter.test.js` (read the existing file first —
+it already constructs `new FhirResponseWriter()` bare at line 24; you'll need to build test doubles
+for the two new constructor deps and pass them in, following whatever mocking convention that file
+already uses elsewhere, or a plain stub object if it's a very simple file):
+
+```js
+describe('readOne with _format=text/plain', () => {
+    function makeReq ({ format, base_version = '4_0_0' }) {
+        return {
+            params: { base_version },
+            sanitized_args: format ? { _format: format } : {},
+            id: null
+        };
+    }
+    function makeRes () {
+        const res = {
+            _status: null, _type: null, _sentText: null, _json: null, headersSent: false,
+            set: () => res,
+            setHeader: () => res,
+            type: function (t) { this._type = t; return this; },
+            status: function (s) { this._status = s; return this; },
+            json: function (body) { this._json = body; return this; },
+            send: function (body) { this._sentText = body; return this; },
+            sendStatus: function (s) { this._status = s; return this; }
+        };
+        return res;
+    }
+
+    test('returns reassembled text for a DocumentReference when _format=text/plain', async () => {
+        const clinicalNoteTextRetriever = {
+            getReassembledTextAsync: async ({ chunkGroupId }) =>
+                chunkGroupId === 'doc1-0' ? 'the extracted note text' : null
+        };
+        const configManager = { fhirNotesFullTextSearchConfigured: true };
+        const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+        const resource = { resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }] };
+        const res = makeRes();
+
+        await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+        expect(res._type).toEqual('text/plain');
+        expect(res._status).toEqual(200);
+        expect(res._sentText).toEqual('the extracted note text');
+        expect(res._json).toBeNull();
+    });
+
+    test('returns reassembled text for a Binary when _format=text/plain', async () => {
+        const clinicalNoteTextRetriever = {
+            getReassembledTextForBinaryAsync: async ({ binaryReference }) =>
+                binaryReference === 'Binary/bin789' ? 'binary derived text' : null
+        };
+        const configManager = { fhirNotesFullTextSearchConfigured: true };
+        const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+        const resource = { resourceType: 'Binary', id: 'bin789', contentType: 'application/pdf', data: 'JVBER...' };
+        const res = makeRes();
+
+        await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+        expect(res._sentText).toEqual('binary derived text');
+        // original Binary fields untouched in the resource object itself
+        expect(resource.contentType).toEqual('application/pdf');
+    });
+
+    test('returns an empty text/plain body (200) when the resource has no derived text yet', async () => {
+        const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => null };
+        const configManager = { fhirNotesFullTextSearchConfigured: true };
+        const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+        const resource = { resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }] };
+        const res = makeRes();
+
+        await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+        expect(res._status).toEqual(200);
+        expect(res._sentText).toEqual('');
+        expect(res._json).toBeNull();
+    });
+
+    test('falls through to normal JSON when the feature is not configured', async () => {
+        const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => { throw new Error('should not be called'); } };
+        const configManager = { fhirNotesFullTextSearchConfigured: false };
+        const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+        const resource = { resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }] };
+        const res = makeRes();
+
+        await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+        expect(res._json).toEqual(resource);
+        expect(res._sentText).toBeNull();
+    });
+
+    test('falls through to normal JSON for an unsupported resourceType', async () => {
+        const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => { throw new Error('should not be called'); } };
+        const configManager = { fhirNotesFullTextSearchConfigured: true };
+        const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+        const resource = { resourceType: 'Patient', id: 'p1', name: [] };
+        const res = makeRes();
+
+        await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+        expect(res._json).toEqual(resource);
+    });
+
+    test('normal JSON path is completely unaffected when _format is absent', async () => {
+        const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => { throw new Error('should not be called'); } };
+        const configManager = { fhirNotesFullTextSearchConfigured: true };
+        const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+        const resource = { resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }] };
+        const res = makeRes();
+
+        await writer.readOne({ req: makeReq({}), res, resource });
+
+        expect(res._json).toEqual(resource);
+        expect(res._sentText).toBeNull();
+    });
+
+    test('concatenates text across multiple attachments with a blank line', async () => {
+        const clinicalNoteTextRetriever = {
+            getReassembledTextAsync: async ({ chunkGroupId }) => ({
+                'doc1-0': 'first attachment text',
+                'doc1-1': 'second attachment text'
+            }[chunkGroupId] || null)
+        };
+        const configManager = { fhirNotesFullTextSearchConfigured: true };
+        const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+        const resource = {
+            resourceType: 'DocumentReference', id: 'doc1',
+            content: [{ attachment: {} }, { attachment: {} }]
+        };
+        const res = makeRes();
+
+        await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+        expect(res._sentText).toEqual('first attachment text\n\nsecond attachment text');
+    });
+});
+```
+
+- [ ] **Step 2: Run tests to verify they fail**
+
+Run:
+```
+nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/utils/contentTypes.test.js src/tests/unit/middleware/fhir/fhirResponseWriter.test.js -v
+```
+Expected: FAIL — `hasPlainTextContentType` doesn't exist; `FhirResponseWriter` constructor doesn't accept the new deps yet.
+
+- [ ] **Step 3: Delete the superseded providers**
+
+```bash
+git rm src/enrich/providers/attachmentTextEnrichmentProvider.js \
+    src/tests/unit/enrich/providers/attachmentTextEnrichmentProvider.test.js \
+    src/enrich/providers/binaryDerivedTextEnrichmentProvider.js \
+    src/tests/unit/enrich/providers/binaryDerivedTextEnrichmentProvider.test.js
+```
+
+In `src/createContainer.js`: remove the `require`s for `AttachmentTextEnrichmentProvider` and
+`BinaryDerivedTextEnrichmentProvider`, remove their two `container.register(...)` calls, and remove
+`c.attachmentTextEnrichmentProvider`/`c.binaryDerivedTextEnrichmentProvider` from the
+`enrichmentManager`'s `enrichmentProviders` array. **Do not remove** the `clinicalNoteTextRetriever`
+registration — this task's own `FhirResponseWriter` wiring (Step 5) needs it.
+
+- [ ] **Step 4: Add `hasPlainTextContentType` to `contentTypes.js`**
+
+In `src/utils/contentTypes.js`, add to the `fhirContentTypes` object:
+```js
+plainText: 'text/plain',
+```
+and add, following the exact shape of `hasCsvContentType`:
+```js
+/**
+ * @param {string[]|string} text
+ * @returns {boolean}
+ */
+const hasPlainTextContentType = (text) => {
+    if (!text) {
+        return false;
+    }
+    const text_url_decoded = decodeURIComponent(text);
+    if (Array.isArray(text_url_decoded)) {
+        return text_url_decoded.some(item => item === fhirContentTypes.plainText);
+    }
+    return text_url_decoded === fhirContentTypes.plainText;
+};
+```
+Add `hasPlainTextContentType` to the file's `module.exports`.
+
+- [ ] **Step 5: Add `_format=text/plain` handling to `FhirResponseWriter`**
+
+In `src/middleware/fhir/fhirResponseWriter.js`, add imports:
+```js
+const { hasPlainTextContentType } = require('../../utils/contentTypes');
+const { logWarn } = require('../../operations/common/logging');
+```
+
+Add a constructor and the resourceType allowlist:
+```js
+const PLAIN_TEXT_SUPPORTED_RESOURCE_TYPES = new Set(['DocumentReference', 'DiagnosticReport', 'Binary']);
+
+class FhirResponseWriter {
+    /**
+     * @param {Object} params
+     * @param {import('../../utils/clinicalNoteTextRetriever').ClinicalNoteTextRetriever} params.clinicalNoteTextRetriever
+     * @param {import('../../utils/configManager').ConfigManager} params.configManager
+     */
+    constructor ({ clinicalNoteTextRetriever, configManager }) {
+        this.clinicalNoteTextRetriever = clinicalNoteTextRetriever;
+        this.configManager = configManager;
+    }
+
+    // ...existing getContentType() unchanged...
+```
+
+Modify `readOne` — insert the new branch before the existing `if (resource) { res.status(200).json(resource); }`:
+```js
+readOne ({ req, res, resource }) {
+    const fhirVersion = req.params.base_version;
+
+    if (resource && resource.meta) {
+        res.set('Last-Modified', resource.meta.lastUpdated);
+        res.set('ETag', `W/"${resource.meta.versionId}"`);
+    }
+
+    if (!res.headersSent) {
+        res.type(this.getContentType(fhirVersion));
+    }
+    if (req.id && !res.headersSent) {
+        res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
+    }
+
+    if (!resource) {
+        res.sendStatus(404);
+        return;
+    }
+
+    const format = req.sanitized_args && req.sanitized_args._format;
+    if (hasPlainTextContentType(format) &&
+        PLAIN_TEXT_SUPPORTED_RESOURCE_TYPES.has(resource.resourceType) &&
+        this.configManager.fhirNotesFullTextSearchConfigured) {
+        res.status(200).type('text/plain');
+        this.resolveDerivedTextAsync({ resource }).then(text => {
+            res.send(text || '');
+        }).catch(e => {
+            logWarn(`Failed to resolve derived text for ${resource.resourceType}/${resource.id}`, { error: e });
+            res.send('');
+        });
+        return;
+    }
+
+    res.status(200).json(resource);
+}
+
+/**
+ * @param {Object} params
+ * @param {Resource} params.resource
+ * @returns {Promise<string>}
+ */
+async resolveDerivedTextAsync ({ resource }) {
+    if (resource.resourceType === 'Binary') {
+        return (await this.clinicalNoteTextRetriever.getReassembledTextForBinaryAsync({
+            binaryReference: `Binary/${resource.id}`
+        })) || '';
+    }
+    const attachmentArray = resource.resourceType === 'DocumentReference'
+        ? resource.content
+        : resource.presentedForm;
+    if (!Array.isArray(attachmentArray)) {
+        return '';
+    }
+    const texts = [];
+    for (let index = 0; index < attachmentArray.length; index++) {
+        const text = await this.clinicalNoteTextRetriever.getReassembledTextAsync({
+            chunkGroupId: `${resource.id}-${index}`
+        });
+        if (text) {
+            texts.push(text);
+        }
+    }
+    return texts.join('\n\n');
+}
+```
+
+**Note the change from synchronous to asynchronous response writing**: `readOne`'s existing callers
+(`GenericController.searchById`/`searchByVersionId`) call it synchronously
+(`this.fhirResponseWriter.readOne({ req, res, resource });`, no `await`) and rely on it writing the
+response before returning. The `.then()`/`.catch()` chain above still writes the response
+eventually, but `readOne` itself now returns before the response is sent in the `text/plain` case.
+**Before finalizing this step, verify this doesn't race with anything in `GenericController`'s
+`finally` block** (which runs `postRequestProcessor.executeAsync`/`requestSpecificCache.clearAsync`
+after calling `readOne`) — if request-scoped cache is cleared before the async
+`resolveDerivedTextAsync` call resolves and it depends on that cache, this would break. The
+simplest fix if that's a real risk: make `readOne` itself `async` and have both call sites
+`await this.fhirResponseWriter.readOne(...)` instead of calling it synchronously — check both call
+sites in `generic.controller.js` and update them consistently if you take this route.
+
+In `src/createContainer.js`, update the `fhirResponseWriter` registration:
+```js
+container.register('fhirResponseWriter', (c) => new FhirResponseWriter({
+    clinicalNoteTextRetriever: c.clinicalNoteTextRetriever,
+    configManager: c.configManager
+}));
+```
+
+Update `src/tests/unit/middleware/fhir/fhirResponseWriter.test.js:24`'s existing
+`new FhirResponseWriter()` call to pass stub `clinicalNoteTextRetriever`/`configManager` objects
+(read the surrounding test file first to match its existing conventions), so the file's other,
+pre-existing tests (which don't exercise `_format=text/plain` at all) keep passing unmodified.
+
+- [ ] **Step 6: Run tests to verify they pass**
+
+```
+nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/utils/contentTypes.test.js src/tests/unit/middleware/fhir/fhirResponseWriter.test.js -v
+```
+Expected: PASS. Also run the full `src/tests/unit/enrich` and `src/tests/unit/middleware` suites to
+confirm the provider deletion and `FhirResponseWriter` constructor change didn't break anything
+else:
+```
+nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/enrich src/tests/unit/middleware -v
+```
+
+- [ ] **Step 7: Integration-level test using the real parser**
+
+The whole reason Tasks 8/9's tests missed the empty-`_content` defect is that they hand-built
+`ParsedArgsItem`s instead of going through the real request-parsing path. Add at least one test
+(integration-level, or a focused unit test that constructs args the way `getArgsMiddleware`/
+`R4ArgsParser` actually would — e.g. a plain `{ id: 'doc1', _format: 'text/plain' }` object passed
+through the real parsing chain if that's feasible without full HTTP infrastructure, or a real
+supertest-style HTTP integration test if this repo's existing integration test conventions make
+that straightforward) that proves `GET DocumentReference/{id}?_format=text/plain` produces a
+`text/plain` response end-to-end, not just that `FhirResponseWriter.readOne` behaves correctly in
+isolation with hand-built inputs. If a true end-to-end HTTP test is impractical within this task's
+scope, at minimum confirm via `R4ArgsParser`/`getArgsMiddleware` directly that `_format=text/plain`
+survives parsing and lands on `req.sanitized_args`/`parsedArgs` as expected — do not rely solely on
+another hand-built object matching what you assume the real pipeline produces.
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add src/enrich/providers src/tests/unit/enrich/providers src/createContainer.js \
+    src/utils/contentTypes.js src/tests/unit/utils/contentTypes.test.js \
+    src/middleware/fhir/fhirResponseWriter.js src/tests/unit/middleware/fhir/fhirResponseWriter.test.js
+git commit -m "feat: replace _content-triggered enrichment with _format=text/plain delivery"
+```
+
+---
+
+## Task 12: Fix `_content` search's flag-off/allowlist ordering
+
+**Files:**
+- Modify: `src/operations/search/searchManager.js` (`buildContentSearchIdFilterAsync`)
+- Modify: `src/tests/unit/operations/search/searchManager.test.js` (add/adjust tests)
+- Modify: `readme/cheatsheet.md` (correct the now-stale `_content=` empty-value / extension-marker
+  documentation from Task 10, to describe `_format=text/plain` instead — see Task 11's design)
+
+**Context:** the final whole-branch review found that `buildContentSearchIdFilterAsync`
+(`src/operations/search/searchManager.js`, built in Task 6) checks the resourceType allowlist and
+the `fhirNotesFullTextSearchConfigured` flag *before* checking whether `_content` even has a
+non-empty value — and, independent of that ordering, checks the allowlist even when
+`ENABLE_FULL_TEXT_SEARCH` is entirely off. On `main` today, `_content` is a recognized-but-unresolved
+parameter that's silently ignored for every resourceType. With the flag off (the default —
+correct rollout posture), that must remain true; instead, today, `_content=<anything>` on an
+unsupported resourceType (or when the connection isn't configured) throws `BadRequestError`
+regardless of the flag, which is a behavior regression on deploy, before anyone has opted in to
+anything.
+
+Additionally, per Task 11's redesign, `_content` is unconditionally a search parameter now — the
+old "empty value means something else" escape hatch (`if (!contentQuery) return null`) was already
+dead code (an empty `_content` value never reaches this function at all, since `r4ArgsParser.js`
+never constructs a `ParsedArgsItem` for it), so it should be deleted rather than reordered.
+
+**Interfaces:** no signature change to `buildContentSearchIdFilterAsync` — same
+`{ resourceType, parsedArgs }` in, same `Promise<import('mongodb').Document|null>` out.
+
+- [ ] **Step 1: Write the failing test**
+
+Read `src/operations/search/searchManager.js`'s current `buildContentSearchIdFilterAsync` first
+(it was written in Task 6) to see its exact current structure before editing. Add this test to the
+existing `describe('SearchManager.buildContentSearchIdFilterAsync', ...)` block in
+`src/tests/unit/operations/search/searchManager.test.js`:
+
+```js
+test('ignores _content silently (returns null) when the feature flag is off, even for an unsupported resourceType', async () => {
+    const searchManager = makeSearchManager({
+        configManager: { fhirNotesFullTextSearchConfigured: false },
+        clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
+    });
+    const result = await searchManager.buildContentSearchIdFilterAsync({
+        resourceType: 'Condition',
+        parsedArgs: makeParsedArgsWithContent('diabetes')
+    });
+    expect(result).toBeNull();
+});
+```
+
+(Reuse the existing `makeSearchManager`/`makeParsedArgsWithContent` helpers already in that test
+file from Task 6 — don't redefine them.)
+
+Also update the existing Task 6 test `'throws BadRequestError for an unsupported resourceType'` —
+it currently constructs `makeSearchManager({ configManager: { fhirNotesFullTextSearchConfigured: true }, ... })`
+already (the flag is already `true` in that test), so it should keep passing unmodified once the
+ordering is fixed; re-run it to confirm rather than assuming.
+
+- [ ] **Step 2: Run the new test to verify it fails**
+
+```
+nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/operations/search/searchManager.test.js -v
+```
+Expected: FAIL on the new test — today's code throws `BadRequestError` regardless of the flag.
+
+- [ ] **Step 3: Fix the ordering in `buildContentSearchIdFilterAsync`**
+
+Reorder so `fhirNotesFullTextSearchConfigured` is checked **before** the resourceType allowlist
+(when the flag is off, `_content` is ignored full stop, regardless of resourceType), and delete the
+now-dead empty-value branch:
+
+```js
+async buildContentSearchIdFilterAsync ({ resourceType, parsedArgs }) {
+    const contentArg = parsedArgs.get('_content');
+    if (!contentArg) {
+        return null;
+    }
+    if (!this.configManager.fhirNotesFullTextSearchConfigured) {
+        return null;
+    }
+    if (!FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.includes(resourceType)) {
+        throw new BadRequestError(new Error(
+            `_content search is not supported for resourceType=${resourceType}. ` +
+            `Supported types: ${FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.join(', ')}`
+        ));
+    }
+    const contentQuery = contentArg.queryParameterValue.value;
+    if (Array.isArray(contentQuery)) {
+        throw new BadRequestError(new Error(
+            '_content does not support multiple repeated values'
+        ));
+    }
+    const candidateIds = await this.clinicalNoteSearchClient.findMatchingResourceIdsAsync({
+        resourceType,
+        contentQuery
+    });
+    return FilterById.getListFilter(candidateIds);
+}
+```
+
+Note this changes the semantics of "not configured" from `BadRequestError` to a silent no-op
+(matching pre-existing `_content` behavior when the feature doesn't exist at all) — this is a
+deliberate correction, not a regression introduced by this fix. Verify against the design spec's
+Error Handling section (updated by this same review round) that this matches the intended posture.
+
+- [ ] **Step 4: Run tests to verify they pass**
+
+```
+nvm use && node node_modules/.bin/jest --config jest.unit.config.js src/tests/unit/operations/search/searchManager.test.js -v
+```
+Expected: PASS, all tests including the pre-existing ones from Task 6.
+
+- [ ] **Step 5: Fix `readme/cheatsheet.md`'s now-stale documentation**
+
+Task 10 documented the empty-`_content=` trigger and the `attachment-derived-text` extension
+marker (both `content[]`-sibling and `Binary`-top-level forms) — all now removed by Task 11. Update
+section 1.10 to describe `_format=text/plain` instead: the same three resource types
+(`DocumentReference`/`DiagnosticReport`/`Binary`), the response is a plain-text HTTP body (not a
+JSON resource with an embedded attachment/extension), and it's restricted to single-resource reads.
+Remove the now-inaccurate `attachment-derived-text` extension JSON examples entirely — read the
+current file first, since Task 10's exact wording needs replacing, not just appending to.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add src/operations/search/searchManager.js src/tests/unit/operations/search/searchManager.test.js \
+    readme/cheatsheet.md
+git commit -m "fix: ignore _content when the feature flag is off, regardless of resourceType"
 ```
 
 ---
