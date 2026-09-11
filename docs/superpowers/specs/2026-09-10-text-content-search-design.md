@@ -372,6 +372,31 @@ posture as an unsupported resourceType) and the enrichment/reverse-lookup trigge
 6. **Config test** — all-four-required-together behavior; each individual missing var falls back
    to "feature not configured" behavior, not a partial/broken state.
 
+## Known Limitation (found during implementation)
+
+The derived-text enrichment gate (`AttachmentTextEnrichmentProvider`/`BinaryDerivedTextEnrichmentProvider`)
+checks whether the request's `parsedArgs` has a single-valued `id`/`_id` param
+(`getOriginal('id') || getOriginal('_id')`), intended to restrict enrichment to true
+single-resource reads. `EnrichmentManager.enrichBundleEntriesAsync` shares one `parsedArgs` across
+every entry in a bundle, so this correctly avoids firing per-entry on a broad *search* result set.
+However, `$everything`/`$graph` traversal (`everythingHelper.js`, `graphHelpers.js`) also share one
+top-level `parsedArgs` (scoped to a single Patient id) across every *descendant* resource gathered
+during traversal — including any `DocumentReference`/`DiagnosticReport` reachable from that
+patient. A request like `Patient/123/$everything?_content=` would satisfy the "single id" gate
+(the Patient's id is singular) while still enriching every reachable document, reintroducing the
+large-response fan-out this gate was designed to prevent — just via graph traversal instead of a
+broad search.
+
+This is **not** a tenant-isolation issue: `$everything`'s own authorization already scopes which
+documents are reachable, so this only affects response size/completeness, not who can see what.
+Deferred as a known limitation rather than fixed in this iteration. The precise fix is to check
+that the request's single id actually matches the *specific resource being enriched*
+(`resource.id === idArg.queryParameterValue.values[0]`, with the same uuid/sourceId handling
+`FilterById` already does), not merely that a single id exists somewhere in the shared
+`parsedArgs` — that would correctly enrich a true single-resource read while correctly declining
+to enrich a descendant resource reached via `$everything`/`$graph` traversal, whose id never
+matches the top-level request's id.
+
 ## Out of Scope
 
 - `_text` (narrative search) — different data source entirely; not addressed here (see
