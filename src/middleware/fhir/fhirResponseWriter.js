@@ -5,6 +5,7 @@ const { REQUEST_ID_TYPE } = require('../../constants');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { hasPlainTextContentType } = require('../../utils/contentTypes');
 const { logWarn } = require('../../operations/common/logging');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 
 /**
  * Resource types for which `_format=text/plain` derived-text delivery (Task 11) is supported.
@@ -194,14 +195,36 @@ class FhirResponseWriter {
     /**
      * Reassembles the derived text for a DocumentReference/DiagnosticReport/Binary resource, via
      * Task 7's ClinicalNoteTextRetriever. Never mutates `resource`.
+     *
+     * A vector-store hit is a candidate, never authoritative on its own -- this extracts the
+     * `sourceAssigningAuthority` tenant tag from the resource's own, already-authorized
+     * `meta.security` (mirrors the exact extraction pattern in
+     * `src/operations/searchById/searchById.js`'s multiple-resources-same-id handling) and
+     * threads it through to the retriever, which uses it as a real discriminator in its Mongo
+     * query -- not a later filter step -- so a same-resourceType, cross-tenant raw-id collision
+     * can never cross-serve another tenant's derived text (see task-11-report.md's Finding 4/5).
+     * If the resource has no sourceAssigningAuthority tag, this fails closed: no lookup is
+     * attempted at all, rather than guessing or falling back to an unscoped query.
      * @param {Object} params
      * @param {Resource} params.resource
      * @returns {Promise<string>}
      */
     async resolveDerivedTextAsync ({ resource }) {
+        const sourceAssigningAuthorities = (resource.meta && resource.meta.security)
+            ? resource.meta.security
+                .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
+                .map(tag => tag.code)
+            : [];
+        const sourceAssigningAuthority = sourceAssigningAuthorities[0];
+        if (!sourceAssigningAuthority) {
+            logWarn(`Refusing derived-text lookup for ${resource.resourceType}/${resource.id}: no sourceAssigningAuthority security tag to scope the lookup by`);
+            return '';
+        }
+
         if (resource.resourceType === 'Binary') {
             return (await this.clinicalNoteTextRetriever.getReassembledTextForBinaryAsync({
-                binaryReference: `Binary/${resource.id}`
+                binaryReference: `Binary/${resource.id}`,
+                sourceAssigningAuthority
             })) || '';
         }
         const attachmentArray = resource.resourceType === 'DocumentReference'
@@ -214,7 +237,8 @@ class FhirResponseWriter {
         for (let index = 0; index < attachmentArray.length; index++) {
             const text = await this.clinicalNoteTextRetriever.getReassembledTextAsync({
                 chunkGroupId: `${resource.id}-${index}`,
-                resourceType: resource.resourceType
+                resourceType: resource.resourceType,
+                sourceAssigningAuthority
             });
             if (text) {
                 texts.push(text);

@@ -1,4 +1,5 @@
 const { logWarn } = require('../operations/common/logging');
+const { SecurityTagSystem } = require('./securityTagSystem');
 
 /**
  * Reassembles chunked clinical-note text from fhir-notes-vector-store's ClinicalNote
@@ -21,27 +22,48 @@ class ClinicalNoteTextRetriever {
      * `chunkGroupId` is built from the resource's raw FHIR `id` (`"{resourceId}-{contentIndex}"`),
      * which -- per IdEnrichmentProvider -- is the resource's raw `_sourceId` where present, not
      * its globally-unique internal `_uuid`. Raw source ids are only guaranteed unique per
-     * (resourceType [+ sourceAssigningAuthority]), not globally, so a `DocumentReference` and a
-     * `DiagnosticReport` (or two different tenants' same-resourceType resources) could share the
-     * same raw id string and collide on `chunk_group_id`. `resourceType` is required and filtered
-     * on (`meta.resource_type`, which the vector store's schema always populates for indexed
-     * chunks) so this can never cross a resourceType boundary. See fhirResponseWriter.js's caller
-     * and task-11-report.md's Finding 4 fix-up for the residual same-resourceType,
-     * cross-sourceAssigningAuthority collision risk this does *not* close.
+     * (resourceType, sourceAssigningAuthority), not globally, so two different tenants'
+     * same-resourceType resources (or a `DocumentReference`/`DiagnosticReport` pair) could share
+     * the same raw id string and collide on `chunk_group_id`.
+     *
+     * A vector-store hit is a candidate, never authoritative on its own (see review.md §E and
+     * task-11-report.md's Finding 4/5 write-ups) -- so this verifies the chunk's own embedded
+     * `debug.resource.meta.security` sourceAssigningAuthority tag matches the caller's
+     * already-authorized `sourceAssigningAuthority`, as a real discriminator in the query itself,
+     * not a later filter step. `resourceType` closes the cross-resourceType collision;
+     * `sourceAssigningAuthority` closes the cross-tenant, same-resourceType collision. If the
+     * caller can't supply a `sourceAssigningAuthority` (the authorized resource has no such
+     * security tag), this fails closed -- no lookup is attempted and `null` is returned, rather
+     * than guessing or falling back to an unscoped query.
      * @param {Object} params
      * @param {string} params.chunkGroupId `"{resourceId}-{contentIndex}"`
      * @param {string} params.resourceType e.g. "DocumentReference" -- must match `meta.resource_type`
+     * @param {string|undefined} params.sourceAssigningAuthority the tenant tag already verified on
+     *   the caller's authorized resource -- required; a falsy value fails closed (no lookup)
      * @returns {Promise<string|null>}
      */
-    async getReassembledTextAsync ({ chunkGroupId, resourceType }) {
+    async getReassembledTextAsync ({ chunkGroupId, resourceType, sourceAssigningAuthority }) {
         if (!this.configManager.fhirNotesFullTextSearchConfigured) {
+            return null;
+        }
+        if (!sourceAssigningAuthority) {
+            logWarn(`Refusing derived-text lookup for chunkGroupId=${chunkGroupId}, resourceType=${resourceType}: no sourceAssigningAuthority to scope the query by`);
             return null;
         }
         try {
             const db = await this.mongoDatabaseManager.getFhirNotesDbAsync();
             const collection = db.collection(this.configManager.fhirNotesMongoCollectionName);
             const chunks = await collection
-                .find({ 'meta.chunk_group_id': chunkGroupId, 'meta.resource_type': resourceType })
+                .find({
+                    'meta.chunk_group_id': chunkGroupId,
+                    'meta.resource_type': resourceType,
+                    'debug.resource.meta.security': {
+                        $elemMatch: {
+                            system: SecurityTagSystem.sourceAssigningAuthority,
+                            code: sourceAssigningAuthority
+                        }
+                    }
+                })
                 .sort({ 'meta.chunk_index': 1 })
                 .toArray();
             if (chunks.length === 0) {
@@ -55,12 +77,21 @@ class ClinicalNoteTextRetriever {
     }
 
     /**
+     * Same tenant-scoping principle as getReassembledTextAsync -- see that method's doc comment.
+     * `sourceAssigningAuthority` here comes from the `Binary` resource's own `meta.security` (the
+     * resource the caller is already authorized to read), and is required in the same way.
      * @param {Object} params
      * @param {string} params.binaryReference e.g. "Binary/abc123"
+     * @param {string|undefined} params.sourceAssigningAuthority the tenant tag already verified on
+     *   the caller's authorized Binary resource -- required; a falsy value fails closed (no lookup)
      * @returns {Promise<string|null>}
      */
-    async getReassembledTextForBinaryAsync ({ binaryReference }) {
+    async getReassembledTextForBinaryAsync ({ binaryReference, sourceAssigningAuthority }) {
         if (!this.configManager.fhirNotesFullTextSearchConfigured) {
+            return null;
+        }
+        if (!sourceAssigningAuthority) {
+            logWarn(`Refusing derived-text reverse-lookup for binaryReference=${binaryReference}: no sourceAssigningAuthority to scope the query by`);
             return null;
         }
         try {
@@ -69,9 +100,21 @@ class ClinicalNoteTextRetriever {
             const collection = db.collection(this.configManager.fhirNotesMongoCollectionName);
             const urlVariants = [`Binary/${binaryId}`, `#${binaryId}`];
             const matches = await collection.find({
-                $or: [
-                    { 'debug.resource.content.attachment.url': { $in: urlVariants } },
-                    { 'debug.resource.presentedForm.url': { $in: urlVariants } }
+                $and: [
+                    {
+                        $or: [
+                            { 'debug.resource.content.attachment.url': { $in: urlVariants } },
+                            { 'debug.resource.presentedForm.url': { $in: urlVariants } }
+                        ]
+                    },
+                    {
+                        'debug.resource.meta.security': {
+                            $elemMatch: {
+                                system: SecurityTagSystem.sourceAssigningAuthority,
+                                code: sourceAssigningAuthority
+                            }
+                        }
+                    }
                 ]
             }).toArray();
             if (matches.length === 0) {

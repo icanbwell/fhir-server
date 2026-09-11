@@ -41,8 +41,12 @@ class TestMongoDatabaseManagerWithFhirNotes extends TestMongoDatabaseManager {
 }
 
 class StubClinicalNoteTextRetriever {
-    async getReassembledTextAsync ({ chunkGroupId, resourceType }) {
-        if (chunkGroupId === '1-0' && resourceType === 'DocumentReference') {
+    // The merge pipeline derives a `sourceAssigningAuthority` security tag (code "client") from
+    // the fixture's `owner` tag -- FhirResponseWriter.resolveDerivedTextAsync extracts and
+    // threads that through as a required tenant discriminator (Finding 5), so the stub must
+    // check it the same way the real retriever's Mongo query would.
+    async getReassembledTextAsync ({ chunkGroupId, resourceType, sourceAssigningAuthority }) {
+        if (chunkGroupId === '1-0' && resourceType === 'DocumentReference' && sourceAssigningAuthority === 'client') {
             return 'the extracted note text';
         }
         return null;

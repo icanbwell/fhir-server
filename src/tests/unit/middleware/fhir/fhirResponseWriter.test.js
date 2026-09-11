@@ -14,6 +14,7 @@ jest.mock('../../../../fhir/fhirResourceSerializer', () => ({
 const httpContext = require('express-http-context');
 const { FhirResponseWriter } = require('../../../../middleware/fhir/fhirResponseWriter');
 const { REQUEST_ID_TYPE } = require('../../../../constants');
+const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 
 describe('FhirResponseWriter', () => {
     let writer;
@@ -468,6 +469,12 @@ describe('FhirResponseWriter', () => {
             };
             return res;
         }
+        // Every resource that's meant to actually reach the retriever needs a
+        // sourceAssigningAuthority security tag -- FhirResponseWriter.resolveDerivedTextAsync
+        // fails closed (no lookup at all) without one (Finding 4/5).
+        function makeSecurityMeta (sourceAssigningAuthority = 'client') {
+            return { security: [{ system: SecurityTagSystem.sourceAssigningAuthority, code: sourceAssigningAuthority }] };
+        }
 
         test('returns reassembled text for a DocumentReference when _format=text/plain', async () => {
             const clinicalNoteTextRetriever = {
@@ -476,7 +483,10 @@ describe('FhirResponseWriter', () => {
             };
             const configManager = { fhirNotesFullTextSearchConfigured: true };
             const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
-            const resource = { resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }] };
+            const resource = {
+                resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }],
+                meta: makeSecurityMeta()
+            };
             const res = makeRes();
 
             await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
@@ -494,7 +504,10 @@ describe('FhirResponseWriter', () => {
             };
             const configManager = { fhirNotesFullTextSearchConfigured: true };
             const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
-            const resource = { resourceType: 'DiagnosticReport', id: 'rep1', presentedForm: [{}] };
+            const resource = {
+                resourceType: 'DiagnosticReport', id: 'rep1', presentedForm: [{}],
+                meta: makeSecurityMeta()
+            };
             const res = makeRes();
 
             await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
@@ -512,7 +525,10 @@ describe('FhirResponseWriter', () => {
             };
             const configManager = { fhirNotesFullTextSearchConfigured: true };
             const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
-            const resource = { resourceType: 'Binary', id: 'bin789', contentType: 'application/pdf', data: 'JVBER...' };
+            const resource = {
+                resourceType: 'Binary', id: 'bin789', contentType: 'application/pdf', data: 'JVBER...',
+                meta: makeSecurityMeta()
+            };
             const res = makeRes();
 
             await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
@@ -526,7 +542,10 @@ describe('FhirResponseWriter', () => {
             const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => null };
             const configManager = { fhirNotesFullTextSearchConfigured: true };
             const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
-            const resource = { resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }] };
+            const resource = {
+                resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }],
+                meta: makeSecurityMeta()
+            };
             const res = makeRes();
 
             await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
@@ -585,7 +604,8 @@ describe('FhirResponseWriter', () => {
             const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
             const resource = {
                 resourceType: 'DocumentReference', id: 'doc1',
-                content: [{ attachment: {} }, { attachment: {} }]
+                content: [{ attachment: {} }, { attachment: {} }],
+                meta: makeSecurityMeta()
             };
             const res = makeRes();
 
@@ -613,16 +633,90 @@ describe('FhirResponseWriter', () => {
             const configManager = { fhirNotesFullTextSearchConfigured: true };
             const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
 
-            const documentReference = { resourceType: 'DocumentReference', id: 'shared1', content: [{ attachment: {} }] };
+            const documentReference = {
+                resourceType: 'DocumentReference', id: 'shared1', content: [{ attachment: {} }],
+                meta: makeSecurityMeta()
+            };
             const documentReferenceRes = makeRes();
             await writer.readOne({ req: makeReq({ format: 'text/plain' }), res: documentReferenceRes, resource: documentReference });
 
-            const diagnosticReport = { resourceType: 'DiagnosticReport', id: 'shared1', presentedForm: [{}] };
+            const diagnosticReport = {
+                resourceType: 'DiagnosticReport', id: 'shared1', presentedForm: [{}],
+                meta: makeSecurityMeta()
+            };
             const diagnosticReportRes = makeRes();
             await writer.readOne({ req: makeReq({ format: 'text/plain' }), res: diagnosticReportRes, resource: diagnosticReport });
 
             expect(documentReferenceRes._sentText).toEqual('doc ref text');
             expect(diagnosticReportRes._sentText).toEqual('diagnostic report text');
+        });
+
+        test('does not cross-serve another tenant\'s text when sourceAssigningAuthority differs (Finding 5)', async () => {
+            // Simulates the real ClinicalNoteTextRetriever's `debug.resource.meta.security`
+            // elemMatch filter: text is only returned when chunkGroupId, resourceType, AND
+            // sourceAssigningAuthority all match. Two different tenants ("tenantA"/"tenantB")
+            // both have a DocumentReference whose raw sourceId happens to be "shared1" -- each
+            // read must only ever get its own tenant's text back.
+            const clinicalNoteTextRetriever = {
+                getReassembledTextAsync: async ({ chunkGroupId, resourceType, sourceAssigningAuthority }) => {
+                    if (chunkGroupId !== 'shared1-0' || resourceType !== 'DocumentReference') {
+                        return null;
+                    }
+                    if (sourceAssigningAuthority === 'tenantA') {
+                        return 'tenant A note text';
+                    }
+                    if (sourceAssigningAuthority === 'tenantB') {
+                        return 'tenant B note text';
+                    }
+                    return null;
+                }
+            };
+            const configManager = { fhirNotesFullTextSearchConfigured: true };
+            const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+
+            const tenantAResource = {
+                resourceType: 'DocumentReference', id: 'shared1', content: [{ attachment: {} }],
+                meta: makeSecurityMeta('tenantA')
+            };
+            const tenantAResponse = makeRes();
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res: tenantAResponse, resource: tenantAResource });
+
+            const tenantBResource = {
+                resourceType: 'DocumentReference', id: 'shared1', content: [{ attachment: {} }],
+                meta: makeSecurityMeta('tenantB')
+            };
+            const tenantBResponse = makeRes();
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res: tenantBResponse, resource: tenantBResource });
+
+            expect(tenantAResponse._sentText).toEqual('tenant A note text');
+            expect(tenantBResponse._sentText).toEqual('tenant B note text');
+        });
+
+        test('fails closed (never calls the retriever) when the resource has no sourceAssigningAuthority tag (Finding 5)', async () => {
+            const clinicalNoteTextRetriever = {
+                getReassembledTextAsync: async () => { throw new Error('should not be called without a sourceAssigningAuthority'); },
+                getReassembledTextForBinaryAsync: async () => { throw new Error('should not be called without a sourceAssigningAuthority'); }
+            };
+            const configManager = { fhirNotesFullTextSearchConfigured: true };
+            const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+
+            // no meta at all
+            const resourceWithNoMeta = { resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }] };
+            const resNoMeta = makeRes();
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res: resNoMeta, resource: resourceWithNoMeta });
+
+            // meta.security present, but with no sourceAssigningAuthority tag
+            const resourceWithOtherTagsOnly = {
+                resourceType: 'DocumentReference', id: 'doc2', content: [{ attachment: {} }],
+                meta: { security: [{ system: SecurityTagSystem.owner, code: 'client' }] }
+            };
+            const resOtherTags = makeRes();
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res: resOtherTags, resource: resourceWithOtherTagsOnly });
+
+            expect(resNoMeta._status).toEqual(200);
+            expect(resNoMeta._sentText).toEqual('');
+            expect(resOtherTags._status).toEqual(200);
+            expect(resOtherTags._sentText).toEqual('');
         });
     });
 });
