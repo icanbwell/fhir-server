@@ -1363,16 +1363,17 @@ class ConfigManager {
     }
 
     /**
-     * Hard cap on the number of distinct (subject, type) Composition groups
-     * CompositionLatestVersionTransform will buffer in memory for one request before it flushes
-     * and falls back to passthrough (no more dedup) for the rest of that stream. Bounds memory
-     * for an unscoped/service-account Composition search or NDJSON export -- those aren't
-     * inherently limited to one patient's handful of groups the way a typical patient-scoped
-     * search is.
+     * Hard cap on the number of distinct (subject, type) Composition groups buffered in memory
+     * for one request before falling back to passthrough (no more dedup) for the rest of that
+     * stream/request. There are only 9 dual-generator Composition types today, so 100 covers a
+     * search/export spanning roughly 11 distinct patients before dedup coverage tapers off --
+     * deliberately favors bounding memory on an unscoped/service-account search or NDJSON export
+     * over deduping all of a large one. $everything is unaffected in practice (single-person
+     * traversal, far under this cap).
      * @return {number}
      */
     get compositionLatestVersionMaxGroups() {
-        return parseInt(env.COMPOSITION_LATEST_VERSION_MAX_GROUPS || '10000', 10);
+        return parseInt(env.COMPOSITION_LATEST_VERSION_MAX_GROUPS || '100', 10);
     }
 
     get dataSharingAccessCodes() {
