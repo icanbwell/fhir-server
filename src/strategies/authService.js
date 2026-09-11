@@ -342,12 +342,8 @@ class AuthService {
 
                     if (Array.isArray(jwt_payload.entitlements)) {
                         context.purposeOfUse = jwt_payload.entitlements;
-                        // DCON-5395: BIG's token-exchange grant for client-initiated access
-                        // (DCON-5236) mints `entitlements` as a `Consent/<id>` reference instead
-                        // of a bare v3-ActReason code. Only take the async Consent-dereference
-                        // path when that shape is actually present -- the common case (a bare
-                        // code, or no entitlements) must stay fully synchronous so `done()` below
-                        // still fires in the same tick, matching every other branch in this method.
+                        // Only take the async Consent-dereference path when entitlements
+                        // actually names one (DCON-5395) -- bare codes stay fully synchronous.
                         const consentReferences = jwt_payload.entitlements.filter(
                             (entitlement) => ReferenceParser.parseReference(entitlement).resourceType === 'Consent'
                         );
@@ -355,14 +351,8 @@ class AuthService {
                             const resolvedPurposeOfUse = await this.delegatedAccessRulesManager.resolvePurposeOfEventCodesAsync({
                                 entitlements: jwt_payload.entitlements
                             });
-                            // null means a Consent/<id> entitlement genuinely could not be
-                            // resolved (not found, or ambiguous) -- fail closed rather than
-                            // silently proceeding with an empty purposeOfEvent on an otherwise-
-                            // successful request. A transient lookup failure (DB timeout,
-                            // network blip) does NOT resolve to null here -- it rejects instead
-                            // (isTransient/statusCode set, INC-322 convention), letting it
-                            // propagate to verify()'s existing .catch() as a retryable error
-                            // rather than a permanent-looking 401.
+                            // null = Consent genuinely unresolvable -> fail closed (401). A
+                            // transient lookup error rejects instead (503 via verify()'s catch).
                             if (resolvedPurposeOfUse === null) {
                                 logWarn('Auth rejected', {
                                     reason: 'delegated_actor_consent_not_found',
@@ -373,10 +363,7 @@ class AuthService {
                                 return;
                             }
                             context.purposeOfUse = resolvedPurposeOfUse;
-                            // Surface the org-level Consent that authorized this access as
-                            // agent.policy on the AuditEvent (FHIR's designated slot for "the
-                            // consent/policy that authorized this event"), alongside the
-                            // resolved purposeOfEvent code -- see AuditLogger.buildAgents.
+                            // Surfaced as agent.policy on the AuditEvent -- see AuditLogger.buildAgents.
                             context.actor.entitlementsConsentPolicies = consentReferences;
                         }
                     }
@@ -578,9 +565,7 @@ class AuthService {
         }
 
         let isValidInput = true;
-        // validate reference: a human delegate (RelatedPerson, Health Circle/AoR flow) or a
-        // backend/service-integration client (Organization, BIG's token-exchange flow for
-        // client-initiated access -- RFC: Delegated Token Generation for Client-Initiated Access).
+        // validate reference: human delegate (RelatedPerson) or client (Organization, DCON-5395)
         isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' &&
             DELEGATED_ACCESS.ALLOWED_ACTOR_RESOURCE_TYPES.includes(
                 ReferenceParser.parseReference(act[this.requiredActorFields.reference]).resourceType
@@ -702,10 +687,8 @@ class AuthService {
                     client_id: clientId,
                     scope
                 }).catch((error) => {
-                    // processUserInfo is now async (DCON-5395: it may await a Consent lookup),
-                    // so a synchronous throw here would reject rather than propagate directly --
-                    // surface it the same way the userinfo-endpoint failure path above does,
-                    // rather than letting it become an unhandled rejection.
+                    // processUserInfo is async now (may await a Consent lookup) -- catch here
+                    // too, so a rejection doesn't become an unhandled rejection.
                     logError(`Error while processing user info: ${error.message}`, {
                         reason: 'process_user_info_error',
                         error

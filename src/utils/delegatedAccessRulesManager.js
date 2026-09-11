@@ -96,14 +96,8 @@ class DelegatedAccessRulesManager {
 
         const actorReference = actor.reference;
 
-        // RFC: Delegated Token Generation for Client-Initiated Access (DCON-5236/DCON-5395).
-        // An Organization-actor delegated token has no per-person Consent to fetch by design --
-        // BIG already verifies Person ownership and an org-level Consent before minting the
-        // token, and that org-level Consent has no `patient` field at all (it authorizes the
-        // Organization generally, not a specific person), so it can never satisfy this query's
-        // patient-match filter below. Skip the lookup entirely for this actor type rather than
-        // re-deriving a per-person consent that was never meant to exist -- fhir-server trusts
-        // BIG's mint-time verification here, the same way it trusts every other signed JWT claim.
+        // DCON-5395: an Organization actor's Consent is org-level (no `patient` field), so it
+        // can never match the query below. Skip the lookup and trust BIG's mint-time check.
         if (ReferenceParser.parseReference(actorReference).resourceType === 'Organization') {
             const filteringRules = {
                 consentId: null,
@@ -394,9 +388,7 @@ class DelegatedAccessRulesManager {
             return false;
         }
         const { consentId, consentVersion } = filteringRules;
-        // set the actor policy -- only when there's an actual per-person Consent to point at.
-        // An Organization actor's filteringRules carries no consentId (see getFilteringRulesAsync)
-        // since there is no per-person Consent for this flow by design.
+        // Only set when there's a real per-person Consent (Organization actors have none).
         if (consentId) {
             actor.consentPolicy = consentVersion
                 ? `Consent/${consentId}?version=${consentVersion}`
@@ -406,28 +398,13 @@ class DelegatedAccessRulesManager {
     }
 
     /**
-     * Resolves the codes to surface as `purposeOfEvent.coding.code` on the AuditEvent from a
-     * delegated actor's JWT `entitlements` claim.
+     * Resolves `purposeOfEvent.coding.code` from a JWT `entitlements` claim: a bare
+     * v3-ActReason code passes through unchanged; a `Consent/<id>` reference (DCON-5395) is
+     * dereferenced into the Consent's `provision.purpose` codes.
      *
-     * Two shapes are supported:
-     * - Legacy: bare v3-ActReason codes (e.g. "FAMRQT") -- returned unchanged.
-     * - DCON-5395: a `Consent/<id>` reference (minted by BIG's token-exchange flow for
-     *   client-initiated access, DCON-5236), pointing at the org-level Consent created during
-     *   client onboarding -- the Consent is dereferenced and its `provision.purpose` codes are
-     *   substituted, so the audit event never carries a raw resource reference where an
-     *   ActReason code belongs.
-     *
-     * Returns `null` if any `Consent/<id>` entitlement genuinely can't be resolved (not found,
-     * or ambiguous) -- distinct from an empty array, which means every entitlement resolved
-     * successfully but yielded no codes. The caller treats `null` as an authentication
-     * failure: entitlements naming a Consent that can't be found is treated the same as any
-     * other malformed/unverifiable claim, not silently downgraded to an empty `purposeOfEvent`
-     * on an otherwise-successful request.
-     *
-     * Rejects (does not resolve to `null`) if the Consent lookup itself fails transiently (DB
-     * timeout, network blip) -- see `resolveConsentPurposeCodesAsync`. Callers must let that
-     * rejection propagate rather than catching it into `null`, so it surfaces as a retryable
-     * error rather than a permanent auth failure.
+     * Returns `null` if a Consent reference can't be resolved (not found/ambiguous) -- callers
+     * treat that as an auth failure. Rejects instead of returning `null` on a transient lookup
+     * error (see resolveConsentPurposeCodesAsync); callers must let that propagate.
      *
      * @param {Object} params
      * @param {string[]|null} [params.entitlements]
@@ -462,18 +439,9 @@ class DelegatedAccessRulesManager {
     /**
      * Dereferences a `Consent/<id>` reference and returns its `provision.purpose` codes.
      *
-     * Returns `null` when the Consent genuinely can't be resolved -- deleted/wrong id, or
-     * ambiguous (more than one Consent shares a bare, authority-less id; see below) -- `[]` is
-     * reserved for "the Consent exists but has no `provision.purpose` codes," a distinct, more
-     * benign case. Callers that fail closed on an unresolvable reference check for `null`.
-     *
-     * A transient lookup failure (DB timeout, network blip) is NOT treated as "not found" --
-     * it's re-thrown with `isTransient`/`statusCode` set, mirroring this codebase's INC-322
-     * convention for `getUserInfoFromUserInfoEndpoint`/JWKS failures elsewhere in
-     * `authService.js`. `AuthService.processUserInfo` calls `verify()` runs this on every
-     * request for an Organization-actor JWT (no cross-request caching), so conflating a
-     * transient blip with "Consent doesn't exist" would turn a brief Mongo hiccup into a hard,
-     * permanent-looking 401 for every request from that client instead of a retryable 503.
+     * `null` = can't resolve (not found, or ambiguous bare-id match) -- distinct from `[]`
+     * (found, no purpose codes). Rethrows transient lookup errors (isTransient/503, INC-322
+     * convention) instead of conflating them with "not found".
      *
      * @param {Object} params
      * @param {string} params.consentReference
@@ -515,12 +483,8 @@ class DelegatedAccessRulesManager {
                 return null;
             }
 
-            // A bare, authority-less id (the `else { query = { id } }` branch above) is
-            // ambiguous across tenants by construction -- unlike the UUID/authority-qualified
-            // branches, which resolve to exactly one resource. Never substitute an arbitrary
-            // match's provision.purpose into this request's audit purposeOfEvent; fail closed
-            // the same way getFilteringRulesAsync already does for an ambiguous per-person
-            // Consent match, instead of picking whichever document Mongo returns first.
+            // Bare, authority-less id is ambiguous across tenants -- never substitute an
+            // arbitrary match's purpose codes; fail closed like getFilteringRulesAsync does.
             if (consents.length > 1) {
                 logWarn(`Consent referenced by entitlements is ambiguous (${consents.length} matches): ${consentReference}`, {
                     source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync'
