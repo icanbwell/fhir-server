@@ -114,6 +114,57 @@ describe('AuditLogger', () => {
             expect(agents[1].policy).toEqual(['http://example.com/consent']);
         });
 
+        test('DCON-5395: includes entitlementsConsentPolicies alongside consentPolicy for a delegated user', () => {
+            const requestInfo = {
+                isUser: true,
+                user: 'patient-1',
+                userType: 'delegatedUser',
+                alternateUserId: 'alt-1',
+                remoteIpAddress: '192.168.1.1',
+                actor: {
+                    reference: 'Organization/org-1',
+                    sub: 'client-abc',
+                    entitlementsConsentPolicies: ['Consent/8e4a1f26-3c9d-4b7e-9a02-6f1d5c8b2e90']
+                }
+            };
+            const agents = auditLogger.buildAgents(requestInfo);
+            expect(agents[1].policy).toEqual(['Consent/8e4a1f26-3c9d-4b7e-9a02-6f1d5c8b2e90']);
+        });
+
+        test('DCON-5395: merges consentPolicy and entitlementsConsentPolicies when both are present', () => {
+            const requestInfo = {
+                isUser: true,
+                user: 'patient-1',
+                userType: 'delegatedUser',
+                alternateUserId: 'alt-1',
+                remoteIpAddress: '192.168.1.1',
+                actor: {
+                    reference: 'RelatedPerson/rp-1',
+                    sub: 'sub-1',
+                    consentPolicy: 'Consent/per-person-consent',
+                    entitlementsConsentPolicies: ['Consent/org-level-consent']
+                }
+            };
+            const agents = auditLogger.buildAgents(requestInfo);
+            expect(agents[1].policy).toEqual(['Consent/per-person-consent', 'Consent/org-level-consent']);
+        });
+
+        test('does not set policy for a delegated user with neither consentPolicy nor entitlementsConsentPolicies', () => {
+            const requestInfo = {
+                isUser: true,
+                user: 'patient-1',
+                userType: 'delegatedUser',
+                alternateUserId: 'alt-1',
+                remoteIpAddress: '192.168.1.1',
+                actor: {
+                    reference: 'Organization/org-1',
+                    sub: 'client-abc'
+                }
+            };
+            const agents = auditLogger.buildAgents(requestInfo);
+            expect(agents[1].policy).toBeUndefined();
+        });
+
         test('should handle null requestInfo gracefully with optional chaining', () => {
             const requestInfo = {};
             const agents = auditLogger.buildAgents(requestInfo);

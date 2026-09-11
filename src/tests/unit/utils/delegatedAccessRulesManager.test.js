@@ -1,12 +1,12 @@
 'use strict';
 
-const { describe, beforeEach, it, expect, jest } = require('@jest/globals');
+const { describe, beforeEach, afterEach, it, expect, jest } = require('@jest/globals');
 
-const { DelegatedAccessRulesManager } = require('../../../utils/delegatedAccessRulesManager');
-const { ConfigManager } = require('../../../utils/configManager');
-const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
-const { CustomTracer } = require('../../../utils/customTracer');
-
+// NOTE: this project's jest config applies no transform to source files, so babel-jest's
+// automatic hoisting of `jest.mock()` above requires does not happen here. Every `jest.mock()`
+// below MUST stay physically above the `require('../../../utils/delegatedAccessRulesManager')`
+// line (and any other require of a mocked module) -- otherwise the module under test captures
+// the real (unmocked) dependency in its own closure at require-time, silently.
 jest.mock('../../../utils/mongoQuerySimplifier', () => ({
     MongoQuerySimplifier: {
         simplifyFilter: jest.fn(({ filter }) => filter)
@@ -32,6 +32,18 @@ jest.mock('../../../utils/referenceParser', () => ({
 jest.mock('../../../utils/querybuilder.util', () => ({
     dateQueryBuilder: jest.fn().mockReturnValue({ $lte: '2026-01-01' })
 }));
+
+jest.mock('../../../operations/common/logging', () => ({
+    logWarn: jest.fn()
+}));
+
+const { DelegatedAccessRulesManager } = require('../../../utils/delegatedAccessRulesManager');
+const { ConfigManager } = require('../../../utils/configManager');
+const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
+const { CustomTracer } = require('../../../utils/customTracer');
+const { ReferenceParser } = require('../../../utils/referenceParser');
+const { generateUUIDv5 } = require('../../../utils/uid.util');
+const { logWarn } = require('../../../operations/common/logging');
 
 describe('DelegatedAccessRulesManager', () => {
     let manager;
@@ -425,6 +437,32 @@ describe('DelegatedAccessRulesManager', () => {
     });
 
     describe('hasValidConsentAsync', () => {
+        afterEach(() => {
+            ReferenceParser.parseReference.mockReturnValue({
+                id: 'actor-1',
+                resourceType: 'Practitioner',
+                sourceAssigningAuthority: undefined
+            });
+        });
+
+        it('DCON-5395/RFC: returns true for an Organization actor without querying the database or setting a bogus consentPolicy', async () => {
+            ReferenceParser.parseReference.mockReturnValueOnce({
+                id: 'org-1',
+                resourceType: 'Organization',
+                sourceAssigningAuthority: undefined
+            });
+            const actor = { reference: 'Organization/org-1' };
+
+            const result = await manager.hasValidConsentAsync({
+                actor,
+                personIdFromJwtToken: 'person-123'
+            });
+
+            expect(result).toBe(true);
+            expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
+            expect(actor.consentPolicy).toBeUndefined();
+        });
+
         it('should return false when no consent found', async () => {
             const actor = { reference: 'Practitioner/actor-1' };
 
@@ -510,6 +548,322 @@ describe('DelegatedAccessRulesManager', () => {
             // EXPECTED: correct behavior (will fail until bug is fixed)
             // consentPolicy should NOT contain "version=undefined" - should omit version or handle gracefully
             expect(actor.consentPolicy).not.toContain('undefined');
+        });
+    });
+
+    describe('resolvePurposeOfEventCodesAsync (DCON-5395)', () => {
+        afterEach(() => {
+            ReferenceParser.parseReference.mockReset();
+            ReferenceParser.parseReference.mockReturnValue({
+                id: 'actor-1',
+                resourceType: 'Practitioner',
+                sourceAssigningAuthority: undefined
+            });
+        });
+
+        it('should return null when entitlements is null', async () => {
+            const result = await manager.resolvePurposeOfEventCodesAsync({ entitlements: null });
+            expect(result).toBeNull();
+        });
+
+        it('should return an empty array unchanged when entitlements is empty', async () => {
+            const result = await manager.resolvePurposeOfEventCodesAsync({ entitlements: [] });
+            expect(result).toEqual([]);
+        });
+
+        it('should pass legacy bare v3-ActReason codes through unchanged', async () => {
+            ReferenceParser.parseReference.mockImplementation((reference) => ({
+                id: reference,
+                resourceType: undefined,
+                sourceAssigningAuthority: undefined
+            }));
+
+            const result = await manager.resolvePurposeOfEventCodesAsync({
+                entitlements: ['FAMRQT', 'TREAT']
+            });
+
+            expect(result).toEqual(['FAMRQT', 'TREAT']);
+            expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
+        });
+
+        it("should resolve a Consent/<id> reference to the Consent's provision.purpose codes", async () => {
+            const consentUuid = '123e4567-e89b-12d3-a456-426614174000';
+            ReferenceParser.parseReference.mockReturnValue({
+                id: consentUuid,
+                resourceType: 'Consent',
+                sourceAssigningAuthority: undefined
+            });
+
+            const mockCursor = {
+                maxTimeMS: jest.fn(),
+                toArrayAsync: jest.fn().mockResolvedValue([
+                    {
+                        provision: {
+                            purpose: [
+                                { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'TREAT' }
+                            ]
+                        }
+                    }
+                ])
+            };
+            const mockDatabaseQueryManager = { findAsync: jest.fn().mockResolvedValue(mockCursor) };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue(mockDatabaseQueryManager);
+
+            const result = await manager.resolvePurposeOfEventCodesAsync({
+                entitlements: [`Consent/${consentUuid}`]
+            });
+
+            expect(result).toEqual(['TREAT']);
+            expect(mockDatabaseQueryFactory.createQuery).toHaveBeenCalledWith({
+                resourceType: 'Consent',
+                base_version: '4_0_0'
+            });
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({
+                query: { _uuid: consentUuid }
+            });
+        });
+
+        it('should resolve multiple purpose codings from a single Consent', async () => {
+            const consentUuid = '123e4567-e89b-12d3-a456-426614174001';
+            ReferenceParser.parseReference.mockReturnValue({
+                id: consentUuid,
+                resourceType: 'Consent',
+                sourceAssigningAuthority: undefined
+            });
+
+            const mockCursor = {
+                maxTimeMS: jest.fn(),
+                toArrayAsync: jest.fn().mockResolvedValue([
+                    {
+                        provision: {
+                            purpose: [
+                                { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'TREAT' },
+                                { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'HPAYMT' }
+                            ]
+                        }
+                    }
+                ])
+            };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            });
+
+            const result = await manager.resolvePurposeOfEventCodesAsync({
+                entitlements: [`Consent/${consentUuid}`]
+            });
+
+            expect(result).toEqual(['TREAT', 'HPAYMT']);
+        });
+
+        it('should mix legacy bare codes and a resolved Consent reference in one entitlements array', async () => {
+            const consentUuid = '123e4567-e89b-12d3-a456-426614174002';
+            ReferenceParser.parseReference.mockImplementation((reference) => {
+                if (reference === `Consent/${consentUuid}`) {
+                    return { id: consentUuid, resourceType: 'Consent', sourceAssigningAuthority: undefined };
+                }
+                return { id: reference, resourceType: undefined, sourceAssigningAuthority: undefined };
+            });
+
+            const mockCursor = {
+                maxTimeMS: jest.fn(),
+                toArrayAsync: jest.fn().mockResolvedValue([
+                    { provision: { purpose: [{ code: 'TREAT' }] } }
+                ])
+            };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            });
+
+            const result = await manager.resolvePurposeOfEventCodesAsync({
+                entitlements: ['FAMRQT', `Consent/${consentUuid}`]
+            });
+
+            expect(result).toEqual(['FAMRQT', 'TREAT']);
+        });
+
+        it('should return null (and log a warning), not throw, when the referenced Consent cannot be found', async () => {
+            ReferenceParser.parseReference.mockReturnValue({
+                id: 'missing-consent-id',
+                resourceType: 'Consent',
+                sourceAssigningAuthority: undefined
+            });
+
+            const mockCursor = {
+                maxTimeMS: jest.fn(),
+                toArrayAsync: jest.fn().mockResolvedValue([])
+            };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            });
+
+            const result = await manager.resolvePurposeOfEventCodesAsync({
+                entitlements: ['Consent/missing-consent-id']
+            });
+
+            // null (not []) signals "could not resolve" to the caller, which now fails the
+            // request closed instead of silently proceeding with an empty purposeOfEvent.
+            expect(result).toBeNull();
+            expect(logWarn).toHaveBeenCalled();
+        });
+
+        it('should reject as a transient error (isTransient/503), not resolve to null, when the Consent lookup errors', async () => {
+            // A DB/lookup error is not proof the Consent doesn't exist -- it must surface as a
+            // retryable error (INC-322 convention), not the permanent 401 a genuine "not found"
+            // produces. See authService.verify()'s existing .catch() handling for this class of
+            // error (mirrors getUserInfoFromUserInfoEndpoint/JWKS failures).
+            ReferenceParser.parseReference.mockReturnValue({
+                id: 'consent-id',
+                resourceType: 'Consent',
+                sourceAssigningAuthority: undefined
+            });
+
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockRejectedValue(new Error('mongo timeout'))
+            });
+
+            await expect(
+                manager.resolvePurposeOfEventCodesAsync({ entitlements: ['Consent/consent-id'] })
+            ).rejects.toMatchObject({
+                message: 'mongo timeout',
+                isTransient: true,
+                statusCode: 503
+            });
+            expect(logWarn).toHaveBeenCalled();
+        });
+
+        it('should not overwrite an already-set statusCode on a transient lookup error', async () => {
+            ReferenceParser.parseReference.mockReturnValue({
+                id: 'consent-id',
+                resourceType: 'Consent',
+                sourceAssigningAuthority: undefined
+            });
+
+            const customError = new Error('rate limited');
+            customError.statusCode = 429;
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockRejectedValue(customError)
+            });
+
+            await expect(
+                manager.resolvePurposeOfEventCodesAsync({ entitlements: ['Consent/consent-id'] })
+            ).rejects.toMatchObject({ isTransient: true, statusCode: 429 });
+        });
+
+        it('should return null (ambiguous) when a bare, authority-less id matches more than one Consent, without leaking either match', async () => {
+            ReferenceParser.parseReference.mockReturnValue({
+                id: 'shared-bare-id',
+                resourceType: 'Consent',
+                sourceAssigningAuthority: undefined
+            });
+
+            const mockCursor = {
+                maxTimeMS: jest.fn(),
+                toArrayAsync: jest.fn().mockResolvedValue([
+                    { provision: { purpose: [{ code: 'TREAT' }] } },
+                    { provision: { purpose: [{ code: 'HPAYMT' }] } }
+                ])
+            };
+            const mockDatabaseQueryManager = { findAsync: jest.fn().mockResolvedValue(mockCursor) };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue(mockDatabaseQueryManager);
+
+            const result = await manager.resolvePurposeOfEventCodesAsync({
+                entitlements: ['Consent/shared-bare-id']
+            });
+
+            expect(result).toBeNull();
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({ query: { id: 'shared-bare-id' } });
+            expect(logWarn).toHaveBeenCalled();
+        });
+
+        it('should return null overall when a Consent-reference entitlement is unresolvable, even alongside other entitlements', async () => {
+            ReferenceParser.parseReference.mockImplementation((reference) => {
+                if (reference === 'Consent/missing-consent-id') {
+                    return { id: 'missing-consent-id', resourceType: 'Consent', sourceAssigningAuthority: undefined };
+                }
+                return { id: reference, resourceType: undefined, sourceAssigningAuthority: undefined };
+            });
+
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue({
+                    maxTimeMS: jest.fn(),
+                    toArrayAsync: jest.fn().mockResolvedValue([])
+                })
+            });
+
+            const result = await manager.resolvePurposeOfEventCodesAsync({
+                entitlements: ['FAMRQT', 'Consent/missing-consent-id']
+            });
+
+            expect(result).toBeNull();
+        });
+
+        it('should query by a deterministic uuid when the reference carries a sourceAssigningAuthority', async () => {
+            ReferenceParser.parseReference.mockReturnValue({
+                id: 'raw-id-123',
+                resourceType: 'Consent',
+                sourceAssigningAuthority: 'authority-1'
+            });
+
+            const mockCursor = {
+                maxTimeMS: jest.fn(),
+                toArrayAsync: jest.fn().mockResolvedValue([{ provision: { purpose: [{ code: 'TREAT' }] } }])
+            };
+            const mockDatabaseQueryManager = { findAsync: jest.fn().mockResolvedValue(mockCursor) };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue(mockDatabaseQueryManager);
+
+            await manager.resolvePurposeOfEventCodesAsync({
+                entitlements: ['Consent/raw-id-123|authority-1']
+            });
+
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({
+                query: { _uuid: generateUUIDv5('raw-id-123|authority-1') }
+            });
+        });
+
+        it('should query by bare id when there is no uuid and no sourceAssigningAuthority', async () => {
+            ReferenceParser.parseReference.mockReturnValue({
+                id: 'raw-id-456',
+                resourceType: 'Consent',
+                sourceAssigningAuthority: undefined
+            });
+
+            const mockCursor = {
+                maxTimeMS: jest.fn(),
+                toArrayAsync: jest.fn().mockResolvedValue([{ provision: { purpose: [{ code: 'TREAT' }] } }])
+            };
+            const mockDatabaseQueryManager = { findAsync: jest.fn().mockResolvedValue(mockCursor) };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue(mockDatabaseQueryManager);
+
+            await manager.resolvePurposeOfEventCodesAsync({
+                entitlements: ['Consent/raw-id-456']
+            });
+
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({
+                query: { id: 'raw-id-456' }
+            });
+        });
+
+        it('should return an empty array when the Consent has no provision.purpose', async () => {
+            const consentUuid = '123e4567-e89b-12d3-a456-426614174003';
+            ReferenceParser.parseReference.mockReturnValue({
+                id: consentUuid,
+                resourceType: 'Consent',
+                sourceAssigningAuthority: undefined
+            });
+
+            const mockCursor = {
+                maxTimeMS: jest.fn(),
+                toArrayAsync: jest.fn().mockResolvedValue([{ provision: {} }])
+            };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            });
+
+            const result = await manager.resolvePurposeOfEventCodesAsync({
+                entitlements: [`Consent/${consentUuid}`]
+            });
+
+            expect(result).toEqual([]);
         });
     });
 });
