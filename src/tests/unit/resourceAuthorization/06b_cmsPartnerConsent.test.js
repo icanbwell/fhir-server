@@ -70,6 +70,8 @@ const { BwellPersonFinder } = require('../../../utils/bwellPersonFinder');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 const { DelegatedAccessRulesManager } = require('../../../utils/delegatedAccessRulesManager');
 const { SearchParametersManager } = require('../../../searchParameters/searchParametersManager');
+const { ClinicalNoteSearchClient } = require('../../../utils/clinicalNoteSearchClient');
+const { ParsedArgs } = require('../../../operations/query/parsedArgs');
 const { AUTH_USER_TYPES } = require('../../../constants');
 
 function createMockInstance (ClassType) {
@@ -148,7 +150,8 @@ describe('Resource Authorization §6b — CMS partner data-sharing consent', () 
                 atlasSearchQueryBuilder: mockAtlasSearchQueryBuilder,
                 patientScopeManager: mockPatientScopeManager,
                 patientQueryCreator: mockPatientQueryCreator,
-                searchParametersManager: createMockInstance(SearchParametersManager)
+                searchParametersManager: createMockInstance(SearchParametersManager),
+                clinicalNoteSearchClient: createMockInstance(ClinicalNoteSearchClient)
             });
         });
 
@@ -162,7 +165,11 @@ describe('Resource Authorization §6b — CMS partner data-sharing consent', () 
                 useAccessIndex: false,
                 personIdFromJwtToken: 'person-1',
                 requestId: 'req-1',
-                parsedArgs: { base_version: '4_0_0', parsedArgItems: [] },
+                // Real ParsedArgs (not a plain object) -- SearchManager.buildContentSearchIdFilterAsync
+                // (called unconditionally at the top of constructQueryAsync as of the _content
+                // wiring) calls parsedArgs.get('_content'), which a plain stand-in object doesn't
+                // implement.
+                parsedArgs: new ParsedArgs({ base_version: '4_0_0' }),
                 useHistoryTable: false,
                 operation: 'READ'
             });

@@ -218,6 +218,73 @@ A composite search parameter combines two or more related component values into 
 
 FHIR specification: https://www.hl7.org/fhir/R4B/search.html#composite
 
+### 1.10 Full-Text Content Search
+
+The `_content` search parameter performs full-text search across the text content of resources. This feature delegates to a sibling service's MongoDB Atlas Search index and is supported for three resource types only: `DocumentReference`, `DiagnosticReport`, and `CarePlan`.
+
+#### Configuration Required
+
+For `_content` search to be available, all of the following environment variables must be set:
+
+| Environment Variable | Purpose |
+|---|---|
+| `FHIR_NOTES_MONGO_URL` | Connection string for the clinical notes MongoDB cluster |
+| `FHIR_NOTES_MONGO_DB_NAME` | Database name on that cluster |
+| `FHIR_NOTES_MONGO_COLLECTION_NAME` | Collection name (the `ClinicalNote` collection) |
+| `FHIR_NOTES_TEXT_SEARCH_INDEX_NAME` | Atlas Search index name (e.g., `fhir-notes-text-search`) |
+| `ENABLE_FULL_TEXT_SEARCH` | Feature flag; set to `1` to enable (must be set to `1` in addition to the above) |
+
+All four connection variables **and** the `ENABLE_FULL_TEXT_SEARCH` flag must be configured for the feature to be active. If `ENABLE_FULL_TEXT_SEARCH` is not set to `1`, `_content` is silently ignored (a recognized-but-unresolved search parameter) regardless of resourceType, matching its behavior before this feature existed. With the flag on, `_content` on an unsupported resourceType, or on an environment where the connection variables are missing, returns a `BadRequestError`.
+
+**Optional variables:** You can also set `FHIR_NOTES_MONGO_USERNAME` and `FHIR_NOTES_MONGO_PASSWORD` to embed credentials into the connection string, and `FHIR_NOTES_MIN_POOL_SIZE`, `FHIR_NOTES_MAX_POOL_SIZE`, `FHIR_NOTES_MONGO_CONNECT_TIMEOUT`, and `FHIR_NOTES_MONGO_SERVER_SELECTION_TIMEOUT` to tune connection pooling and timeouts (these have sensible defaults if not specified).
+
+#### Supported Resource Types
+
+`_content` search is available **only** on:
+- `DocumentReference`
+- `DiagnosticReport`
+- `CarePlan`
+
+With the feature flag on, attempting `_content` on any other resource type returns `BadRequestError`.
+
+#### Query Syntax — Lucene `queryString` Format
+
+The `_content` parameter accepts Lucene syntax directly, supporting:
+- Boolean operators: `AND`, `OR`, `NOT`
+- Grouping with parentheses: `(...)`
+- Field-scoped terms and wildcards
+
+**Example:**
+```
+GET /4_0_0/DocumentReference?patient=Patient/123&_content=(bone OR liver) AND metastases
+```
+
+Returns all `DocumentReference` resources for the given patient whose content contains either "bone" or "liver", **and** also contains "metastases". Multiple criteria can be combined with standard Lucene operators.
+
+#### Retrieving Derived Text as Plain Text (`_format=text/plain`)
+
+For a single-resource read of a `DocumentReference`, `DiagnosticReport`, or `Binary` by ID, passing `_format=text/plain` returns the server-extracted plain text of the resource's attachment(s) directly as the HTTP response body — not embedded in the resource's JSON. This requires the same full-text-search configuration described above (`ENABLE_FULL_TEXT_SEARCH=1` and the `FHIR_NOTES_*` connection variables); otherwise the normal FHIR JSON response is returned instead.
+
+```
+GET /4_0_0/DocumentReference/abc-123?_format=text/plain
+```
+
+```
+GET /4_0_0/DiagnosticReport/def-456?_format=text/plain
+```
+
+The response `Content-Type` is `text/plain`, and the body is the reassembled plain text derived from the resource's attachment(s) — no JSON envelope, no extension markers.
+
+`Binary` resources are not indexed for text search directly, but can also be read this way: the server looks up which `DocumentReference` or `DiagnosticReport` attachment references the `Binary`, retrieves that resource's derived text, and returns it as the plain-text body:
+
+```
+GET /4_0_0/Binary/xyz-789?_format=text/plain
+```
+
+**Important:** `_format=text/plain` derived-text retrieval is restricted to single-resource reads by `_id`. It is not supported on search result sets or graph/`$everything` traversals.
+
+FHIR Specification: https://hl7.org/fhir/R4B/search.html#content
+
 ## 2. Requesting a single resource
 
 Add the id of the resource in the url e.g.,

@@ -606,6 +606,43 @@ class ConfigManager {
     }
 
     /**
+     * True only when every field needed to reach the fhir-notes-vector-store cluster and its
+     * Atlas Search index is present, AND the ENABLE_FULL_TEXT_SEARCH flag is explicitly on. The
+     * flag is separate from connection config so an operator can deploy the connection ahead of a
+     * rollout and flip this one flag to enable/disable, or use it as an emergency kill switch
+     * without touching connection env vars (mirrors enableAuditEventArchiveRead's pattern above).
+     * `_content` search and derived-text enrichment/reverse-lookup are all gated on this.
+     *
+     * `../config` is required lazily here (rather than at module scope) so that merely importing
+     * `ConfigManager` doesn't pull in `config.js`'s unconditional `require('@sentry/node')` for
+     * every consumer - that transitive weight surprised at least one existing unit test that
+     * mocks `fs` and broke when Sentry's own `require('node:fs')` picked up the same mock.
+     * @returns {boolean}
+     */
+    get fhirNotesFullTextSearchConfigured() {
+        if (!isTrue(env.ENABLE_FULL_TEXT_SEARCH)) {
+            return false;
+        }
+        const { fhirNotesMongoConfig } = require('../config');
+        return Boolean(
+            fhirNotesMongoConfig.connection &&
+            fhirNotesMongoConfig.db_name &&
+            fhirNotesMongoConfig.collection_name &&
+            fhirNotesMongoConfig.index_name
+        );
+    }
+
+    get fhirNotesMongoCollectionName() {
+        const { fhirNotesMongoConfig } = require('../config');
+        return fhirNotesMongoConfig.collection_name;
+    }
+
+    get fhirNotesTextSearchIndexName() {
+        const { fhirNotesMongoConfig } = require('../config');
+        return fhirNotesMongoConfig.index_name;
+    }
+
+    /**
      * whether to write access logs to MongoDB
      * @return {boolean}
      */

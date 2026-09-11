@@ -9,7 +9,7 @@
  * 3. streamResourcesFromCursorAsync (lines 915-1063)
  */
 
-const { describe, beforeEach, afterEach, it, expect, jest } = require('@jest/globals');
+const { describe, beforeEach, afterEach, it, test, expect, jest } = require('@jest/globals');
 
 const { SearchManager } = require('../../../../operations/search/searchManager');
 const { DatabaseQueryFactory } = require('../../../../dataLayer/databaseQueryFactory');
@@ -31,6 +31,11 @@ const { PatientScopeManager } = require('../../../../operations/security/patient
 const { PatientQueryCreator } = require('../../../../operations/common/patientQueryCreator');
 const { SearchParametersManager } = require('../../../../searchParameters/searchParametersManager');
 const { SearchParameterDefinition } = require('../../../../searchParameters/searchParameterTypes');
+const { ClinicalNoteSearchClient } = require('../../../../utils/clinicalNoteSearchClient');
+const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
+const { QueryParameterValue } = require('../../../../operations/query/queryParameterValue');
+const { ExternalTimeoutError } = require('../../../../utils/httpErrors');
 
 jest.mock('../../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -64,6 +69,7 @@ describe('SearchManager', () => {
     let mockPatientScopeManager;
     let mockPatientQueryCreator;
     let mockSearchParametersManager;
+    let mockClinicalNoteSearchClient;
 
     beforeEach(() => {
         mockDatabaseQueryFactory = Object.create(DatabaseQueryFactory.prototype);
@@ -95,6 +101,7 @@ describe('SearchManager', () => {
         mockPatientQueryCreator = Object.create(PatientQueryCreator.prototype);
         mockSearchParametersManager = Object.create(SearchParametersManager.prototype);
         mockSearchParametersManager.allowedFieldsByResourceType = new Map();
+        mockClinicalNoteSearchClient = Object.create(ClinicalNoteSearchClient.prototype);
 
         searchManager = new SearchManager({
             databaseQueryFactory: mockDatabaseQueryFactory,
@@ -114,7 +121,8 @@ describe('SearchManager', () => {
             atlasSearchQueryBuilder: mockAtlasSearchQueryBuilder,
             patientScopeManager: mockPatientScopeManager,
             patientQueryCreator: mockPatientQueryCreator,
-            searchParametersManager: mockSearchParametersManager
+            searchParametersManager: mockSearchParametersManager,
+            clinicalNoteSearchClient: mockClinicalNoteSearchClient
         });
     });
 
@@ -133,7 +141,10 @@ describe('SearchManager', () => {
         let mockParsedArgs;
 
         beforeEach(() => {
-            mockParsedArgs = { base_version: '4_0_0', _elements: null, _sort: null, _count: null, id: null };
+            mockParsedArgs = {
+                base_version: '4_0_0', _elements: null, _sort: null, _count: null, id: null,
+                get: jest.fn().mockReturnValue(undefined)
+            };
             mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(false);
             mockSecurityTagManager.getSecurityTagsFromScope = jest.fn().mockReturnValue(['client-abc']);
             mockSecurityTagManager.getQueryWithSecurityTags = jest.fn().mockReturnValue({ 'meta.security': { $elemMatch: { code: 'client-abc' } } });
@@ -192,6 +203,144 @@ describe('SearchManager', () => {
                 accessRequested: 'read', actor: { reference: 'Patient/p1' }
             });
             expect(mockDataSharingManager.updateQueryForDelegatedAccessSensitiveData).toHaveBeenCalled();
+        });
+
+        it('AND-composes the _content candidate-id filter with the security-tag filter -- neither replaces the other', async () => {
+            // Security property under test: candidate ids returned by the vector store (an
+            // external, unauthorized-by-fhir-server data source) must be re-authorized through the
+            // SAME query object that the tenant/access-tag scoping (getQueryWithSecurityTags) also
+            // mutates -- not a separate/bypassable branch. We prove this by asserting the final
+            // query carries BOTH pieces, AND-composed.
+            const contentParsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+            contentParsedArgs.add(new ParsedArgsItem({
+                queryParameter: '_content',
+                queryParameterValue: new QueryParameterValue({ value: 'diabetes', operator: '$and' }),
+                modifiers: []
+            }));
+
+            Object.defineProperty(mockConfigManager, 'fhirNotesFullTextSearchConfigured', {
+                value: true, writable: true, configurable: true
+            });
+            mockClinicalNoteSearchClient.findMatchingResourceIdsAsync = jest.fn().mockResolvedValue(['abc123', 'def456']);
+            mockR4SearchQueryCreator.appendAndQuery = jest.fn().mockImplementation(
+                ({ query, andQuery }) => ({ $and: [query, andQuery] })
+            );
+            // The default beforeEach stub for getQueryWithSecurityTags returns a fixed object
+            // without looking at its `query` argument, which is fine for the other tests in this
+            // block but would hide the very bug this test exists to catch (the security-tag step
+            // silently discarding whatever query it was handed instead of AND-composing with it).
+            // Override it here to actually incorporate the incoming query, the way the real
+            // SecurityTagManager implementation does.
+            mockSecurityTagManager.getQueryWithSecurityTags = jest.fn().mockImplementation(({ query }) => ({
+                $and: [query, { 'meta.security': { $elemMatch: { code: 'client-abc' } } }]
+            }));
+
+            const result = await searchManager.constructQueryAsync({
+                user: 'user-1', scope: 'system/DocumentReference.read', isUser: false, userType: null,
+                resourceType: 'DocumentReference', useAccessIndex: false, personIdFromJwtToken: null,
+                requestId: 'req-1', parsedArgs: contentParsedArgs, useHistoryTable: false, operation: 'READ',
+                accessRequested: 'read'
+            });
+
+            expect(mockClinicalNoteSearchClient.findMatchingResourceIdsAsync).toHaveBeenCalledWith({
+                resourceType: 'DocumentReference', contentQuery: 'diabetes'
+            });
+            expect(mockR4SearchQueryCreator.appendAndQuery).toHaveBeenCalledWith({
+                query: { resourceType: 'Observation' },
+                andQuery: { _sourceId: { $in: ['abc123', 'def456'] } }
+            });
+            // The security-tag step must have received a query that already carries the
+            // _content-derived id filter -- proving both flow through the SAME query object rather
+            // than the id filter living on some separate/bypassable branch.
+            expect(mockSecurityTagManager.getQueryWithSecurityTags).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    query: { $and: [{ resourceType: 'Observation' }, { _sourceId: { $in: ['abc123', 'def456'] } }] }
+                })
+            );
+            // Both the _content-derived id filter and the security-tag filter must be present in
+            // the final query -- AND-composed, not one clobbering the other.
+            // Order is an implementation detail of MongoQuerySimplifier's $and-flattening -- assert
+            // membership, not exact array order.
+            expect(result.query.$and).toEqual(expect.arrayContaining([
+                { _sourceId: { $in: ['abc123', 'def456'] } },
+                { 'meta.security': { $elemMatch: { code: 'client-abc' } } }
+            ]));
+        });
+
+        it('threads the resolved patient-scope id list into the _content candidate lookup as a pre-filter', async () => {
+            // getPatientIdsFromScopeAsync must be resolved once, ahead of
+            // buildContentSearchIdFilterAsync, and the SAME resolved list reused later for the
+            // patient-scope query filter -- not a second, redundant resolution.
+            mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(true);
+            mockPatientScopeManager.getPatientIdsFromScopeAsync = jest.fn().mockResolvedValue(['patient-1', 'patient-2']);
+            mockPatientQueryCreator.getQueryWithPatientFilter = jest.fn().mockReturnValue({ resourceType: 'DocumentReference' });
+            mockConfigManager.doNotRequirePersonOrPatientIdForPatientScope = true;
+
+            const contentParsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+            contentParsedArgs.add(new ParsedArgsItem({
+                queryParameter: '_content',
+                queryParameterValue: new QueryParameterValue({ value: 'diabetes', operator: '$and' }),
+                modifiers: []
+            }));
+            Object.defineProperty(mockConfigManager, 'fhirNotesFullTextSearchConfigured', {
+                value: true, writable: true, configurable: true
+            });
+            mockClinicalNoteSearchClient.findMatchingResourceIdsAsync = jest.fn().mockResolvedValue([]);
+
+            await searchManager.constructQueryAsync({
+                user: 'user-1', scope: 'patient/DocumentReference.read', isUser: true, userType: null,
+                resourceType: 'DocumentReference', useAccessIndex: false, personIdFromJwtToken: 'person-1',
+                requestId: 'req-1', parsedArgs: contentParsedArgs, useHistoryTable: false, operation: 'READ',
+                accessRequested: 'read'
+            });
+
+            expect(mockPatientScopeManager.getPatientIdsFromScopeAsync).toHaveBeenCalledTimes(1);
+            expect(mockClinicalNoteSearchClient.findMatchingResourceIdsAsync).toHaveBeenCalledWith({
+                resourceType: 'DocumentReference', contentQuery: 'diabetes', patientIds: ['patient-1', 'patient-2']
+            });
+            expect(mockPatientQueryCreator.getQueryWithPatientFilter).toHaveBeenCalledWith(
+                expect.objectContaining({ patientIds: ['patient-1', 'patient-2'] })
+            );
+        });
+
+        it('an empty _content candidate list survives MongoQuerySimplifier as __invalid__, never as "no filter, return everything"', async () => {
+            // Regression test for a real bug found in review: MongoQuerySimplifier.simplifyFilter
+            // (a real, unmocked static utility -- constructQueryAsync always runs it on the final
+            // query) deletes {_uuid:{$in:[]}} entirely, along with the now-empty $and clause around
+            // it. If buildContentSearchIdFilterAsync's empty-candidate case ever regressed back to
+            // returning {_uuid:{$in:[]}} instead of the __invalid__ sentinel, this test would catch
+            // it by asserting on constructQueryAsync's actual returned query -- not on
+            // buildContentSearchIdFilterAsync's return value in isolation.
+            const contentParsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+            contentParsedArgs.add(new ParsedArgsItem({
+                queryParameter: '_content',
+                queryParameterValue: new QueryParameterValue({ value: 'zzzznomatch', operator: '$and' }),
+                modifiers: []
+            }));
+
+            Object.defineProperty(mockConfigManager, 'fhirNotesFullTextSearchConfigured', {
+                value: true, writable: true, configurable: true
+            });
+            mockClinicalNoteSearchClient.findMatchingResourceIdsAsync = jest.fn().mockResolvedValue([]);
+            mockR4SearchQueryCreator.appendAndQuery = jest.fn().mockImplementation(
+                ({ query, andQuery }) => ({ $and: [query, andQuery] })
+            );
+            mockSecurityTagManager.getQueryWithSecurityTags = jest.fn().mockImplementation(({ query }) => ({
+                $and: [query, { 'meta.security': { $elemMatch: { code: 'client-abc' } } }]
+            }));
+
+            const result = await searchManager.constructQueryAsync({
+                user: 'user-1', scope: 'system/DocumentReference.read', isUser: false, userType: null,
+                resourceType: 'DocumentReference', useAccessIndex: false, personIdFromJwtToken: null,
+                requestId: 'req-1', parsedArgs: contentParsedArgs, useHistoryTable: false, operation: 'READ',
+                accessRequested: 'read'
+            });
+
+            expect(result.query.$and).toEqual(expect.arrayContaining([{ _uuid: '__invalid__' }]));
+            // Never silently degrade to "only the security-tag filter applies" -- that's exactly
+            // "no filter, so return everything" for the _content search the caller actually asked
+            // for.
+            expect(result.query).not.toEqual({ 'meta.security': { $elemMatch: { code: 'client-abc' } } });
         });
 
         it('returns atlasSearchCompound from the builder for an eligible READ request', async () => {
@@ -956,5 +1105,236 @@ describe('SearchManager', () => {
                 process.env.SET_INDEX_HINTS = originalEnv;
             }
         });
+    });
+});
+
+function makeParsedArgsWithContent (value) {
+    const parsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+    parsedArgs.add(new ParsedArgsItem({
+        queryParameter: '_content',
+        queryParameterValue: new QueryParameterValue({ value, operator: '$and' }),
+        modifiers: []
+    }));
+    return parsedArgs;
+}
+
+// NOTE: ServerError's constructor (src/middleware/fhir/utils/server.error.js) calls
+// `Object.setPrototypeOf(this, ServerError.prototype)` unconditionally, resetting the prototype
+// chain on every subclass instance (including BadRequestError/ExternalTimeoutError) back to
+// ServerError.prototype. `instanceof`/`toBeInstanceOf` against any httpErrors.js class is
+// therefore always false, for this pre-existing, unrelated reason -- already documented in
+// src/tests/unit/utils/httpErrors.test.js and
+// src/tests/unit/operations/query/filters/composite.test.js. Follow that same established
+// convention here: assert on `statusCode` instead of `instanceof`.
+async function expectRejectionWithStatusCode (promise, statusCode) {
+    let thrownError;
+    try {
+        await promise;
+        throw new Error(`expected promise to reject with statusCode ${statusCode}, but it resolved`);
+    } catch (e) {
+        thrownError = e;
+    }
+    expect(thrownError.statusCode).toBe(statusCode);
+}
+
+// Minimal SearchManager instantiation helper: fill every other constructor dependency with a
+// harmless Object.create(...)-based stub, since buildContentSearchIdFilterAsync only touches
+// configManager and clinicalNoteSearchClient. Every SearchManager constructor dependency is
+// guarded by assertTypeEquals (instanceof check), so plain `{}` stubs (as a literal reading of
+// this file's own test-code template would suggest) don't satisfy the constructor -- each stub
+// must be Object.create(SomeClass.prototype), matching this file's outer describe('SearchManager')
+// beforeEach convention. configManager overrides use Object.defineProperty because ConfigManager
+// exposes its config flags (e.g. fhirNotesFullTextSearchConfigured) as class getters, which a
+// plain property assignment can't shadow.
+function makeSearchManager ({ configManager: configManagerOverrides, clinicalNoteSearchClient: clinicalNoteSearchClientOverrides }) {
+    const configManager = Object.create(ConfigManager.prototype);
+    for (const [key, value] of Object.entries(configManagerOverrides)) {
+        Object.defineProperty(configManager, key, { value, writable: true, configurable: true });
+    }
+    const clinicalNoteSearchClient = Object.assign(
+        Object.create(ClinicalNoteSearchClient.prototype), clinicalNoteSearchClientOverrides
+    );
+    return new SearchManager({
+        databaseQueryFactory: Object.create(DatabaseQueryFactory.prototype),
+        resourceLocatorFactory: Object.create(ResourceLocatorFactory.prototype),
+        securityTagManager: Object.create(SecurityTagManager.prototype),
+        resourcePreparer: Object.create(ResourcePreparer.prototype),
+        indexHinter: Object.create(IndexHinter.prototype),
+        r4SearchQueryCreator: Object.create(R4SearchQueryCreator.prototype),
+        configManager,
+        queryRewriterManager: Object.create(QueryRewriterManager.prototype),
+        scopesManager: Object.create(ScopesManager.prototype),
+        databaseAttachmentManager: Object.create(DatabaseAttachmentManager.prototype),
+        base64DataManager: Object.create(Base64DataManager.prototype),
+        fhirResourceWriterFactory: Object.create(FhirResourceWriterFactory.prototype),
+        dataSharingManager: Object.create(DataSharingManager.prototype),
+        searchQueryBuilder: Object.create(SearchQueryBuilder.prototype),
+        atlasSearchQueryBuilder: Object.create(AtlasSearchQueryBuilder.prototype),
+        patientScopeManager: Object.create(PatientScopeManager.prototype),
+        patientQueryCreator: Object.create(PatientQueryCreator.prototype),
+        searchParametersManager: Object.create(SearchParametersManager.prototype),
+        clinicalNoteSearchClient
+    });
+}
+
+describe('SearchManager.buildContentSearchIdFilterAsync', () => {
+    test('returns null when _content is not present', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient: {}
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: new ParsedArgs({ base_version: '4_0_0' }),
+            operation: 'READ'
+        });
+        expect(result).toBeNull();
+    });
+
+    test('throws BadRequestError for an unsupported resourceType', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient: {}
+        });
+        await expectRejectionWithStatusCode(searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'Condition',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        }), 400);
+    });
+
+    test('ignores _content silently (returns null) when the feature is not configured', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: false },
+            clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        });
+        expect(result).toBeNull();
+    });
+
+    test('ignores _content silently (returns null) when the feature flag is off, even for an unsupported resourceType', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: false },
+            clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'Condition',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        });
+        expect(result).toBeNull();
+    });
+
+    test.each(['WRITE', 'write', 'DELETE', 'delete'])(
+        'ignores _content silently (returns null) for a %s operation, never gating a write/delete by an external index',
+        async (operation) => {
+            const searchManager = makeSearchManager({
+                configManager: { fhirNotesFullTextSearchConfigured: true },
+                clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
+            });
+            const result = await searchManager.buildContentSearchIdFilterAsync({
+                resourceType: 'DocumentReference',
+                parsedArgs: makeParsedArgsWithContent('diabetes'),
+                operation
+            });
+            expect(result).toBeNull();
+        }
+    );
+
+    test('ignores _content silently (returns null) on a history query, since FilterById cannot target the history field mapping', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ',
+            useHistoryTable: true
+        });
+        expect(result).toBeNull();
+    });
+
+    test('returns an _uuid $in filter built from uuid-shaped candidate ids', async () => {
+        // Candidate ids that are actually uuid-shaped (matching the plan's stated contract) must
+        // route through FilterById to the _uuid field, not _sourceId or $or.
+        const clinicalNoteSearchClient = {
+            findMatchingResourceIdsAsync: async () => [
+                '123e4567-e89b-12d3-a456-426614174000',
+                '223e4567-e89b-12d3-a456-426614174000'
+            ]
+        };
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        });
+        expect(result).toEqual({
+            _uuid: {
+                $in: ['123e4567-e89b-12d3-a456-426614174000', '223e4567-e89b-12d3-a456-426614174000']
+            }
+        });
+    });
+
+    test('returns a _sourceId $in filter for non-uuid-shaped candidate ids (intentional fallback, not a bug)', async () => {
+        // FilterById.getListFilter (via IdParser.parse + isUuid) routes any candidate id that
+        // isn't uuid-shaped to _sourceId instead of _uuid. ClinicalNoteSearchClient now resolves
+        // candidates to _uuid itself in the normal case; this exercises the fallback path in case
+        // a candidate somehow isn't uuid-shaped.
+        const clinicalNoteSearchClient = {
+            findMatchingResourceIdsAsync: async () => ['abc123', 'def456']
+        };
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        });
+        expect(result).toEqual({ _sourceId: { $in: ['abc123', 'def456'] } });
+    });
+
+    test('returns the __invalid__ sentinel (not {_uuid:{$in:[]}}) when candidate list is empty, so MongoQuerySimplifier cannot erase it', async () => {
+        // MongoQuerySimplifier.simplifyFilter deletes empty $in arrays and the now-empty parent
+        // clauses around them, which would turn {_uuid:{$in:[]}} into {} once this filter is AND'd
+        // into the rest of the query in constructQueryAsync -- silently converting a zero-match
+        // _content search into "no filter, so return everything". __invalid__ survives
+        // simplification because it's a literal string value, not an array.
+        const clinicalNoteSearchClient = { findMatchingResourceIdsAsync: async () => [] };
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        });
+        expect(result).toEqual({ _uuid: '__invalid__' });
+    });
+
+    test('propagates ExternalTimeoutError from the search client unchanged', async () => {
+        const clinicalNoteSearchClient = {
+            findMatchingResourceIdsAsync: async () => { throw new ExternalTimeoutError('down'); }
+        };
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient
+        });
+        await expectRejectionWithStatusCode(searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        }), 504);
     });
 });

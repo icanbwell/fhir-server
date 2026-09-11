@@ -183,6 +183,12 @@ module.exports = {
         'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer', '_rewritePatientReference', '_keepOldUI',
         '_includeNonClinicalResources', '_nonClinicalResourcesDepth', '_includePatientLinkedOnly', '_includeUuidOnly'
     ],
+    /**
+     * Resource types fhir-notes-vector-store extracts and Atlas-Search-indexes attachment/note
+     * text for. `_content` search and derived-text enrichment are only supported for these.
+     * @type {string[]}
+     */
+    FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES: ['DocumentReference', 'DiagnosticReport', 'CarePlan'],
     REQUEST_ID_HEADER: 'x-request-id',
     REGEX: {
         INSTANT: /^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$/,
