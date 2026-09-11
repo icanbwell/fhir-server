@@ -2,21 +2,15 @@ const { Transform } = require('stream');
 const { logInfo, logError, logWarn } = require('../common/logging');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');
+const {
+    isEligibleForCompositionLatestVersionDedup,
+    compositionGroupKey,
+    isNewerComposition
+} = require('../common/compositionLatestVersionDedup');
 
 /**
- * Composition is generated for the same person+domain by two independent, intentionally
- * different generators (a Databricks batch pipeline and a low-latency service), each writing
- * its own Composition id via $merge. Both can legitimately be present at once. This transform
- * buffers only that narrow set of Composition resources (identified by `meta.source`) and, per
- * (subject, type) group, emits only the one with the newest `meta.lastUpdated` -- every other
- * resource (including non-Composition and non-matching-source Compositions, e.g. legacy V1) is
- * passed through untouched and immediately, so buffering never applies outside this one case.
- *
- * Buffered winners are re-sorted by `defaultSortId` before being emitted (in `_flush` or when
- * the group cap forces an early drain) so stream output order stays monotonic in the same field
- * the cursor itself is sorted on -- callers downstream (FhirBundleWriter, searchBundle.js) build
- * the `id:above` pagination cursor from the sort key of the *last emitted* resource, and Map
- * insertion order does not track that once a later-arriving duplicate wins a group.
+ * Two independent generators can each write a Composition for the same (subject, type); this
+ * buffers just those and emits only the newest per group, sorted back into defaultSortId order.
  */
 class CompositionLatestVersionTransform extends Transform {
     /**
@@ -38,23 +32,11 @@ class CompositionLatestVersionTransform extends Transform {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
 
-        /**
-         * Field used to sort the underlying cursor (e.g. `_uuid`). Buffered winners are
-         * re-sorted on this field before being pushed, so emission order stays monotonic.
-         * @type {string}
-         */
+        /** cursor sort field; buffered winners are re-sorted on this before emitting @type {string} */
         this._defaultSortId = defaultSortId;
 
-        /**
-         * Winning resource seen so far per (subject, type) group. Bounded by
-         * compositionLatestVersionMaxGroups -- once that many distinct groups are buffered,
-         * everything seen so far is flushed and this transform permanently falls back to
-         * passing every subsequent resource straight through, trading complete dedup for a
-         * hard cap on memory (a large/unscoped Composition search should degrade, not grow
-         * without bound).
-         * @type {Map<string, Resource>}
-         * @private
-         */
+        /** winner seen so far per (subject, type) group, bounded by compositionLatestVersionMaxGroups
+         * @type {Map<string, Resource>} @private */
         this._latestByGroupKey = new Map();
 
         /**
@@ -70,11 +52,7 @@ class CompositionLatestVersionTransform extends Transform {
      * @private
      */
     _isEligibleForDedup (resource) {
-        const source = resource?.meta?.source;
-        if (resource?.resourceType !== 'Composition' || !source) {
-            return false;
-        }
-        return this.configManager.compositionLatestVersionSources.includes(source);
+        return isEligibleForCompositionLatestVersionDedup(resource, this.configManager);
     }
 
     /**
@@ -83,19 +61,10 @@ class CompositionLatestVersionTransform extends Transform {
      * @private
      */
     _groupKey (resource) {
-        const subjectReference = resource?.subject?.reference;
-        const typeCode = resource?.type?.coding?.[0]?.code;
-        if (!subjectReference || !typeCode) {
-            return null;
-        }
-        return `${subjectReference}|${typeCode}`;
+        return compositionGroupKey(resource);
     }
 
-    /**
-     * Pushes every currently-buffered winner, sorted ascending by defaultSortId so emission
-     * order stays monotonic in the cursor's own sort key, then clears the buffer.
-     * @private
-     */
+    /** pushes buffered winners sorted ascending by defaultSortId, then clears the buffer @private */
     _drainBuffer () {
         const winners = Array.from(this._latestByGroupKey.values());
         winners.sort((a, b) => {
@@ -129,10 +98,7 @@ class CompositionLatestVersionTransform extends Transform {
             isNewGroup &&
             this._latestByGroupKey.size >= this.configManager.compositionLatestVersionMaxGroups
         ) {
-            // hard cap reached -- flush what we have (sorted) and stop buffering for the rest
-            // of this stream rather than growing memory without bound. From here on, later
-            // duplicates of an already-flushed group will no longer be deduped: a documented,
-            // bounded degradation instead of unbounded growth or a crash.
+            // cap reached -- flush and fall back to passthrough rather than grow unbounded
             logWarn(
                 `CompositionLatestVersionTransform: group cap (${this.configManager.compositionLatestVersionMaxGroups}) ` +
                 'reached; flushing and falling back to passthrough for the remainder of this stream', {}
@@ -143,13 +109,7 @@ class CompositionLatestVersionTransform extends Transform {
             return;
         }
         const existing = this._latestByGroupKey.get(groupKey);
-        if (!existing) {
-            this._latestByGroupKey.set(groupKey, resource);
-            return;
-        }
-        const existingLastUpdated = new Date(existing?.meta?.lastUpdated || 0).getTime();
-        const candidateLastUpdated = new Date(resource?.meta?.lastUpdated || 0).getTime();
-        if (candidateLastUpdated >= existingLastUpdated) {
+        if (!existing || isNewerComposition(resource, existing)) {
             this._latestByGroupKey.set(groupKey, resource);
         }
     }

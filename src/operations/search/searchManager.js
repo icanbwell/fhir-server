@@ -707,17 +707,9 @@ class SearchManager {
             // if _total is passed then calculate the total count for matching records also
             // don't use the options since they set a limit and skip
             //
-            // NOTE for Composition when enableCompositionLatestVersionDedup is on:
-            // CompositionLatestVersionTransform collapses duplicate Compositions (same subject +
-            // type, written by the two generators) down to one on the streamed result, but this
-            // count intentionally does NOT account for that. exactDocumentCountAsync can be
-            // satisfied by an index alone; computing the deduped count instead means a $group
-            // aggregation over every matched document (no index can shortcut a computed grouping
-            // key), which turns a cheap indexed count into a full document scan -- a real timeout/
-            // resource risk on an unscoped or large tenant query, and one this cluster (M300,
-            // already the largest tier available) can't absorb. bundle.total is therefore a safe
-            // upper bound on the actual entry count for Composition when dedup is active (at most
-            // 2x, since there are only ever two generators), never an undercount.
+            // Composition dedup (CompositionLatestVersionTransform) is NOT reflected here: an
+            // exact deduped count needs a $group over every matched doc instead of an indexed
+            // count, too costly on our current cluster. So this is an upper bound (at most 2x).
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
             );
@@ -1187,14 +1179,7 @@ class SearchManager {
                 // }),
                 resourcePreparerTransform
             ];
-            // scoped to Composition only: two independent, intentionally different generators
-            // can each write a Composition for the same subject + type, so only this resource
-            // type ever needs latest-version dedup. A Composition search is NOT guaranteed to be
-            // patient-scoped (a service-account/tenant-scoped search or NDJSON export can span
-            // many subjects), so this defers the first byte written to the response until either
-            // the whole cursor drains or compositionLatestVersionMaxGroups distinct (subject,
-            // type) groups have been buffered, whichever comes first -- see
-            // CompositionLatestVersionTransform for the bounded-memory fallback.
+            // Composition-only dedup for the two-generator duplicate problem; see CompositionLatestVersionTransform.
             if (resourceType === 'Composition') {
                 pipelineStages.push(
                     new CompositionLatestVersionTransform(
