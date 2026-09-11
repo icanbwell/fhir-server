@@ -218,6 +218,99 @@ A composite search parameter combines two or more related component values into 
 
 FHIR specification: https://www.hl7.org/fhir/R4B/search.html#composite
 
+### 1.10 Full-Text Content Search
+
+The `_content` search parameter performs full-text search across the text content of resources. This feature delegates to a sibling service's MongoDB Atlas Search index and is supported for three resource types only: `DocumentReference`, `DiagnosticReport`, and `CarePlan`.
+
+#### Configuration Required
+
+For `_content` search to be available, all of the following environment variables must be set:
+
+| Environment Variable | Purpose |
+|---|---|
+| `FHIR_NOTES_MONGO_URI` | Connection string for the clinical notes MongoDB cluster |
+| `FHIR_NOTES_MONGO_DATABASE` | Database name on that cluster |
+| `FHIR_NOTES_MONGO_COLLECTION` | Collection name (the `ClinicalNote` collection) |
+| `FHIR_NOTES_TEXT_SEARCH_INDEX_NAME` | Atlas Search index name (e.g., `fhir-notes-text-search`) |
+| `ENABLE_FULL_TEXT_SEARCH` | Feature flag; set to `1` to enable (must be set to `1` in addition to the above) |
+
+All four connection variables **and** the `ENABLE_FULL_TEXT_SEARCH` flag must be configured for the feature to be active. If any are missing or the flag is not set to `1`, requests with `_content` will return a `BadRequestError`.
+
+#### Supported Resource Types
+
+`_content` search is available **only** on:
+- `DocumentReference`
+- `DiagnosticReport`
+- `CarePlan`
+
+Attempting `_content` on any other resource type returns `BadRequestError`.
+
+#### Query Syntax — Lucene `queryString` Format
+
+The `_content` parameter accepts Lucene syntax directly, supporting:
+- Boolean operators: `AND`, `OR`, `NOT`
+- Grouping with parentheses: `(...)`
+- Field-scoped terms and wildcards
+
+**Example:**
+```
+GET /4_0_0/DocumentReference?patient=Patient/123&_content=(bone OR liver) AND metastases
+```
+
+Returns all `DocumentReference` resources for the given patient whose content contains either "bone" or "liver", **and** also contains "metastases". Multiple criteria can be combined with standard Lucene operators.
+
+#### Derived-Text Enrichment on Single-Resource Read
+
+When reading a single `DocumentReference` or `DiagnosticReport` by ID, you can request the server extract and attach the plain text from its attachments by passing an **empty** `_content` parameter:
+
+```
+GET /4_0_0/DocumentReference/abc-123?_content=
+```
+
+The server will add a sibling `content[]` attachment (for `DocumentReference`) or `presentedForm[]` entry (for `DiagnosticReport`) containing the derived plain text, marked with an extension to distinguish it from the original:
+
+```json
+{
+  "attachment": {
+    "contentType": "text/plain",
+    "data": "base64-encoded plain text here",
+    "extension": [
+      {
+        "url": "https://www.icanbwell.com/attachment-derived-text",
+        "valueBoolean": true
+      }
+    ]
+  }
+}
+```
+
+The `valueBoolean: true` signals that this is a server-generated derivation, not part of the original resource.
+
+#### Binary Reverse Lookup
+
+A `Binary` resource referenced by an attachment URL can also be read with the empty `_content` trigger to retrieve the derived text:
+
+```
+GET /4_0_0/Binary/xyz-789?_content=
+```
+
+Since `Binary` itself is not indexed in the text-search service, the server looks up which `DocumentReference` or `DiagnosticReport` attachment references this `Binary`, retrieves its derived text, and returns it as a top-level extension:
+
+```json
+{
+  "url": "https://www.icanbwell.com/attachment-derived-text",
+  "valueString": "plain text content here (not base64-encoded)"
+}
+```
+
+**Important:** The empty-`_content` enrichment trigger (`_content=`) is restricted to single-resource reads by `_id`. Using it on a broad search result set is not supported.
+
+#### Known Limitation
+
+Derived-text enrichment can add substantial content to responses when traversing resource graphs. A request like `Patient/123/$everything?_content=` will attach derived text to all reachable `DocumentReference` and `DiagnosticReport` resources within that patient's graph, which may result in large response payloads. This is a response-size concern only — authorization is unaffected; the resources returned are already verified as accessible to the requesting user.
+
+FHIR Specification: https://hl7.org/fhir/R4B/search.html#content
+
 ## 2. Requesting a single resource
 
 Add the id of the resource in the url e.g.,
