@@ -113,6 +113,7 @@ const {WriteAllowedByScopesValidator} = require('./operations/merge/validators/w
 const {PatientQueryCreator} = require('./operations/common/patientQueryCreator');
 const {SearchParametersManager} = require('./searchParameters/searchParametersManager');
 const {ClinicalNoteSearchClient} = require('./utils/clinicalNoteSearchClient');
+const {ClinicalNoteTextRetriever} = require('./utils/clinicalNoteTextRetriever');
 const {DatabaseExportManager} = require('./dataLayer/databaseExportManager');
 const {ExportOperation} = require('./operations/export/export');
 const {ExportManager} = require('./operations/export/exportManager');
@@ -132,6 +133,7 @@ const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
 const {GroupMemberEnrichmentProvider} = require('./enrich/providers/groupMemberEnrichmentProvider');
 const {CompositionSectionFilterEnrichmentProvider} = require('./enrich/providers/compositionSectionFilterEnrichmentProvider');
+const {AttachmentTextEnrichmentProvider} = require('./enrich/providers/attachmentTextEnrichmentProvider');
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
 const {SummaryOperation} = require("./operations/summary/summary");
@@ -220,7 +222,8 @@ const createContainer = function () {
             new GroupMemberEnrichmentProvider({
                 clickHouseClientManager: c.clickHouseClientManager,
                 configManager: c.configManager
-            })
+            }),
+            c.attachmentTextEnrichmentProvider
         ]
     }));
     container.register('identifierEnrichmentProvider', (c) => new IdentifierEnrichmentProvider({
@@ -228,6 +231,13 @@ const createContainer = function () {
     }));
     container.register('compositionSectionFilterEnrichmentProvider', (c) => new CompositionSectionFilterEnrichmentProvider({
         configManager: c.configManager
+    }));
+    container.register('clinicalNoteTextRetriever', (c) => new ClinicalNoteTextRetriever({
+        mongoDatabaseManager: c.mongoDatabaseManager,
+        configManager: c.configManager
+    }));
+    container.register('attachmentTextEnrichmentProvider', (c) => new AttachmentTextEnrichmentProvider({
+        clinicalNoteTextRetriever: c.clinicalNoteTextRetriever
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {
