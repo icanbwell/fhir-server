@@ -537,5 +537,81 @@ describe('MongoDatabaseManager', () => {
             // Verify that we got a non-null db object
             expect(db).not.toBeNull();
         });
+
+        test('a connection failure returns null (does not throw) and does not affect the primary connection', async () => {
+            jest.doMock('../../../config', () => ({
+                ...jest.requireActual('../../../config'),
+                fhirNotesMongoConfig: {
+                    connection: 'mongodb://user:pass@localhost:27017',
+                    db_name: 'fhir_notes',
+                    collection_name: 'clinical_notes',
+                    index_name: 'fhir-notes-text-search',
+                    options: {}
+                }
+            }));
+            jest.doMock('../../../utils/isTrue', () => ({
+                isTrue: jest.fn((s) => String(s).toLowerCase() === 'true' || String(s).toLowerCase() === '1'),
+                isTrueWithFallback: jest.fn()
+            }));
+            jest.resetModules();
+            process.env.ENABLE_FULL_TEXT_SEARCH = '1';
+
+            const { MongoDatabaseManager: FreshMongoDatabaseManager } = require('../../../utils/mongoDatabaseManager');
+            const { ConfigManager: FreshConfigManager } = require('../../../utils/configManager');
+
+            mockConnect.mockClear();
+            mockConnect.mockRejectedValueOnce(new Error('fhir-notes-vector-store unreachable'));
+
+            const freshConfigManager = new FreshConfigManager();
+            const manager = new FreshMongoDatabaseManager({ configManager: freshConfigManager });
+
+            const db = await manager.getFhirNotesDbAsync();
+            expect(db).toBeNull();
+
+            // The primary connection must be entirely unaffected by the fhir-notes failure --
+            // it's connected independently, not as part of the same connectAsync() sequence.
+            mockConnect.mockResolvedValueOnce(undefined);
+            const clientDb = await manager.getClientDbAsync();
+            expect(clientDb).not.toBeNull();
+
+            delete process.env.ENABLE_FULL_TEXT_SEARCH;
+        });
+
+        test('a later call retries after a failed attempt, rather than staying permanently null', async () => {
+            jest.doMock('../../../config', () => ({
+                ...jest.requireActual('../../../config'),
+                fhirNotesMongoConfig: {
+                    connection: 'mongodb://user:pass@localhost:27017',
+                    db_name: 'fhir_notes',
+                    collection_name: 'clinical_notes',
+                    index_name: 'fhir-notes-text-search',
+                    options: {}
+                }
+            }));
+            jest.doMock('../../../utils/isTrue', () => ({
+                isTrue: jest.fn((s) => String(s).toLowerCase() === 'true' || String(s).toLowerCase() === '1'),
+                isTrueWithFallback: jest.fn()
+            }));
+            jest.resetModules();
+            process.env.ENABLE_FULL_TEXT_SEARCH = '1';
+
+            const { MongoDatabaseManager: FreshMongoDatabaseManager } = require('../../../utils/mongoDatabaseManager');
+            const { ConfigManager: FreshConfigManager } = require('../../../utils/configManager');
+
+            mockConnect.mockClear();
+            mockConnect.mockRejectedValueOnce(new Error('transient outage'));
+
+            const freshConfigManager = new FreshConfigManager();
+            const manager = new FreshMongoDatabaseManager({ configManager: freshConfigManager });
+
+            const firstAttempt = await manager.getFhirNotesDbAsync();
+            expect(firstAttempt).toBeNull();
+
+            mockConnect.mockResolvedValueOnce(undefined);
+            const secondAttempt = await manager.getFhirNotesDbAsync();
+            expect(secondAttempt).not.toBeNull();
+
+            delete process.env.ENABLE_FULL_TEXT_SEARCH;
+        });
     });
 });

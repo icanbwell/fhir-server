@@ -176,7 +176,13 @@ class FhirResponseWriter {
         const format = req.sanitized_args && req.sanitized_args._format;
         if (hasPlainTextContentType(format) &&
             PLAIN_TEXT_SUPPORTED_RESOURCE_TYPES.has(resource.resourceType) &&
-            this.configManager.fhirNotesFullTextSearchConfigured) {
+            this.configManager.fhirNotesFullTextSearchConfigured &&
+            !req.params.version_id) {
+            // The vector store only stores the latest indexed text per chunk_group_id, with no
+            // version component. `GET .../_history/{version_id}?_format=text/plain` is a vread --
+            // a caller authorized against (and asking for) a specific historical version must not
+            // silently receive current-version text if the resource's content/access has changed
+            // since. Fall through to the resource's normal versioned JSON instead.
             let text = '';
             try {
                 text = (await this.resolveDerivedTextAsync({ resource })) || '';

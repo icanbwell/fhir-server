@@ -205,9 +205,12 @@ class SearchManager {
      * @param {Object} params
      * @param {string} params.resourceType
      * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.operation `'READ'|'WRITE'|'DELETE'` (any casing) -- `_content` only
+     *   applies to read/search operations, see below
+     * @param {boolean|undefined} [params.useHistoryTable]
      * @returns {Promise<import('mongodb').Document|null>} null when `_content` is absent
      */
-    async buildContentSearchIdFilterAsync ({ resourceType, parsedArgs }) {
+    async buildContentSearchIdFilterAsync ({ resourceType, parsedArgs, operation, useHistoryTable }) {
         const contentArg = parsedArgs.get('_content');
         if (!contentArg) {
             return null;
@@ -216,6 +219,24 @@ class SearchManager {
             // The feature is off (the default posture). `_content` is a recognized-but-unresolved
             // search parameter in that case -- silently ignored for every resourceType, matching
             // `_content`'s behavior on main today (before this feature existed at all).
+            return null;
+        }
+        if (String(operation).toUpperCase() !== 'READ') {
+            // constructQueryAsync is also the query builder for update/patch/remove. Never let a
+            // full-text hit against an external, staleable index gate a WRITE/DELETE -- the design
+            // scoped `_content` to search/read only. Silently ignored here (not a BadRequestError)
+            // for the same reason the feature-off case above is silent: a caller conditionally
+            // deleting/patching by other search params shouldn't have that request rejected just
+            // because they also (irrelevantly) passed `_content`.
+            return null;
+        }
+        if (useHistoryTable) {
+            // History documents nest the resource under a `resource.` prefix (see fieldMapper.js).
+            // FilterById.getListFilter always builds a non-history field mapping, so an `_id`/
+            // `_uuid` filter built here would target the wrong path on the history collection and
+            // silently match nothing -- i.e. "no candidates found" would look identical to "found
+            // candidates but the filter path was wrong", which is exactly the fail-open shape
+            // review.md warns about. Ignore `_content` on history reads until that's supported.
             return null;
         }
         if (!FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.includes(resourceType)) {
@@ -234,6 +255,15 @@ class SearchManager {
             resourceType,
             contentQuery
         });
+        if (candidateIds.length === 0) {
+            // FilterById.getListFilter([]) returns {_uuid: {$in: []}}, but MongoQuerySimplifier
+            // deletes empty $in arrays (and the now-empty parent clauses around them), which would
+            // silently erase this filter and turn a zero-match _content search into "no filter,
+            // return everything". Use the same __invalid__ sentinel the codebase already uses
+            // elsewhere (e.g. patientQueryCreator.js, dataSharingManager.js) for "return nothing" --
+            // it survives simplification because it can never match a real _uuid.
+            return { _uuid: '__invalid__' };
+        }
         return FilterById.getListFilter(candidateIds);
     }
 
@@ -289,7 +319,7 @@ class SearchManager {
              */
             const { base_version } = parsedArgs;
             assertIsValid(base_version, 'base_version is not set');
-            const contentSearchIdFilter = await this.buildContentSearchIdFilterAsync({ resourceType, parsedArgs });
+            const contentSearchIdFilter = await this.buildContentSearchIdFilterAsync({ resourceType, parsedArgs, operation, useHistoryTable });
             const accessViaPatientScopes = this.scopesManager.isAccessAllowedByPatientScopes({ scope, resourceType });
 
             /**

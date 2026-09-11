@@ -57,6 +57,42 @@
   resource — was fixed the same way: resolve the exact attachment index before deriving the chunk
   group id, rather than trusting the first Mongo match. See
   [Derived-text delivery via `_format=text/plain`](#derived-text-delivery-via-formattextplain).
+- **2026-09-10 (d)** — a further adversarial review against `review.md` plus a general
+  correctness/silent-failure pass, both by executing the real code, found and fixed:
+  (1) `MongoQuerySimplifier.simplifyFilter` (unmodified, unmockable, run on every query) deletes
+  `{_uuid:{$in:[]}}` and the now-empty parent clause around it, so an empty `_content` candidate
+  list silently became "no filter, return everything" — the exact failure this design's point 4
+  already warned against, shipped anyway because every existing test asserted on
+  `buildContentSearchIdFilterAsync`'s isolated return value rather than `constructQueryAsync`'s
+  actual output. Fixed with the `{_uuid:'__invalid__'}` sentinel (see `_content` search, point 4).
+  (2) `meta.resource_type` is not a mapped field in the vector store's text-search index, so putting
+  it in `$search.compound.filter` meant `_content` matched nothing in production; moved to a
+  `$match` stage after `$search` (see `_content` search, point 2). (3) Candidate ids were returned
+  as raw `debug.resource_reference` sourceIds with no tenant discriminator in the join itself,
+  letting one tenant's `_content` search pick up a same-sourceId, different-SAA resource as a
+  false-positive candidate probe (review.md §E); fixed by resolving each candidate to a `_uuid` via
+  `sourceAssigningAuthority` before returning it. (4) The `Binary` reverse-lookup's chunk selection
+  keyed on `chunk_group_id` alone, which two different resources under the same SAA could collide
+  on; fixed by also requiring the resolved owning resource's identity to match, and failing closed
+  (rather than picking arbitrarily) when the URL genuinely matches more than one distinct resource.
+  (5) `MongoDatabaseManager.connectAsync()` opened the fhir-notes-vector-store connection as part of
+  the *primary* connection sequence, so an outage there could fail fhir-server's primary request
+  path, and a single failed attempt permanently disabled the feature for the process's lifetime
+  (`clientConnection` was already set, so `connectAsync()` short-circuited on every later call).
+  Decoupled into its own lazy, independently-retried connection path
+  (`getFhirNotesDbAsync`/`connectFhirNotesAsync`) that never throws. (6) `_content` was reachable
+  from `constructQueryAsync`'s write (`update`/`patch`/`remove`) and history query paths, where it
+  either silently matched nothing (history documents nest under a `resource.` field prefix
+  `FilterById` doesn't know about) or could gate a DELETE by a staleable external index; restricted
+  to read operations, with history explicitly excluded. (7) `GET .../_history/{version}?_format=
+  text/plain` returned the *current* indexed text for a request asking about a specific historical
+  version; the plain-text branch now only applies to non-versioned reads. (8) Chunk reassembly had
+  no completeness check against the stored `meta.total_chunks`, so a note read mid-reindex (some
+  chunks written, others not yet) could silently return truncated clinical text with no indication
+  a gap existed; now compared against `total_chunks` and fails closed (returns nothing) on mismatch
+  rather than serving a partial document. See
+  [`_content` search](#_content-search-documentreference--diagnosticreport--careplan) and
+  [Derived-text delivery via `_format=text/plain`](#derived-text-delivery-via-formattextplain).
 
 ## Background
 
@@ -228,33 +264,56 @@ to decide *whether* they can see it.
    `SearchParameterDefinition{ type: 'special' }` instead of `undefined`, so it's reachable at all
    instead of being silently dropped by `r4.js`'s loop guard (same root cause as the composite-params
    bug, #2483).
-2. **`ClinicalNoteSearchClient`** (new) — given `{ resourceType, patientIds, query }`, runs:
+2. **`ClinicalNoteSearchClient`** (new) — given `{ resourceType, contentQuery }`, runs:
    ```json
-   {
-     "$search": {
-       "index": "<FHIR_NOTES_TEXT_SEARCH_INDEX_NAME>",
-       "compound": {
-         "must": [
-           { "queryString": { "defaultPath": "text", "query": "<_content value, near-verbatim>" } }
-         ],
-         "filter": [
-           { "equals": { "path": "meta.resource_type", "value": "<resourceType>" } },
-           { "in": { "path": "patient_id", "value": ["<patientIds>"] } }
-         ]
+   [
+     {
+       "$search": {
+         "index": "<FHIR_NOTES_TEXT_SEARCH_INDEX_NAME>",
+         "queryString": { "defaultPath": "text", "query": "<_content value, near-verbatim>" }
        }
-     }
-   }
+     },
+     { "$limit": 1000 },
+     { "$match": { "meta.resource_type": "<resourceType>" } },
+     { "$project": { "debug.resource_reference": 1, "debug.resource.meta.security": 1 } }
+   ]
    ```
    against the vector-store collection, via the read-only connection above. `queryString` parses
    Lucene syntax natively (`AND`/`OR`/parens/field-scoped terms/wildcards) — see
    [Lucene syntax via `queryString`](#lucene-syntax-via-querystring) — so the FHIR `_content` value
    passes through close to verbatim; fhir-server does not need its own boolean-grammar parser for
    this path (contrast with the original design's `textQueryParser.js`, which is no longer needed
-   for this scope). Extracts distinct ids from `debug.resource_reference`, strips the resourceType
-   prefix, returns the id list (deduped — multiple chunks of the same document may all match).
-   - `patientIds` is derived from the request's *already-computed* patient scope (whatever the
-     request's own patient/access-tag filtering already resolved to) — never from the raw request
-     params directly, so this pre-filter can't itself be widened by a caller.
+   for this scope).
+   - `meta.resource_type` is **not** a mapped field in the vector store's text-search index (only
+     `text`, `patient_id`, and `key` are, per `create_text_search_index` in that repo) — an earlier
+     revision of this implementation put it inside `$search.compound.filter`, which Atlas Search
+     either ignores or errors on for an unmapped field, so `_content` matched nothing at all in
+     practice. It has to be a `$match` stage *after* `$search` instead, which is what's shown above.
+     `$limit` runs before that `$match` (the standard Atlas Search pattern for bounding an
+     aggregation pipeline with no other cap) — a query whose top 1000 hits are dominated by other
+     resourceTypes can therefore under-return true matches for the requested resourceType; that's
+     an accepted trade-off against unbounded memory/network use from an unmapped, un-indexed
+     collection scan, not a correctness guarantee.
+   - **Known gap, not yet implemented**: this pipeline has no `patient_id` pre-filter. An earlier
+     revision of this design specified one, derived from the request's already-computed patient
+     scope, specifically so the search couldn't itself be widened by a caller. As shipped, `_content`
+     searches across every patient of every tenant in the vector store before results are
+     re-authorized (see the security model above) — no direct disclosure results from this (every
+     candidate is still re-proven through fhir-server's own tenant/access-tag filtering), but it
+     does mean the `$limit` above is a much blunter instrument than intended, and a caller with
+     access to only their own tenant's data can still cause the vector store to do this work for
+     every tenant on every request. Restoring the `patient_id` filter is follow-up work.
+   - Extracts each match's raw sourceId from `debug.resource_reference` (stripping the resourceType
+     prefix) and its `sourceAssigningAuthority` from `debug.resource.meta.security`, then resolves
+     the pair to a `_uuid` via `generateUUIDv5(\`${sourceId}|${sourceAssigningAuthority}\`)` — the
+     same scheme `uuidColumnHandler.js` uses to populate `_uuid` in the first place — before
+     returning the (deduped) candidate list. A raw `debug.resource_reference` sourceId is only
+     unique per `(resourceType, sourceAssigningAuthority)`, not globally (see
+     [Why raw ids aren't enough](#why-raw-ids-arent-enough) above); returning it directly would let
+     `_content` pick up an unrelated same-sourceId resource under a *different* SAA as a
+     false-positive candidate (review.md §E: a join on a tenant-independent identifier needs the
+     tenant discriminator *in the join condition itself*). A candidate whose chunk carries no
+     `sourceAssigningAuthority` tag is dropped rather than guessed at.
 3. **`SearchManager` hook** — before the normal query-building path runs, if `_content` is present
    (a non-empty value — `_content` is search-only now, see below) and `resourceType` is one of the
    three supported: call `ClinicalNoteSearchClient`, get candidate ids, and inject
@@ -275,8 +334,15 @@ to decide *whether* they can see it.
      resourceType or missing connection config become a `BadRequestError`.
 4. **Empty candidate list is a real zero-result answer, not "no filter."** Per `review.md` §D's
    general warning about empty-filter-means-return-everything bugs: if `ClinicalNoteSearchClient`
-   returns `[]`, the resulting `_id ∈ []` constraint must produce zero results, explicitly — not be
-   treated as "no `_id` constraint, so don't filter."
+   returns `[]`, the query must produce zero results, explicitly — not be treated as "no `_id`
+   constraint, so don't filter." This cannot be a literal `_id ∈ []`/`_uuid ∈ []` constraint,
+   though: `MongoQuerySimplifier.simplifyFilter` (which every query passes through, unconditionally,
+   at the end of `constructQueryAsync`) deletes empty `$in` arrays and then the now-empty parent
+   clauses around them — an earlier revision of this implementation shipped exactly that and it was
+   silently erased, turning a zero-match `_content` search into "no filter, so return everything."
+   The fix uses the same `{ _uuid: '__invalid__' }` sentinel this codebase already uses elsewhere
+   (`patientQueryCreator.js`, `dataSharingManager.js`) for "match nothing" — a literal string value
+   survives simplification because it isn't an array.
 5. **An empty-string `_content` value never reaches this code at all.** `r4ArgsParser.js` drops
    every empty-string query parameter value, for every parameter, before constructing a
    `ParsedArgsItem` — this is generic parser behavior, not something `_content` opts into or out of.
@@ -295,23 +361,24 @@ GET /4_0_0/DocumentReference?patient=Patient/123&_content=(bone OR liver) AND me
 
 **Vector-store Atlas Search query** (step 2 above):
 ```json
-{
-  "$search": {
-    "index": "fhir-notes-text-search",
-    "compound": {
-      "must": [{ "queryString": { "defaultPath": "text", "query": "(bone OR liver) AND metastases" } }],
-      "filter": [
-        { "equals": { "path": "meta.resource_type", "value": "DocumentReference" } },
-        { "in": { "path": "patient_id", "value": ["123"] } }
-      ]
+[
+  {
+    "$search": {
+      "index": "fhir-notes-text-search",
+      "queryString": { "defaultPath": "text", "query": "(bone OR liver) AND metastases" }
     }
-  }
-}
+  },
+  { "$limit": 1000 },
+  { "$match": { "meta.resource_type": "DocumentReference" } },
+  { "$project": { "debug.resource_reference": 1, "debug.resource.meta.security": 1 } }
+]
 ```
 
 **Resulting fhir-server query** (step 3 above, illustrative): the normal `patient=Patient/123`
-tenant-scoped query, AND'd with `_id ∈ [<ids from the search above>]`. If the vector store found
-zero matching chunks, the caller gets an empty Bundle — same as any other search with no matches.
+tenant-scoped query, AND'd with `_uuid ∈ [<uuids resolved from the search above>]`. If the vector
+store found zero matching chunks, the query is AND'd with the `{ _uuid: '__invalid__' }` sentinel
+instead (see point 4 above) and the caller gets an empty Bundle — same as any other search with no
+matches.
 
 `queryString` also means field-scoped Lucene terms work for free against any other field mapped
 into that index (e.g. `_content=meta.note_category:progress AND diabetes`), without fhir-server
@@ -432,14 +499,23 @@ see [Error Handling](#error-handling).
 ## Testing Plan
 
 1. **`ClinicalNoteSearchClient` unit tests** — mock the read-only Mongo client; verify the
-   `$search` shape (compound/queryString/filter), id extraction/dedup from `debug.resource_reference`,
-   and that `patientIds` only ever comes from the already-scoped patient filter, never raw request
-   params.
+   `$search`/`$limit`/`$match` shape, `_uuid` resolution from
+   `debug.resource_reference`+`debug.resource.meta.security` via
+   `generateUUIDv5(sourceId|sourceAssigningAuthority)`, and that a candidate with no
+   `sourceAssigningAuthority` tag is dropped rather than returned unscoped. (The `patientIds`
+   pre-filter described earlier is a known, not-yet-implemented gap — see the note in `_content`
+   search step 2 — so there is nothing to test for it yet.)
 2. **`SearchManager` hook integration tests** — `_content` search end-to-end against a real
    `mongodb-atlas-local` instance (reusing ADR-0003's existing `jest.atlasSearch.config.js` /
    `atlasSearchGlobalSetup.js` infra): matches narrow correctly, empty-candidate-list yields zero
-   results (not everything), a request for an unsupported resourceType is rejected, cluster-down
-   simulation yields a `503`/`OperationOutcome` rather than an unfiltered result set.
+   results (not everything, and specifically survives `MongoQuerySimplifier` rather than being
+   erased by it), a request for an unsupported resourceType is rejected, cluster-down simulation
+   yields a `503`/`OperationOutcome` rather than an unfiltered result set. **Not yet done**: this
+   still needs a real `mongodb-atlas-local` run — every existing `ClinicalNoteSearchClient` test
+   mocks `collection.aggregate` rather than exercising a real Atlas Search index, which is exactly
+   how the `meta.resource_type`-unmapped-field bug (see `_content` search step 2) shipped
+   undetected. Tracked as follow-up work, not blocking this PR on its own given the fix has since
+   landed and is covered by unit tests of the corrected pipeline shape.
 3. **Cross-tenant regression tests** (required given `review.md`'s scope) — a service account
    scoped to tenant A must not see resources belonging to tenant B even when the vector store
    returns candidate ids for tenant B's documents (confirms the `_id ∈ [...]` re-authorization is

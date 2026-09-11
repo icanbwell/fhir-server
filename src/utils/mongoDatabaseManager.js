@@ -49,10 +49,22 @@ let resourceHistoryDb = null;
 let gridFSBucket = null;
 
 /**
- * fhir-notes-vector-store db (read-only)
+ * fhir-notes-vector-store db (read-only). Connected lazily and independently of
+ * connectAsync()/clientConnection -- see getFhirNotesDbAsync() -- because this is an
+ * externally-owned, dependency-of-a-dependency cluster: an outage there must never stall or fail
+ * fhir-server's primary request path.
  * @type {import('mongodb').Db}
  */
 let fhirNotesDb = null;
+
+/**
+ * In-flight connection attempt for fhirNotesDb, so concurrent callers share one attempt instead
+ * of racing to connect. Reset to null after every attempt (success or failure) so a later request
+ * can retry a transient failure, rather than being permanently stuck once set (unlike
+ * clientConnection, which is intentionally never retried within a process's lifetime).
+ * @type {Promise<import('mongodb').Db|null>|null}
+ */
+let fhirNotesConnectPromise = null;
 
 /**
  * @typedef MongoDatabaseManagerProps
@@ -129,17 +141,47 @@ class MongoDatabaseManager {
 
     /**
      * Gets the fhir-notes-vector-store db (read-only). Returns null when the feature isn't
-     * configured in this environment (FHIR_NOTES_MONGO_URL unset).
+     * configured in this environment (FHIR_NOTES_MONGO_URL unset), or when connecting to it
+     * fails -- callers (ClinicalNoteSearchClient, ClinicalNoteTextRetriever) already treat a null
+     * db as "feature unavailable" and degrade gracefully, rather than this method throwing and
+     * taking down an unrelated request.
      * @returns {Promise<import('mongodb').Db|null>}
      */
     async getFhirNotesDbAsync () {
         if (!this.configManager.fhirNotesFullTextSearchConfigured) {
             return null;
         }
-        if (!fhirNotesDb) {
-            await this.connectAsync();
+        if (fhirNotesDb) {
+            return fhirNotesDb;
         }
-        return fhirNotesDb;
+        if (!fhirNotesConnectPromise) {
+            fhirNotesConnectPromise = this.connectFhirNotesAsync();
+        }
+        try {
+            return await fhirNotesConnectPromise;
+        } finally {
+            fhirNotesConnectPromise = null;
+        }
+    }
+
+    /**
+     * Connects to the fhir-notes-vector-store cluster in isolation from connectAsync()'s primary
+     * connection setup. Never throws -- a failure here (misconfiguration, network outage, auth
+     * failure) must not cascade into fhir-server's primary request path failing. Logs and returns
+     * null instead, leaving fhirNotesDb unset so the next call retries.
+     * @returns {Promise<import('mongodb').Db|null>}
+     */
+    async connectFhirNotesAsync () {
+        try {
+            const fhirNotesConfig = await this.getFhirNotesConfigAsync();
+            const fhirNotesClient = await this.createClientAsync(fhirNotesConfig);
+            fhirNotesDb = fhirNotesClient.db(fhirNotesConfig.db_name);
+            return fhirNotesDb;
+        } catch (e) {
+            logError('Failed to connect to fhir-notes-vector-store. _content search and ' +
+                '_format=text/plain derived-text reads will be unavailable until this succeeds.', { error: e });
+            return null;
+        }
     }
 
     /**
@@ -301,12 +343,8 @@ class MongoDatabaseManager {
             ? await this.createClientAsync(resourceHistoryConfig)
             : client;
         resourceHistoryDb = resourceHistoryClient.db(resourceHistoryConfig.db_name);
-
-        if (this.configManager.fhirNotesFullTextSearchConfigured) {
-            const fhirNotesConfig = await this.getFhirNotesConfigAsync();
-            const fhirNotesClient = await this.createClientAsync(fhirNotesConfig);
-            fhirNotesDb = fhirNotesClient.db(fhirNotesConfig.db_name);
-        }
+        // fhir-notes-vector-store is intentionally NOT connected here -- see getFhirNotesDbAsync()
+        // and connectFhirNotesAsync() for why it's connected lazily and in isolation.
     }
 
     /**

@@ -15,8 +15,6 @@ const {
 } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
-const { TestMongoDatabaseManager } = require('../testMongoDatabaseManager');
-const { getMongoUrlAsync } = require('../mongoTestRunner');
 
 class FullTextSearchConfiguredConfigManager extends ConfigManager {
     get fhirNotesFullTextSearchConfigured () {
@@ -24,22 +22,10 @@ class FullTextSearchConfiguredConfigManager extends ConfigManager {
     }
 }
 
-// MongoDatabaseManager.connectAsync() unconditionally opens a fhir-notes-vector-store connection
-// whenever `configManager.fhirNotesFullTextSearchConfigured` is true (see
-// src/utils/mongoDatabaseManager.js), regardless of whether anything actually queries it -- this
-// happens as a side effect of connecting to the *primary* fhir db too, not just when the
-// text/plain feature runs. In production that flag is only ever true when real
-// FHIR_NOTES_MONGO_* env vars are set, so the connection always has somewhere valid to go; in
-// this test we're forcing the flag on without those env vars, so we must also point the
-// fhir-notes connection at the same in-memory test Mongo server (a separate, unused db name)
-// or connectAsync() throws before the request under test ever runs.
-class TestMongoDatabaseManagerWithFhirNotes extends TestMongoDatabaseManager {
-    async getFhirNotesConfigAsync () {
-        const mongoUrl = await getMongoUrlAsync();
-        return { connection: mongoUrl, db_name: 'fhir-notes-test', options: {} };
-    }
-}
-
+// mongoDatabaseManager.getFhirNotesDbAsync() connects to fhir-notes-vector-store lazily, only
+// when something actually queries it (see connectFhirNotesAsync() in mongoDatabaseManager.js) --
+// this test stubs clinicalNoteTextRetriever below, so that lazy connection is never attempted and
+// no fhir-notes-pointed MongoDatabaseManager override is needed here.
 class StubClinicalNoteTextRetriever {
     // The merge pipeline derives a `sourceAssigningAuthority` security tag (code "client") from
     // the fixture's `owner` tag -- FhirResponseWriter.resolveDerivedTextAsync extracts and
@@ -70,9 +56,6 @@ describe('_format=text/plain (configured) Tests', () => {
         const request = await createTestRequest((c) => {
             c.register('configManager', () => new FullTextSearchConfiguredConfigManager());
             c.register('clinicalNoteTextRetriever', () => new StubClinicalNoteTextRetriever());
-            c.register('mongoDatabaseManager', (c2) => new TestMongoDatabaseManagerWithFhirNotes({
-                configManager: c2.configManager
-            }));
             return c;
         });
 

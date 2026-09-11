@@ -253,6 +253,46 @@ describe('SearchManager', () => {
                 { 'meta.security': { $elemMatch: { code: 'client-abc' } } }
             ]));
         });
+
+        it('an empty _content candidate list survives MongoQuerySimplifier as __invalid__, never as "no filter, return everything"', async () => {
+            // Regression test for a real bug found in review: MongoQuerySimplifier.simplifyFilter
+            // (a real, unmocked static utility -- constructQueryAsync always runs it on the final
+            // query) deletes {_uuid:{$in:[]}} entirely, along with the now-empty $and clause around
+            // it. If buildContentSearchIdFilterAsync's empty-candidate case ever regressed back to
+            // returning {_uuid:{$in:[]}} instead of the __invalid__ sentinel, this test would catch
+            // it by asserting on constructQueryAsync's actual returned query -- not on
+            // buildContentSearchIdFilterAsync's return value in isolation.
+            const contentParsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+            contentParsedArgs.add(new ParsedArgsItem({
+                queryParameter: '_content',
+                queryParameterValue: new QueryParameterValue({ value: 'zzzznomatch', operator: '$and' }),
+                modifiers: []
+            }));
+
+            Object.defineProperty(mockConfigManager, 'fhirNotesFullTextSearchConfigured', {
+                value: true, writable: true, configurable: true
+            });
+            mockClinicalNoteSearchClient.findMatchingResourceIdsAsync = jest.fn().mockResolvedValue([]);
+            mockR4SearchQueryCreator.appendAndQuery = jest.fn().mockImplementation(
+                ({ query, andQuery }) => ({ $and: [query, andQuery] })
+            );
+            mockSecurityTagManager.getQueryWithSecurityTags = jest.fn().mockImplementation(({ query }) => ({
+                $and: [query, { 'meta.security': { $elemMatch: { code: 'client-abc' } } }]
+            }));
+
+            const result = await searchManager.constructQueryAsync({
+                user: 'user-1', scope: 'system/DocumentReference.read', isUser: false, userType: null,
+                resourceType: 'DocumentReference', useAccessIndex: false, personIdFromJwtToken: null,
+                requestId: 'req-1', parsedArgs: contentParsedArgs, useHistoryTable: false, operation: 'READ',
+                accessRequested: 'read'
+            });
+
+            expect(result.query.$and).toEqual(expect.arrayContaining([{ _uuid: '__invalid__' }]));
+            // Never silently degrade to "only the security-tag filter applies" -- that's exactly
+            // "no filter, so return everything" for the _content search the caller actually asked
+            // for.
+            expect(result.query).not.toEqual({ 'meta.security': { $elemMatch: { code: 'client-abc' } } });
+        });
     });
 
     describe('handleCountOption', () => {
@@ -631,7 +671,8 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
         });
         const result = await searchManager.buildContentSearchIdFilterAsync({
             resourceType: 'DocumentReference',
-            parsedArgs: new ParsedArgs({ base_version: '4_0_0' })
+            parsedArgs: new ParsedArgs({ base_version: '4_0_0' }),
+            operation: 'READ'
         });
         expect(result).toBeNull();
     });
@@ -643,7 +684,8 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
         });
         await expectRejectionWithStatusCode(searchManager.buildContentSearchIdFilterAsync({
             resourceType: 'Condition',
-            parsedArgs: makeParsedArgsWithContent('diabetes')
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
         }), 400);
     });
 
@@ -654,7 +696,8 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
         });
         const result = await searchManager.buildContentSearchIdFilterAsync({
             resourceType: 'DocumentReference',
-            parsedArgs: makeParsedArgsWithContent('diabetes')
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
         });
         expect(result).toBeNull();
     });
@@ -666,7 +709,38 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
         });
         const result = await searchManager.buildContentSearchIdFilterAsync({
             resourceType: 'Condition',
-            parsedArgs: makeParsedArgsWithContent('diabetes')
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        });
+        expect(result).toBeNull();
+    });
+
+    test.each(['WRITE', 'write', 'DELETE', 'delete'])(
+        'ignores _content silently (returns null) for a %s operation, never gating a write/delete by an external index',
+        async (operation) => {
+            const searchManager = makeSearchManager({
+                configManager: { fhirNotesFullTextSearchConfigured: true },
+                clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
+            });
+            const result = await searchManager.buildContentSearchIdFilterAsync({
+                resourceType: 'DocumentReference',
+                parsedArgs: makeParsedArgsWithContent('diabetes'),
+                operation
+            });
+            expect(result).toBeNull();
+        }
+    );
+
+    test('ignores _content silently (returns null) on a history query, since FilterById cannot target the history field mapping', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ',
+            useHistoryTable: true
         });
         expect(result).toBeNull();
     });
@@ -686,7 +760,8 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
         });
         const result = await searchManager.buildContentSearchIdFilterAsync({
             resourceType: 'DocumentReference',
-            parsedArgs: makeParsedArgsWithContent('diabetes')
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
         });
         expect(result).toEqual({
             _uuid: {
@@ -697,10 +772,9 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
 
     test('returns a _sourceId $in filter for non-uuid-shaped candidate ids (intentional fallback, not a bug)', async () => {
         // FilterById.getListFilter (via IdParser.parse + isUuid) routes any candidate id that
-        // isn't uuid-shaped to _sourceId instead of _uuid. This is documented, intentional
-        // fallback behavior in FilterById -- ClinicalNoteSearchClient strips the resourceType
-        // prefix from fhir-notes-vector-store's debug.resource_reference and returns whatever id
-        // form was stored there, which is not guaranteed to be a uuid.
+        // isn't uuid-shaped to _sourceId instead of _uuid. ClinicalNoteSearchClient now resolves
+        // candidates to _uuid itself in the normal case; this exercises the fallback path in case
+        // a candidate somehow isn't uuid-shaped.
         const clinicalNoteSearchClient = {
             findMatchingResourceIdsAsync: async () => ['abc123', 'def456']
         };
@@ -710,12 +784,18 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
         });
         const result = await searchManager.buildContentSearchIdFilterAsync({
             resourceType: 'DocumentReference',
-            parsedArgs: makeParsedArgsWithContent('diabetes')
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
         });
         expect(result).toEqual({ _sourceId: { $in: ['abc123', 'def456'] } });
     });
 
-    test('returns a filter matching nothing when candidate list is empty', async () => {
+    test('returns the __invalid__ sentinel (not {_uuid:{$in:[]}}) when candidate list is empty, so MongoQuerySimplifier cannot erase it', async () => {
+        // MongoQuerySimplifier.simplifyFilter deletes empty $in arrays and the now-empty parent
+        // clauses around them, which would turn {_uuid:{$in:[]}} into {} once this filter is AND'd
+        // into the rest of the query in constructQueryAsync -- silently converting a zero-match
+        // _content search into "no filter, so return everything". __invalid__ survives
+        // simplification because it's a literal string value, not an array.
         const clinicalNoteSearchClient = { findMatchingResourceIdsAsync: async () => [] };
         const searchManager = makeSearchManager({
             configManager: { fhirNotesFullTextSearchConfigured: true },
@@ -723,9 +803,10 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
         });
         const result = await searchManager.buildContentSearchIdFilterAsync({
             resourceType: 'DocumentReference',
-            parsedArgs: makeParsedArgsWithContent('diabetes')
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
         });
-        expect(result).toEqual({ _uuid: { $in: [] } });
+        expect(result).toEqual({ _uuid: '__invalid__' });
     });
 
     test('propagates ExternalTimeoutError from the search client unchanged', async () => {
@@ -738,7 +819,8 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
         });
         await expectRejectionWithStatusCode(searchManager.buildContentSearchIdFilterAsync({
             resourceType: 'DocumentReference',
-            parsedArgs: makeParsedArgsWithContent('diabetes')
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
         }), 504);
     });
 });

@@ -52,6 +52,10 @@ class ClinicalNoteTextRetriever {
         }
         try {
             const db = await this.mongoDatabaseManager.getFhirNotesDbAsync();
+            if (!db) {
+                logWarn(`Refusing derived-text lookup for chunkGroupId=${chunkGroupId}, resourceType=${resourceType}: fhir-notes-vector-store connection is not available`);
+                return null;
+            }
             const collection = db.collection(this.configManager.fhirNotesMongoCollectionName);
             const chunks = await collection
                 .find({
@@ -63,10 +67,21 @@ class ClinicalNoteTextRetriever {
                             code: sourceAssigningAuthority
                         }
                     }
+                }, {
+                    projection: { text: 1, 'meta.chunk_index': 1, 'meta.total_chunks': 1 }
                 })
                 .sort({ 'meta.chunk_index': 1 })
                 .toArray();
             if (chunks.length === 0) {
+                return null;
+            }
+            const expectedTotalChunks = chunks[0].meta && chunks[0].meta.total_chunks;
+            if (typeof expectedTotalChunks === 'number' && chunks.length !== expectedTotalChunks) {
+                // The vector store may be mid-reindex (some chunks written, others not yet), or a
+                // chunk may have been deleted independently. Returning a partial note silently
+                // stitched together, with no indication a gap exists, is worse for clinical text
+                // than returning nothing -- fail closed rather than serve a truncated document.
+                logWarn(`Refusing to return reassembled text for chunkGroupId=${chunkGroupId}, resourceType=${resourceType}: found ${chunks.length} chunks, expected ${expectedTotalChunks}`);
                 return null;
             }
             return chunks.map(c => c.text || '').join('');
@@ -91,8 +106,20 @@ class ClinicalNoteTextRetriever {
      * derived text on a resource with 2+ attachments. This method instead inspects the matched
      * resource's own `content`/`presentedForm` array to find the exact index whose `.url` equals
      * the requested `Binary/{id}` reference, derives `chunkGroupId = "{resource.id}-{index}"` from
-     * that, and only then filters to chunks with that exact `chunk_group_id` -- the same
-     * reassembly getReassembledTextAsync does when handed a chunkGroupId directly.
+     * that, and only then filters to chunks with that exact `chunk_group_id` AND the resolved
+     * owning resource's own `debug.resource_reference` -- the same reassembly
+     * getReassembledTextAsync does when handed a chunkGroupId directly, plus the extra
+     * resource-identity check.
+     *
+     * `chunk_group_id` alone is `"{rawId}-{index}"` -- if two *different* resources under the same
+     * sourceAssigningAuthority happen to share both a raw id and an attachment index (e.g.
+     * `DocumentReference/rec1` and `DiagnosticReport/rec1`, each with an attachment at index 0),
+     * their chunks would collide on that string. The `debug.resource_reference` check closes that.
+     * Separately, if the same Binary URL is matched by *more than one distinct* owning resource
+     * (each independently referencing it at some index) there's no way to know which one the
+     * caller's `Binary/{id}` read actually corresponds to -- this fails closed (returns null)
+     * rather than guessing, since guessing could surface a resource under a different `access` tag
+     * than the Binary the caller was authorized to read.
      *
      * Only `Binary/{id}` is matched (a bare, non-fragment reference) -- a `#{id}` URL is a FHIR
      * *contained*-resource reference, scoped to whichever resource contains it. Contained
@@ -117,6 +144,10 @@ class ClinicalNoteTextRetriever {
             const binaryId = binaryReference.split('/')[1];
             const targetUrl = `Binary/${binaryId}`;
             const db = await this.mongoDatabaseManager.getFhirNotesDbAsync();
+            if (!db) {
+                logWarn(`Refusing derived-text reverse-lookup for binaryReference=${binaryReference}: fhir-notes-vector-store connection is not available`);
+                return null;
+            }
             const collection = db.collection(this.configManager.fhirNotesMongoCollectionName);
             const matches = await collection.find({
                 $and: [
@@ -135,21 +166,65 @@ class ClinicalNoteTextRetriever {
                         }
                     }
                 ]
+            }, {
+                projection: {
+                    embedding: 0,
+                    fhir_meta: 0,
+                    'debug.resource.content.attachment.data': 0
+                }
             }).toArray();
             if (matches.length === 0) {
                 return null;
             }
-            const owningResource = matches[0].debug.resource;
-            const attachments = owningResource.resourceType === 'DocumentReference'
-                ? (owningResource.content || []).map(entry => entry.attachment)
-                : (owningResource.presentedForm || []);
-            const matchedIndex = attachments.findIndex(attachment => attachment && attachment.url === targetUrl);
-            if (matchedIndex === -1) {
+            // debug.resource is replicated on every chunk of the resource it belongs to, so
+            // `matches` can contain chunks from more than one distinct resource (e.g. two
+            // different resources that happen to both reference targetUrl). Resolve the exact
+            // owning resource + attachment index per distinct resource identity (derived from the
+            // resource's own resourceType/id, not a separate replicated field that could drift out
+            // of sync with it), rather than trusting matches[0] -- an arbitrary Mongo result-set
+            // order must not decide which resource's (and which access tag's) text gets returned
+            // for this Binary.
+            const byResourceReference = new Map();
+            for (const match of matches) {
+                const owningResource = match.debug && match.debug.resource;
+                if (!owningResource || !owningResource.resourceType || !owningResource.id) {
+                    continue;
+                }
+                const resourceReference = `${owningResource.resourceType}/${owningResource.id}`;
+                if (!byResourceReference.has(resourceReference)) {
+                    byResourceReference.set(resourceReference, owningResource);
+                }
+            }
+            const owningCandidates = [];
+            for (const [resourceReference, owningResource] of byResourceReference) {
+                const attachments = owningResource.resourceType === 'DocumentReference'
+                    ? (owningResource.content || []).map(entry => entry.attachment)
+                    : (owningResource.presentedForm || []);
+                const matchedIndex = attachments.findIndex(attachment => attachment && attachment.url === targetUrl);
+                if (matchedIndex !== -1) {
+                    owningCandidates.push({ resourceReference, owningResource, matchedIndex });
+                }
+            }
+            if (owningCandidates.length === 0) {
                 return null;
             }
+            if (owningCandidates.length > 1) {
+                // Two distinct resources both genuinely reference this exact Binary URL at some
+                // attachment index -- there is no way to know which one's text corresponds to
+                // this specific Binary read, and guessing could surface a resource under a
+                // different access tag than the Binary the caller was authorized to read. Fail
+                // closed rather than pick one arbitrarily.
+                logWarn(`Refusing derived-text reverse-lookup for binaryReference=${binaryReference}: ambiguous, matched ${owningCandidates.length} distinct resources`);
+                return null;
+            }
+            const { resourceReference, owningResource, matchedIndex } = owningCandidates[0];
             const chunkGroupId = `${owningResource.id}-${matchedIndex}`;
             const chunks = matches
-                .filter(m => m.meta.chunk_group_id === chunkGroupId)
+                .filter(m => {
+                    const r = m.debug && m.debug.resource;
+                    return m.meta.chunk_group_id === chunkGroupId &&
+                        r && `${r.resourceType}/${r.id}` === resourceReference;
+                })
                 .sort((a, b) => a.meta.chunk_index - b.meta.chunk_index);
             if (chunks.length === 0) {
                 return null;
