@@ -98,6 +98,7 @@ const {OperationAccessManager} = require('./utils/operationAccessManager');
 const {ResourceOperationAccessProvider} = require('./utils/resourceOperationAccessProvider');
 const {DataSharingManager} = require('./operations/search/dataSharingManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
+const {AtlasSearchQueryBuilder} = require('./operations/search/atlasSearchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
 const {ParametersResourceValidator} = require('./operations/merge/validators/parameterResourceValidator');
 const {BundleResourceValidator} = require('./operations/merge/validators/bundleResourceValidator');
@@ -346,6 +347,9 @@ const createContainer = function () {
     container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
         r4SearchQueryCreator: c.r4SearchQueryCreator
     }));
+    container.register('atlasSearchQueryBuilder', (c) => new AtlasSearchQueryBuilder({
+        configManager: c.configManager
+    }));
     container.register('proaConsentManager', (c) => new ProaConsentManager({
         databaseQueryFactory: c.databaseQueryFactory,
         configManager: c.configManager
@@ -527,6 +531,7 @@ const createContainer = function () {
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
                 dataSharingManager: c.dataSharingManager,
                 searchQueryBuilder: c.searchQueryBuilder,
+                atlasSearchQueryBuilder: c.atlasSearchQueryBuilder,
                 patientScopeManager: c.patientScopeManager,
                 patientQueryCreator: c.patientQueryCreator,
                 searchParametersManager: c.searchParametersManager,
