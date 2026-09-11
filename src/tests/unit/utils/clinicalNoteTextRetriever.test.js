@@ -79,4 +79,13 @@ describe('ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync', () => {
 
         expect(text).toBeNull();
     });
+
+    test('returns null instead of throwing when binaryReference is malformed', async () => {
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => { throw new Error('should not be called'); } };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const text = await retriever.getReassembledTextForBinaryAsync({ binaryReference: undefined });
+
+        expect(text).toBeNull();
+    });
 });

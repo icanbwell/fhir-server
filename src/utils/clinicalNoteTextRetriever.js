@@ -52,8 +52,8 @@ class ClinicalNoteTextRetriever {
         if (!this.configManager.fhirNotesFullTextSearchConfigured) {
             return null;
         }
-        const binaryId = binaryReference.split('/')[1];
         try {
+            const binaryId = binaryReference.split('/')[1];
             const db = await this.mongoDatabaseManager.getFhirNotesDbAsync();
             const collection = db.collection(this.configManager.fhirNotesMongoCollectionName);
             const urlVariants = [`Binary/${binaryId}`, `#${binaryId}`];
