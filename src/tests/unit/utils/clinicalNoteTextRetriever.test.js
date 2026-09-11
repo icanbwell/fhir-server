@@ -177,16 +177,52 @@ function matchChunks (chunks, query) {
     });
 }
 
+/**
+ * Mimics MongoDB's `find(query)` semantics for the `debug.resource.*` Binary reverse-lookup
+ * shape: matches the `$or` url clauses against each doc's own `debug.resource.content[]
+ * .attachment.url`/`debug.resource.presentedForm[].url`, and the security `$elemMatch`.
+ */
+function matchBinaryDocs (docs, query) {
+    const urlOrClauses = query.$and[0].$or;
+    const securityCode = query.$and[1]['debug.resource.meta.security'].$elemMatch.code;
+    return docs.filter(d => {
+        const resource = d.debug.resource;
+        const urls = [
+            ...((resource.content || []).map(entry => entry.attachment && entry.attachment.url)),
+            ...((resource.presentedForm || []).map(attachment => attachment.url))
+        ];
+        const urlMatches = urlOrClauses.some(clause => {
+            const targetUrl = clause['debug.resource.content.attachment.url'] || clause['debug.resource.presentedForm.url'];
+            return urls.includes(targetUrl);
+        });
+        const security = (resource.meta && resource.meta.security) || [];
+        const securityMatches = security.some(tag => tag.code === securityCode);
+        return urlMatches && securityMatches;
+    });
+}
+
 describe('ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync', () => {
     test('finds the owning attachment via debug.resource.content.attachment.url and reassembles it', async () => {
         const docs = [
-            { meta: { chunk_index: 0, chunk_group_id: 'docRef123-1' }, text: 'note text' }
+            {
+                meta: { chunk_index: 0, chunk_group_id: 'docRef123-0' },
+                debug: {
+                    resource: {
+                        id: 'docRef123', resourceType: 'DocumentReference',
+                        content: [{ attachment: { url: 'Binary/bin789' } }],
+                        meta: { security: [{ system: SecurityTagSystem.sourceAssigningAuthority, code: 'client' }] }
+                    }
+                },
+                text: 'note text'
+            }
         ];
         const fakeCollection = {
             find: (query) => {
-                expect(query.$and[0].$or[0]['debug.resource.content.attachment.url']).toEqual({ $in: ['Binary/bin789', '#bin789'] });
+                // exact-string match now (no $in) -- see the "does not match a #fragment" test
+                // below for why the `#id` variant is gone entirely.
+                expect(query.$and[0].$or[0]['debug.resource.content.attachment.url']).toEqual('Binary/bin789');
                 expect(query.$and[1]['debug.resource.meta.security']).toEqual(securityFilter('client'));
-                return { toArray: async () => docs };
+                return { toArray: async () => matchBinaryDocs(docs, query) };
             }
         };
         const fakeDb = { collection: () => fakeCollection };
@@ -208,6 +244,42 @@ describe('ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync', () => {
 
         const text = await retriever.getReassembledTextForBinaryAsync({
             binaryReference: 'Binary/unreferenced', sourceAssigningAuthority: 'client'
+        });
+
+        expect(text).toBeNull();
+    });
+
+    test('does not match a #fragment contained-resource reference (only bare Binary/{id})', async () => {
+        // A contained resource's `#id` fragment reference is scoped to whatever resource
+        // contains it, and can never correspond to an independently-readable `GET Binary/{id}`.
+        // The doc below only carries a `#bin789` url (no bare `Binary/bin789`), so it must never
+        // match a lookup for `Binary/bin789`.
+        const docs = [
+            {
+                meta: { chunk_index: 0, chunk_group_id: 'docRef999-0' },
+                debug: {
+                    resource: {
+                        id: 'docRef999', resourceType: 'DocumentReference',
+                        content: [{ attachment: { url: '#bin789' } }],
+                        meta: { security: [{ system: SecurityTagSystem.sourceAssigningAuthority, code: 'client' }] }
+                    }
+                },
+                text: 'contained attachment text -- must never be served for a top-level Binary read'
+            }
+        ];
+        const fakeCollection = {
+            find: (query) => {
+                // the query itself must only ever ask for the bare reference, never the fragment
+                expect(query.$and[0].$or[0]['debug.resource.content.attachment.url']).toEqual('Binary/bin789');
+                return { toArray: async () => matchBinaryDocs(docs, query) };
+            }
+        };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const text = await retriever.getReassembledTextForBinaryAsync({
+            binaryReference: 'Binary/bin789', sourceAssigningAuthority: 'client'
         });
 
         expect(text).toBeNull();
@@ -244,6 +316,7 @@ describe('ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync', () => {
                 meta: { chunk_index: 0, chunk_group_id: 'docA-0' },
                 debug: {
                     resource: {
+                        id: 'docA', resourceType: 'DocumentReference',
                         content: [{ attachment: { url: 'Binary/bin789' } }],
                         meta: { security: [{ system: SecurityTagSystem.sourceAssigningAuthority, code: 'tenantA' }] }
                     }
@@ -254,6 +327,7 @@ describe('ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync', () => {
                 meta: { chunk_index: 0, chunk_group_id: 'docB-0' },
                 debug: {
                     resource: {
+                        id: 'docB', resourceType: 'DocumentReference',
                         content: [{ attachment: { url: 'Binary/bin789' } }],
                         meta: { security: [{ system: SecurityTagSystem.sourceAssigningAuthority, code: 'tenantB' }] }
                     }
@@ -261,18 +335,7 @@ describe('ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync', () => {
                 text: 'tenant B binary text'
             }
         ];
-        const fakeCollection = {
-            find: (query) => ({
-                toArray: async () => {
-                    const urlVariants = query.$and[0].$or[0]['debug.resource.content.attachment.url'].$in;
-                    const securityCode = query.$and[1]['debug.resource.meta.security'].$elemMatch.code;
-                    return allDocs.filter(d =>
-                        urlVariants.includes(d.debug.resource.content[0].attachment.url) &&
-                        d.debug.resource.meta.security.some(tag => tag.code === securityCode)
-                    );
-                }
-            })
-        };
+        const fakeCollection = { find: (query) => ({ toArray: async () => matchBinaryDocs(allDocs, query) }) };
         const fakeDb = { collection: () => fakeCollection };
         const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
         const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
@@ -286,5 +349,58 @@ describe('ClinicalNoteTextRetriever.getReassembledTextForBinaryAsync', () => {
 
         expect(tenantAText).toEqual('tenant A binary text');
         expect(tenantBText).toEqual('tenant B binary text');
+    });
+
+    test('does not cross-serve a different attachment\'s text on a resource with two Binary attachments (reproduced bug)', async () => {
+        // debug.resource is replicated identically on EVERY chunk of the owning resource,
+        // including chunks belonging to a DIFFERENT attachment. A DocumentReference here has two
+        // attachments -- content[0] -> Binary/binA, content[1] -> Binary/binB -- so a naive url
+        // match against `debug.resource.content.attachment.url` matches ALL of this resource's
+        // chunks for either binary id. Only inspecting the matched resource's own attachment
+        // array to find the correct index (and deriving chunkGroupId from THAT) tells them apart.
+        const allChunks = [
+            {
+                meta: { chunk_index: 0, chunk_group_id: 'doc1-0' },
+                debug: {
+                    resource: {
+                        id: 'doc1', resourceType: 'DocumentReference',
+                        content: [
+                            { attachment: { url: 'Binary/binA' } },
+                            { attachment: { url: 'Binary/binB' } }
+                        ],
+                        meta: { security: [{ system: SecurityTagSystem.sourceAssigningAuthority, code: 'client' }] }
+                    }
+                },
+                text: 'binA derived text'
+            },
+            {
+                meta: { chunk_index: 0, chunk_group_id: 'doc1-1' },
+                debug: {
+                    resource: {
+                        id: 'doc1', resourceType: 'DocumentReference',
+                        content: [
+                            { attachment: { url: 'Binary/binA' } },
+                            { attachment: { url: 'Binary/binB' } }
+                        ],
+                        meta: { security: [{ system: SecurityTagSystem.sourceAssigningAuthority, code: 'client' }] }
+                    }
+                },
+                text: 'binB derived text'
+            }
+        ];
+        const fakeCollection = { find: (query) => ({ toArray: async () => matchBinaryDocs(allChunks, query) }) };
+        const fakeDb = { collection: () => fakeCollection };
+        const mongoDatabaseManager = { getFhirNotesDbAsync: async () => fakeDb };
+        const retriever = new ClinicalNoteTextRetriever({ mongoDatabaseManager, configManager: makeConfigManager() });
+
+        const binAText = await retriever.getReassembledTextForBinaryAsync({
+            binaryReference: 'Binary/binA', sourceAssigningAuthority: 'client'
+        });
+        const binBText = await retriever.getReassembledTextForBinaryAsync({
+            binaryReference: 'Binary/binB', sourceAssigningAuthority: 'client'
+        });
+
+        expect(binAText).toEqual('binA derived text');
+        expect(binBText).toEqual('binB derived text');
     });
 });

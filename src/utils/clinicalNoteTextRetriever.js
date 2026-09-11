@@ -80,6 +80,25 @@ class ClinicalNoteTextRetriever {
      * Same tenant-scoping principle as getReassembledTextAsync -- see that method's doc comment.
      * `sourceAssigningAuthority` here comes from the `Binary` resource's own `meta.security` (the
      * resource the caller is already authorized to read), and is required in the same way.
+     *
+     * `debug.resource` (the full owning source resource) is replicated identically across *every*
+     * chunk belonging to that resource, including chunks from attachments other than the one
+     * being looked up. So a raw `debug.resource.content.attachment.url`/`debug.resource
+     * .presentedForm.url` match only proves "this resource has *some* attachment referencing this
+     * Binary somewhere" -- it does NOT identify which specific chunk_group_id (i.e. which
+     * attachment index) the requested Binary actually belongs to. Taking an arbitrary match's
+     * `chunk_group_id` (as this method used to) could therefore return a *different* attachment's
+     * derived text on a resource with 2+ attachments. This method instead inspects the matched
+     * resource's own `content`/`presentedForm` array to find the exact index whose `.url` equals
+     * the requested `Binary/{id}` reference, derives `chunkGroupId = "{resource.id}-{index}"` from
+     * that, and only then filters to chunks with that exact `chunk_group_id` -- the same
+     * reassembly getReassembledTextAsync does when handed a chunkGroupId directly.
+     *
+     * Only `Binary/{id}` is matched (a bare, non-fragment reference) -- a `#{id}` URL is a FHIR
+     * *contained*-resource reference, scoped to whichever resource contains it. Contained
+     * resources are never independently addressable as a top-level `GET Binary/{id}`, so matching
+     * `#{id}` here would be structurally wrong (not just imprecise) and could serve a completely
+     * unrelated resource's contained attachment.
      * @param {Object} params
      * @param {string} params.binaryReference e.g. "Binary/abc123"
      * @param {string|undefined} params.sourceAssigningAuthority the tenant tag already verified on
@@ -96,15 +115,15 @@ class ClinicalNoteTextRetriever {
         }
         try {
             const binaryId = binaryReference.split('/')[1];
+            const targetUrl = `Binary/${binaryId}`;
             const db = await this.mongoDatabaseManager.getFhirNotesDbAsync();
             const collection = db.collection(this.configManager.fhirNotesMongoCollectionName);
-            const urlVariants = [`Binary/${binaryId}`, `#${binaryId}`];
             const matches = await collection.find({
                 $and: [
                     {
                         $or: [
-                            { 'debug.resource.content.attachment.url': { $in: urlVariants } },
-                            { 'debug.resource.presentedForm.url': { $in: urlVariants } }
+                            { 'debug.resource.content.attachment.url': targetUrl },
+                            { 'debug.resource.presentedForm.url': targetUrl }
                         ]
                     },
                     {
@@ -120,10 +139,21 @@ class ClinicalNoteTextRetriever {
             if (matches.length === 0) {
                 return null;
             }
-            const chunkGroupId = matches[0].meta.chunk_group_id;
+            const owningResource = matches[0].debug.resource;
+            const attachments = owningResource.resourceType === 'DocumentReference'
+                ? (owningResource.content || []).map(entry => entry.attachment)
+                : (owningResource.presentedForm || []);
+            const matchedIndex = attachments.findIndex(attachment => attachment && attachment.url === targetUrl);
+            if (matchedIndex === -1) {
+                return null;
+            }
+            const chunkGroupId = `${owningResource.id}-${matchedIndex}`;
             const chunks = matches
                 .filter(m => m.meta.chunk_group_id === chunkGroupId)
                 .sort((a, b) => a.meta.chunk_index - b.meta.chunk_index);
+            if (chunks.length === 0) {
+                return null;
+            }
             return chunks.map(c => c.text || '').join('');
         } catch (e) {
             logWarn(`Failed to reverse-lookup clinical note text for binaryReference=${binaryReference}`, { error: e });
