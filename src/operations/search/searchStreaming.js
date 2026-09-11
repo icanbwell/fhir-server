@@ -168,6 +168,8 @@ class SearchStreamingOperation {
         let query = {};
         /** @type {Set} **/
         let columns = new Set();
+        /** @type {{must: object[]}|null} **/
+        let atlasSearchCompound = null;
 
         // check if required filters for AuditEvent are passed
         if (resourceType === 'AuditEvent') {
@@ -179,7 +181,8 @@ class SearchStreamingOperation {
                 /** @type {import('mongodb').Document}**/
                 query,
                 /** @type {Set} **/
-                columns
+                columns,
+                atlasSearchCompound
             } = await this.searchManager.constructQueryAsync(
                 {
                     user,
@@ -247,7 +250,8 @@ class SearchStreamingOperation {
                 user,
                 isStreaming,
                 useAccessIndex,
-                extraInfo
+                extraInfo,
+                atlasSearchCompound
             };
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync({

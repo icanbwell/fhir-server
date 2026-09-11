@@ -342,4 +342,43 @@ describe('ConfigManager', () => {
             expect(new ConfigManager().payloadLimit).toBe('100mb');
         });
     });
+
+    describe('isAtlasSearchEnabled', () => {
+        test('returns false by default for Patient/Person/Practitioner', () => {
+            expect(configManager.isAtlasSearchEnabled('Patient')).toBe(false);
+            expect(configManager.isAtlasSearchEnabled('Person')).toBe(false);
+            expect(configManager.isAtlasSearchEnabled('Practitioner')).toBe(false);
+        });
+
+        test('returns false for a resource type with no Atlas Search support', () => {
+            setEnv('ATLAS_SEARCH_ENABLED_OBSERVATION', 'true');
+            expect(configManager.isAtlasSearchEnabled('Observation')).toBe(false);
+        });
+
+        test('returns true only for the resource type whose env var is set', () => {
+            setEnv('ATLAS_SEARCH_ENABLED_PATIENT', 'true');
+            expect(configManager.isAtlasSearchEnabled('Patient')).toBe(true);
+            expect(configManager.isAtlasSearchEnabled('Person')).toBe(false);
+            expect(configManager.isAtlasSearchEnabled('Practitioner')).toBe(false);
+        });
+
+        test('supports Person and Practitioner independently', () => {
+            setEnv('ATLAS_SEARCH_ENABLED_PERSON', 'true');
+            setEnv('ATLAS_SEARCH_ENABLED_PRACTITIONER', '1');
+            expect(configManager.isAtlasSearchEnabled('Person')).toBe(true);
+            expect(configManager.isAtlasSearchEnabled('Practitioner')).toBe(true);
+            expect(configManager.isAtlasSearchEnabled('Patient')).toBe(false);
+        });
+    });
+
+    describe('isAtlasSearchNativeSortEnabled', () => {
+        test('returns false by default', () => {
+            expect(configManager.isAtlasSearchNativeSortEnabled).toBe(false);
+        });
+
+        test('returns true when ATLAS_SEARCH_NATIVE_SORT_ENABLED is set', () => {
+            setEnv('ATLAS_SEARCH_NATIVE_SORT_ENABLED', 'true');
+            expect(configManager.isAtlasSearchNativeSortEnabled).toBe(true);
+        });
+    });
 });

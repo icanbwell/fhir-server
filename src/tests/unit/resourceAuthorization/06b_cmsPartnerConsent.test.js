@@ -62,6 +62,7 @@ const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttach
 const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
 const { FhirResourceWriterFactory } = require('../../../operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const { SearchQueryBuilder } = require('../../../operations/search/searchQueryBuilder');
+const { AtlasSearchQueryBuilder } = require('../../../operations/search/atlasSearchQueryBuilder');
 const { PatientScopeManager } = require('../../../operations/security/patientScopeManager');
 const { PatientQueryCreator } = require('../../../operations/common/patientQueryCreator');
 const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
@@ -91,6 +92,7 @@ describe('Resource Authorization §6b — CMS partner data-sharing consent', () 
         let mockSearchQueryBuilder;
         let mockSecurityTagManager;
         let mockQueryRewriterManager;
+        let mockAtlasSearchQueryBuilder;
 
         beforeEach(() => {
             mockDataSharingManager = createMockInstance(DataSharingManager);
@@ -125,6 +127,9 @@ describe('Resource Authorization §6b — CMS partner data-sharing consent', () 
                 async ({ query, columns }) => ({ query, columns })
             );
 
+            mockAtlasSearchQueryBuilder = createMockInstance(AtlasSearchQueryBuilder);
+            mockAtlasSearchQueryBuilder.buildSearchQuery = () => null;
+
             searchManager = new SearchManager({
                 databaseQueryFactory: createMockInstance(DatabaseQueryFactory),
                 resourceLocatorFactory: createMockInstance(ResourceLocatorFactory),
@@ -140,6 +145,7 @@ describe('Resource Authorization §6b — CMS partner data-sharing consent', () 
                 fhirResourceWriterFactory: createMockInstance(FhirResourceWriterFactory),
                 dataSharingManager: mockDataSharingManager,
                 searchQueryBuilder: mockSearchQueryBuilder,
+                atlasSearchQueryBuilder: mockAtlasSearchQueryBuilder,
                 patientScopeManager: mockPatientScopeManager,
                 patientQueryCreator: mockPatientQueryCreator,
                 searchParametersManager: createMockInstance(SearchParametersManager)
