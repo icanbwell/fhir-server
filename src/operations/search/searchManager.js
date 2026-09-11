@@ -34,6 +34,8 @@ const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { PatientScopeManager } = require('../security/patientScopeManager');
 const { PatientQueryCreator } = require('../common/patientQueryCreator');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
+const { ClinicalNoteSearchClient } = require('../../utils/clinicalNoteSearchClient');
+const { FilterById } = require('../query/filters/id');
 const {
     DB_SEARCH_LIMIT_FOR_IDS,
     DB_SEARCH_LIMIT,
@@ -42,7 +44,8 @@ const {
     BLOB_OP,
     AUTH_USER_TYPES,
     UNSUPPORTED_SORT_FIELDS,
-    CUSTOM_SORT_FIELDS
+    CUSTOM_SORT_FIELDS,
+    FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES
 } = require('../../constants');
 
 class SearchManager {
@@ -65,6 +68,7 @@ class SearchManager {
      * @param {PatientScopeManager} patientScopeManager
      * @param {PatientQueryCreator} patientQueryCreator
      * @param {SearchParametersManager} searchParametersManager
+     * @param {ClinicalNoteSearchClient} clinicalNoteSearchClient
      */
     constructor (
         {
@@ -84,7 +88,8 @@ class SearchManager {
             searchQueryBuilder,
             patientScopeManager,
             patientQueryCreator,
-            searchParametersManager
+            searchParametersManager,
+            clinicalNoteSearchClient
         }
     ) {
         /**
@@ -183,6 +188,58 @@ class SearchManager {
          */
         this.searchParametersManager = searchParametersManager;
         assertTypeEquals(searchParametersManager, SearchParametersManager);
+
+        /**
+         * @type {ClinicalNoteSearchClient}
+         */
+        this.clinicalNoteSearchClient = clinicalNoteSearchClient;
+        assertTypeEquals(clinicalNoteSearchClient, ClinicalNoteSearchClient);
+    }
+
+    /**
+     * Resolves the `_content` search parameter (if present) into an `_id`-shaped Mongo filter by
+     * delegating candidate lookup to fhir-notes-vector-store's Atlas Search index. The returned
+     * filter is meant to be AND'd into the request's normal query via
+     * `this.r4SearchQueryCreator.appendAndQuery` -- every candidate id still passes through the
+     * same tenant/patient/access-tag scoping every other search parameter goes through.
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {ParsedArgs} params.parsedArgs
+     * @returns {Promise<import('mongodb').Document|null>} null when `_content` is absent
+     */
+    async buildContentSearchIdFilterAsync ({ resourceType, parsedArgs }) {
+        const contentArg = parsedArgs.get('_content');
+        if (!contentArg) {
+            return null;
+        }
+        if (!FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.includes(resourceType)) {
+            throw new BadRequestError(new Error(
+                `_content search is not supported for resourceType=${resourceType}. ` +
+                `Supported types: ${FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.join(', ')}`
+            ));
+        }
+        if (!this.configManager.fhirNotesFullTextSearchConfigured) {
+            throw new BadRequestError(new Error(
+                '_content search is not configured in this environment'
+            ));
+        }
+        const contentQuery = contentArg.queryParameterValue.value;
+        if (Array.isArray(contentQuery)) {
+            throw new BadRequestError(new Error(
+                '_content does not support multiple repeated values'
+            ));
+        }
+        // The empty-string form is the derived-text read-enrichment trigger (see
+        // AttachmentTextEnrichmentProvider), not a search filter -- do not attempt a vector-store
+        // search for it.
+        if (!contentQuery) {
+            return null;
+        }
+        const candidateIds = await this.clinicalNoteSearchClient.findMatchingResourceIdsAsync({
+            resourceType,
+            contentQuery
+        });
+        return FilterById.getListFilter(candidateIds);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -237,6 +294,7 @@ class SearchManager {
              */
             const { base_version } = parsedArgs;
             assertIsValid(base_version, 'base_version is not set');
+            const contentSearchIdFilter = await this.buildContentSearchIdFilterAsync({ resourceType, parsedArgs });
             const accessViaPatientScopes = this.scopesManager.isAccessAllowedByPatientScopes({ scope, resourceType });
 
             /**
@@ -267,6 +325,10 @@ class SearchManager {
                 operation,
                 isUser
             }));
+
+            if (contentSearchIdFilter) {
+                query = this.r4SearchQueryCreator.appendAndQuery({ query, andQuery: contentSearchIdFilter });
+            }
 
             if (accessViaPatientScopes) {
                 shouldUpdateColumns = true;

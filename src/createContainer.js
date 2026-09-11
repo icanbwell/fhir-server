@@ -112,6 +112,7 @@ const {PatientScopeManager} = require('./operations/security/patientScopeManager
 const {WriteAllowedByScopesValidator} = require('./operations/merge/validators/writeAllowedByScopesValidator');
 const {PatientQueryCreator} = require('./operations/common/patientQueryCreator');
 const {SearchParametersManager} = require('./searchParameters/searchParametersManager');
+const {ClinicalNoteSearchClient} = require('./utils/clinicalNoteSearchClient');
 const {DatabaseExportManager} = require('./dataLayer/databaseExportManager');
 const {ExportOperation} = require('./operations/export/export');
 const {ExportManager} = require('./operations/export/exportManager');
@@ -500,6 +501,11 @@ const createContainer = function () {
         }
     ));
 
+    container.register('clinicalNoteSearchClient', (c) => new ClinicalNoteSearchClient({
+        mongoDatabaseManager: c.mongoDatabaseManager,
+        configManager: c.configManager
+    }));
+
     container.register('searchManager', (c) => new SearchManager(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -518,7 +524,8 @@ const createContainer = function () {
                 searchQueryBuilder: c.searchQueryBuilder,
                 patientScopeManager: c.patientScopeManager,
                 patientQueryCreator: c.patientQueryCreator,
-                searchParametersManager: c.searchParametersManager
+                searchParametersManager: c.searchParametersManager,
+                clinicalNoteSearchClient: c.clinicalNoteSearchClient
             }
         )
     );
