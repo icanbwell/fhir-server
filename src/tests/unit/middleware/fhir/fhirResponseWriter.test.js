@@ -21,7 +21,13 @@ describe('FhirResponseWriter', () => {
     let mockRes;
 
     beforeEach(() => {
-        writer = new FhirResponseWriter();
+        writer = new FhirResponseWriter({
+            clinicalNoteTextRetriever: {
+                getReassembledTextAsync: jest.fn(),
+                getReassembledTextForBinaryAsync: jest.fn()
+            },
+            configManager: { fhirNotesFullTextSearchConfigured: false }
+        });
         mockReq = {
             params: { base_version: '4_0_0' },
             protocol: 'https',
@@ -438,6 +444,136 @@ describe('FhirResponseWriter', () => {
             writer.mergeStream({ req: mockReq, res: mockRes, stream });
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(stream.pipe).toHaveBeenCalledWith(mockRes);
+        });
+    });
+
+    describe('readOne with _format=text/plain', () => {
+        function makeReq ({ format, base_version = '4_0_0' }) {
+            return {
+                params: { base_version },
+                sanitized_args: format ? { _format: format } : {},
+                id: null
+            };
+        }
+        function makeRes () {
+            const res = {
+                _status: null, _type: null, _sentText: null, _json: null, headersSent: false,
+                set: () => res,
+                setHeader: () => res,
+                type: function (t) { this._type = t; return this; },
+                status: function (s) { this._status = s; return this; },
+                json: function (body) { this._json = body; return this; },
+                send: function (body) { this._sentText = body; return this; },
+                sendStatus: function (s) { this._status = s; return this; }
+            };
+            return res;
+        }
+
+        test('returns reassembled text for a DocumentReference when _format=text/plain', async () => {
+            const clinicalNoteTextRetriever = {
+                getReassembledTextAsync: async ({ chunkGroupId }) =>
+                    chunkGroupId === 'doc1-0' ? 'the extracted note text' : null
+            };
+            const configManager = { fhirNotesFullTextSearchConfigured: true };
+            const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+            const resource = { resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }] };
+            const res = makeRes();
+
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+            expect(res._type).toEqual('text/plain');
+            expect(res._status).toEqual(200);
+            expect(res._sentText).toEqual('the extracted note text');
+            expect(res._json).toBeNull();
+        });
+
+        test('returns reassembled text for a Binary when _format=text/plain', async () => {
+            const clinicalNoteTextRetriever = {
+                getReassembledTextForBinaryAsync: async ({ binaryReference }) =>
+                    binaryReference === 'Binary/bin789' ? 'binary derived text' : null
+            };
+            const configManager = { fhirNotesFullTextSearchConfigured: true };
+            const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+            const resource = { resourceType: 'Binary', id: 'bin789', contentType: 'application/pdf', data: 'JVBER...' };
+            const res = makeRes();
+
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+            expect(res._sentText).toEqual('binary derived text');
+            // original Binary fields untouched in the resource object itself
+            expect(resource.contentType).toEqual('application/pdf');
+        });
+
+        test('returns an empty text/plain body (200) when the resource has no derived text yet', async () => {
+            const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => null };
+            const configManager = { fhirNotesFullTextSearchConfigured: true };
+            const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+            const resource = { resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }] };
+            const res = makeRes();
+
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+            expect(res._status).toEqual(200);
+            expect(res._sentText).toEqual('');
+            expect(res._json).toBeNull();
+        });
+
+        test('falls through to normal JSON when the feature is not configured', async () => {
+            const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => { throw new Error('should not be called'); } };
+            const configManager = { fhirNotesFullTextSearchConfigured: false };
+            const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+            const resource = { resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }] };
+            const res = makeRes();
+
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+            expect(res._json).toEqual(resource);
+            expect(res._sentText).toBeNull();
+        });
+
+        test('falls through to normal JSON for an unsupported resourceType', async () => {
+            const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => { throw new Error('should not be called'); } };
+            const configManager = { fhirNotesFullTextSearchConfigured: true };
+            const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+            const resource = { resourceType: 'Patient', id: 'p1', name: [] };
+            const res = makeRes();
+
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+            expect(res._json).toEqual(resource);
+        });
+
+        test('normal JSON path is completely unaffected when _format is absent', async () => {
+            const clinicalNoteTextRetriever = { getReassembledTextAsync: async () => { throw new Error('should not be called'); } };
+            const configManager = { fhirNotesFullTextSearchConfigured: true };
+            const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+            const resource = { resourceType: 'DocumentReference', id: 'doc1', content: [{ attachment: {} }] };
+            const res = makeRes();
+
+            await writer.readOne({ req: makeReq({}), res, resource });
+
+            expect(res._json).toEqual(resource);
+            expect(res._sentText).toBeNull();
+        });
+
+        test('concatenates text across multiple attachments with a blank line', async () => {
+            const clinicalNoteTextRetriever = {
+                getReassembledTextAsync: async ({ chunkGroupId }) => ({
+                    'doc1-0': 'first attachment text',
+                    'doc1-1': 'second attachment text'
+                }[chunkGroupId] || null)
+            };
+            const configManager = { fhirNotesFullTextSearchConfigured: true };
+            const writer = new FhirResponseWriter({ clinicalNoteTextRetriever, configManager });
+            const resource = {
+                resourceType: 'DocumentReference', id: 'doc1',
+                content: [{ attachment: {} }, { attachment: {} }]
+            };
+            const res = makeRes();
+
+            await writer.readOne({ req: makeReq({ format: 'text/plain' }), res, resource });
+
+            expect(res._sentText).toEqual('first attachment text\n\nsecond attachment text');
         });
     });
 });

@@ -133,8 +133,6 @@ const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
 const {GroupMemberEnrichmentProvider} = require('./enrich/providers/groupMemberEnrichmentProvider');
 const {CompositionSectionFilterEnrichmentProvider} = require('./enrich/providers/compositionSectionFilterEnrichmentProvider');
-const {AttachmentTextEnrichmentProvider} = require('./enrich/providers/attachmentTextEnrichmentProvider');
-const {BinaryDerivedTextEnrichmentProvider} = require('./enrich/providers/binaryDerivedTextEnrichmentProvider');
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
 const {SummaryOperation} = require("./operations/summary/summary");
@@ -223,9 +221,7 @@ const createContainer = function () {
             new GroupMemberEnrichmentProvider({
                 clickHouseClientManager: c.clickHouseClientManager,
                 configManager: c.configManager
-            }),
-            c.attachmentTextEnrichmentProvider,
-            c.binaryDerivedTextEnrichmentProvider
+            })
         ]
     }));
     container.register('identifierEnrichmentProvider', (c) => new IdentifierEnrichmentProvider({
@@ -237,12 +233,6 @@ const createContainer = function () {
     container.register('clinicalNoteTextRetriever', (c) => new ClinicalNoteTextRetriever({
         mongoDatabaseManager: c.mongoDatabaseManager,
         configManager: c.configManager
-    }));
-    container.register('attachmentTextEnrichmentProvider', (c) => new AttachmentTextEnrichmentProvider({
-        clinicalNoteTextRetriever: c.clinicalNoteTextRetriever
-    }));
-    container.register('binaryDerivedTextEnrichmentProvider', (c) => new BinaryDerivedTextEnrichmentProvider({
-        clinicalNoteTextRetriever: c.clinicalNoteTextRetriever
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {
@@ -1089,7 +1079,10 @@ const createContainer = function () {
             }
         )
     );
-    container.register('fhirResponseWriter', () => new FhirResponseWriter());
+    container.register('fhirResponseWriter', (c) => new FhirResponseWriter({
+        clinicalNoteTextRetriever: c.clinicalNoteTextRetriever,
+        configManager: c.configManager
+    }));
     container.register('genericController', (c) => new GenericController(
             {
                 postRequestProcessor: c.postRequestProcessor,

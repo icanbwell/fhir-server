@@ -11,7 +11,8 @@ const fhirContentTypes = {
     tsv: 'text/tab-separated-values',
     form_urlencoded: 'application/x-www-form-urlencoded',
     excel: 'application/vnd.ms-excel',
-    zip: 'application/zip'
+    zip: 'application/zip',
+    plainText: 'text/plain'
 };
 
 const ndJsonContentTypes = [
@@ -115,6 +116,29 @@ const hasJsonContentType = (text) => {
     return fhirJsonContentTypes.includes(text);
 };
 
+/**
+ * Note: unlike hasCsvContentType/hasTabDelimitedContentType/hasPipeDelimitedContentType/
+ * hasExcelContentType, this checks Array.isArray *before* decodeURIComponent. Those other
+ * helpers decode first, but decodeURIComponent(arrayValue) calls Array.prototype.toString()
+ * first (joining elements with a comma) and returns a *string* -- so their own
+ * `Array.isArray(text_url_decoded)` check can never be true, and a multi-element array collapses
+ * into one comma-joined string before comparison. See src/tests/unit/utils/contentTypes.test.js's
+ * "inconsistency between ndJson and csv/tsv/pipe/excel" tests for a documented example of this.
+ * hasPlainTextContentType instead follows hasNdJsonContentType's pattern (check Array.isArray
+ * first) so a real multi-valued `_format` array is matched correctly.
+ * @param {string[]|string} text
+ * @returns {boolean}
+ */
+const hasPlainTextContentType = (text) => {
+    if (!text) {
+        return false;
+    }
+    if (Array.isArray(text)) {
+        return text.some(item => item === fhirContentTypes.plainText);
+    }
+    return decodeURIComponent(text) === fhirContentTypes.plainText;
+};
+
 module.exports = {
     fhirContentTypes,
     hasNdJsonContentType,
@@ -122,5 +146,6 @@ module.exports = {
     hasCsvContentType,
     hasTabDelimitedContentType,
     hasPipeDelimitedContentType,
-    hasExcelContentType
+    hasExcelContentType,
+    hasPlainTextContentType
 };

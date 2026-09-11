@@ -229,9 +229,11 @@ class SearchManager {
                 '_content does not support multiple repeated values'
             ));
         }
-        // The empty-string form is the derived-text read-enrichment trigger (see
-        // AttachmentTextEnrichmentProvider), not a search filter -- do not attempt a vector-store
-        // search for it.
+        // An empty-string `_content` value carries no query text -- do not attempt a
+        // vector-store search for it. (In practice r4ArgsParser.js drops empty-string query
+        // parameter values before parsedArgs is ever built, so this branch is unreachable via a
+        // real HTTP request today; it's kept as a defensive guard against calling
+        // findMatchingResourceIdsAsync with an empty query.)
         if (!contentQuery) {
             return null;
         }

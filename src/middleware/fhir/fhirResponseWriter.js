@@ -3,11 +3,35 @@ const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../../constants');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { hasPlainTextContentType } = require('../../utils/contentTypes');
+const { logWarn } = require('../../operations/common/logging');
+
+/**
+ * Resource types for which `_format=text/plain` derived-text delivery (Task 11) is supported.
+ * @type {Set<string>}
+ */
+const PLAIN_TEXT_SUPPORTED_RESOURCE_TYPES = new Set(['DocumentReference', 'DiagnosticReport', 'Binary']);
 
 /**
  * @classdesc Writes response in FHIR
  */
 class FhirResponseWriter {
+    /**
+     * @param {Object} params
+     * @param {import('../../utils/clinicalNoteTextRetriever').ClinicalNoteTextRetriever} params.clinicalNoteTextRetriever
+     * @param {import('../../utils/configManager').ConfigManager} params.configManager
+     */
+    constructor ({ clinicalNoteTextRetriever, configManager }) {
+        /**
+         * @type {import('../../utils/clinicalNoteTextRetriever').ClinicalNoteTextRetriever}
+         */
+        this.clinicalNoteTextRetriever = clinicalNoteTextRetriever;
+        /**
+         * @type {import('../../utils/configManager').ConfigManager}
+         */
+        this.configManager = configManager;
+    }
+
     /**
      * @function getContentType
      * @description Get the correct application type for the response
@@ -115,12 +139,20 @@ class FhirResponseWriter {
 
     /**
      * @function readOne
-     * @description Used when you are returning a single resource of any type
+     * @description Used when you are returning a single resource of any type. When the request
+     * asks for `_format=text/plain` and the resource is one of PLAIN_TEXT_SUPPORTED_RESOURCE_TYPES
+     * (and the fhir-notes full-text-search feature is configured), returns the resource's
+     * reassembled derived text as a plain-text body instead of the resource's normal FHIR JSON.
+     * This is `async` (and must be `await`ed by callers) so that the response is guaranteed to be
+     * fully written before this returns -- see generic.controller.js's searchById/searchByVersionId,
+     * which run cleanup (postRequestProcessor/requestSpecificCache) in a `finally` block
+     * immediately after calling this.
      * @param {import('http').IncomingMessage} req - Express request object
      * @param {import('express').Response} res - Express response object
      * @param {Resource} resource - resource to send to client
+     * @returns {Promise<void>}
      */
-    readOne ({ req, res, resource }) {
+    async readOne ({ req, res, resource }) {
         const fhirVersion = req.params.base_version;
 
         if (resource && resource.meta) {
@@ -134,11 +166,60 @@ class FhirResponseWriter {
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
         }
-        if (resource) {
-            res.status(200).json(resource);
-        } else {
+
+        if (!resource) {
             res.sendStatus(404);
+            return;
         }
+
+        const format = req.sanitized_args && req.sanitized_args._format;
+        if (hasPlainTextContentType(format) &&
+            PLAIN_TEXT_SUPPORTED_RESOURCE_TYPES.has(resource.resourceType) &&
+            this.configManager.fhirNotesFullTextSearchConfigured) {
+            let text = '';
+            try {
+                text = (await this.resolveDerivedTextAsync({ resource })) || '';
+            } catch (e) {
+                logWarn(`Failed to resolve derived text for ${resource.resourceType}/${resource.id}`, { error: e });
+                text = '';
+            }
+            res.status(200).type('text/plain');
+            res.send(text);
+            return;
+        }
+
+        res.status(200).json(resource);
+    }
+
+    /**
+     * Reassembles the derived text for a DocumentReference/DiagnosticReport/Binary resource, via
+     * Task 7's ClinicalNoteTextRetriever. Never mutates `resource`.
+     * @param {Object} params
+     * @param {Resource} params.resource
+     * @returns {Promise<string>}
+     */
+    async resolveDerivedTextAsync ({ resource }) {
+        if (resource.resourceType === 'Binary') {
+            return (await this.clinicalNoteTextRetriever.getReassembledTextForBinaryAsync({
+                binaryReference: `Binary/${resource.id}`
+            })) || '';
+        }
+        const attachmentArray = resource.resourceType === 'DocumentReference'
+            ? resource.content
+            : resource.presentedForm;
+        if (!Array.isArray(attachmentArray)) {
+            return '';
+        }
+        const texts = [];
+        for (let index = 0; index < attachmentArray.length; index++) {
+            const text = await this.clinicalNoteTextRetriever.getReassembledTextAsync({
+                chunkGroupId: `${resource.id}-${index}`
+            });
+            if (text) {
+                texts.push(text);
+            }
+        }
+        return texts.join('\n\n');
     }
 
     /**
