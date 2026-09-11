@@ -29,6 +29,7 @@ const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhir
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
 const { DataSharingManager } = require('./dataSharingManager');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
+const { AtlasSearchQueryBuilder, ATLAS_SEARCH_INDEX_NAME } = require('./atlasSearchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
@@ -63,6 +64,7 @@ class SearchManager {
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
+     * @param {AtlasSearchQueryBuilder} atlasSearchQueryBuilder
      * @param {PatientScopeManager} patientScopeManager
      * @param {PatientQueryCreator} patientQueryCreator
      * @param {SearchParametersManager} searchParametersManager
@@ -83,6 +85,7 @@ class SearchManager {
             fhirResourceWriterFactory,
             dataSharingManager,
             searchQueryBuilder,
+            atlasSearchQueryBuilder,
             patientScopeManager,
             patientQueryCreator,
             searchParametersManager
@@ -168,6 +171,12 @@ class SearchManager {
         assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
 
         /**
+         * @type {AtlasSearchQueryBuilder}
+         */
+        this.atlasSearchQueryBuilder = atlasSearchQueryBuilder;
+        assertTypeEquals(atlasSearchQueryBuilder, AtlasSearchQueryBuilder);
+
+        /**
          * @type {PatientScopeManager}
          */
         this.patientScopeManager = patientScopeManager;
@@ -208,7 +217,7 @@ class SearchManager {
      * @param {boolean} useProxyPatientToPersonCache true when the original request was
      *   Person/proxy-patient $everything -- signals DataSharingManager.getValidatedPatientIdsMap
      *   to use the RequestSpecificCache-backed path instead of BwellPersonFinder.
-     * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
+     * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document, atlasSearchCompound: {must: object[]}|null}>}
      */
     async constructQueryAsync (
         {
@@ -365,7 +374,23 @@ class SearchManager {
             if (query) {
                 query = MongoQuerySimplifier.simplifyFilter({ filter: query });
             }
-            return { base_version, query, columns };
+
+            /**
+             * @type {{must: object[]}|null}
+             */
+            let atlasSearchCompound = null;
+            if (
+                operation === READ &&
+                !useHistoryTable &&
+                ['Patient', 'Person', 'Practitioner'].includes(resourceType)
+            ) {
+                atlasSearchCompound = this.atlasSearchQueryBuilder.buildSearchQuery({
+                    resourceType,
+                    parsedArgs
+                });
+            }
+
+            return { base_version, query, columns, atlasSearchCompound };
         } catch (e) {
             throw new RethrownError({
                     message: 'Error in constructQueryAsync(): ' + (e.message || ''),
@@ -398,6 +423,7 @@ class SearchManager {
      * @param {boolean} useAccessIndex
      * @param {boolean} useAggregationPipeline
      * @param {Object} extraInfo
+     * @param {{must: object[]}|null} [atlasSearchCompound]
      * @returns {Promise<GetCursorResult>}
      */
     async getCursorForQueryAsync (
@@ -413,7 +439,8 @@ class SearchManager {
             isStreaming,
             useAccessIndex,
             useAggregationPipeline = false,
-            extraInfo
+            extraInfo = {},
+            atlasSearchCompound
         }
     ) {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
@@ -490,7 +517,70 @@ class SearchManager {
          * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
          */
         let cursorQuery;
-        if (useAggregationPipeline) {
+        /**
+         * Tracks whether the Atlas $search path actually served this request's cursor, separate
+         * from the caller-provided atlasSearchCompound param -- an Atlas failure falls back to
+         * the standard query path, at which point index-hint and totals-count handling below must
+         * follow the standard path too, even though the caller still passed a non-null compound.
+         * @type {{must: object[]}|null}
+         */
+        let effectiveAtlasSearchCompound = atlasSearchCompound;
+        if (atlasSearchCompound) {
+            try {
+                // Native sort requires defaultSortId to be mapped as a sortable (token-type)
+                // field in the Atlas index -- independently toggled from isAtlasSearchEnabled so
+                // the index change and this code path can roll out to each environment on their
+                // own schedules. See docs/adr/0003-atlas-search-for-patient-person-practitioner-lookup.md
+                // Decision Log #8. When enabled, sorting happens inside $search itself (by
+                // relevance score, then defaultSortId as a tie-break) instead of a separate
+                // $sort stage -- this is the first time relevance ordering reaches the caller,
+                // a deliberate behavior change beyond the pure performance optimization.
+                const useNativeSort = this.configManager.isAtlasSearchNativeSortEnabled;
+                const searchStage = useNativeSort
+                    ? {
+                        $search: {
+                            index: ATLAS_SEARCH_INDEX_NAME,
+                            compound: atlasSearchCompound,
+                            sort: { score: { $meta: 'searchScore' }, [defaultSortId]: 1 }
+                        }
+                    }
+                    : { $search: { index: ATLAS_SEARCH_INDEX_NAME, compound: atlasSearchCompound } };
+                const pipeline = [
+                    searchStage,
+                    { $match: query },
+                    ...(!useNativeSort && options.sort && Object.keys(options.sort).length ? [{ $sort: options.sort }] : []),
+                    ...(options.skip ? [{ $skip: options.skip }] : []),
+                    ...(options.limit ? [{ $limit: options.limit }] : []),
+                    ...(options.projection && Object.keys(options.projection).length ? [{ $project: options.projection }] : [])
+                ];
+                cursorQuery = await databaseQueryManager.findUsingAggregationAsync({
+                    query: pipeline,
+                    projection: options.projection || {},
+                    options: {},
+                    extraInfo: { ...extraInfo, matchQueryProvided: true }
+                });
+                cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
+                // Aggregation cursors execute lazily -- the server isn't actually contacted until
+                // the cursor is first iterated. Without this, an Atlas index/pipeline error (e.g.
+                // the index doesn't exist, or is in INITIAL_SYNC) would only surface later in the
+                // streaming/read loop, outside this try/catch, defeating the fallback below.
+                // hasNext() peeks/buffers internally -- it does not consume the cursor, so the
+                // normal read loop's first next() call afterward still returns the first document.
+                await cursorQuery.hasNext();
+            } catch (e) {
+                logWarn(
+                    'Atlas $search pipeline failed; falling back to the standard query path',
+                    { user, args: { resourceType, error: e.message } }
+                );
+                cursorQuery = await databaseQueryManager.findAsync({ query, options, extraInfo });
+                cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
+                // The page of results is now coming from the standard `query` alone, so any later
+                // _total=accurate handling must use the standard count path too -- otherwise it
+                // would compute the total via the Atlas $count pipeline (a possibly-smaller
+                // |atlas ∩ query| count) while describing a page that came from `query` alone.
+                effectiveAtlasSearchCompound = null;
+            }
+        } else if (useAggregationPipeline) {
             // Projection arguement to be used for aggregation query
             let projection = parsedArgs.projection || {};
             if (options.projection) {
@@ -502,11 +592,11 @@ class SearchManager {
                 options,
                 extraInfo
             });
+            cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
         } else {
             cursorQuery = await databaseQueryManager.findAsync({ query, options, extraInfo });
+            cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
         }
-
-        cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
 
         // set batch size if specified
         if (process.env.MONGO_BATCH_SIZE || parsedArgs._cursorBatchSize) {
@@ -522,7 +612,7 @@ class SearchManager {
 
         // find columns being queried and match them to an index
         // noinspection JSUnresolvedReference
-        if (isTrue(process.env.SET_INDEX_HINTS) || parsedArgs._setIndexHint) {
+        if (!effectiveAtlasSearchCompound && (isTrue(process.env.SET_INDEX_HINTS) || parsedArgs._setIndexHint)) {
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
                 { resourceType, base_version });
             const collectionName = resourceLocator.getCollectionName();
@@ -549,7 +639,8 @@ class SearchManager {
                     base_version,
                     query,
                     maxMongoTimeMS,
-                    extraInfo
+                    extraInfo,
+                    atlasSearchCompound: effectiveAtlasSearchCompound
                 });
         }
 
@@ -694,12 +785,13 @@ class SearchManager {
      * @param {string} base_version
      * @param {Object} query
      * @param {number} maxMongoTimeMS
+     * @param {{must: object[]}|null} [atlasSearchCompound]
      * @return {Promise<number>}
      */
     async handleGetTotalsAsync (
         {
             resourceType, base_version,
-            query, maxMongoTimeMS, extraInfo
+            query, maxMongoTimeMS, extraInfo, atlasSearchCompound
         }
     ) {
         try {
@@ -713,6 +805,36 @@ class SearchManager {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
             );
+            if (atlasSearchCompound) {
+                try {
+                    const pipeline = [
+                        { $search: { index: ATLAS_SEARCH_INDEX_NAME, compound: atlasSearchCompound } },
+                        { $match: query },
+                        { $count: 'total' }
+                    ];
+                    let countCursor = await databaseQueryManager.findUsingAggregationAsync({
+                        query: pipeline,
+                        projection: {},
+                        options: {},
+                        extraInfo: { ...extraInfo, matchQueryProvided: true }
+                    });
+                    countCursor = countCursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+                    if (!(await countCursor.hasNext())) {
+                        return 0;
+                    }
+                    const result = await countCursor.next();
+                    return result.total || 0;
+                } catch (e) {
+                    // The Atlas Search index is owned/maintained by a different service
+                    // (person-matching-service) and can disappear, be renamed, or go into
+                    // INITIAL_SYNC at any time. Degrade gracefully like the cursor path
+                    // (getCursorForQueryAsync) does, instead of 500ing on _total=accurate.
+                    logWarn(
+                        'Atlas $search count pipeline failed; falling back to the standard count path',
+                        { args: { resourceType, error: e.message } }
+                    );
+                }
+            }
             return await databaseQueryManager.exactDocumentCountAsync({
                 query,
                 options: { maxTimeMS: maxMongoTimeMS },

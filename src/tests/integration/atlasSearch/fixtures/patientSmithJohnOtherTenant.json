@@ -1,0 +1,16 @@
+{
+    "resourceType": "Patient",
+    "id": "atlas-search-smith-john-other-tenant",
+    "meta": {
+        "source": "http://healthsystem2health.org/provider",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "healthsystem2" },
+            { "system": "https://www.icanbwell.com/owner", "code": "healthsystem2" }
+        ]
+    },
+    "birthDate": "2017-01-01",
+    "gender": "male",
+    "name": [
+        { "use": "usual", "family": "Smith", "given": ["John"] }
+    ]
+}

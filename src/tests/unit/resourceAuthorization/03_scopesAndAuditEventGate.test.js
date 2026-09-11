@@ -41,6 +41,7 @@ const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
 const { FhirResourceWriterFactory } = require('../../../operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const { DataSharingManager } = require('../../../operations/search/dataSharingManager');
 const { SearchQueryBuilder } = require('../../../operations/search/searchQueryBuilder');
+const { AtlasSearchQueryBuilder } = require('../../../operations/search/atlasSearchQueryBuilder');
 const { PatientQueryCreator } = require('../../../operations/common/patientQueryCreator');
 const { SearchParametersManager } = require('../../../searchParameters/searchParametersManager');
 
@@ -346,6 +347,7 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                 fhirResourceWriterFactory: mockFhirResourceWriterFactory,
                 dataSharingManager: mockDataSharingManager,
                 searchQueryBuilder: mockSearchQueryBuilder,
+                atlasSearchQueryBuilder: createMockInstance(AtlasSearchQueryBuilder),
                 patientScopeManager: mockPatientScopeManager,
                 patientQueryCreator: mockPatientQueryCreator,
                 searchParametersManager: createMockInstance(SearchParametersManager)
