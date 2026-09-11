@@ -658,7 +658,36 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
         }), 400);
     });
 
-    test('returns an id $in filter built from candidate ids', async () => {
+    test('returns an _uuid $in filter built from uuid-shaped candidate ids', async () => {
+        // Candidate ids that are actually uuid-shaped (matching the plan's stated contract) must
+        // route through FilterById to the _uuid field, not _sourceId or $or.
+        const clinicalNoteSearchClient = {
+            findMatchingResourceIdsAsync: async () => [
+                '123e4567-e89b-12d3-a456-426614174000',
+                '223e4567-e89b-12d3-a456-426614174000'
+            ]
+        };
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes')
+        });
+        expect(result).toEqual({
+            _uuid: {
+                $in: ['123e4567-e89b-12d3-a456-426614174000', '223e4567-e89b-12d3-a456-426614174000']
+            }
+        });
+    });
+
+    test('returns a _sourceId $in filter for non-uuid-shaped candidate ids (intentional fallback, not a bug)', async () => {
+        // FilterById.getListFilter (via IdParser.parse + isUuid) routes any candidate id that
+        // isn't uuid-shaped to _sourceId instead of _uuid. This is documented, intentional
+        // fallback behavior in FilterById -- ClinicalNoteSearchClient strips the resourceType
+        // prefix from fhir-notes-vector-store's debug.resource_reference and returns whatever id
+        // form was stored there, which is not guaranteed to be a uuid.
         const clinicalNoteSearchClient = {
             findMatchingResourceIdsAsync: async () => ['abc123', 'def456']
         };
@@ -670,10 +699,7 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
             resourceType: 'DocumentReference',
             parsedArgs: makeParsedArgsWithContent('diabetes')
         });
-        // 'abc123'/'def456' aren't uuid-shaped, so FilterById.getListFilter maps them to
-        // _sourceId rather than _uuid -- either is a valid shape per getListFilter's documented
-        // return type; assert on whichever id field is actually present.
-        expect(result.$or || result._uuid || result._sourceId).toBeDefined();
+        expect(result).toEqual({ _sourceId: { $in: ['abc123', 'def456'] } });
     });
 
     test('returns a filter matching nothing when candidate list is empty', async () => {
