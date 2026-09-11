@@ -31,6 +31,32 @@
   non-empty value (no parser interaction needed), and nothing is ever embedded inside `Binary`'s
   JSON shape, since the response isn't JSON at all when this format is requested. See
   [Derived-text delivery via `_format=text/plain`](#derived-text-delivery-via-formattextplain).
+- **2026-09-10 (c)** — two more corrections, both found by a scoped re-review of (b)'s fix, again by
+  executing the real code:
+  (1) `SearchManager.buildContentSearchIdFilterAsync` checked the resourceType allowlist and the
+  `ENABLE_FULL_TEXT_SEARCH`-configured check in the wrong order and returned `BadRequestError`
+  whenever the feature was unconfigured, regardless of resourceType — meaning `_content` on `main`'s
+  pre-existing (silently-ignored) behavior became a 400 on deploy, before anyone had opted in to
+  anything. Fixed to check the flag first: `_content` is silently ignored (not rejected) whenever
+  `ENABLE_FULL_TEXT_SEARCH` is off, for every resourceType, matching prior behavior exactly; only
+  once the flag is on does an unsupported resourceType become `BadRequestError`. See
+  [`_content` search](#_content-search-documentreference--diagnosticreport--careplan), point 3.
+  (2) The read-enrichment/`Binary`-reverse-lookup chunk lookup (introduced in (b)) keys on
+  `` `${resource.id}-${index}` ``, and `resource.id` at that point is the resource's raw
+  `_sourceId` — unique only per `(resourceType, sourceAssigningAuthority)`, not globally. Two
+  different tenants' resources sharing the same raw sourceId could otherwise cross-serve derived
+  clinical note text, matching this repo's `review.md` §E pattern exactly ("cross-tenant joins on a
+  shared identifier... does the query also include a tenant/client discriminator in the join
+  condition itself"). Fixed by extracting the `sourceAssigningAuthority` security tag from the
+  already-authorized resource (mirroring `searchById.js`'s existing extraction pattern) and
+  requiring it as a real discriminator inside the vector-store query itself
+  (`debug.resource.meta.security` `$elemMatch`), failing closed (no lookup at all) if the tag can't
+  be extracted. A related bug in the `Binary` reverse-lookup — matching *any* attachment on the
+  owning resource rather than the exact one referencing the requested `Binary`, which could
+  cross-serve one attachment's text when asking for a different attachment's `Binary` on the same
+  resource — was fixed the same way: resolve the exact attachment index before deriving the chunk
+  group id, rather than trusting the first Mongo match. See
+  [Derived-text delivery via `_format=text/plain`](#derived-text-delivery-via-formattextplain).
 
 ## Background
 
@@ -114,9 +140,12 @@ an index-time one.
 Three capabilities, all keyed off the same underlying data source:
 
 1. **`_content` search**, restricted to `DocumentReference`, `DiagnosticReport`, `CarePlan` — the
-   exact three resource types `fhir-notes-vector-store` covers. `_content` on any other resource
-   type is rejected with `BadRequestError` (not silently ignored, not silently unfiltered) — see
-   [Error Handling](#error-handling) for why silent degradation is unacceptable here.
+   exact three resource types `fhir-notes-vector-store` covers. When the feature is configured
+   (see [Config](#config)), `_content` on any other resource type is rejected with
+   `BadRequestError` (not silently ignored, not silently unfiltered) — see
+   [Error Handling](#error-handling) for why silent degradation is unacceptable once the feature is
+   actually on. When the feature is *not* configured, `_content` is silently ignored regardless of
+   resourceType, matching its pre-existing behavior.
 2. **Derived-text delivery on resource read** — `GET DocumentReference/{id}?_format=text/plain` (or
    `DiagnosticReport`) returns the reassembled plain text as the entire HTTP response body, instead
    of the normal FHIR JSON (see
@@ -313,21 +342,30 @@ underlying resource, which is exactly what `_format` is for.
   solely by `$summary`) — they go through `FhirResponseWriter.readOne`
   (`src/middleware/fhir/fhirResponseWriter.js`), which today unconditionally does
   `res.status(200).json(resource)`, never consulting `_format` at all. This is the file that needs
-  the new branch: if `hasPlainTextContentType(parsedArgs._format)` and `resourceType` is
-  `DocumentReference`/`DiagnosticReport`/`Binary`, resolve the derived text (see below) and respond
-  `res.type('text/plain').status(200).send(text)` instead of the JSON path. `GenericController`'s
-  call site (`src/middleware/fhir/4_0_0/controllers/generic.controller.js`) needs to thread
-  `parsedArgs`/`resourceType` through to `readOne`, which it doesn't receive today.
-- **Text resolution reuses `ClinicalNoteTextRetriever` directly** (unchanged from revision (a) —
-  its chunk-reassembly logic was never the problem):
-  - `DocumentReference`/`DiagnosticReport`: for each `content[]`/`presentedForm[]` entry at index
-    `i`, call `getReassembledTextAsync({ chunkGroupId: "{resource.id}-{i}" })`; concatenate all
-    attachments' text (joined with a blank line) into one body. If none of the resource's
+  the new branch: if `hasPlainTextContentType(req.sanitized_args._format)` and `resource.resourceType`
+  is `DocumentReference`/`DiagnosticReport`/`Binary`, resolve the derived text (see below) and
+  respond `res.type('text/plain').status(200).send(text)` instead of the JSON path. No signature
+  change to `GenericController`'s call site was needed — `req.sanitized_args._format` and
+  `resource.resourceType` were both already reachable from `readOne`'s existing `{ req, res,
+  resource }` parameters.
+- **Text resolution reuses `ClinicalNoteTextRetriever` directly** (chunk-reassembly logic unchanged
+  from revision (a); its query-side tenant/attachment discriminators were tightened in revision (c)
+  — see [Revision History](#revision-history)):
+  - `DocumentReference`/`DiagnosticReport`: extract `sourceAssigningAuthority` from the
+    already-authorized `resource.meta.security` tags; for each `content[]`/`presentedForm[]` entry
+    at index `i`, call `getReassembledTextAsync({ chunkGroupId: "{resource.id}-{i}", resourceType,
+    sourceAssigningAuthority })` (both `resourceType` and `sourceAssigningAuthority` are real query
+    discriminators, not just labels — see revision (c)); concatenate all attachments' text (joined
+    with a blank line) into one body. If the tag can't be extracted, or none of the resource's
     attachments have indexed text yet, respond with an empty `text/plain` body (200, not 404 — the
-    resource itself was found and is readable; it just has no derived text yet, same
-    "not-yet-indexed is a coverage gap, not an error" posture as revision (a)).
-  - `Binary`: call `getReassembledTextForBinaryAsync({ binaryReference: "Binary/{resource.id}" })`
-    directly — same method, same reverse-lookup query, from revision (a).
+    resource itself was found and is readable; it just has no derived text available).
+  - `Binary`: call `getReassembledTextForBinaryAsync({ binaryReference: "Binary/{resource.id}",
+    sourceAssigningAuthority })` — same reverse-lookup shape as revision (a), but now resolves the
+    *exact* attachment index on the owning resource that references this specific `Binary` before
+    deriving the chunk group id (rather than trusting the first Mongo match, which could otherwise
+    return a different attachment's text off the same resource — see revision (c)), and no longer
+    matches `#{id}` contained-resource-fragment references at all (structurally invalid for a
+    top-level `Binary` read).
 - This runs *after* `searchById`'s normal, fully tenant-scoped fetch has already returned the
   resource (`readOne` only ever receives an already-authorized resource) — same authorization
   guarantee as revision (a)'s enrichment providers, just enforced by a different code path. See
@@ -343,9 +381,11 @@ underlying resource, which is exactly what `_format` is for.
 
 ## Error Handling
 
-- **`_content` on an unsupported resourceType** → `BadRequestError`. Silent no-op (the current
-  behavior) or silent full-scan-ignore-the-filter are both worse than a clear error, since either
-  would look to a caller like their filter was honored when it wasn't.
+- **`_content` on an unsupported resourceType, once the feature is configured** → `BadRequestError`.
+  Silent no-op or silent full-scan-ignore-the-filter are both worse than a clear error, since either
+  would look to a caller like their filter was honored when it wasn't. (When the feature is *not*
+  configured, `_content` is silently ignored regardless of resourceType — see [Config](#config) —
+  since there's no filter capability to have silently failed in the first place.)
 - **Vector-store cluster unreachable, or the Atlas Search index missing/not-yet-queryable, during a
   `_content` search** → **fail the request** with a `503`-equivalent `OperationOutcome`, not a
   silent fallback. Unlike the original design's Atlas-vs-regex fallback (two independently-correct
@@ -382,9 +422,12 @@ The four connection vars are required together; `ENABLE_FULL_TEXT_SEARCH` is a s
 gate on top of them — this lets an operator deploy the connection config ahead of a rollout and flip
 one flag to enable/disable, or use it as an emergency kill switch without touching connection config.
 The feature is "configured" only when all four connection vars are set **and** the flag is on; if
-not, `_content` search returns `BadRequestError` (feature not configured in this environment — same
-posture as an unsupported resourceType) and the enrichment/reverse-lookup triggers are simply no-ops
-(resource returned without derived text).
+not, `_content` search is silently ignored (returns `null`/no filter — same behavior `_content` has
+always had on `main`, before this feature existed), and `_format=text/plain` falls through to the
+normal JSON response. Once the feature *is* configured, an unsupported resourceType (for `_content`
+search) or a resource with no available derived text (for `_format=text/plain`) still get their own
+distinct handling — `BadRequestError` for the former, an empty `text/plain` body for the latter —
+see [Error Handling](#error-handling).
 
 ## Testing Plan
 
