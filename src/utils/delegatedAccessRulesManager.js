@@ -417,12 +417,17 @@ class DelegatedAccessRulesManager {
      *   substituted, so the audit event never carries a raw resource reference where an
      *   ActReason code belongs.
      *
-     * Returns `null` if any `Consent/<id>` entitlement could not be resolved (the Consent
-     * doesn't exist, or the lookup errored) -- distinct from an empty array, which means every
-     * entitlement resolved successfully but yielded no codes. The caller treats `null` as an
-     * authentication failure: entitlements naming a Consent that can't be found is treated the
-     * same as any other malformed/unverifiable claim, not silently downgraded to an empty
-     * `purposeOfEvent` on an otherwise-successful request.
+     * Returns `null` if any `Consent/<id>` entitlement genuinely can't be resolved (not found,
+     * or ambiguous) -- distinct from an empty array, which means every entitlement resolved
+     * successfully but yielded no codes. The caller treats `null` as an authentication
+     * failure: entitlements naming a Consent that can't be found is treated the same as any
+     * other malformed/unverifiable claim, not silently downgraded to an empty `purposeOfEvent`
+     * on an otherwise-successful request.
+     *
+     * Rejects (does not resolve to `null`) if the Consent lookup itself fails transiently (DB
+     * timeout, network blip) -- see `resolveConsentPurposeCodesAsync`. Callers must let that
+     * rejection propagate rather than catching it into `null`, so it surfaces as a retryable
+     * error rather than a permanent auth failure.
      *
      * @param {Object} params
      * @param {string[]|null} [params.entitlements]
@@ -457,10 +462,18 @@ class DelegatedAccessRulesManager {
     /**
      * Dereferences a `Consent/<id>` reference and returns its `provision.purpose` codes.
      *
-     * Returns `null` (not `[]`) when the Consent can't be resolved (deleted, wrong id, transient
-     * DB error) -- `[]` is reserved for "the Consent exists but has no `provision.purpose`
-     * codes," a distinct, more benign case. Callers that need to fail closed on an unresolvable
-     * reference check specifically for `null`.
+     * Returns `null` when the Consent genuinely can't be resolved -- deleted/wrong id, or
+     * ambiguous (more than one Consent shares a bare, authority-less id; see below) -- `[]` is
+     * reserved for "the Consent exists but has no `provision.purpose` codes," a distinct, more
+     * benign case. Callers that fail closed on an unresolvable reference check for `null`.
+     *
+     * A transient lookup failure (DB timeout, network blip) is NOT treated as "not found" --
+     * it's re-thrown with `isTransient`/`statusCode` set, mirroring this codebase's INC-322
+     * convention for `getUserInfoFromUserInfoEndpoint`/JWKS failures elsewhere in
+     * `authService.js`. `AuthService.processUserInfo` calls `verify()` runs this on every
+     * request for an Organization-actor JWT (no cross-request caching), so conflating a
+     * transient blip with "Consent doesn't exist" would turn a brief Mongo hiccup into a hard,
+     * permanent-looking 401 for every request from that client instead of a retryable 503.
      *
      * @param {Object} params
      * @param {string} params.consentReference
@@ -494,15 +507,28 @@ class DelegatedAccessRulesManager {
             const cursor = await databaseQueryManager.findAsync({ query });
             cursor.maxTimeMS({ milliSecs: this.configManager.mongoTimeout });
             const consents = await cursor.toArrayAsync();
-            const [consent] = consents;
 
-            if (!consent) {
+            if (consents.length === 0) {
                 logWarn(`Consent referenced by entitlements could not be resolved: ${consentReference}`, {
                     source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync'
                 });
                 return null;
             }
 
+            // A bare, authority-less id (the `else { query = { id } }` branch above) is
+            // ambiguous across tenants by construction -- unlike the UUID/authority-qualified
+            // branches, which resolve to exactly one resource. Never substitute an arbitrary
+            // match's provision.purpose into this request's audit purposeOfEvent; fail closed
+            // the same way getFilteringRulesAsync already does for an ambiguous per-person
+            // Consent match, instead of picking whichever document Mongo returns first.
+            if (consents.length > 1) {
+                logWarn(`Consent referenced by entitlements is ambiguous (${consents.length} matches): ${consentReference}`, {
+                    source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync'
+                });
+                return null;
+            }
+
+            const [consent] = consents;
             const purposeCodings = consent.provision?.purpose;
             return Array.isArray(purposeCodings)
                 ? purposeCodings.map(coding => coding?.code).filter(Boolean)
@@ -512,7 +538,11 @@ class DelegatedAccessRulesManager {
                 source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync',
                 error
             });
-            return null;
+            error.isTransient = true;
+            if (!error.statusCode) {
+                error.statusCode = 503;
+            }
+            throw error;
         }
     }
 }

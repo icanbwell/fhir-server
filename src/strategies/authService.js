@@ -355,10 +355,14 @@ class AuthService {
                             const resolvedPurposeOfUse = await this.delegatedAccessRulesManager.resolvePurposeOfEventCodesAsync({
                                 entitlements: jwt_payload.entitlements
                             });
-                            // null means a Consent/<id> entitlement could not be resolved (the
-                            // Consent doesn't exist, or the lookup errored) -- fail closed rather
-                            // than silently proceeding with an empty purposeOfEvent on an
-                            // otherwise-successful request.
+                            // null means a Consent/<id> entitlement genuinely could not be
+                            // resolved (not found, or ambiguous) -- fail closed rather than
+                            // silently proceeding with an empty purposeOfEvent on an otherwise-
+                            // successful request. A transient lookup failure (DB timeout,
+                            // network blip) does NOT resolve to null here -- it rejects instead
+                            // (isTransient/statusCode set, INC-322 convention), letting it
+                            // propagate to verify()'s existing .catch() as a retryable error
+                            // rather than a permanent-looking 401.
                             if (resolvedPurposeOfUse === null) {
                                 logWarn('Auth rejected', {
                                     reason: 'delegated_actor_consent_not_found',

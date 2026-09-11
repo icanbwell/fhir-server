@@ -706,7 +706,11 @@ describe('DelegatedAccessRulesManager', () => {
             expect(logWarn).toHaveBeenCalled();
         });
 
-        it('should return null (and log a warning), not throw, when the Consent lookup errors', async () => {
+        it('should reject as a transient error (isTransient/503), not resolve to null, when the Consent lookup errors', async () => {
+            // A DB/lookup error is not proof the Consent doesn't exist -- it must surface as a
+            // retryable error (INC-322 convention), not the permanent 401 a genuine "not found"
+            // produces. See authService.verify()'s existing .catch() handling for this class of
+            // error (mirrors getUserInfoFromUserInfoEndpoint/JWKS failures).
             ReferenceParser.parseReference.mockReturnValue({
                 id: 'consent-id',
                 resourceType: 'Consent',
@@ -717,11 +721,57 @@ describe('DelegatedAccessRulesManager', () => {
                 findAsync: jest.fn().mockRejectedValue(new Error('mongo timeout'))
             });
 
+            await expect(
+                manager.resolvePurposeOfEventCodesAsync({ entitlements: ['Consent/consent-id'] })
+            ).rejects.toMatchObject({
+                message: 'mongo timeout',
+                isTransient: true,
+                statusCode: 503
+            });
+            expect(logWarn).toHaveBeenCalled();
+        });
+
+        it('should not overwrite an already-set statusCode on a transient lookup error', async () => {
+            ReferenceParser.parseReference.mockReturnValue({
+                id: 'consent-id',
+                resourceType: 'Consent',
+                sourceAssigningAuthority: undefined
+            });
+
+            const customError = new Error('rate limited');
+            customError.statusCode = 429;
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockRejectedValue(customError)
+            });
+
+            await expect(
+                manager.resolvePurposeOfEventCodesAsync({ entitlements: ['Consent/consent-id'] })
+            ).rejects.toMatchObject({ isTransient: true, statusCode: 429 });
+        });
+
+        it('should return null (ambiguous) when a bare, authority-less id matches more than one Consent, without leaking either match', async () => {
+            ReferenceParser.parseReference.mockReturnValue({
+                id: 'shared-bare-id',
+                resourceType: 'Consent',
+                sourceAssigningAuthority: undefined
+            });
+
+            const mockCursor = {
+                maxTimeMS: jest.fn(),
+                toArrayAsync: jest.fn().mockResolvedValue([
+                    { provision: { purpose: [{ code: 'TREAT' }] } },
+                    { provision: { purpose: [{ code: 'HPAYMT' }] } }
+                ])
+            };
+            const mockDatabaseQueryManager = { findAsync: jest.fn().mockResolvedValue(mockCursor) };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue(mockDatabaseQueryManager);
+
             const result = await manager.resolvePurposeOfEventCodesAsync({
-                entitlements: ['Consent/consent-id']
+                entitlements: ['Consent/shared-bare-id']
             });
 
             expect(result).toBeNull();
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({ query: { id: 'shared-bare-id' } });
             expect(logWarn).toHaveBeenCalled();
         });
 

@@ -842,6 +842,46 @@ describe('AuthService', () => {
             expect(done).toHaveBeenCalledWith(null, false, { reason: 'delegated_actor_consent_not_found' });
         });
 
+        test('propagates (does not swallow into done()) when Consent resolution rejects with a transient error', async () => {
+            // A transient DB/lookup failure must reject processUserInfo's own promise rather
+            // than being treated as "consent not found" -- verify()'s existing .catch() chain
+            // (INC-322 convention) is what turns this into a 503, not a 401 via done(null,
+            // false, ...). If this resolved instead of rejecting, that chain would never fire.
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            const transientError = new Error('mongo timeout');
+            transientError.isTransient = true;
+            transientError.statusCode = 503;
+            mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync.mockRejectedValue(transientError);
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+
+            const done = jest.fn();
+            await expect(authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    entitlements: ['Consent/consent-uuid-123']
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            })).rejects.toMatchObject({ isTransient: true, statusCode: 503 });
+
+            expect(done).not.toHaveBeenCalled();
+        });
+
         test('does not touch delegatedAccessRulesManager for a bare v3-ActReason entitlement, and stays synchronous', () => {
             Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
             AuthService.jwksCache = undefined;
