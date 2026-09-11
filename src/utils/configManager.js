@@ -1370,6 +1370,47 @@ class ConfigManager {
         return isTrue(env.ENFORCE_PERSON_LINK_ASSURANCE_MINIMUM);
     }
 
+    /**
+     * Whether to collapse duplicate Composition resources (same subject + type, written by
+     * different generators) down to the one with the newest meta.lastUpdated on read.
+     * @return {boolean}
+     */
+    get enableCompositionLatestVersionDedup() {
+        return isTrue(env.ENABLE_COMPOSITION_LATEST_VERSION_DEDUP);
+    }
+
+    /**
+     * meta.source values that identify a Composition as coming from one of the generators that
+     * produce intentionally-duplicate Compositions for the same subject + type (the Databricks
+     * batch pipeline and the low-latency composition service). Only Compositions carrying one of
+     * these sources are considered for latest-version dedup -- everything else (including legacy
+     * V1 Compositions with no comparable duplicate) passes through untouched.
+     * @return {string[]}
+     */
+    get compositionLatestVersionSources() {
+        return this._parseCommaSeparatedList(
+            env.COMPOSITION_LATEST_VERSION_SOURCES,
+            [
+                'https://www.icanbwell.com/intelligence-layer-databricks',
+                'https://www.icanbwell.com/fhir-composition-service'
+            ]
+        );
+    }
+
+    /**
+     * Hard cap on the number of distinct (subject, type) Composition groups buffered in memory
+     * for one request before falling back to passthrough (no more dedup) for the rest of that
+     * stream/request. There are only 9 dual-generator Composition types today, so 100 covers a
+     * search/export spanning roughly 11 distinct patients before dedup coverage tapers off --
+     * deliberately favors bounding memory on an unscoped/service-account search or NDJSON export
+     * over deduping all of a large one. $everything is unaffected in practice (single-person
+     * traversal, far under this cap).
+     * @return {number}
+     */
+    get compositionLatestVersionMaxGroups() {
+        return parseInt(env.COMPOSITION_LATEST_VERSION_MAX_GROUPS || '100', 10);
+    }
+
     get dataSharingAccessCodes() {
         return this._parseCommaSeparatedList(
             env.DATA_SHARING_ACCESS_CONSENT_CODES,

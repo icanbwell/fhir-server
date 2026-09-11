@@ -564,5 +564,87 @@ describe('EverythingHelper', () => {
             expect(result.bundleEntries).toHaveLength(1);
             expect(result.bundleEntries[0].resource.resourceType).toBe('Observation');
         });
+
+        test('buffers eligible Compositions into compositionDedupBuffer instead of bundleEntries', async () => {
+            mockConfigManager.compositionLatestVersionSources = ['https://www.icanbwell.com/intelligence-layer-databricks'];
+            const composition = {
+                id: 'comp-1',
+                _uuid: 'comp-uuid-1',
+                _sourceId: 'comp-1',
+                resourceType: 'Composition',
+                meta: { lastUpdated: new Date(), source: 'https://www.icanbwell.com/intelligence-layer-databricks' },
+                subject: { reference: 'Patient/p1' },
+                type: { coding: [{ code: 'condition_summary_document' }] }
+            };
+            const mockCursor = {
+                hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false),
+                next: jest.fn().mockResolvedValueOnce(composition)
+            };
+            const bundleEntryIdsProcessedTracker = {
+                has: jest.fn().mockReturnValue(false),
+                add: jest.fn()
+            };
+            const everythingRelatedResourceManager = {
+                allowedToBeSent: jest.fn().mockReturnValue(true)
+            };
+            const compositionDedupBuffer = new Map();
+
+            const result = await everythingHelper.processCursorAsync({
+                cursor: mockCursor,
+                requestInfo: { userType: null, actor: null, isUser: false },
+                responseStreamer: undefined,
+                parentParsedArgs: { _since: null, headers: { prefer: '' } },
+                bundleEntryIdsProcessedTracker,
+                resourceIdentifiers: [],
+                nonClinicalReferencesExtractor: null,
+                everythingRelatedResourceManager,
+                useUuidProjection: false,
+                resourceMapper: { map: (r) => r },
+                compositionDedupBuffer
+            });
+
+            expect(result.bundleEntries).toEqual([]);
+            expect(compositionDedupBuffer.size).toBe(1);
+            expect(compositionDedupBuffer.get('Patient/p1|condition_summary_document').resource).toBe(composition);
+            expect(bundleEntryIdsProcessedTracker.add).toHaveBeenCalled();
+        });
+
+        test('keeps only the newer Composition per group across buffered candidates', async () => {
+            mockConfigManager.compositionLatestVersionSources = ['https://www.icanbwell.com/intelligence-layer-databricks'];
+            const older = {
+                id: 'comp-old', _uuid: 'comp-old', _sourceId: 'comp-old', resourceType: 'Composition',
+                meta: { lastUpdated: '2026-01-01T00:00:00Z', source: 'https://www.icanbwell.com/intelligence-layer-databricks' },
+                subject: { reference: 'Patient/p1' }, type: { coding: [{ code: 'condition_summary_document' }] }
+            };
+            const newer = {
+                id: 'comp-new', _uuid: 'comp-new', _sourceId: 'comp-new', resourceType: 'Composition',
+                meta: { lastUpdated: '2026-02-01T00:00:00Z', source: 'https://www.icanbwell.com/intelligence-layer-databricks' },
+                subject: { reference: 'Patient/p1' }, type: { coding: [{ code: 'condition_summary_document' }] }
+            };
+            const mockCursor = {
+                hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(true).mockResolvedValueOnce(false),
+                next: jest.fn().mockResolvedValueOnce(older).mockResolvedValueOnce(newer)
+            };
+            const bundleEntryIdsProcessedTracker = { has: jest.fn().mockReturnValue(false), add: jest.fn() };
+            const everythingRelatedResourceManager = { allowedToBeSent: jest.fn().mockReturnValue(true) };
+            const compositionDedupBuffer = new Map();
+
+            await everythingHelper.processCursorAsync({
+                cursor: mockCursor,
+                requestInfo: { userType: null, actor: null, isUser: false },
+                responseStreamer: undefined,
+                parentParsedArgs: { _since: null, headers: { prefer: '' } },
+                bundleEntryIdsProcessedTracker,
+                resourceIdentifiers: [],
+                nonClinicalReferencesExtractor: null,
+                everythingRelatedResourceManager,
+                useUuidProjection: false,
+                resourceMapper: { map: (r) => r },
+                compositionDedupBuffer
+            });
+
+            expect(compositionDedupBuffer.size).toBe(1);
+            expect(compositionDedupBuffer.get('Patient/p1|condition_summary_document').resource).toBe(newer);
+        });
     });
 });

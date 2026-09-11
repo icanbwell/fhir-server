@@ -4,6 +4,7 @@ const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const { pipeline } = require('stream/promises');
 const { ResourcePreparerTransform } = require('../streaming/resourcePreparerTransform');
+const { CompositionLatestVersionTransform } = require('../streaming/compositionLatestVersionTransform');
 const { Transform } = require('stream');
 const { IndexHinter } = require('../../indexes/indexHinter');
 const { HttpResponseWriter } = require('../streaming/responseWriter');
@@ -797,6 +798,10 @@ class SearchManager {
             // https://www.hl7.org/fhir/search.html#total
             // if _total is passed then calculate the total count for matching records also
             // don't use the options since they set a limit and skip
+            //
+            // Composition dedup (CompositionLatestVersionTransform) is NOT reflected here: an
+            // exact deduped count needs a $group over every matched doc instead of an indexed
+            // count, too costly on our current cluster. So this is an upper bound (at most 2x).
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
             );
@@ -1018,7 +1023,7 @@ class SearchManager {
                 configManager: this.configManager
             });
 
-            await pipeline(
+            const pipelineStages = [
                 readableMongoStream,
                 // new ObjectChunker(batchObjectCount),
                 new ResourcePreparerTransform(
@@ -1031,7 +1036,24 @@ class SearchManager {
                         configManager: this.configManager,
                         enrichmentContext
                     }
-                ),
+                )
+            ];
+            // scoped to Composition only: two independent, intentionally different generators
+            // can each write a Composition for the same subject + type, so only this resource
+            // type ever needs latest-version dedup
+            if (resourceType === 'Composition') {
+                pipelineStages.push(
+                    new CompositionLatestVersionTransform(
+                        {
+                            signal: ac.signal,
+                            highWaterMark,
+                            configManager: this.configManager,
+                            defaultSortId: this.configManager.defaultSortId
+                        }
+                    )
+                );
+            }
+            pipelineStages.push(
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
                 new Transform({
                     writableObjectMode: true,
@@ -1052,6 +1074,8 @@ class SearchManager {
                     }
                 })
             );
+
+            await pipeline(...pipelineStages);
         } catch (e) {
             logError('', { user, error: e });
             ac.abort();
@@ -1267,7 +1291,7 @@ class SearchManager {
 
         try {
             // now setup and run the pipeline
-            await pipeline(
+            const pipelineStages = [
                 readableMongoStream,
                 // new Transform({
                 //     objectMode: true,
@@ -1275,11 +1299,27 @@ class SearchManager {
                 //         sleep(60 * 1000).then(callback);
                 //     }
                 // }),
-                resourcePreparerTransform,
+                resourcePreparerTransform
+            ];
+            // Composition-only dedup for the two-generator duplicate problem; see CompositionLatestVersionTransform.
+            if (resourceType === 'Composition') {
+                pipelineStages.push(
+                    new CompositionLatestVersionTransform(
+                        {
+                            signal: ac.signal,
+                            highWaterMark,
+                            configManager: this.configManager,
+                            defaultSortId: this.configManager.defaultSortId
+                        }
+                    )
+                );
+            }
+            pipelineStages.push(
                 resourceIdTracker,
                 fhirWriter,
                 responseWriter
             );
+            await pipeline(...pipelineStages);
         } catch (e) {
             logError(`SearchManager.streamResourcesFromCursorAsync: ${e.message} `, {
                 user,
