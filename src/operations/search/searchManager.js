@@ -706,19 +706,21 @@ class SearchManager {
             // https://www.hl7.org/fhir/search.html#total
             // if _total is passed then calculate the total count for matching records also
             // don't use the options since they set a limit and skip
+            //
+            // NOTE for Composition when enableCompositionLatestVersionDedup is on:
+            // CompositionLatestVersionTransform collapses duplicate Compositions (same subject +
+            // type, written by the two generators) down to one on the streamed result, but this
+            // count intentionally does NOT account for that. exactDocumentCountAsync can be
+            // satisfied by an index alone; computing the deduped count instead means a $group
+            // aggregation over every matched document (no index can shortcut a computed grouping
+            // key), which turns a cheap indexed count into a full document scan -- a real timeout/
+            // resource risk on an unscoped or large tenant query, and one this cluster (M300,
+            // already the largest tier available) can't absorb. bundle.total is therefore a safe
+            // upper bound on the actual entry count for Composition when dedup is active (at most
+            // 2x, since there are only ever two generators), never an undercount.
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
             );
-            // Composition search results are reduced by CompositionLatestVersionTransform when
-            // dedup is enabled (duplicates from the two generators collapsed to one per subject +
-            // type), so a plain document count over-counts relative to what's actually returned.
-            // Count distinct dedup groups instead so bundle.total matches the entries a client
-            // actually gets back.
-            if (resourceType === 'Composition' && this.configManager.enableCompositionLatestVersionDedup) {
-                return await this.getCompositionLatestVersionDedupedTotalAsync(
-                    { databaseQueryManager, query, maxMongoTimeMS, extraInfo }
-                );
-            }
             return await databaseQueryManager.exactDocumentCountAsync({
                 query,
                 options: { maxTimeMS: maxMongoTimeMS },
@@ -730,49 +732,6 @@ class SearchManager {
                 error: e
             });
         }
-    }
-
-    /**
-     * Counts Composition search results the same way CompositionLatestVersionTransform reduces
-     * them: documents whose meta.source matches a known dedup-eligible generator are grouped by
-     * (subject.reference, type.coding[0].code) and counted once per group; everything else
-     * (including legacy V1 Compositions) counts individually via its own _uuid.
-     * @param {import('../../dataLayer/databaseQueryManager').DatabaseQueryManager} databaseQueryManager
-     * @param {Object} query
-     * @param {number} maxMongoTimeMS
-     * @param {Object} extraInfo
-     * @return {Promise<number>}
-     */
-    async getCompositionLatestVersionDedupedTotalAsync ({ databaseQueryManager, query, maxMongoTimeMS, extraInfo }) {
-        const dedupEligibleSources = this.configManager.compositionLatestVersionSources;
-        const pipeline = [
-            { $match: query },
-            {
-                $group: {
-                    _id: {
-                        $cond: [
-                            { $in: ['$meta.source', dedupEligibleSources] },
-                            {
-                                subject: '$subject.reference',
-                                type: { $arrayElemAt: ['$type.coding.code', 0] }
-                            },
-                            '$_uuid'
-                        ]
-                    }
-                }
-            },
-            { $count: 'total' }
-        ];
-        const cursor = await databaseQueryManager.findUsingAggregationAsync({
-            query: pipeline,
-            options: { maxTimeMS: maxMongoTimeMS },
-            extraInfo: { ...extraInfo, matchQueryProvided: true }
-        });
-        if (await cursor.hasNext()) {
-            const doc = await cursor.next();
-            return doc.total || 0;
-        }
-        return 0;
     }
 
     /**
