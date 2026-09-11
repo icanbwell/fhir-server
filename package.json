@@ -135,7 +135,7 @@
     "graphql-fields": "^2.0.3",
     "graphql-parse-resolve-info": "^4.14.1",
     "helmet": "^8.2.0",
-    "hono": "^4.13.5",
+    "hono": "^4.13.7",
     "jwks-rsa": "^4.0.1",
     "kafkajs": "^2.2.4",
     "lru-cache": "^11.5.0",
