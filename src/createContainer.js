@@ -134,6 +134,7 @@ const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichm
 const {GroupMemberEnrichmentProvider} = require('./enrich/providers/groupMemberEnrichmentProvider');
 const {CompositionSectionFilterEnrichmentProvider} = require('./enrich/providers/compositionSectionFilterEnrichmentProvider');
 const {AttachmentTextEnrichmentProvider} = require('./enrich/providers/attachmentTextEnrichmentProvider');
+const {BinaryDerivedTextEnrichmentProvider} = require('./enrich/providers/binaryDerivedTextEnrichmentProvider');
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
 const {SummaryOperation} = require("./operations/summary/summary");
@@ -223,7 +224,8 @@ const createContainer = function () {
                 clickHouseClientManager: c.clickHouseClientManager,
                 configManager: c.configManager
             }),
-            c.attachmentTextEnrichmentProvider
+            c.attachmentTextEnrichmentProvider,
+            c.binaryDerivedTextEnrichmentProvider
         ]
     }));
     container.register('identifierEnrichmentProvider', (c) => new IdentifierEnrichmentProvider({
@@ -237,6 +239,9 @@ const createContainer = function () {
         configManager: c.configManager
     }));
     container.register('attachmentTextEnrichmentProvider', (c) => new AttachmentTextEnrichmentProvider({
+        clinicalNoteTextRetriever: c.clinicalNoteTextRetriever
+    }));
+    container.register('binaryDerivedTextEnrichmentProvider', (c) => new BinaryDerivedTextEnrichmentProvider({
         clinicalNoteTextRetriever: c.clinicalNoteTextRetriever
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
