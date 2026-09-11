@@ -2,7 +2,6 @@ const {isTrue, isTrueWithFallback} = require('./isTrue');
 const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
 const { DEFAULT_ASSURANCE_MINIMUM_LEVEL } = require('./personLinkAssuranceLevel');
-const { fhirNotesMongoConfig } = require('../config');
 
 const env = process.env;
 
@@ -613,12 +612,18 @@ class ConfigManager {
      * rollout and flip this one flag to enable/disable, or use it as an emergency kill switch
      * without touching connection env vars (mirrors enableAuditEventArchiveRead's pattern above).
      * `_content` search and derived-text enrichment/reverse-lookup are all gated on this.
+     *
+     * `../config` is required lazily here (rather than at module scope) so that merely importing
+     * `ConfigManager` doesn't pull in `config.js`'s unconditional `require('@sentry/node')` for
+     * every consumer - that transitive weight surprised at least one existing unit test that
+     * mocks `fs` and broke when Sentry's own `require('node:fs')` picked up the same mock.
      * @returns {boolean}
      */
     get fhirNotesFullTextSearchConfigured() {
         if (!isTrue(env.ENABLE_FULL_TEXT_SEARCH)) {
             return false;
         }
+        const { fhirNotesMongoConfig } = require('../config');
         return Boolean(
             fhirNotesMongoConfig.connection &&
             fhirNotesMongoConfig.db_name &&
@@ -628,10 +633,12 @@ class ConfigManager {
     }
 
     get fhirNotesMongoCollectionName() {
+        const { fhirNotesMongoConfig } = require('../config');
         return fhirNotesMongoConfig.collection_name;
     }
 
     get fhirNotesTextSearchIndexName() {
+        const { fhirNotesMongoConfig } = require('../config');
         return fhirNotesMongoConfig.index_name;
     }
 
