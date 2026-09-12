@@ -1,5 +1,6 @@
 const { NotFoundError, ForbiddenError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { FhirResponseUrlBuilder } = require('../../utils/url/fhirResponseUrlBuilder');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
@@ -389,10 +390,14 @@ class BaseHistoryOperationProcessor {
                         id: historyResource.id,
                         resource: historyResource,
                         fullUrl: this.resourceManager.getFullUrlForResource({
-                            protocol,
-                            host,
-                            base_version,
-                            resource: historyResource
+                            resource: historyResource,
+                            // per design doc §6: basePath only, not externalUrlPrefix - see the
+                            // follow-up ticket for activating externalReqUrlPrefix here.
+                            responseUrls: new FhirResponseUrlBuilder({
+                                protocol,
+                                host,
+                                basePath: requestInfo.basePath
+                            })
                         })
                     };
                 }
@@ -435,10 +440,10 @@ class BaseHistoryOperationProcessor {
                 type: 'history',
                 requestId: requestInfo.userRequestId,
                 originalUrl: url,
-                host,
-                protocol,
+                // per design doc §6: basePath only, not externalUrlPrefix - see the follow-up
+                // ticket for activating externalReqUrlPrefix here.
+                responseUrls: new FhirResponseUrlBuilder({ protocol, host, basePath: requestInfo.basePath }),
                 entries,
-                base_version,
                 total_count: entries.length,
                 parsedArgs,
                 originalQuery: new QueryItem(

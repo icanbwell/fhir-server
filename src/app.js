@@ -43,6 +43,7 @@ const {shouldReturnHtml} = require('./utils/requestHelpers.js');
 const {generateLogDetail} = require('./utils/requestCompletionLogData.js');
 const {incrementRequestCount, decrementRequestCount, getRequestCount} = require('./utils/requestCounter');
 const {FhirRequestInfoBuilder} = require('./utils/fhirRequestInfoBuilder');
+const {normalizeFhirBasePath} = require('./middleware/normalizeFhirBasePath');
 
 /**
  * Creates the FHIR app
@@ -110,6 +111,12 @@ function createApp({fnGetContainer}) {
     // Urls to be ignored for which access logs are to be created in db.
     const ignoredUrls = ['/live', '/health', '/ready'];
 
+    // Must be the very first middleware, before anything else reads req.url/req.originalUrl -
+    // normalizes an inbound /fhir/r4/... request to /4_0_0/... so base_version is always the
+    // canonical '4_0_0' for module/schema/collection resolution downstream. Default-off; see
+    // ConfigManager#enableFhirR4PathAlias.
+    app.use(normalizeFhirBasePath({configManager}));
+
     // log every incoming request and every outgoing response
     app.use(function logRequestLifecycle(req, res, next) {
         // Generates a unique uuid and store in req and later used for operations
@@ -160,6 +167,7 @@ function createApp({fnGetContainer}) {
                 userType: req.authInfo?.context?.userType,
                 altId: username,
                 actor: actor,
+                clientBasePath: req.fhirBasePath?.clientSegment,
                 requestCount: getRequestCount()
             };
             if (res.statusCode === 401 || res.statusCode === 403) {
@@ -365,6 +373,9 @@ function createApp({fnGetContainer}) {
         );
     });
 
+    // NOTE: '/fhir' and '/fhir/r4' now share a namespace (see normalizeFhirBasePath /
+    // ConfigManager#fhirBasePathAliases) - a future '/fhir/<x>' route added here needs a
+    // collision check against the alias table before it can be added safely.
     app.get('/fhir', (req, res) => {
         const resourceUrl = req.query.resource;
         const redirectUrl = `${process.env.HOST_SERVER}/authcallback`;

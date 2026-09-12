@@ -1,4 +1,5 @@
 const { MongoError } = require('../../utils/mongoErrors');
+const { FhirResponseUrlBuilder } = require('../../utils/url/fhirResponseUrlBuilder');
 const { isTrue } = require('../../utils/isTrue');
 const { fhirContentTypes, hasNdJsonContentType } = require('../../utils/contentTypes');
 const { assertTypeEquals } = require('../../utils/assertType');
@@ -339,11 +340,14 @@ class SearchStreamingOperation {
                         type: 'searchset',
                         requestId: requestInfo.userRequestId,
                         originalUrl,
-                        host,
-                        protocol,
+                        responseUrls: new FhirResponseUrlBuilder({
+                            protocol,
+                            host,
+                            basePath: requestInfo.basePath,
+                            externalUrlPrefix: externalReqUrlPrefix
+                        }),
                         last_id,
                         resources: resources1,
-                        base_version,
                         total_count,
                         originalQuery: new QueryItem(
                             {
@@ -362,8 +366,7 @@ class SearchStreamingOperation {
                         user,
                         explanations,
                         allCollectionsToSearch,
-                        parsedArgs,
-                        externalReqUrlPrefix
+                        parsedArgs
                     }
                 );
                 resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
@@ -422,11 +425,16 @@ class SearchStreamingOperation {
                                 type: 'searchset',
                                 requestId: requestInfo.requestId,
                                 originalUrl,
-                                host,
-                                protocol,
+                                // per design doc §6: basePath only, not externalUrlPrefix (this
+                                // empty-result branch never threaded it before either) - see the
+                                // follow-up ticket for activating externalReqUrlPrefix here.
+                                responseUrls: new FhirResponseUrlBuilder({
+                                    protocol,
+                                    host,
+                                    basePath: requestInfo.basePath
+                                }),
                                 last_id: null,
                                 resources,
-                                base_version,
                                 total_count,
                                 originalQuery,
                                 databaseName,

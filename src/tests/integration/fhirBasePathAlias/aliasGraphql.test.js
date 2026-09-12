@@ -1,0 +1,52 @@
+// Proves the rewrite precedes the later-tick GraphQLv2 mount at src/app.js (registered inside
+// Promise.all().then(...), which the design doc's ordering analysis says still runs strictly after
+// anything registered synchronously in createApp, including normalizeFhirBasePath). The
+// /4_0_0/$graphqlv2 route itself is a hardcoded literal path segment, not parameterized by
+// :base_version, so this is the one route family that would silently 404 forever on the alias if
+// the ordering were ever wrong - a brittle app._router.stack assertion wouldn't catch that.
+const supertest = require('supertest');
+
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getGraphQLHeaders,
+    createTestApp
+} = require('../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+
+describe('fhir/r4 base path alias - graphqlv2', () => {
+    const originalFlag = process.env.ENABLE_FHIR_R4_PATH_ALIAS;
+
+    beforeEach(async () => {
+        process.env.ENABLE_FHIR_R4_PATH_ALIAS = '1';
+        await commonBeforeEach();
+    });
+
+    afterEach(async () => {
+        await commonAfterEach();
+        if (originalFlag === undefined) {
+            delete process.env.ENABLE_FHIR_R4_PATH_ALIAS;
+        } else {
+            process.env.ENABLE_FHIR_R4_PATH_ALIAS = originalFlag;
+        }
+    });
+
+    test('/fhir/r4/$graphqlv2 is reachable (normalizes to /4_0_0/$graphqlv2 before route matching)', async () => {
+        const request = supertest(createTestApp());
+
+        const resp = await request
+            .post('/fhir/r4/$graphqlv2')
+            .send({
+                operationName: null,
+                variables: {},
+                query: 'query { __typename }'
+            })
+            .set(getGraphQLHeaders());
+
+        // A 404 here would mean normalizeFhirBasePath ran too late relative to the
+        // Promise.all().then(...) graphqlv2 mount - the exact ordering risk this test guards.
+        expect(resp.status).not.toBe(404);
+        expect(resp.body.data).toBeDefined();
+        expect(resp.body.data.__typename).toBeDefined();
+    });
+});

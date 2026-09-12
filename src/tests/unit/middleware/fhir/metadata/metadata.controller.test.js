@@ -1,7 +1,10 @@
 const { describe, test, expect, jest: jestObj, beforeEach } = require('@jest/globals');
 
-// Mock the constants module
-jestObj.mock('../../../../../constants', () => ({
+// Mock the constants module - fixed to point at src/middleware/fhir/utils/constants.js, which is
+// where VERSIONS actually lives; src/constants.js exports no VERSIONS at all (that mismatch was a
+// latent bug: VERSIONS['4_0_1'] === undefined['4_0_1'] -> TypeError whenever base_version was
+// absent from sanitized_args).
+jestObj.mock('../../../../../middleware/fhir/utils/constants', () => ({
     VERSIONS: {
         '4_0_1': '4_0_1',
         '4_0_0': '4_0_0'
@@ -27,7 +30,9 @@ describe('metadata.controller', () => {
     beforeEach(() => {
         jestObj.clearAllMocks();
         req = {
-            sanitized_args: {}
+            sanitized_args: {},
+            protocol: 'http',
+            get: jestObj.fn().mockReturnValue('localhost:3000')
         };
         res = {
             status: jestObj.fn().mockReturnThis(),
@@ -74,15 +79,54 @@ describe('metadata.controller', () => {
             });
         });
 
-        test('responds with 200 and the statement on success', async () => {
-            const statement = { resourceType: 'CapabilityStatement', status: 'active' };
+        test('responds with 200 and the statement, decorated with implementation.url, on success', async () => {
+            const statement = { resourceType: 'CapabilityStatement', status: 'active', implementation: { description: 'FHIR Test Server (R4)' } };
             service.generateCapabilityStatement.mockResolvedValue(statement);
 
             const middleware = controller.getCapabilityStatement({ profiles, security, statementGenerator });
             await middleware(req, res, next);
 
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith(statement);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    implementation: expect.objectContaining({
+                        description: 'FHIR Test Server (R4)',
+                        url: 'http://localhost:3000/4_0_0'
+                    })
+                })
+            );
+        });
+
+        test('sets implementation.url mirroring the alias base path when the request used /fhir/r4', async () => {
+            const { FhirBasePath } = require('../../../../../utils/url/fhirBasePath');
+            req.fhirBasePath = new FhirBasePath({ canonicalVersion: '4_0_0', clientSegment: 'fhir/r4' });
+            req.protocol = 'https';
+            req.get = jestObj.fn().mockReturnValue('fhir.icanbwell.com');
+            const statement = { resourceType: 'CapabilityStatement', status: 'active', implementation: { description: 'FHIR Test Server (R4)' } };
+            service.generateCapabilityStatement.mockResolvedValue(statement);
+
+            const middleware = controller.getCapabilityStatement({ profiles, security, statementGenerator });
+            await middleware(req, res, next);
+
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    implementation: expect.objectContaining({ url: 'https://fhir.icanbwell.com/fhir/r4' })
+                })
+            );
+        });
+
+        test('handles a statement with no implementation object yet', async () => {
+            const statement = { resourceType: 'CapabilityStatement', status: 'active' };
+            service.generateCapabilityStatement.mockResolvedValue(statement);
+
+            const middleware = controller.getCapabilityStatement({ profiles, security, statementGenerator });
+            await middleware(req, res, next);
+
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    implementation: { url: 'http://localhost:3000/4_0_0' }
+                })
+            );
         });
 
         test('calls next with error on failure', async () => {

@@ -96,19 +96,23 @@ describe('FhirResponseWriter', () => {
             expect(mockRes.setHeader).not.toHaveBeenCalled();
         });
 
-        test('BUG: should handle undefined base_version without crashing', () => {
-            // When req.params.base_version is undefined, getContentType returns 'application/json'
+        test('no longer reads req.params.base_version - defaults to the canonical content type', () => {
+            // fixed by the /fhir/r4 alias work: setBaseResponseHeaders now derives the FHIR
+            // version from req.fhirBasePath (defaulting to FhirBasePath.canonical()), not
+            // req.params.base_version, so it never falls through to 'application/json'.
             mockReq.params = {};
             writer.setBaseResponseHeaders({ req: mockReq, res: mockRes });
-            expect(mockRes.type).toHaveBeenCalledWith('application/json');
+            expect(mockRes.type).toHaveBeenCalledWith('application/fhir+json');
         });
 
-        test('BUG: should handle missing req.params without crashing', () => {
-            // When req.params is undefined, accessing req.params.base_version throws
+        test('no longer crashes when req.params is missing (fixed by the /fhir/r4 alias work)', () => {
+            // previously: accessing req.params.base_version threw when req.params was undefined.
+            // setBaseResponseHeaders no longer touches req.params at all.
             mockReq.params = undefined;
             expect(() => {
                 writer.setBaseResponseHeaders({ req: mockReq, res: mockRes });
-            }).toThrow();
+            }).not.toThrow();
+            expect(mockRes.type).toHaveBeenCalledWith('application/fhir+json');
         });
     });
 
@@ -197,12 +201,15 @@ describe('FhirResponseWriter', () => {
             expect(mockRes.json).toHaveBeenCalledWith({});
         });
 
-        test('should handle empty fhirVersion', () => {
+        test('ignores req.params.base_version - Location is always derived from req.fhirBasePath', () => {
+            // the fhirVersion === '' special case was removed by the /fhir/r4 alias work: Location
+            // is now built via FhirResponseUrlBuilder.fromRequest(req), which defaults to the
+            // canonical basePath ('4_0_0') regardless of req.params.base_version.
             mockReq.params.base_version = undefined;
             const resource = { id: '123', meta: { versionId: '1' } };
             const options = { type: 'Patient' };
             writer.create({ req: mockReq, res: mockRes, resource, options });
-            expect(mockRes.set).toHaveBeenCalledWith('Location', 'Patient/123');
+            expect(mockRes.set).toHaveBeenCalledWith('Location', '4_0_0/Patient/123');
         });
 
         test('should include fhirVersion in Location when present', () => {
@@ -305,9 +312,13 @@ describe('FhirResponseWriter', () => {
             expect(mockRes.status).toHaveBeenCalledWith(202);
         });
 
-        test('should use http:// for localhost', () => {
+        test('uses req.protocol (trust-proxy aware), not a hostname.includes("localhost") sniff', () => {
+            // the /fhir/r4 alias work replaced the bespoke hostname sniff with req.protocol via
+            // FhirResponseUrlBuilder.fromRequest(req) - trust-proxy aware, see the trustProxy test
+            // family for coverage of the proxy-header cases.
+            mockReq.protocol = 'http';
             mockReq.hostname = 'localhost';
-            mockReq.headers = { host: 'localhost:3000' };
+            mockReq.get = jest.fn().mockReturnValue('localhost:3000');
             const result = { id: 'export-123' };
             writer.export({ req: mockReq, res: mockRes, result });
             expect(mockRes.setHeader).toHaveBeenCalledWith(
@@ -316,9 +327,10 @@ describe('FhirResponseWriter', () => {
             );
         });
 
-        test('should use https:// for non-localhost', () => {
+        test('mirrors https when req.protocol is https', () => {
+            mockReq.protocol = 'https';
             mockReq.hostname = 'api.example.com';
-            mockReq.headers = { host: 'api.example.com' };
+            mockReq.get = jest.fn().mockReturnValue('api.example.com');
             const result = { id: 'export-123' };
             writer.export({ req: mockReq, res: mockRes, result });
             expect(mockRes.setHeader).toHaveBeenCalledWith(
@@ -328,8 +340,8 @@ describe('FhirResponseWriter', () => {
         });
 
         test('BUG: should handle null result without crashing', () => {
-            mockReq.hostname = 'localhost';
-            mockReq.headers = { host: 'localhost:3000' };
+            mockReq.protocol = 'http';
+            mockReq.get = jest.fn().mockReturnValue('localhost:3000');
             // result is null - result?.id will be undefined
             writer.export({ req: mockReq, res: mockRes, result: null });
             expect(mockRes.setHeader).toHaveBeenCalledWith(
@@ -339,15 +351,16 @@ describe('FhirResponseWriter', () => {
             expect(mockRes.status).toHaveBeenCalledWith(202);
         });
 
-        test('BUG: should handle undefined headers.host', () => {
-            mockReq.hostname = 'localhost';
-            mockReq.headers = {};
+        test('mirrors the alias base path when the request used /fhir/r4', () => {
+            const { FhirBasePath } = require('../../../../utils/url/fhirBasePath');
+            mockReq.protocol = 'https';
+            mockReq.get = jest.fn().mockReturnValue('fhir.icanbwell.com');
+            mockReq.fhirBasePath = new FhirBasePath({ canonicalVersion: '4_0_0', clientSegment: 'fhir/r4' });
             const result = { id: 'export-123' };
-            // result?.id works but headers?.host is undefined
             writer.export({ req: mockReq, res: mockRes, result });
             expect(mockRes.setHeader).toHaveBeenCalledWith(
                 'Content-Location',
-                'http://undefined/4_0_0/$export/export-123'
+                'https://fhir.icanbwell.com/fhir/r4/$export/export-123'
             );
         });
     });
@@ -360,12 +373,14 @@ describe('FhirResponseWriter', () => {
             expect(mockRes.status).toHaveBeenCalledWith(202);
         });
 
-        test('should return 200 with result details when status is completed', () => {
+        test('re-projects the persisted canonical request URL onto the polling request base path', () => {
+            // §7 of the design: exportById re-projects the stored canonical ExportStatus.request
+            // onto whichever base the polling request used, rather than echoing it verbatim.
             const result = {
                 status: 'completed',
                 transactionTime: '2023-01-01T00:00:00Z',
                 requiresAccessToken: true,
-                request: 'http://example.com',
+                request: 'https://fhir.icanbwell.com/4_0_0/$export/abc123',
                 output: [],
                 errors: []
             };
@@ -374,10 +389,27 @@ describe('FhirResponseWriter', () => {
             expect(mockRes.json).toHaveBeenCalledWith({
                 transactionTime: '2023-01-01T00:00:00Z',
                 requiresAccessToken: true,
-                request: 'http://example.com',
+                request: 'https://localhost:3000/4_0_0/$export/abc123',
                 output: [],
                 errors: []
             });
+        });
+
+        test('re-projects onto the alias when the polling request used /fhir/r4', () => {
+            const { FhirBasePath } = require('../../../../utils/url/fhirBasePath');
+            mockReq.fhirBasePath = new FhirBasePath({ canonicalVersion: '4_0_0', clientSegment: 'fhir/r4' });
+            const result = {
+                status: 'completed',
+                transactionTime: '2023-01-01T00:00:00Z',
+                requiresAccessToken: true,
+                request: 'https://fhir.icanbwell.com/4_0_0/$export/abc123',
+                output: [],
+                errors: []
+            };
+            writer.exportById({ req: mockReq, res: mockRes, result });
+            expect(mockRes.json).toHaveBeenCalledWith(
+                expect.objectContaining({ request: 'https://localhost:3000/fhir/r4/$export/abc123' })
+            );
         });
     });
 
@@ -420,6 +452,14 @@ describe('FhirResponseWriter', () => {
             expect(mockRes.setHeader).toHaveBeenCalledWith('Content-Location', '/4_0_0/Task/task-123');
             expect(mockRes.status).toHaveBeenCalledWith(202);
             expect(mockRes.json).toHaveBeenCalledWith(result);
+        });
+
+        test('mirrors the alias base path when the request used /fhir/r4', () => {
+            const { FhirBasePath } = require('../../../../utils/url/fhirBasePath');
+            mockReq.fhirBasePath = new FhirBasePath({ canonicalVersion: '4_0_0', clientSegment: 'fhir/r4' });
+            const result = { id: 'task-123' };
+            writer.import({ req: mockReq, res: mockRes, result });
+            expect(mockRes.setHeader).toHaveBeenCalledWith('Content-Location', '/fhir/r4/Task/task-123');
         });
     });
 

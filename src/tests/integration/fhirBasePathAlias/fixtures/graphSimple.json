@@ -1,0 +1,8 @@
+{
+    "resourceType": "GraphDefinition",
+    "id": "aliasGraphSimple",
+    "name": "alias_test_graph",
+    "status": "active",
+    "start": "Patient",
+    "link": []
+}
