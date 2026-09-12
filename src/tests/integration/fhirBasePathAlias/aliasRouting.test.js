@@ -7,7 +7,15 @@ const supertest = require('supertest');
 const patient1Resource = require('./fixtures/patient1.json');
 const graphDefinitionResource = require('./fixtures/graphSimple.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestApp } = require('../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    getHeadersFormUrlEncoded,
+    createTestApp,
+    getTestContainer,
+    mockHttpContext
+} = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('fhir/r4 base path alias - routing', () => {
@@ -98,17 +106,22 @@ describe('fhir/r4 base path alias - routing', () => {
         const resp = await request
             .post('/fhir/r4/Patient/_search')
             .send({ id: 'aliasp1' })
-            .set(getHeaders());
+            .set(getHeadersFormUrlEncoded());
 
         expect(resp).toHaveStatusCode(200);
     });
 
     test('GET /fhir/r4/Patient/:id/_history works', async () => {
+        const requestId = mockHttpContext();
         const request = supertest(createTestApp());
         await request
             .post('/fhir/r4/Patient/aliasp1/$merge')
             .send(patient1Resource)
             .set(getHeaders());
+
+        // history rows are written asynchronously via postRequestProcessor - see
+        // history_by_id.test.js's identical wait before querying _history.
+        await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId });
 
         const resp = await request.get('/fhir/r4/Patient/aliasp1/_history').set(getHeaders());
 

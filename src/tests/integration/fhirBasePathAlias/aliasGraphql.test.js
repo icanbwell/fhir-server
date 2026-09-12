@@ -39,14 +39,19 @@ describe('fhir/r4 base path alias - graphqlv2', () => {
             .send({
                 operationName: null,
                 variables: {},
-                query: 'query { __typename }'
+                // A bare `{ __typename }` query trips a pre-existing, unrelated Apollo Server
+                // quirk in this schema ("Cannot create property 'meta' on string 'Query'") on
+                // both /4_0_0 and /fhir/r4 - not an alias regression. Query a real root field
+                // instead so a routing-ordering failure (this test's actual concern) can't be
+                // masked by that unrelated 500.
+                query: 'query { patients { entry { resource { resourceType } } } }'
             })
             .set(getGraphQLHeaders());
 
         // A 404 here would mean normalizeFhirBasePath ran too late relative to the
         // Promise.all().then(...) graphqlv2 mount - the exact ordering risk this test guards.
         expect(resp.status).not.toBe(404);
-        expect(resp.body.data).toBeDefined();
-        expect(resp.body.data.__typename).toBeDefined();
+        expect(resp.body.errors).toBeUndefined();
+        expect(resp.body.data.patients).toBeDefined();
     });
 });

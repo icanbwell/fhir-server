@@ -11,9 +11,15 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 describe('fhir/r4 base path alias - externalReqUrlPrefix precedence', () => {
     const originalFlag = process.env.ENABLE_FHIR_R4_PATH_ALIAS;
     const originalExternalServices = process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT;
+    const originalStream = process.env.STREAM_RESPONSE;
 
     beforeEach(async () => {
         process.env.ENABLE_FHIR_R4_PATH_ALIAS = '1';
+        // Disable streaming to enable testing of fullUrl - see
+        // patientSearchList.test.js's identical comment: the streaming bundle writer never
+        // populates per-entry fullUrl, regardless of base path, so this is pre-existing and
+        // unrelated to the alias.
+        process.env.STREAM_RESPONSE = 'false';
         await commonBeforeEach();
     });
 
@@ -28,6 +34,11 @@ describe('fhir/r4 base path alias - externalReqUrlPrefix precedence', () => {
             delete process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT;
         } else {
             process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = originalExternalServices;
+        }
+        if (originalStream === undefined) {
+            delete process.env.STREAM_RESPONSE;
+        } else {
+            process.env.STREAM_RESPONSE = originalStream;
         }
     });
 
