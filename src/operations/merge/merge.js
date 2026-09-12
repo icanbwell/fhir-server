@@ -18,6 +18,7 @@ const { MergeValidator } = require('./mergeValidator');
 const { logError } = require('../common/logging');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isTrue } = require('../../utils/isTrue');
+const { FhirResponseUrlBuilder } = require('../../utils/url/fhirResponseUrlBuilder');
 const { Transform } = require('stream'); // <- for Transform stream class
 const { pipeline } = require('stream/promises'); // <- for async pipeline
 const { getRequestDecompressor } = require('../../utils/requestDecompressor');
@@ -347,10 +348,12 @@ class MergeOperation {
                         type: 'batch-response',
                         requestId: userRequestId,
                         originalUrl: url,
-                        host,
-                        protocol,
+                        // per design doc §6: construct with basePath only, not externalUrlPrefix,
+                        // so api-gateway's response URLs stay byte-identical to today while the
+                        // alias works everywhere immediately. Follow-up ticket tracks activating
+                        // externalReqUrlPrefix here with the fhir-server-internal owners.
+                        responseUrls: new FhirResponseUrlBuilder({ protocol, host, basePath: requestInfo.basePath }),
                         resources,
-                        base_version,
                         total_count: operationOutcomes.length,
                         originalQuery: new QueryItem(
                             {

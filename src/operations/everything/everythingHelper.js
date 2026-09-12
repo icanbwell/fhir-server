@@ -2,6 +2,7 @@
  * This file contains functions to retrieve all related resources of given resource from the database
  */
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { FhirResponseUrlBuilder } = require('../../utils/url/fhirResponseUrlBuilder');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { AuditLogger, sanitizeOutcomeDesc } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -648,10 +649,15 @@ class EverythingHelper {
                 {
                     type: 'searchset',
                     requestId: requestInfo.userRequestId,
-                    host: requestInfo.host,
-                    protocol: requestInfo.protocol,
+                    // per design doc §6: basePath only, not externalUrlPrefix - see the follow-up
+                    // ticket for activating externalReqUrlPrefix here. No originalUrl is passed
+                    // (bundleManager suppresses links for $everything), so only fullUrl matters.
+                    responseUrls: new FhirResponseUrlBuilder({
+                        protocol: requestInfo.protocol,
+                        host: requestInfo.host,
+                        basePath: requestInfo.basePath
+                    }),
                     resources,
-                    base_version,
                     parsedArgs,
                     originalQuery: queryItems,
                     originalOptions: options,

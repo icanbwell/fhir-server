@@ -3,6 +3,7 @@
  */
 const async = require('async');
 const {assertTypeEquals} = require('../../utils/assertType');
+const { FhirResponseUrlBuilder } = require('../../utils/url/fhirResponseUrlBuilder');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
 const {NonResourceEntityAndContained} = require('./nonResourceEntityAndContained');
@@ -1912,10 +1913,14 @@ class GraphHelper {
                     type: 'searchset',
                     requestId: requestInfo.userRequestId,
                     originalUrl: requestInfo.originalUrl,
-                    host: requestInfo.host,
-                    protocol: requestInfo.protocol,
+                    // per design doc §6: basePath only, not externalUrlPrefix - see the follow-up
+                    // ticket for activating externalReqUrlPrefix here.
+                    responseUrls: new FhirResponseUrlBuilder({
+                        protocol: requestInfo.protocol,
+                        host: requestInfo.host,
+                        basePath: requestInfo.basePath
+                    }),
                     resources,
-                    base_version,
                     parsedArgs,
                     originalQuery: queryItems,
                     originalOptions: options,

@@ -1,8 +1,9 @@
-const path = require('path');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../../constants');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { FhirResponseUrlBuilder } = require('../../utils/url/fhirResponseUrlBuilder');
+const { FhirBasePath } = require('../../utils/url/fhirBasePath');
 
 /**
  * @classdesc Writes response in FHIR
@@ -121,7 +122,10 @@ class FhirResponseWriter {
      * @param {Resource} resource - resource to send to client
      */
     readOne ({ req, res, resource }) {
-        const fhirVersion = req.params.base_version;
+        // defence-in-depth only: post-rewrite (normalizeFhirBasePath) base_version is always the
+        // canonical '4_0_0'; this reads req.fhirBasePath rather than req.params.base_version so an
+        // unknown value can never silently fall through to application/json.
+        const fhirVersion = (req.fhirBasePath || FhirBasePath.canonical()).canonicalVersion;
 
         if (resource && resource.meta) {
             res.set('Last-Modified', resource.meta.lastUpdated);
@@ -150,20 +154,14 @@ class FhirResponseWriter {
      * @param {{type: string}} options - Any additional options necessary to generate response
      */
     create ({ req, res, resource, options }) {
-        const fhirVersion = req.params.base_version ? req.params.base_version : '';
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const responseUrls = FhirResponseUrlBuilder.fromRequest(req);
 
         // https://hl7.org/fhir/http.html#create
-        let location;
-        if (fhirVersion === '') {
-            location = `${options.type}/${resource.id}`;
-        } else {
-            location = `${fhirVersion}/${options.type}/${resource.id}`;
-        }
+        const location = responseUrls.build(`${options.type}/${resource.id}`, { form: 'relative' });
 
         if (resource.meta && resource.meta.versionId) {
-            const pathname = path.posix.join(location, '_history', resource.meta.versionId);
-            res.set('Content-Location', `${baseUrl}/${pathname}`);
+            const historyRelativePath = `${options.type}/${resource.id}/_history/${resource.meta.versionId}`;
+            res.set('Content-Location', responseUrls.build(historyRelativePath, { form: 'absolute' }));
             res.set('ETag', `W/"${resource.meta.versionId}"`);
         }
         if (req.id && !res.headersSent) {
@@ -188,19 +186,18 @@ class FhirResponseWriter {
      * @param {{type: string}} options - Any additional options necessary to generate response
      */
     update ({ req, res, result, options }) {
-        const fhirVersion = req.params.base_version;
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
-        const location = `${fhirVersion}/${options.type}/${result.id}`;
+        const responseUrls = FhirResponseUrlBuilder.fromRequest(req);
+        const location = responseUrls.build(`${options.type}/${result.id}`, { form: 'relative' });
         const status = result.created ? 201 : 200;
         const date = new Date();
 
         if (result.resource_version) {
-            const pathname = path.posix.join(location, '_history', result.resource_version);
-            res.set('Content-Location', `${baseUrl}/${pathname}`);
+            const historyRelativePath = `${options.type}/${result.id}/_history/${result.resource_version}`;
+            res.set('Content-Location', responseUrls.build(historyRelativePath, { form: 'absolute' }));
             res.set('ETag', `W/"${result.resource_version}"`);
         }
         res.set('Last-Modified', date.toISOString());
-        res.type(this.getContentType(fhirVersion));
+        res.type(this.getContentType(responseUrls.basePath.canonicalVersion));
         res.set('Location', location);
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
@@ -239,7 +236,8 @@ class FhirResponseWriter {
      * @param {Object} json - json to send to client
      */
     history ({ req, res, json }) {
-        const version = req.params.base_version;
+        // defence-in-depth only: see the comment in readOne() above.
+        const version = (req.fhirBasePath || FhirBasePath.canonical()).canonicalVersion;
         res.type(this.getContentType(version));
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
@@ -255,8 +253,10 @@ class FhirResponseWriter {
      * @param {Object} result - results of the export
      */
     export ({ req, res, result }) {
-        const baseUrl = `${req.hostname.includes('localhost') ? 'http://' : 'https://'}${req.headers?.host}`;
-        const statusUrl =`${baseUrl}/4_0_0/$export/${result?.id}`;
+        // req.protocol is trust-proxy aware (unlike the previous req.hostname.includes('localhost')
+        // scheme sniff) - deliberate, see the trustProxy test family for coverage.
+        const responseUrls = FhirResponseUrlBuilder.fromRequest(req);
+        const statusUrl = responseUrls.build(`$export/${result?.id}`, { form: 'absolute' });
 
         res.setHeader('Content-Location', statusUrl);
         res.status(202).send();
@@ -274,10 +274,12 @@ class FhirResponseWriter {
             res.setHeader('X-Progress', result.status);
             res.status(202).send();
         } else {
+            const responseUrls = FhirResponseUrlBuilder.fromRequest(req);
             res.status(200).json({
                 transactionTime: result.transactionTime,
                 requiresAccessToken: result.requiresAccessToken,
-                request: result.request,
+                // re-projects the persisted canonical URL onto the polling request's spelling.
+                request: responseUrls.build(result.request, { form: 'absolute' }),
                 output: result.output,
                 errors: result.errors
             });
@@ -292,7 +294,8 @@ class FhirResponseWriter {
      * @param {Object} result - results of the import
      */
     import ({ req, res, result }) {
-        res.setHeader('Content-Location', `/4_0_0/Task/${result.id}`);
+        const responseUrls = FhirResponseUrlBuilder.fromRequest(req);
+        res.setHeader('Content-Location', responseUrls.build(`Task/${result.id}`, { form: 'path' }));
         this.setBaseResponseHeaders({ req, res });
         res.status(202).json(result);
     }
@@ -307,7 +310,8 @@ class FhirResponseWriter {
         if (res.headersSent) {
             return;
         }
-        const fhirVersion = req.params.base_version;
+        // defence-in-depth only: see the comment in readOne() above.
+        const fhirVersion = (req.fhirBasePath || FhirBasePath.canonical()).canonicalVersion;
         if (!res.get("Content-Type")) {
             const contentType = this.getContentType(fhirVersion);
             res.type(contentType);
