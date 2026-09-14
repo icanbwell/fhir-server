@@ -4,7 +4,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { RESOURCE_TYPE_SCOPE_NAMESPACES } = require('../../constants');
-const { parseScopeToken, isActionSatisfiedByCruds } = require('./smartScopeParser');
+const { parseScopeToken, getRequiredCrudsForAccessRequested, isCrudsRequirementSatisfied } = require('./smartScopeParser');
 
 class ScopesManager {
     /**
@@ -43,7 +43,7 @@ class ScopesManager {
 
     /**
      * Returns all the access codes present in scopes
-     * @param {string} action
+     * @param {string} action legacy 'read'/'write' or a single v2 CRUDS letter ('c'/'r'/'u'/'d'/'s')
      * @param {string} user
      * @param {string|null} scope
      * @return {string[]} security tags allowed by scopes
@@ -59,6 +59,7 @@ class ScopesManager {
          * @type {string[]}
          */
         const access_codes = [];
+        const requiredCruds = getRequiredCrudsForAccessRequested(action);
         for (const scope1 of scopes) {
             if (!scope1.startsWith('access/')) {
                 continue;
@@ -67,7 +68,7 @@ class ScopesManager {
             // shape names the segment before the suffix `resourceType`, but for access/ scopes
             // it is actually the security tag/tenant code, not a FHIR resource type.
             const parsed = parseScopeToken(scope1, this.configManager.enableSmartV2CrudsScopes);
-            if (parsed && isActionSatisfiedByCruds(parsed.cruds, action)) {
+            if (parsed && isCrudsRequirementSatisfied(parsed.cruds, requiredCruds)) {
                 access_codes.push(parsed.resourceType);
             }
         }

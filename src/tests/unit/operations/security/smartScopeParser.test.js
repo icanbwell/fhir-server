@@ -4,7 +4,6 @@ const {
     isV2Suffix,
     normalizeSuffixToCruds,
     parseScopeToken,
-    isActionSatisfiedByCruds,
     getRequiredCrudsForAccessRequested,
     isCrudsRequirementSatisfied,
     isReadOnlyAccessRequested,
@@ -155,42 +154,6 @@ describe('smartScopeParser', () => {
         });
     });
 
-    describe('isActionSatisfiedByCruds', () => {
-        test('read action is satisfied by r', () => {
-            expect(isActionSatisfiedByCruds(new Set(['r', 's']), 'read')).toBe(true);
-        });
-
-        test('read action is not satisfied by write-only cruds', () => {
-            expect(isActionSatisfiedByCruds(new Set(['c', 'u', 'd']), 'read')).toBe(false);
-        });
-
-        test('write action requires the full c/u/d composite, not just one letter', () => {
-            // See isCrudsRequirementSatisfied's own tests for the full rationale: a partial v2
-            // grant of just one write-type letter must not satisfy the coarse 'write' fallback.
-            expect(isActionSatisfiedByCruds(new Set(['c']), 'write')).toBe(false);
-            expect(isActionSatisfiedByCruds(new Set(['u']), 'write')).toBe(false);
-            expect(isActionSatisfiedByCruds(new Set(['d']), 'write')).toBe(false);
-            expect(isActionSatisfiedByCruds(new Set(['c', 'u', 'd']), 'write')).toBe(true);
-        });
-
-        test('write action is not satisfied by read-only cruds', () => {
-            expect(isActionSatisfiedByCruds(new Set(['r', 's']), 'write')).toBe(false);
-        });
-
-        test('the full cruds set satisfies both read and write', () => {
-            const full = new Set(['c', 'r', 'u', 'd', 's']);
-            expect(isActionSatisfiedByCruds(full, 'read')).toBe(true);
-            expect(isActionSatisfiedByCruds(full, 'write')).toBe(true);
-        });
-
-        test('returns false for a null cruds set', () => {
-            expect(isActionSatisfiedByCruds(null, 'read')).toBe(false);
-        });
-
-        test('returns false for an unknown action', () => {
-            expect(isActionSatisfiedByCruds(new Set(['r']), 'bogus')).toBe(false);
-        });
-    });
 
     describe('getRequiredCrudsForAccessRequested', () => {
         test('read normalizes to {r}', () => {

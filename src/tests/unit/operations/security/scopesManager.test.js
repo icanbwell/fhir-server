@@ -154,6 +154,29 @@ describe('ScopesManager', () => {
                 expect(result).toEqual(['tenantA', 'tenantB']);
             });
         });
+
+        // Bare v2 CRUDS letters (DCON-5557 phase 3) -- the query-filter path (securityTagManager,
+        // via ScopesManager) can now be handed a single granular letter instead of the coarse
+        // 'read'/'write' literal, matching the same requirement resolution ScopesValidator's
+        // gate already uses (phase 2).
+        test.each(['c', 'r', 'u', 'd', 's'])(
+            'a bare letter %s matches a v2 access/ scope granting exactly that letter', (letter) => {
+                expect(scopesManager.getAccessCodesFromScopes(letter, 'testUser', `access/client.${letter}`))
+                    .toEqual(['client']);
+            }
+        );
+
+        test('a bare letter does not match a v2 access/ scope missing it', () => {
+            expect(scopesManager.getAccessCodesFromScopes('s', 'testUser', 'access/client.r')).toEqual([]);
+            expect(scopesManager.getAccessCodesFromScopes('r', 'testUser', 'access/client.s')).toEqual([]);
+        });
+
+        test('a bare letter matches a v1 scope whose normalized cruds includes it', () => {
+            // read -> {r, s}; a bare 's' (search-type) request is satisfied by a v1 'read' scope.
+            expect(scopesManager.getAccessCodesFromScopes('s', 'testUser', 'access/client.read')).toEqual(['client']);
+            // write -> {c, u, d}; a bare 'd' (delete) request is satisfied by a v1 'write' scope.
+            expect(scopesManager.getAccessCodesFromScopes('d', 'testUser', 'access/client.write')).toEqual(['client']);
+        });
     });
 
     describe('doesResourceHaveAnyAccessCodeFromThisList', () => {
