@@ -19,6 +19,7 @@ const { R4SearchQueryCreator } = require('../../query/r4');
 const { S3Client } = require('../../../utils/s3Client');
 const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
 const { isUuid } = require('../../../utils/uid.util');
+const { isValidVersion } = require('../../../middleware/fhir/utils/schema.utils');
 const { logInfo, logError, logDebug, logWarn } = require('../../common/logging');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const {
@@ -280,8 +281,23 @@ class BulkDataExportRunner {
 
             const { pathname, searchParams } = new URL(this.exportStatusResource.request);
 
+            // This is the only place in the system where an alias string could become a Mongo
+            // collection name: the edge normalization (normalizeFhirBasePath) canonicalizes
+            // ExportStatus.request before it is ever persisted, but that guarantee can't reach an
+            // ExportStatus written by a new pod and read by an old-image runner mid-rolling-deploy,
+            // or a hand-written/admin-created row. Validate before it becomes a collection suffix -
+            // fail the job loudly rather than silently completing an empty export.
+            const requestBaseVersion = pathname.split('/')[1];
+            if (!isValidVersion(requestBaseVersion)) {
+                throw new BadRequestError(
+                    new Error(
+                        `Invalid base_version segment '${requestBaseVersion}' in persisted ExportStatus.request: ${this.exportStatusResource.request}`
+                    )
+                );
+            }
+
             // to be used while making query
-            searchParams.append('base_version', pathname.split('/')[1]);
+            searchParams.append('base_version', requestBaseVersion);
 
             let query = await this.getQueryForExport({
                 user: this.exportStatusResource.user,

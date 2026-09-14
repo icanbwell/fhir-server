@@ -14,6 +14,7 @@ const { describe, beforeEach, afterEach, it, expect, jest } = require('@jest/glo
 const { BundleManager } = require('../../../../operations/common/bundleManager');
 const { ResourceManager } = require('../../../../operations/common/resourceManager');
 const { QueryItem } = require('../../../../operations/graph/queryItem');
+const { FhirResponseUrlBuilder } = require('../../../../utils/url/fhirResponseUrlBuilder');
 
 jest.mock('../../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -27,8 +28,8 @@ describe('BundleManager', () => {
 
     beforeEach(() => {
         mockResourceManager = Object.create(ResourceManager.prototype);
-        mockResourceManager.getFullUrlForResource = jest.fn().mockImplementation(({ protocol, host, base_version, resource }) => {
-            return `${protocol}://${host}/${base_version}/${resource.resourceType}/${resource.id}`;
+        mockResourceManager.getFullUrlForResource = jest.fn().mockImplementation(({ resource, responseUrls }) => {
+            return responseUrls.build(`${resource.resourceType}/${resource.id}`);
         });
 
         bundleManager = new BundleManager({ resourceManager: mockResourceManager });
@@ -51,11 +52,9 @@ describe('BundleManager', () => {
                 requestId: 'req-1',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
+                responseUrls: new FhirResponseUrlBuilder({ protocol: 'http', host: 'localhost:3000' }),
                 last_id: null,
                 resources,
-                base_version: '4_0_0',
                 total_count: 2,
                 parsedArgs,
                 originalQuery,
@@ -81,10 +80,8 @@ describe('BundleManager', () => {
                 requestId: 'req-2',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
+                responseUrls: new FhirResponseUrlBuilder({ protocol: 'http', host: 'localhost:3000' }),
                 resources: [],
-                base_version: '4_0_0',
                 total_count: 0,
                 parsedArgs,
                 originalQuery,
@@ -108,10 +105,8 @@ describe('BundleManager', () => {
                 requestId: 'req-3',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
+                responseUrls: new FhirResponseUrlBuilder({ protocol: 'http', host: 'localhost:3000' }),
                 resources,
-                base_version: '4_0_0',
                 total_count: 1,
                 parsedArgs,
                 originalQuery,
@@ -125,6 +120,36 @@ describe('BundleManager', () => {
 
             expect(result.total).toBe(1);
         });
+
+        it('mirrors the alias base path in fullUrl when the request used /fhir/r4', () => {
+            const { FhirBasePath } = require('../../../../utils/url/fhirBasePath');
+            const resources = [{ id: 'obs-1', resourceType: 'Observation', _uuid: 'uuid-1' }];
+            const originalQuery = new QueryItem({ query: {}, resourceType: 'Observation', collectionName: 'Observation_4_0_0' });
+            const parsedArgs = { _explain: false, _debug: false };
+
+            const result = bundleManager.createBundle({
+                requestId: 'req-4',
+                type: 'searchset',
+                originalUrl: '/fhir/r4/Observation',
+                responseUrls: new FhirResponseUrlBuilder({
+                    protocol: 'https',
+                    host: 'fhir.icanbwell.com',
+                    basePath: new FhirBasePath({ canonicalVersion: '4_0_0', clientSegment: 'fhir/r4' })
+                }),
+                resources,
+                total_count: 1,
+                parsedArgs,
+                originalQuery,
+                originalOptions: {},
+                columns: new Set(),
+                stopTime: 100,
+                startTime: 0,
+                user: null,
+                explanations: []
+            });
+
+            expect(result.entry[0].fullUrl).toBe('https://fhir.icanbwell.com/fhir/r4/Observation/obs-1');
+        });
     });
 
     describe('createRawBundleFromEntries', () => {
@@ -137,8 +162,7 @@ describe('BundleManager', () => {
                 requestId: 'req-1',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
+                responseUrls: new FhirResponseUrlBuilder({ protocol: 'http', host: 'localhost:3000' }),
                 last_id: null,
                 entries,
                 total_count: 1,
@@ -167,8 +191,7 @@ describe('BundleManager', () => {
                 requestId: 'req-1',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
+                responseUrls: new FhirResponseUrlBuilder({ protocol: 'http', host: 'localhost:3000' }),
                 last_id: 'obs-1',
                 entries,
                 total_count: 10,
@@ -196,8 +219,7 @@ describe('BundleManager', () => {
                 requestId: 'req-1',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
+                responseUrls: new FhirResponseUrlBuilder({ protocol: 'http', host: 'localhost:3000' }),
                 entries: [],
                 total_count: 0,
                 parsedArgs,
@@ -221,8 +243,7 @@ describe('BundleManager', () => {
                 requestId: 'req-1',
                 type: 'searchset',
                 originalUrl: null,
-                host: null,
-                protocol: null,
+                responseUrls: new FhirResponseUrlBuilder({ protocol: null, host: null }),
                 entries: [],
                 total_count: null,
                 parsedArgs,
@@ -238,7 +259,7 @@ describe('BundleManager', () => {
             expect(result.link).toBeNull();
         });
 
-        it('uses externalReqUrlPrefix in link URLs when provided', () => {
+        it('uses externalUrlPrefix (via responseUrls) in link URLs when provided', () => {
             const entries = [{ id: 'obs-1', resource: { id: 'obs-1', resourceType: 'Observation' }, fullUrl: 'http://example.com/Observation/obs-1' }];
             const originalQuery = new QueryItem({ query: {}, resourceType: 'Observation', collectionName: 'Observation_4_0_0' });
             const parsedArgs = { _explain: false, _debug: false };
@@ -247,8 +268,11 @@ describe('BundleManager', () => {
                 requestId: 'req-1',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
+                responseUrls: new FhirResponseUrlBuilder({
+                    protocol: 'http',
+                    host: 'localhost:3000',
+                    externalUrlPrefix: 'https://api.example.com/fhir'
+                }),
                 last_id: 'obs-1',
                 entries,
                 total_count: 1,
@@ -259,8 +283,7 @@ describe('BundleManager', () => {
                 stopTime: 100,
                 startTime: 0,
                 user: null,
-                explanations: [],
-                externalReqUrlPrefix: 'https://api.example.com/fhir'
+                explanations: []
             });
 
             expect(result.link[0].url).toContain('https://api.example.com/fhir');
@@ -276,8 +299,7 @@ describe('BundleManager', () => {
                 requestId: 'req-1',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
+                responseUrls: new FhirResponseUrlBuilder({ protocol: 'http', host: 'localhost:3000' }),
                 last_id: null,
                 entries,
                 total_count: 10,
@@ -305,8 +327,7 @@ describe('BundleManager', () => {
                 requestId: 'req-1',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Patient/123/$everything',
-                host: 'localhost:3000',
-                protocol: 'http',
+                responseUrls: new FhirResponseUrlBuilder({ protocol: 'http', host: 'localhost:3000' }),
                 last_id: 'obs-1',
                 entries,
                 total_count: 10,
@@ -333,8 +354,7 @@ describe('BundleManager', () => {
                 requestId: 'req-1',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
+                responseUrls: new FhirResponseUrlBuilder({ protocol: 'http', host: 'localhost:3000' }),
                 entries,
                 total_count: 0,
                 parsedArgs,
@@ -364,8 +384,7 @@ describe('BundleManager', () => {
                 requestId: 'req-1',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
+                responseUrls: new FhirResponseUrlBuilder({ protocol: 'http', host: 'localhost:3000' }),
                 last_id: 'obs-last',
                 entries,
                 total_count: 50,
@@ -395,8 +414,7 @@ describe('BundleManager', () => {
                 requestId: 'req-1',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
+                responseUrls: new FhirResponseUrlBuilder({ protocol: 'http', host: 'localhost:3000' }),
                 entries,
                 total_count: 0,
                 parsedArgs,

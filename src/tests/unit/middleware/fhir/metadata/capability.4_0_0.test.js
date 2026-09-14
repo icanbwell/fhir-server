@@ -64,7 +64,10 @@ describe('capability.4_0_0', () => {
             });
         });
 
-        test('sets implementation description', () => {
+        test('sets implementation description only - implementation.url is added later by the metadata controller, not here', () => {
+            // metadata.controller.js sets implementation.url after generateCapabilityStatement
+            // resolves (per the /fhir/r4 base-path-alias design), rather than threading a new
+            // param through this shared makeStatement(resources) signature.
             const resources = { mode: 'server', resource: [] };
             const result = makeStatement(resources);
 

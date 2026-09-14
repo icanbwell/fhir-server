@@ -15,7 +15,13 @@ let instrumentationConfigs = {
             // attached with any http method so we have to add the route in the 'span' to aggregate data
             const httpTarget = span.attributes?.['http.target'];
             if (httpTarget && httpTarget.includes('/$graphql')) {
-                span.attributes['http.route'] = httpTarget.replace('4_0_0', ':base_version')
+                // http.target is captured pre-Express, at the socket - before normalizeFhirBasePath
+                // has a chance to rewrite an aliased /fhir/r4/... request to /4_0_0/.... Without
+                // this second replace, an aliased request would create a new high-cardinality
+                // http.route bucket instead of folding into the same ':base_version' bucket.
+                span.attributes['http.route'] = httpTarget
+                    .replace('4_0_0', ':base_version')
+                    .replace('fhir/r4', ':base_version')
             }
         }
     },

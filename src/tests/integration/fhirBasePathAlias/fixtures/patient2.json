@@ -1,0 +1,22 @@
+{
+    "resourceType": "Patient",
+    "id": "aliasp2",
+    "meta": {
+        "source": "https://www.icanbwell.com",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            }
+        ]
+    },
+    "birthDate": "2018-02-02",
+    "gender": "male",
+    "name": [
+        {
+            "use": "usual",
+            "family": "ALIASTEST",
+            "given": ["PATIENTTWO"]
+        }
+    ]
+}

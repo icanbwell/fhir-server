@@ -1,4 +1,5 @@
 const { MongoError } = require('../../utils/mongoErrors');
+const { FhirResponseUrlBuilder } = require('../../utils/url/fhirResponseUrlBuilder');
 const { logDebug } = require('../common/logging');
 const { isTrue } = require('../../utils/isTrue');
 const { mongoQueryAndOptionsStringify } = require('../../utils/mongoQueryStringify');
@@ -374,11 +375,14 @@ class SearchBundleOperation {
                     type: 'searchset',
                     requestId: requestInfo.userRequestId,
                     originalUrl: url,
-                    host,
-                    protocol,
+                    responseUrls: new FhirResponseUrlBuilder({
+                        protocol,
+                        host,
+                        basePath: requestInfo.basePath,
+                        externalUrlPrefix: externalReqUrlPrefix
+                    }),
                     last_id,
                     resources,
-                    base_version,
                     total_count,
                     originalQuery,
                     originalOptions,
@@ -390,8 +394,7 @@ class SearchBundleOperation {
                     user,
                     explanations,
                     allCollectionsToSearch,
-                    parsedArgs,
-                    externalReqUrlPrefix
+                    parsedArgs
                 }
             );
             await this.fhirLoggingManager.logOperationSuccessAsync({

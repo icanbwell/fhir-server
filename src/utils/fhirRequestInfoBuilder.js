@@ -5,6 +5,7 @@ const accepts = require('accepts');
 const { REQUEST_ID_TYPE } = require('../constants');
 const { FhirRequestInfo } = require('./fhirRequestInfo');
 const { logError } = require('../operations/common/logging');
+const { FhirBasePath } = require('./url/fhirBasePath');
 
 /**
  * Builder class for constructing FhirRequestInfo instances from HTTP requests
@@ -134,6 +135,7 @@ class FhirRequestInfoBuilder {
             contentTypeFromHeader: headers['content-type'] ? contentType.parse(headers['content-type']) : null,
             actor: this.req?.authInfo?.context?.actor,
             purposeOfUse: this.req?.authInfo?.context?.purposeOfUse,
+            basePath: this.req.fhirBasePath ?? FhirBasePath.canonical(),
             ...overrides
         });
     }

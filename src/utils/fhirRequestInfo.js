@@ -1,5 +1,6 @@
 const { assertIsValid } = require('./assertType');
 const { isTrue } = require('./isTrue');
+const { FhirBasePath } = require('./url/fhirBasePath');
 
 /**
  * @typedef {Object} JwtActor
@@ -38,6 +39,7 @@ class FhirRequestInfo {
      * @param {import('content-type').ContentType|null} params.contentTypeFromHeader
      * @param {JwtActor|null} [params.actor]
      * @param {string[]|null} [params.purposeOfUse]
+     * @param {import('./url/fhirBasePath').FhirBasePath} [params.basePath]
      */
     constructor (
         {
@@ -62,7 +64,8 @@ class FhirRequestInfo {
             contentTypeFromHeader,
             alternateUserId,
             actor,
-            purposeOfUse
+            purposeOfUse,
+            basePath
         }
     ) {
         assertIsValid(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
@@ -169,6 +172,14 @@ class FhirRequestInfo {
          * @type {string|undefined}
          */
         this.externalReqUrlPrefix = undefined;
+
+        /**
+         * which base-version path segment the client used (`/4_0_0` or an alias like `/fhir/r4`).
+         * A constructor param (unlike externalReqUrlPrefix above) since it must be set for every
+         * FhirRequestInfo, including ones built directly with overrides in tests.
+         * @type {import('./url/fhirBasePath').FhirBasePath}
+         */
+        this.basePath = basePath || FhirBasePath.canonical();
     }
 
     /**

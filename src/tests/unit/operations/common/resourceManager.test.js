@@ -3,6 +3,8 @@
 const { describe, test, beforeEach, expect, jest: jestObj } = require('@jest/globals');
 const { ResourceManager } = require('../../../../operations/common/resourceManager');
 const { SearchParametersManager } = require('../../../../searchParameters/searchParametersManager');
+const { FhirResponseUrlBuilder } = require('../../../../utils/url/fhirResponseUrlBuilder');
+const { FhirBasePath } = require('../../../../utils/url/fhirBasePath');
 
 function createPrototypedMock(RealClass) {
     const mock = Object.create(RealClass.prototype);
@@ -139,65 +141,55 @@ describe('ResourceManager', () => {
     });
 
     describe('getFullUrlForResource', () => {
-        test('generates full URL with protocol and host', () => {
+        test('delegates to responseUrls.build with "resourceType/id" (collaborator contract)', () => {
             const mgr = createResourceManager();
             const resource = { resourceType: 'Patient', id: 'p1' };
+            const build = jestObj.fn().mockReturnValue('fake-built-url');
+            const responseUrls = { build };
 
-            const result = mgr.getFullUrlForResource({
-                protocol: 'https',
-                host: 'example.com',
-                base_version: '4_0_0',
-                resource
-            });
+            const result = mgr.getFullUrlForResource({ resource, responseUrls });
+
+            expect(build).toHaveBeenCalledTimes(1);
+            expect(build).toHaveBeenCalledWith('Patient/p1');
+            expect(result).toBe('fake-built-url');
+        });
+
+        test('generates full URL with protocol and host (real builder, canonical)', () => {
+            const mgr = createResourceManager();
+            const resource = { resourceType: 'Patient', id: 'p1' };
+            const responseUrls = new FhirResponseUrlBuilder({ protocol: 'https', host: 'example.com' });
+
+            const result = mgr.getFullUrlForResource({ resource, responseUrls });
 
             expect(result).toBe('https://example.com/4_0_0/Patient/p1');
         });
 
-        test('uses externalReqUrlPrefix when provided', () => {
+        test('uses externalUrlPrefix when set on the builder (real builder)', () => {
             const mgr = createResourceManager();
             const resource = { resourceType: 'Observation', id: 'obs-1' };
-
-            const result = mgr.getFullUrlForResource({
+            const responseUrls = new FhirResponseUrlBuilder({
                 protocol: 'https',
                 host: 'example.com',
-                base_version: '4_0_0',
-                resource,
-                externalReqUrlPrefix: 'https://proxy.example.com/fhir'
+                externalUrlPrefix: 'https://proxy.example.com/fhir'
             });
+
+            const result = mgr.getFullUrlForResource({ resource, responseUrls });
 
             expect(result).toBe('https://proxy.example.com/fhir/Observation/obs-1');
         });
 
-        test('prioritizes externalReqUrlPrefix over protocol/host', () => {
+        test('mirrors the alias base path when set on the builder (real builder)', () => {
             const mgr = createResourceManager();
             const resource = { resourceType: 'Patient', id: 'p2' };
-
-            const result = mgr.getFullUrlForResource({
-                protocol: 'http',
-                host: 'internal.server',
-                base_version: '4_0_0',
-                resource,
-                externalReqUrlPrefix: 'https://external.com/api'
+            const responseUrls = new FhirResponseUrlBuilder({
+                protocol: 'https',
+                host: 'fhir.icanbwell.com',
+                basePath: new FhirBasePath({ canonicalVersion: '4_0_0', clientSegment: 'fhir/r4' })
             });
 
-            // Should use externalReqUrlPrefix, not protocol://host/base_version
-            expect(result).toBe('https://external.com/api/Patient/p2');
-            expect(result).not.toContain('internal.server');
-        });
+            const result = mgr.getFullUrlForResource({ resource, responseUrls });
 
-        test('handles undefined externalReqUrlPrefix', () => {
-            const mgr = createResourceManager();
-            const resource = { resourceType: 'Condition', id: 'c1' };
-
-            const result = mgr.getFullUrlForResource({
-                protocol: 'http',
-                host: 'localhost:3000',
-                base_version: '4_0_0',
-                resource,
-                externalReqUrlPrefix: undefined
-            });
-
-            expect(result).toBe('http://localhost:3000/4_0_0/Condition/c1');
+            expect(result).toBe('https://fhir.icanbwell.com/fhir/r4/Patient/p2');
         });
     });
 });

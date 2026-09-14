@@ -36,11 +36,9 @@ class BundleManager {
      * @param {string|null} requestId
      * @param {string} type
      * @param {string | null} originalUrl
-     * @param {string | null} host
-     * @param {string | null} protocol
+     * @param {import('../../utils/url/fhirResponseUrlBuilder').FhirResponseUrlBuilder} responseUrls
      * @param {string | null} [last_id]
      * @param {Resource[]} resources
-     * @param {string} base_version
      * @param {number|null} [total_count]
      * @param {ParsedArgs} parsedArgs
      * @param {QueryItem|Query[]|QueryItem[]} originalQuery
@@ -61,11 +59,9 @@ class BundleManager {
             requestId,
             type,
             originalUrl,
-            host,
-            protocol,
+            responseUrls,
             last_id,
             resources,
-            base_version,
             total_count,
             parsedArgs,
             originalQuery,
@@ -88,8 +84,7 @@ class BundleManager {
                 {
                     id: resource.id,
                     resource,
-                    fullUrl: this.resourceManager.getFullUrlForResource(
-                        { protocol, host, base_version, resource })
+                    fullUrl: this.resourceManager.getFullUrlForResource({ resource, responseUrls })
                 }
             );
         });
@@ -101,11 +96,9 @@ class BundleManager {
                 requestId,
                 type,
                 originalUrl,
-                host,
-                protocol,
+                responseUrls,
                 last_id,
                 entries,
-                base_version,
                 total_count,
                 parsedArgs,
                 originalQuery,
@@ -127,11 +120,9 @@ class BundleManager {
      * @param {string|null} requestId
      * @param {string} type
      * @param {string | null} originalUrl
-     * @param {string | null} host
-     * @param {string | null} protocol
+     * @param {import('../../utils/url/fhirResponseUrlBuilder').FhirResponseUrlBuilder} responseUrls
      * @param {string | null} [last_id]
      * @param {Resource[]} resources
-     * @param {string} base_version
      * @param {number|null} [total_count]
      * @param {ParsedArgs} parsedArgs
      * @param {QueryItem|Query[]|QueryItem[]} originalQuery
@@ -145,18 +136,15 @@ class BundleManager {
      * @param {string | null} user
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
-     * @param {string|undefined} [externalReqUrlPrefix]
      * @return {Bundle}
      */
     createRawBundle({
         requestId,
         type,
         originalUrl,
-        host,
-        protocol,
+        responseUrls,
         last_id,
         resources,
-        base_version,
         total_count,
         parsedArgs,
         originalQuery,
@@ -169,8 +157,7 @@ class BundleManager {
         cursorBatchSize,
         user,
         explanations,
-        allCollectionsToSearch,
-        externalReqUrlPrefix
+        allCollectionsToSearch
     }) {
         /**
          * @type {BundleEntry[]}
@@ -179,7 +166,7 @@ class BundleManager {
             return {
                 id: resource.id,
                 resource,
-                fullUrl: this.resourceManager.getFullUrlForResource({ protocol, host, base_version, resource, externalReqUrlPrefix })
+                fullUrl: this.resourceManager.getFullUrlForResource({ resource, responseUrls })
             };
         });
 
@@ -188,11 +175,9 @@ class BundleManager {
                 requestId,
                 type,
                 originalUrl,
-                host,
-                protocol,
+                responseUrls,
                 last_id,
                 entries,
-                base_version,
                 total_count,
                 parsedArgs,
                 originalQuery,
@@ -205,8 +190,7 @@ class BundleManager {
                 cursorBatchSize,
                 user,
                 explanations,
-                allCollectionsToSearch,
-                externalReqUrlPrefix
+                allCollectionsToSearch
             });
 
     }
@@ -216,8 +200,7 @@ class BundleManager {
      * @param {string} requestId
      * @param {string} type
      * @param {string | null} originalUrl
-     * @param {string | null} host
-     * @param {string | null} protocol
+     * @param {import('../../utils/url/fhirResponseUrlBuilder').FhirResponseUrlBuilder} responseUrls
      * @param {string | null} [last_id]
      * @param {BundleEntry[]} entries
      * @param {number|null} [total_count]
@@ -234,7 +217,6 @@ class BundleManager {
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
      * @param {string | null} [lastResourceLastUpdated]
-     * @param {string|undefined} [externalReqUrlPrefix]
      * @return {Bundle}
      */
     createRawBundleFromEntries (
@@ -242,8 +224,7 @@ class BundleManager {
             requestId,
             type,
             originalUrl,
-            host,
-            protocol,
+            responseUrls,
             last_id,
             entries,
             total_count,
@@ -259,8 +240,7 @@ class BundleManager {
             user,
             explanations,
             allCollectionsToSearch,
-            lastResourceLastUpdated,
-            externalReqUrlPrefix
+            lastResourceLastUpdated
     }) {
 
         if (Array.isArray(originalQuery)) {
@@ -280,19 +260,6 @@ class BundleManager {
 
         // find id of last resource
         if (originalUrl && !isEverythingOperation) {
-            /**
-             * Builds a bundle link URL, stripping protocol/host and base_version when externalReqUrlPrefix is set
-             * @param {string} path
-             * @return {string}
-             */
-            const buildLinkUrl = (path) => {
-                if (externalReqUrlPrefix) {
-                    // strip the base_version prefix (e.g., /4_0_0) from the path
-                    return externalReqUrlPrefix + path.replace(/^\/\d+_\d+_\d+/, '');
-                }
-                return `${protocol}`.concat('://', `${host}`, `${path}`);
-            };
-
             if (last_id || lastResourceLastUpdated) {
                 // have to use a base url or URL() errors
                 const baseUrl = 'https://example.org';
@@ -313,18 +280,18 @@ class BundleManager {
                 link = [
                     {
                         relation: 'self',
-                        url: buildLinkUrl(originalUrl)
+                        url: responseUrls.build(originalUrl)
                     },
                     {
                         relation: 'next',
-                        url: buildLinkUrl(nextUrl.toString().replace(baseUrl, ''))
+                        url: responseUrls.build(nextUrl.toString().replace(baseUrl, ''))
                     }
                 ];
             } else {
                 link = [
                     {
                         relation: 'self',
-                        url: buildLinkUrl(originalUrl)
+                        url: responseUrls.build(originalUrl)
                     }
                 ];
             }
@@ -435,8 +402,7 @@ class BundleManager {
      * @param {string} requestId
      * @param {string} type
      * @param {string | null} originalUrl
-     * @param {string | null} host
-     * @param {string | null} protocol
+     * @param {import('../../utils/url/fhirResponseUrlBuilder').FhirResponseUrlBuilder} responseUrls
      * @param {string | null} [last_id]
      * @param {BundleEntry[]} entries
      * @param {number|null} [total_count]
@@ -452,7 +418,6 @@ class BundleManager {
      * @param {string | null} user
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
-     * @param {string|undefined} [externalReqUrlPrefix]
      * @return {Bundle}
      */
     createBundleFromEntries (
@@ -460,8 +425,7 @@ class BundleManager {
             requestId,
             type,
             originalUrl,
-            host,
-            protocol,
+            responseUrls,
             last_id,
             entries,
             total_count,
@@ -476,8 +440,7 @@ class BundleManager {
             cursorBatchSize,
             user,
             explanations,
-            allCollectionsToSearch,
-            externalReqUrlPrefix
+            allCollectionsToSearch
         }) {
         if (Array.isArray(originalQuery)) {
             for (const q of originalQuery) {
@@ -493,18 +456,6 @@ class BundleManager {
         let link = [];
         // find id of last resource
         if (originalUrl) {
-            /**
-             * Builds a bundle link URL, stripping protocol/host and base_version when externalReqUrlPrefix is set
-             * @param {string} path
-             * @return {string}
-             */
-            const buildLinkUrl = (path) => {
-                if (externalReqUrlPrefix) {
-                    return externalReqUrlPrefix + path.replace(/^\/\d+_\d+_\d+/, '');
-                }
-                return `${protocol}`.concat('://', `${host}`, `${path}`);
-            };
-
             if (last_id) {
                 // have to use a base url or URL() errors
                 const baseUrl = 'https://example.org';
@@ -520,18 +471,18 @@ class BundleManager {
                 link = [
                     new BundleLink({
                         relation: 'self',
-                        url: buildLinkUrl(originalUrl)
+                        url: responseUrls.build(originalUrl)
                     }),
                     new BundleLink({
                         relation: 'next',
-                        url: buildLinkUrl(nextUrl.toString().replace(baseUrl, ''))
+                        url: responseUrls.build(nextUrl.toString().replace(baseUrl, ''))
                     })
                 ];
             } else {
                 link = [
                     new BundleLink({
                         relation: 'self',
-                        url: buildLinkUrl(originalUrl)
+                        url: responseUrls.build(originalUrl)
                     })
                 ];
             }

@@ -72,18 +72,12 @@ class ResourceManager {
 
     /**
      * generates a full url for an entity
-     * @param {string} protocol
-     * @param {string} host
-     * @param {string} base_version
      * @param {Resource} resource
-     * @param {string|undefined} [externalReqUrlPrefix]
+     * @param {import('../../utils/url/fhirResponseUrlBuilder').FhirResponseUrlBuilder} responseUrls
      * @return {string}
      */
-    getFullUrlForResource ({ protocol, host, base_version, resource, externalReqUrlPrefix }) {
-        if (externalReqUrlPrefix) {
-            return `${externalReqUrlPrefix}/${resource.resourceType}/${resource.id}`;
-        }
-        return `${protocol}://${host}/${base_version}/${resource.resourceType}/${resource.id}`;
+    getFullUrlForResource ({ resource, responseUrls }) {
+        return responseUrls.build(`${resource.resourceType}/${resource.id}`);
     }
 }
 

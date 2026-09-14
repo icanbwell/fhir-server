@@ -587,6 +587,31 @@ class ConfigManager {
     }
 
     /**
+     * whether to enable the /fhir/r4 base-path alias for /4_0_0. Default-off: the normalization
+     * middleware mutates req.url/req.originalUrl for every request on the pod.
+     * @returns {boolean}
+     */
+    get enableFhirR4PathAlias() {
+        if (env.ENABLE_FHIR_R4_PATH_ALIAS === null || env.ENABLE_FHIR_R4_PATH_ALIAS === undefined) {
+            return false;
+        }
+        return isTrue(env.ENABLE_FHIR_R4_PATH_ALIAS);
+    }
+
+    /**
+     * The hardcoded table of base-path aliases to their canonical FHIR base-version segment.
+     * Deliberately not operator-supplied - an arbitrary prefix could shadow /admin, /mcp, /health
+     * or /oauth. Returns an empty object when the alias feature is off.
+     * @returns {Object<string, string>}
+     */
+    get fhirBasePathAliases() {
+        if (!this.enableFhirR4PathAlias) {
+            return {};
+        }
+        return { 'fhir/r4': '4_0_0' };
+    }
+
+    /**
      * returns the batch size used in dataloader to fetch resources
      * @returns {number}
      */
