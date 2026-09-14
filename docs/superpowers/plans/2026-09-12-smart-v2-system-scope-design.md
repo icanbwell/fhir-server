@@ -303,6 +303,19 @@ Per AGENTS.md ("tolerate unrecognized fields; no exhaustive enum switches withou
 drop-and-log — never throw. Note this narrows what reaches the gate, so run the full auth suite:
 if any environment relies on a non-conforming scope string today, this surfaces it.
 
+**Reverted post-implementation (CI finding).** The full auth suite surfaced exactly the
+non-conforming case the plan called out as a risk: `src/tests/integration/strategies/
+jwt.bearer.strategy.test.js` pins that IdP groups without a `<namespace>/` shape (e.g. `group1`,
+`group2`) pass through into `info.scope` **verbatim**, alongside a real scope stripped of its
+`dev/fhir/` prefix. This is existing, intentional behavior — such groups are inert at the
+resource-type gate (they never match `@asymmetrik/sof-scope-checker`'s pattern) but may be
+consumed downstream for other purposes, and the test treats the exact `scope` string as a
+contract. The allowlist unconditionally broke that contract, so it was removed; `isUser`
+(computed before where the allowlist used to run) is unaffected and stays as designed. The
+narrower risk this section identified — prefix-stripping synthesizing a privileged namespace —
+remains open and should be addressed by auditing configured `AUTH_REMOVE_SCOPE_PREFIX` values
+(step 0) rather than by a blanket scope-shape filter.
+
 ---
 
 ## 5. Test plan
@@ -427,10 +440,9 @@ twins of the existing cases, plus the named R3 regression: a `system/*.read acce
 caller must **not** get a silently empty resource list.
 
 `src/tests/unit/strategies/authService.test.js` `describe('getFieldsFromToken')` (`:353`) —
-`isUser === false` for `'system/*.* access/tenanta.*'` (tripwire); the §4.3 allowlist drops a
-group named `not-a-scope`; `AUTH_REMOVE_SCOPE_PREFIX='x'` + group `xsystem/*.*` is rejected by the
-allowlist (prefix stripping must never synthesize a privileged namespace); existing
-`authCustomGroup` / `authRemoveScopePrefixes` cases (`:426-495`) still pass.
+`isUser === false` for `'system/*.* access/tenanta.*'` (tripwire); existing `authCustomGroup` /
+`authRemoveScopePrefixes` cases (`:426-495`) still pass. (The §4.3 allowlist and its tripwires
+were reverted — see the note at the end of §4.3.)
 
 ### 5.6 Existing `system/*` fixtures — assessed, none break
 
@@ -506,7 +518,7 @@ JEST_MAX_OLD_SPACE_SIZE=6144 make tests && make lint
 | 6 | §5.3 doc-anchored + expander additions | green |
 | 7 | §4.2 export fix + `scopesManager` injection + all four runner mock bags | §5.5 + existing export suites green |
 | 8 | §4.1 admin.js unification | §5.4 group G green, incl. the `patient/*.*` tightening |
-| 9 | §4.3 authService allowlist | §5.5 auth tests + **full** auth suite green |
+| 9 | §4.3 authService allowlist — **attempted, reverted**: broke the existing `jwt.bearer.strategy.test.js` contract that non-scope-shaped IdP group names pass through verbatim | full auth suite green without it |
 | 10 | §5.4 integration matrix + `patientScope` row | integration suites green |
 | 11 | Docs §6 + ADR | — |
 | 12 | Full `make tests` **in both flag states** | green |

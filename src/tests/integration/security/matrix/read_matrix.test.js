@@ -26,7 +26,13 @@ const CALLER = {
     tenantB:  { label: 'service account, tenantb, read-only', headers: () => sysHeaders('user/*.read access/tenantb.*') },
     proaSrc:  { label: 'service account, proa source',        headers: () => sysHeaders('user/*.read access/proasrc.*') },
     iasSrc:   { label: 'service account, ias source',         headers: () => sysHeaders('user/*.read access/iassrc.*') },
-    wildcard: { label: 'wildcard access/*.* (ground truth)',  headers: () => sysHeaders('user/*.read access/*.*') }
+    wildcard: { label: 'wildcard access/*.* (ground truth)',  headers: () => sysHeaders('user/*.read access/*.*') },
+    // SMART on FHIR v2 backend-services callers. `system/` must behave exactly like `user/` at
+    // the resource-type gate (they are unioned in the same branch -- see
+    // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1/§2). Requires
+    // ENABLE_SMART_V2_SYSTEM_SCOPES=1, set in the 'SMART v2 system/ scope callers' describe block.
+    tenantASystem:  { label: 'backend service, tenanta, read-only (system/)', headers: () => sysHeaders('system/*.read access/tenanta.*') },
+    wildcardSystem: { label: 'backend service, wildcard access (system/)',    headers: () => sysHeaders('system/*.read access/*.*') }
 };
 
 // End-user token. Scope and claim set copied from a real staging end-user token,
@@ -114,6 +120,43 @@ describe('SECURITY MATRIX — read paths', () => {
                 const resp = await request.get(`/4_0_0/Patient/${id}`).set(CALLER[caller].headers());
                 expect(resp.status).toBe(200);
                 expect(resp.body.id).toBe(id);
+            }
+        });
+    });
+
+    // -----------------------------------------------------------------------
+    // SMART on FHIR v2 `system/` scope callers. `system/` is unioned with `user/`
+    // at the resource-type gate behind ENABLE_SMART_V2_SYSTEM_SCOPES, so a
+    // `system/*.read access/tenanta.*` caller must return EXACTLY what the
+    // equivalent `user/*.read access/tenanta.*` caller returns (CALLER.tenantA)
+    // -- proving `system/` is an alias, not a tenant-filter bypass.
+    // -----------------------------------------------------------------------
+    describe('SMART v2 system/ scope callers', () => {
+        const ORIGINAL_FLAG = process.env.ENABLE_SMART_V2_SYSTEM_SCOPES;
+        beforeEach(() => { process.env.ENABLE_SMART_V2_SYSTEM_SCOPES = '1'; });
+        afterEach(() => { process.env.ENABLE_SMART_V2_SYSTEM_SCOPES = ORIGINAL_FLAG; });
+
+        test('tenantASystem returns exactly what tenantA (user/) returns', async () => {
+            const request = await seed();
+            const resp = await request.get('/4_0_0/Patient?_count=100').set(CALLER.tenantASystem.headers());
+            expect(resp.status).toBe(200);
+            const got = sorted(resIds(resp)).filter((id) => id.startsWith('mtx'));
+            expect(got).toEqual(sorted(F.EXPECTED_PATIENTS.tenantA));
+        });
+
+        test('tenantASystem cannot read tenantB\'s patient by id', async () => {
+            const request = await seed();
+            const resp = await request.get('/4_0_0/Patient/mtxOwnB').set(CALLER.tenantASystem.headers());
+            expect([403, 404]).toContain(resp.status);
+        });
+
+        test('wildcardSystem sees every seeded patient, same as the wildcard (user/) caller', async () => {
+            const request = await seed();
+            const resp = await request.get('/4_0_0/Patient?_count=100').set(CALLER.wildcardSystem.headers());
+            expect(resp.status).toBe(200);
+            const got = sorted(resIds(resp));
+            for (const id of ['mtxOwnA', 'mtxOwnB', 'mtxSharedAB', 'mtxProa', 'mtxIas', 'mtxOrphanB']) {
+                expect(got).toContain(id);
             }
         });
     });

@@ -28,6 +28,11 @@ const A_RO = () => ({ ...getHeaders('user/*.read access/tenanta.*'), prefer: 'gl
 const B_RW = () => ({ ...getHeaders('user/*.read user/*.write access/tenantb.*'), prefer: 'global_id=false' });
 const ADMIN = () => ({ ...getHeaders('user/*.read user/*.write access/*.*'), prefer: 'global_id=false' });
 
+// SMART on FHIR v2 backend-services equivalents of A_RW/A_RO. Requires
+// ENABLE_SMART_V2_SYSTEM_SCOPES=1 -- see the 'SMART v2 system/ scope callers' describe block.
+const A_RW_SYS = () => ({ ...getHeaders('system/*.read system/*.write access/tenanta.*'), prefer: 'global_id=false' });
+const A_RO_SYS = () => ({ ...getHeaders('system/*.read access/tenanta.*'), prefer: 'global_id=false' });
+
 function pat (id, owner, accessCodes) {
     return {
         resourceType: 'Patient',
@@ -106,6 +111,59 @@ describe('SECURITY MATRIX — write paths', () => {
             const body = JSON.stringify(resp.body || {});
             const refused = [401, 403].includes(resp.status) || /forbidden|not allowed|scope/i.test(body);
             expect(refused).toBe(true);
+        });
+    });
+
+    // -----------------------------------------------------------------------
+    // SMART v2 `system/` scope callers. `system/` is unioned with `user/` at the
+    // resource-type gate, so it must be subject to the exact same write rules --
+    // including SAE-2 tag forgery -- as the equivalent `user/` caller.
+    // -----------------------------------------------------------------------
+    describe('SMART v2 system/ scope callers', () => {
+        const ORIGINAL_FLAG = process.env.ENABLE_SMART_V2_SYSTEM_SCOPES;
+        beforeEach(() => { process.env.ENABLE_SMART_V2_SYSTEM_SCOPES = '1'; });
+        afterEach(() => { process.env.ENABLE_SMART_V2_SYSTEM_SCOPES = ORIGINAL_FLAG; });
+
+        test('control: a read/write system/ caller CAN create in its own tenant', async () => {
+            const request = await seed();
+            const resp = await request.put('/4_0_0/Patient/mtxWriteOwnSys001')
+                .send(pat('mtxWriteOwnSys001', F.T_A, [F.T_A])).set(A_RW_SYS());
+            expect([200, 201]).toContain(resp.status);
+        });
+
+        test('a read-only system/ caller cannot create', async () => {
+            const request = await seed();
+            const resp = await request.put('/4_0_0/Patient/mtxWriteRoSys001')
+                .send(pat('mtxWriteRoSys001', F.T_A, [F.T_A])).set(A_RO_SYS());
+            expect([401, 403]).toContain(resp.status);
+        });
+
+        test('a read-only system/ caller cannot POST', async () => {
+            const request = await seed();
+            const resp = await request.post('/4_0_0/Patient').send(pat(undefined, F.T_A, [F.T_A])).set(A_RO_SYS());
+            expect([401, 403]).toContain(resp.status);
+        });
+
+        test('a read-only system/ caller cannot PATCH', async () => {
+            const request = await seed();
+            const resp = await request.patch('/4_0_0/Patient/mtxOwnA')
+                .send([{ op: 'replace', path: '/gender', value: 'male' }])
+                .set({ ...A_RO_SYS(), 'Content-Type': 'application/json-patch+json' });
+            expect([401, 403, 404, 405]).toContain(resp.status);
+        });
+
+        test('a read-only system/ caller cannot DELETE', async () => {
+            const request = await seed();
+            const resp = await request.delete('/4_0_0/Patient/mtxOwnA').set(A_RO_SYS());
+            expect([401, 403, 404, 405]).toContain(resp.status);
+        });
+
+        // SAE-2 tag-forgery, proving isAccessTagChangeAllowedByScopes is namespace-blind.
+        test('PUT with another tenant\'s access tag is refused for a system/ caller', async () => {
+            const request = await seed();
+            const resp = await request.put('/4_0_0/Patient/mtxForgePutSys001')
+                .send(pat('mtxForgePutSys001', F.T_A, [F.T_A, F.T_B])).set(A_RW_SYS());
+            expect(resp.status).toBe(403);
         });
     });
 

@@ -21,14 +21,6 @@ const {ConfigManager} = require("../utils/configManager");
  * @property {string} clientId - The client ID of the user.
  */
 
-/**
- * A well-formed <namespace>/<resourceType|*>.<read|write|*> scope in one of this server's five
- * known scope namespaces (user, patient, access, admin, system). Used by getFieldsFromToken to
- * drop any scope string that reached it via an unvalidated path (an IdP group name, or a
- * configured prefix stripped off) rather than the OAuth server's own scope claim.
- */
-const SCOPE_PATTERN = /^(user|patient|access|admin|system)\/[^ ]+\.(read|write|\*)$/;
-
 class AuthService {
     /**
      * Cache for configuration data.
@@ -458,32 +450,7 @@ class AuthService {
             scope = scopes.join(' ');
         }
 
-        // isUser is intentionally computed BEFORE the allowlist filter below, and stays
-        // case-insensitive: it is a lenient "does this token carry anything patient-shaped"
-        // signal, not the strict matching used for actual resource-type authorization, so it
-        // must not be affected by dropping a malformed/mixed-case scope from the list.
         const isUser = scopes.some((s) => s.toLowerCase().startsWith('patient/'));
-
-        // Drop any scope that is not a well-formed <namespace>/<resourceType|*>.<read|write|*>
-        // string in one of the five known namespaces before it reaches any authorization check.
-        // `scope` at this point may include IdP group names concatenated in above (authCustomGroup),
-        // or values with a configured prefix blind-substringed off (authRemoveScopePrefixes) -
-        // neither is validated against a known scope shape, so a directory group literally named
-        // e.g. `system/*.*` (or one that only becomes that after a prefix strip) must not
-        // silently become a real authorization grant. Never throws - unrecognized/malformed
-        // tokens are dropped and logged, per AGENTS.md's "tolerate unrecognized fields, don't
-        // fail closed on unknown input". See
-        // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §4.3.
-        if (scopes.length > 0) {
-            const droppedScopes = scopes.filter((s) => !SCOPE_PATTERN.test(s));
-            if (droppedScopes.length > 0) {
-                logWarn('Dropping malformed/unrecognized scope(s) before authorization', {
-                    user: '', args: {droppedScopes}
-                });
-            }
-            scopes = scopes.filter((s) => SCOPE_PATTERN.test(s));
-            scope = scopes.join(' ');
-        }
 
         const username = jwt_payload.username
             ? jwt_payload.username
