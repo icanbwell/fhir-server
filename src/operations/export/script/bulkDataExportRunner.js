@@ -29,6 +29,7 @@ const {
     SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP
 } = require('../../../constants');
 const { SearchManager } = require('../../search/searchManager');
+const { ScopesManager } = require('../../security/scopesManager');
 const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory');
 const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
@@ -81,6 +82,7 @@ class BulkDataExportRunner {
      * @property {ResourceLocatorFactory} resourceLocatorFactory
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchManager} searchManager
+     * @property {ScopesManager} scopesManager
      * @property {PostSaveProcessor} postSaveProcessor
      * @property {BulkExportEventProducer} bulkExportEventProducer
      * @property {StorageProviderFactory} storageProviderFactory
@@ -105,6 +107,7 @@ class BulkDataExportRunner {
         resourceLocatorFactory,
         r4ArgsParser,
         searchManager,
+        scopesManager,
         postSaveProcessor,
         bulkExportEventProducer,
         storageProviderFactory,
@@ -212,6 +215,12 @@ class BulkDataExportRunner {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
 
         /**
          * @type {PostSaveProcessor}
@@ -446,19 +455,20 @@ class BulkDataExportRunner {
         if (scope) {
             let allowedResourcesByScopes = [];
 
-            // check allowed resource by scope
-            for (const scope1 of scope.split(' ')) {
-                if (scope1.startsWith('user')) {
-                    // ex: user/Patient.*
-                    const inner_scope = scope1.replace('user/', '');
-                    const [resource, accessType] = inner_scope.split('.');
-                    if (accessType === '*' || accessType === 'read') {
-                        if (resource === '*') {
-                            allowedResourcesByScopes = null;
-                            break;
-                        }
-                        allowedResourcesByScopes.push(resource);
+            // check allowed resource by scope. Uses getResourceTypeScopes() rather than a raw
+            // scope1.startsWith('user') so a system/*.read caller (SMART on FHIR v2) is honored
+            // the same way a user/*.read caller is, instead of silently narrowing to an empty
+            // resource list (see docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §4.2).
+            for (const scope1 of this.scopesManager.getResourceTypeScopes({ scope })) {
+                // ex: user/Patient.* or system/Patient.*
+                const [, inner_scope] = scope1.split('/');
+                const [resource, accessType] = inner_scope.split('.');
+                if (accessType === '*' || accessType === 'read') {
+                    if (resource === '*') {
+                        allowedResourcesByScopes = null;
+                        break;
                     }
+                    allowedResourcesByScopes.push(resource);
                 }
             }
 
@@ -695,7 +705,7 @@ class BulkDataExportRunner {
     getExportSecurityContext() {
         const user = this.exportStatusResource.user;
         const scope = this.exportStatusResource.scope;
-        const accessCodes = this.searchManager.scopesManager.getAccessCodesFromScopes('read', user, scope);
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', user, scope);
         const hasFullAccess = accessCodes.includes('*');
         // getSecurityTagsFromScope returns [] for full-access (`*`) scopes and the
         // concrete access codes otherwise. Owner tags are not encoded in scopes.

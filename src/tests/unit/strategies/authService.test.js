@@ -492,6 +492,11 @@ describe('AuthService', () => {
             const result = authService.getFieldsFromToken({ scope: 'short:user/*.read' });
             expect(result.scope).toBe('user/*.read');
         });
+
+        test('isUser is true for system/ scope, tripwire', () => {
+            const result = authService.getFieldsFromToken({ scope: 'system/*.* access/tenanta.*' });
+            expect(result.isUser).toBe(false);
+        });
     });
 
     describe('getPropertiesFromPayload', () => {

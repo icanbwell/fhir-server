@@ -93,6 +93,14 @@ describe('ScopesManager', () => {
                 scopesManager.getAccessCodesFromScopes('read', null, 'access/client.*');
             }).toThrow();
         });
+
+        // Tripwire: system/ must never be treated as an access/ tenant grant. Making
+        // system/*.* emit '*' here would cascade into a total tenant-isolation bypass across
+        // several gates (see docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1).
+        test('should NOT extract access codes from system/ scopes', () => {
+            expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'system/*.*')).toEqual([]);
+            expect(scopesManager.getAccessCodesFromScopes('write', 'testUser', 'system/*.*')).toEqual([]);
+        });
     });
 
     describe('doesResourceHaveAnyAccessCodeFromThisList', () => {
@@ -448,6 +456,34 @@ describe('ScopesManager', () => {
         });
     });
 
+    describe('getResourceTypeScopes', () => {
+        test.each([
+            ['undefined scope', undefined, []],
+            ['user only', 'user/Patient.read', ['user/Patient.read']],
+            ['system only', 'system/Patient.read', ['system/Patient.read']],
+            [
+                'union, order preserved',
+                'user/Patient.read system/Observation.write',
+                ['user/Patient.read', 'system/Observation.write']
+            ],
+            ['excludes access/', 'system/*.* access/tenanta.*', ['system/*.*']],
+            ['excludes patient/', 'system/*.* patient/Observation.read', ['system/*.*']],
+            ['excludes admin/', 'system/*.* admin/*.*', ['system/*.*']],
+            [
+                'case-sensitive: System/ ignored',
+                'System/Patient.read user/Patient.read',
+                ['user/Patient.read']
+            ],
+            [
+                'no false prefix match on "systemfoo"',
+                'systemfoo user/Patient.read',
+                ['user/Patient.read']
+            ]
+        ])('%s', (_label, scope, expected) => {
+            expect(scopesManager.getResourceTypeScopes({ scope })).toEqual(expected);
+        });
+    });
+
     describe('getScopeFromRequest', () => {
         test('should return undefined when req has no authInfo', () => {
             expect(scopesManager.getScopeFromRequest({ req: {} })).toBeUndefined();
@@ -503,6 +539,16 @@ describe('ScopesManager', () => {
             });
             expect(result).toBe(false);
         });
+
+        // Tripwire: system/ must never be treated as a patient scope.
+        test('should return false for system/ scope even if resource is patient-accessible', () => {
+            mockPatientFilterManager.canAccessResourceWithPatientScope.mockReturnValue(true);
+            const result = scopesManager.isAccessAllowedByPatientScopes({
+                scope: 'system/*.*',
+                resourceType: 'Patient'
+            });
+            expect(result).toBe(false);
+        });
     });
 
     describe('hasPatientScope', () => {
@@ -518,6 +564,13 @@ describe('ScopesManager', () => {
 
         test('should return false when no patient/ scope is present', () => {
             expect(scopesManager.hasPatientScope({ scope: 'user/Patient.read' })).toBe(false);
+        });
+
+        // Tripwire: system/ must never be treated as a patient scope, keeping it agreement with
+        // authService.js's isUser derivation (both patient/-only, per scopesManager.js's own
+        // documented invariant that the two must never diverge).
+        test('should return false for system/ scope', () => {
+            expect(scopesManager.hasPatientScope({ scope: 'system/*.*' })).toBe(false);
         });
     });
 
@@ -546,6 +599,11 @@ describe('ScopesManager', () => {
 
         test('should return false when scope is empty', () => {
             expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: '' })).toBe(false);
+        });
+
+        // Tripwire: history access is access/-only. system/*.* must not grant it (SEC-1580 SAE-1).
+        test('should return false for system/*.* (no access/ code present)', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'system/*.*' })).toBe(false);
         });
     });
 
