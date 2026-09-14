@@ -111,17 +111,18 @@ function parseScopeToken (scopeToken, allowV2 = true) {
 }
 
 /**
- * Whether a legacy binary action ('read'/'write') is satisfied by a parsed scope's CRUDS set.
+ * Whether any of the requiredCruds letters is present in cruds. The shared primitive behind both
+ * the legacy binary action check (isActionSatisfiedByCruds) and the granular per-interaction gate
+ * (ScopesValidator, phase 2).
  * @param {Set<string>|null} cruds
- * @param {string} action 'read'|'write'
+ * @param {Set<string>|null} requiredCruds
  * @return {boolean}
  */
-function isActionSatisfiedByCruds (cruds, action) {
-    const requiredLetters = V1_ACTION_TO_REQUIRED_CRUDS[action];
-    if (!requiredLetters || !cruds) {
+function isCrudsRequirementSatisfied (cruds, requiredCruds) {
+    if (!cruds || !requiredCruds) {
         return false;
     }
-    for (const letter of requiredLetters) {
+    for (const letter of requiredCruds) {
         if (cruds.has(letter)) {
             return true;
         }
@@ -129,13 +130,99 @@ function isActionSatisfiedByCruds (cruds, action) {
     return false;
 }
 
+/**
+ * Whether a legacy binary action ('read'/'write') is satisfied by a parsed scope's CRUDS set.
+ * @param {Set<string>|null} cruds
+ * @param {string} action 'read'|'write'
+ * @return {boolean}
+ */
+function isActionSatisfiedByCruds (cruds, action) {
+    return isCrudsRequirementSatisfied(cruds, V1_ACTION_TO_REQUIRED_CRUDS[action]);
+}
+
+/**
+ * Normalizes an `accessRequested` value -- either a legacy 'read'/'write' literal or a single v2
+ * CRUDS letter -- into the set of letters that satisfy it.
+ * @param {string} accessRequested 'read'|'write'|'c'|'r'|'u'|'d'|'s'
+ * @return {Set<string>|null} null when accessRequested is neither
+ */
+function getRequiredCrudsForAccessRequested (accessRequested) {
+    if (V1_ACTION_TO_REQUIRED_CRUDS[accessRequested]) {
+        return V1_ACTION_TO_REQUIRED_CRUDS[accessRequested];
+    }
+    if (CRUDS_LETTERS.includes(accessRequested)) {
+        return new Set([accessRequested]);
+    }
+    return null;
+}
+
+/**
+ * Whether accessRequested (legacy or granular) is a read-type requirement -- every letter it
+ * requires is drawn from {r, s}. Used by ScopesValidator's patient-scope write restriction, which
+ * must block only genuinely mutating requests, not every non-'read' granular interaction (e.g. a
+ * type-level search, letter 's', is not a write).
+ * @param {string} accessRequested
+ * @return {boolean}
+ */
+function isReadOnlyAccessRequested (accessRequested) {
+    const requiredCruds = getRequiredCrudsForAccessRequested(accessRequested);
+    if (!requiredCruds || requiredCruds.size === 0) {
+        return false;
+    }
+    for (const letter of requiredCruds) {
+        if (letter !== 'r' && letter !== 's') {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Maps a FHIR interaction name (the `action` value every call site already threads through to
+ * ScopesValidator, historically only for logging) to the single CRUDS letter it actually
+ * requires. Spec-fixed per the design doc's Architecture table; deliberately does NOT include
+ * `graph` (its action name is reused for both a search-type read and a delete-driven write, so it
+ * cannot be reduced to one fixed letter) nor any interaction not analyzed by the design doc
+ * (merge, import, export, exportById, validate, $access-history) -- those keep using the legacy
+ * `accessRequested` ('read'/'write') a call site passes explicitly.
+ */
+const INTERACTION_TO_CRUDS_LETTER = {
+    create: 'c',
+    update: 'u',
+    patch: 'u',
+    remove: 'd',
+    searchById: 'r',
+    searchByVersionId: 'r',
+    historyById: 'r',
+    history: 's',
+    search: 's',
+    searchStreaming: 's',
+    everything: 's',
+    summary: 's',
+    expand: 's'
+};
+
+/**
+ * @param {string|undefined} interaction
+ * @return {string|null} the required CRUDS letter, or null when the interaction isn't in the
+ *   table and the caller should fall back to its own accessRequested value
+ */
+function getInteractionCrudsLetter (interaction) {
+    return INTERACTION_TO_CRUDS_LETTER[interaction] || null;
+}
+
 module.exports = {
     SCOPE_PREFIXES,
     CRUDS_LETTERS,
     V1_SUFFIX_TO_CRUDS,
+    INTERACTION_TO_CRUDS_LETTER,
     isV1Suffix,
     isV2Suffix,
     normalizeSuffixToCruds,
     parseScopeToken,
-    isActionSatisfiedByCruds
+    isActionSatisfiedByCruds,
+    isCrudsRequirementSatisfied,
+    getRequiredCrudsForAccessRequested,
+    isReadOnlyAccessRequested,
+    getInteractionCrudsLetter
 };

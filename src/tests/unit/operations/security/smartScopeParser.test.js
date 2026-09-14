@@ -4,7 +4,12 @@ const {
     isV2Suffix,
     normalizeSuffixToCruds,
     parseScopeToken,
-    isActionSatisfiedByCruds
+    isActionSatisfiedByCruds,
+    getRequiredCrudsForAccessRequested,
+    isCrudsRequirementSatisfied,
+    isReadOnlyAccessRequested,
+    getInteractionCrudsLetter,
+    INTERACTION_TO_CRUDS_LETTER
 } = require('../../../../operations/security/smartScopeParser');
 
 describe('smartScopeParser', () => {
@@ -181,6 +186,77 @@ describe('smartScopeParser', () => {
 
         test('returns false for an unknown action', () => {
             expect(isActionSatisfiedByCruds(new Set(['r']), 'bogus')).toBe(false);
+        });
+    });
+
+    describe('getRequiredCrudsForAccessRequested', () => {
+        test('read normalizes to {r}', () => {
+            expect(getRequiredCrudsForAccessRequested('read')).toEqual(new Set(['r']));
+        });
+
+        test('write normalizes to {c, u, d}', () => {
+            expect(getRequiredCrudsForAccessRequested('write')).toEqual(new Set(['c', 'u', 'd']));
+        });
+
+        test.each(['c', 'r', 'u', 'd', 's'])('a bare CRUDS letter %s normalizes to {%s}', (letter) => {
+            expect(getRequiredCrudsForAccessRequested(letter)).toEqual(new Set([letter]));
+        });
+
+        test('an unrecognized value returns null', () => {
+            expect(getRequiredCrudsForAccessRequested('bogus')).toBeNull();
+            expect(getRequiredCrudsForAccessRequested(undefined)).toBeNull();
+        });
+    });
+
+    describe('isCrudsRequirementSatisfied', () => {
+        test('returns true when any required letter is present', () => {
+            expect(isCrudsRequirementSatisfied(new Set(['r', 's']), new Set(['r']))).toBe(true);
+            expect(isCrudsRequirementSatisfied(new Set(['c', 'u', 'd']), new Set(['u']))).toBe(true);
+        });
+
+        test('returns false when no required letter is present', () => {
+            expect(isCrudsRequirementSatisfied(new Set(['r', 's']), new Set(['c', 'u', 'd']))).toBe(false);
+        });
+
+        test('returns false for a null cruds set or a null requirement', () => {
+            expect(isCrudsRequirementSatisfied(null, new Set(['r']))).toBe(false);
+            expect(isCrudsRequirementSatisfied(new Set(['r']), null)).toBe(false);
+        });
+    });
+
+    describe('isReadOnlyAccessRequested', () => {
+        test('the legacy read action is read-only', () => {
+            expect(isReadOnlyAccessRequested('read')).toBe(true);
+        });
+
+        test('the legacy write action is not read-only', () => {
+            expect(isReadOnlyAccessRequested('write')).toBe(false);
+        });
+
+        test.each(['r', 's'])('the bare letter %s is read-only', (letter) => {
+            expect(isReadOnlyAccessRequested(letter)).toBe(true);
+        });
+
+        test.each(['c', 'u', 'd'])('the bare letter %s is not read-only', (letter) => {
+            expect(isReadOnlyAccessRequested(letter)).toBe(false);
+        });
+
+        test('an unrecognized value is not read-only', () => {
+            expect(isReadOnlyAccessRequested('bogus')).toBe(false);
+        });
+    });
+
+    describe('getInteractionCrudsLetter', () => {
+        test.each(Object.entries(INTERACTION_TO_CRUDS_LETTER))(
+            '%s maps to %s', (interaction, letter) => {
+                expect(getInteractionCrudsLetter(interaction)).toBe(letter);
+            }
+        );
+
+        test('an interaction not in the table returns null (caller falls back to accessRequested)', () => {
+            expect(getInteractionCrudsLetter('graph')).toBeNull();
+            expect(getInteractionCrudsLetter('merge')).toBeNull();
+            expect(getInteractionCrudsLetter(undefined)).toBeNull();
         });
     });
 });
