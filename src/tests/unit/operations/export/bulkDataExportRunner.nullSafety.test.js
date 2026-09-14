@@ -22,6 +22,8 @@ const { EnrichmentManager } = require('../../../../enrich/enrich');
 const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
 const { R4ArgsParser } = require('../../../../operations/query/r4ArgsParser');
 const { SearchManager } = require('../../../../operations/search/searchManager');
+const { ScopesManager } = require('../../../../operations/security/scopesManager');
+const { ConfigManager } = require('../../../../utils/configManager');
 const { S3Client } = require('../../../../utils/s3Client');
 const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../../utils/bulkExportEventProducer');
@@ -49,6 +51,14 @@ describe('BulkDataExportRunner - null safety bugs', () => {
             resourceLocatorFactory: createMockInstance(ResourceLocatorFactory),
             r4ArgsParser: createMockInstance(R4ArgsParser),
             searchManager: createMockInstance(SearchManager),
+            scopesManager: new ScopesManager({
+                configManager: (() => {
+                    const c = createMockInstance(ConfigManager);
+                    Object.defineProperty(c, 'enableSmartV2SystemScopes', { get: () => true, configurable: true });
+                    return c;
+                })(),
+                patientFilterManager: createMockInstance(PatientFilterManager)
+            }),
             s3Client: createMockInstance(S3Client),
             postSaveProcessor: createMockInstance(PostSaveProcessor),
             bulkExportEventProducer: createMockInstance(BulkExportEventProducer),

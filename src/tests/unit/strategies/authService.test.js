@@ -492,6 +492,79 @@ describe('AuthService', () => {
             const result = authService.getFieldsFromToken({ scope: 'short:user/*.read' });
             expect(result.scope).toBe('user/*.read');
         });
+
+        test('isUser is true for system/ scope, tripwire', () => {
+            const result = authService.getFieldsFromToken({ scope: 'system/*.* access/tenanta.*' });
+            expect(result.isUser).toBe(false);
+        });
+
+        describe('post-strip scope namespace allowlist', () => {
+            test('drops a group name that is not a well-formed scope', () => {
+                Object.defineProperty(mockConfigManager, 'authCustomGroup', {
+                    get: () => ['groups'], configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    scope: 'user/Patient.read',
+                    groups: 'not-a-scope'
+                });
+                expect(result.scope).toBe('user/Patient.read');
+            });
+
+            test('prefix stripping must never synthesize a privileged namespace out of a malformed group name', () => {
+                // AUTH_REMOVE_SCOPE_PREFIX='x' + a group literally named 'xsystem/*.*' would
+                // naively become 'system/*.*' after the blind substring-strip. The allowlist
+                // must still reject it unless it independently matches the known scope shape -
+                // in this case it does match the shape, so this documents that the allowlist
+                // alone does not prevent prefix-driven synthesis; it only rejects malformed
+                // shapes. Pair this with an audit of configured prefixes (see design doc §4.3).
+                Object.defineProperty(mockConfigManager, 'authCustomGroup', {
+                    get: () => ['groups'], configurable: true
+                });
+                Object.defineProperty(mockConfigManager, 'authRemoveScopePrefixes', {
+                    get: () => ['x'], configurable: true
+                });
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager
+                });
+                const result = authService.getFieldsFromToken({
+                    scope: 'user/Patient.read',
+                    groups: 'xsystem/*.*'
+                });
+                expect(result.scope).toBe('user/Patient.read system/*.*');
+            });
+
+            test('drops a malformed scope with an unrecognized namespace', () => {
+                const result = authService.getFieldsFromToken({
+                    scope: 'user/Patient.read unknown/Patient.read'
+                });
+                expect(result.scope).toBe('user/Patient.read');
+            });
+
+            test('drops a scope missing the .<action> suffix', () => {
+                const result = authService.getFieldsFromToken({ scope: 'user/Patient.read user/Patient' });
+                expect(result.scope).toBe('user/Patient.read');
+            });
+
+            test('keeps all five known namespaces when well-formed', () => {
+                const result = authService.getFieldsFromToken({
+                    scope: 'user/Patient.read patient/Observation.read access/tenanta.* admin/*.* system/*.write'
+                });
+                expect(result.scope).toBe(
+                    'user/Patient.read patient/Observation.read access/tenanta.* admin/*.* system/*.write'
+                );
+            });
+
+            test('does not throw and returns empty scope when every scope is malformed', () => {
+                const result = authService.getFieldsFromToken({ scope: 'not-a-scope another-bad-one' });
+                expect(result.scope).toBe('');
+                expect(result.isUser).toBe(false);
+            });
+        });
     });
 
     describe('getPropertiesFromPayload', () => {

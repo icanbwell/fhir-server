@@ -1331,6 +1331,18 @@ class ConfigManager {
     }
 
     /**
+     * Whether SMART on FHIR v2 `system/` scopes are honored by the resource-type/action gate
+     * alongside `user/`. Kill switch for rollout: `system/` scope strings are silently discarded
+     * today (ScopesValidator never evaluates them), so any OAuth client or IdP group already
+     * carrying one gains live access the moment this flips. Default off until scope provisioning
+     * is audited. See docs/resource-authorization.md §3.
+     * @return {boolean}
+     */
+    get enableSmartV2SystemScopes() {
+        return isTrue(env.ENABLE_SMART_V2_SYSTEM_SCOPES);
+    }
+
+    /**
      * Minimum FHIR R4 `identity-assuranceLevel` (`level1`-`level4`) a `Person.link` must carry
      * to be considered trustworthy enough to follow during Person.link traversal
      * (personToPatientIdsExpander.js). Used by both the dry-run logging

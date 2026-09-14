@@ -150,23 +150,25 @@ tag is **not** part of the bulk search-query filter — it's used in narrower ch
 
 ## 3. Scopes (SMART on FHIR)
 
-Four scope namespaces, all validated before any query is built:
+Five scope namespaces, all validated before any query is built:
 
 | Scope | Form | Controls |
 |---|---|---|
 | `user` | `user/<resourceType\|*>.<read\|write\|*>` | which resource types the caller may read/write |
+| `system` | `system/<resourceType\|*>.<read\|write\|*>` | SMART on FHIR v2 backend-services equivalent of `user/`; evaluated together with `user/` by the resource-type gate (behind the `enableSmartV2SystemScopes` kill switch). **Not** a tenant-filter bypass — an `access/` code is still required, same as `user/` |
 | `access` | `access/<tag\|*>.*` | which access-tagged resources the caller may see (§1) |
 | `patient` | `patient/<resourceType\|*>.<read\|write>` | patient-scoped access via the identity graph (§5) |
 | `admin` | `admin/*.*` | admin routes and debug/explain query params — **not** a tenant-filter bypass (see §7) |
 
 - `ScopesManager` (`src/operations/security/scopesManager.js`): `parseScopes`,
-  `getAccessCodesFromScopes`, `getUserScopes`, `getPatientScopes`, `getAdminScopes`,
-  `hasPatientScope`.
+  `getAccessCodesFromScopes`, `getUserScopes`, `getResourceTypeScopes` (the union of `user/` and,
+  when enabled, `system/` — used by `ScopesValidator` instead of `getUserScopes`), `getPatientScopes`,
+  `getAdminScopes`, `hasPatientScope`.
 - `ScopesValidator.verifyHasValidScopesAsync` (`src/operations/security/scopesValidator.js`), using
   `@asymmetrik/sof-scope-checker`, is called at the top of every read operation
   (`searchBundle.js`, `searchStreaming.js`, `searchById.js`, `history.js`, `everything.js`,
-  `graph.js`, `summary.js`) before query construction — a request with an insufficient `user`
-  scope for the resource type never reaches the query-building stage at all.
+  `graph.js`, `summary.js`) before query construction — a request with an insufficient
+  `user`/`system` scope for the resource type never reaches the query-building stage at all.
 - **`AuditEvent`-specific pre-query gate** (not scope-based) —
   `SearchManager.validateAuditEventQueryParameters`, called from `searchBundle.js`,
   `searchById.js`, and `searchStreaming.js` before `constructQueryAsync` runs, rejects the whole
@@ -184,13 +186,15 @@ The server doesn't just check scopes — *what kind of caller* holds them change
 mechanisms below apply:
 
 - **Service account** (OAuth client-credentials grant) and **admin/tester user account**
-  (username+password grant) are authorization-equivalent: both get `user`/`access`/`admin` scopes
-  and are filtered purely by §1–§3.
+  (username+password grant) are authorization-equivalent: both get `user`/`system`/`access`/`admin`
+  scopes and are filtered purely by §1–§3.
 - **Person/Patient (end-user) auth** carries a `patient/` scope and is distinguished at the single
   line `const isUser = scopes.some(s => s.toLowerCase().startsWith('patient/'))`
   (`src/strategies/authService.js`). `isUser` is threaded onto `FhirRequestInfo` and changes which
   branch of `SearchManager.constructQueryAsync` builds the query — the patient-scope path (§5),
-  not the tenant/access-tag path (§1) — for that request.
+  not the tenant/access-tag path (§1) — for that request. **`system/` does not set `isUser`** — a
+  SMART v2 backend-services token is never treated as an end-user caller, regardless of which
+  claims it carries.
 - **Delegated actor** (`userType: 'delegatedUser'`) — a `RelatedPerson`/similar acting on behalf of
   a Person via the JWT `act` claim. Composes the patient-scope (§5), consent (§6), and sensitivity
   (§9) mechanisms rather than being a separate code path; full model in §10.
@@ -208,7 +212,12 @@ patient-filterable (`ScopesManager.isAccessAllowedByPatientScopes` checks both),
 decided by access tags at all — it's decided by reachability through that caller's own
 Person/Patient identity graph. This is a separate, mutually exclusive branch from §1 in
 `SearchManager.constructQueryAsync`: a patient-scoped caller requesting a non-patient-filterable
-resource type falls through to the §1 access-tag branch instead for that request.
+resource type falls through to the §1 access-tag branch instead for that request. This is the same
+whether the non-patient-scoped side of the token is `user/` or `system/` — a
+`patient/*.* system/*.*` token gets the identical `Write not allowed using user scopes if patient
+scope is present` rejection on write that a `patient/*.* user/*.*` token gets
+(`ScopesValidator.isScopesValidAsync`); the two namespaces are evaluated in the same branch, never
+as separate authorization paths, specifically to keep this restriction from being sidestepped.
 
 - `PatientScopeManager.getPatientIdsFromScopeAsync` (`src/operations/security/patientScopeManager.js`)
   resolves the JWT's person id into the proxy-patient id (`person.<uuid>`) plus every linked

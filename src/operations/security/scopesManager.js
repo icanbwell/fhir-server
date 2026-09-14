@@ -3,6 +3,7 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
+const { SCOPE_NAMESPACE, RESOURCE_TYPE_SCOPE_NAMESPACES } = require('../../constants');
 
 class ScopesManager {
     /**
@@ -412,7 +413,12 @@ class ScopesManager {
     }
 
     /**
-     * Gets user scopes from the passed in scope string
+     * Gets user scopes from the passed in scope string.
+     *
+     * NOTE: this remains the documented §3 parser for the `user/` namespace (see
+     * docs/resource-authorization.md §3) even though ScopesValidator now calls
+     * getResourceTypeScopes() instead, which additionally honors `system/` scopes. Keep this
+     * method - it has its own doc-anchored regression test.
      * @param {string|undefined} scope
      * @returns {string[]}
      */
@@ -425,6 +431,40 @@ class ScopesManager {
          */
         const scopes = scope.split(' ');
         return scopes.filter(s => s.startsWith('user/'));
+    }
+
+    /**
+     * Returns the scopes belonging to any of the given namespace prefixes.
+     *
+     * Matching is deliberately case-SENSITIVE, unlike hasPatientScope/isUser. Those two only ask
+     * "is a patient scope present at all"; these strings go straight to
+     * @asymmetrik/sof-scope-checker, which compares by exact string. Case-folding here would
+     * produce candidates that can never match while widening what we claim to have parsed.
+     * @param {string|undefined} scope
+     * @param {string[]} namespaces e.g. ['user/', 'system/']
+     * @returns {string[]}
+     */
+    getScopesForNamespaces ({ scope, namespaces }) {
+        return this.parseScopes(scope).filter(s => namespaces.some(ns => s.startsWith(ns)));
+    }
+
+    /**
+     * The scopes the resource-type/action gate evaluates for a non-patient-scoped caller:
+     * `user/` plus, when enabled, SMART on FHIR v2 `system/`.
+     *
+     * This does NOT relax any tenant check. A caller authorized here still has to clear
+     * getAccessCodesFromScopes() (>= 1 access/<tag> code) in ScopesValidator, and still has to
+     * clear getSecurityTagsFromScope() before any Mongo query is built.
+     * @param {string|undefined} scope
+     * @returns {string[]}
+     */
+    getResourceTypeScopes ({ scope }) {
+        return this.getScopesForNamespaces({
+            scope,
+            namespaces: this.configManager.enableSmartV2SystemScopes
+                ? RESOURCE_TYPE_SCOPE_NAMESPACES
+                : [SCOPE_NAMESPACE.user]
+        });
     }
 
     /**

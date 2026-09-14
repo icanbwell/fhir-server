@@ -221,9 +221,15 @@ This token contains a list of scopes that have been granted to this `client_id` 
 
 #### 5.1 Control access by resource
 
-FHIR server looks for scopes that start with “user/”. These are in the form of user/<resource|_>.<read|write|_> e.g., `user/Practitioner.read`. This scope grants the client the permission to read the Practitioner resources.
+FHIR server looks for scopes that start with “user/” or “system/”. These are in the form of user/<resource|_>.<read|write|_> e.g., `user/Practitioner.read`. This scope grants the client the permission to read the Practitioner resources.
 
 In addition we support wildcard scopes e.g., `user/*.*` or `user/*.read`. The former gives the user the permission to read or write any resource and the latter gives the user the right to read any resource.
+
+`system/` is SMART on FHIR v2's name for the same capability, intended for backend-services
+clients (e.g. `system/Practitioner.read`, `system/*.*`). It is interchangeable with `user/` at
+this gate — the two are evaluated together, and neither one on its own grants access without also
+holding an `access/` scope (§5.2). Support for `system/` is gated behind the
+`ENABLE_SMART_V2_SYSTEM_SCOPES` environment variable.
 
 #### 5.2 Control access by security tags
 
@@ -333,6 +339,18 @@ patient/*.read user/*.read access/*.read
 User can read all Patient related Resource linked via bwellPersonID EMPI Tree & the non-Patient resources. NOTE: Here `user` & `access` tags are ignored due to patient scope being present.
 
 Note: With patient scopes, User can not write(create/update/delete) on non-patient resources.
+
+##### 5.5.4 Example 4 (SMART on FHIR v2 `system/`)
+
+```
+system/*.* access/*.*
+```
+
+This is equivalent to Example 2's `user/*.* access/*.*` — `system/` and `user/` are interchangeable
+at this gate. Likewise, a caller holding `patient/*.read system/*.read access/*.read` behaves
+exactly as Example 3's second case does: patient-scoped resources are reached via the identity
+graph, and the `system`/`access` scopes are ignored for those resources because the patient scope
+is present.
 
 #### 5.6 Multiple scopes
 
