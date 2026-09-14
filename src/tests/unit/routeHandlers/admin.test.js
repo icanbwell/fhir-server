@@ -77,6 +77,12 @@ describe('routeHandlers/admin', () => {
                 parseScopes: jest.fn().mockReturnValue(['admin/*.read', 'admin/*.write', 'user/Patient.write']),
                 hasAdminScopeForAction: jest.fn().mockReturnValue(true)
             },
+            // Backs assertResourceWriteScopeAsync, which routes deletePatientDataGraph and
+            // deletePersonDataGraph through the real scope-validation gate instead of a raw
+            // scopeChecker call over the unfiltered scope string.
+            scopesValidator: {
+                hasValidScopesAsync: jest.fn().mockResolvedValue(true)
+            },
             indexManager: {
                 compareCurrentIndexesWithConfigurationInAllCollectionsAsync: jest.fn().mockResolvedValue([]),
                 synchronizeIndexesWithConfigAsync: jest.fn().mockResolvedValue({})
@@ -517,6 +523,27 @@ describe('routeHandlers/admin', () => {
             mockReq.query = { id: 'pat-1', sync: 'true' };
             await handleAdminDelete(fnGetContainer, mockReq, mockRes);
             expect(mockContainer.adminPersonPatientDataManager.deletePatientDataGraphAsync).toHaveBeenCalled();
+            expect(mockContainer.scopesValidator.hasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Patient', accessRequested: 'write' })
+            );
+        });
+
+        test('rejects deletePatientDataGraph when the resource-type scope check fails', async () => {
+            mockContainer.scopesValidator.hasValidScopesAsync.mockResolvedValueOnce(false);
+            mockReq.params.op = 'deletePatientDataGraph';
+            mockReq.query = { id: 'pat-1', sync: 'true' };
+            await handleAdminDelete(fnGetContainer, mockReq, mockRes);
+            expect(mockRes.status).toHaveBeenCalledWith(403);
+            expect(mockContainer.adminPersonPatientDataManager.deletePatientDataGraphAsync).not.toHaveBeenCalled();
+        });
+
+        test('rejects deletePersonDataGraph when the resource-type scope check fails', async () => {
+            mockContainer.scopesValidator.hasValidScopesAsync.mockResolvedValueOnce(false);
+            mockReq.params.op = 'deletePersonDataGraph';
+            mockReq.query = { id: 'person-1' };
+            await handleAdminDelete(fnGetContainer, mockReq, mockRes);
+            expect(mockRes.status).toHaveBeenCalledWith(403);
+            expect(mockContainer.adminPersonPatientDataManager.deletePersonDataGraphAsync).not.toHaveBeenCalled();
         });
 
         test('handles deletePatientDataGraph without id', async () => {
