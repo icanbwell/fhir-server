@@ -3,7 +3,7 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
-const { SCOPE_NAMESPACE, RESOURCE_TYPE_SCOPE_NAMESPACES } = require('../../constants');
+const { RESOURCE_TYPE_SCOPE_NAMESPACES } = require('../../constants');
 
 class ScopesManager {
     /**
@@ -450,7 +450,7 @@ class ScopesManager {
 
     /**
      * The scopes the resource-type/action gate evaluates for a non-patient-scoped caller:
-     * `user/` plus, when enabled, SMART on FHIR v2 `system/`.
+     * `user/` and SMART on FHIR v2 `system/`.
      *
      * This does NOT relax any tenant check. A caller authorized here still has to clear
      * getAccessCodesFromScopes() (>= 1 access/<tag> code) in ScopesValidator, and still has to
@@ -459,12 +459,7 @@ class ScopesManager {
      * @returns {string[]}
      */
     getResourceTypeScopes ({ scope }) {
-        return this.getScopesForNamespaces({
-            scope,
-            namespaces: this.configManager.enableSmartV2SystemScopes
-                ? RESOURCE_TYPE_SCOPE_NAMESPACES
-                : [SCOPE_NAMESPACE.user]
-        });
+        return this.getScopesForNamespaces({ scope, namespaces: RESOURCE_TYPE_SCOPE_NAMESPACES });
     }
 
     /**

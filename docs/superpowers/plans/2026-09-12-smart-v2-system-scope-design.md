@@ -41,9 +41,16 @@ already reach.
 
 - **Semantics: alias, not a new namespace.** The resource-type gate evaluates the **union** of
   `user/` and `system/` **in the same branch**. `access/` stays mandatory.
-- **Rollout: kill switch, default off** (`ENABLE_SMART_V2_SYSTEM_SCOPES`). `system/` strings are
-  inert today, so any client already provisioned with `system/*.*` gains access the moment this
-  goes live.
+- **Rollout: unconditional, no kill switch.** The initial version of this plan gated `system/`
+  behind `ENABLE_SMART_V2_SYSTEM_SCOPES` (default off), on the reasoning that `system/` strings
+  were inert today so any client already provisioned with one would gain live access the moment
+  the flag flipped. That risk was the only reason for the flag, so it was checked directly: a
+  Groundcover audit of `scope` values seen over a 14-day window across **every**
+  `fhir-server*` namespace (prod and non-prod, 37 namespaces total) found **zero** occurrences of
+  a `system/` scope string anywhere in current traffic (see DCON-5551 for the query and results).
+  With no pre-existing caller to accidentally activate, the flag has nothing left to guard against
+  — it only adds a second code path (flag-on/flag-off) to test and reason about — so it was removed
+  before merge. `getResourceTypeScopes` unions `user/` and `system/` unconditionally.
 - **Three adjacent fixes ride along** (§4) — each is a path the union activates.
 
 **Not in scope:** `src/middleware/fhir/sof-scope.middleware.js`. Verified dead in every
@@ -154,21 +161,19 @@ Add two methods. A namespace is *data in a list*, not a new `else if` — satisf
 
     /**
      * The scopes the resource-type/action gate evaluates for a non-patient-scoped caller:
-     * `user/` plus, when enabled, SMART v2 `system/`.
+     * `user/` and SMART v2 `system/`.
      *
      * This does NOT relax any tenant check. A caller authorized here still has to clear
      * getAccessCodesFromScopes() (>= 1 access/<tag> code) in ScopesValidator, and still has to
      * clear getSecurityTagsFromScope() before any Mongo query is built.
      */
     getResourceTypeScopes ({ scope }) {
-        return this.getScopesForNamespaces({
-            scope,
-            namespaces: this.configManager.enableSmartV2SystemScopes
-                ? RESOURCE_TYPE_SCOPE_NAMESPACES
-                : [SCOPE_NAMESPACE.user]
-        });
+        return this.getScopesForNamespaces({ scope, namespaces: RESOURCE_TYPE_SCOPE_NAMESPACES });
     }
 ```
+
+No kill switch: see the "Rollout" bullet above for why (zero pre-existing `system/` usage found by
+audit, so nothing gates rollout).
 
 - **Keep `getUserScopes` (`:419`) as-is.** It becomes production-dead but is the documented §3
   parser with its own doc-anchored test
@@ -178,22 +183,13 @@ Add two methods. A namespace is *data in a list*, not a new `else if` — satisf
   standalone `hasSystemScope` is the raw material for the §1 anti-pattern.
 - **Do not** reroute `getPatientScopes` / `getAdminScopes` through the new helper in this PR.
 
-### 3.3 `src/utils/configManager.js`
+### 3.3 `src/utils/configManager.js` — no change
 
-```js
-    /**
-     * Whether SMART v2 `system/` scopes are honored by the resource-type/action gate alongside
-     * `user/`. Kill switch for rollout: `system/` strings were previously inert (ScopesValidator
-     * discarded them), so any OAuth client or IdP group already carrying one gains access the
-     * moment this flips. Default off until scope provisioning is audited.
-     */
-    get enableSmartV2SystemScopes() {
-        return isTrue(env.ENABLE_SMART_V2_SYSTEM_SCOPES);
-    }
-```
-
-`isTrue` is already imported at `configManager.js:1`. Document the var in `.env.example` /
-`docker-compose.yml` if other feature flags are listed there.
+The original draft of this plan added an `enableSmartV2SystemScopes` kill-switch getter here,
+reading `env.ENABLE_SMART_V2_SYSTEM_SCOPES`. It was added, then removed once the Groundcover audit
+(see "Rollout" above) confirmed there is nothing for it to guard against — no `system/` scope
+string exists in current traffic across any `fhir-server*` namespace. `configManager.js` has no
+`system/`-scope-related getter.
 
 ### 3.4 `src/operations/security/scopesValidator.js` — **only line 106 changes**
 
@@ -326,15 +322,11 @@ rule is "never a stand-in class" for the code under test.
 
 ### 5.1 Unit — parsing (`src/tests/unit/operations/security/scopesManager.test.js`)
 
-New `describe('getResourceTypeScopes')` after the `getUserScopes` block (`:440-449`). The existing
-`beforeEach` builds `createMockInstance(ConfigManager)`, so add
-`Object.defineProperty(mockConfigManager, 'enableSmartV2SystemScopes', { get: () => true, configurable: true })`
-(the pattern at `scopesValidator.test.js:40-43`), plus a flag-off variant.
+New `describe('getResourceTypeScopes')` after the `getUserScopes` block (`:440-449`).
 
 `test.each` rows: undefined scope → `[]`; user only; system only; union with order preserved;
 excludes `access/`; excludes `patient/`; excludes `admin/`; `System/Patient.read` ignored
-(case-sensitive); `systemfoo` not matched (guards against the §4.2 slashless bug); flag off drops
-`system/`.
+(case-sensitive); `systemfoo` not matched (guards against the §4.2 slashless bug).
 
 **Tripwires** (§1): `getAccessCodesFromScopes('read','u','system/*.*')` and `('write',…)` both
 `toEqual([])`; `hasHistoryAccess({resourceType:'Patient', scope:'system/*.*'})` is `false`;
@@ -481,9 +473,9 @@ JEST_MAX_OLD_SPACE_SIZE=6144 make tests && make lint
 
 1. `docs/resource-authorization.md:151-179` (§3) — "Four scope namespaces" → five; add the row:
    `system` | `system/<resourceType|*>.<read|write|*>` | SMART v2 backend-services equivalent of
-   `user/`; evaluated together with `user/` by the resource-type gate. **Not** a tenant-filter
-   bypass — an `access/` code is still required (§1). Extend the `ScopesManager` method list at
-   `:162-164`; note the kill switch.
+   `user/`; evaluated together with `user/` by the resource-type gate, unconditionally. **Not** a
+   tenant-filter bypass — an `access/` code is still required (§1). Extend the `ScopesManager`
+   method list at `:162-164`.
 2. `docs/resource-authorization.md:186-190` (§4) — the "both get `user`/`access`/`admin` scopes"
    bullet becomes `user`/`system`/`access`/`admin`. State explicitly: **`system/` does not set
    `isUser`**, which stays `patient/`-derived at `authService.js:474`.
@@ -495,7 +487,9 @@ JEST_MAX_OLD_SPACE_SIZE=6144 make tests && make lint
    `user/*.* access/*.*`.
 6. `readme/export.md` — update if it documents the `user/`-scope resource filter.
 7. **ADR** `docs/adr/NNNN-smart-v2-system-scope-as-user-scope-alias.md` (MADR, per AGENTS.md) —
-   record alias-vs-distinct-namespace, the single-branch constraint (§1), and the kill switch.
+   record alias-vs-distinct-namespace, the single-branch constraint (§1), and the decision to ship
+   unconditionally (no kill switch) once the Groundcover audit ruled out any pre-existing
+   `system/` usage.
 8. **PR description** — per CLAUDE.md's "Security-Sensitive Changes", include the `review.md`
    report: findings table **plus** an explicit "Checked, no issues found" list naming the
    untouched functions (`getAccessCodesFromScopes`, `getSecurityTagsFromScope`, `hasHistoryAccess`,
@@ -509,11 +503,11 @@ JEST_MAX_OLD_SPACE_SIZE=6144 make tests && make lint
 
 | # | Step | Gate |
 |---|---|---|
-| 0 | Audit OAuth client + `AUTH_CUSTOM_GROUP` provisioning for pre-existing `system/` strings. Blocking for *enabling the flag*, not for merging. | — |
-| 1 | `constants.js` + `configManager.js` | `make lint` |
+| 0 | Audit OAuth client + `AUTH_CUSTOM_GROUP` provisioning, and live traffic (Groundcover, all `fhir-server*` namespaces, 14 days), for pre-existing `system/` strings. Result: zero found — this is why the rollout ships unconditionally, no kill switch (see DCON-5551). | — |
+| 1 | `constants.js` | `make lint` |
 | 2 | `scopesManager.js` — the two new methods | §5.1 green; **full existing suite still green** (nothing calls them yet) |
-| 3 | §5.1 unit tests, both flag states | green |
-| 4 | `scopesValidator.js:106` swap + fix `scopesValidator.test.js` mocks | **full unit suite green with the flag OFF** — the "zero behavior change when off" checkpoint. Run this before writing any positive `system/` test. |
+| 3 | §5.1 unit tests | green |
+| 4 | `scopesValidator.js:106` swap + fix `scopesValidator.test.js` mocks | full unit suite green |
 | 5 | §5.2 tests incl. the two `patient/` + `system/` regressions | green |
 | 6 | §5.3 doc-anchored + expander additions | green |
 | 7 | §4.2 export fix + `scopesManager` injection + all four runner mock bags | §5.5 + existing export suites green |
@@ -521,9 +515,8 @@ JEST_MAX_OLD_SPACE_SIZE=6144 make tests && make lint
 | 9 | §4.3 authService allowlist — **attempted, reverted**: broke the existing `jwt.bearer.strategy.test.js` contract that non-scope-shaped IdP group names pass through verbatim | full auth suite green without it |
 | 10 | §5.4 integration matrix + `patientScope` row | integration suites green |
 | 11 | Docs §6 + ADR | — |
-| 12 | Full `make tests` **in both flag states** | green |
+| 12 | Full `make tests` | green |
 | 13 | PR with the review.md adversarial report | — |
-| 14 | Enable `ENABLE_SMART_V2_SYSTEM_SCOPES=true` per env after step 0 clears: dev → staging → prod | — |
 
 **Conventions** (AGENTS.md): branch `{initials}-{PROJ}-{ticket}` (this PR uses `MKS-DCON-5551`),
 commits prefixed with the JIRA key, no `feat:`/`fix:` prefixes, no AI attribution /
@@ -532,11 +525,6 @@ commits prefixed with the JIRA key, no `feat:`/`fix:` prefixes, no AI attributio
 ---
 
 ## 8. Verification
-
-**The decisive checkpoint is step 4:** the full unit suite must pass with
-`ENABLE_SMART_V2_SYSTEM_SCOPES` unset. That proves the change is inert until deliberately enabled.
-
-Then, with the flag on:
 
 1. `node node_modules/.bin/jest --config jest.unit.config.js --runInBand --forceExit src/tests/unit/operations/security src/tests/unit/resourceAuthorization` — parity, tripwires, the two escalation regressions.
 2. `node node_modules/.bin/jest --runInBand --forceExit src/tests/integration/security/matrix` — `tenantASystem` returns **exactly** `EXPECTED_PATIENTS.tenantA`; the `wildcard` row proves each withheld resource is visible to somebody.

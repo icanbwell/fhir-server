@@ -333,13 +333,6 @@ module.exports = {
         cmsPartnerUser: 'cms-partner',
         delegatedUser: 'delegatedUser'
     },
-    SCOPE_NAMESPACE: {
-        patient: 'patient/',
-        user: 'user/',
-        system: 'system/',
-        admin: 'admin/',
-        access: 'access/'
-    },
     /**
      * Namespaces the resource-type/action gate evaluates for a caller NOT on the patient-scope
      * branch. SMART v2 `system/` is the backend-services equivalent of this server's

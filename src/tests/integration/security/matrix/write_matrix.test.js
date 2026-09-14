@@ -28,8 +28,8 @@ const A_RO = () => ({ ...getHeaders('user/*.read access/tenanta.*'), prefer: 'gl
 const B_RW = () => ({ ...getHeaders('user/*.read user/*.write access/tenantb.*'), prefer: 'global_id=false' });
 const ADMIN = () => ({ ...getHeaders('user/*.read user/*.write access/*.*'), prefer: 'global_id=false' });
 
-// SMART on FHIR v2 backend-services equivalents of A_RW/A_RO. Requires
-// ENABLE_SMART_V2_SYSTEM_SCOPES=1 -- see the 'SMART v2 system/ scope callers' describe block.
+// SMART on FHIR v2 backend-services equivalents of A_RW/A_RO -- see the
+// 'SMART v2 system/ scope callers' describe block.
 const A_RW_SYS = () => ({ ...getHeaders('system/*.read system/*.write access/tenanta.*'), prefer: 'global_id=false' });
 const A_RO_SYS = () => ({ ...getHeaders('system/*.read access/tenanta.*'), prefer: 'global_id=false' });
 
@@ -120,10 +120,6 @@ describe('SECURITY MATRIX — write paths', () => {
     // including SAE-2 tag forgery -- as the equivalent `user/` caller.
     // -----------------------------------------------------------------------
     describe('SMART v2 system/ scope callers', () => {
-        const ORIGINAL_FLAG = process.env.ENABLE_SMART_V2_SYSTEM_SCOPES;
-        beforeEach(() => { process.env.ENABLE_SMART_V2_SYSTEM_SCOPES = '1'; });
-        afterEach(() => { process.env.ENABLE_SMART_V2_SYSTEM_SCOPES = ORIGINAL_FLAG; });
-
         test('control: a read/write system/ caller CAN create in its own tenant', async () => {
             const request = await seed();
             const resp = await request.put('/4_0_0/Patient/mtxWriteOwnSys001')

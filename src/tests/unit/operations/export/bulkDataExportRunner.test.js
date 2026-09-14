@@ -51,14 +51,9 @@ describe('BulkDataExportRunner', () => {
             r4ArgsParser: createMockInstance(R4ArgsParser),
             searchManager: createMockInstance(SearchManager),
             // Real ScopesManager (it is a pure parser) so getResourceTypeScopes() is genuinely
-            // exercised rather than stubbed. enableSmartV2SystemScopes defaults on here so
-            // system/ scope tests below exercise the union path.
+            // exercised rather than stubbed.
             scopesManager: new ScopesManager({
-                configManager: (() => {
-                    const c = createMockInstance(ConfigManager);
-                    Object.defineProperty(c, 'enableSmartV2SystemScopes', { get: () => true, configurable: true });
-                    return c;
-                })(),
+                configManager: createMockInstance(ConfigManager),
                 patientFilterManager: createMockInstance(PatientFilterManager)
             }),
             s3Client: createMockInstance(S3Client),

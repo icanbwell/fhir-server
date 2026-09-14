@@ -458,41 +458,28 @@ describe('ScopesManager', () => {
 
     describe('getResourceTypeScopes', () => {
         test.each([
-            ['undefined scope', undefined, true, []],
-            ['user only', 'user/Patient.read', true, ['user/Patient.read']],
-            ['system only', 'system/Patient.read', true, ['system/Patient.read']],
+            ['undefined scope', undefined, []],
+            ['user only', 'user/Patient.read', ['user/Patient.read']],
+            ['system only', 'system/Patient.read', ['system/Patient.read']],
             [
                 'union, order preserved',
                 'user/Patient.read system/Observation.write',
-                true,
                 ['user/Patient.read', 'system/Observation.write']
             ],
-            ['excludes access/', 'system/*.* access/tenanta.*', true, ['system/*.*']],
-            ['excludes patient/', 'system/*.* patient/Observation.read', true, ['system/*.*']],
-            ['excludes admin/', 'system/*.* admin/*.*', true, ['system/*.*']],
+            ['excludes access/', 'system/*.* access/tenanta.*', ['system/*.*']],
+            ['excludes patient/', 'system/*.* patient/Observation.read', ['system/*.*']],
+            ['excludes admin/', 'system/*.* admin/*.*', ['system/*.*']],
             [
                 'case-sensitive: System/ ignored',
                 'System/Patient.read user/Patient.read',
-                true,
                 ['user/Patient.read']
             ],
             [
                 'no false prefix match on "systemfoo"',
                 'systemfoo user/Patient.read',
-                true,
-                ['user/Patient.read']
-            ],
-            [
-                'flag off drops system/',
-                'system/*.* user/Patient.read',
-                false,
                 ['user/Patient.read']
             ]
-        ])('%s', (_label, scope, flagValue, expected) => {
-            Object.defineProperty(mockConfigManager, 'enableSmartV2SystemScopes', {
-                get: () => flagValue,
-                configurable: true
-            });
+        ])('%s', (_label, scope, expected) => {
             expect(scopesManager.getResourceTypeScopes({ scope })).toEqual(expected);
         });
     });

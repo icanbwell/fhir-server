@@ -1,8 +1,8 @@
 // =============================================================================
 // SMART on FHIR v2 `system/` SCOPE — cross-cutting negative matrix.
 //
-// `system/` is unioned with `user/` at the resource-type/action gate behind
-// ENABLE_SMART_V2_SYSTEM_SCOPES (see
+// `system/` is unioned with `user/` at the resource-type/action gate,
+// unconditionally (see
 // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1/§2). Every
 // group below pins one way that union must NOT widen access beyond what an
 // equivalent `user/` caller already gets. Each negative is paired, where
@@ -33,13 +33,10 @@ function resIds (resp) {
 }
 
 describe('SECURITY MATRIX — SMART v2 system/ scope, cross-cutting negatives', () => {
-    const ORIGINAL_FLAG = process.env.ENABLE_SMART_V2_SYSTEM_SCOPES;
     beforeEach(async () => {
-        process.env.ENABLE_SMART_V2_SYSTEM_SCOPES = '1';
         await commonBeforeEach();
     });
     afterEach(async () => {
-        process.env.ENABLE_SMART_V2_SYSTEM_SCOPES = ORIGINAL_FLAG;
         await commonAfterEach();
     });
 

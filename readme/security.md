@@ -228,8 +228,7 @@ In addition we support wildcard scopes e.g., `user/*.*` or `user/*.read`. The fo
 `system/` is SMART on FHIR v2's name for the same capability, intended for backend-services
 clients (e.g. `system/Practitioner.read`, `system/*.*`). It is interchangeable with `user/` at
 this gate — the two are evaluated together, and neither one on its own grants access without also
-holding an `access/` scope (§5.2). Support for `system/` is gated behind the
-`ENABLE_SMART_V2_SYSTEM_SCOPES` environment variable.
+holding an `access/` scope (§5.2).
 
 #### 5.2 Control access by security tags
 

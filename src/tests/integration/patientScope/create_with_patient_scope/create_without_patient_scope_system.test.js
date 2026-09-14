@@ -18,10 +18,6 @@ class MockConfigManager extends ConfigManager {
     get enableReturnBundle () {
         return true;
     }
-
-    get enableSmartV2SystemScopes () {
-        return true;
-    }
 }
 
 class MockPatientFilterManager extends PatientFilterManager {

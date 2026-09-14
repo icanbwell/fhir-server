@@ -6,8 +6,7 @@
  * Verifies, against the REAL implementations (never a stand-in class):
  *   - ScopesManager parses the five scope namespaces (`user`, `system`, `access`, `patient`,
  *     `admin`) as documented in the §3 table. `system/` (SMART on FHIR v2 backend-services) is
- *     evaluated together with `user/` by getResourceTypeScopes(), behind the
- *     enableSmartV2SystemScopes kill switch.
+ *     evaluated together with `user/` by getResourceTypeScopes(), unconditionally.
  *   - ScopesValidator.verifyHasValidScopesAsync (using the real `@asymmetrik/sof-scope-checker`,
  *     not mocked out) rejects a request whose `user` scope is insufficient for the requested
  *     resource type/operation BEFORE any query is built.
@@ -168,20 +167,7 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
         });
 
         describe('getResourceTypeScopes — user/<resourceType|*>.<read|write|*> ∪ system/<resourceType|*>.<read|write|*>', () => {
-            test('returns only user/ scopes when the system/ kill switch is off (default)', () => {
-                Object.defineProperty(mockConfigManager, 'enableSmartV2SystemScopes', {
-                    get: () => false,
-                    configurable: true
-                });
-                const scope = 'user/Patient.read system/Observation.read access/tenantA.*';
-                expect(scopesManager.getResourceTypeScopes({ scope })).toEqual(['user/Patient.read']);
-            });
-
-            test('returns the union of user/ and system/ scopes when the kill switch is on', () => {
-                Object.defineProperty(mockConfigManager, 'enableSmartV2SystemScopes', {
-                    get: () => true,
-                    configurable: true
-                });
+            test('returns the union of user/ and system/ scopes', () => {
                 const scope = 'user/Patient.read system/Observation.read access/tenantA.*';
                 expect(scopesManager.getResourceTypeScopes({ scope }))
                     .toEqual(['user/Patient.read', 'system/Observation.read']);
@@ -323,14 +309,7 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
             })).rejects.toThrow(/no scopes/);
         });
 
-        describe('SMART on FHIR v2 system/ scopes (enableSmartV2SystemScopes on)', () => {
-            beforeEach(() => {
-                Object.defineProperty(mockConfigManager, 'enableSmartV2SystemScopes', {
-                    get: () => true,
-                    configurable: true
-                });
-            });
-
+        describe('SMART on FHIR v2 system/ scopes', () => {
             test('rejects with ForbiddenError when the system scope does not cover the requested resource type', async () => {
                 const requestInfo = {
                     user: 'backend-service-1',

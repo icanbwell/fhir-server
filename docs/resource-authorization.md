@@ -155,14 +155,14 @@ Five scope namespaces, all validated before any query is built:
 | Scope | Form | Controls |
 |---|---|---|
 | `user` | `user/<resourceType\|*>.<read\|write\|*>` | which resource types the caller may read/write |
-| `system` | `system/<resourceType\|*>.<read\|write\|*>` | SMART on FHIR v2 backend-services equivalent of `user/`; evaluated together with `user/` by the resource-type gate (behind the `enableSmartV2SystemScopes` kill switch). **Not** a tenant-filter bypass — an `access/` code is still required, same as `user/` |
+| `system` | `system/<resourceType\|*>.<read\|write\|*>` | SMART on FHIR v2 backend-services equivalent of `user/`; evaluated together with `user/` by the resource-type gate, unconditionally. **Not** a tenant-filter bypass — an `access/` code is still required, same as `user/` |
 | `access` | `access/<tag\|*>.*` | which access-tagged resources the caller may see (§1) |
 | `patient` | `patient/<resourceType\|*>.<read\|write>` | patient-scoped access via the identity graph (§5) |
 | `admin` | `admin/*.*` | admin routes and debug/explain query params — **not** a tenant-filter bypass (see §7) |
 
 - `ScopesManager` (`src/operations/security/scopesManager.js`): `parseScopes`,
-  `getAccessCodesFromScopes`, `getUserScopes`, `getResourceTypeScopes` (the union of `user/` and,
-  when enabled, `system/` — used by `ScopesValidator` instead of `getUserScopes`), `getPatientScopes`,
+  `getAccessCodesFromScopes`, `getUserScopes`, `getResourceTypeScopes` (the union of `user/` and
+  `system/` — used by `ScopesValidator` instead of `getUserScopes`), `getPatientScopes`,
   `getAdminScopes`, `hasPatientScope`.
 - `ScopesValidator.verifyHasValidScopesAsync` (`src/operations/security/scopesValidator.js`), using
   `@asymmetrik/sof-scope-checker`, is called at the top of every read operation

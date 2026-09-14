@@ -58,11 +58,7 @@ describe('BulkDataExportRunner - Cross-Tenant PHI Leakage', () => {
             r4ArgsParser: createMockInstance(R4ArgsParser),
             searchManager: createMockInstance(SearchManager),
             scopesManager: new ScopesManager({
-                configManager: (() => {
-                    const c = createMockInstance(ConfigManager);
-                    Object.defineProperty(c, 'enableSmartV2SystemScopes', { get: () => true, configurable: true });
-                    return c;
-                })(),
+                configManager: createMockInstance(ConfigManager),
                 patientFilterManager: createMockInstance(PatientFilterManager)
             }),
             s3Client: createMockInstance(S3Client),

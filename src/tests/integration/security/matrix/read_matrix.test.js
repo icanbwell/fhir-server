@@ -28,9 +28,8 @@ const CALLER = {
     iasSrc:   { label: 'service account, ias source',         headers: () => sysHeaders('user/*.read access/iassrc.*') },
     wildcard: { label: 'wildcard access/*.* (ground truth)',  headers: () => sysHeaders('user/*.read access/*.*') },
     // SMART on FHIR v2 backend-services callers. `system/` must behave exactly like `user/` at
-    // the resource-type gate (they are unioned in the same branch -- see
-    // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1/§2). Requires
-    // ENABLE_SMART_V2_SYSTEM_SCOPES=1, set in the 'SMART v2 system/ scope callers' describe block.
+    // the resource-type gate (they are unioned in the same branch, unconditionally -- see
+    // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1/§2).
     tenantASystem:  { label: 'backend service, tenanta, read-only (system/)', headers: () => sysHeaders('system/*.read access/tenanta.*') },
     wildcardSystem: { label: 'backend service, wildcard access (system/)',    headers: () => sysHeaders('system/*.read access/*.*') }
 };
@@ -126,16 +125,12 @@ describe('SECURITY MATRIX — read paths', () => {
 
     // -----------------------------------------------------------------------
     // SMART on FHIR v2 `system/` scope callers. `system/` is unioned with `user/`
-    // at the resource-type gate behind ENABLE_SMART_V2_SYSTEM_SCOPES, so a
+    // at the resource-type gate, unconditionally, so a
     // `system/*.read access/tenanta.*` caller must return EXACTLY what the
     // equivalent `user/*.read access/tenanta.*` caller returns (CALLER.tenantA)
     // -- proving `system/` is an alias, not a tenant-filter bypass.
     // -----------------------------------------------------------------------
     describe('SMART v2 system/ scope callers', () => {
-        const ORIGINAL_FLAG = process.env.ENABLE_SMART_V2_SYSTEM_SCOPES;
-        beforeEach(() => { process.env.ENABLE_SMART_V2_SYSTEM_SCOPES = '1'; });
-        afterEach(() => { process.env.ENABLE_SMART_V2_SYSTEM_SCOPES = ORIGINAL_FLAG; });
-
         test('tenantASystem returns exactly what tenantA (user/) returns', async () => {
             const request = await seed();
             const resp = await request.get('/4_0_0/Patient?_count=100').set(CALLER.tenantASystem.headers());
