@@ -225,6 +225,31 @@ describe('getArgsMiddleware', () => {
         expect(req.sanitized_args.id).toBe('from-params');
     });
 
+    test('_format=text/plain on a GET DocumentReference/{id} read survives real parsing onto sanitized_args (Task 11)', () => {
+        // This exercises the real getArgsMiddleware end-to-end for the exact request shape
+        // FhirResponseWriter.readOne relies on -- a single-resource read
+        // (GET /4_0_0/DocumentReference/{id}?_format=text/plain) -- rather than hand-building a
+        // req object that merely assumes what the real pipeline produces. This is the same class
+        // of parser-survival check that Tasks 8/9's tests skipped for the (now-removed)
+        // empty-`_content` trigger, which is why this task exists.
+        const middleware = getArgsMiddleware({}, []);
+        const req = createReq({
+            url: '/4_0_0/DocumentReference/doc1?_format=text/plain',
+            method: 'GET',
+            query: { _format: 'text/plain' },
+            params: { base_version: '4_0_0', id: 'doc1' }
+        });
+        const next = jestObj.fn();
+
+        middleware(req, {}, next);
+
+        expect(req.sanitized_args._format).toBe('text/plain');
+        expect(req.sanitized_args.id).toBe('doc1');
+        expect(req.sanitized_args.base_version).toBe('4_0_0');
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next.mock.calls[0][0]).toBeUndefined();
+    });
+
     test('always calls next', () => {
         const middleware = getArgsMiddleware({}, []);
         const req = createReq({});
