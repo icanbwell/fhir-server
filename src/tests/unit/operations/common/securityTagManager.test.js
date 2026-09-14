@@ -21,6 +21,7 @@ jestObj.mock('../../../../operations/query/filters/fieldMapper', () => ({
 
 const { SecurityTagManager } = require('../../../../operations/common/securityTagManager');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
+const { ScopesManager } = require('../../../../operations/security/scopesManager');
 
 describe('SecurityTagManager', () => {
     let securityTagManager;
@@ -167,6 +168,57 @@ describe('SecurityTagManager', () => {
             });
 
             expect(result).toEqual([]);
+        });
+    });
+
+    describe('getSecurityTagsFromScope - end-to-end with a real ScopesManager (DCON-5557 phase 3)', () => {
+        let realScopesManager;
+        let securityTagManagerWithRealScopesManager;
+
+        beforeEach(() => {
+            realScopesManager = new ScopesManager({
+                configManager: {},
+                patientFilterManager: {}
+            });
+            securityTagManagerWithRealScopesManager = new SecurityTagManager({
+                scopesManager: realScopesManager,
+                accessIndexManager: mockAccessIndexManager,
+                patientFilterManager: mockPatientFilterManager,
+                r4SearchQueryCreator: mockR4SearchQueryCreator
+            });
+        });
+
+        test('accepts a bare v2 CRUDS letter and resolves real access codes through it', () => {
+            const result = securityTagManagerWithRealScopesManager.getSecurityTagsFromScope({
+                user: 'testUser',
+                scope: 'access/tenantA.s access/tenantB.r',
+                accessViaPatientScopes: false,
+                accessRequested: 's'
+            });
+
+            expect(result).toEqual(['tenantA']);
+        });
+
+        test('a legacy read/write literal still resolves identically to before', () => {
+            const result = securityTagManagerWithRealScopesManager.getSecurityTagsFromScope({
+                user: 'testUser',
+                scope: 'access/tenantA.read access/tenantB.write',
+                accessViaPatientScopes: false,
+                accessRequested: 'read'
+            });
+
+            expect(result).toEqual(['tenantA']);
+        });
+
+        test('throws ForbiddenError when the bare letter matches no scope and there is no patient scope', () => {
+            expect(() => {
+                securityTagManagerWithRealScopesManager.getSecurityTagsFromScope({
+                    user: 'testUser',
+                    scope: 'access/tenantA.r',
+                    accessViaPatientScopes: false,
+                    accessRequested: 's'
+                });
+            }).toThrow();
         });
     });
 
