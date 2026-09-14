@@ -333,6 +333,14 @@ module.exports = {
         cmsPartnerUser: 'cms-partner',
         delegatedUser: 'delegatedUser'
     },
+    /**
+     * Namespaces the resource-type/action gate evaluates for a caller NOT on the patient-scope
+     * branch. SMART v2 `system/` is the backend-services equivalent of this server's
+     * pre-existing `user/` service-account namespace (see authService.js's isUser derivation:
+     * `user/` never implied a human user), so both are evaluated together in ONE branch rather
+     * than as separate authorization paths. See docs/resource-authorization.md §3.
+     */
+    RESOURCE_TYPE_SCOPE_NAMESPACES: ['user/', 'system/'],
     EXTERNAL_SERVICE_REQUEST_CONFIG: {
         ignoredParams: ['_debug', '_explain'],
         defaultHeaders: {

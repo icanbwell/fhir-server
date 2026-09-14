@@ -4,8 +4,9 @@
  * Regression tests for docs/resource-authorization.md §3 "Scopes (SMART on FHIR)".
  *
  * Verifies, against the REAL implementations (never a stand-in class):
- *   - ScopesManager parses the four scope namespaces (`user`, `access`, `patient`, `admin`) as
- *     documented in the §3 table.
+ *   - ScopesManager parses the five scope namespaces (`user`, `system`, `access`, `patient`,
+ *     `admin`) as documented in the §3 table. `system/` (SMART on FHIR v2 backend-services) is
+ *     evaluated together with `user/` by getResourceTypeScopes(), unconditionally.
  *   - ScopesValidator.verifyHasValidScopesAsync (using the real `@asymmetrik/sof-scope-checker`,
  *     not mocked out) rejects a request whose `user` scope is insufficient for the requested
  *     resource type/operation BEFORE any query is built.
@@ -164,6 +165,14 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                 expect(scopesManager.hasPatientScope({ scope: 'user/Patient.read access/tenantA.*' })).toBe(false);
             });
         });
+
+        describe('getResourceTypeScopes — user/<resourceType|*>.<read|write|*> ∪ system/<resourceType|*>.<read|write|*>', () => {
+            test('returns the union of user/ and system/ scopes', () => {
+                const scope = 'user/Patient.read system/Observation.read access/tenantA.*';
+                expect(scopesManager.getResourceTypeScopes({ scope }))
+                    .toEqual(['user/Patient.read', 'system/Observation.read']);
+            });
+        });
     });
 
     describe('ScopesValidator.verifyHasValidScopesAsync — pre-query scope gate', () => {
@@ -298,6 +307,124 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                 action: 'search',
                 accessRequested: 'read'
             })).rejects.toThrow(/no scopes/);
+        });
+
+        describe('SMART on FHIR v2 system/ scopes', () => {
+            test('rejects with ForbiddenError when the system scope does not cover the requested resource type', async () => {
+                const requestInfo = {
+                    user: 'backend-service-1',
+                    scope: 'system/Patient.read access/tenantA.read'
+                };
+
+                await expect(scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo,
+                    parsedArgs: { getRawArgs: () => ({}) },
+                    resourceType: 'Observation',
+                    startTime: Date.now(),
+                    action: 'search',
+                    accessRequested: 'read'
+                })).rejects.toThrow(/failed access check to \[Observation\.read\]/);
+            });
+
+            test('rejects with ForbiddenError when the system scope covers the type but not the requested action', async () => {
+                const requestInfo = {
+                    user: 'backend-service-1',
+                    scope: 'system/Observation.read access/tenantA.read'
+                };
+
+                await expect(scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo,
+                    parsedArgs: { getRawArgs: () => ({}) },
+                    resourceType: 'Observation',
+                    startTime: Date.now(),
+                    action: 'update',
+                    accessRequested: 'write'
+                })).rejects.toThrow(/failed access check to \[Observation\.write\]/);
+            });
+
+            test('allows the request through when the system scope + an access code cover the resource type/action', async () => {
+                const requestInfo = {
+                    user: 'backend-service-1',
+                    scope: 'system/Observation.read access/tenantA.read'
+                };
+
+                await expect(scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo,
+                    parsedArgs: { getRawArgs: () => ({}) },
+                    resourceType: 'Observation',
+                    startTime: Date.now(),
+                    action: 'search',
+                    accessRequested: 'read'
+                })).resolves.toBeUndefined();
+            });
+
+            // Per §1/§7, this is the single most important regression: system/ must never
+            // substitute for the access/ tenant gate.
+            test('rejects when the system scope is sufficient but no access/ code is granted at all', async () => {
+                const requestInfo = {
+                    user: 'backend-service-1',
+                    scope: 'system/Observation.read'
+                };
+
+                await expect(scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo,
+                    parsedArgs: { getRawArgs: () => ({}) },
+                    resourceType: 'Observation',
+                    startTime: Date.now(),
+                    action: 'search',
+                    accessRequested: 'read'
+                })).rejects.toThrow(/has no access scopes/);
+            });
+
+            test('a wildcard system/ scope alone (no access/ code) is still rejected', async () => {
+                const requestInfo = { user: 'backend-service-1', scope: 'system/*.*' };
+
+                await expect(scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo,
+                    parsedArgs: { getRawArgs: () => ({}) },
+                    resourceType: 'Observation',
+                    startTime: Date.now(),
+                    action: 'search',
+                    accessRequested: 'read'
+                })).rejects.toThrow(/has no access scopes/);
+            });
+
+            // Named so a future refactor that turns system/ into a sibling branch (rather than
+            // union'd into the existing `else` with `user/`) trips on this test. See
+            // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1/§2.
+            test('patient/ + system/ cannot WRITE a non-patient-filterable type (same as patient/ + user/)', async () => {
+                mockPatientFilterManager.canAccessResourceWithPatientScope.mockReturnValue(false);
+
+                const result = await scopesValidator.isScopesValidAsync({
+                    requestInfo: {
+                        user: 'hybrid-caller',
+                        scope: 'patient/Observation.read system/*.* access/tenantA.*'
+                    },
+                    resourceType: 'Organization',
+                    accessRequested: 'write'
+                });
+
+                expect(result).toBeInstanceOf(Error);
+                expect(result.statusCode).toBe(403);
+                expect(result.message).toContain(
+                    'Write not allowed using user scopes if patient scope is present'
+                );
+            });
+
+            test('patient/ + system/ CAN read a non-patient-filterable type, same as patient/ + user/', async () => {
+                mockPatientFilterManager.canAccessResourceWithPatientScope.mockReturnValue(false);
+
+                const result = await scopesValidator.isScopesValidAsync({
+                    requestInfo: {
+                        user: 'hybrid-caller',
+                        scope: 'patient/Observation.read system/*.* access/tenantA.*'
+                    },
+                    resourceType: 'Organization',
+                    accessRequested: 'read'
+                });
+
+                expect(result).toBeUndefined();
+            });
         });
     });
 
