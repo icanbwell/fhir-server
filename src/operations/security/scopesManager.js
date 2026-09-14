@@ -4,6 +4,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { RESOURCE_TYPE_SCOPE_NAMESPACES } = require('../../constants');
+const { parseScopeToken, isActionSatisfiedByCruds } = require('./smartScopeParser');
 
 class ScopesManager {
     /**
@@ -58,20 +59,16 @@ class ScopesManager {
          * @type {string[]}
          */
         const access_codes = [];
-        /**
-         * @type {string}
-         */
         for (const scope1 of scopes) {
-            if (scope1.startsWith('access/')) {
-                // ex: access/client.*
-                /**
-                 * @type {string}
-                 */
-                const inner_scope = scope1.replace('access/', '');
-                const [securityTag, accessType] = inner_scope.split('.');
-                if (accessType === '*' || accessType === action) {
-                    access_codes.push(securityTag);
-                }
+            if (!scope1.startsWith('access/')) {
+                continue;
+            }
+            // ex: access/client.* -- parseScopeToken's generic {prefix, resourceType, cruds}
+            // shape names the segment before the suffix `resourceType`, but for access/ scopes
+            // it is actually the security tag/tenant code, not a FHIR resource type.
+            const parsed = parseScopeToken(scope1);
+            if (parsed && isActionSatisfiedByCruds(parsed.cruds, action)) {
+                access_codes.push(parsed.resourceType);
             }
         }
         return access_codes;
