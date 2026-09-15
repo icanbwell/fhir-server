@@ -81,6 +81,7 @@ describe('Export Tests', () => {
             const requestId = generateUUID();
 
             container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+                scopesManager: c.scopesManager,
                 databaseQueryFactory: c.databaseQueryFactory,
                 databaseExportManager: c.databaseExportManager,
                 patientFilterManager: c.patientFilterManager,
@@ -186,6 +187,7 @@ describe('Export Tests', () => {
             const requestId = generateUUID();
 
             container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+                scopesManager: c.scopesManager,
                 databaseQueryFactory: c.databaseQueryFactory,
                 databaseExportManager: c.databaseExportManager,
                 patientFilterManager: c.patientFilterManager,
@@ -280,6 +282,7 @@ describe('Export Tests', () => {
             const requestId = generateUUID();
 
             container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+                scopesManager: c.scopesManager,
                 databaseQueryFactory: c.databaseQueryFactory,
                 databaseExportManager: c.databaseExportManager,
                 patientFilterManager: c.patientFilterManager,
@@ -376,6 +379,7 @@ describe('Export Tests', () => {
             const requestId = generateUUID();
 
             container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+                scopesManager: c.scopesManager,
                 databaseQueryFactory: c.databaseQueryFactory,
                 databaseExportManager: c.databaseExportManager,
                 patientFilterManager: c.patientFilterManager,

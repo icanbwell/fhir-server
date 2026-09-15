@@ -71,6 +71,7 @@ describe('Export DocumentReference GridFS Hydration Tests', () => {
         const exportS3Client = new MockS3Client({ bucketName: 'test', region: 'test' });
 
         container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+            scopesManager: c.scopesManager,
             databaseQueryFactory: c.databaseQueryFactory,
             databaseExportManager: c.databaseExportManager,
             patientFilterManager: c.patientFilterManager,

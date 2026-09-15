@@ -1,4 +1,4 @@
-const { describe, test, expect, beforeEach, afterEach } = require('@jest/globals');
+const { describe, test, expect, beforeEach, afterEach, jest } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
 
 describe('ConfigManager', () => {
@@ -340,6 +340,67 @@ describe('ConfigManager', () => {
         test('returns configured value', () => {
             process.env.PAYLOAD_LIMIT = '100mb';
             expect(new ConfigManager().payloadLimit).toBe('100mb');
+        });
+    });
+
+    // ========== ConfigManager fhirNotes getters ==========
+    describe('ConfigManager fhirNotes getters', () => {
+        const ORIGINAL_ENV = process.env;
+
+        afterEach(() => {
+            process.env = ORIGINAL_ENV;
+        });
+
+        function loadFreshConfigManager ({ fhirNotesMongoConfig, enableFullTextSearch }) {
+            jest.resetModules();
+            process.env = { ...ORIGINAL_ENV };
+            if (enableFullTextSearch === undefined) {
+                delete process.env.ENABLE_FULL_TEXT_SEARCH;
+            } else {
+                process.env.ENABLE_FULL_TEXT_SEARCH = enableFullTextSearch;
+            }
+            jest.doMock('../../../config', () => ({
+                ...jest.requireActual('../../../config'),
+                fhirNotesMongoConfig
+            }));
+            const { ConfigManager: FreshConfigManager } = require('../../../utils/configManager');
+            return new FreshConfigManager();
+        }
+
+        test('fhirNotesFullTextSearchConfigured is false when config is empty, even if the flag is on', () => {
+            const configManager = loadFreshConfigManager({ fhirNotesMongoConfig: {}, enableFullTextSearch: '1' });
+            expect(configManager.fhirNotesFullTextSearchConfigured).toBe(false);
+        });
+
+        test('fhirNotesFullTextSearchConfigured is false when fully configured but ENABLE_FULL_TEXT_SEARCH is unset', () => {
+            const configManager = loadFreshConfigManager({
+                fhirNotesMongoConfig: {
+                    connection: 'mongodb://host:27017', db_name: 'fhir_notes',
+                    collection_name: 'clinical_notes', index_name: 'fhir-notes-text-search'
+                }
+            });
+            expect(configManager.fhirNotesFullTextSearchConfigured).toBe(false);
+        });
+
+        test('fhirNotesFullTextSearchConfigured is true only when both fully configured and ENABLE_FULL_TEXT_SEARCH=1', () => {
+            const configManager = loadFreshConfigManager({
+                fhirNotesMongoConfig: {
+                    connection: 'mongodb://host:27017', db_name: 'fhir_notes',
+                    collection_name: 'clinical_notes', index_name: 'fhir-notes-text-search'
+                },
+                enableFullTextSearch: '1'
+            });
+            expect(configManager.fhirNotesFullTextSearchConfigured).toBe(true);
+            expect(configManager.fhirNotesMongoCollectionName).toEqual('clinical_notes');
+            expect(configManager.fhirNotesTextSearchIndexName).toEqual('fhir-notes-text-search');
+        });
+
+        test('fhirNotesFullTextSearchConfigured is false when any required connection field is missing, even with the flag on', () => {
+            const configManager = loadFreshConfigManager({
+                fhirNotesMongoConfig: { connection: 'mongodb://host:27017', db_name: 'fhir_notes' },
+                enableFullTextSearch: '1'
+            });
+            expect(configManager.fhirNotesFullTextSearchConfigured).toBe(false);
         });
     });
 
