@@ -103,7 +103,14 @@ class ScopesValidator {
                     scopes = this.scopesManager.getPatientScopes({scope});
                     ({error, success} = scopeChecker(resourceType, accessRequested, scopes));
                 } else {
-                    scopes = this.scopesManager.getUserScopes({scope});
+                    // `user/` and SMART on FHIR v2 `system/` are evaluated TOGETHER here,
+                    // deliberately in the same branch rather than as a sibling
+                    // `else if (hasSystemScope)`. The patient-scope write restriction below and
+                    // the access/ tenant gate that follows must apply identically to both,
+                    // otherwise a `patient/*.* system/*.*` token would be a write path that the
+                    // equivalent `patient/*.* user/*.*` token is not. See review.md §2 and
+                    // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1.
+                    scopes = this.scopesManager.getResourceTypeScopes({scope});
                     // if patient scopes are present then only read is allowed to non patient resources
                     if (!this.scopesManager.hasPatientScope({scope}) || accessRequested === 'read') {
                         ({error, success} = scopeChecker(resourceType, accessRequested, scopes));

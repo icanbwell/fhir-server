@@ -2,7 +2,6 @@
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
 const httpContext = require('express-http-context');
-const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const { AdminLogManager } = require('../admin/adminLogManager');
 const { FhirResponseStreamer } = require('../utils/fhirResponseStreamer');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
@@ -29,6 +28,38 @@ const { ForbiddenError } = require('../utils/httpErrors');
 function assertAdminScope ({ scopesManager, scope, action }) {
     if (!scopesManager.hasAdminScopeForAction({ scope, action })) {
         throw new ForbiddenError('user with scopes [' + scope + '] failed access check to [admin/*.' + action + ']');
+    }
+}
+
+/**
+ * Asserts the caller also holds a valid FHIR resource-type scope for the given resource type and
+ * action, on top of the blanket admin/*.write check above. Uses the real
+ * ScopesValidator.hasValidScopesAsync rather than a raw scopeChecker call over the unfiltered
+ * scope string, so the patient-scope write restriction, the access/ tenant requirement, and the
+ * delegated-actor consent gate all apply here exactly as they do on every FHIR route - closing
+ * the divergence where e.g. a patient/*.* token, or (once SMART v2 system/ scope support is
+ * enabled) an unscoped system/*.* token, could satisfy this gate on its own. See
+ * docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §4.1.
+ * @param {SimpleContainer} container
+ * @param {import('http').IncomingMessage} req
+ * @param {string} resourceType
+ * @param {'read'|'write'} accessRequested
+ */
+async function assertResourceWriteScopeAsync ({ container, req, resourceType, accessRequested }) {
+    const requestInfo = FhirRequestInfoBuilder.fromRequest(req);
+    const success = await container.scopesValidator.hasValidScopesAsync({
+        requestInfo,
+        parsedArgs: null,
+        resourceType,
+        startTime: null,
+        action: 'admin',
+        accessRequested
+    });
+    if (!success) {
+        throw new ForbiddenError(
+            'user with scopes [' + requestInfo.scope + '] failed access check to [' +
+            resourceType + '.' + accessRequested + ']'
+        );
     }
 }
 
@@ -688,30 +719,9 @@ async function handleAdminDelete (
                 const patientId = req.query.id;
                 const sync = req.query.sync;
                 if (patientId) {
-                    /**
-                     * @type {string[]}
-                     */
-                    const scopes = scopesManager.parseScopes(scope);
-                    const resourceType = 'Patient';
-                    const accessRequested = 'write';
-
-                    const { success } = scopeChecker(resourceType, accessRequested, scopes);
-                    if (!success) {
-                        const errorMessage = 'user with scopes [' + scopes +
-                            '] failed access check to [' + resourceType + '.' + accessRequested + ']';
-                        const operationOutcome = new OperationOutcome({
-                            issue: [
-                                new OperationOutcomeIssue(
-                                    {
-                                        severity: 'error',
-                                        code: 'forbidden',
-                                        diagnostics: errorMessage
-                                    }
-                                )
-                            ]
-                        });
-                        return res.status(403).json(operationOutcome.toJSON());
-                    }
+                    await assertResourceWriteScopeAsync({
+                        container, req, resourceType: 'Patient', accessRequested: 'write'
+                    });
 
                     /**
                      * @type {AdminPersonPatientDataManager}
@@ -757,30 +767,10 @@ async function handleAdminDelete (
                 logInfo('', { 'req.query': req.query });
                 const personId = req.query.id;
                 if (personId) {
-                    /**
-                     * @type {string[]}
-                     */
-                    const scopes = scopesManager.parseScopes(scope);
-                    const resourceType = 'Patient';
-                    const accessRequested = 'write';
+                    await assertResourceWriteScopeAsync({
+                        container, req, resourceType: 'Patient', accessRequested: 'write'
+                    });
 
-                    const { success } = scopeChecker(resourceType, accessRequested, scopes);
-                    if (!success) {
-                        const errorMessage = 'user with scopes [' + scopes +
-                            '] failed access check to [' + resourceType + '.' + accessRequested + ']';
-                        const operationOutcome = new OperationOutcome({
-                            issue: [
-                                new OperationOutcomeIssue(
-                                    {
-                                        severity: 'error',
-                                        code: 'forbidden',
-                                        diagnostics: errorMessage
-                                    }
-                                )
-                            ]
-                        });
-                        return res.status(403).json(operationOutcome.toJSON());
-                    }
                     /**
                      * @type {AdminPersonPatientDataManager}
                      */
