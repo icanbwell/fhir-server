@@ -409,7 +409,7 @@ class MergeManager {
                         resourceType: resourceToMerge.resourceType,
                         id: resourceToMerge.id,
                         sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                        error: e
+                        error: { name: e.name }
                     }
                 }
             );
