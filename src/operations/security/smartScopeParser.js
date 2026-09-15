@@ -111,23 +111,36 @@ function parseScopeToken (scopeToken, allowV2 = true) {
 }
 
 /**
- * Whether any of the requiredCruds letters is present in cruds. The shared primitive behind both
- * the legacy binary action check (isActionSatisfiedByCruds) and the granular per-interaction gate
- * (ScopesValidator, phase 2).
+ * Whether cruds is a superset of requiredCruds -- every letter requiredCruds asks for must be
+ * present in cruds. The shared primitive behind both the legacy binary action check
+ * (isActionSatisfiedByCruds) and the granular per-interaction gate (ScopesValidator, phase 2).
+ *
+ * Deliberately requires ALL of requiredCruds, not just one: for a singleton requiredCruds (every
+ * granular per-interaction letter, and 'read' -> {r}) that's the same as "any", but 'write' ->
+ * {c, u, d} is a composite. A v1 'write' *scope* suffix always grants all three letters together
+ * (atomic), so matching on any one of them was historically safe -- but a v2 scope grants letters
+ * independently, e.g. `user/Patient.c` (create-only) yields cruds={'c'}. Matching that against
+ * the composite write requirement with "any" would let a create-only grant satisfy a check that
+ * actually needs update or delete capability (e.g. a merge that overwrites an existing resource,
+ * or a delete-via-$graph write check) for any call site whose action isn't in
+ * INTERACTION_TO_CRUDS_LETTER and so falls back to the coarse 'write' literal. Requiring the full
+ * composite closes that: only a v1 'write'/'*' scope (or an explicit v2 grant of all three
+ * letters) satisfies it, exactly like the resourceType scope match already relies on for merge/
+ * $graph today.
  * @param {Set<string>|null} cruds
  * @param {Set<string>|null} requiredCruds
  * @return {boolean}
  */
 function isCrudsRequirementSatisfied (cruds, requiredCruds) {
-    if (!cruds || !requiredCruds) {
+    if (!cruds || !requiredCruds || requiredCruds.size === 0) {
         return false;
     }
     for (const letter of requiredCruds) {
-        if (cruds.has(letter)) {
-            return true;
+        if (!cruds.has(letter)) {
+            return false;
         }
     }
-    return false;
+    return true;
 }
 
 /**
