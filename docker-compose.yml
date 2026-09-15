@@ -212,6 +212,22 @@ services:
       DELEGATED_ACT_SUB: 46265db4-0da2-4436-b4e8-85bf7e52a426
       DELEGATED_MANAGING_ORGANIZATION: 8a7cbd9c-5b1e-5c3d-9c4f-0b2e5f1a7c6d
       DELEGATED_ACCESS_USER_ENTITLEMENT: FAMRQT
+      # Delegated access user with an Organization actor (BIG's token-exchange grant for
+      # client-initiated access -- RFC: Delegated Token Generation for Client-Initiated Access,
+      # DCON-5236/DCON-5395). entitlements carries a Consent/<id> reference here instead of a
+      # bare v3-ActReason code -- see readme/delegatedActorAccess.md "Organization Actors".
+      MY_DELEGATED_ORG_ACCESS_USER_NAME: delegated-org-client
+      MY_DELEGATED_ORG_ACCESS_USER_PASSWORD: password
+      MY_DELEGATED_ORG_ACCESS_USER_SCOPE: patient/*.read user/*.read access/*.read
+      MY_DELEGATED_ORG_ACCESS_USER_TOKEN_USERNAME: delegated-org-client@example.com
+      MY_DELEGATED_ORG_ACCESS_USER_CLIENT_PERSON_ID: 0b2ad38a-20bc-5cf5-9739-13f242b05892
+      MY_DELEGATED_ORG_ACCESS_USER_CLIENT_PATIENT_ID: 22aa18af-af51-5799-bc55-367c22c85407
+      MY_DELEGATED_ORG_ACCESS_USER_MASTER_PERSON_ID: 0eb80391-0f61-5ce6-b221-a5428f2f38a7
+      MY_DELEGATED_ORG_ACCESS_USER_MASTER_PATIENT_ID: 668d0748-1484-4bba-9cbe-0faf0de8965c
+      DELEGATED_ORG_ACT_REFERENCE: Organization/50d67a31-af1f-4f30-8d41-51e90a5054fa
+      DELEGATED_ORG_ACT_SUB: client-abc
+      DELEGATED_ORG_MANAGING_ORGANIZATION: 50d67a31-af1f-4f30-8d41-51e90a5054fa
+      DELEGATED_ORG_ACCESS_USER_ENTITLEMENT: Consent/8e4a1f26-3c9d-4b7e-9a02-6f1d5c8b2e90
       # This is the user and password that will be created in the realm for admin scope token
       MY_ADMIN_USER_NAME: admin
       MY_ADMIN_USER_PASSWORD: password@#$%^&873

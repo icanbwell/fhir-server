@@ -48,6 +48,7 @@ jest.mock('../../../operations/common/logging', () => {
 const { AuthService } = require('../../../strategies/authService');
 const { ConfigManager } = require('../../../utils/configManager');
 const { WellKnownConfigurationManager } = require('../../../utils/wellKnownConfiguration/wellKnownConfigurationManager');
+const { DelegatedAccessRulesManager } = require('../../../utils/delegatedAccessRulesManager');
 const { authenticateWithJsonFailure } = require('../../../middleware/fhir/authentication.middleware');
 
 function createMockInstance(ClassType) {
@@ -76,9 +77,12 @@ function createAuthService() {
     mockWellKnownConfigManager.getJwksUrlsAsync = jest.fn().mockResolvedValue([]);
     mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest.fn().mockResolvedValue(null);
 
+    const mockDelegatedAccessRulesManager = createMockInstance(DelegatedAccessRulesManager);
+
     return new AuthService({
         configManager: mockConfigManager,
-        wellKnownConfigurationManager: mockWellKnownConfigManager
+        wellKnownConfigurationManager: mockWellKnownConfigManager,
+        delegatedAccessRulesManager: mockDelegatedAccessRulesManager
     });
 }
 
@@ -277,7 +281,8 @@ describe('INC-322: Auth failure mode — transient errors must not produce 401',
 
             const svc = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: createMockInstance(DelegatedAccessRulesManager)
             });
 
             // Make the userinfo fetch fail with a transient error

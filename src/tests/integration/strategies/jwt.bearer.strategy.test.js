@@ -8,6 +8,7 @@ const {WellKnownConfigurationManager} = require("../../../utils/wellKnownConfigu
 const jwt = require("jsonwebtoken");
 const {AuthService} = require("../../../strategies/authService");
 const {ConfigManager} = require("../../../utils/configManager");
+const {DelegatedAccessRulesManager} = require("../../../utils/delegatedAccessRulesManager");
 const {IncomingMessage} = require('http');
 
 
@@ -64,7 +65,8 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager
                     }
-                )
+                ),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }
         );
         const strategy = new MyJwtStrategy({
@@ -107,7 +109,8 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager
                     }
-                )
+                ),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }
         );
 
@@ -207,7 +210,8 @@ describe('JWT Bearer Strategy', () => {
                         {
                             configManager: configManager
                         }
-                    )
+                    ),
+                    delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
                 }
             ),
             configManager: configManager
@@ -303,7 +307,8 @@ describe('JWT Bearer Strategy', () => {
                         {
                             configManager: configManager
                         }
-                    )
+                    ),
+                    delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
                 }
             ),
             configManager: configManager
@@ -427,7 +432,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -526,7 +532,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -631,7 +638,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -717,7 +725,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -804,7 +813,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -891,7 +901,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -978,7 +989,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -1060,7 +1072,8 @@ describe('JWT Bearer Strategy', () => {
                         {
                             configManager: configManager
                         }
-                    )
+                    ),
+                    delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
                 }
             ),
             configManager: configManager
@@ -1141,7 +1154,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -1220,7 +1234,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -1299,7 +1314,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -1379,7 +1395,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -1459,7 +1476,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -1538,7 +1556,8 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager,
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
-                })
+                }),
+                delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
             }),
             configManager: configManager
         });
@@ -1562,11 +1581,20 @@ describe('JWT Bearer Strategy', () => {
 });
 
 describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
-    const makeAuthService = () => new AuthService({
+    const makeMockDelegatedAccessRulesManager = () => {
+        const instance = Object.create(DelegatedAccessRulesManager.prototype);
+        instance.resolvePurposeOfEventCodesAsync = jest.fn().mockImplementation(
+            ({ entitlements }) => Promise.resolve(entitlements ?? null)
+        );
+        return instance;
+    };
+
+    const makeAuthService = ({ delegatedAccessRulesManager } = {}) => new AuthService({
         configManager: new ConfigManager(),
         wellKnownConfigurationManager: new WellKnownConfigurationManager({
             configManager: new ConfigManager()
-        })
+        }),
+        delegatedAccessRulesManager: delegatedAccessRulesManager || makeMockDelegatedAccessRulesManager()
     });
 
     const basePayload = () => ({
@@ -1619,6 +1647,72 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
         })
 
     })
+
+    test('DCON-5395: resolves a Consent/<id> entitlement to the Consent purpose codes for a delegated user', (done) => {
+        const mockDelegatedAccessRulesManager = makeMockDelegatedAccessRulesManager();
+        mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync.mockResolvedValue(['TREAT']);
+        const authService = makeAuthService({ delegatedAccessRulesManager: mockDelegatedAccessRulesManager });
+
+        // Override configManager for enabling delegated access detection.
+        authService.configManager = new (class extends ConfigManager {
+            get enableDelegatedAccessDetection() { return true; }
+        });
+        const jwt_payload = {
+            ...basePayload(),
+            // BIG's token-exchange grant for client-initiated access (DCON-5236) mints
+            // `entitlements` as a Consent/<id> reference instead of a bare ActReason code.
+            entitlements: ['Consent/consent-uuid-123'],
+            act: {
+                reference: 'RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013',
+                sub: 'patient-1'
+            }
+        };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync).toHaveBeenCalledWith({
+                    entitlements: ['Consent/consent-uuid-123']
+                });
+                // The raw reference must never leak into purposeOfUse -- only the resolved code.
+                expect(info.context.purposeOfUse).toEqual(['TREAT']);
+                done();
+            }
+        });
+    });
+
+    test('DCON-5395: rejects (401-style) when a Consent/<id> entitlement cannot be resolved', (done) => {
+        const mockDelegatedAccessRulesManager = makeMockDelegatedAccessRulesManager();
+        // null signals "could not resolve" (Consent not found / lookup error) -- distinct from
+        // [] ("resolved successfully to no codes"). Only null must fail the request closed.
+        mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync.mockResolvedValue(null);
+        const authService = makeAuthService({ delegatedAccessRulesManager: mockDelegatedAccessRulesManager });
+
+        authService.configManager = new (class extends ConfigManager {
+            get enableDelegatedAccessDetection() { return true; }
+        });
+        const jwt_payload = {
+            ...basePayload(),
+            entitlements: ['Consent/does-not-exist'],
+            act: {
+                reference: 'RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013',
+                sub: 'patient-1'
+            }
+        };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(user).toBe(false);
+                expect(info).toEqual({ reason: 'delegated_actor_consent_not_found' });
+                done();
+            }
+        });
+    });
 
     test('leaves purposeOfUse unset when claim is absent', (done) => {
         const authService = makeAuthService();
