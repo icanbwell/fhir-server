@@ -66,7 +66,7 @@ class ScopesManager {
             // ex: access/client.* -- parseScopeToken's generic {prefix, resourceType, cruds}
             // shape names the segment before the suffix `resourceType`, but for access/ scopes
             // it is actually the security tag/tenant code, not a FHIR resource type.
-            const parsed = parseScopeToken(scope1);
+            const parsed = parseScopeToken(scope1, this.configManager.enableSmartV2CrudsScopes);
             if (parsed && isActionSatisfiedByCruds(parsed.cruds, action)) {
                 access_codes.push(parsed.resourceType);
             }
