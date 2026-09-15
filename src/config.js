@@ -215,6 +215,55 @@ if (env.RESOURCE_HISTORY_MONGO_URL) {
     };
 }
 
+/**
+ * @name fhirNotesMongoConfig
+ * @summary Configuration for the read-only fhir-notes-vector-store Mongo cluster. Absent
+ * `connection` means the feature is not configured in this environment.
+ * @type {{connection: string, db_name: string, collection_name: string, index_name: string, options: import('mongodb').MongoClientOptions }}
+ */
+let fhirNotesMongoConfig = {};
+if (env.FHIR_NOTES_MONGO_URL) {
+    let fhirNotesMongoUrl = env.FHIR_NOTES_MONGO_URL;
+    if (env.FHIR_NOTES_MONGO_USERNAME !== undefined) {
+        fhirNotesMongoUrl = fhirNotesMongoUrl.replace(
+            'mongodb://',
+            `mongodb://${env.FHIR_NOTES_MONGO_USERNAME}:${env.FHIR_NOTES_MONGO_PASSWORD}@`
+        );
+        fhirNotesMongoUrl = fhirNotesMongoUrl.replace(
+            'mongodb+srv://',
+            `mongodb+srv://${env.FHIR_NOTES_MONGO_USERNAME}:${env.FHIR_NOTES_MONGO_PASSWORD}@`
+        );
+    }
+    // url-encode the url
+    fhirNotesMongoUrl = encodeURI(fhirNotesMongoUrl);
+    const fhirNotesQueryParams = getQueryParams(fhirNotesMongoUrl);
+    delete fhirNotesQueryParams.w;
+    fhirNotesMongoConfig = {
+        connection: fhirNotesMongoUrl,
+        db_name: env.FHIR_NOTES_MONGO_DB_NAME ? String(env.FHIR_NOTES_MONGO_DB_NAME) : undefined,
+        collection_name: env.FHIR_NOTES_MONGO_COLLECTION_NAME
+            ? String(env.FHIR_NOTES_MONGO_COLLECTION_NAME)
+            : undefined,
+        index_name: env.FHIR_NOTES_TEXT_SEARCH_INDEX_NAME
+            ? String(env.FHIR_NOTES_TEXT_SEARCH_INDEX_NAME)
+            : undefined,
+        options: {
+            ...options,
+            ...fhirNotesQueryParams,
+            // read-only workload against a dependency-of-a-dependency cluster: small pool,
+            // short timeout so an outage there can't stall fhir-server's primary request path
+            minPoolSize: env.FHIR_NOTES_MIN_POOL_SIZE ? parseInt(env.FHIR_NOTES_MIN_POOL_SIZE) : 1,
+            maxPoolSize: env.FHIR_NOTES_MAX_POOL_SIZE ? parseInt(env.FHIR_NOTES_MAX_POOL_SIZE) : 10,
+            connectTimeoutMS: env.FHIR_NOTES_MONGO_CONNECT_TIMEOUT
+                ? parseInt(env.FHIR_NOTES_MONGO_CONNECT_TIMEOUT)
+                : 5000,
+            serverSelectionTimeoutMS: env.FHIR_NOTES_MONGO_SERVER_SELECTION_TIMEOUT
+                ? parseInt(env.FHIR_NOTES_MONGO_SERVER_SELECTION_TIMEOUT)
+                : 5000
+        }
+    };
+}
+
 // Set up whitelist
 const whitelist_env = (env.WHITELIST && env.WHITELIST.split(',').map((host) => host.trim())) || false;
 
@@ -302,5 +351,6 @@ module.exports = {
     auditEventMongoConfig,
     auditEventReadOnlyMongoConfig,
     accessLogsMongoConfig,
-    resourceHistoryMongoConfig
+    resourceHistoryMongoConfig,
+    fhirNotesMongoConfig
 };
