@@ -236,6 +236,11 @@ module.exports = {
     MCP_REQUEST_INFO_CONTEXT_KEY: 'mcpFhirRequestInfo',
     ACCESS_LOGS_COLLECTION_NAME: 'access-logs',
     ACCESS_LOGS_ENTRY_DATA: 'access-logs-entry-data',
+    // Collection names are derived by ResourceLocator as `${resourceType}_${base_version}` --
+    // these must stay in sync with GROUP_MEMBER_RESOURCE_TYPE, not be renamed independently.
+    GROUP_MEMBER_RESOURCE_TYPE: 'GroupMember',
+    GROUP_MEMBER_COLLECTION_NAME: 'GroupMember_4_0_0',
+    GROUP_MEMBER_HISTORY_COLLECTION_NAME: 'GroupMember_4_0_0_History',
     PATIENT_REFERENCE_PREFIX: 'Patient/',
     PERSON_REFERENCE_PREFIX: 'Person/',
     PERSON_PROXY_PREFIX: 'person.',

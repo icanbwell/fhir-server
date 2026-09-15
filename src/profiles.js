@@ -5856,6 +5856,18 @@ const profiles = {
           route: '/:id/$summary',
           method: 'GET',
           reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
+        },
+        {
+          name: 'member-add',
+          route: '/:id/$member-add',
+          method: 'POST',
+          reference: 'https://hl7.org/fhir/us/davinci-atr/'
+        },
+        {
+          name: 'member-remove',
+          route: '/:id/$member-remove',
+          method: 'POST',
+          reference: 'https://hl7.org/fhir/us/davinci-atr/'
         }
       ]
     },

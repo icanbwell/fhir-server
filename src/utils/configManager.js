@@ -1302,6 +1302,17 @@ class ConfigManager {
     }
 
     /**
+     * Enables the MongoDB-native large-Group member storage: the Group_Member_4_0_0 /
+     * Group_Member_4_0_0_History collections and the $member-add / $member-remove operations.
+     * Default: false. Independent of enableClickHouse -- a Group is tracked by at most one of
+     * the two external-storage mechanisms, never both.
+     * @returns {boolean}
+     */
+    get enableMongoGroupMembers() {
+        return isTrue(env.ENABLE_MONGO_GROUP_MEMBERS);
+    }
+
+    /**
      * ClickHouse request timeout in milliseconds
      * Default: 180000ms (3 minutes) for large batch inserts
      * @returns {number}

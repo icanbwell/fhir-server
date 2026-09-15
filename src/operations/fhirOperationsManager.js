@@ -11,6 +11,7 @@ const {SearchByVersionIdOperation} = require('./searchByVersionId/searchByVersio
 const {HistoryOperation} = require('./history/history');
 const {HistoryByIdOperation} = require('./historyById/historyById');
 const {PatchOperation} = require('./patch/patch');
+const {GroupMemberWriteOperation} = require('./group/groupMemberWriteOperation');
 const {ValidateOperation} = require('./validate/validate');
 const {GraphOperation} = require('./graph/graph');
 const {get_all_args} = require('./common/get_all_args');
@@ -102,7 +103,8 @@ class FhirOperationsManager {
             accessManager,
             cmsManager,
             accessHistoryOperation,
-            customTracer
+            customTracer,
+            groupMemberWriteOperation
         }
     ) {
         /**
@@ -170,6 +172,11 @@ class FhirOperationsManager {
          */
         this.patchOperation = patchOperation;
         assertTypeEquals(patchOperation, PatchOperation);
+        /**
+         * @type {GroupMemberWriteOperation}
+         */
+        this.groupMemberWriteOperation = groupMemberWriteOperation;
+        assertTypeEquals(groupMemberWriteOperation, GroupMemberWriteOperation);
         /**
          * @type {ValidateOperation}
          */
@@ -931,6 +938,44 @@ class FhirOperationsManager {
                 resourceType
             }
         );
+    }
+
+    /**
+     * does a FHIR $member-add on Group
+     * @param {Object} args
+     * @param {import('http').IncomingMessage} req
+     * @param {string} resourceType
+     */
+    async memberAdd(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'memberAdd' });
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
+        });
+        return await this.groupMemberWriteOperation.addAsync({
+            requestInfo, parsedArgs, resourceType, resource: args.resource
+        });
+    }
+
+    /**
+     * does a FHIR $member-remove on Group
+     * @param {Object} args
+     * @param {import('http').IncomingMessage} req
+     * @param {string} resourceType
+     */
+    async memberRemove(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'memberRemove' });
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
+        });
+        return await this.groupMemberWriteOperation.removeAsync({
+            requestInfo, parsedArgs, resourceType, resource: args.resource
+        });
     }
 
     /**

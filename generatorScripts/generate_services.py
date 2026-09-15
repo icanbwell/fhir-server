@@ -65,6 +65,19 @@ def main() -> int:
                 "          method: 'GET',\n"
                 "          reference: 'https://www.hl7.org/fhir/security.html'\n"
                 "        }") if resourceType == 'Person' else ""
+            group_operations = (",\n"
+                "        {\n"
+                "          name: 'member-add',\n"
+                "          route: '/:id/$member-add',\n"
+                "          method: 'POST',\n"
+                "          reference: 'https://hl7.org/fhir/us/davinci-atr/'\n"
+                "        },\n"
+                "        {\n"
+                "          name: 'member-remove',\n"
+                "          route: '/:id/$member-remove',\n"
+                "          method: 'POST',\n"
+                "          reference: 'https://hl7.org/fhir/us/davinci-atr/'\n"
+                "        }") if resourceType == 'Group' else ""
             config_entries.append(f"""
     {resourceType}: {{
       service: './src/services/{resourceType.lower()}/{resourceType.lower()}.service.js',
@@ -159,7 +172,7 @@ def main() -> int:
           route: '/:id/$summary',
           method: 'GET',
           reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
-        }}{person_operations}
+        }}{person_operations}{group_operations}
       ]
     }},""")
         else:

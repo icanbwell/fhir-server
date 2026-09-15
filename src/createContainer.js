@@ -36,6 +36,8 @@ const {SearchByVersionIdOperation} = require('./operations/searchByVersionId/sea
 const {HistoryByIdOperation} = require('./operations/historyById/historyById');
 const {HistoryOperation} = require('./operations/history/history');
 const {PatchOperation} = require('./operations/patch/patch');
+const {GroupMemberWriteOperation} = require('./operations/group/groupMemberWriteOperation');
+const {MongoGroupMemberRepository} = require('./dataLayer/repositories/mongoGroupMemberRepository');
 const {ValidateOperation} = require('./operations/validate/validate');
 const {GraphOperation} = require('./operations/graph/graph');
 const {ExpandOperation} = require('./operations/expand/expand');
@@ -971,6 +973,23 @@ const createContainer = function () {
             identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
+    container.register('mongoGroupMemberRepository', (c) => new MongoGroupMemberRepository(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            databaseBulkInserter: c.databaseBulkInserter
+        }
+    ));
+    container.register('groupMemberWriteOperation', (c) => new GroupMemberWriteOperation(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            scopesValidator: c.scopesValidator,
+            searchManager: c.searchManager,
+            resourceMerger: c.resourceMerger,
+            databaseBulkInserter: c.databaseBulkInserter,
+            configManager: c.configManager,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
+        }
+    ));
     container.register('validateOperation', (c) => new ValidateOperation(
         {
             scopesManager: c.scopesManager,
@@ -1055,6 +1074,7 @@ const createContainer = function () {
                 historyOperation: c.historyOperation,
                 historyByIdOperation: c.historyByIdOperation,
                 patchOperation: c.patchOperation,
+                groupMemberWriteOperation: c.groupMemberWriteOperation,
                 validateOperation: c.validateOperation,
                 graphOperation: c.graphOperation,
                 expandOperation: c.expandOperation,
