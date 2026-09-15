@@ -101,6 +101,35 @@ describe('ScopesManager', () => {
             expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'system/*.*')).toEqual([]);
             expect(scopesManager.getAccessCodesFromScopes('write', 'testUser', 'system/*.*')).toEqual([]);
         });
+
+        // v2 (CRUDS) grammar support (DCON-5557 phase 1) -- a v2 access/ scope is recognized
+        // and its granted CRUDS letters checked against the legacy 'read'/'write' action every
+        // call site still passes.
+        test('extracts access codes from a v2 access/ scope whose letters satisfy the action', () => {
+            expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'access/client.rs')).toEqual(['client']);
+            expect(scopesManager.getAccessCodesFromScopes('write', 'testUser', 'access/client.cud')).toEqual(['client']);
+        });
+
+        test('does NOT extract access codes from a v2 access/ scope whose letters do not satisfy the action', () => {
+            expect(scopesManager.getAccessCodesFromScopes('write', 'testUser', 'access/client.rs')).toEqual([]);
+            expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'access/client.cud')).toEqual([]);
+        });
+
+        test('a v2 access/ scope granting the full cruds set satisfies both read and write, like * does today', () => {
+            expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'access/client.cruds')).toEqual(['client']);
+            expect(scopesManager.getAccessCodesFromScopes('write', 'testUser', 'access/client.cruds')).toEqual(['client']);
+        });
+
+        test('drops a malformed access/ suffix without throwing, same as an unrecognized v1 action does today', () => {
+            expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'access/client.bogus')).toEqual([]);
+        });
+
+        test('a request mixing v1 and v2 access/ scopes resolves both independently', () => {
+            const result = scopesManager.getAccessCodesFromScopes(
+                'read', 'testUser', 'access/tenantA.read access/tenantB.rs access/tenantC.write'
+            );
+            expect(result).toEqual(['tenantA', 'tenantB']);
+        });
     });
 
     describe('doesResourceHaveAnyAccessCodeFromThisList', () => {
