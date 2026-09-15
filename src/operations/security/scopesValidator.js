@@ -85,7 +85,7 @@ class ScopesValidator {
             return {success: false, error: new Error(`Invalid accessRequested: ${accessRequested}`)};
         }
         const success = (scopes || []).some((scopeToken) => {
-            const parsed = parseScopeToken(scopeToken);
+            const parsed = parseScopeToken(scopeToken, this.configManager.enableSmartV2CrudsScopes);
             return !!parsed &&
                 (parsed.resourceType === '*' || parsed.resourceType === resourceType) &&
                 isCrudsRequirementSatisfied(parsed.cruds, requiredCruds);

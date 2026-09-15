@@ -246,7 +246,16 @@ describe('ScopesValidator', () => {
         });
     });
 
-    describe('isScopesValidAsync - granular per-interaction CRUDS (DCON-5557 phase 2)', () => {
+    describe('isScopesValidAsync - granular per-interaction CRUDS', () => {
+        // These scope tokens use v2 grammar (single/combined CRUDS letters), which is gated
+        // behind enableSmartV2CrudsScopes (default off, see configManager.js) -- turn it on for
+        // this block so the tests below exercise the granular gate itself.
+        beforeEach(() => {
+            Object.defineProperty(mockConfigManager, 'enableSmartV2CrudsScopes', {
+                value: true, configurable: true
+            });
+        });
+
         // A token holding only the 'r' letter (instance read) grants searchById (requires 'r')
         // but not a type-level search (requires 's') -- the doc's own worked example.
         test('user/Patient.r passes searchById but fails search', async () => {
@@ -384,6 +393,16 @@ describe('ScopesValidator', () => {
             });
             expect(result.success).toBe(false);
             expect(result.error).toBeInstanceOf(Error);
+        });
+
+        // enableSmartV2CrudsScopes defaults off (mockConfigManager reads the real getter, which
+        // falls back to false with no env var set) -- a v2-grammar scope must not match at all,
+        // matching this server's original behavior.
+        test('a v2 scope does NOT match when enableSmartV2CrudsScopes is disabled (default)', () => {
+            const result = scopesValidator.evaluateResourceTypeScopeMatch({
+                scopes: ['user/Patient.r'], resourceType: 'Patient', accessRequested: 'r'
+            });
+            expect(result.success).toBe(false);
         });
     });
 
