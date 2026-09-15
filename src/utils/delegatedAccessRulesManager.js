@@ -450,53 +450,54 @@ class DelegatedAccessRulesManager {
      */
     async resolveConsentPurposeCodesAsync({ consentReference, base_version }) {
         try {
-            const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(consentReference);
-            if (!id) {
-                return null;
-            }
+            return await this.customTracer.trace({
+                name: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync',
+                func: async () => {
+                    const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(consentReference);
+                    if (!id) {
+                        return null;
+                    }
 
-            // Mirrors the by-reference lookup convention used elsewhere (e.g.
-            // resourceValidator.validateNewPersonLinkTargetsBelongToCallersTenant): a reference
-            // that names its target explicitly (UUID, or bare id + explicit authority) resolves
-            // to exactly one resource by construction.
-            let query;
-            if (isUuid(id)) {
-                query = { _uuid: id };
-            } else if (sourceAssigningAuthority) {
-                query = { _uuid: generateUUIDv5(`${id}|${sourceAssigningAuthority}`) };
-            } else {
-                query = { id };
-            }
+                    let query;
+                    if (isUuid(id)) {
+                        query = { _uuid: id };
+                    } else if (sourceAssigningAuthority) {
+                        query = { _uuid: generateUUIDv5(`${id}|${sourceAssigningAuthority}`) };
+                    } else {
+                        query = { _sourceId: id };
+                    }
 
-            const databaseQueryManager = this.databaseQueryFactory.createQuery({
-                resourceType: 'Consent',
-                base_version
+                    const databaseQueryManager = this.databaseQueryFactory.createQuery({
+                        resourceType: 'Consent',
+                        base_version
+                    });
+                    const cursor = await databaseQueryManager.findAsync({ query });
+                    cursor.maxTimeMS({ milliSecs: this.configManager.mongoTimeout });
+                    const consents = await cursor.toArrayAsync();
+
+                    if (consents.length === 0) {
+                        logWarn(`Consent referenced by entitlements could not be resolved: ${consentReference}`, {
+                            source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync'
+                        });
+                        return null;
+                    }
+
+                    // Bare, authority-less id is ambiguous across tenants -- never substitute an
+                    // arbitrary match's purpose codes; fail closed like getFilteringRulesAsync does.
+                    if (consents.length > 1) {
+                        logWarn(`Consent referenced by entitlements is ambiguous (${consents.length} matches): ${consentReference}`, {
+                            source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync'
+                        });
+                        return null;
+                    }
+
+                    const [consent] = consents;
+                    const purposeCodings = consent.provision?.purpose;
+                    return Array.isArray(purposeCodings)
+                        ? purposeCodings.map(coding => coding?.code).filter(Boolean)
+                        : [];
+                }
             });
-            const cursor = await databaseQueryManager.findAsync({ query });
-            cursor.maxTimeMS({ milliSecs: this.configManager.mongoTimeout });
-            const consents = await cursor.toArrayAsync();
-
-            if (consents.length === 0) {
-                logWarn(`Consent referenced by entitlements could not be resolved: ${consentReference}`, {
-                    source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync'
-                });
-                return null;
-            }
-
-            // Bare, authority-less id is ambiguous across tenants -- never substitute an
-            // arbitrary match's purpose codes; fail closed like getFilteringRulesAsync does.
-            if (consents.length > 1) {
-                logWarn(`Consent referenced by entitlements is ambiguous (${consents.length} matches): ${consentReference}`, {
-                    source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync'
-                });
-                return null;
-            }
-
-            const [consent] = consents;
-            const purposeCodings = consent.provision?.purpose;
-            return Array.isArray(purposeCodings)
-                ? purposeCodings.map(coding => coding?.code).filter(Boolean)
-                : [];
         } catch (error) {
             logWarn(`Error resolving Consent referenced by entitlements: ${consentReference}`, {
                 source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync',

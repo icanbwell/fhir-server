@@ -771,7 +771,7 @@ describe('DelegatedAccessRulesManager', () => {
             });
 
             expect(result).toBeNull();
-            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({ query: { id: 'shared-bare-id' } });
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({ query: { _sourceId: 'shared-bare-id' } });
             expect(logWarn).toHaveBeenCalled();
         });
 
@@ -820,7 +820,7 @@ describe('DelegatedAccessRulesManager', () => {
             });
         });
 
-        it('should query by bare id when there is no uuid and no sourceAssigningAuthority', async () => {
+        it('should query by _sourceId when there is no uuid and no sourceAssigningAuthority', async () => {
             ReferenceParser.parseReference.mockReturnValue({
                 id: 'raw-id-456',
                 resourceType: 'Consent',
@@ -839,7 +839,7 @@ describe('DelegatedAccessRulesManager', () => {
             });
 
             expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({
-                query: { id: 'raw-id-456' }
+                query: { _sourceId: 'raw-id-456' }
             });
         });
 
