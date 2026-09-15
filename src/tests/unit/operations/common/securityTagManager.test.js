@@ -171,13 +171,15 @@ describe('SecurityTagManager', () => {
         });
     });
 
-    describe('getSecurityTagsFromScope - end-to-end with a real ScopesManager (DCON-5557 phase 3)', () => {
+    describe('getSecurityTagsFromScope - end-to-end with a real ScopesManager', () => {
         let realScopesManager;
         let securityTagManagerWithRealScopesManager;
 
         beforeEach(() => {
+            // enableSmartV2CrudsScopes defaults off (see configManager.js) -- this block
+            // exercises the v2-grammar path itself, so turn it on explicitly.
             realScopesManager = new ScopesManager({
-                configManager: {},
+                configManager: { enableSmartV2CrudsScopes: true },
                 patientFilterManager: {}
             });
             securityTagManagerWithRealScopesManager = new SecurityTagManager({
