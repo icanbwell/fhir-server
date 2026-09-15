@@ -409,7 +409,7 @@ class MergeManager {
                         resourceType: resourceToMerge.resourceType,
                         id: resourceToMerge.id,
                         sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                        error: { name: e.name }
+                        error: e
                     }
                 }
             );
@@ -684,7 +684,7 @@ class MergeManager {
             );
         } catch (e) {
             throw new RethrownError({
-                message: `Error updating: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error updating: resource_uuid=${resourceToMerge._uuid}`,
                 error: e
             });
         }
@@ -726,7 +726,7 @@ class MergeManager {
             );
         } catch (e) {
             throw new RethrownError({
-                message: `Error inserting: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error inserting: resource_uuid=${resourceToMerge._uuid}`,
                 error: e
             });
         }
@@ -838,7 +838,7 @@ class MergeManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: `Error pre merge checks: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error pre merge checks: resource_uuid=${resourceToMerge._uuid}`,
                 error: e
             });
         }
