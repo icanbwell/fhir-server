@@ -141,7 +141,7 @@ class GenericController {
                         res
                     },
                     resourceType);
-                this.fhirResponseWriter.readOne({ req, res, resource });
+                await this.fhirResponseWriter.readOne({ req, res, resource });
             } catch (e) {
                 next(e);
             } finally {
@@ -175,7 +175,7 @@ class GenericController {
                     },
                     resourceType
                 );
-                this.fhirResponseWriter.readOne({ req, res, resource });
+                await this.fhirResponseWriter.readOne({ req, res, resource });
             } catch (e) {
                 next(e);
             } finally {

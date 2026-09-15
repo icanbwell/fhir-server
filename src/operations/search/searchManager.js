@@ -35,6 +35,8 @@ const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { PatientScopeManager } = require('../security/patientScopeManager');
 const { PatientQueryCreator } = require('../common/patientQueryCreator');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
+const { ClinicalNoteSearchClient } = require('../../utils/clinicalNoteSearchClient');
+const { FilterById } = require('../query/filters/id');
 const {
     DB_SEARCH_LIMIT_FOR_IDS,
     DB_SEARCH_LIMIT,
@@ -43,7 +45,8 @@ const {
     BLOB_OP,
     AUTH_USER_TYPES,
     UNSUPPORTED_SORT_FIELDS,
-    CUSTOM_SORT_FIELDS
+    CUSTOM_SORT_FIELDS,
+    FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES
 } = require('../../constants');
 
 class SearchManager {
@@ -67,6 +70,7 @@ class SearchManager {
      * @param {PatientScopeManager} patientScopeManager
      * @param {PatientQueryCreator} patientQueryCreator
      * @param {SearchParametersManager} searchParametersManager
+     * @param {ClinicalNoteSearchClient} clinicalNoteSearchClient
      */
     constructor (
         {
@@ -87,7 +91,8 @@ class SearchManager {
             atlasSearchQueryBuilder,
             patientScopeManager,
             patientQueryCreator,
-            searchParametersManager
+            searchParametersManager,
+            clinicalNoteSearchClient
         }
     ) {
         /**
@@ -192,6 +197,89 @@ class SearchManager {
          */
         this.searchParametersManager = searchParametersManager;
         assertTypeEquals(searchParametersManager, SearchParametersManager);
+
+        /**
+         * @type {ClinicalNoteSearchClient}
+         */
+        this.clinicalNoteSearchClient = clinicalNoteSearchClient;
+        assertTypeEquals(clinicalNoteSearchClient, ClinicalNoteSearchClient);
+    }
+
+    /**
+     * Resolves the `_content` search parameter (if present) into an `_id`-shaped Mongo filter by
+     * delegating candidate lookup to fhir-notes-vector-store's Atlas Search index. The returned
+     * filter is meant to be AND'd into the request's normal query via
+     * `this.r4SearchQueryCreator.appendAndQuery` -- every candidate id still passes through the
+     * same tenant/patient/access-tag scoping every other search parameter goes through.
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.operation `'READ'|'WRITE'|'DELETE'` (any casing) -- `_content` only
+     *   applies to read/search operations, see below
+     * @param {boolean|undefined} [params.useHistoryTable]
+     * @param {string[]|undefined} [params.patientIds] The caller's already-resolved patient-scope
+     *   id list (from `patientScopeManager.getPatientIdsFromScopeAsync`), if this is a
+     *   patient-scoped request -- never derived from a raw request param, so a caller can't widen
+     *   it. Passed through to the vector-store query as a defense-in-depth pre-filter; absent for
+     *   tenant/service-account callers, who have no such bounded id list to narrow by.
+     * @returns {Promise<import('mongodb').Document|null>} null when `_content` is absent
+     */
+    async buildContentSearchIdFilterAsync ({ resourceType, parsedArgs, operation, useHistoryTable, patientIds }) {
+        const contentArg = parsedArgs.get('_content');
+        if (!contentArg) {
+            return null;
+        }
+        if (!this.configManager.fhirNotesFullTextSearchConfigured) {
+            // The feature is off (the default posture). `_content` is a recognized-but-unresolved
+            // search parameter in that case -- silently ignored for every resourceType, matching
+            // `_content`'s behavior on main today (before this feature existed at all).
+            return null;
+        }
+        if (String(operation).toUpperCase() !== 'READ') {
+            // constructQueryAsync is also the query builder for update/patch/remove. Never let a
+            // full-text hit against an external, staleable index gate a WRITE/DELETE -- the design
+            // scoped `_content` to search/read only. Silently ignored here (not a BadRequestError)
+            // for the same reason the feature-off case above is silent: a caller conditionally
+            // deleting/patching by other search params shouldn't have that request rejected just
+            // because they also (irrelevantly) passed `_content`.
+            return null;
+        }
+        if (useHistoryTable) {
+            // History documents nest the resource under a `resource.` prefix (see fieldMapper.js).
+            // FilterById.getListFilter always builds a non-history field mapping, so an `_id`/
+            // `_uuid` filter built here would target the wrong path on the history collection and
+            // silently match nothing -- i.e. "no candidates found" would look identical to "found
+            // candidates but the filter path was wrong", which is exactly the fail-open shape
+            // review.md warns about. Ignore `_content` on history reads until that's supported.
+            return null;
+        }
+        if (!FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.includes(resourceType)) {
+            throw new BadRequestError(new Error(
+                `_content search is not supported for resourceType=${resourceType}. ` +
+                `Supported types: ${FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.join(', ')}`
+            ));
+        }
+        const contentQuery = contentArg.queryParameterValue.value;
+        if (Array.isArray(contentQuery)) {
+            throw new BadRequestError(new Error(
+                '_content does not support multiple repeated values'
+            ));
+        }
+        const candidateIds = await this.clinicalNoteSearchClient.findMatchingResourceIdsAsync({
+            resourceType,
+            contentQuery,
+            patientIds: patientIds && patientIds.length > 0 ? patientIds : undefined
+        });
+        if (candidateIds.length === 0) {
+            // FilterById.getListFilter([]) returns {_uuid: {$in: []}}, but MongoQuerySimplifier
+            // deletes empty $in arrays (and the now-empty parent clauses around them), which would
+            // silently erase this filter and turn a zero-match _content search into "no filter,
+            // return everything". Use the same __invalid__ sentinel the codebase already uses
+            // elsewhere (e.g. patientQueryCreator.js, dataSharingManager.js) for "return nothing" --
+            // it survives simplification because it can never match a real _uuid.
+            return { _uuid: '__invalid__' };
+        }
+        return FilterById.getListFilter(candidateIds);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -247,6 +335,32 @@ class SearchManager {
             const { base_version } = parsedArgs;
             assertIsValid(base_version, 'base_version is not set');
             const accessViaPatientScopes = this.scopesManager.isAccessAllowedByPatientScopes({ scope, resourceType });
+            /**
+             * Resolved ahead of buildContentSearchIdFilterAsync (rather than only inside the
+             * accessViaPatientScopes branch below, where it used to live) so `_content` can use
+             * this same, already-authorized id list as a vector-store pre-filter -- never a raw
+             * request param, so a caller can't widen it. `getPatientIdsFromScopeAsync` is
+             * idempotent per request; resolving it once here and reusing it below avoids a
+             * second, redundant resolution.
+             * @type {string[]|undefined}
+             */
+            let allPatientIdsFromJwtToken;
+            if (accessViaPatientScopes) {
+                allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
+                    base_version,
+                    isUser,
+                    personIdFromJwtToken,
+                    addPersonOwnerToContext,
+                    // Apply the caller's access-tag security filter while traversing Person.link so a
+                    // Person/Patient reachable only via a cross-tenant link on the caller's own Person
+                    // is not silently included in the patient-scope filter. Only supplied when we have
+                    // a real user identity to check against (see getSecurityTagsFromScope).
+                    requestInfo: typeof user === 'string' && scope ? { user, scope } : undefined
+                });
+            }
+            const contentSearchIdFilter = await this.buildContentSearchIdFilterAsync({
+                resourceType, parsedArgs, operation, useHistoryTable, patientIds: allPatientIdsFromJwtToken
+            });
 
             /**
              * @type {string[]}
@@ -277,22 +391,12 @@ class SearchManager {
                 isUser
             }));
 
+            if (contentSearchIdFilter) {
+                query = this.r4SearchQueryCreator.appendAndQuery({ query, andQuery: contentSearchIdFilter });
+            }
+
             if (accessViaPatientScopes) {
                 shouldUpdateColumns = true;
-                /**
-                 * @type {string[]}
-                 */
-                const allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                    base_version,
-                    isUser,
-                    personIdFromJwtToken,
-                    addPersonOwnerToContext,
-                    // Apply the caller's access-tag security filter while traversing Person.link so a
-                    // Person/Patient reachable only via a cross-tenant link on the caller's own Person
-                    // is not silently included in the patient-scope filter. Only supplied when we have
-                    // a real user identity to check against (see getSecurityTagsFromScope).
-                    requestInfo: typeof user === 'string' && scope ? { user, scope } : undefined
-                });
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
                     allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {
