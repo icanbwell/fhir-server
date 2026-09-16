@@ -19,7 +19,7 @@ const {
 /**
  * Happy-path coverage for DCON-5527's $member-add / $member-remove on Group:
  * - an embedded Group (default regime), mutating member[] inline
- * - an extended Group (groupMemberStorage|extended tag), writing through to the
+ * - an extended Group (groupSize|extended tag), writing through to the
  *   GroupMember_4_0_0 / GroupMember_4_0_0_History collections
  */
 describe('Group $member-add / $member-remove', () => {
@@ -98,11 +98,13 @@ describe('Group $member-add / $member-remove', () => {
             .set(getHeaders());
 
         expect(removeResp).toHaveStatusCode(200);
+        // embedded regime: $member-remove hard-removes the entry from member[] entirely
         const removedMember = removeResp.body.member.find((m) => m.entity.reference === newMemberRef);
-        expect(removedMember.inactive).toBe(true);
+        expect(removedMember).toBeUndefined();
 
-        // the untouched, pre-existing member stays active
+        // the untouched, pre-existing member stays active and stays in the array
         const untouchedMember = removeResp.body.member.find((m) => m.entity.reference === existingMemberRef);
+        expect(untouchedMember).toBeDefined();
         expect(untouchedMember.inactive).toBeFalsy();
     });
 
@@ -177,5 +179,124 @@ describe('Group $member-add / $member-remove', () => {
         const historyAfterRemove = await historyCollection.find({ 'resource.groupUuid': groupUuid }).toArray();
         expect(historyAfterRemove).toHaveLength(2);
         expect(historyAfterRemove.map((h) => h.resource.operation).sort()).toEqual(['create', 'deactivate']);
+    });
+
+    test('member-add and member-remove are not registered for a non-Group resourceType', async () => {
+        const request = await createTestRequest();
+        const patientId = 'not-a-group';
+
+        const createResp = await request
+            .post('/4_0_0/Patient')
+            .send({
+                resourceType: 'Patient',
+                id: patientId,
+                meta: baseGroupMeta()
+            })
+            .set(getHeaders());
+        expect(createResp).toHaveStatusCode(201);
+
+        const addResp = await request
+            .post(`/4_0_0/Patient/${patientId}/$member-add`)
+            .send({
+                resourceType: 'Parameters',
+                parameter: [
+                    { name: 'member', valueReference: { reference: 'Patient/some-other-patient' } }
+                ]
+            })
+            .set(getHeaders());
+        // the route itself only exists on Group's operation list (see generate_services.py) --
+        // Express never reaches GroupMemberWriteOperation's own resourceType==='Group' assertion
+        expect(addResp).toHaveStatusCode(404);
+
+        const removeResp = await request
+            .post(`/4_0_0/Patient/${patientId}/$member-remove`)
+            .send({
+                resourceType: 'Parameters',
+                parameter: [
+                    { name: 'member', valueReference: { reference: 'Patient/some-other-patient' } }
+                ]
+            })
+            .set(getHeaders());
+        expect(removeResp).toHaveStatusCode(404);
+    });
+
+    test('member-add on an extended Group is rejected when ENABLE_EXTENDED_GROUP is disabled', async () => {
+        const request = await createTestRequest();
+        const groupId = 'extended-group-flag-disabled';
+        const memberRef = 'Patient/flag-disabled-member';
+
+        const createResp = await request
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                id: groupId,
+                meta: baseGroupMeta([
+                    { system: MONGO_GROUP_MEMBER_TAG_SYSTEM, code: MONGO_GROUP_MEMBER_TAG_CODE }
+                ]),
+                type: 'person',
+                actual: true
+            })
+            .set(getHeaders());
+        expect(createResp).toHaveStatusCode(201);
+
+        const previousValue = process.env.ENABLE_EXTENDED_GROUP;
+        delete process.env.ENABLE_EXTENDED_GROUP;
+        try {
+            const addResp = await request
+                .post(`/4_0_0/Group/${groupId}/$member-add`)
+                .send({
+                    resourceType: 'Parameters',
+                    parameter: [
+                        { name: 'member', valueReference: { reference: memberRef } }
+                    ]
+                })
+                .set(getHeaders());
+            expect(addResp).toHaveStatusCode(400);
+        } finally {
+            process.env.ENABLE_EXTENDED_GROUP = previousValue;
+        }
+    });
+
+    test('member-add with more member parameters than the op-count limit is rejected as too-costly', async () => {
+        const request = await createTestRequest();
+        const container = getTestContainer();
+        const groupId = 'member-add-over-op-limit';
+
+        const createResp = await request
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                id: groupId,
+                meta: baseGroupMeta(),
+                type: 'person',
+                actual: true
+            })
+            .set(getHeaders());
+        expect(createResp).toHaveStatusCode(201);
+
+        const previousLimit = process.env.GROUP_PATCH_OPERATIONS_LIMIT;
+        process.env.GROUP_PATCH_OPERATIONS_LIMIT = '3';
+        try {
+            const addResp = await request
+                .post(`/4_0_0/Group/${groupId}/$member-add`)
+                .send({
+                    resourceType: 'Parameters',
+                    parameter: Array.from({ length: 4 }, (_, i) => ({
+                        name: 'member',
+                        valueReference: { reference: `Patient/over-limit-member-${i}` }
+                    }))
+                })
+                .set(getHeaders());
+            expect(addResp).toHaveStatusCode(400);
+            expect(addResp.body.issue[0].code).toBe('too-costly');
+            expect(addResp.body.issue[0].diagnostics).toContain('4 > 3');
+
+            // the rejected request must not have partially applied -- no members present at all
+            const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
+            const groupDoc = await fhirDb.collection('Group_4_0_0').findOne({ id: groupId });
+            expect(groupDoc.member || []).toHaveLength(0);
+        } finally {
+            process.env.GROUP_PATCH_OPERATIONS_LIMIT = previousLimit;
+        }
     });
 });

@@ -5,7 +5,7 @@ const { generateUUIDv5 } = require('./uid.util');
 // Deliberately a different system/code pair than clickHouseGroupPreSave's
 // externalStorageFields|member tag -- the two external-storage mechanisms for Group.member
 // share no tag value, so a Group is never ambiguously tracked by both at once.
-const MONGO_GROUP_MEMBER_TAG_SYSTEM = 'https://www.icanbwell.com/groupMemberStorage';
+const MONGO_GROUP_MEMBER_TAG_SYSTEM = 'https://www.icanbwell.com/groupSize';
 const MONGO_GROUP_MEMBER_TAG_CODE = 'extended';
 
 /**
@@ -22,7 +22,7 @@ function isGroupExtended(doc) {
 }
 
 /**
- * Adds the groupMemberStorage|extended tag to meta.tag on a Group resource if not already
+ * Adds the groupSize|extended tag to meta.tag on a Group resource if not already
  * present. Permanent -- once set, never removed. Idempotent.
  *
  * @param {Resource} doc - The Group resource being promoted

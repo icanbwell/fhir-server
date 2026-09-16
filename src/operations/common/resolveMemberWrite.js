@@ -20,9 +20,14 @@ function stripUndefined(obj) {
 /**
  * Resolves a single member event (add/remove) against the current membership, if any, into
  * the four-way add state table (create/reactivate/update/none) plus soft-remove (deactivate/
- * none). Shared by both storage regimes -- the Mongo-native Group_Member repository and the
- * embedded Group.member[] array -- so $member-add / $member-remove behave identically
- * regardless of which regime a Group is in.
+ * none).
+ *
+ * Add semantics are shared by both storage regimes -- the Mongo-native Group_Member repository
+ * and the embedded Group.member[] array. Remove semantics (the 'deactivate' classification) are
+ * only used by the Mongo-native regime, whose GroupMember_4_0_0_History collection needs every
+ * row retained for point-in-time reconstruction (DCON-5530); the embedded regime hard-removes
+ * the array entry instead, bypassing this function entirely for remove events -- see
+ * embeddedGroupMemberWriter.js.
  *
  * Fields the event does not supply are carried forward from the existing membership rather
  * than wiped, so a bare re-add/remove never erases period/type/display set by an earlier call.

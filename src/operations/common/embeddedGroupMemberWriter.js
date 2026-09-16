@@ -1,10 +1,17 @@
 const { resolveMemberWrite } = require('./resolveMemberWrite');
 
 /**
- * Applies $member-add / $member-remove events to an embedded Group.member[] array, using the
- * same four-way state table as the Mongo-native regime (create/reactivate/update/none, plus
- * soft deactivate) so callers see identical semantics regardless of which storage regime a
- * given Group is in.
+ * Applies $member-add / $member-remove events to an embedded Group.member[] array.
+ *
+ * Add semantics reuse resolveMemberWrite's four-way state table (create/reactivate/update/none),
+ * shared with the Mongo-native regime. Remove semantics deliberately diverge by regime: the
+ * embedded regime hard-removes the entry from member[] (splice), matching this codebase's
+ * pre-existing Group.member manipulation behavior (a standard JSON Patch "remove" op already
+ * deletes the array entry outright) -- there's no GroupMember history collection backing an
+ * embedded Group, so there's nothing that needs the row retained. The Mongo-native regime still
+ * soft-removes (inactive: true, row + history retained) via resolveMemberWrite's 'deactivate'
+ * classification, since GroupMember_4_0_0_History's point-in-time reconstruction (DCON-5530)
+ * depends on every row surviving indefinitely.
  *
  * Returns plain objects, not GroupMember backbone-element instances: Group.member's own setter
  * already normalizes plain objects via FhirResourceCreator, so pre-wrapping here would just be
@@ -12,7 +19,7 @@ const { resolveMemberWrite } = require('./resolveMemberWrite');
  *
  * @param {Array<Object>|undefined} existingMembers
  * @param {Array<{entity: {reference:string, type:string|undefined, display:string|undefined}, period:Object|undefined, op:'add'|'remove'}>} events
- * @returns {{members: Array<Object>, outcomes: Array<{reference:string, operation:'create'|'reactivate'|'update'|'deactivate'|'none'}>}}
+ * @returns {{members: Array<Object>, outcomes: Array<{reference:string, operation:'create'|'reactivate'|'update'|'remove'|'none'}>}}
  */
 function applyEventsToEmbeddedMembers(existingMembers, events) {
     const members = (existingMembers || []).map((m) => (m.toJSONInternal ? m.toJSONInternal() : m));
@@ -22,8 +29,24 @@ function applyEventsToEmbeddedMembers(existingMembers, events) {
     for (const event of events) {
         const reference = event.entity.reference;
         const index = indexByReference.get(reference);
-        const existingMember = index !== undefined ? members[index] : undefined;
 
+        if (event.op === 'remove') {
+            if (index === undefined) {
+                outcomes.push({ reference, operation: 'none' });
+                continue;
+            }
+            members.splice(index, 1);
+            indexByReference.delete(reference);
+            for (const [ref, i] of indexByReference) {
+                if (i > index) {
+                    indexByReference.set(ref, i - 1);
+                }
+            }
+            outcomes.push({ reference, operation: 'remove' });
+            continue;
+        }
+
+        const existingMember = index !== undefined ? members[index] : undefined;
         const { classification, member } = resolveMemberWrite(existingMember, event);
         outcomes.push({ reference, operation: classification });
 

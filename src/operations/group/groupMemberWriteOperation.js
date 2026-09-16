@@ -7,6 +7,7 @@ const { ResourceMerger } = require('../common/resourceMerger');
 const { ConfigManager } = require('../../utils/configManager');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const { BadRequestError, NotFoundError } = require('../../utils/httpErrors');
+const { createTooCostlyError } = require('../../utils/fhirErrorFactory');
 const { WRITE } = require('../../constants').OPERATIONS;
 const Group = require('../../fhir/classes/4_0_0/resources/group');
 const { isGroupExtended } = require('../../utils/mongoGroupExtendedTag');
@@ -147,6 +148,16 @@ class GroupMemberWriteOperation {
             ));
         }
 
+        // Reject rather than fall back to the embedded regime: a Group already tagged extended
+        // has its roster (or part of it) in GroupMember_4_0_0, so writing member[] inline here
+        // would silently split the roster across both storage locations.
+        if (isGroupExtended(foundResource) && !this.configManager.enableExtendedGroup) {
+            throw new BadRequestError(new Error(
+                `Group ${id} uses extended member storage, which is disabled on this server ` +
+                '(ENABLE_EXTENDED_GROUP is not set).'
+            ));
+        }
+
         const sourceAssigningAuthority = foundResource._sourceAssigningAuthority;
         if (!sourceAssigningAuthority) {
             throw new Error(
@@ -155,6 +166,19 @@ class GroupMemberWriteOperation {
         }
 
         const events = parseMemberParametersResource(resource, op);
+        
+        const memberOperationsLimit = this.configManager.groupPatchOperationsLimit;
+        if (events.length > memberOperationsLimit) {
+            const batchCount = Math.ceil(events.length / memberOperationsLimit);
+            const { message, options } = createTooCostlyError({
+                actual: events.length,
+                limit: memberOperationsLimit,
+                operation: 'PATCH',
+                customGuidance: `Split into ${batchCount} batches of ${memberOperationsLimit} member parameters each`
+            });
+            throw new BadRequestError({ message }, options);
+        }
+
         enrichMemberReferences(events, sourceAssigningAuthority);
 
         // Reconstruct via the Group constructor rather than foundResource.clone(): the base
@@ -171,13 +195,17 @@ class GroupMemberWriteOperation {
                 incrementVersion: true
             });
 
+            // Both the Group's own row and its GroupMember rows are queued before the single
+            // executeAsync() flush below -- calling executeAsync() twice in one request would
+            // queue two separate post-request history-flush tasks sharing the same per-request
+            // history map; whichever task actually runs first claims (and clears) every entry
+            // present at that moment, silently dropping the other queued resourceType's history.
             await this.databaseBulkInserter.replaceOneAsync({
                 requestInfo,
                 resourceType,
                 uuid: updatedResource._uuid,
                 doc: updatedResource
             });
-            await this.databaseBulkInserter.executeAsync({ requestInfo, base_version });
 
             await this.mongoGroupMemberRepository.applyMemberEventsAsync({
                 requestInfo,
@@ -188,6 +216,8 @@ class GroupMemberWriteOperation {
                 securityTags: updatedResource.meta.security,
                 events
             });
+
+            await this.databaseBulkInserter.executeAsync({ requestInfo, base_version });
         } else {
             const { members } = applyEventsToEmbeddedMembers(foundResource.member, events);
             updatedResource.member = members;

@@ -42,9 +42,9 @@ class MongoGroupMemberRepository {
     }
 
     /**
-     * Applies a batch of $member-add / $member-remove events to the live roster, writing one
-     * history row per lifecycle change. Each membership is targeted directly by its own
-     * deterministic row id -- the incoming set is never diffed against the whole roster.
+     * Queues a batch of $member-add / $member-remove events against the live roster; each
+     * membership is targeted directly by its own deterministic row id -- the incoming set is
+     * never diffed against the whole roster.
      *
      * @param {Object} params
      * @param {FhirRequestInfo} params.requestInfo
@@ -129,8 +129,6 @@ class MongoGroupMemberRepository {
                 });
             }
         }
-
-        await this.databaseBulkInserter.executeAsync({ requestInfo, base_version, maintainOrder: false });
 
         return outcomes;
     }
