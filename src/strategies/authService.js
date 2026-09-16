@@ -364,7 +364,7 @@ class AuthService {
                             }
                             context.purposeOfUse = resolvedPurposeOfUse;
                             // Surfaced as agent.policy on the AuditEvent -- see AuditLogger.buildAgents.
-                            context.actor.entitlementsConsentPolicies = consentReferences;
+                            context.actor.consentPolicy = consentReferences[0];
                         }
                     }
                 }

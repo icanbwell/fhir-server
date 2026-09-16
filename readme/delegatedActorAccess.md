@@ -191,7 +191,7 @@ In both cases the resulting codes are rendered into `purposeOfEvent[].coding[]` 
 
 ### Consent Policy (agent.policy)
 
-Separately from `purposeOfEvent`, each successfully-resolved `Consent/<id>` entitlement is also recorded as-is (the raw reference, not dereferenced further) on `context.actor.entitlementsConsentPolicies`, and `AuditLogger.buildAgents` folds it into the delegated actor agent's `agent.policy` — FHIR's designated slot for "the specific patient consent, guarantor funding, etc." that authorized the event. This is independent of the *other* source of `agent.policy`, `actor.consentPolicy` (the per-person grantor↔actor Consent from the `RelatedPerson` flow, set by `hasValidConsentAsync`) — the two are merged into a single array when both happen to be present, but neither implies the other. An `Organization` actor typically has only `entitlementsConsentPolicies` (no per-person consent exists for that flow); a `RelatedPerson` actor typically has only `consentPolicy` (its `entitlements` is usually a bare code, not a Consent reference).
+Separately from `purposeOfEvent`, a successfully-resolved `Consent/<id>` entitlement is also recorded as-is (the raw reference, not dereferenced further) on `context.actor.consentPolicy`, and `AuditLogger.buildAgents` surfaces it as the delegated actor agent's `agent.policy` — FHIR's designated slot for "the specific patient consent, guarantor funding, etc." that authorized the event. This is the same field `hasValidConsentAsync` sets for the per-person grantor↔actor Consent in the `RelatedPerson` flow; whichever flow applies to a given actor sets it.
 
 For example, a JWT with `"entitlements": ["FAMRQT"]` produces:
 

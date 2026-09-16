@@ -806,7 +806,7 @@ describe('AuthService', () => {
                     context: expect.objectContaining({
                         purposeOfUse: ['TREAT'],
                         actor: expect.objectContaining({
-                            entitlementsConsentPolicies: ['Consent/consent-uuid-123']
+                            consentPolicy: 'Consent/consent-uuid-123'
                         })
                     })
                 })

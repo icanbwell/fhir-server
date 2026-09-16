@@ -91,11 +91,7 @@ class AuditLogger {
             : undefined;
 
         if (requestInfo?.userType === AUTH_USER_TYPES.delegatedUser) {
-            // consentPolicy and entitlementsConsentPolicies come from independent flows; neither implies the other.
-            const policies = [
-                requestInfo.actor?.consentPolicy,
-                ...(requestInfo.actor?.entitlementsConsentPolicies || [])
-            ].filter(Boolean);
+            const consentPolicy = requestInfo.actor?.consentPolicy;
             return [
                 {
                     who: whoReference,
@@ -105,7 +101,7 @@ class AuditLogger {
                 },
                 {
                     who: { reference: requestInfo.actor?.reference },
-                    policy: policies.length ? policies : undefined,
+                    policy: consentPolicy ? [consentPolicy] : undefined,
                     altId: requestInfo.actor?.sub,
                     requestor: true,
                     network: {
