@@ -14,7 +14,7 @@ const allResources = [
     observationTenantAResource, observationTenantBResource
 ];
 
-const CHAIN_QUERY = '/4_0_0/Observation?patient.identifier=http://example.com/fhir/identifier/mrn|SHARED-777';
+const CHAIN_QUERY = '/4_0_0/Observation?_bundle=1&patient.identifier=http://example.com/fhir/identifier/mrn|SHARED-777';
 
 const tenantAHeaders = getHeaders('user/*.read access/tenantA.*');
 const tenantBHeaders = getHeaders('user/*.read access/tenantB.*');
