@@ -62,6 +62,19 @@ describe('smartScopeParser', () => {
             expect(normalizeSuffixToCruds('bogus')).toBeNull();
             expect(normalizeSuffixToCruds('')).toBeNull();
         });
+
+        // Feature-flag gating (soft rollout): callers pass their own ConfigManager-backed flag
+        // as allowV2, off by default at the call sites.
+        test('a v2 suffix normalizes to null when allowV2 is false', () => {
+            expect(normalizeSuffixToCruds('rs', false)).toBeNull();
+            expect(normalizeSuffixToCruds('c', false)).toBeNull();
+        });
+
+        test('v1 suffixes are unaffected by allowV2', () => {
+            expect(normalizeSuffixToCruds('read', false)).toEqual(new Set(['r', 's']));
+            expect(normalizeSuffixToCruds('write', false)).toEqual(new Set(['c', 'u', 'd']));
+            expect(normalizeSuffixToCruds('*', false)).toEqual(new Set(['c', 'r', 'u', 'd', 's']));
+        });
     });
 
     describe('parseScopeToken', () => {
@@ -121,6 +134,19 @@ describe('smartScopeParser', () => {
             expect(parseScopeToken('')).toBeNull();
             expect(parseScopeToken(null)).toBeNull();
             expect(parseScopeToken(undefined)).toBeNull();
+        });
+
+        test('returns null for a v2 suffix when allowV2 is false', () => {
+            expect(parseScopeToken('user/*.cruds', false)).toBeNull();
+            expect(parseScopeToken('access/tenantA.rs', false)).toBeNull();
+        });
+
+        test('a v1 scope still parses when allowV2 is false', () => {
+            expect(parseScopeToken('patient/Patient.read', false)).toEqual({
+                prefix: 'patient',
+                resourceType: 'Patient',
+                cruds: new Set(['r', 's'])
+            });
         });
     });
 
