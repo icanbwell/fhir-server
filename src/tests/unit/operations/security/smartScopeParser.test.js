@@ -201,6 +201,12 @@ describe('smartScopeParser', () => {
             expect(getRequiredCrudsForAccessRequested('write')).toEqual(new Set(['c', 'u', 'd']));
         });
 
+        // merge only ever creates or updates (mergeManager.js has no delete branch), so unlike
+        // 'write' it must not require 'd'.
+        test('merge normalizes to {c, u}, deliberately excluding d', () => {
+            expect(getRequiredCrudsForAccessRequested('merge')).toEqual(new Set(['c', 'u']));
+        });
+
         test.each(['c', 'r', 'u', 'd', 's'])('a bare CRUDS letter %s normalizes to {%s}', (letter) => {
             expect(getRequiredCrudsForAccessRequested(letter)).toEqual(new Set([letter]));
         });
@@ -225,9 +231,8 @@ describe('smartScopeParser', () => {
         // legacy 'write' fallback) and must be satisfied in FULL, not by any single letter.
         // Holding only 'c' (create) must not satisfy a requirement that also asks for 'u'/'d' --
         // otherwise a create-only v2 grant would pass a write-composite check meant to gate an
-        // update/delete-capable operation (e.g. merge, or $graph's delete branch), both of which
-        // fall back to the coarse 'write' literal because their action name isn't in
-        // INTERACTION_TO_CRUDS_LETTER.
+        // update/delete-capable operation (e.g. $graph's delete branch, which falls back to the
+        // coarse 'write' literal because its action name isn't in INTERACTION_TO_CRUDS_LETTER).
         test('does NOT satisfy a composite requirement when only one of its letters is present', () => {
             expect(isCrudsRequirementSatisfied(new Set(['c']), new Set(['c', 'u', 'd']))).toBe(false);
             expect(isCrudsRequirementSatisfied(new Set(['u']), new Set(['c', 'u', 'd']))).toBe(false);
@@ -236,6 +241,15 @@ describe('smartScopeParser', () => {
 
         test('does NOT satisfy a composite requirement when only two of its three letters are present', () => {
             expect(isCrudsRequirementSatisfied(new Set(['c', 'u']), new Set(['c', 'u', 'd']))).toBe(false);
+        });
+
+        // merge's {c, u} composite (deliberately excluding 'd', see getRequiredCrudsForAccessRequested)
+        // must likewise be satisfied in full, and a create+update-only grant now legitimately
+        // satisfies it without also needing delete capability.
+        test('a create+update-only grant satisfies the merge {c, u} composite, without needing d', () => {
+            expect(isCrudsRequirementSatisfied(new Set(['c', 'u']), new Set(['c', 'u']))).toBe(true);
+            expect(isCrudsRequirementSatisfied(new Set(['c']), new Set(['c', 'u']))).toBe(false);
+            expect(isCrudsRequirementSatisfied(new Set(['u']), new Set(['c', 'u']))).toBe(false);
         });
 
         test('satisfies a composite requirement only once every one of its letters is present', () => {
@@ -262,6 +276,10 @@ describe('smartScopeParser', () => {
 
         test('the legacy write action is not read-only', () => {
             expect(isReadOnlyAccessRequested('write')).toBe(false);
+        });
+
+        test('merge is not read-only', () => {
+            expect(isReadOnlyAccessRequested('merge')).toBe(false);
         });
 
         test.each(['r', 's'])('the bare letter %s is read-only', (letter) => {

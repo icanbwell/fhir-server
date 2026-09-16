@@ -100,7 +100,7 @@ class ScopesValidator {
      * Central scope validation — checks delegated actor consent + standard scopes.
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
-     * @param {("read"|"write")} accessRequested
+     * @param {("read"|"write"|"merge")} accessRequested
      * @param {string} [action] the FHIR interaction being performed (e.g. 'create', 'searchById').
      *  When it names a single-letter CRUDS requirement (see smartScopeParser's
      *  INTERACTION_TO_CRUDS_LETTER), that granular requirement is used for the resourceType scope
@@ -205,7 +205,7 @@ class ScopesValidator {
      * @param {string} resourceType
      * @param {number|null} startTime
      * @param {string} action
-     * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
+     * @param {("read"|"write"|"merge")} accessRequested (can be either 'read' or 'write')
      */
     async verifyHasValidScopesAsync(
         {
@@ -247,7 +247,7 @@ class ScopesValidator {
      * @param {string} resourceType
      * @param {number|null} startTime
      * @param {string} action
-     * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
+     * @param {("read"|"write"|"merge")} accessRequested (can be either 'read' or 'write')
      * @returns {Promise<boolean>}
      */
     async hasValidScopesAsync(

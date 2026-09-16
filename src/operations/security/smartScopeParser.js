@@ -22,10 +22,15 @@ const V1_SUFFIX_TO_CRUDS = {
 /**
  * The reverse direction from V1_SUFFIX_TO_CRUDS: what a legacy binary *action being requested*
  * (the 'read'/'write' literal every call site hardcodes today) requires of a scope's CRUDS set.
+ * Also holds 'merge': $merge only ever creates or updates a resource (mergeManager.js has no
+ * delete/remove branch), so unlike the generic 'write' literal it must NOT require 'd' -- a
+ * caller granted only create+update access should be able to merge without also holding delete
+ * capability. See design doc's "$merge" section.
  */
 const V1_ACTION_TO_REQUIRED_CRUDS = {
     read: new Set(['r']),
-    write: new Set(['c', 'u', 'd'])
+    write: new Set(['c', 'u', 'd']),
+    merge: new Set(['c', 'u'])
 };
 
 /**
@@ -154,10 +159,10 @@ function isActionSatisfiedByCruds (cruds, action) {
 }
 
 /**
- * Normalizes an `accessRequested` value -- either a legacy 'read'/'write' literal or a single v2
- * CRUDS letter -- into the set of letters that satisfy it.
- * @param {string} accessRequested 'read'|'write'|'c'|'r'|'u'|'d'|'s'
- * @return {Set<string>|null} null when accessRequested is neither
+ * Normalizes an `accessRequested` value -- either a legacy 'read'/'write' literal, the 'merge'
+ * literal, or a single v2 CRUDS letter -- into the set of letters that satisfy it.
+ * @param {string} accessRequested 'read'|'write'|'merge'|'c'|'r'|'u'|'d'|'s'
+ * @return {Set<string>|null} null when accessRequested is none of the above
  */
 function getRequiredCrudsForAccessRequested (accessRequested) {
     if (V1_ACTION_TO_REQUIRED_CRUDS[accessRequested]) {

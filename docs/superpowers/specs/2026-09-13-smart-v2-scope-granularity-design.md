@@ -94,6 +94,16 @@ its required CRUDS letter(s):
 `$access-history`'s existing hardcoded `'*'`-access-code requirement (SEC-1580 regression) is
 **not** touched by this table — see Error Handling below.
 
+`$merge` is not in this table (its action name isn't a single-letter interaction — a merge call
+resolves to a create-or-update per resource, decided at runtime), so it falls back to a coarse,
+named `accessRequested` literal the same way `graph`, `import`, `export`, and `validate` do.
+Unlike those, `$merge`'s literal is `'merge'`, not `'write'`: `mergeManager.js` has no delete/
+remove branch, so requiring `d` (as the generic `'write'` literal's `{c, u, d}` composite does)
+would force a caller who only wants create+update access to also hold delete capability just to
+call `$merge`. `'merge'` normalizes to `{c, u}` instead — both required (an update-only or
+create-only grant still can't merge, since either branch can occur), but `d` is deliberately
+excluded. See `smartScopeParser.js`'s `V1_ACTION_TO_REQUIRED_CRUDS`.
+
 ## Components & data flow
 
 - **`scopesManager.js`** — `getAccessCodesFromScopes`, `getPatientScopes`, `getUserScopes` call

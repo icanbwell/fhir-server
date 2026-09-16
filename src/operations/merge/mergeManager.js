@@ -814,7 +814,10 @@ class MergeManager {
             const forbiddenError = await this.scopesValidator.isScopesValidAsync({
                 requestInfo,
                 resourceType: resourceToMerge.resourceType,
-                accessRequested: 'write',
+                // 'merge', not 'write': merge only ever creates or updates a resource (no
+                // delete branch), so it must not demand delete capability the way the generic
+                // 'write' literal does. See smartScopeParser's V1_ACTION_TO_REQUIRED_CRUDS.
+                accessRequested: 'merge',
                 base_version
             });
 
