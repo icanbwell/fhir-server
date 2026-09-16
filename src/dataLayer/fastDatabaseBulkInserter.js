@@ -621,7 +621,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     assertIsValid(
                         !lastVersionId || lastVersionId < parseInt(doc.meta.versionId),
                         `lastVersionId ${lastVersionId} is not less than doc versionId ${doc.meta.versionId}` +
-                            `, doc: ${JSON.stringify(doc)}`
+                            `, resource_uuid: ${doc._uuid}`
                     );
                     // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
                     this.addOperationForResourceType({
