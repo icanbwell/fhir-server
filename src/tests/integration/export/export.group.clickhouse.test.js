@@ -105,6 +105,7 @@ async function runGroupExport(request, groupId, { scope, headers: customHeaders,
     // Force a fresh runner instance (the container caches resolved services).
     delete container.services.bulkDataExportRunner;
     container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+        scopesManager: c.scopesManager,
         databaseQueryFactory: c.databaseQueryFactory,
         databaseExportManager: c.databaseExportManager,
         patientFilterManager: c.patientFilterManager,
@@ -416,6 +417,7 @@ describe('Group Export Tests', () => {
 
         delete container.services.bulkDataExportRunner;
         container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+            scopesManager: c.scopesManager,
             databaseQueryFactory: c.databaseQueryFactory,
             databaseExportManager: c.databaseExportManager,
             patientFilterManager: c.patientFilterManager,
@@ -641,6 +643,7 @@ describe('Group Export Tests', () => {
         const s3Client = new CapturingS3Client({ bucketName: 'test', region: 'test' });
         delete container.services.bulkDataExportRunner;
         container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+            scopesManager: c.scopesManager,
             databaseQueryFactory: c.databaseQueryFactory,
             databaseExportManager: c.databaseExportManager,
             patientFilterManager: c.patientFilterManager,
@@ -791,6 +794,7 @@ describe('Group Export Tests', () => {
         const s3Client = new CapturingS3Client({ bucketName: 'test', region: 'test' });
         delete container.services.bulkDataExportRunner;
         container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+            scopesManager: c.scopesManager,
             databaseQueryFactory: c.databaseQueryFactory,
             databaseExportManager: c.databaseExportManager,
             patientFilterManager: c.patientFilterManager,
