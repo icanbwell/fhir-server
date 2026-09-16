@@ -381,6 +381,77 @@ describe('FhirOperationsManager', () => {
                 requestInfo
             }));
         });
+
+        test('passes a searchResourceAsync capability to queryRewriterManager.rewriteArgsAsync', async () => {
+            await manager.getParsedArgsAsync({
+                args: { base_version: '4_0_0' },
+                resourceType: 'Patient',
+                operation: 'READ',
+                requestInfo: { user: 'caller' }
+            });
+
+            expect(mockQueryRewriterManager.rewriteArgsAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ searchResourceAsync: expect.any(Function) })
+            );
+        });
+    });
+
+    describe('searchResourceForChainAsync', () => {
+        test('runs a fully-scoped sub-search and returns resolved _uuid values', async () => {
+            mockSearchBundleOperation.searchBundleAsync.mockResolvedValue({
+                entry: [
+                    { resource: { _uuid: 'uuid-1' } },
+                    { resource: { _uuid: 'uuid-2' } }
+                ]
+            });
+            const requestInfo = { user: 'caller' };
+
+            const uuids = await manager.searchResourceForChainAsync({
+                resourceType: 'Patient',
+                args: { identifier: 'http://example.com/mrn|123456' },
+                requestInfo,
+                base_version: '4_0_0'
+            });
+
+            expect(uuids).toEqual(['uuid-1', 'uuid-2']);
+            // the sub-search must go through the same authorized search path (r4ArgsParser +
+            // queryRewriterManager + searchBundleOperation) any top-level search uses -- never a
+            // lower-level, separately-scoped query (review.md §E)
+            expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Patient' })
+            );
+            expect(mockSearchBundleOperation.searchBundleAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Patient', requestInfo })
+            );
+        });
+
+        test('returns an empty array when the sub-search resolves no matches', async () => {
+            mockSearchBundleOperation.searchBundleAsync.mockResolvedValue({ entry: [] });
+
+            const uuids = await manager.searchResourceForChainAsync({
+                resourceType: 'Patient',
+                args: { identifier: 'no-such-value' },
+                requestInfo: {},
+                base_version: '4_0_0'
+            });
+
+            expect(uuids).toEqual([]);
+        });
+
+        test('restricts the sub-search response to the _uuid field via _elements', async () => {
+            await manager.searchResourceForChainAsync({
+                resourceType: 'Patient',
+                args: { identifier: 'X' },
+                requestInfo: {},
+                base_version: '4_0_0'
+            });
+
+            expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    args: expect.objectContaining({ _elements: '_uuid' })
+                })
+            );
+        });
     });
 
     describe('parseParametersFromBody', () => {

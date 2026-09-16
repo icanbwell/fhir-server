@@ -111,6 +111,21 @@ class R4ArgsParser {
             if (!queryParameter.startsWith('_') && queryParameter !== 'base_version' && queryParameter !== 'version_id') {
                 queryParameter = queryParameter.replace('_', '-');
             }
+
+            // chained search: `patient.identifier` or `patient:Patient.identifier`
+            // https://www.hl7.org/fhir/search.html#chaining
+            let chainDescriptor;
+            const typedChainModifierIndex = modifiers.findIndex(m => /^[A-Z][A-Za-z]*\.[A-Za-z0-9-]+$/.test(m));
+            if (typedChainModifierIndex !== -1) {
+                const [explicitTargetType, targetParam] = modifiers[typedChainModifierIndex].split('.');
+                modifiers = modifiers.filter((_, i) => i !== typedChainModifierIndex);
+                chainDescriptor = { explicitTargetType, targetParam };
+            } else if (queryParameter.includes('.')) {
+                const dotIndex = queryParameter.indexOf('.');
+                chainDescriptor = { targetParam: queryParameter.slice(dotIndex + 1) };
+                queryParameter = queryParameter.slice(0, dotIndex);
+            }
+
             /**
              * @type {SearchParameterDefinition}
              */
@@ -120,6 +135,34 @@ class R4ArgsParser {
                     queryParameter
                 }
             );
+
+            /**
+             * @type {{targetType: string, targetParam: string}|undefined}
+             */
+            let chain;
+            if (chainDescriptor) {
+                const targetType = this.searchParametersManager.resolveChainTargetType(
+                    { propertyObj, explicitTargetType: chainDescriptor.explicitTargetType }
+                );
+                if (!targetType) {
+                    throw new BadRequestError(new Error(
+                        `${argName} is not a valid chained search parameter for ${resourceType}: ` +
+                        `${queryParameter} is not an unambiguous reference parameter` +
+                        (chainDescriptor.explicitTargetType
+                            ? ` for target type ${chainDescriptor.explicitTargetType}`
+                            : ' (reference allows more than one target type -- use the :Type modifier)')
+                    ));
+                }
+                const targetPropertyObj = this.searchParametersManager.getPropertyObject(
+                    { resourceType: targetType, queryParameter: chainDescriptor.targetParam }
+                );
+                if (!targetPropertyObj) {
+                    throw new BadRequestError(new Error(
+                        `${chainDescriptor.targetParam} is not a valid search parameter for ${targetType}`
+                    ));
+                }
+                chain = { targetType, targetParam: chainDescriptor.targetParam };
+            }
             /**
              * @type {string | string[]}
              */
@@ -255,7 +298,8 @@ class R4ArgsParser {
                             operator: useOrFilterForArrays ? '$or' : '$and'
                         }),
                         propertyObj,
-                        modifiers
+                        modifiers,
+                        chain
                     })
                 );
             }
@@ -276,7 +320,8 @@ class R4ArgsParser {
                                     operator: '$and'
                                 }),
                                 propertyObj,
-                                modifiers
+                                modifiers,
+                                chain
                             })
                         );
                     }
@@ -300,7 +345,8 @@ class R4ArgsParser {
                             operator: useOrFilterForArrays ? '$or' : '$and'
                         }),
                         propertyObj,
-                        modifiers: notModifiers
+                        modifiers: notModifiers,
+                        chain
                     })
                 );
             }

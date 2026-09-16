@@ -326,13 +326,36 @@ class FhirOperationsManager {
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
-                base_version, parsedArgs, resourceType, operation, requestInfo
+                base_version, parsedArgs, resourceType, operation, requestInfo,
+                // call-time, not constructor-injected: avoids a DI cycle with searchManager/
+                // fhirOperationsManager, both of which depend on queryRewriterManager
+                searchResourceAsync: (chainArgs) => this.searchResourceForChainAsync({ ...chainArgs, base_version })
             }
         );
         if (headers) {
             parsedArgs.headers = headers;
         }
         return parsedArgs;
+    }
+
+    // Used by ChainedSearchQueryRewriter to resolve a chain's target ids through the same
+    // authorized search path a top-level search uses (review.md §E).
+    async searchResourceForChainAsync ({ resourceType, args, requestInfo, base_version }) {
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: { ...args, base_version, _elements: '_uuid' },
+            resourceType,
+            operation: READ,
+            requestInfo
+        });
+        const bundle = await this.searchBundleOperation.searchBundleAsync({
+            requestInfo,
+            parsedArgs,
+            resourceType,
+            useAggregationPipeline: false
+        });
+        return (bundle.entry || [])
+            .map((entry) => entry.resource?._uuid)
+            .filter((uuid) => uuid);
     }
 
     /**

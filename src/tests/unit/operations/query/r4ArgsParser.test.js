@@ -336,6 +336,88 @@ describe('R4ArgsParser', () => {
         });
     });
 
+    describe('parseArgs - chained search parameters', () => {
+        function mockChainLookups ({ baseTarget, targetParamKnown = true }) {
+            const baseRefPropertyObj = new SearchParameterDefinition({
+                type: 'reference', field: 'subject', target: baseTarget
+            });
+            const targetPropertyObj = targetParamKnown
+                ? new SearchParameterDefinition({ type: 'token', field: 'identifier' })
+                : undefined;
+
+            mockSearchParametersManager.getPropertyObject.mockImplementation(
+                ({ resourceType, queryParameter }) => {
+                    if (resourceType === 'Observation' && queryParameter === 'patient') {
+                        return baseRefPropertyObj;
+                    }
+                    if (resourceType === 'Patient' && queryParameter === 'identifier') {
+                        return targetPropertyObj;
+                    }
+                    return undefined;
+                }
+            );
+            mockSearchParametersManager.resolveChainTargetType = jest.fn(
+                ({ propertyObj, explicitTargetType }) => {
+                    if (!propertyObj || propertyObj.type !== 'reference' || !propertyObj.target) {
+                        return null;
+                    }
+                    if (explicitTargetType) {
+                        return propertyObj.target.includes(explicitTargetType) ? explicitTargetType : null;
+                    }
+                    return propertyObj.target.length === 1 ? propertyObj.target[0] : null;
+                }
+            );
+        }
+
+        test('resolves an untyped chain (patient.identifier) when the reference has one legal target', () => {
+            mockChainLookups({ baseTarget: ['Patient'] });
+            const args = {
+                'patient.identifier': 'http://example.com/mrn|123456',
+                base_version: '4_0_0'
+            };
+
+            const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
+
+            const item = result.parsedArgItems.find(i => i.queryParameter === 'patient');
+            expect(item).toBeDefined();
+            expect(item.chain).toEqual({ targetType: 'Patient', targetParam: 'identifier' });
+        });
+
+        test('resolves a typed chain (subject:Patient.identifier)', () => {
+            mockChainLookups({ baseTarget: ['Patient', 'Group'] });
+            const args = {
+                'patient:Patient.identifier': 'http://example.com/mrn|123456',
+                base_version: '4_0_0'
+            };
+
+            const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
+
+            const item = result.parsedArgItems.find(i => i.queryParameter === 'patient');
+            expect(item).toBeDefined();
+            expect(item.chain).toEqual({ targetType: 'Patient', targetParam: 'identifier' });
+        });
+
+        test('throws BadRequestError for an untyped chain whose reference has multiple legal targets', () => {
+            mockChainLookups({ baseTarget: ['Patient', 'Group'] });
+            const args = {
+                'patient.identifier': 'http://example.com/mrn|123456',
+                base_version: '4_0_0'
+            };
+
+            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).toThrow();
+        });
+
+        test('throws BadRequestError when the target parameter is not a real search parameter on the target type', () => {
+            mockChainLookups({ baseTarget: ['Patient'], targetParamKnown: false });
+            const args = {
+                'patient.identifier': 'http://example.com/mrn|123456',
+                base_version: '4_0_0'
+            };
+
+            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).toThrow();
+        });
+    });
+
     describe('parseArgs - useOrFilterForArrays', () => {
         test('should use $or operator when useOrFilterForArrays is true', () => {
             const args = {
