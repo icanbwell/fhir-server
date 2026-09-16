@@ -28,7 +28,7 @@ describe('ScopesValidator', () => {
         mockScopesManager = createMockInstance(ScopesManager);
         mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(false);
         mockScopesManager.getPatientScopes = jest.fn().mockReturnValue([]);
-        mockScopesManager.getUserScopes = jest.fn().mockReturnValue(['user/Patient.read']);
+        mockScopesManager.getResourceTypeScopes = jest.fn().mockReturnValue(['user/Patient.read']);
         mockScopesManager.hasPatientScope = jest.fn().mockReturnValue(false);
         mockScopesManager.getAccessCodesFromScopes = jest.fn().mockReturnValue(['client']);
         mockScopesManager.isAccessToResourceAllowedBySecurityTags = jest.fn().mockReturnValue(true);
@@ -204,7 +204,7 @@ describe('ScopesValidator', () => {
             // only 'read' is allowed with user scopes
             mockScopesManager.isAccessAllowedByPatientScopes.mockReturnValue(false);
             mockScopesManager.hasPatientScope.mockReturnValue(true);
-            mockScopesManager.getUserScopes.mockReturnValue(['user/Patient.*']);
+            mockScopesManager.getResourceTypeScopes.mockReturnValue(['user/Patient.*']);
 
             const requestInfo = {
                 user: 'testUser',

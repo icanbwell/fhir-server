@@ -450,6 +450,8 @@ class AuthService {
             scope = scopes.join(' ');
         }
 
+        const isUser = scopes.some((s) => s.toLowerCase().startsWith('patient/'));
+
         const username = jwt_payload.username
             ? jwt_payload.username
             : this.getFirstPropertyFromPayload({
@@ -470,8 +472,6 @@ class AuthService {
                 jwt_payload,
                 propertyNames: this.configManager.authCustomClientId
             });
-
-        const isUser = scopes.some((s) => s.toLowerCase().startsWith('patient/'));
 
         return {scope, isUser, username, subject, clientId};
     }

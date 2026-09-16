@@ -22,6 +22,8 @@ const { EnrichmentManager } = require('../../../../enrich/enrich');
 const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
 const { R4ArgsParser } = require('../../../../operations/query/r4ArgsParser');
 const { SearchManager } = require('../../../../operations/search/searchManager');
+const { ScopesManager } = require('../../../../operations/security/scopesManager');
+const { ConfigManager } = require('../../../../utils/configManager');
 const { S3Client } = require('../../../../utils/s3Client');
 const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../../utils/bulkExportEventProducer');
@@ -48,6 +50,12 @@ describe('BulkDataExportRunner', () => {
             resourceLocatorFactory: createMockInstance(ResourceLocatorFactory),
             r4ArgsParser: createMockInstance(R4ArgsParser),
             searchManager: createMockInstance(SearchManager),
+            // Real ScopesManager (it is a pure parser) so getResourceTypeScopes() is genuinely
+            // exercised rather than stubbed.
+            scopesManager: new ScopesManager({
+                configManager: createMockInstance(ConfigManager),
+                patientFilterManager: createMockInstance(PatientFilterManager)
+            }),
             s3Client: createMockInstance(S3Client),
             postSaveProcessor: createMockInstance(PostSaveProcessor),
             bulkExportEventProducer: createMockInstance(BulkExportEventProducer),
@@ -165,6 +173,41 @@ describe('BulkDataExportRunner', () => {
                 allowedResources: ['Patient', 'Observation']
             });
             expect(result).toEqual([]);
+        });
+
+        // system/ twins of the user/ cases above (SMART on FHIR v2 backend-services scope).
+        test.each(['user', 'system'])('filters resources by scope with %s/* wildcard', async (ns) => {
+            const result = await runner.getRequestedResourceAsync({
+                scope: `${ns}/*.*`,
+                searchParams: new URLSearchParams(),
+                allowedResources: ['Patient', 'Observation', 'AuditEvent']
+            });
+            expect(result).not.toContain('AuditEvent');
+            expect(result).toContain('Patient');
+            expect(result).toContain('Observation');
+        });
+
+        test.each(['user', 'system'])('filters to only allowed resources by %s/ scope', async (ns) => {
+            const result = await runner.getRequestedResourceAsync({
+                scope: `${ns}/Patient.read`,
+                searchParams: new URLSearchParams(),
+                allowedResources: ['Patient', 'Observation']
+            });
+            expect(result).toEqual(['Patient']);
+        });
+
+        // Regression: a system/-only caller must not get a silently EMPTY resource list. Before
+        // the fix, only user/-prefixed scopes populated allowedResourcesByScopes, which starts
+        // as a truthy [], so a system/*.read caller was filtered to nothing rather than getting
+        // its full allowed set. See
+        // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §4.2.
+        test('a system/-only caller does not get a silently EMPTY resource list', async () => {
+            const result = await runner.getRequestedResourceAsync({
+                scope: 'system/*.read',
+                searchParams: new URLSearchParams(),
+                allowedResources: ['Patient', 'Observation']
+            });
+            expect(result).toEqual(expect.arrayContaining(['Patient', 'Observation']));
         });
     });
 

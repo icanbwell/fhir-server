@@ -62,6 +62,7 @@ async function main() {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
+                scopesManager: c.scopesManager,
                 postSaveProcessor: c.postSaveProcessor,
                 bulkExportEventProducer: c.bulkExportEventProducer,
                 storageProviderFactory: c.storageProviderFactory,
