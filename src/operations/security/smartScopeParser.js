@@ -55,13 +55,20 @@ function isV2Suffix (suffix) {
 
 /**
  * @param {string} suffix
- * @return {Set<string>|null} null when the suffix is neither valid v1 nor valid v2 grammar
+ * @param {boolean} [allowV2] whether v2 (letter-combination) suffix grammar should be recognized.
+ *   Callers pass their own ConfigManager-backed feature flag here -- kept as a parameter rather
+ *   than a config read so this module stays pure/dependency-free (see file doc comment). When
+ *   false, only the legacy v1 suffixes ('read'/'write'/'*') are recognized, matching this
+ *   module's original behavior exactly (see docs/superpowers/specs/2026-09-13-smart-v2-scope-granularity-design.md,
+ *   "Open items": enabling v2 parsing is a one-way loosening of what scope strings are honored).
+ * @return {Set<string>|null} null when the suffix is neither valid v1, nor (when allowed) valid
+ *   v2 grammar
  */
-function normalizeSuffixToCruds (suffix) {
+function normalizeSuffixToCruds (suffix, allowV2 = true) {
     if (isV1Suffix(suffix)) {
         return V1_SUFFIX_TO_CRUDS[suffix];
     }
-    if (isV2Suffix(suffix)) {
+    if (allowV2 && isV2Suffix(suffix)) {
         return new Set(suffix.split(''));
     }
     return null;
@@ -70,10 +77,11 @@ function normalizeSuffixToCruds (suffix) {
 /**
  * Parses a single `<prefix>/<resourceType>.<suffix>` scope token.
  * @param {string} scopeToken
+ * @param {boolean} [allowV2] see normalizeSuffixToCruds
  * @return {{prefix: string, resourceType: string, cruds: Set<string>}|null} null when the token
  *   isn't one of the four supported prefixes, or its suffix is malformed
  */
-function parseScopeToken (scopeToken) {
+function parseScopeToken (scopeToken, allowV2 = true) {
     if (!scopeToken) {
         return null;
     }
@@ -95,7 +103,7 @@ function parseScopeToken (scopeToken) {
         return null;
     }
     const suffix = rest.slice(dotIndex + 1);
-    const cruds = normalizeSuffixToCruds(suffix);
+    const cruds = normalizeSuffixToCruds(suffix, allowV2);
     if (!cruds) {
         return null;
     }

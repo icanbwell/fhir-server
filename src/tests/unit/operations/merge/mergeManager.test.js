@@ -639,5 +639,159 @@ describe('MergeManager', () => {
             expect(result.created).toBe(false);
             expect(result.updated).toBe(false);
         });
+
+        test('keeps the resource in the OperationOutcome diagnostics text since this is returned in the API response (DCON-5385)', () => {
+            const base64Payload = 'A'.repeat(5000);
+            const resource = {
+                id: 'b1', _uuid: 'uuid-b1', resourceType: 'Binary', data: base64Payload
+            };
+            const result = mergeManager.createMergeError(
+                resource, 'Binary', 'resource is missing id', 'Binary/b1'
+            );
+
+            expect(result.operationOutcome.issue[0].details.text).toContain(base64Payload);
+        });
+    });
+
+    describe('performMergeDbUpdateAsync (DCON-5385)', () => {
+        test('does not embed the full resource (including Binary.data) into the rethrown error, only its uuid', async () => {
+            const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
+            const { assertTypeEquals } = require('../../../../utils/assertType');
+            assertTypeEquals.mockImplementation(() => {});
+
+            const base64Payload = 'F'.repeat(5000);
+            const resourceToMerge = {
+                id: 'b1', _uuid: 'uuid-b1', resourceType: 'Binary', data: base64Payload,
+                meta: { versionId: '2', lastUpdated: new Date().toISOString() }
+            };
+
+            const dbError = new Error('connection lost');
+            mockDatabaseBulkInserter.mergeOneAsync.mockRejectedValue(dbError);
+
+            const requestInfo = Object.create(FhirRequestInfo.prototype);
+            requestInfo.requestId = 'req-1';
+            requestInfo.path = '/Binary';
+
+            let caughtError;
+            try {
+                await mergeManager.performMergeDbUpdateAsync({
+                    base_version: '4_0_0',
+                    requestInfo,
+                    resourceToMerge,
+                    previousVersionId: '1',
+                    patches: [],
+                    smartMerge: true,
+                    currentMembers: undefined
+                });
+            } catch (e) {
+                caughtError = e;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toBe('Error updating: resource_uuid=uuid-b1');
+            expect(caughtError.message).not.toContain(base64Payload);
+            expect(caughtError.stack).not.toContain(base64Payload);
+        });
+    });
+
+    describe('performMergeDbInsertAsync (DCON-5385)', () => {
+        test('does not embed the full resource (including Binary.data) into the rethrown error, only its uuid', async () => {
+            const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
+            const { assertTypeEquals } = require('../../../../utils/assertType');
+            assertTypeEquals.mockImplementation(() => {});
+
+            const base64Payload = 'G'.repeat(5000);
+            const resourceToMerge = {
+                id: 'b1', _uuid: 'uuid-b1', resourceType: 'Binary', data: base64Payload,
+                meta: { versionId: '1' }
+            };
+
+            const dbError = new Error('connection lost');
+            mockDatabaseBulkInserter.insertOneAsync.mockRejectedValue(dbError);
+
+            const requestInfo = Object.create(FhirRequestInfo.prototype);
+            requestInfo.requestId = 'req-1';
+            requestInfo.path = '/Binary';
+
+            let caughtError;
+            try {
+                await mergeManager.performMergeDbInsertAsync({
+                    base_version: '4_0_0',
+                    requestInfo,
+                    resourceToMerge
+                });
+            } catch (e) {
+                caughtError = e;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toBe('Error inserting: resource_uuid=uuid-b1');
+            expect(caughtError.message).not.toContain(base64Payload);
+            expect(caughtError.stack).not.toContain(base64Payload);
+        });
+    });
+
+    describe('mergeResourceAsync error logging (DCON-5385)', () => {
+        test('does not leak Binary.data into logs end-to-end when the DB update fails, while the API response still contains it', async () => {
+            const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
+            const { assertTypeEquals } = require('../../../../utils/assertType');
+            const { logError } = require('../../../../operations/common/logging');
+            assertTypeEquals.mockImplementation(() => {});
+
+            const base64Payload = 'D'.repeat(5000);
+            const currentResource = {
+                id: 'b1', resourceType: 'Binary',
+                meta: { versionId: '1', source: 'test' }
+            };
+            mockDatabaseBulkLoader.getResourceFromExistingList.mockReturnValue(currentResource);
+
+            const resourceToMerge = {
+                id: 'b1', _uuid: 'uuid-b1', resourceType: 'Binary', data: base64Payload,
+                meta: { source: 'test', lastUpdated: '2024-01-01' }
+            };
+            const patchedResource = {
+                ...resourceToMerge,
+                meta: { versionId: '2', lastUpdated: new Date().toISOString() }
+            };
+            mockResourceMerger.fastMergeResourceAsync.mockResolvedValue({
+                updatedResource: patchedResource,
+                patches: [{ op: 'replace', path: '/data', value: base64Payload }]
+            });
+
+            const dbError = new Error('connection lost');
+            mockDatabaseBulkInserter.mergeOneAsync.mockRejectedValue(dbError);
+
+            const requestInfo = Object.create(FhirRequestInfo.prototype);
+            requestInfo.user = 'testUser';
+            requestInfo.requestId = 'req-1';
+            requestInfo.path = '/Binary';
+            requestInfo.headers = {};
+
+            let caughtError;
+            try {
+                await mergeManager.mergeResourceAsync({
+                    resourceToMerge,
+                    resourceType: 'Binary',
+                    base_version: '4_0_0',
+                    requestInfo,
+                    smartMerge: true
+                });
+            } catch (e) {
+                caughtError = e;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(logError).toHaveBeenCalled();
+            const loggedArgs = logError.mock.calls[0][1].args;
+            expect(loggedArgs.error).toBeInstanceOf(Error);
+            expect(loggedArgs.error.name).toBe('RethrownError');
+            expect(loggedArgs.error.message).toBe('Error updating: resource_uuid=uuid-b1');
+            expect(loggedArgs.error.message).not.toContain(base64Payload);
+            expect(loggedArgs.error.stack).not.toContain(base64Payload);
+            expect(JSON.stringify(loggedArgs)).not.toContain(base64Payload);
+
+            // the error used to build the API response is untouched
+            expect(caughtError.args.operationOutcome.issue[0].details.text).toContain(base64Payload);
+        });
     });
 });
