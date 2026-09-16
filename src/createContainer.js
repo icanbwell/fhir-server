@@ -115,6 +115,8 @@ const {PatientScopeManager} = require('./operations/security/patientScopeManager
 const {WriteAllowedByScopesValidator} = require('./operations/merge/validators/writeAllowedByScopesValidator');
 const {PatientQueryCreator} = require('./operations/common/patientQueryCreator');
 const {SearchParametersManager} = require('./searchParameters/searchParametersManager');
+const {ClinicalNoteSearchClient} = require('./utils/clinicalNoteSearchClient');
+const {ClinicalNoteTextRetriever} = require('./utils/clinicalNoteTextRetriever');
 const {DatabaseExportManager} = require('./dataLayer/databaseExportManager');
 const {ExportOperation} = require('./operations/export/export');
 const {ExportManager} = require('./operations/export/exportManager');
@@ -229,6 +231,10 @@ const createContainer = function () {
         fhirTypesManager: c.fhirTypesManager
     }));
     container.register('compositionSectionFilterEnrichmentProvider', (c) => new CompositionSectionFilterEnrichmentProvider({
+        configManager: c.configManager
+    }));
+    container.register('clinicalNoteTextRetriever', (c) => new ClinicalNoteTextRetriever({
+        mongoDatabaseManager: c.mongoDatabaseManager,
         configManager: c.configManager
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
@@ -506,6 +512,11 @@ const createContainer = function () {
         }
     ));
 
+    container.register('clinicalNoteSearchClient', (c) => new ClinicalNoteSearchClient({
+        mongoDatabaseManager: c.mongoDatabaseManager,
+        configManager: c.configManager
+    }));
+
     container.register('searchManager', (c) => new SearchManager(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -525,7 +536,8 @@ const createContainer = function () {
                 atlasSearchQueryBuilder: c.atlasSearchQueryBuilder,
                 patientScopeManager: c.patientScopeManager,
                 patientQueryCreator: c.patientQueryCreator,
-                searchParametersManager: c.searchParametersManager
+                searchParametersManager: c.searchParametersManager,
+                clinicalNoteSearchClient: c.clinicalNoteSearchClient
             }
         )
     );
@@ -1092,7 +1104,10 @@ const createContainer = function () {
             }
         )
     );
-    container.register('fhirResponseWriter', () => new FhirResponseWriter());
+    container.register('fhirResponseWriter', (c) => new FhirResponseWriter({
+        clinicalNoteTextRetriever: c.clinicalNoteTextRetriever,
+        configManager: c.configManager
+    }));
     container.register('genericController', (c) => new GenericController(
             {
                 postRequestProcessor: c.postRequestProcessor,

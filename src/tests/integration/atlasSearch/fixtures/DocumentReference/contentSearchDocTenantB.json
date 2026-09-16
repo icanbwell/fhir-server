@@ -1,0 +1,26 @@
+{
+    "resourceType": "DocumentReference",
+    "id": "content-search-doc-tenantB",
+    "meta": {
+        "source": "http://tenantBhealth.org/provider",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "tenantB" },
+            { "system": "https://www.icanbwell.com/owner", "code": "tenantB" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "tenantB" }
+        ]
+    },
+    "status": "current",
+    "subject": {
+        "reference": "Patient/content-search-patient-tenantB"
+    },
+    "content": [
+        {
+            "attachment": {
+                "contentType": "application/pdf",
+                "data": "c2RhY2U=",
+                "title": "note",
+                "creation": "2022-12-17T09:44:58.033Z"
+            }
+        }
+    ]
+}

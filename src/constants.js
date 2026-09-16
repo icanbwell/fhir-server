@@ -183,6 +183,12 @@ module.exports = {
         'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer', '_rewritePatientReference', '_keepOldUI',
         '_includeNonClinicalResources', '_nonClinicalResourcesDepth', '_includePatientLinkedOnly', '_includeUuidOnly'
     ],
+    /**
+     * Resource types fhir-notes-vector-store extracts and Atlas-Search-indexes attachment/note
+     * text for. `_content` search and derived-text enrichment are only supported for these.
+     * @type {string[]}
+     */
+    FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES: ['DocumentReference', 'DiagnosticReport', 'CarePlan'],
     REQUEST_ID_HEADER: 'x-request-id',
     REGEX: {
         INSTANT: /^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$/,
@@ -338,6 +344,14 @@ module.exports = {
         cmsPartnerUser: 'cms-partner',
         delegatedUser: 'delegatedUser'
     },
+    /**
+     * Namespaces the resource-type/action gate evaluates for a caller NOT on the patient-scope
+     * branch. SMART v2 `system/` is the backend-services equivalent of this server's
+     * pre-existing `user/` service-account namespace (see authService.js's isUser derivation:
+     * `user/` never implied a human user), so both are evaluated together in ONE branch rather
+     * than as separate authorization paths. See docs/resource-authorization.md §3.
+     */
+    RESOURCE_TYPE_SCOPE_NAMESPACES: ['user/', 'system/'],
     EXTERNAL_SERVICE_REQUEST_CONFIG: {
         ignoredParams: ['_debug', '_explain'],
         defaultHeaders: {
