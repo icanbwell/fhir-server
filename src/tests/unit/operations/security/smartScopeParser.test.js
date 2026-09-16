@@ -4,7 +4,12 @@ const {
     isV2Suffix,
     normalizeSuffixToCruds,
     parseScopeToken,
-    isActionSatisfiedByCruds
+    isActionSatisfiedByCruds,
+    getRequiredCrudsForAccessRequested,
+    isCrudsRequirementSatisfied,
+    isReadOnlyAccessRequested,
+    getInteractionCrudsLetter,
+    INTERACTION_TO_CRUDS_LETTER
 } = require('../../../../operations/security/smartScopeParser');
 
 describe('smartScopeParser', () => {
@@ -159,10 +164,13 @@ describe('smartScopeParser', () => {
             expect(isActionSatisfiedByCruds(new Set(['c', 'u', 'd']), 'read')).toBe(false);
         });
 
-        test('write action is satisfied by any of c/u/d', () => {
-            expect(isActionSatisfiedByCruds(new Set(['c']), 'write')).toBe(true);
-            expect(isActionSatisfiedByCruds(new Set(['u']), 'write')).toBe(true);
-            expect(isActionSatisfiedByCruds(new Set(['d']), 'write')).toBe(true);
+        test('write action requires the full c/u/d composite, not just one letter', () => {
+            // See isCrudsRequirementSatisfied's own tests for the full rationale: a partial v2
+            // grant of just one write-type letter must not satisfy the coarse 'write' fallback.
+            expect(isActionSatisfiedByCruds(new Set(['c']), 'write')).toBe(false);
+            expect(isActionSatisfiedByCruds(new Set(['u']), 'write')).toBe(false);
+            expect(isActionSatisfiedByCruds(new Set(['d']), 'write')).toBe(false);
+            expect(isActionSatisfiedByCruds(new Set(['c', 'u', 'd']), 'write')).toBe(true);
         });
 
         test('write action is not satisfied by read-only cruds', () => {
@@ -181,6 +189,105 @@ describe('smartScopeParser', () => {
 
         test('returns false for an unknown action', () => {
             expect(isActionSatisfiedByCruds(new Set(['r']), 'bogus')).toBe(false);
+        });
+    });
+
+    describe('getRequiredCrudsForAccessRequested', () => {
+        test('read normalizes to {r}', () => {
+            expect(getRequiredCrudsForAccessRequested('read')).toEqual(new Set(['r']));
+        });
+
+        test('write normalizes to {c, u, d}', () => {
+            expect(getRequiredCrudsForAccessRequested('write')).toEqual(new Set(['c', 'u', 'd']));
+        });
+
+        test.each(['c', 'r', 'u', 'd', 's'])('a bare CRUDS letter %s normalizes to {%s}', (letter) => {
+            expect(getRequiredCrudsForAccessRequested(letter)).toEqual(new Set([letter]));
+        });
+
+        test('an unrecognized value returns null', () => {
+            expect(getRequiredCrudsForAccessRequested('bogus')).toBeNull();
+            expect(getRequiredCrudsForAccessRequested(undefined)).toBeNull();
+        });
+    });
+
+    describe('isCrudsRequirementSatisfied', () => {
+        test('returns true when a singleton requirement letter is present', () => {
+            expect(isCrudsRequirementSatisfied(new Set(['r', 's']), new Set(['r']))).toBe(true);
+            expect(isCrudsRequirementSatisfied(new Set(['c', 'u', 'd']), new Set(['u']))).toBe(true);
+        });
+
+        test('returns false when a singleton requirement letter is absent', () => {
+            expect(isCrudsRequirementSatisfied(new Set(['r', 's']), new Set(['c', 'u', 'd']))).toBe(false);
+        });
+
+        // Regression for a reported finding: requiredCruds is a composite ({c, u, d} for the
+        // legacy 'write' fallback) and must be satisfied in FULL, not by any single letter.
+        // Holding only 'c' (create) must not satisfy a requirement that also asks for 'u'/'d' --
+        // otherwise a create-only v2 grant would pass a write-composite check meant to gate an
+        // update/delete-capable operation (e.g. merge, or $graph's delete branch), both of which
+        // fall back to the coarse 'write' literal because their action name isn't in
+        // INTERACTION_TO_CRUDS_LETTER.
+        test('does NOT satisfy a composite requirement when only one of its letters is present', () => {
+            expect(isCrudsRequirementSatisfied(new Set(['c']), new Set(['c', 'u', 'd']))).toBe(false);
+            expect(isCrudsRequirementSatisfied(new Set(['u']), new Set(['c', 'u', 'd']))).toBe(false);
+            expect(isCrudsRequirementSatisfied(new Set(['d']), new Set(['c', 'u', 'd']))).toBe(false);
+        });
+
+        test('does NOT satisfy a composite requirement when only two of its three letters are present', () => {
+            expect(isCrudsRequirementSatisfied(new Set(['c', 'u']), new Set(['c', 'u', 'd']))).toBe(false);
+        });
+
+        test('satisfies a composite requirement only once every one of its letters is present', () => {
+            expect(isCrudsRequirementSatisfied(new Set(['c', 'u', 'd']), new Set(['c', 'u', 'd']))).toBe(true);
+            // a superset (e.g. the full cruds set, or extra unrelated letters) still satisfies it
+            expect(isCrudsRequirementSatisfied(new Set(['c', 'r', 'u', 'd', 's']), new Set(['c', 'u', 'd']))).toBe(true);
+        });
+
+        test('returns false when no required letter is present', () => {
+            expect(isCrudsRequirementSatisfied(new Set(['r', 's']), new Set(['c', 'u', 'd']))).toBe(false);
+        });
+
+        test('returns false for a null cruds set, a null requirement, or an empty requirement', () => {
+            expect(isCrudsRequirementSatisfied(null, new Set(['r']))).toBe(false);
+            expect(isCrudsRequirementSatisfied(new Set(['r']), null)).toBe(false);
+            expect(isCrudsRequirementSatisfied(new Set(['r']), new Set())).toBe(false);
+        });
+    });
+
+    describe('isReadOnlyAccessRequested', () => {
+        test('the legacy read action is read-only', () => {
+            expect(isReadOnlyAccessRequested('read')).toBe(true);
+        });
+
+        test('the legacy write action is not read-only', () => {
+            expect(isReadOnlyAccessRequested('write')).toBe(false);
+        });
+
+        test.each(['r', 's'])('the bare letter %s is read-only', (letter) => {
+            expect(isReadOnlyAccessRequested(letter)).toBe(true);
+        });
+
+        test.each(['c', 'u', 'd'])('the bare letter %s is not read-only', (letter) => {
+            expect(isReadOnlyAccessRequested(letter)).toBe(false);
+        });
+
+        test('an unrecognized value is not read-only', () => {
+            expect(isReadOnlyAccessRequested('bogus')).toBe(false);
+        });
+    });
+
+    describe('getInteractionCrudsLetter', () => {
+        test.each(Object.entries(INTERACTION_TO_CRUDS_LETTER))(
+            '%s maps to %s', (interaction, letter) => {
+                expect(getInteractionCrudsLetter(interaction)).toBe(letter);
+            }
+        );
+
+        test('an interaction not in the table returns null (caller falls back to accessRequested)', () => {
+            expect(getInteractionCrudsLetter('graph')).toBeNull();
+            expect(getInteractionCrudsLetter('merge')).toBeNull();
+            expect(getInteractionCrudsLetter(undefined)).toBeNull();
         });
     });
 });
