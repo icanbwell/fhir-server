@@ -242,7 +242,9 @@ doesn't expect it):
   `token_endpoint_auth_method: "none"` (public client — no secret to protect), and persists the
   record (Mongo, following this repo's existing data-access conventions rather than
   mcp-fhir-agent's GridFS/cache-namespace approach, which is specific to that repo's generic cache
-  abstraction).
+  abstraction). **Must enforce the guardrails in §7.3** (Initial Access Token, redirect-URI
+  allowlist, hard grant-type restriction) — an unguarded version of this endpoint is a regression
+  in what a bad actor can do against this server, not a neutral addition.
 - Discovery endpoints (`@modelcontextprotocol/express`'s `mcpAuthMetadataRouter` fits here regardless
   of which option is chosen — see §5): `GET /.well-known/oauth-protected-resource/mcp` (RFC 9728,
   naming `https://<this-server>/mcp` as the resource) and an authorization-server metadata document
@@ -305,6 +307,56 @@ upstream IdP (§7.1) can issue audience-restricted tokens for the `/mcp` resourc
 design if the answer is "yes, and it's a bigger change" — flagged as an open question (§8.2), not
 silently bundled into this DCR work.
 
+### 7.3 Registration guardrails — who can call `/mcp/register`
+
+**The risk this defends against.** Today, every OAuth client trusted by fhir-server was created by a
+human admin in an upstream IdP console — an implicit review gate. Option B removes that gate:
+`/mcp/register` is a new endpoint, and unless it restricts who may call it, *anyone* can self-register
+a client. Concretely, that would enable three distinct problems, only one of which is data-access:
+
+- **Storage/DoS abuse** — anyone can spam registrations; the client store grows unbounded (the exact
+  concern MCP's own blog raises, §1).
+- **OAuth client impersonation / consent-phishing** — an attacker registers a legitimate-looking
+  client (e.g., named to look like an official b.well or Anthropic integration), then gets a real,
+  already-authorized user to click through the *real* upstream consent screen. The resulting
+  authorization code/token is delivered to whatever `redirect_uri` the attacker registered. This is
+  why mcp-fhir-agent's own "known gaps" list (§4.2) flags "no redirect-URI allowlist configured" — it
+  is a live phishing vector, not a theoretical one, if left unaddressed.
+- **Token issuance with zero user involvement (the severe one).** The proxy holds one static,
+  pre-provisioned upstream credential and uses it on behalf of every registered client (§4.1). If
+  `/token` ever allowed a self-registered client to invoke a non-interactive grant (most obviously
+  `client_credentials`) against that shared static credential, a bad actor could self-register and
+  mint a fully valid upstream access token without any real user ever logging in — strictly worse than
+  today, where no public registration endpoint exists at all. This must be structurally prevented, not
+  just discouraged by policy.
+
+**Recommended controls (layered, in priority order):**
+
+1. **Initial Access Token (IAT) required by default.** `/mcp/register` requires a bearer token —
+   issued out-of-band by whoever administers this (a b.well admin, or handed to a named integration
+   partner) — before a registration request is even processed. This is RFC 7591's standard mechanism
+   for exactly this problem (it's what Okta requires by default, and what Keycloak offers as a policy
+   toggle) and converts "anyone on the internet can register" into "only pre-vetted parties can
+   register," while still letting them supply their own client metadata dynamically.
+2. **Redirect URI / allowed-host allowlist, mandatory regardless of #1.** Validate `redirect_uris`
+   against a pattern at registration time (e.g. a partner's pre-approved domain, `localhost:*` only
+   for local dev clients) rather than accepting anything an IAT holder submits. Contains the blast
+   radius even of an approved-but-compromised client.
+3. **Grant-type restriction — the single non-negotiable guardrail.** Every DCR-issued client is
+   hard-restricted to `authorization_code` + PKCE (+ `refresh_token`); `client_credentials` and any
+   other non-interactive grant must be rejected outright for DCR-issued clients, with no
+   per-client override. This is what prevents the severe risk above.
+4. **Software statements — optional, for first-party auto-trust.** RFC 7591's `software_statement`
+   parameter lets a client present a JWT signed by a trusted publisher (e.g., Anthropic signing "this
+   really is Claude Desktop"), verified against a small allowlist of trusted signer keys. Useful later
+   for known first-party clients to skip manual IAT distribution; not required for v1.
+5. **Rate limiting on `/mcp/register`** regardless of #1 — defense in depth against a leaked or
+   over-shared IAT.
+6. **Rollout sequencing**: ship the endpoint gated behind `ENABLE_MCP_DCR` (§6.1), but leave it
+   disabled in every environment until IAT issuance has an actual operational owner and process —
+   mirrors mcp-fhir-agent's own current state (DCR only enabled in `dev`; not staging, client-sandbox,
+   or prod, §4.1).
+
 ## 8. Open questions
 
 1. **Which upstream IdP does DCR broker to, per environment (§7.1)?** Does a given fhir-server
@@ -313,10 +365,11 @@ silently bundled into this DCR work.
    architecture decisions should weigh in before implementation.
 2. **Audience binding (§7.2)** — does tightening `/mcp` to require resource-indicator-scoped tokens
    ride along with this work, or become its own follow-up design?
-3. **Registration guardrails** — under Option B, fhir-server owns the registration policy directly
-   (redirect-URI allowlisting, rate-limiting, whether to require any form of pre-authorization before
-   `/mcp/register` succeeds) rather than inheriting it from an IdP admin console. Who signs off on
-   what that policy should be — same reviewers as `review.md` (§3), or a separate security review?
+3. **Registration guardrails — mechanism resolved (§7.3); ownership still open.** The controls
+   themselves are decided (IAT requirement, redirect-URI allowlist, hard grant-type restriction). What
+   remains open: who operationally issues/distributes Initial Access Tokens to partners, and who signs
+   off on the guardrail implementation before it ships — same reviewers as `review.md` (§3), or a
+   separate security review?
 4. **CIMD timing (§6.3)** — confirmed not-now; revisit when mainstream MCP clients support it.
 
 ## References
