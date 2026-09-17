@@ -27,7 +27,6 @@ class GroupMember extends Resource {
      * @param {string} memberRowUuid
      * @param {number} groupVersionId - owning Group's meta.versionId at the time of this write
      * @param {{entity: Object, period: Object|undefined, inactive: boolean}} member
-     * @param {string} [operation] - lifecycle transition that produced this state: create/reactivate/update/deactivate/delete
      */
     constructor ({
         id,
@@ -39,8 +38,7 @@ class GroupMember extends Resource {
         groupUuid,
         memberRowUuid,
         groupVersionId,
-        member,
-        operation
+        member
     }) {
         super({ id, meta, _access, _sourceAssigningAuthority, _uuid, _sourceId });
 
@@ -68,14 +66,8 @@ class GroupMember extends Resource {
             get: () => this.__data.member,
             set: (value) => { this.__data.member = value; }
         });
-        Object.defineProperty(this, 'operation', {
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.operation,
-            set: (value) => { this.__data.operation = value; }
-        });
 
-        Object.assign(this, { groupUuid, memberRowUuid, groupVersionId, member, operation });
+        Object.assign(this, { groupUuid, memberRowUuid, groupVersionId, member });
 
         Object.defineProperty(this, 'resourceType', {
             value: 'GroupMember',
@@ -106,8 +98,7 @@ class GroupMember extends Resource {
             groupUuid,
             memberRowUuid,
             groupVersionId,
-            member,
-            operation
+            member
         }
     ) {
         return new GroupMember({
@@ -120,8 +111,7 @@ class GroupMember extends Resource {
             groupUuid,
             memberRowUuid,
             groupVersionId,
-            member,
-            operation
+            member
         });
     }
 
@@ -138,17 +128,13 @@ class GroupMember extends Resource {
     }
 
     toJSONInternal () {
-        const json = {
+        return {
             ...super.toJSONInternal(),
             groupUuid: this.groupUuid,
             memberRowUuid: this.memberRowUuid,
             groupVersionId: this.groupVersionId,
             member: this.member
         };
-        if (this.operation) {
-            json.operation = this.operation;
-        }
-        return json;
     }
 }
 

@@ -988,7 +988,8 @@ const createContainer = function () {
     container.register('mongoGroupMemberRepository', (c) => new MongoGroupMemberRepository(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            databaseBulkInserter: c.databaseBulkInserter
+            databaseBulkInserter: c.databaseBulkInserter,
+            resourceLocatorFactory: c.resourceLocatorFactory
         }
     ));
     container.register('groupMemberWriteOperation', (c) => new GroupMemberWriteOperation(

@@ -10,7 +10,7 @@ const MONGO_GROUP_MEMBER_TAG_CODE = 'extended';
 
 /**
  * Checks whether a Group resource has been promoted to MongoDB-native extended storage,
- * i.e. its roster lives in Group_Member_4_0_0 rather than inline in meta.tag.member[].
+ * i.e. its roster lives in GroupMember_4_0_0 rather than inline in member[].
  *
  * @param {Object} doc - The Group resource (or plain doc) to inspect
  * @returns {boolean}

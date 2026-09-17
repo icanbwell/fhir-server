@@ -129,6 +129,12 @@ describe('Group $member-add / $member-remove', () => {
         expect(createResp).toHaveStatusCode(201);
         const createdGroupId = createResp.body.id;
 
+        // mockHttpContext fixes one requestId for every request in this test, so the create's own
+        // deferred history-write task and the upcoming $member-add's history queueing would
+        // otherwise share one request-scoped bulk-insert queue and collide (same hazard documented
+        // in binaryDelete.test.js's own drainPostRequest helper) -- drain before issuing the next write.
+        await container.postRequestProcessor.waitTillDoneAsync({ requestId });
+
         const mongoDatabaseManager = container.mongoDatabaseManager;
         const fhirDb = await mongoDatabaseManager.getClientDbAsync();
         const groupDoc = await fhirDb.collection('Group_4_0_0').findOne({ id: createdGroupId });
@@ -158,7 +164,9 @@ describe('Group $member-add / $member-remove', () => {
 
         const historyAfterAdd = await historyCollection.find({ 'resource.groupUuid': groupUuid }).toArray();
         expect(historyAfterAdd).toHaveLength(1);
-        expect(historyAfterAdd[0].resource.operation).toBe('create');
+        // there is no operation field anywhere in this design (design doc §3.2) -- a create/update
+        // history entry keeps request.method as the real, unmodified enclosing HTTP verb ('POST')
+        expect(historyAfterAdd[0].request.method).toBe('POST');
 
         const removeResp = await request
             .post(`/4_0_0/Group/${createdGroupId}/$member-remove`)
@@ -173,12 +181,17 @@ describe('Group $member-add / $member-remove', () => {
 
         await container.postRequestProcessor.waitTillDoneAsync({ requestId });
 
+        // extended regime: $member-remove hard-deletes the live row -- no inactive:true flag
         const rowAfterRemove = await memberCollection.findOne({ groupUuid, 'member.entity.reference': memberRef });
-        expect(rowAfterRemove.member.inactive).toBe(true);
+        expect(rowAfterRemove).toBeNull();
 
         const historyAfterRemove = await historyCollection.find({ 'resource.groupUuid': groupUuid }).toArray();
         expect(historyAfterRemove).toHaveLength(2);
-        expect(historyAfterRemove.map((h) => h.resource.operation).sort()).toEqual(['create', 'deactivate']);
+        // the tombstone is identified purely by its own request.method being overridden to
+        // 'DELETE' -- there is no operation field anywhere in this design (design doc §3.2)
+        expect(historyAfterRemove.map((h) => h.request.method).sort()).toEqual(['DELETE', 'POST']);
+        const deleteHistoryEntry = historyAfterRemove.find((h) => h.request.method === 'DELETE');
+        expect(deleteHistoryEntry.resource.member.inactive).toBe(true);
     });
 
     test('member-add and member-remove are not registered for a non-Group resourceType', async () => {
@@ -238,12 +251,13 @@ describe('Group $member-add / $member-remove', () => {
             })
             .set(getHeaders());
         expect(createResp).toHaveStatusCode(201);
+        const createdGroupId = createResp.body.id;
 
         const previousValue = process.env.ENABLE_EXTENDED_GROUP;
         delete process.env.ENABLE_EXTENDED_GROUP;
         try {
             const addResp = await request
-                .post(`/4_0_0/Group/${groupId}/$member-add`)
+                .post(`/4_0_0/Group/${createdGroupId}/$member-add`)
                 .send({
                     resourceType: 'Parameters',
                     parameter: [
@@ -273,12 +287,13 @@ describe('Group $member-add / $member-remove', () => {
             })
             .set(getHeaders());
         expect(createResp).toHaveStatusCode(201);
+        const createdGroupId = createResp.body.id;
 
         const previousLimit = process.env.GROUP_PATCH_OPERATIONS_LIMIT;
         process.env.GROUP_PATCH_OPERATIONS_LIMIT = '3';
         try {
             const addResp = await request
-                .post(`/4_0_0/Group/${groupId}/$member-add`)
+                .post(`/4_0_0/Group/${createdGroupId}/$member-add`)
                 .send({
                     resourceType: 'Parameters',
                     parameter: Array.from({ length: 4 }, (_, i) => ({
@@ -293,7 +308,7 @@ describe('Group $member-add / $member-remove', () => {
 
             // the rejected request must not have partially applied -- no members present at all
             const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
-            const groupDoc = await fhirDb.collection('Group_4_0_0').findOne({ id: groupId });
+            const groupDoc = await fhirDb.collection('Group_4_0_0').findOne({ id: createdGroupId });
             expect(groupDoc.member || []).toHaveLength(0);
         } finally {
             process.env.GROUP_PATCH_OPERATIONS_LIMIT = previousLimit;
