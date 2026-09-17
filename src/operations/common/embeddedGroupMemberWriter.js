@@ -3,23 +3,15 @@ const { resolveMemberWrite } = require('./resolveMemberWrite');
 /**
  * Applies $member-add / $member-remove events to an embedded Group.member[] array.
  *
- * Add semantics reuse resolveMemberWrite's four-way state table (create/update/none), shared
- * with the Mongo-native regime -- the returned classification only ever says create/update,
- * never a separate reactivate value (see resolveMemberWrite's own docstring). This function's
- * own `outcomes[].operation` is a per-call return value for the caller only -- it is never
- * persisted anywhere; there is no GroupMember history collection backing an embedded Group at
- * all. Remove is a hard delete in both regimes, but the embedded regime does it directly here
- * (splice out of member[]), matching this codebase's pre-existing Group.member manipulation
- * behavior (a standard JSON Patch "remove" op already deletes the array entry outright) --
- * so a removed entry leaves no trace at all. The Mongo-native regime also hard-deletes its row
- * (via resolveMemberWrite's 'delete' classification), but writes a tombstone
- * GroupMember_4_0_0_History entry first -- identified by that entry's own request.method being
- * overridden to 'DELETE', not a stored field -- since point-in-time reconstruction (DCON-5530)
- * needs a durable record that the removal happened even though the live row is gone.
+ * Shares resolveMemberWrite's create/update/none state table with the Mongo-native regime.
+ * `outcomes[].operation` is a per-call return value only -- never persisted, since an embedded
+ * Group has no history collection. Remove is a hard delete here (splice out of member[]), same
+ * as this codebase's existing JSON Patch "remove" behavior, so a removed entry leaves no trace.
+ * The Mongo-native regime also hard-deletes its row, but writes a tombstone history entry first
+ * (identified by that entry's own request.method being 'DELETE', not a stored field).
  *
- * Returns plain objects, not GroupMember backbone-element instances: Group.member's own setter
- * already normalizes plain objects via FhirResourceCreator, so pre-wrapping here would just be
- * reconstructed a second time.
+ * Returns plain objects, not GroupMember backbone-element instances -- Group.member's own setter
+ * already normalizes plain objects via FhirResourceCreator.
  *
  * @param {Array<Object>|undefined} existingMembers
  * @param {Array<{entity: {reference:string, type:string|undefined, display:string|undefined}, period:Object|undefined, op:'add'|'remove'}>} events

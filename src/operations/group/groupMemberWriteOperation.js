@@ -18,7 +18,7 @@ const { applyEventsToEmbeddedMembers } = require('../common/embeddedGroupMemberW
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
 /**
- * Implements $member-add / $member-remove for Group (DCON-5527).
+ * Implements $member-add / $member-remove for Group.
  *
  * Both operations share one write path: load and scope-check the Group, reject Groups tracked
  * in ClickHouse external storage, bump the Group's own meta.versionId, then branch on regime --
@@ -101,6 +101,24 @@ class GroupMemberWriteOperation {
         const { base_version, id } = parsedArgs;
         const { user, scope, isUser, personIdFromJwtToken } = requestInfo;
 
+        // Parse the incoming Parameters body and enforce the op-count limit up front, before
+        // scope validation or the Group lookup -- both scale with the request itself, not with
+        // events.length, but there is no reason to pay for either when the request is going to
+        // be rejected as too-costly anyway.
+        const events = parseMemberParametersResource(resource, op);
+
+        const memberOperationsLimit = this.configManager.groupPatchOperationsLimit;
+        if (events.length > memberOperationsLimit) {
+            const batchCount = Math.ceil(events.length / memberOperationsLimit);
+            const { message, options } = createTooCostlyError({
+                actual: events.length,
+                limit: memberOperationsLimit,
+                operation: 'PATCH',
+                customGuidance: `Split into ${batchCount} batches of ${memberOperationsLimit} member parameters each`
+            });
+            throw new BadRequestError({ message }, options);
+        }
+
         const currentOperationName = `member${op === 'add' ? 'Add' : 'Remove'}`;
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
@@ -163,20 +181,6 @@ class GroupMemberWriteOperation {
             throw new Error(
                 `Group ${foundResource.id || foundResource._uuid} has no _sourceAssigningAuthority; cannot enrich member references`
             );
-        }
-
-        const events = parseMemberParametersResource(resource, op);
-
-        const memberOperationsLimit = this.configManager.groupPatchOperationsLimit;
-        if (events.length > memberOperationsLimit) {
-            const batchCount = Math.ceil(events.length / memberOperationsLimit);
-            const { message, options } = createTooCostlyError({
-                actual: events.length,
-                limit: memberOperationsLimit,
-                operation: 'PATCH',
-                customGuidance: `Split into ${batchCount} batches of ${memberOperationsLimit} member parameters each`
-            });
-            throw new BadRequestError({ message }, options);
         }
 
         enrichMemberReferences(events, sourceAssigningAuthority);

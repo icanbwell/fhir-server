@@ -17,11 +17,32 @@ const {
 } = require('../../../constants');
 
 /**
- * Happy-path coverage for DCON-5527's $member-add / $member-remove on Group:
+ * Happy-path coverage for $member-add / $member-remove on Group:
  * - an embedded Group (default regime), mutating member[] inline
  * - an extended Group (groupSize|extended tag), writing through to the
  *   GroupMember_4_0_0 / GroupMember_4_0_0_History collections
  */
+
+/**
+ * postRequestProcessor.waitTillDoneAsync() can return before a task it already shifted off the
+ * queue has actually finished running (it only checks queue length, not whether a shifted task
+ * is still executing) -- so a history write can still be in flight even after the wait resolves.
+ * Poll instead of asserting on a single read right after the wait.
+ * @param {() => Promise<Array<Object>>} queryFn
+ * @param {number} expectedLength
+ * @param {number} [timeoutMs]
+ * @returns {Promise<Array<Object>>}
+ */
+async function waitForHistoryCountAsync(queryFn, expectedLength, timeoutMs = 5000) {
+    const start = Date.now();
+    let rows = await queryFn();
+    while (rows.length < expectedLength && Date.now() - start < timeoutMs) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        rows = await queryFn();
+    }
+    return rows;
+}
+
 describe('Group $member-add / $member-remove', () => {
     let requestId;
 
@@ -162,10 +183,11 @@ describe('Group $member-add / $member-remove', () => {
         expect(rowAfterAdd).toBeDefined();
         expect(rowAfterAdd.member.inactive).toBe(false);
 
-        const historyAfterAdd = await historyCollection.find({ 'resource.groupUuid': groupUuid }).toArray();
+        const historyAfterAdd = await waitForHistoryCountAsync(
+            () => historyCollection.find({ 'resource.groupUuid': groupUuid }).toArray(), 1
+        );
         expect(historyAfterAdd).toHaveLength(1);
-        // there is no operation field anywhere in this design (design doc §3.2) -- a create/update
-        // history entry keeps request.method as the real, unmodified enclosing HTTP verb ('POST')
+        // a create/update history entry keeps request.method as the real enclosing HTTP verb
         expect(historyAfterAdd[0].request.method).toBe('POST');
 
         const removeResp = await request
@@ -185,10 +207,11 @@ describe('Group $member-add / $member-remove', () => {
         const rowAfterRemove = await memberCollection.findOne({ groupUuid, 'member.entity.reference': memberRef });
         expect(rowAfterRemove).toBeNull();
 
-        const historyAfterRemove = await historyCollection.find({ 'resource.groupUuid': groupUuid }).toArray();
+        const historyAfterRemove = await waitForHistoryCountAsync(
+            () => historyCollection.find({ 'resource.groupUuid': groupUuid }).toArray(), 2
+        );
         expect(historyAfterRemove).toHaveLength(2);
-        // the tombstone is identified purely by its own request.method being overridden to
-        // 'DELETE' -- there is no operation field anywhere in this design (design doc §3.2)
+        // the tombstone is identified purely by its own request.method being overridden to 'DELETE'
         expect(historyAfterRemove.map((h) => h.request.method).sort()).toEqual(['DELETE', 'POST']);
         const deleteHistoryEntry = historyAfterRemove.find((h) => h.request.method === 'DELETE');
         expect(deleteHistoryEntry.resource.member.inactive).toBe(true);

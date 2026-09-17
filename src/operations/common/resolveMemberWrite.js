@@ -19,32 +19,22 @@ function stripUndefined(obj) {
 
 /**
  * Resolves a single member event (add/remove) against the current membership, if any, into
- * the four-way add state table (create/update/none) plus hard-remove (delete/none).
+ * create/update/none, plus hard-remove (delete/none).
  *
- * Add semantics are shared by both storage regimes -- the Mongo-native GroupMember repository
- * and the embedded Group.member[] array. The 'delete' classification is only used by the
- * Mongo-native regime: MongoGroupMemberRepository.applyMemberEventsAsync writes a final
- * 'delete' history entry (a tombstone) for the row, then hard-deletes the live document --
- * removal is not a soft inactive:true flag. The embedded regime hard-removes the array entry
- * directly instead, bypassing this function entirely for remove events -- see
- * embeddedGroupMemberWriter.js.
+ * The 'delete' classification is only used by the Mongo-native regime -- the embedded regime
+ * hard-removes the array entry directly instead, bypassing this function for remove events (see
+ * embeddedGroupMemberWriter.js).
  *
  * Fields the event does not supply are carried forward from the existing membership rather
  * than wiped, so a bare re-add never erases period/type/display set by an earlier call.
  *
- * A reactivation (existing row was inactive:true) and a plain field update are distinguished
- * internally -- this function needs to know whether to flip inactive back to false -- but both
- * write the same member shape via the same replaceOneAsync path, and nothing downstream ever
- * needs to tell them apart, so both are classified 'update'. The returned vocabulary is
- * therefore only create/update/delete/none -- 'reactivate' is never a value this function
- * returns.
+ * Reactivating an inactive row is still classified 'update', not a separate value -- nothing
+ * downstream needs to tell it apart from a plain field update.
  *
- * This classification is an internal routing decision only (it picks insertOneAsync vs.
- * replaceOneAsync vs. a direct history-tombstone write) and is never itself persisted -- there
- * is no `operation` field on GroupMember or anywhere in this design (design doc §3.2). The one
- * lifecycle event that matters downstream, a hard-delete tombstone, is recorded exclusively on
- * the corresponding history entry's own `request.method` ('DELETE', overridden at write time
- * by MongoGroupMemberRepository.applyMemberEventsAsync), never as a field of the row itself.
+ * The classification is an internal routing decision only and is never persisted -- there is no
+ * `operation` field on GroupMember. The one thing that matters downstream, a hard-delete
+ * tombstone, is recorded exclusively via the history entry's own `request.method` ('DELETE'),
+ * never as a field of the row itself.
  *
  * @param {{entity: Object, period: Object|undefined, inactive: boolean}|undefined} existingMember
  * @param {{entity: {reference:string, type:string|undefined, display:string|undefined}, period:Object|undefined, op:'add'|'remove'}} event
@@ -86,7 +76,10 @@ function resolveMemberWrite(existingMember, event) {
     const changed = !periodsEqual(existingMember.period, period) ||
         existingMember.entity?.type !== entity.type ||
         existingMember.entity?.display !== entity.display;
-    return changed ? { classification: 'update', member } : { classification: 'none' };
+    if (!changed) {
+        return { classification: 'none' };
+    }
+    return { classification: 'update', member };
 }
 
 module.exports = { resolveMemberWrite, periodsEqual, stripUndefined };

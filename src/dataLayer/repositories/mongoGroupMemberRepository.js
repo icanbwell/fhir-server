@@ -10,27 +10,21 @@ const { resolveMemberWrite } = require('../../operations/common/resolveMemberWri
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 
 /**
- * Repository for the MongoDB-native, large-Group member storage introduced by DCON-5527:
- * GroupMember rows written through the shared DatabaseBulkInserter / MongoBulkWriteExecutor
- * pipeline (resourceType 'GroupMember'; not a real FHIR resource, but registered as a custom
- * resource class under src/fhir/classes/4_0_0/custom_resources/ so the write pipeline's
- * internal FhirResourceCreator lookups -- e.g. MongoBulkWriteExecutor's one-by-one fallback --
- * can construct it. Reads still go through the raw-document path, not toObjectArrayAsync()).
+ * Repository for the MongoDB-native, large-Group member storage. GroupMember rows are written
+ * through the shared DatabaseBulkInserter / MongoBulkWriteExecutor pipeline (resourceType
+ * 'GroupMember'; not a real FHIR resource, but registered as a custom resource class under
+ * src/fhir/classes/4_0_0/custom_resources/ so FhirResourceCreator lookups -- e.g.
+ * MongoBulkWriteExecutor's one-by-one fallback -- can construct it). Reads use the raw-document
+ * path, not toObjectArrayAsync().
  *
- * $member-remove hard-deletes the row (resolveMemberWrite's 'delete' classification) rather
- * than a soft inactive:true flag. That path bypasses insertOneAsync/replaceOneAsync entirely --
- * there is no live document being written -- and instead: (1) queues a tombstone history entry
- * via insertOneHistoryAsync (with a cloned FhirRequestInfo overriding method to 'DELETE' --
- * there is no operation field anywhere in this design, design doc §3.2; the tombstone is
- * identified purely by that history entry's own request.method), (2) flushes it synchronously
- * via executeHistoryAsync (never executeAsync, which would race postRequestProcessor -- see
- * groupMemberWriteOperation.js's single-flush requirement), then (3) issues a direct
- * collection.deleteMany() for the now-history-backed rows, mirroring
- * src/operations/remove/removeHelper.js's own history-then-delete ordering. This makes
- * GroupMember_4_0_0_History the only durable record of a removed membership; the live
- * collection is no longer a superset of every historical roster (see DCON-5530's
- * point-in-time reconstruction, which must additionally probe history for memberRowUuids
- * that have no live row at all).
+ * $member-remove hard-deletes the row rather than a soft inactive:true flag. That path bypasses
+ * insertOneAsync/replaceOneAsync entirely and instead: (1) queues a tombstone history entry via
+ * insertOneHistoryAsync (a cloned FhirRequestInfo overrides method to 'DELETE' -- there is no
+ * operation field anywhere in this design; the tombstone is identified purely by that method),
+ * (2) flushes it synchronously via executeHistoryAsync (never executeAsync, which would race
+ * postRequestProcessor), then (3) issues a direct collection.deleteMany() for the
+ * now-history-backed rows, mirroring removeHelper.js's own history-then-delete ordering. This
+ * makes GroupMember_4_0_0_History the only durable record of a removed membership.
  */
 class MongoGroupMemberRepository {
     /**
@@ -136,14 +130,11 @@ class MongoGroupMemberRepository {
 
             if (classification === 'delete') {
                 // Hard-remove: write the tombstone history entry only -- there is no live
-                // document to insert/replace. Never call insertOneAsync/replaceOneAsync here;
-                // the row is being removed, not written. The live delete itself is deferred
-                // until every event in this batch has queued its history entry, then flushed
-                // and applied together below. The tombstone is identified by request.method
-                // being 'DELETE', not by any field on `doc` -- there is no operation field
-                // anywhere in this design (design doc §3.2). The real enclosing $member-remove
-                // request is always POST, so a cloned FhirRequestInfo overrides just this call's
-                // method.
+                // document to insert/replace. The live delete itself is deferred until every
+                // event in this batch has queued its history entry, then flushed and applied
+                // together below. The tombstone is identified by request.method being 'DELETE',
+                // not by any field on `doc`. The real enclosing request is always POST, so a
+                // cloned FhirRequestInfo overrides just this call's method.
                 await this.databaseBulkInserter.insertOneHistoryAsync({
                     requestInfo: new FhirRequestInfo({ ...requestInfo, method: 'DELETE' }),
                     base_version,

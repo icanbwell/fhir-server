@@ -1,7 +1,7 @@
 const Resource = require('../resources/resource');
 
 /**
- * Hand-authored pseudo-FHIR-resource for a single Group_Member row (DCON-5527).
+ * Hand-authored pseudo-FHIR-resource for a single Group_Member row.
  *
  * Not a real FHIR resource type -- it exists only so Group roster rows can flow through the
  * shared DatabaseBulkInserter / MongoBulkWriteExecutor write pipeline instead of a bespoke

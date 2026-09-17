@@ -18811,6 +18811,18 @@
           }
         },
         {
+          "name": "member-add",
+          "definition": {
+            "reference": "https://hl7.org/fhir/us/davinci-atr/"
+          }
+        },
+        {
+          "name": "member-remove",
+          "definition": {
+            "reference": "https://hl7.org/fhir/us/davinci-atr/"
+          }
+        },
+        {
           "name": "everything",
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
