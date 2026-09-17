@@ -112,8 +112,10 @@ function parseScopeToken (scopeToken, allowV2 = true) {
 
 /**
  * Whether cruds is a superset of requiredCruds -- every letter requiredCruds asks for must be
- * present in cruds. The shared primitive behind both the legacy binary action check
- * (isActionSatisfiedByCruds) and the granular per-interaction gate (ScopesValidator, phase 2).
+ * present in cruds. The shared primitive behind every CRUDS gate in this module: the legacy
+ * binary read/write check, the bare-letter check (ScopesManager.getAccessCodesFromScopes, phase
+ * 3), and the granular per-interaction gate (ScopesValidator, phase 2) -- all resolve their
+ * required letters via getRequiredCrudsForAccessRequested() and then call this.
  *
  * Deliberately requires ALL of requiredCruds, not just one: for a singleton requiredCruds (every
  * granular per-interaction letter, and 'read' -> {r}) that's the same as "any", but 'write' ->
@@ -141,16 +143,6 @@ function isCrudsRequirementSatisfied (cruds, requiredCruds) {
         }
     }
     return true;
-}
-
-/**
- * Whether a legacy binary action ('read'/'write') is satisfied by a parsed scope's CRUDS set.
- * @param {Set<string>|null} cruds
- * @param {string} action 'read'|'write'
- * @return {boolean}
- */
-function isActionSatisfiedByCruds (cruds, action) {
-    return isCrudsRequirementSatisfied(cruds, V1_ACTION_TO_REQUIRED_CRUDS[action]);
 }
 
 /**
@@ -233,7 +225,6 @@ module.exports = {
     isV2Suffix,
     normalizeSuffixToCruds,
     parseScopeToken,
-    isActionSatisfiedByCruds,
     isCrudsRequirementSatisfied,
     getRequiredCrudsForAccessRequested,
     isReadOnlyAccessRequested,
