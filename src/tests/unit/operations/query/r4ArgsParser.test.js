@@ -449,6 +449,26 @@ describe('R4ArgsParser', () => {
             expect(item.chain).toBeUndefined();
         });
 
+        test('does not treat a single-dot parameter as a chain when the base segment is not a reference param (meta.security)', () => {
+            // Regression: CI run 35211096854, job 105168526956 -- meta.security is used as a raw
+            // filter key that isn't a real FHIR search parameter at all ("meta" is not a
+            // reference-type param). It must be silently ignored in lenient mode like any other
+            // unrecognized parameter, not hard-rejected with a 400 just because it happens to
+            // contain exactly one dot.
+            mockSearchParametersManager.getPropertyObject.mockReturnValue(undefined);
+            const args = {
+                'meta.security': 'https://example.com/access|tenantA',
+                base_version: '4_0_0'
+            };
+
+            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).not.toThrow();
+            const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
+
+            const item = result.parsedArgItems.find(i => i.queryParameter === 'meta.security');
+            expect(item).toBeDefined();
+            expect(item.chain).toBeUndefined();
+        });
+
         test.each(['missing', 'contains', 'above', 'below', 'text', 'of-type'])(
             'throws BadRequestError when chain is combined with the :%s modifier',
             (modifier) => {

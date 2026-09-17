@@ -129,9 +129,22 @@ class R4ArgsParser {
                 // parameter name and can never itself contain a dot (single-level chaining
                 // only). Two or more dots means this is some other pre-existing dotted
                 // parameter name (e.g. Group's `member.entity._reference`), not a chain.
+                //
+                // Only commit to chain interpretation if the base segment actually resolves to
+                // a reference-type search parameter -- otherwise this is just some other
+                // dotted-looking parameter name that happens to contain one dot (e.g.
+                // `meta.security` used as a raw filter key, which isn't a real search parameter
+                // at all and must fall through to the ordinary unrecognized-parameter handling
+                // below, not a hard 400 regardless of strict/lenient mode).
                 const dotIndex = queryParameter.indexOf('.');
-                chainDescriptor = { targetParam: queryParameter.slice(dotIndex + 1) };
-                queryParameter = queryParameter.slice(0, dotIndex);
+                const candidateBaseParam = queryParameter.slice(0, dotIndex);
+                const candidatePropertyObj = this.searchParametersManager.getPropertyObject(
+                    { resourceType, queryParameter: candidateBaseParam }
+                );
+                if (candidatePropertyObj && candidatePropertyObj.type === 'reference') {
+                    chainDescriptor = { targetParam: queryParameter.slice(dotIndex + 1) };
+                    queryParameter = candidateBaseParam;
+                }
             }
 
             /**
