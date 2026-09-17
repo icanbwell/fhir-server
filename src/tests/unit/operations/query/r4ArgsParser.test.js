@@ -448,6 +448,33 @@ describe('R4ArgsParser', () => {
             expect(item).toBeDefined();
             expect(item.chain).toBeUndefined();
         });
+
+        test.each(['missing', 'contains', 'above', 'below', 'text', 'of-type'])(
+            'throws BadRequestError when chain is combined with the :%s modifier',
+            (modifier) => {
+                mockChainLookups({ baseTarget: ['Patient'] });
+                const args = {
+                    [`patient.identifier:${modifier}`]: 'Smith',
+                    base_version: '4_0_0'
+                };
+
+                expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).toThrow();
+            }
+        );
+
+        test('allows chain combined with the :not modifier', () => {
+            mockChainLookups({ baseTarget: ['Patient'] });
+            const args = {
+                'patient.identifier:not': 'http://example.com/mrn|123456',
+                base_version: '4_0_0'
+            };
+
+            const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
+
+            const item = result.parsedArgItems.find(i => i.queryParameter === 'patient');
+            expect(item).toBeDefined();
+            expect(item.chain).toEqual({ targetType: 'Patient', targetParam: 'identifier' });
+        });
     });
 
     describe('parseArgs - useOrFilterForArrays', () => {

@@ -9,6 +9,7 @@ const { QueryParameterValue } = require('./queryParameterValue');
 const { ParsedArgs } = require('./parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
+const { REJECTED_MODIFIERS } = require('./filters/composite');
 
 /**
  * @classdesc This classes parses an array of args into structured ParsedArgsItem array
@@ -166,6 +167,12 @@ class R4ArgsParser {
                 if (!targetPropertyObj) {
                     throw new BadRequestError(new Error(
                         `${chainDescriptor.targetParam} is not a valid search parameter for ${targetType}`
+                    ));
+                }
+                if (REJECTED_MODIFIERS.some(m => modifiers.includes(m))) {
+                    throw new BadRequestError(new Error(
+                        `Modifiers [${REJECTED_MODIFIERS.join(', ')}] are not supported on chained ` +
+                        `search parameters (queryParameter=${argName})`
                     ));
                 }
                 chain = { targetType, targetParam: chainDescriptor.targetParam };

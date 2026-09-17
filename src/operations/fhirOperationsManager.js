@@ -34,6 +34,7 @@ const {ExportByIdOperation} = require('./export/exportById');
 const {ImportOperation} = require('./import/import');
 const {FhirResponseNdJsonStreamer} = require('../utils/fhirResponseNdJsonStreamer');
 const {READ, WRITE} = require('../constants').OPERATIONS;
+const {DB_SEARCH_LIMIT_FOR_IDS} = require('../constants');
 const {vulcanIgSearchQueries} = require('./query/customQueries');
 const {getNestedValueByPath} = require('../utils/object');
 const {ConfigManager} = require('../utils/configManager');
@@ -339,23 +340,40 @@ class FhirOperationsManager {
     }
 
     // Used by ChainedSearchQueryRewriter to resolve a chain's target ids through the same
-    // authorized search path a top-level search uses (review.md §E).
-    async searchResourceForChainAsync ({ resourceType, args, requestInfo, base_version }) {
-        const parsedArgs = await this.getParsedArgsAsync({
-            args: { ...args, base_version, _elements: '_uuid' },
-            resourceType,
-            operation: READ,
-            requestInfo
-        });
-        const bundle = await this.searchBundleOperation.searchBundleAsync({
-            requestInfo,
-            parsedArgs,
-            resourceType,
-            useAggregationPipeline: false
-        });
-        return (bundle.entry || [])
-            .map((entry) => entry.resource?._uuid)
-            .filter((uuid) => uuid);
+    // authorized search path a top-level search uses (review.md §E). Paginates until a
+    // partial/empty page proves there's nothing left -- a full page must never be mistaken for
+    // "that's all of them", since searchManager caps a single non-streaming page at
+    // DB_SEARCH_LIMIT_FOR_IDS regardless of _count.
+    async searchResourceForChainAsync ({ resourceType, args, requestInfo, base_version, pageSize = DB_SEARCH_LIMIT_FOR_IDS }) {
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'search' });
+
+        const resolvedUuids = [];
+        let pageOffset = 0;
+        while (true) {
+            const parsedArgs = await this.getParsedArgsAsync({
+                args: { ...args, base_version, _elements: '_uuid', _count: pageSize, _getpagesoffset: pageOffset },
+                resourceType,
+                operation: READ,
+                requestInfo
+            });
+            const bundle = await this.searchBundleOperation.searchBundleAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType,
+                useAggregationPipeline: false
+            });
+            const entries = bundle.entry || [];
+            for (const entry of entries) {
+                if (entry.resource?._uuid) {
+                    resolvedUuids.push(entry.resource._uuid);
+                }
+            }
+            if (entries.length < pageSize) {
+                break;
+            }
+            pageOffset += 1;
+        }
+        return resolvedUuids;
     }
 
     /**

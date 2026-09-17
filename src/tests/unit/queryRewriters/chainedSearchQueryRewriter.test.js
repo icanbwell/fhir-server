@@ -138,4 +138,28 @@ describe('ChainedSearchQueryRewriter', () => {
         expect(result.parsedArgItems[0].queryParameterValue.value).toBe('Patient/Patient-uuid');
         expect(result.parsedArgItems[1].queryParameterValue.value).toBe('Practitioner/Practitioner-uuid');
     });
+
+    test('throws a clean BadRequestError (not a raw TypeError) when a chain item exists but searchResourceAsync was never supplied', async () => {
+        // Regression: MCP (mcpToolHandler.js) and GraphQL (graphql/dataSource.js,
+        // graphqlv2/dataSource.js) call queryRewriterManager.rewriteArgsAsync without a
+        // searchResourceAsync, but this rewriter is unconditionally registered
+        // (createContainer.js) so it still runs for their requests too. A caller sending a
+        // chain-shaped filter through one of those entry points must get a clean rejection,
+        // not an uncaught TypeError crashing into a 500.
+        const parsedArgs = buildParsedArgs({
+            queryParameter: 'patient',
+            chain: { targetType: 'Patient', targetParam: 'identifier' },
+            value: 'X'
+        });
+
+        await expect(rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync: undefined }))
+            .rejects.toThrow(/chained search/i);
+    });
+
+    test('does not throw when there are no chain items, even without searchResourceAsync', async () => {
+        const parsedArgs = buildParsedArgs({ queryParameter: 'status', chain: undefined, value: 'active' });
+
+        await expect(rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync: undefined }))
+            .resolves.toBe(parsedArgs);
+    });
 });
