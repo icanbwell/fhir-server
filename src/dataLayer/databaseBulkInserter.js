@@ -340,7 +340,7 @@ class DatabaseBulkInserter extends EventEmitter {
             }
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             // Run preSave handlers (includes invariant validation)
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions, contextData });
             handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
@@ -534,7 +534,7 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             // Run preSave handlers FIRST (includes invariant validation)
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions, contextData });
             handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
@@ -631,7 +631,7 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             // Run preSave handlers FIRST (includes invariant validation)
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions, contextData });
             handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);

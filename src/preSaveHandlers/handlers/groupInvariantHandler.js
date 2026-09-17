@@ -31,7 +31,7 @@ class GroupInvariantHandler extends PreSaveHandler {
      * @returns {Promise<Resource>} The resource (unmodified if valid)
      * @throws {BadRequestError} If invariant is violated
      */
-    async preSaveAsync({ resource }) {
+    async preSaveAsync({ resource, contextData }) {
         // Only validate Group resources
         if (resource.resourceType !== 'Group') {
             return resource;
@@ -56,21 +56,25 @@ class GroupInvariantHandler extends PreSaveHandler {
             });
         }
 
-        // TODO: Update to skip this flow when clickhouse is disabled
-        // Check member count limit for CREATE/PUT operations
-        // if (hasMembers) {
-        //     const memberCount = resource.member.length;
-        //     const limit = this.configManager.groupMemberLimit;
+        // Check member count limit for CREATE/UPDATE/MERGE, skipping incremental $member-add /
+        // $member-remove writes on embedded Groups -- those are promoted (Task B3), not rejected.
+        if (hasMembers && !contextData?.memberWriteIsIncremental) {
+            const memberCount = resource.member.length;
+            const limit = this.configManager.groupMemberLimit;
 
-        //     if (memberCount > limit) {
-        //         const { message, options } = createTooCostlyError({
-        //             actual: memberCount,
-        //             limit,
-        //             operation: 'PUT'
-        //         });
-        //         throw new BadRequestError({ message }, options);
-        //     }
-        // }
+            if (memberCount > limit) {
+                const { message, options } = createTooCostlyError({
+                    actual: memberCount,
+                    limit,
+                    operation: 'PUT',
+                    customGuidance: 'Keep member[] under the limit when creating or updating a Group; ' +
+                        'grow or shrink membership afterward via $member-add / $member-remove ' +
+                        '(e.g. POST /4_0_0/Group/{id}/$member-add) rather than submitting the full ' +
+                        'member array in a single write. See: https://www.hl7.org/fhir/http.html#patch'
+                });
+                throw new BadRequestError({ message }, options);
+            }
+        }
 
         // Valid - return unchanged
         return resource;

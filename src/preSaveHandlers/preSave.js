@@ -15,13 +15,14 @@ class PreSaveManager {
      * @typedef {Object} PreSaveAsyncProps
      * @property {import('../../fhir/classes/4_0_0/resources/resource')} resource
      * @property {import('./preSaveOptions').PreSaveOptions} [options]
+     * @property {Object} [contextData]
      *
      * @param {PreSaveAsyncProps}
      * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
      */
-    async preSaveAsync ({ resource, options }) {
+    async preSaveAsync ({ resource, options, contextData }) {
         for (const preSaveHandler of this.preSaveHandlers) {
-            resource = await preSaveHandler.preSaveAsync({ resource, options });
+            resource = await preSaveHandler.preSaveAsync({ resource, options, contextData });
         }
         return resource;
     }
