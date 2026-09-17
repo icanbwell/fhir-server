@@ -166,7 +166,7 @@ class GroupMemberWriteOperation {
         }
 
         const events = parseMemberParametersResource(resource, op);
-        
+
         const memberOperationsLimit = this.configManager.groupPatchOperationsLimit;
         if (events.length > memberOperationsLimit) {
             const batchCount = Math.ceil(events.length / memberOperationsLimit);
