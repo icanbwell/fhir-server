@@ -416,6 +416,38 @@ describe('R4ArgsParser', () => {
 
             expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).toThrow();
         });
+
+        test('does not treat a multi-dot parameter name as a chain (Group member.entity._reference)', () => {
+            // member.entity._reference is a pre-existing, unrelated dotted parameter name
+            // (regression: CI run 35106413973, job 104828682944) -- `member` genuinely is a
+            // reference-type param here, so this must NOT be mistaken for a chain whose target
+            // param is "entity._reference".
+            const memberPropertyObj = new SearchParameterDefinition({
+                type: 'reference', field: 'member.entity', target: ['Patient', 'Group']
+            });
+            mockSearchParametersManager.getPropertyObject.mockImplementation(
+                ({ resourceType, queryParameter }) => {
+                    if (resourceType === 'Group' && queryParameter === 'member.entity._reference') {
+                        return undefined;
+                    }
+                    if (resourceType === 'Group' && queryParameter === 'member') {
+                        return memberPropertyObj;
+                    }
+                    return undefined;
+                }
+            );
+            const args = {
+                'member.entity._reference': 'Patient/streaming-patient-1',
+                base_version: '4_0_0'
+            };
+
+            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Group', args })).not.toThrow();
+            const result = r4ArgsParser.parseArgs({ resourceType: 'Group', args });
+
+            const item = result.parsedArgItems.find(i => i.queryParameter.startsWith('member.entity'));
+            expect(item).toBeDefined();
+            expect(item.chain).toBeUndefined();
+        });
     });
 
     describe('parseArgs - useOrFilterForArrays', () => {

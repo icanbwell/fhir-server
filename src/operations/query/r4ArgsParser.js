@@ -120,7 +120,14 @@ class R4ArgsParser {
                 const [explicitTargetType, targetParam] = modifiers[typedChainModifierIndex].split('.');
                 modifiers = modifiers.filter((_, i) => i !== typedChainModifierIndex);
                 chainDescriptor = { explicitTargetType, targetParam };
-            } else if (queryParameter.includes('.')) {
+            } else if (
+                queryParameter.includes('.') &&
+                queryParameter.indexOf('.') === queryParameter.lastIndexOf('.')
+            ) {
+                // exactly one dot only -- a real chain target param is a plain FHIR search
+                // parameter name and can never itself contain a dot (single-level chaining
+                // only). Two or more dots means this is some other pre-existing dotted
+                // parameter name (e.g. Group's `member.entity._reference`), not a chain.
                 const dotIndex = queryParameter.indexOf('.');
                 chainDescriptor = { targetParam: queryParameter.slice(dotIndex + 1) };
                 queryParameter = queryParameter.slice(0, dotIndex);
