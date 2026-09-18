@@ -53,7 +53,6 @@ class PatchOperation {
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      * @param {import('../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} mongoGroupMemberRepository
-     * @param {import('../common/resourceLocatorFactory').ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor (
         {
@@ -71,8 +70,7 @@ class PatchOperation {
             resourceValidator,
             postSaveHandlerFactory,
             identifierEnrichmentProvider,
-            mongoGroupMemberRepository,
-            resourceLocatorFactory
+            mongoGroupMemberRepository
         }
     ) {
         /**
@@ -173,8 +171,7 @@ class PatchOperation {
             configManager: this.configManager,
             resourceMerger: this.resourceMerger,
             databaseBulkInserter: this.databaseBulkInserter,
-            mongoGroupMemberRepository: this.mongoGroupMemberRepository,
-            resourceLocatorFactory
+            mongoGroupMemberRepository: this.mongoGroupMemberRepository
         });
 
         /**
@@ -343,7 +340,7 @@ class PatchOperation {
             // completely unmodified -- its member[] add/remove already works via ordinary JSON
             // Patch array semantics, no new code needed.
             const groupMemberType = memberOpsResult
-                ? await this.groupMemberPatchStrategy.determineGroupMemberType({ requestInfo, foundResource, base_version })
+                ? this.groupMemberPatchStrategy.determineGroupMemberType({ requestInfo, foundResource })
                 : null;
 
             if (groupMemberType && groupMemberType !== 'embedded') {

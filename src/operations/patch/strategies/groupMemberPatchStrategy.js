@@ -5,7 +5,6 @@ const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elem
 const { buildContextDataForHybridStorage, USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
 const { isTrue } = require('../../../utils/isTrue');
 const { enrichMemberReferences } = require('../../../utils/referenceEnricher');
-const { isGroupExtendedAsync } = require('../../../utils/mongoGroupExtendedTag');
 
 /**
  * Strategy for handling Group.member PATCH operations
@@ -13,8 +12,8 @@ const { isGroupExtendedAsync } = require('../../../utils/mongoGroupExtendedTag')
  * Implements event-sourced member management for Groups, against one of two group member types:
  * - ClickHouse (per-request `useexternalstorage` header) -- writes events to the ClickHouse
  *   event log via the Group's registered post-save handler.
- * - Mongo-native "extended" storage (permanent, internal, non-FHIR marker field on the raw
- *   Group document, design doc §3.1, DCON-5527) -- writes rows through MongoGroupMemberRepository,
+ * - Mongo-native "extended" storage (permanent, internal, non-FHIR marker field on the Group
+ *   resource class, design doc §3.1, DCON-5527) -- writes rows through MongoGroupMemberRepository,
  *   targeting GroupMember_4_0_0 / GroupMember_4_0_0_History via the shared write pipeline.
  *
  * Both types bypass MongoDB array updates on Group.member itself -- only the Group's own
@@ -35,22 +34,19 @@ class GroupMemberPatchStrategy {
      * @param {import('../../common/resourceMerger').ResourceMerger} params.resourceMerger
      * @param {import('../../../dataLayer/databaseBulkInserter').DatabaseBulkInserter} params.databaseBulkInserter
      * @param {import('../../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} params.mongoGroupMemberRepository
-     * @param {import('../../common/resourceLocatorFactory').ResourceLocatorFactory} params.resourceLocatorFactory
      */
     constructor({
         postSaveHandlerFactory,
         configManager,
         resourceMerger,
         databaseBulkInserter,
-        mongoGroupMemberRepository,
-        resourceLocatorFactory
+        mongoGroupMemberRepository
     }) {
         this.postSaveHandlerFactory = postSaveHandlerFactory;
         this.configManager = configManager;
         this.resourceMerger = resourceMerger;
         this.databaseBulkInserter = databaseBulkInserter;
         this.mongoGroupMemberRepository = mongoGroupMemberRepository;
-        this.resourceLocatorFactory = resourceLocatorFactory;
     }
 
     /**
@@ -89,31 +85,29 @@ class GroupMemberPatchStrategy {
     /**
      * Determines which type of Group member storage (if any) should handle a Group's member
      * PATCH ops, once the Group document itself has been loaded. ClickHouse's trigger is a
-     * per-request opt-in header, unchanged; the Mongo-native trigger is a permanent,
-     * tamper-resistant internal field (design doc §3.1) read directly off the raw Group
-     * document via a dedicated lookup -- not off the hydrated foundResource, since that field
-     * isn't a recognized property on the Group class and never survives hydration. There is no
-     * header for this trigger, since "extended" is a fixed per-Group state, not a per-call
-     * choice. The two triggers are mutually exclusive by construction (§3.1), so checking the
-     * header first is sufficient -- no defensive double-check needed.
+     * per-request opt-in header, but only takes effect if a ClickHouse post-save handler is
+     * actually registered for Group (i.e. ENABLE_CLICKHOUSE + MONGO_WITH_CLICKHOUSE_RESOURCES) --
+     * if ClickHouse is disabled server-side, the header is ignored rather than routing to a
+     * backend with nowhere to write, matching the pre-refactor behavior of
+     * detectMemberOperations's old `handlers.length === 0` guard. The Mongo-native trigger is a
+     * permanent, tamper-resistant internal field on the hydrated Group resource itself (design
+     * doc §3.1) -- a recognized class property, generated the same way as _uuid/_access, so it
+     * reads straight off foundResource with no separate lookup. There is no header for this
+     * trigger, since "extended" is a fixed per-Group state, not a per-call choice.
      *
      * @param {Object} params
      * @param {FhirRequestInfo} params.requestInfo
      * @param {Resource} params.foundResource - the loaded Group
-     * @param {string} params.base_version
-     * @returns {Promise<'externalStorage'|'extended'|'embedded'>}
+     * @returns {'externalStorage'|'extended'|'embedded'}
      */
-    async determineGroupMemberType({ requestInfo, foundResource, base_version }) {
-        if (isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER])) {
+    determineGroupMemberType({ requestInfo, foundResource }) {
+        if (isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER]) &&
+            this.postSaveHandlerFactory.getHandlers(foundResource.resourceType).length > 0
+        ) {
             return 'externalStorage';
         }
 
-        const extended = await isGroupExtendedAsync({
-            resourceLocatorFactory: this.resourceLocatorFactory,
-            base_version,
-            groupUuid: foundResource._uuid
-        });
-        if (extended) {
+        if (foundResource._extendedGroupMember === true) {
             if (!this.configManager.enableExtendedGroup) {
                 throw new BadRequestError(new Error(
                     `Group ${foundResource.id || foundResource._uuid} uses extended member storage, ` +

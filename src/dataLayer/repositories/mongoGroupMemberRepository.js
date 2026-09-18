@@ -46,14 +46,20 @@ class MongoGroupMemberRepository {
     }
 
     /**
-     * Derives a membership row's id deterministically from the owning Group and the member
-     * reference, so repeated calls for the same pair always target the same row.
+     * Derives a membership row's stable identity (_uuid) deterministically from the owning
+     * Group and the member's own resolved global identity (entity._uuid) -- not
+     * entity.reference, the raw string a caller submitted, which can take more than one form
+     * for the same real-world entity (e.g. a local-id-form reference vs. a global-id-form
+     * reference for the same Patient). Hashing entity._uuid means the same real-world entity
+     * always maps to the same row, regardless of which reference form a given PATCH add
+     * operation used (design doc §3.2).
+     *
      * @param {string} groupUuid
-     * @param {string} reference
+     * @param {string} entityUuid - the member's resolved entity._uuid (see enrichMemberReferences)
      * @returns {string}
      */
-    static memberRowUuid(groupUuid, reference) {
-        return generateUUIDv5(`${groupUuid}|${reference}`);
+    static rowUuid(groupUuid, entityUuid) {
+        return generateUUIDv5(`${groupUuid}|${entityUuid}`);
     }
 
     /**
@@ -68,7 +74,9 @@ class MongoGroupMemberRepository {
      * @param {number} params.groupVersionId - parent Group's meta.versionId at time of write
      * @param {string} params.sourceAssigningAuthority - copied from the owning Group
      * @param {Coding[]|undefined} params.securityTags - copied from the owning Group's meta.security
-     * @param {Array<{entity: {reference:string, type:string|undefined, display:string|undefined}, period:Object|undefined, op:'add'|'remove'}>} params.events
+     * @param {Array<{entity: {reference:string, _uuid:string, type:string|undefined, display:string|undefined}, period:Object|undefined, op:'add'|'remove'}>} params.events
+     *   entity._uuid must already be populated (see enrichMemberReferences) -- it's what row
+     *   identity is derived from, not entity.reference.
      * @returns {Promise<Array<{reference:string, operation:'create'|'update'|'delete'|'none'}>>}
      */
     async applyMemberEventsAsync({ requestInfo, base_version, groupUuid, groupVersionId, sourceAssigningAuthority, securityTags, events }) {
@@ -76,11 +84,11 @@ class MongoGroupMemberRepository {
             return [];
         }
 
-        // De-dupe by row id within one call -- last event for a given reference wins.
+        // De-dupe by row id within one call -- last event for a given entity wins.
         const eventsByRowUuid = new Map();
         for (const event of events) {
-            const memberRowUuid = MongoGroupMemberRepository.memberRowUuid(groupUuid, event.entity.reference);
-            eventsByRowUuid.set(memberRowUuid, { ...event, memberRowUuid });
+            const rowUuid = MongoGroupMemberRepository.rowUuid(groupUuid, event.entity._uuid);
+            eventsByRowUuid.set(rowUuid, event);
         }
 
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
@@ -88,19 +96,19 @@ class MongoGroupMemberRepository {
             base_version
         });
         const cursor = await databaseQueryManager.findAsync({
-            query: { groupUuid, memberRowUuid: { $in: [...eventsByRowUuid.keys()] } }
+            query: { groupUuid, _uuid: { $in: [...eventsByRowUuid.keys()] } }
         });
         // Raw documents, not toObjectArrayAsync(): reads only need the plain field values.
         const existingRows = await cursor.toArrayAsync();
-        const existingByRowUuid = new Map(existingRows.map((r) => [r.memberRowUuid, r]));
+        const existingByRowUuid = new Map(existingRows.map((r) => [r._uuid, r]));
 
         const now = new Date();
         const outcomes = [];
         const docsToDelete = [];
         let hasBufferedWrite = false;
 
-        for (const [memberRowUuid, event] of eventsByRowUuid) {
-            const existingRow = existingByRowUuid.get(memberRowUuid);
+        for (const [rowUuid, event] of eventsByRowUuid) {
+            const existingRow = existingByRowUuid.get(rowUuid);
             const { classification, member } = resolveMemberWrite(existingRow?.member, event);
 
             outcomes.push({ reference: event.entity.reference, operation: classification });
@@ -111,8 +119,8 @@ class MongoGroupMemberRepository {
 
             const previousVersionId = parseInt(existingRow?.meta?.versionId, 10);
             const doc = new GroupMember({
-                id: memberRowUuid,
-                _uuid: memberRowUuid,
+                id: rowUuid,
+                _uuid: rowUuid,
                 meta: new Meta({
                     versionId: `${Number.isNaN(previousVersionId) ? 1 : previousVersionId + 1}`,
                     lastUpdated: now,
@@ -120,7 +128,6 @@ class MongoGroupMemberRepository {
                 }),
                 _sourceAssigningAuthority: sourceAssigningAuthority,
                 groupUuid,
-                memberRowUuid,
                 groupVersionId,
                 member
             });
@@ -142,7 +149,7 @@ class MongoGroupMemberRepository {
                     base_version,
                     requestInfo,
                     resourceType: GROUP_MEMBER_RESOURCE_TYPE,
-                    uuid: memberRowUuid,
+                    uuid: rowUuid,
                     doc,
                     patches: null
                 });

@@ -27,7 +27,6 @@ class GroupMemberSerializer extends BaseSerializer {
             return this.#configCache['meta'];
         },
         groupUuid: null,
-        memberRowUuid: null,
         groupVersionId: null,
         member: () => {
             // Lazy load serializer only when first accessed (with caching)

@@ -2,24 +2,9 @@ const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 const { GroupMemberPatchStrategy } = require('../../../../../operations/patch/strategies/groupMemberPatchStrategy');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../../../utils/contextDataBuilder');
 const { generateUUIDv5 } = require('../../../../../utils/uid.util');
-const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../../../utils/mongoGroupExtendedTag');
 
 const requestInfoWithHeader = { headers: { [USE_EXTERNAL_STORAGE_HEADER]: 'true' } };
 const SOURCE_AUTHORITY = 'test-owner';
-
-/**
- * Mocks the raw-collection lookup determineGroupMemberType makes for the internal extended
- * marker (design doc §3.1) -- never meta.tag, which the marker deliberately isn't stored in.
- */
-function mockResourceLocatorFactory(rawGroupDoc) {
-    return {
-        createResourceLocator: jest.fn().mockReturnValue({
-            getCollectionAsync: jest.fn().mockResolvedValue({
-                findOne: jest.fn().mockResolvedValue(rawGroupDoc || null)
-            })
-        })
-    };
-}
 
 /**
  * Builds expected enriched entity object (mirrors _enrichMemberReferences logic)
@@ -132,53 +117,51 @@ describe('GroupMemberPatchStrategy', () => {
     });
 
     describe('determineGroupMemberType', () => {
-        // determineGroupMemberType reads the internal marker (design doc §3.1) via a raw
-        // collection lookup keyed on foundResource._uuid -- never meta.tag, which a client
-        // PUT/$merge could otherwise silently strip.
-        function strategyWithInternalField(rawGroupDoc) {
-            return new GroupMemberPatchStrategy({
-                postSaveHandlerFactory: mockPostSaveHandlerFactory,
-                configManager: mockConfigManager,
-                resourceMerger: mockResourceMerger,
-                databaseBulkInserter: mockDatabaseBulkInserter,
-                resourceLocatorFactory: mockResourceLocatorFactory(rawGroupDoc)
-            });
-        }
+        // determineGroupMemberType reads the internal marker (design doc §3.1) directly off the
+        // hydrated foundResource -- a recognized class property, generated the same way as
+        // _uuid/_access -- never meta.tag, which a client PUT/$merge could otherwise silently
+        // strip.
+        test('returns clickhouse when the external-storage header is present and a ClickHouse handler is registered', () => {
+            mockPostSaveHandlerFactory.getHandlers.mockReturnValue([{}]);
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
 
-        test('returns clickhouse when the external-storage header is present, regardless of the extended marker', async () => {
-            const strategyInstance = strategyWithInternalField({ [MONGO_GROUP_EXTENDED_FIELD]: true });
-            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid' };
-
-            await expect(strategyInstance.determineGroupMemberType({ requestInfo: requestInfoWithHeader, foundResource, base_version: '4_0_0' })).resolves.toBe('externalStorage');
+            expect(strategy.determineGroupMemberType({ requestInfo: requestInfoWithHeader, foundResource })).toBe('externalStorage');
         });
 
-        test('returns clickhouse when the header is present and there is no extended marker', async () => {
-            const strategyInstance = strategyWithInternalField(null);
-            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid' };
+        test('ignores the header when ClickHouse is disabled (no handler registered), falling through to embedded', () => {
+            // Regression test: ENABLE_CLICKHOUSE=0 means getHandlers returns [] even though the
+            // client sent the header -- the header must be ignored, not routed to a backend with
+            // nowhere to write.
+            mockPostSaveHandlerFactory.getHandlers.mockReturnValue([]);
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group' };
 
-            await expect(strategyInstance.determineGroupMemberType({ requestInfo: requestInfoWithHeader, foundResource, base_version: '4_0_0' })).resolves.toBe('externalStorage');
+            expect(strategy.determineGroupMemberType({ requestInfo: requestInfoWithHeader, foundResource })).toBe('embedded');
         });
 
-        test('returns mongoNative when the Group carries the extended marker, no header, and the feature is enabled', async () => {
-            const strategyInstance = strategyWithInternalField({ [MONGO_GROUP_EXTENDED_FIELD]: true });
-            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid' };
+        test('ignores the header when ClickHouse is disabled, falling through to extended if the marker is set', () => {
+            mockPostSaveHandlerFactory.getHandlers.mockReturnValue([]);
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
 
-            await expect(strategyInstance.determineGroupMemberType({ requestInfo: {}, foundResource, base_version: '4_0_0' })).resolves.toBe('extended');
+            expect(strategy.determineGroupMemberType({ requestInfo: requestInfoWithHeader, foundResource })).toBe('extended');
         });
 
-        test('throws when the Group is extended but ENABLE_EXTENDED_GROUP is disabled', async () => {
+        test('returns mongoNative when the Group carries the extended marker, no header, and the feature is enabled', () => {
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
+
+            expect(strategy.determineGroupMemberType({ requestInfo: {}, foundResource })).toBe('extended');
+        });
+
+        test('throws when the Group is extended but ENABLE_EXTENDED_GROUP is disabled', () => {
             mockConfigManager.enableExtendedGroup = false;
-            const strategyInstance = strategyWithInternalField({ [MONGO_GROUP_EXTENDED_FIELD]: true });
-            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid' };
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
 
-            await expect(strategyInstance.determineGroupMemberType({ requestInfo: {}, foundResource, base_version: '4_0_0' })).rejects.toThrow(/extended member storage/);
+            expect(() => strategy.determineGroupMemberType({ requestInfo: {}, foundResource })).toThrow(/extended member storage/);
         });
 
-        test('returns embedded for a plain Group with no header and no extended marker', async () => {
-            const strategyInstance = strategyWithInternalField(null);
-            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid' };
+        test('returns embedded for a plain Group with no header and no extended marker', () => {
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group' };
 
-            await expect(strategyInstance.determineGroupMemberType({ requestInfo: {}, foundResource, base_version: '4_0_0' })).resolves.toBe('embedded');
+            expect(strategy.determineGroupMemberType({ requestInfo: {}, foundResource })).toBe('embedded');
         });
     });
 

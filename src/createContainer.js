@@ -989,8 +989,7 @@ const createContainer = function () {
             resourceValidator: c.resourceValidator,
             postSaveHandlerFactory: c.postSaveHandlerFactory,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-            mongoGroupMemberRepository: c.mongoGroupMemberRepository,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(

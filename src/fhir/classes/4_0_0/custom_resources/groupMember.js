@@ -17,14 +17,13 @@ const Resource = require('../resources/resource');
  */
 class GroupMember extends Resource {
     /**
-     * @param {string} id - memberRowUuid; must be a valid UUID so UuidColumnHandler sets _uuid = id
+     * @param {string} id - equal to _uuid; must be a valid UUID so UuidColumnHandler sets _uuid = id
      * @param {Meta} meta
      * @param {Object} [_access]
      * @param {string} _sourceAssigningAuthority - copied from the owning Group, required by ReferenceGlobalIdHandler
-     * @param {string} _uuid
+     * @param {string} _uuid - this row's stable identity; there is no separate memberRowUuid field (design doc §3.2)
      * @param {string} [_sourceId]
      * @param {string} groupUuid
-     * @param {string} memberRowUuid
      * @param {number} groupVersionId - owning Group's meta.versionId at the time of this write
      * @param {{entity: Object, period: Object|undefined, inactive: boolean}} member
      */
@@ -36,7 +35,6 @@ class GroupMember extends Resource {
         _uuid,
         _sourceId,
         groupUuid,
-        memberRowUuid,
         groupVersionId,
         member
     }) {
@@ -47,12 +45,6 @@ class GroupMember extends Resource {
             configurable: true,
             get: () => this.__data.groupUuid,
             set: (value) => { this.__data.groupUuid = value; }
-        });
-        Object.defineProperty(this, 'memberRowUuid', {
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.memberRowUuid,
-            set: (value) => { this.__data.memberRowUuid = value; }
         });
         Object.defineProperty(this, 'groupVersionId', {
             enumerable: true,
@@ -67,7 +59,7 @@ class GroupMember extends Resource {
             set: (value) => { this.__data.member = value; }
         });
 
-        Object.assign(this, { groupUuid, memberRowUuid, groupVersionId, member });
+        Object.assign(this, { groupUuid, groupVersionId, member });
 
         Object.defineProperty(this, 'resourceType', {
             value: 'GroupMember',
@@ -96,7 +88,6 @@ class GroupMember extends Resource {
             _uuid,
             _sourceId,
             groupUuid,
-            memberRowUuid,
             groupVersionId,
             member
         }
@@ -109,7 +100,6 @@ class GroupMember extends Resource {
             _uuid,
             _sourceId,
             groupUuid,
-            memberRowUuid,
             groupVersionId,
             member
         });
@@ -131,7 +121,6 @@ class GroupMember extends Resource {
         return {
             ...super.toJSONInternal(),
             groupUuid: this.groupUuid,
-            memberRowUuid: this.memberRowUuid,
             groupVersionId: this.groupVersionId,
             member: this.member
         };
