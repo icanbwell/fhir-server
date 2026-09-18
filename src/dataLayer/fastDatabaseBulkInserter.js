@@ -329,6 +329,21 @@ class FastDatabaseBulkInserter extends EventEmitter {
     }
 
     /**
+     * If `doc` is a resource instance (has toJSONInternal), flattens it and runs it through its
+     * resourceType's write serializer -- a no-op for existing callers, which already pass plain
+     * objects: this pipeline's own bulk write executor clones documents generically via
+     * deepcopy() (createContainer.js's `fastMongoBulkWriteExecutor` registration), not
+     * resource.clone(), so a plain object is its native shape, unlike the legacy
+     * DatabaseBulkInserter's executor.
+     *
+     * @param {Object} doc
+     * @returns {Object}
+     */
+    writeSerializeIfResourceInstance(doc) {
+        return doc.toJSONInternal ? FhirResourceWriteSerializer.serialize({ obj: doc.toJSONInternal() }) : doc;
+    }
+
+    /**
      * Inserts item into collection if item doesn't exists else updates the item
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
@@ -351,6 +366,9 @@ class FastDatabaseBulkInserter extends EventEmitter {
             handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
+
+            doc = this.writeSerializeIfResourceInstance(doc);
+
             // check to see if we already have this insert and if so use replace
             /** @type {string|null} */
             const requestId = requestInfo.requestId;
@@ -433,6 +451,84 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     }
                 });
             }
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
+    }
+
+    /**
+     * Replaces a document with this one, skipping resourceMerger's diff-based merge
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {string} uuid
+     * @param {Object} doc
+     * @param {boolean} [upsert]
+     * @param {MergePatchEntry[]|null} [patches]
+     * @param {Object|null} [contextData]
+     * @returns {Promise<void>}
+     */
+    async replaceOneAsync({
+        base_version,
+        requestInfo,
+        resourceType,
+        uuid,
+        doc,
+        upsert = false,
+        patches = null,
+        contextData = null
+    }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        const requestId = requestInfo.requestId;
+        try {
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
+            handleClickHouseGroupPreSave(doc, contextData, this.configManager);
+
+            assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
+
+            doc = this.writeSerializeIfResourceInstance(doc);
+
+            // see if there are any other pending updates for this doc
+            const pendingUpdates = this.getPendingUpdates({ requestId, resourceType })
+                .filter((a) => a.uuid === doc._uuid);
+            const previousUpdate = pendingUpdates.length > 0 ? pendingUpdates[pendingUpdates.length - 1] : null;
+            if (previousUpdate) {
+                // don't merge but replace
+                previousUpdate.resource = doc;
+                previousUpdate.operation.replaceOne.replacement = doc;
+                // replace without a filter so we replace regardless of version in db
+                previousUpdate.operation.replaceOne.filter = null;
+                return;
+            }
+
+            const pendingInserts = this.getPendingInsertsWithUniqueId({ requestId, resourceType })
+                .filter((a) => a.uuid === doc._uuid);
+            const previousInsert = pendingInserts.length > 0 ? pendingInserts[pendingInserts.length - 1] : null;
+            if (previousInsert) {
+                previousInsert.resource = doc;
+                previousInsert.operation.updateOne.update.$setOnInsert = doc;
+                return;
+            }
+
+            // no previous insert or update found
+            this.addOperationForResourceType({
+                requestId,
+                resourceType,
+                resource: doc,
+                operationType: 'replace',
+                operation: {
+                    replaceOne: {
+                        filter: { _uuid: uuid },
+                        upsert,
+                        replacement: doc
+                    }
+                },
+                patches,
+                contextData
+            });
         } catch (e) {
             throw new RethrownError({
                 error: e

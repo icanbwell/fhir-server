@@ -36,7 +36,6 @@ const {SearchByVersionIdOperation} = require('./operations/searchByVersionId/sea
 const {HistoryByIdOperation} = require('./operations/historyById/historyById');
 const {HistoryOperation} = require('./operations/history/history');
 const {PatchOperation} = require('./operations/patch/patch');
-const {GroupMemberWriteOperation} = require('./operations/group/groupMemberWriteOperation');
 const {MongoGroupMemberRepository} = require('./dataLayer/repositories/mongoGroupMemberRepository');
 const {ValidateOperation} = require('./operations/validate/validate');
 const {GraphOperation} = require('./operations/graph/graph');
@@ -967,6 +966,13 @@ const createContainer = function () {
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
         }
     ));
+    container.register('mongoGroupMemberRepository', (c) => new MongoGroupMemberRepository(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            databaseBulkInserter: c.fastDatabaseBulkInserter,
+            removeHelper: c.removeHelper
+        }
+    ));
     container.register('patchOperation', (c) => new PatchOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
@@ -982,25 +988,9 @@ const createContainer = function () {
             resourceMerger: c.resourceMerger,
             resourceValidator: c.resourceValidator,
             postSaveHandlerFactory: c.postSaveHandlerFactory,
-            identifierEnrichmentProvider: c.identifierEnrichmentProvider
-        }
-    ));
-    container.register('mongoGroupMemberRepository', (c) => new MongoGroupMemberRepository(
-        {
-            databaseQueryFactory: c.databaseQueryFactory,
-            databaseBulkInserter: c.databaseBulkInserter,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository,
             resourceLocatorFactory: c.resourceLocatorFactory
-        }
-    ));
-    container.register('groupMemberWriteOperation', (c) => new GroupMemberWriteOperation(
-        {
-            databaseQueryFactory: c.databaseQueryFactory,
-            scopesValidator: c.scopesValidator,
-            searchManager: c.searchManager,
-            resourceMerger: c.resourceMerger,
-            databaseBulkInserter: c.databaseBulkInserter,
-            configManager: c.configManager,
-            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
@@ -1087,7 +1077,6 @@ const createContainer = function () {
                 historyOperation: c.historyOperation,
                 historyByIdOperation: c.historyByIdOperation,
                 patchOperation: c.patchOperation,
-                groupMemberWriteOperation: c.groupMemberWriteOperation,
                 validateOperation: c.validateOperation,
                 graphOperation: c.graphOperation,
                 expandOperation: c.expandOperation,

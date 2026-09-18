@@ -21,23 +21,27 @@ function stripUndefined(obj) {
  * Resolves a single member event (add/remove) against the current membership, if any, into
  * create/update/none, plus hard-remove (delete/none).
  *
- * The 'delete' classification is only used by the Mongo-native regime -- the embedded regime
- * hard-removes the array entry directly instead, bypassing this function for remove events (see
- * embeddedGroupMemberWriter.js).
+ * Used exclusively by the Mongo-native (extended) regime, via MongoGroupMemberRepository -- an
+ * embedded Group takes membership changes through the standard FHIR PATCH flow (plain JSON Patch
+ * add/remove on member[]), which never calls this function at all.
  *
  * Fields the event does not supply are carried forward from the existing membership rather
  * than wiped, so a bare re-add never erases period/type/display set by an earlier call.
- *
- * Reactivating an inactive row is still classified 'update', not a separate value -- nothing
- * downstream needs to tell it apart from a plain field update.
+ * `inactive` is the one exception: unlike period/type/display, "not supplied" defaults it to
+ * `false` rather than carrying the existing value forward, since adding a member is presumed to
+ * mean "make them active" unless the caller explicitly says otherwise -- this is also what lets a
+ * bare re-add reactivate a soft-inactive row. An explicit `inactive` is honored as-is and is a
+ * genuine live-row state (soft deactivation/reactivation), distinct from a 'remove', which always
+ * hard-deletes the row regardless of `inactive` -- the two are independent knobs, not the same
+ * mechanism.
  *
  * The classification is an internal routing decision only and is never persisted -- there is no
- * `operation` field on GroupMember. The one thing that matters downstream, a hard-delete
- * tombstone, is recorded exclusively via the history entry's own `request.method` ('DELETE'),
- * never as a field of the row itself.
+ * `operation` field on GroupMember. A hard-delete tombstone (from a 'remove' event) is recorded
+ * exclusively via the history entry's own `request.method` ('DELETE'), never as a field of the
+ * row itself.
  *
  * @param {{entity: Object, period: Object|undefined, inactive: boolean}|undefined} existingMember
- * @param {{entity: {reference:string, type:string|undefined, display:string|undefined}, period:Object|undefined, op:'add'|'remove'}} event
+ * @param {{entity: {reference:string, type:string|undefined, display:string|undefined}, period:Object|undefined, inactive:boolean|undefined, op:'add'|'remove'}} event
  * @returns {{classification:'create'|'update'|'delete'|'none', member:Object|undefined}}
  */
 function resolveMemberWrite(existingMember, event) {
@@ -63,19 +67,16 @@ function resolveMemberWrite(existingMember, event) {
         _sourceId: event.entity._sourceId !== undefined ? event.entity._sourceId : existingMember?.entity?._sourceId
     });
     const period = event.period !== undefined ? event.period : existingMember?.period;
-    const member = stripUndefined({ entity, period, inactive: false });
+    const inactive = event.inactive !== undefined ? event.inactive : false;
+    const member = stripUndefined({ entity, period, inactive });
 
     if (!existingMember) {
         return { classification: 'create', member };
     }
-    if (existingMember.inactive) {
-        // A reactivation, not a fresh create -- but tagged 'update' like any other real change,
-        // since nothing downstream distinguishes it from a plain field update (see docstring above).
-        return { classification: 'update', member };
-    }
     const changed = !periodsEqual(existingMember.period, period) ||
         existingMember.entity?.type !== entity.type ||
-        existingMember.entity?.display !== entity.display;
+        existingMember.entity?.display !== entity.display ||
+        Boolean(existingMember.inactive) !== inactive;
     if (!changed) {
         return { classification: 'none' };
     }

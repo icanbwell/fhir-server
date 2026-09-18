@@ -5,15 +5,22 @@ const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elem
 const { buildContextDataForHybridStorage, USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
 const { isTrue } = require('../../../utils/isTrue');
 const { enrichMemberReferences } = require('../../../utils/referenceEnricher');
+const { isGroupExtendedAsync } = require('../../../utils/mongoGroupExtendedTag');
 
 /**
  * Strategy for handling Group.member PATCH operations
  *
- * Implements event-sourced member management for Groups:
- * - Detects member operations in PATCH requests
- * - Translates JSON Patch operations to ClickHouse events
- * - Bypasses MongoDB array updates (events written to ClickHouse only)
- * - Handles metadata updates for member-only patches
+ * Implements event-sourced member management for Groups, against one of two group member types:
+ * - ClickHouse (per-request `useexternalstorage` header) -- writes events to the ClickHouse
+ *   event log via the Group's registered post-save handler.
+ * - Mongo-native "extended" storage (permanent, internal, non-FHIR marker field on the raw
+ *   Group document, design doc §3.1, DCON-5527) -- writes rows through MongoGroupMemberRepository,
+ *   targeting GroupMember_4_0_0 / GroupMember_4_0_0_History via the shared write pipeline.
+ *
+ * Both types bypass MongoDB array updates on Group.member itself -- only the Group's own
+ * metadata (versionId/lastUpdated) is written to Group_4_0_0. A plain embedded Group (neither
+ * type) takes membership changes through the standard FHIR PATCH flow further down in
+ * patch.js -- this strategy never runs for it (see determineGroupMemberType).
  *
  * Design: Single Responsibility Principle
  * - Encapsulates all Group member PATCH logic
@@ -27,38 +34,37 @@ class GroupMemberPatchStrategy {
      * @param {import('../../../utils/configManager').ConfigManager} params.configManager
      * @param {import('../../common/resourceMerger').ResourceMerger} params.resourceMerger
      * @param {import('../../../dataLayer/databaseBulkInserter').DatabaseBulkInserter} params.databaseBulkInserter
+     * @param {import('../../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} params.mongoGroupMemberRepository
+     * @param {import('../../common/resourceLocatorFactory').ResourceLocatorFactory} params.resourceLocatorFactory
      */
     constructor({
         postSaveHandlerFactory,
         configManager,
         resourceMerger,
-        databaseBulkInserter
+        databaseBulkInserter,
+        mongoGroupMemberRepository,
+        resourceLocatorFactory
     }) {
         this.postSaveHandlerFactory = postSaveHandlerFactory;
         this.configManager = configManager;
         this.resourceMerger = resourceMerger;
         this.databaseBulkInserter = databaseBulkInserter;
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        this.resourceLocatorFactory = resourceLocatorFactory;
     }
 
     /**
-     * Detects if patch contains Group member operations
+     * Detects if patch contains Group member operations, regardless of which group member type
+     * (if any) will end up handling them -- that decision is determineGroupMemberType's job,
+     * made once the Group document is loaded.
      *
      * @param {Object} params
      * @param {Array<Object>} params.patchContent - JSON Patch operations
      * @param {string} params.resourceType - FHIR resource type
      * @returns {{memberOps: Array<Object>, nonMemberOps: Array<Object>, hasOnlyMemberOperations: boolean} | null}
      */
-    detectMemberOperations({ patchContent, resourceType, requestInfo }) {
+    detectMemberOperations({ patchContent, resourceType }) {
         if (resourceType !== 'Group') {
-            return null;
-        }
-
-        if (!isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER])) {
-            return null; // Use standard FHIR PATCH flow
-        }
-
-        const handlers = this.postSaveHandlerFactory.getHandlers(resourceType);
-        if (handlers.length === 0) {
             return null;
         }
 
@@ -81,7 +87,49 @@ class GroupMemberPatchStrategy {
     }
 
     /**
-     * Executes member operations by writing to ClickHouse event log
+     * Determines which type of Group member storage (if any) should handle a Group's member
+     * PATCH ops, once the Group document itself has been loaded. ClickHouse's trigger is a
+     * per-request opt-in header, unchanged; the Mongo-native trigger is a permanent,
+     * tamper-resistant internal field (design doc §3.1) read directly off the raw Group
+     * document via a dedicated lookup -- not off the hydrated foundResource, since that field
+     * isn't a recognized property on the Group class and never survives hydration. There is no
+     * header for this trigger, since "extended" is a fixed per-Group state, not a per-call
+     * choice. The two triggers are mutually exclusive by construction (§3.1), so checking the
+     * header first is sufficient -- no defensive double-check needed.
+     *
+     * @param {Object} params
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {Resource} params.foundResource - the loaded Group
+     * @param {string} params.base_version
+     * @returns {Promise<'externalStorage'|'extended'|'embedded'>}
+     */
+    async determineGroupMemberType({ requestInfo, foundResource, base_version }) {
+        if (isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER])) {
+            return 'externalStorage';
+        }
+
+        const extended = await isGroupExtendedAsync({
+            resourceLocatorFactory: this.resourceLocatorFactory,
+            base_version,
+            groupUuid: foundResource._uuid
+        });
+        if (extended) {
+            if (!this.configManager.enableExtendedGroup) {
+                throw new BadRequestError(new Error(
+                    `Group ${foundResource.id || foundResource._uuid} uses extended member storage, ` +
+                    'which is disabled on this server (ENABLE_EXTENDED_GROUP is not set).'
+                ));
+            }
+            return 'extended';
+        }
+
+        return 'embedded';
+    }
+
+    /**
+     * Executes member operations against the determined group member type: the ClickHouse event
+     * log for 'externalStorage', or GroupMember_4_0_0 rows via MongoGroupMemberRepository for
+     * 'extended'.
      *
      * IMPORTANT: Called AFTER security validation has passed
      *
@@ -93,6 +141,7 @@ class GroupMemberPatchStrategy {
      * @param {string} params.base_version
      * @param {Array<Object>} params.memberOperations - JSON Patch operations on /member
      * @param {Resource} params.foundResource - The validated Group resource from MongoDB
+     * @param {'externalStorage'|'extended'} params.groupMemberType - determined by determineGroupMemberType()
      * @returns {Promise<Resource>} The updated Group resource
      */
     async executeMemberOperations({
@@ -102,15 +151,19 @@ class GroupMemberPatchStrategy {
         id,
         base_version,
         memberOperations,
-        foundResource
+        foundResource,
+        groupMemberType
     }) {
         const groupId = id;
 
-        const postSaveHandlers = this.postSaveHandlerFactory.getHandlers(resourceType);
-        if (postSaveHandlers.length === 0) {
-            throw new Error('No post-save handlers available for Group resource');
+        let groupHandler;
+        if (groupMemberType === 'externalStorage') {
+            const postSaveHandlers = this.postSaveHandlerFactory.getHandlers(resourceType);
+            if (postSaveHandlers.length === 0) {
+                throw new Error('No post-save handlers available for Group resource');
+            }
+            groupHandler = postSaveHandlers[0];
         }
-        const groupHandler = postSaveHandlers[0];
 
         // 1. Enforce operations limit (empirically determined)
         const MAX_PATCH_OPERATIONS = this.configManager.groupPatchOperationsLimit;
@@ -153,7 +206,7 @@ class GroupMemberPatchStrategy {
                 eventsToAdd.push({
                     entity: op.value.entity,
                     period: op.value.period,
-                    inactive: op.value.inactive || false
+                    inactive: op.value.inactive
                 });
             } else if (op.op === PATCH_OPERATIONS.REMOVE && isValidMemberPath) {
                 // Server-side extension: remove member by entity reference
@@ -162,7 +215,7 @@ class GroupMemberPatchStrategy {
                 eventsToRemove.push({
                     entity: op.value.entity,
                     period: op.value.period,
-                    inactive: op.value.inactive || false
+                    inactive: op.value.inactive
                 });
             } else {
                 // UNSUPPORTED: remove by index (e.g., /member/0)
@@ -230,19 +283,43 @@ class GroupMemberPatchStrategy {
 
         // 5. Enrich member references with _uuid and _sourceId
         // PATCH bypasses the normal pre-save pipeline (referenceGlobalIdHandler),
-        // so we must enrich references before writing ClickHouse events.
+        // so we must enrich references before writing to either group member type.
         enrichMemberReferences(eventsToAdd, sourceAssigningAuthority);
         enrichMemberReferences(eventsToRemove, sourceAssigningAuthority);
 
-        // 6. Write events to ClickHouse (AFTER MongoDB commit)
-        // Direct translation: 1 operation = 1 event (added or removed)
+        // 6. Write events per the determined group member type (AFTER the Group's own MongoDB commit)
         if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
-            await groupHandler.writeEventsAsync({
-                groupId,
-                added: eventsToAdd,
-                removed: eventsToRemove,
-                groupResource: updatedResource // Use updated resource with new versionId
-            });
+            if (groupMemberType === 'externalStorage') {
+                // Direct translation: 1 operation = 1 event (added or removed). ClickHouse's event
+                // log expects a concrete boolean, not undefined -- default a not-supplied inactive
+                // to false here, scoped to this branch only. (The Mongo-native branch below reads
+                // eventsToAdd/eventsToRemove's inactive as-is, since it needs to tell "not
+                // supplied" apart from "explicitly false" -- see resolveMemberWrite.js.)
+                await groupHandler.writeEventsAsync({
+                    groupId,
+                    added: eventsToAdd.map((event) => ({ ...event, inactive: event.inactive ?? false })),
+                    removed: eventsToRemove.map((event) => ({ ...event, inactive: event.inactive ?? false })),
+                    groupResource: updatedResource // Use updated resource with new versionId
+                });
+            } else {
+                // Mongo-native (extended) regime: targeted row writes against GroupMember_4_0_0,
+                // via the four-way state table (resolveMemberWrite) -- a single combined event
+                // list, tagged with the op that produced it.
+                const events = [
+                    ...eventsToAdd.map((event) => ({ ...event, op: PATCH_OPERATIONS.ADD })),
+                    ...eventsToRemove.map((event) => ({ ...event, op: PATCH_OPERATIONS.REMOVE }))
+                ];
+                // applyMemberEventsAsync flushes its own buffered writes before returning.
+                await this.mongoGroupMemberRepository.applyMemberEventsAsync({
+                    requestInfo,
+                    base_version,
+                    groupUuid: updatedResource._uuid,
+                    groupVersionId: parseInt(updatedResource.meta.versionId, 10),
+                    sourceAssigningAuthority,
+                    securityTags: updatedResource.meta.security,
+                    events
+                });
+            }
         }
 
         return updatedResource;

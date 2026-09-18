@@ -1,7 +1,7 @@
 const { assertTypeEquals } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../databaseQueryFactory');
-const { DatabaseBulkInserter } = require('../databaseBulkInserter');
-const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
+const { FastDatabaseBulkInserter } = require('../fastDatabaseBulkInserter');
+const { RemoveHelper } = require('../../operations/remove/removeHelper');
 const GroupMember = require('../../fhir/classes/4_0_0/custom_resources/groupMember');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const { generateUUIDv5 } = require('../../utils/uid.util');
@@ -10,40 +10,39 @@ const { resolveMemberWrite } = require('../../operations/common/resolveMemberWri
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 
 /**
- * Repository for the MongoDB-native, large-Group member storage. GroupMember rows are written
- * through the shared DatabaseBulkInserter / MongoBulkWriteExecutor pipeline (resourceType
- * 'GroupMember'; not a real FHIR resource, but registered as a custom resource class under
- * src/fhir/classes/4_0_0/custom_resources/ so FhirResourceCreator lookups -- e.g.
- * MongoBulkWriteExecutor's one-by-one fallback -- can construct it). Reads use the raw-document
- * path, not toObjectArrayAsync().
+ * Repository for the MongoDB-native, large-Group ("extended") member storage, written from
+ * GroupMemberPatchStrategy's Mongo-native branch when a PATCH targets an extended Group's
+ * /member. Writes go through FastDatabaseBulkInserter -- insertOneAsync() for a fresh row,
+ * replaceOneAsync() for an update/reactivation (see applyMemberEventsAsync for why the split
+ * matters); reads use the raw-document path, not toObjectArrayAsync().
  *
- * $member-remove hard-deletes the row rather than a soft inactive:true flag. That path bypasses
- * insertOneAsync/replaceOneAsync entirely and instead: (1) queues a tombstone history entry via
- * insertOneHistoryAsync (a cloned FhirRequestInfo overrides method to 'DELETE' -- there is no
- * operation field anywhere in this design; the tombstone is identified purely by that method),
- * (2) flushes it synchronously via executeHistoryAsync (never executeAsync, which would race
- * postRequestProcessor), then (3) issues a direct collection.deleteMany() for the
- * now-history-backed rows, mirroring removeHelper.js's own history-then-delete ordering. This
- * makes GroupMember_4_0_0_History the only durable record of a removed membership.
+ * applyMemberEventsAsync() flushes its own buffered create/update writes before returning, so
+ * callers don't need their own reference to this same FastDatabaseBulkInserter instance just to
+ * commit it.
+ *
+ * A PATCH remove hard-deletes the row instead of a soft inactive:true flag, via
+ * RemoveHelper.deleteManyAsync() (history-then-delete), wired to the databaseBulkInserter
+ * since RemoveHelper isn't Fast-compatible. The tombstone is identified purely by the history
+ * entry's request.method being 'DELETE' -- there is no operation field on GroupMember itself.
  */
 class MongoGroupMemberRepository {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {DatabaseBulkInserter} databaseBulkInserter
-     * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {FastDatabaseBulkInserter} databaseBulkInserter
+     * @param {RemoveHelper} removeHelper
      */
-    constructor({ databaseQueryFactory, databaseBulkInserter, resourceLocatorFactory }) {
+    constructor({ databaseQueryFactory, databaseBulkInserter, removeHelper }) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /** @type {DatabaseQueryFactory} */
         this.databaseQueryFactory = databaseQueryFactory;
 
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-        /** @type {DatabaseBulkInserter} */
+        assertTypeEquals(databaseBulkInserter, FastDatabaseBulkInserter);
+        /** @type {FastDatabaseBulkInserter} */
         this.databaseBulkInserter = databaseBulkInserter;
 
-        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
-        /** @type {ResourceLocatorFactory} */
-        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(removeHelper, RemoveHelper);
+        /** @type {RemoveHelper} */
+        this.removeHelper = removeHelper;
     }
 
     /**
@@ -58,19 +57,17 @@ class MongoGroupMemberRepository {
     }
 
     /**
-     * Queues a batch of $member-add / $member-remove events against the live roster; each
-     * membership is targeted directly by its own deterministic row id -- the incoming set is
-     * never diffed against the whole roster.
+     * Queues a batch of PATCH add/remove events against the live roster; each membership is
+     * targeted directly by its own deterministic row id -- the incoming set is never diffed
+     * against the whole roster.
      *
      * @param {Object} params
      * @param {FhirRequestInfo} params.requestInfo
      * @param {string} params.base_version
      * @param {string} params.groupUuid
      * @param {number} params.groupVersionId - parent Group's meta.versionId at time of write
-     * @param {string} params.sourceAssigningAuthority - copied from the owning Group; required by ReferenceGlobalIdHandler
-     * @param {Coding[]|undefined} params.securityTags - copied from the owning Group's meta.security; ResourceMerger's
-     *     one-by-one concurrency fallback (hit on every fresh upsert, since a new row's modifiedCount reads as 0)
-     *     unconditionally reads currentResource.meta.security, so every row needs this populated like a real resource.
+     * @param {string} params.sourceAssigningAuthority - copied from the owning Group
+     * @param {Coding[]|undefined} params.securityTags - copied from the owning Group's meta.security
      * @param {Array<{entity: {reference:string, type:string|undefined, display:string|undefined}, period:Object|undefined, op:'add'|'remove'}>} params.events
      * @returns {Promise<Array<{reference:string, operation:'create'|'update'|'delete'|'none'}>>}
      */
@@ -93,15 +90,14 @@ class MongoGroupMemberRepository {
         const cursor = await databaseQueryManager.findAsync({
             query: { groupUuid, memberRowUuid: { $in: [...eventsByRowUuid.keys()] } }
         });
-        // Raw documents, not toObjectArrayAsync(): 'GroupMember' isn't registered with
-        // FhirResourceCreator, so only the write path (which needs a Resource instance) uses
-        // the GroupMember class -- reads only need the plain field values.
+        // Raw documents, not toObjectArrayAsync(): reads only need the plain field values.
         const existingRows = await cursor.toArrayAsync();
         const existingByRowUuid = new Map(existingRows.map((r) => [r.memberRowUuid, r]));
 
         const now = new Date();
         const outcomes = [];
-        const rowUuidsToDelete = [];
+        const docsToDelete = [];
+        let hasBufferedWrite = false;
 
         for (const [memberRowUuid, event] of eventsByRowUuid) {
             const existingRow = existingByRowUuid.get(memberRowUuid);
@@ -116,6 +112,7 @@ class MongoGroupMemberRepository {
             const previousVersionId = parseInt(existingRow?.meta?.versionId, 10);
             const doc = new GroupMember({
                 id: memberRowUuid,
+                _uuid: memberRowUuid,
                 meta: new Meta({
                     versionId: `${Number.isNaN(previousVersionId) ? 1 : previousVersionId + 1}`,
                     lastUpdated: now,
@@ -129,31 +126,20 @@ class MongoGroupMemberRepository {
             });
 
             if (classification === 'delete') {
-                // Hard-remove: write the tombstone history entry only -- there is no live
-                // document to insert/replace. The live delete itself is deferred until every
-                // event in this batch has queued its history entry, then flushed and applied
-                // together below. The tombstone is identified by request.method being 'DELETE',
-                // not by any field on `doc`. The real enclosing request is always POST, so a
-                // cloned FhirRequestInfo overrides just this call's method.
-                await this.databaseBulkInserter.insertOneHistoryAsync({
-                    requestInfo: new FhirRequestInfo({ ...requestInfo, method: 'DELETE' }),
-                    base_version,
-                    resourceType: GROUP_MEMBER_RESOURCE_TYPE,
-                    doc
-                });
-                rowUuidsToDelete.push(memberRowUuid);
+                docsToDelete.push(doc);
                 continue;
             }
 
             if (classification === 'create') {
                 await this.databaseBulkInserter.insertOneAsync({
-                    requestInfo,
                     base_version,
+                    requestInfo,
                     resourceType: GROUP_MEMBER_RESOURCE_TYPE,
                     doc
                 });
             } else {
                 await this.databaseBulkInserter.replaceOneAsync({
+                    base_version,
                     requestInfo,
                     resourceType: GROUP_MEMBER_RESOURCE_TYPE,
                     uuid: memberRowUuid,
@@ -161,23 +147,23 @@ class MongoGroupMemberRepository {
                     patches: null
                 });
             }
+            hasBufferedWrite = true;
         }
 
-        if (rowUuidsToDelete.length > 0) {
-            // Flush the tombstone history entries durably BEFORE deleting the live rows --
-            // mirrors removeHelper.js's own history-then-delete ordering, so a crash between
-            // the two never loses the tombstone. executeHistoryAsync() flushes synchronously
-            // in-process (unlike executeAsync(), it never queues onto postRequestProcessor),
-            // so calling it here does not conflict with the single-flush requirement on
-            // databaseBulkInserter.executeAsync() itself (see groupMemberWriteOperation.js).
-            await this.databaseBulkInserter.executeHistoryAsync({ requestInfo, base_version });
+        if (hasBufferedWrite) {
+            await this.databaseBulkInserter.executeAsync({ requestInfo, base_version });
+        }
 
-            const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
+        if (docsToDelete.length > 0) {
+            // Cloned FhirRequestInfo overrides method to 'DELETE' for the tombstone.
+            // removeHelper.deleteManyAsync self-flushes (history then delete), unlike the
+            // buffered writes above.
+            await this.removeHelper.deleteManyAsync({
+                requestInfo: new FhirRequestInfo({ ...requestInfo, method: 'DELETE' }),
                 resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+                resources: docsToDelete,
                 base_version
             });
-            const collection = await resourceLocator.getCollectionAsync({});
-            await collection.deleteMany({ groupUuid, memberRowUuid: { $in: rowUuidsToDelete } });
         }
 
         return outcomes;
