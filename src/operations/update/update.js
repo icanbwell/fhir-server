@@ -27,6 +27,7 @@ const { buildContextDataForHybridStorage } = require('../../utils/contextDataBui
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
+const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
 
 /**
  * Update Operation
@@ -338,6 +339,11 @@ class UpdateOperation {
             if (data && data.meta) {
                 // found an existing resource
                 foundResource = data;
+                // Extended Group's member[] doesn't exist on the live document -- a submitted
+                // member must go through PATCH instead (design doc §5.1). Checked before any
+                // merge/persist work, and unconditional on ENABLE_EXTENDED_GROUP (see
+                // rejectMemberOnExtendedGroupWrite's own docstring for why).
+                rejectMemberOnExtendedGroupWrite({ currentResource: foundResource, hasMemberField });
                 await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                     requestInfo, resource: foundResource, base_version
                 });

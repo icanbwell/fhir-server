@@ -19,10 +19,6 @@ jestGlobal.mock('../../../../../operations/common/logging', () => ({
 }));
 
 const { GroupMemberPatchStrategy } = require('../../../../../operations/patch/strategies/groupMemberPatchStrategy');
-const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../../../utils/contextDataBuilder');
-const { PATCH_PATHS } = require('../../../../../constants/groupConstants');
-
-const requestInfoWithHeader = { headers: { [USE_EXTERNAL_STORAGE_HEADER]: 'true' } };
 
 describe('GroupMemberPatchStrategy — Bug Detection', () => {
     let strategy;
@@ -50,7 +46,8 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
             postSaveHandlerFactory: mockPostSaveHandlerFactory,
             configManager: mockConfigManager,
             resourceMerger: mockResourceMerger,
-            databaseBulkInserter: mockDatabaseBulkInserter
+            databaseBulkInserter: mockDatabaseBulkInserter,
+            mongoGroupMemberRepository: { applyMemberEventsAsync: jestGlobal.fn() }
         });
     });
 
@@ -69,8 +66,7 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
 
             const result = strategy.detectMemberOperations({
                 patchContent,
-                resourceType: 'Group',
-                requestInfo: requestInfoWithHeader
+                resourceType: 'Group'
             });
 
             // EXPECTED: correct behavior (will fail until bug is fixed)
@@ -86,12 +82,9 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
 
             const result = strategy.detectMemberOperations({
                 patchContent,
-                resourceType: 'Group',
-                requestInfo: requestInfoWithHeader
+                resourceType: 'Group'
             });
 
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // '/membership' is not a valid member path and should not be classified as one.
             expect(result).toBeNull();
         });
 
@@ -103,12 +96,9 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
 
             const result = strategy.detectMemberOperations({
                 patchContent,
-                resourceType: 'Group',
-                requestInfo: requestInfoWithHeader
+                resourceType: 'Group'
             });
 
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // Neither '/name' nor '/memberOf' are member operations, so result should be null.
             expect(result).toBeNull();
         });
     });
@@ -150,7 +140,8 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
                         resourceType: 'Group',
                         _sourceAssigningAuthority: 'test-owner',
                         meta: { versionId: '1' }
-                    }
+                    },
+                    groupMemberType: 'externalStorage'
                 })
             ).rejects.toThrow('ClickHouse connection refused');
 
@@ -195,7 +186,8 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
                         id: 'group-1',
                         resourceType: 'Group'
                         // NOTE: _sourceAssigningAuthority is MISSING (undefined)
-                    }
+                    },
+                    groupMemberType: 'externalStorage'
                 })
             ).rejects.toThrow();
         });
@@ -215,8 +207,7 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
             // Detection phase: it WILL be classified as a memberOp
             const detected = strategy.detectMemberOperations({
                 patchContent,
-                resourceType: 'Group',
-                requestInfo: requestInfoWithHeader
+                resourceType: 'Group'
             });
             expect(detected).not.toBeNull();
             expect(detected.memberOps).toHaveLength(1);
@@ -239,7 +230,8 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
                         id: 'group-1',
                         resourceType: 'Group',
                         _sourceAssigningAuthority: 'owner'
-                    }
+                    },
+                    groupMemberType: 'externalStorage'
                 })
             ).rejects.toThrow('Unsupported PATCH operation');
         });

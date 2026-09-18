@@ -154,6 +154,14 @@ jest.mock('../../../utils/convertErrorToOperationOutcome', () => ({
     convertErrorToOperationOutcome: jest.fn().mockReturnValue({ resourceType: 'OperationOutcome' })
 }));
 jest.mock('../../../operations/query/customQueries', () => ({
+    // fhirFilterTypes must stay real: composite.js reads fhirFilterTypes.token/.quantity/etc. at
+    // module-load time to build FILTER_CLASS_BY_TYPE, and composite.js is reachable from
+    // FhirOperationsManager's own require graph via patch.js -> scopesValidator.js ->
+    // patientScopeManager.js -> personToPatientIdsExpander.js -> securityTagManager.js -> r4.js
+    // -> composite.js. A stub object here (missing fhirFilterTypes entirely) crashes that chain
+    // with "Cannot read properties of undefined (reading 'token')" the moment this test file is
+    // required, well before any test body runs.
+    ...jest.requireActual('../../../operations/query/customQueries'),
     vulcanIgSearchQueries: {}
 }));
 jest.mock('../../../utils/object', () => ({

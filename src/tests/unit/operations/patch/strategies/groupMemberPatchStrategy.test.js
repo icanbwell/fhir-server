@@ -23,7 +23,8 @@ function enrichedEntity(reference) {
     return {
         reference,
         _uuid: `${resourceType}/${uuid}`,
-        _sourceId: `${resourceType}/${referenceId}`
+        _sourceId: `${resourceType}/${referenceId}`,
+        _sourceAssigningAuthority: authority
     };
 }
 
@@ -39,7 +40,8 @@ describe('GroupMemberPatchStrategy', () => {
             getHandlers: jest.fn()
         };
         mockConfigManager = {
-            groupPatchOperationsLimit: 5000
+            groupPatchOperationsLimit: 5000,
+            enableExtendedGroup: true
         };
         mockResourceMerger = {
             updateMeta: jest.fn()
@@ -66,7 +68,6 @@ describe('GroupMemberPatchStrategy', () => {
                     { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } },
                     { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/2' } } }
                 ],
-                [{}],
                 {
                     memberOps: [
                         { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } },
@@ -83,7 +84,6 @@ describe('GroupMemberPatchStrategy', () => {
                     { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } },
                     { op: 'replace', path: '/name', value: 'New Name' }
                 ],
-                [{}],
                 {
                     memberOps: [
                         { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
@@ -100,7 +100,6 @@ describe('GroupMemberPatchStrategy', () => {
                 [
                     { op: 'replace', path: '/name', value: 'New Name' }
                 ],
-                [{}],
                 null
             ],
             [
@@ -109,32 +108,65 @@ describe('GroupMemberPatchStrategy', () => {
                 [
                     { op: 'replace', path: '/name/0/given/0', value: 'John' }
                 ],
-                [{}],
-                null
-            ],
-            [
-                'Group with no handlers',
-                'Group',
-                [
-                    { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
-                ],
-                [],
                 null
             ]
-        ])('%s', (_, resourceType, patchContent, handlers, expected) => {
-            mockPostSaveHandlerFactory.getHandlers.mockReturnValue(handlers);
-
-            const result = strategy.detectMemberOperations({
-                patchContent,
-                resourceType,
-                requestInfo: requestInfoWithHeader
-            });
+        ])('%s', (_, resourceType, patchContent, expected) => {
+            const result = strategy.detectMemberOperations({ patchContent, resourceType });
 
             expect(result).toEqual(expected);
         });
     });
 
-    describe('executeMemberOperations', () => {
+    describe('determineGroupMemberType', () => {
+        // determineGroupMemberType reads the internal marker (design doc §3.1) directly off the
+        // hydrated foundResource -- a recognized class property, generated the same way as
+        // _uuid/_access -- never meta.tag, which a client PUT/$merge could otherwise silently
+        // strip.
+        test('returns clickhouse when the external-storage header is present and a ClickHouse handler is registered', () => {
+            mockPostSaveHandlerFactory.getHandlers.mockReturnValue([{}]);
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
+
+            expect(strategy.determineGroupMemberType({ requestInfo: requestInfoWithHeader, foundResource })).toBe('externalStorage');
+        });
+
+        test('ignores the header when ClickHouse is disabled (no handler registered), falling through to embedded', () => {
+            // Regression test: ENABLE_CLICKHOUSE=0 means getHandlers returns [] even though the
+            // client sent the header -- the header must be ignored, not routed to a backend with
+            // nowhere to write.
+            mockPostSaveHandlerFactory.getHandlers.mockReturnValue([]);
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group' };
+
+            expect(strategy.determineGroupMemberType({ requestInfo: requestInfoWithHeader, foundResource })).toBe('embedded');
+        });
+
+        test('ignores the header when ClickHouse is disabled, falling through to extended if the marker is set', () => {
+            mockPostSaveHandlerFactory.getHandlers.mockReturnValue([]);
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
+
+            expect(strategy.determineGroupMemberType({ requestInfo: requestInfoWithHeader, foundResource })).toBe('extended');
+        });
+
+        test('returns mongoNative when the Group carries the extended marker, no header, and the feature is enabled', () => {
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
+
+            expect(strategy.determineGroupMemberType({ requestInfo: {}, foundResource })).toBe('extended');
+        });
+
+        test('throws when the Group is extended but ENABLE_EXTENDED_GROUP is disabled', () => {
+            mockConfigManager.enableExtendedGroup = false;
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
+
+            expect(() => strategy.determineGroupMemberType({ requestInfo: {}, foundResource })).toThrow(/extended member storage/);
+        });
+
+        test('returns embedded for a plain Group with no header and no extended marker', () => {
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group' };
+
+            expect(strategy.determineGroupMemberType({ requestInfo: {}, foundResource })).toBe('embedded');
+        });
+    });
+
+    describe('executeMemberOperations (externalStorage)', () => {
         const mockGroupHandler = {
             writeEventsAsync: jest.fn()
         };
@@ -157,7 +189,8 @@ describe('GroupMemberPatchStrategy', () => {
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
+                groupMemberType: 'externalStorage'
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
@@ -183,7 +216,8 @@ describe('GroupMemberPatchStrategy', () => {
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
+                groupMemberType: 'externalStorage'
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
@@ -208,7 +242,8 @@ describe('GroupMemberPatchStrategy', () => {
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
+                groupMemberType: 'externalStorage'
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
@@ -233,7 +268,8 @@ describe('GroupMemberPatchStrategy', () => {
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
+                groupMemberType: 'externalStorage'
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
@@ -263,7 +299,8 @@ describe('GroupMemberPatchStrategy', () => {
                         id: 'group-1',
                         base_version: '4_0_0',
                         memberOperations: [badOp],
-                        foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+                        foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
+                        groupMemberType: 'externalStorage'
                     })
                 ).rejects.toThrow('Missing required value.entity.reference');
             }
@@ -282,7 +319,8 @@ describe('GroupMemberPatchStrategy', () => {
                     id: 'group-1',
                     base_version: '4_0_0',
                     memberOperations,
-                    foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+                    foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
+                    groupMemberType: 'externalStorage'
                 })
             ).rejects.toThrow();
         });
@@ -300,7 +338,8 @@ describe('GroupMemberPatchStrategy', () => {
                     id: 'group-1',
                     base_version: '4_0_0',
                     memberOperations,
-                    foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+                    foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
+                    groupMemberType: 'externalStorage'
                 })
             ).rejects.toThrow();
         });
@@ -319,7 +358,8 @@ describe('GroupMemberPatchStrategy', () => {
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
+                groupMemberType: 'externalStorage'
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
@@ -333,6 +373,91 @@ describe('GroupMemberPatchStrategy', () => {
                 ],
                 groupResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
+        });
+    });
+
+    describe('executeMemberOperations (extended)', () => {
+        let mockMongoGroupMemberRepository;
+
+        const extendedFoundResource = {
+            id: 'group-1',
+            _uuid: 'group-1-uuid',
+            resourceType: 'Group',
+            _sourceAssigningAuthority: SOURCE_AUTHORITY,
+            meta: {
+                versionId: '3',
+                security: [{ system: 'https://www.icanbwell.com/owner', code: 'bwell' }]
+            }
+        };
+
+        beforeEach(() => {
+            // applyMemberEventsAsync flushes its own buffered writes internally, so the strategy
+            // itself has no FastDatabaseBulkInserter dependency to mock here.
+            mockMongoGroupMemberRepository = { applyMemberEventsAsync: jest.fn() };
+
+            strategy = new GroupMemberPatchStrategy({
+                postSaveHandlerFactory: mockPostSaveHandlerFactory,
+                configManager: mockConfigManager,
+                resourceMerger: mockResourceMerger,
+                databaseBulkInserter: mockDatabaseBulkInserter,
+                mongoGroupMemberRepository: mockMongoGroupMemberRepository
+            });
+        });
+
+        test('writes a combined add/remove event list through mongoGroupMemberRepository and never touches ClickHouse post-save handlers', async () => {
+            const memberOperations = [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } },
+                { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/2' } } }
+            ];
+
+            const updatedResource = await strategy.executeMemberOperations({
+                requestInfo: {},
+                parsedArgs: {},
+                resourceType: 'Group',
+                id: 'group-1',
+                base_version: '4_0_0',
+                memberOperations,
+                foundResource: extendedFoundResource,
+                groupMemberType: 'extended'
+            });
+
+            expect(mockMongoGroupMemberRepository.applyMemberEventsAsync).toHaveBeenCalledWith({
+                requestInfo: {},
+                base_version: '4_0_0',
+                groupUuid: 'group-1-uuid',
+                groupVersionId: 3,
+                sourceAssigningAuthority: SOURCE_AUTHORITY,
+                securityTags: extendedFoundResource.meta.security,
+                // inactive is undefined here (not coerced to false), unlike the ClickHouse branch's
+                // events -- resolveMemberWrite needs to tell "not supplied" apart from "explicitly
+                // false" (see resolveMemberWrite.js).
+                events: [
+                    { entity: enrichedEntity('Patient/1'), period: undefined, inactive: undefined, op: 'add' },
+                    { entity: enrichedEntity('Patient/2'), period: undefined, inactive: undefined, op: 'remove' }
+                ]
+            });
+            expect(mockPostSaveHandlerFactory.getHandlers).not.toHaveBeenCalled();
+            expect(updatedResource._uuid).toBe('group-1-uuid');
+        });
+
+        test('does not call mongoGroupMemberRepository when there are no member events', async () => {
+            // Every op fails validation before reaching classification, so this test instead
+            // covers the (unreachable via the public parse path today, but defensively handled)
+            // empty-events case by asserting the limit/parse guards run before any backend write.
+            await expect(
+                strategy.executeMemberOperations({
+                    requestInfo: {},
+                    parsedArgs: {},
+                    resourceType: 'Group',
+                    id: 'group-1',
+                    base_version: '4_0_0',
+                    memberOperations: [{ op: 'remove', path: '/member/0', value: {} }],
+                    foundResource: extendedFoundResource,
+                    groupMemberType: 'extended'
+                })
+            ).rejects.toThrow();
+
+            expect(mockMongoGroupMemberRepository.applyMemberEventsAsync).not.toHaveBeenCalled();
         });
     });
 });

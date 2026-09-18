@@ -36,6 +36,7 @@ const {SearchByVersionIdOperation} = require('./operations/searchByVersionId/sea
 const {HistoryByIdOperation} = require('./operations/historyById/historyById');
 const {HistoryOperation} = require('./operations/history/history');
 const {PatchOperation} = require('./operations/patch/patch');
+const {MongoGroupMemberRepository} = require('./dataLayer/repositories/mongoGroupMemberRepository');
 const {ValidateOperation} = require('./operations/validate/validate');
 const {GraphOperation} = require('./operations/graph/graph');
 const {ExpandOperation} = require('./operations/expand/expand');
@@ -965,6 +966,13 @@ const createContainer = function () {
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
         }
     ));
+    container.register('mongoGroupMemberRepository', (c) => new MongoGroupMemberRepository(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            databaseBulkInserter: c.fastDatabaseBulkInserter,
+            removeHelper: c.removeHelper
+        }
+    ));
     container.register('patchOperation', (c) => new PatchOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
@@ -980,7 +988,8 @@ const createContainer = function () {
             resourceMerger: c.resourceMerger,
             resourceValidator: c.resourceValidator,
             postSaveHandlerFactory: c.postSaveHandlerFactory,
-            identifierEnrichmentProvider: c.identifierEnrichmentProvider
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(

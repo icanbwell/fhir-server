@@ -39,6 +39,7 @@ class Group extends Resource {
      * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
+     * @param {boolean|undefined} [_extendedGroupMember]
     */
     constructor (
         {
@@ -63,7 +64,8 @@ class Group extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId
+            _sourceId,
+            _extendedGroupMember
         }
     ) {
         super({});
@@ -500,6 +502,19 @@ class Group extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
+        /**
+         * @description _extendedGroupMember
+         * @property {boolean|undefined}
+         */
+        Object.defineProperty(this, '_extendedGroupMember', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data._extendedGroupMember,
+            set: valueProvided => {
+                this.__data._extendedGroupMember = valueProvided;
+            }
+        });
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -524,7 +539,8 @@ class Group extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId
+            _sourceId,
+            _extendedGroupMember
         });
 
         /**
@@ -571,6 +587,7 @@ class Group extends Resource {
      * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
+     * @param {boolean|undefined} [_extendedGroupMember]
      * @returns {Group}
     */
     create (
@@ -596,7 +613,8 @@ class Group extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId
+            _sourceId,
+            _extendedGroupMember
         }
     ) {
         return new Group({
@@ -621,7 +639,8 @@ class Group extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId
+            _sourceId,
+            _extendedGroupMember
         });
     }
 
@@ -716,6 +735,9 @@ class Group extends Resource {
         }
         if (this._sourceId) {
             json._sourceId = this._sourceId;
+        }
+        if (this._extendedGroupMember) {
+            json._extendedGroupMember = this._extendedGroupMember;
         }
 
         return removeNull(json);

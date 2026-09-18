@@ -64,6 +64,7 @@ const { ResourceValidator } = require('../../../../operations/common/resourceVal
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const { fhirContentTypes } = require('../../../../utils/contentTypes');
+const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -91,7 +92,8 @@ describe('PatchOperation', () => {
             postSaveHandlerFactory: createMockInstance(
                 require('../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory
             ),
-            identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider)
+            identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
+            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
         };
 
         // Setup mocks

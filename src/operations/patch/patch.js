@@ -10,6 +10,7 @@ const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { fhirContentTypes } = require('../../utils/contentTypes');
 const { ParsedArgs } = require('../query/parsedArgs');
@@ -51,6 +52,7 @@ class PatchOperation {
      * @param {ResourceValidator} resourceValidator
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {import('../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} mongoGroupMemberRepository
      */
     constructor (
         {
@@ -67,7 +69,8 @@ class PatchOperation {
             resourceMerger,
             resourceValidator,
             postSaveHandlerFactory,
-            identifierEnrichmentProvider
+            identifierEnrichmentProvider,
+            mongoGroupMemberRepository
         }
     ) {
         /**
@@ -143,6 +146,12 @@ class PatchOperation {
         assertTypeEquals(postSaveHandlerFactory, require('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory);
 
         /**
+         * @type {MongoGroupMemberRepository}
+         */
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
+
+        /**
          * Strategy for handling resource-specific PATCH operations
          *
          * NOTE: When adding a second strategy (e.g., ObservationComponentPatchStrategy),
@@ -161,7 +170,8 @@ class PatchOperation {
             postSaveHandlerFactory: this.postSaveHandlerFactory,
             configManager: this.configManager,
             resourceMerger: this.resourceMerger,
-            databaseBulkInserter: this.databaseBulkInserter
+            databaseBulkInserter: this.databaseBulkInserter,
+            mongoGroupMemberRepository: this.mongoGroupMemberRepository
         });
 
         /**
@@ -242,26 +252,19 @@ class PatchOperation {
             const { base_version, id } = parsedArgs;
 
             // ============ SPECIAL HANDLING FOR GROUP MEMBER OPERATIONS ============
-            // For storage-synced Groups, member operations bypass MongoDB array updates
-            // and write directly to event log (FHIR R4B PATCH with RFC 6902)
-            // IMPORTANT: We detect member ops early but validate/write AFTER security checks below
+            // For extended-storage Groups (ClickHouse or Mongo-native), member operations bypass
+            // MongoDB array updates and write directly per the Group's member type (FHIR R4B
+            // PATCH with a pragmatic RFC 6902 extension). Detecting that a patch touches /member
+            // can happen before the Group is fetched; determining *which* group member type (or
+            // none, for a plain embedded Group) needs the loaded document, so that determination
+            // is deferred below.
             let groupMemberOperations = null;
             let hasOnlyMemberOperations = false;
             let effectivePatchContent = patchContent;
             const memberOpsResult = this.groupMemberPatchStrategy.detectMemberOperations({
                 patchContent,
-                resourceType,
-                requestInfo
+                resourceType
             });
-            if (memberOpsResult) {
-                groupMemberOperations = memberOpsResult.memberOps;
-                hasOnlyMemberOperations = memberOpsResult.hasOnlyMemberOperations;
-
-                if (!hasOnlyMemberOperations) {
-                    // Mixed patch: will handle member ops after validation, then continue with non-member ops
-                    effectivePatchContent = memberOpsResult.nonMemberOps;
-                }
-            }
             // ====================================================================
 
             // Get current record
@@ -331,8 +334,24 @@ class PatchOperation {
             });
 
             // ============ EXECUTE GROUP MEMBER OPERATIONS (AFTER VALIDATION) ============
-            // Now that we've validated the resource exists and user has access, handle member operations
-            if (groupMemberOperations && groupMemberOperations.length > 0) {
+            // Now that we've validated the resource exists and user has access, determine which
+            // group member type (if any) should handle the member ops. A plain embedded Group
+            // determines to 'embedded' and falls through to the standard patch flow below,
+            // completely unmodified -- its member[] add/remove already works via ordinary JSON
+            // Patch array semantics, no new code needed.
+            const groupMemberType = memberOpsResult
+                ? this.groupMemberPatchStrategy.determineGroupMemberType({ requestInfo, foundResource })
+                : null;
+
+            if (groupMemberType && groupMemberType !== 'embedded') {
+                groupMemberOperations = memberOpsResult.memberOps;
+                hasOnlyMemberOperations = memberOpsResult.hasOnlyMemberOperations;
+
+                if (!hasOnlyMemberOperations) {
+                    // Mixed patch: will handle member ops now, then continue with non-member ops
+                    effectivePatchContent = memberOpsResult.nonMemberOps;
+                }
+
                 const updatedResource = await this.groupMemberPatchStrategy.executeMemberOperations({
                     requestInfo,
                     parsedArgs,
@@ -340,7 +359,8 @@ class PatchOperation {
                     id,
                     base_version,
                     memberOperations: groupMemberOperations,
-                    foundResource
+                    foundResource,
+                    groupMemberType
                 });
 
                 // If only member operations, update metadata and return
