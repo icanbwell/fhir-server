@@ -229,8 +229,7 @@ class MongoGroupMemberRepository {
             base_version
         });
         return await databaseQueryManager.findAsync({
-            query: { groupUuid },
-            options: { sort: { memberRowUuid: 1 } }
+            query: { groupUuid }
         });
     }
 }
