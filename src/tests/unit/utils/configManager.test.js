@@ -225,6 +225,21 @@ describe('ConfigManager', () => {
             process.env.AUTH_CID_CHECK_CLIENT_IDS = 'cid1,cid2';
             expect(new ConfigManager().authCidCheckClientIds).toEqual(['cid1', 'cid2']);
         });
+
+        test('authAudienceWhitelist splits on comma', () => {
+            process.env.AUTH_AUDIENCE_WHITELIST = 'aud1,aud2';
+            expect(new ConfigManager().authAudienceWhitelist).toEqual(['aud1', 'aud2']);
+        });
+
+        test('authAudienceWhitelist returns empty array when not set', () => {
+            delete process.env.AUTH_AUDIENCE_WHITELIST;
+            expect(new ConfigManager().authAudienceWhitelist).toEqual([]);
+        });
+
+        test('authAudienceWhitelist trims whitespace around entries', () => {
+            process.env.AUTH_AUDIENCE_WHITELIST = 'aud1, aud2 ,aud3';
+            expect(new ConfigManager().authAudienceWhitelist).toEqual(['aud1', 'aud2', 'aud3']);
+        });
     });
 
     // ========== supportLegacyIds ==========
