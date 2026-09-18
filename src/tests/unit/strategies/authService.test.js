@@ -135,7 +135,8 @@ describe('AuthService', () => {
             AuthService.userInfoCache = undefined;
             const svc = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             expect(svc.audienceWhitelist).toEqual(['aud-1', 'aud-2']);
         });
