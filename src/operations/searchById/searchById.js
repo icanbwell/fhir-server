@@ -18,8 +18,6 @@ const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, BLOB_OP } = require('../../constants');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
-const { isGroupExtended } = require('../../utils/mongoGroupExtendedTag');
-const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 
 class SearchByIdOperation {
     /**
@@ -48,8 +46,7 @@ class SearchByIdOperation {
             configManager,
             databaseAttachmentManager,
             base64DataManager,
-            postRequestProcessor,
-            mongoGroupMemberRepository
+            postRequestProcessor
         }
     ) {
         /**
@@ -112,9 +109,6 @@ class SearchByIdOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
-
-        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
-        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
     }
 
     /**
@@ -126,7 +120,7 @@ class SearchByIdOperation {
      * @param {searchByIdAsyncParams} searchByIdAsyncParams
      * @return {Resource}
      */
-    async searchByIdAsync ({ requestInfo, parsedArgs, resourceType, res }) {
+    async searchByIdAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -245,13 +239,6 @@ class SearchByIdOperation {
             resource = getFirstResourceOrNull(resources);
 
             if (resource) {
-                if (resourceType === 'Group' && isGroupExtended(resource) && !this.configManager.enableExtendedGroup) {
-                    throw new BadRequestError(new Error(
-                        `Group ${id} uses extended member storage, which is disabled on this server ` +
-                        '(ENABLE_EXTENDED_GROUP is not set).'
-                    ));
-                }
-
                 const resourceUuid = resource._uuid;
                 // remove any nulls or empty objects or arrays
                 resource = removeNull(resource);
@@ -296,21 +283,6 @@ class SearchByIdOperation {
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
                 resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
                 FhirResourceSerializer.serializeByResourceType(resource, resourceType);
-
-                if (resourceType === 'Group' && res && isGroupExtended(resource)) {
-                    const memberCursor = await this.mongoGroupMemberRepository.getMemberCursorAsync({
-                        base_version,
-                        groupUuid: resourceUuid
-                    });
-                    await this.searchManager.streamGroupMemberArrayAsync({
-                        requestId,
-                        cursor: memberCursor,
-                        groupResourceJson: resource,
-                        res
-                    });
-                    return null;
-                }
-
                 return resource;
             } else {
                 throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);

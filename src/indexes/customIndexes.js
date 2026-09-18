@@ -424,17 +424,6 @@ module.exports = {
                 }
             }
         ],
-        GroupMember_4_0_0: [
-            {
-                keys: {
-                    groupUuid: 1,
-                    memberRowUuid: 1
-                },
-                options: {
-                    name: 'groupUuid_1_memberRowUuid_1'
-                }
-            }
-        ],
         HealthcareService_4_0_0: [
             {
                 keys: {
