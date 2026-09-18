@@ -22,7 +22,11 @@ class GroupMember extends Resource {
      * @param {Object} [_access]
      * @param {string} _sourceAssigningAuthority - copied from the owning Group, required by ReferenceGlobalIdHandler
      * @param {string} _uuid - this row's stable identity; there is no separate memberRowUuid field (design doc §3.2)
-     * @param {string} [_sourceId]
+     * @param {string} [_sourceId] - not set by this design's own write path; populated automatically by the
+     *   universal SourceIdColumnHandler pre-save handler (same as _access/AccessColumnHandler), equal to
+     *   `id` (itself equal to `_uuid`) the same way it is for every other resource type -- standard
+     *   cross-cutting infra, not GroupMember-specific, kept for consistency with the rest of the write
+     *   pipeline's invariants rather than because anything in this design queries or reads it back
      * @param {string} groupUuid
      * @param {number} groupVersionId - owning Group's meta.versionId at the time of this write
      * @param {{entity: Object, period: Object|undefined, inactive: boolean}} member

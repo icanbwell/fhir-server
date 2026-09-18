@@ -41,7 +41,7 @@ function stripUndefined(obj) {
  * row itself.
  *
  * @param {{entity: Object, period: Object|undefined, inactive: boolean}|undefined} existingMember
- * @param {{entity: {reference:string, type:string|undefined, display:string|undefined}, period:Object|undefined, inactive:boolean|undefined, op:'add'|'remove'}} event
+ * @param {{entity: {reference:string, type:string|undefined, display:string|undefined, _uuid:string|undefined, _sourceId:string|undefined, _sourceAssigningAuthority:string|undefined}, period:Object|undefined, inactive:boolean|undefined, op:'add'|'remove'}} event
  * @returns {{classification:'create'|'update'|'delete'|'none', member:Object|undefined}}
  */
 function resolveMemberWrite(existingMember, event) {
@@ -64,7 +64,10 @@ function resolveMemberWrite(existingMember, event) {
         type: event.entity.type !== undefined ? event.entity.type : existingMember?.entity?.type,
         display: event.entity.display !== undefined ? event.entity.display : existingMember?.entity?.display,
         _uuid: event.entity._uuid !== undefined ? event.entity._uuid : existingMember?.entity?._uuid,
-        _sourceId: event.entity._sourceId !== undefined ? event.entity._sourceId : existingMember?.entity?._sourceId
+        _sourceId: event.entity._sourceId !== undefined ? event.entity._sourceId : existingMember?.entity?._sourceId,
+        _sourceAssigningAuthority: event.entity._sourceAssigningAuthority !== undefined
+            ? event.entity._sourceAssigningAuthority
+            : existingMember?.entity?._sourceAssigningAuthority
     });
     const period = event.period !== undefined ? event.period : existingMember?.period;
     const inactive = event.inactive !== undefined ? event.inactive : false;

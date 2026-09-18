@@ -1,6 +1,7 @@
 const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const { generateUUIDv5 } = require('./uid.util');
+const { BadRequestError } = require('./httpErrors');
 
 // Deliberately a different system/code pair than clickHouseGroupPreSave's
 // externalStorageFields|member tag -- the two external-storage mechanisms for Group.member
@@ -61,8 +62,43 @@ function addExtendedTagIfNeeded(doc) {
     }
 }
 
+/**
+ * Rejects a PUT/$merge write against an already-extended Group whose submitted body carries a
+ * `member` field (design doc §5.1). An extended Group's real roster lives entirely in
+ * GroupMember_4_0_0 -- member[] doesn't exist on the live document at all -- so silently
+ * accepting a client-submitted member[] here would be indistinguishable from a no-op (the caller
+ * would see no error and no effect) while either dropping their intended change or, worse,
+ * reintroducing a stale/bogus member[] alongside the real roster. Rejecting outright makes the
+ * wrong call visible immediately and tells the caller to use PATCH instead.
+ *
+ * Deliberately unconditional on configManager.enableExtendedGroup: this is a data-integrity
+ * guardrail, not a feature-availability gate -- an already-extended Group's member[] genuinely
+ * doesn't exist on the document regardless of the flag's current value. (Contrast with PATCH's
+ * own routing in GroupMemberPatchStrategy.determineGroupMemberType, which does gate on the flag,
+ * because PATCH's job there is deciding whether to *activate* the extended write path, not
+ * rejecting a shape that's already structurally wrong.) A metadata-only PUT/$merge (no `member`
+ * field submitted) is unaffected either way -- Group's other fields remain fully writable.
+ *
+ * @param {Object} params
+ * @param {Resource} params.currentResource - the already-loaded, existing Group
+ * @param {boolean} params.hasMemberField - whether the client-submitted body includes `member`
+ */
+function rejectMemberOnExtendedGroupWrite({ currentResource, hasMemberField }) {
+    if (currentResource?.resourceType === 'Group' &&
+        currentResource[MONGO_GROUP_EXTENDED_FIELD] === true &&
+        hasMemberField
+    ) {
+        throw new BadRequestError(new Error(
+            `Group ${currentResource.id || currentResource._uuid} uses extended member storage; ` +
+            'member changes must go through PATCH on /member (e.g. PATCH /4_0_0/Group/{id} with a ' +
+            'JSON Patch op on /member), not PUT or $merge. See: https://www.hl7.org/fhir/http.html#patch'
+        ));
+    }
+}
+
 module.exports = {
     addExtendedTagIfNeeded,
+    rejectMemberOnExtendedGroupWrite,
     MONGO_GROUP_MEMBER_TAG_SYSTEM,
     MONGO_GROUP_MEMBER_TAG_CODE,
     MONGO_GROUP_EXTENDED_FIELD

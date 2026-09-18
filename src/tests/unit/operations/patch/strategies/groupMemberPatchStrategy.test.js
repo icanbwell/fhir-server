@@ -23,7 +23,8 @@ function enrichedEntity(reference) {
     return {
         reference,
         _uuid: `${resourceType}/${uuid}`,
-        _sourceId: `${resourceType}/${referenceId}`
+        _sourceId: `${resourceType}/${referenceId}`,
+        _sourceAssigningAuthority: authority
     };
 }
 

@@ -288,6 +288,26 @@ describe('Group member PATCH write path (DCON-5527)', () => {
                 process.env.ENABLE_EXTENDED_GROUP = saved;
             }
         });
+
+        test('a metadata-only PATCH on an extended Group still succeeds when ENABLE_EXTENDED_GROUP is disabled', async () => {
+            // Rollout plan (design doc §8): nothing about the extended-storage feature activates
+            // without the flag, but that only means membership PATCH ops are blocked -- a Group's
+            // own fields must stay writable regardless, the same as it always was.
+            const created = await createGroup({ name: 'original-name' });
+            await markGroupExtended(created.id);
+
+            const saved = process.env.ENABLE_EXTENDED_GROUP;
+            delete process.env.ENABLE_EXTENDED_GROUP;
+            try {
+                const patchResp = await patchGroup(created.id, [
+                    { op: 'replace', path: '/name', value: 'updated-name' }
+                ]);
+                expect(patchResp.status).toBe(200);
+                expect(patchResp.body.name).toBe('updated-name');
+            } finally {
+                process.env.ENABLE_EXTENDED_GROUP = saved;
+            }
+        });
     });
 
     describe('operation limits', () => {

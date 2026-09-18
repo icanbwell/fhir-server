@@ -58,6 +58,35 @@ describe('resolveMemberWrite', () => {
         expect(result.member.entity.type).toBe('Person');
     });
 
+    test('add carries entity._uuid/_sourceId/_sourceAssigningAuthority through from the enriched event', () => {
+        const result = resolveMemberWrite(undefined, {
+            entity: {
+                reference: 'Patient/1',
+                _uuid: 'Patient/uuid-1',
+                _sourceId: 'Patient/1',
+                _sourceAssigningAuthority: 'test-owner'
+            },
+            period: undefined,
+            op: 'add'
+        });
+        expect(result.classification).toBe('create');
+        expect(result.member.entity).toEqual({
+            reference: 'Patient/1',
+            _uuid: 'Patient/uuid-1',
+            _sourceId: 'Patient/1',
+            _sourceAssigningAuthority: 'test-owner'
+        });
+    });
+
+    test('add with no _sourceAssigningAuthority supplied carries the existing row value forward', () => {
+        const existing = { entity: { reference: 'Patient/1', _sourceAssigningAuthority: 'test-owner' }, inactive: false };
+        const result = resolveMemberWrite(existing, {
+            entity: { reference: 'Patient/1', display: 'new' }, period: undefined, op: 'add'
+        });
+        expect(result.classification).toBe('update');
+        expect(result.member.entity._sourceAssigningAuthority).toBe('test-owner');
+    });
+
     test('add with no period/type/display/inactive supplied carries forward period/type/display but defaults inactive to false', () => {
         const existing = {
             entity: { reference: 'Patient/1', type: 'Patient', display: 'Jane' },
