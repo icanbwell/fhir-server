@@ -94,6 +94,11 @@ class AuthService {
          */
         this.cidCheckClientIds = this.configManager.authCidCheckClientIds;
 
+        /**
+         * @type {string[]}
+         */
+        this.audienceWhitelist = this.configManager.authAudienceWhitelist;
+
         if (AuthService.jwksCache === undefined) {
             AuthService.jwksCache = new LRUCache(this.cacheOptions);
         }
@@ -565,6 +570,16 @@ class AuthService {
     verify({request, jwt_payload, token, done}) {
         if (jwt_payload) {
             request.jwtPayload = jwt_payload;
+            if (this.audienceWhitelist.length > 0) {
+                const tokenAudiences = Array.isArray(jwt_payload.aud) ? jwt_payload.aud : [jwt_payload.aud];
+                if (!tokenAudiences.some((aud) => this.audienceWhitelist.includes(aud))) {
+                    logInfo(`Audience ${jwt_payload.aud} is not allowed`, {
+                        reason: 'audience_not_allowed',
+                        userClaim: jwt_payload.sub
+                    });
+                    return done(null, false, { reason: 'audience_not_allowed' });
+                }
+            }
             if (this.cidCheckIssuer && jwt_payload.iss === this.cidCheckIssuer) {
                 if (!this.cidCheckClientIds.includes(jwt_payload.cid)) {
                     logInfo(`Client ID ${jwt_payload.cid} is not allowed from issuer ${jwt_payload.iss}`, {
