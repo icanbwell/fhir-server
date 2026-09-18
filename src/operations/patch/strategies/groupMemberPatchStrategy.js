@@ -309,6 +309,7 @@ class GroupMemberPatchStrategy {
                     base_version,
                     groupUuid: updatedResource._uuid,
                     groupVersionId: parseInt(updatedResource.meta.versionId, 10),
+                    groupLastUpdated: updatedResource.meta.lastUpdated,
                     sourceAssigningAuthority,
                     securityTags: updatedResource.meta.security,
                     events

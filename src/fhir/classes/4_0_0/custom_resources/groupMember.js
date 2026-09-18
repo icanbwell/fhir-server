@@ -28,7 +28,6 @@ class GroupMember extends Resource {
      *   cross-cutting infra, not GroupMember-specific, kept for consistency with the rest of the write
      *   pipeline's invariants rather than because anything in this design queries or reads it back
      * @param {string} groupUuid
-     * @param {number} groupVersionId - owning Group's meta.versionId at the time of this write
      * @param {{entity: Object, period: Object|undefined, inactive: boolean}} member
      */
     constructor ({
@@ -39,7 +38,6 @@ class GroupMember extends Resource {
         _uuid,
         _sourceId,
         groupUuid,
-        groupVersionId,
         member
     }) {
         super({ id, meta, _access, _sourceAssigningAuthority, _uuid, _sourceId });
@@ -50,12 +48,6 @@ class GroupMember extends Resource {
             get: () => this.__data.groupUuid,
             set: (value) => { this.__data.groupUuid = value; }
         });
-        Object.defineProperty(this, 'groupVersionId', {
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.groupVersionId,
-            set: (value) => { this.__data.groupVersionId = value; }
-        });
         Object.defineProperty(this, 'member', {
             enumerable: true,
             configurable: true,
@@ -63,7 +55,7 @@ class GroupMember extends Resource {
             set: (value) => { this.__data.member = value; }
         });
 
-        Object.assign(this, { groupUuid, groupVersionId, member });
+        Object.assign(this, { groupUuid, member });
 
         Object.defineProperty(this, 'resourceType', {
             value: 'GroupMember',
@@ -92,7 +84,6 @@ class GroupMember extends Resource {
             _uuid,
             _sourceId,
             groupUuid,
-            groupVersionId,
             member
         }
     ) {
@@ -104,7 +95,6 @@ class GroupMember extends Resource {
             _uuid,
             _sourceId,
             groupUuid,
-            groupVersionId,
             member
         });
     }
@@ -125,7 +115,6 @@ class GroupMember extends Resource {
         return {
             ...super.toJSONInternal(),
             groupUuid: this.groupUuid,
-            groupVersionId: this.groupVersionId,
             member: this.member
         };
     }

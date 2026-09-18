@@ -148,6 +148,13 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             expect(row).not.toBeNull();
             expect(row.member.inactive).toBe(false);
 
+            // A GroupMember row's own meta.versionId/lastUpdated always mirror the owning Group's
+            // at the time of the write -- there is no independent per-row version counter.
+            expect(row.meta.versionId).toBe(patchResp.body.meta.versionId);
+            expect(new Date(row.meta.lastUpdated).toISOString()).toBe(
+                new Date(patchResp.body.meta.lastUpdated).toISOString()
+            );
+
             // Regression test for the insertOneAsync/replaceOneAsync split (design doc §5.4
             // pitfall 1): a fresh add going through replaceOneAsync({upsert:true}) always
             // reports modifiedCount:0, which used to trip MongoBulkWriteExecutor's one-by-one
@@ -156,6 +163,31 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             const historyRows = await waitForHistoryRowsAsync(historyCollection, row.groupUuid, 1);
             expect(historyRows).toHaveLength(1);
             expect(historyRows[0].request.method).toBe('PATCH');
+        });
+
+        test('PATCH adding several new members in one request stamps them all with the same meta.versionId/lastUpdated as the Group', async () => {
+            const created = await createGroup();
+            await markGroupExtended(created.id);
+
+            const patchResp = await patchGroup(created.id, [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/extended-batch-1' } } },
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/extended-batch-2' } } },
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/extended-batch-3' } } }
+            ]);
+            expect(patchResp.status).toBe(200);
+
+            const memberCollection = await getCollection(GROUP_MEMBER_COLLECTION_NAME);
+            const rows = await memberCollection.find({
+                'member.entity.reference': { $in: ['Patient/extended-batch-1', 'Patient/extended-batch-2', 'Patient/extended-batch-3'] }
+            }).toArray();
+            expect(rows).toHaveLength(3);
+
+            for (const row of rows) {
+                expect(row.meta.versionId).toBe(patchResp.body.meta.versionId);
+                expect(new Date(row.meta.lastUpdated).toISOString()).toBe(
+                    new Date(patchResp.body.meta.lastUpdated).toISOString()
+                );
+            }
         });
 
         test('PATCH add again with a different period updates the same row in place (no duplicate row)', async () => {

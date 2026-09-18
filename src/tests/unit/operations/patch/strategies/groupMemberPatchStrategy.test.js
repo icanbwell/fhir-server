@@ -379,21 +379,38 @@ describe('GroupMemberPatchStrategy', () => {
     describe('executeMemberOperations (extended)', () => {
         let mockMongoGroupMemberRepository;
 
-        const extendedFoundResource = {
-            id: 'group-1',
-            _uuid: 'group-1-uuid',
-            resourceType: 'Group',
-            _sourceAssigningAuthority: SOURCE_AUTHORITY,
-            meta: {
-                versionId: '3',
-                security: [{ system: 'https://www.icanbwell.com/owner', code: 'bwell' }]
-            }
-        };
+        const NEW_VERSION_ID = '4';
+        const NEW_LAST_UPDATED = new Date('2026-01-01T00:00:00.000Z');
+
+        let extendedFoundResource;
 
         beforeEach(() => {
+            // Fresh object per test: the strategy's updatedResource = {...foundResource} shallow
+            // copy shares this same .meta reference, and the updateMeta mock below mutates it in
+            // place (matching the real implementation) -- a shared, mutated-in-place fixture
+            // would leak versionId/lastUpdated changes across tests.
+            extendedFoundResource = {
+                id: 'group-1',
+                _uuid: 'group-1-uuid',
+                resourceType: 'Group',
+                _sourceAssigningAuthority: SOURCE_AUTHORITY,
+                meta: {
+                    versionId: '3',
+                    security: [{ system: 'https://www.icanbwell.com/owner', code: 'bwell' }]
+                }
+            };
+
             // applyMemberEventsAsync flushes its own buffered writes internally, so the strategy
             // itself has no FastDatabaseBulkInserter dependency to mock here.
             mockMongoGroupMemberRepository = { applyMemberEventsAsync: jest.fn() };
+
+            // Simulates the real resourceMerger.updateMeta's effect (bumps versionId, stamps
+            // lastUpdated) so the groupVersionId/groupLastUpdated wired through to
+            // applyMemberEventsAsync below reflect a realistic post-update Group.
+            mockResourceMerger.updateMeta = jest.fn(({ patched_resource_incoming }) => {
+                patched_resource_incoming.meta.versionId = NEW_VERSION_ID;
+                patched_resource_incoming.meta.lastUpdated = NEW_LAST_UPDATED;
+            });
 
             strategy = new GroupMemberPatchStrategy({
                 postSaveHandlerFactory: mockPostSaveHandlerFactory,
@@ -425,7 +442,11 @@ describe('GroupMemberPatchStrategy', () => {
                 requestInfo: {},
                 base_version: '4_0_0',
                 groupUuid: 'group-1-uuid',
-                groupVersionId: 3,
+                // Reflects the Group's post-updateMeta versionId/lastUpdated (mocked above), not
+                // its pre-write values -- every GroupMember row this call touches is stamped with
+                // these same two values, matching the Group exactly.
+                groupVersionId: Number(NEW_VERSION_ID),
+                groupLastUpdated: NEW_LAST_UPDATED,
                 sourceAssigningAuthority: SOURCE_AUTHORITY,
                 securityTags: extendedFoundResource.meta.security,
                 // inactive is undefined here (not coerced to false), unlike the ClickHouse branch's

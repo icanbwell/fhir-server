@@ -2,8 +2,7 @@ const { assertTypeEquals } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../databaseQueryFactory');
 const { FastDatabaseBulkInserter } = require('../fastDatabaseBulkInserter');
 const { RemoveHelper } = require('../../operations/remove/removeHelper');
-const GroupMember = require('../../fhir/classes/4_0_0/custom_resources/groupMember');
-const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
+const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { GROUP_MEMBER_RESOURCE_TYPE } = require('../../constants');
 const { resolveMemberWrite } = require('../../operations/common/resolveMemberWrite');
@@ -71,7 +70,13 @@ class MongoGroupMemberRepository {
      * @param {FhirRequestInfo} params.requestInfo
      * @param {string} params.base_version
      * @param {string} params.groupUuid
-     * @param {number} params.groupVersionId - parent Group's meta.versionId at time of write
+     * @param {number} params.groupVersionId - parent Group's meta.versionId at time of write;
+     *   stamped onto every row this call touches (create or update) as that row's own
+     *   meta.versionId too -- there is no independent per-row version counter, so a membership
+     *   row's meta.versionId always tells you exactly which Group version last touched it.
+     * @param {Date} params.groupLastUpdated - parent Group's meta.lastUpdated at time of write;
+     *   stamped onto every row this call touches, so every row created/updated by the same PATCH
+     *   shares one identical lastUpdated with each other and with the Group itself.
      * @param {string} params.sourceAssigningAuthority - copied from the owning Group
      * @param {Coding[]|undefined} params.securityTags - copied from the owning Group's meta.security
      * @param {Array<{entity: {reference:string, _uuid:string, type:string|undefined, display:string|undefined}, period:Object|undefined, op:'add'|'remove'}>} params.events
@@ -79,7 +84,7 @@ class MongoGroupMemberRepository {
      *   identity is derived from, not entity.reference.
      * @returns {Promise<Array<{reference:string, operation:'create'|'update'|'delete'|'none'}>>}
      */
-    async applyMemberEventsAsync({ requestInfo, base_version, groupUuid, groupVersionId, sourceAssigningAuthority, securityTags, events }) {
+    async applyMemberEventsAsync({ requestInfo, base_version, groupUuid, groupVersionId, groupLastUpdated, sourceAssigningAuthority, securityTags, events }) {
         if (!events || events.length === 0) {
             return [];
         }
@@ -102,7 +107,6 @@ class MongoGroupMemberRepository {
         const existingRows = await cursor.toArrayAsync();
         const existingByRowUuid = new Map(existingRows.map((r) => [r._uuid, r]));
 
-        const now = new Date();
         const outcomes = [];
         const docsToDelete = [];
         let hasBufferedWrite = false;
@@ -117,19 +121,20 @@ class MongoGroupMemberRepository {
                 continue;
             }
 
-            const previousVersionId = parseInt(existingRow?.meta?.versionId, 10);
-            const doc = new GroupMember({
-                id: rowUuid,
-                _uuid: rowUuid,
-                meta: new Meta({
-                    versionId: `${Number.isNaN(previousVersionId) ? 1 : previousVersionId + 1}`,
-                    lastUpdated: now,
-                    security: securityTags
-                }),
-                _sourceAssigningAuthority: sourceAssigningAuthority,
-                groupUuid,
-                groupVersionId,
-                member
+            const doc = FhirResourceWriteSerializer.serialize({
+                obj: {
+                    resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+                    id: rowUuid,
+                    _uuid: rowUuid,
+                    meta: {
+                        versionId: `${groupVersionId}`,
+                        lastUpdated: groupLastUpdated,
+                        security: securityTags
+                    },
+                    _sourceAssigningAuthority: sourceAssigningAuthority,
+                    groupUuid,
+                    member
+                }
             });
 
             if (classification === 'delete') {

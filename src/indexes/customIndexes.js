@@ -1,4 +1,9 @@
-const { ACCESS_LOGS_COLLECTION_NAME, CONSENT_OF_LINKED_PERSON_INDEX, CONSENT_OF_LINKED_ACTOR_INDEX } = require('../constants');
+const {
+    ACCESS_LOGS_COLLECTION_NAME,
+    CONSENT_OF_LINKED_PERSON_INDEX,
+    CONSENT_OF_LINKED_ACTOR_INDEX,
+    GROUP_MEMBER_COLLECTION_NAME
+} = require('../constants');
 
 /**
  * List of custom indexes to add.  (* means these indexes should be applied to all collections)
@@ -17,7 +22,8 @@ module.exports = {
                 },
                 exclude: [
                     'AuditEvent_4_0_0',
-                    ACCESS_LOGS_COLLECTION_NAME
+                    ACCESS_LOGS_COLLECTION_NAME,
+                    GROUP_MEMBER_COLLECTION_NAME
                 ]
             },
             {
@@ -49,7 +55,8 @@ module.exports = {
                         'Organization_4_0_0',
                         'Person_4_0_0',
                         'Practitioner_4_0_0',
-                        ACCESS_LOGS_COLLECTION_NAME
+                        ACCESS_LOGS_COLLECTION_NAME,
+                        GROUP_MEMBER_COLLECTION_NAME
                     ]
             })),
             {
@@ -421,6 +428,32 @@ module.exports = {
                 },
                 options: {
                     name: 'memberEntitySourceid_uuid'
+                }
+            }
+        ],
+        [GROUP_MEMBER_COLLECTION_NAME]: [
+            {
+                keys: {
+                    groupUuid: 1
+                },
+                options: {
+                    name: 'groupUuid_1'
+                }
+            },
+            {
+                keys: {
+                    'member.entity._uuid': 1
+                },
+                options: {
+                    name: 'member_entity_uuid_1'
+                }
+            },
+            {
+                keys: {
+                    'member.entity._sourceId': 1
+                },
+                options: {
+                    name: 'member_entity_sourceId_1'
                 }
             }
         ],
