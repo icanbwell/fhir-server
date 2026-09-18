@@ -212,10 +212,9 @@ services:
       DELEGATED_ACT_SUB: 46265db4-0da2-4436-b4e8-85bf7e52a426
       DELEGATED_MANAGING_ORGANIZATION: 8a7cbd9c-5b1e-5c3d-9c4f-0b2e5f1a7c6d
       DELEGATED_ACCESS_USER_ENTITLEMENT: FAMRQT
-      # Delegated access user with an Organization actor (BIG's token-exchange grant for
-      # client-initiated access -- RFC: Delegated Token Generation for Client-Initiated Access,
-      # DCON-5236/DCON-5395). entitlements carries a Consent/<id> reference here instead of a
-      # bare v3-ActReason code -- see readme/delegatedActorAccess.md "Organization Actors".
+      # Delegated access user with an Organization actor (an upstream token-exchange grant
+      # for client-initiated access). entitlements carries a Consent/<id> reference here
+      # instead of a bare v3-ActReason code -- see readme/delegatedActorAccess.md "Organization Actors".
       MY_DELEGATED_ORG_ACCESS_USER_NAME: delegated-org-client
       MY_DELEGATED_ORG_ACCESS_USER_PASSWORD: password
       MY_DELEGATED_ORG_ACCESS_USER_SCOPE: patient/*.read user/*.read access/*.read

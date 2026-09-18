@@ -240,7 +240,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             );
         });
 
-        test('DCON-5395: a `Consent/<id>` entitlement is resolved via delegatedAccessRulesManager instead of passed through verbatim', async () => {
+        test('a `Consent/<id>` entitlement is resolved via delegatedAccessRulesManager instead of passed through verbatim', async () => {
             mockDelegatedAccessRulesManagerForAuth.resolvePurposeOfEventCodesAsync.mockResolvedValue(['TREAT']);
 
             const done = jest.fn();
@@ -326,7 +326,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             expect(result.actor).toEqual({ reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' });
         });
 
-        test('DCON-5395/RFC: processForDelegatedActor accepts an Organization act reference (client-initiated access)', () => {
+        test('processForDelegatedActor accepts an Organization act reference (client-initiated access)', () => {
             const result = authService.processForDelegatedActor({
                 jwt_payload: {
                     act: {
@@ -342,7 +342,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             });
         });
 
-        test('DCON-5395/RFC: an Organization `act` claim sets userType=delegatedUser and actor on the context, same as RelatedPerson', () => {
+        test('an Organization `act` claim sets userType=delegatedUser and actor on the context, same as RelatedPerson', () => {
             const done = jest.fn();
             authService.processUserInfo({
                 username: 'testuser',
@@ -590,7 +590,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             expect(result).toEqual({ _uuid: '__invalid__' });
         });
 
-        test('DCON-5395/RFC: an Organization actor skips the per-person Consent lookup entirely and only excludes unclassified', async () => {
+        test('an Organization actor skips the per-person Consent lookup entirely and only excludes unclassified', async () => {
             const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
@@ -598,8 +598,8 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 personIdFromJwtToken: 'person-1'
             });
 
-            // No per-person Consent for this actor type by design -- BIG already verified
-            // Person ownership + an org-level Consent before minting. Must not hit the DB at all,
+            // No per-person Consent for this actor type by design -- the upstream minting
+            // service already verified Person ownership + an org-level Consent. Must not hit the DB at all,
             // and must not fall into the "no consent -> impossible query" safety net either.
             expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
             expect(result).not.toEqual({ _uuid: '__invalid__' });

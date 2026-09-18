@@ -66,7 +66,7 @@ describe('AuthService', () => {
         mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest.fn().mockResolvedValue(null);
 
         // Default: pass entitlements through unchanged, matching legacy bare-code behavior.
-        // DCON-5395 tests below override this to exercise Consent-reference resolution.
+        // Tests below override this to exercise Consent-reference resolution.
         mockDelegatedAccessRulesManager = createMockInstance(DelegatedAccessRulesManager);
         mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync = jest.fn().mockImplementation(
             ({ entitlements }) => Promise.resolve(entitlements ?? null)
@@ -779,7 +779,7 @@ describe('AuthService', () => {
             );
         });
 
-        test('resolves a Consent/<id> entitlement to the Consent purpose codes (DCON-5395)', async () => {
+        test('resolves a Consent/<id> entitlement to the Consent purpose codes', async () => {
             Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
             AuthService.jwksCache = undefined;
             AuthService.userInfoCache = undefined;
@@ -914,7 +914,7 @@ describe('AuthService', () => {
             // Deliberately not awaited: a bare-code entitlement must still call done() in the
             // same tick, without ever touching delegatedAccessRulesManager. This is what lets
             // every other synchronous test in this file keep passing unmodified now that
-            // processUserInfo is declared `async` -- the await introduced for DCON-5395 must
+            // processUserInfo is declared `async` -- the await introduced here must
             // only ever be reached on the Consent-reference branch above.
             authService.processUserInfo({
                 username: 'testuser',

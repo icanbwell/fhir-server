@@ -96,8 +96,8 @@ class DelegatedAccessRulesManager {
 
         const actorReference = actor.reference;
 
-        // DCON-5395: an Organization actor's Consent is org-level (no `patient` field), so it
-        // can never match the query below. Skip the lookup and trust BIG's mint-time check.
+        // An Organization actor's Consent is org-level (no `patient` field), so it can never
+        // match the query below. Skip the lookup and trust the upstream mint-time check.
         if (ReferenceParser.parseReference(actorReference).resourceType === 'Organization') {
             const filteringRules = {
                 consentId: null,
@@ -399,8 +399,8 @@ class DelegatedAccessRulesManager {
 
     /**
      * Resolves `purposeOfEvent.coding.code` from a JWT `entitlements` claim: a bare
-     * v3-ActReason code passes through unchanged; a `Consent/<id>` reference (DCON-5395) is
-     * dereferenced into the Consent's `provision.purpose` codes.
+     * v3-ActReason code passes through unchanged; a `Consent/<id>` reference is dereferenced
+     * into the Consent's `provision.purpose` codes.
      *
      * Returns `null` if a Consent reference can't be resolved (not found/ambiguous) -- callers
      * treat that as an auth failure. Rejects instead of returning `null` on a transient lookup

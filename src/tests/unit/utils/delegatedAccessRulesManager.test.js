@@ -445,7 +445,7 @@ describe('DelegatedAccessRulesManager', () => {
             });
         });
 
-        it('DCON-5395/RFC: returns true for an Organization actor without querying the database or setting a bogus consentPolicy', async () => {
+        it('returns true for an Organization actor without querying the database or setting a bogus consentPolicy', async () => {
             ReferenceParser.parseReference.mockReturnValueOnce({
                 id: 'org-1',
                 resourceType: 'Organization',
@@ -551,7 +551,7 @@ describe('DelegatedAccessRulesManager', () => {
         });
     });
 
-    describe('resolvePurposeOfEventCodesAsync (DCON-5395)', () => {
+    describe('resolvePurposeOfEventCodesAsync', () => {
         afterEach(() => {
             ReferenceParser.parseReference.mockReset();
             ReferenceParser.parseReference.mockReturnValue({

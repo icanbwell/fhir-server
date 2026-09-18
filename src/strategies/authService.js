@@ -348,7 +348,7 @@ class AuthService {
                     if (Array.isArray(jwt_payload.entitlements)) {
                         context.purposeOfUse = jwt_payload.entitlements;
                         // Only take the async Consent-dereference path when entitlements
-                        // actually names one (DCON-5395) -- bare codes stay fully synchronous.
+                        // actually names one -- bare codes stay fully synchronous.
                         const consentReferences = jwt_payload.entitlements.filter(
                             (entitlement) => ReferenceParser.parseReference(entitlement).resourceType === 'Consent'
                         );
@@ -570,7 +570,7 @@ class AuthService {
         }
 
         let isValidInput = true;
-        // validate reference: human delegate (RelatedPerson) or client (Organization, DCON-5395)
+        // validate reference: human delegate (RelatedPerson) or client (Organization)
         isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' &&
             DELEGATED_ACCESS.ALLOWED_ACTOR_RESOURCE_TYPES.includes(
                 ReferenceParser.parseReference(act[this.requiredActorFields.reference]).resourceType

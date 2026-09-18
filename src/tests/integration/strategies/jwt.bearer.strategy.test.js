@@ -1648,7 +1648,7 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
 
     })
 
-    test('DCON-5395: resolves a Consent/<id> entitlement to the Consent purpose codes for a delegated user', (done) => {
+    test('resolves a Consent/<id> entitlement to the Consent purpose codes for a delegated user', (done) => {
         const mockDelegatedAccessRulesManager = makeMockDelegatedAccessRulesManager();
         mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync.mockResolvedValue(['TREAT']);
         const authService = makeAuthService({ delegatedAccessRulesManager: mockDelegatedAccessRulesManager });
@@ -1659,7 +1659,7 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
         });
         const jwt_payload = {
             ...basePayload(),
-            // BIG's token-exchange grant for client-initiated access (DCON-5236) mints
+            // An upstream token-exchange grant for client-initiated access mints
             // `entitlements` as a Consent/<id> reference instead of a bare ActReason code.
             entitlements: ['Consent/consent-uuid-123'],
             act: {
@@ -1683,7 +1683,7 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
         });
     });
 
-    test('DCON-5395: rejects (401-style) when a Consent/<id> entitlement cannot be resolved', (done) => {
+    test('rejects (401-style) when a Consent/<id> entitlement cannot be resolved', (done) => {
         const mockDelegatedAccessRulesManager = makeMockDelegatedAccessRulesManager();
         // null signals "could not resolve" (Consent not found / lookup error) -- distinct from
         // [] ("resolved successfully to no codes"). Only null must fail the request closed.
