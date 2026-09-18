@@ -2,8 +2,8 @@ const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const { DatabaseQueryFactory } = require('../../../../dataLayer/databaseQueryFactory');
-const { DatabaseBulkInserter } = require('../../../../dataLayer/databaseBulkInserter');
-const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
+const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
+const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
 
 function createMockInstance (ClassRef, methods = {}) {
     const instance = Object.create(ClassRef.prototype);
@@ -15,17 +15,17 @@ describe('MongoGroupMemberRepository', () => {
     let repository;
     let mockDatabaseQueryFactory;
     let mockDatabaseBulkInserter;
-    let mockResourceLocatorFactory;
+    let mockRemoveHelper;
 
     beforeEach(() => {
         mockDatabaseQueryFactory = createMockInstance(DatabaseQueryFactory);
-        mockDatabaseBulkInserter = createMockInstance(DatabaseBulkInserter);
-        mockResourceLocatorFactory = createMockInstance(ResourceLocatorFactory);
+        mockDatabaseBulkInserter = createMockInstance(FastDatabaseBulkInserter);
+        mockRemoveHelper = createMockInstance(RemoveHelper);
 
         repository = new MongoGroupMemberRepository({
             databaseQueryFactory: mockDatabaseQueryFactory,
             databaseBulkInserter: mockDatabaseBulkInserter,
-            resourceLocatorFactory: mockResourceLocatorFactory
+            removeHelper: mockRemoveHelper
         });
     });
 

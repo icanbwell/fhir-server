@@ -8,12 +8,13 @@ const {
     mockHttpContext
 } = require('../common');
 const {
-    MONGO_GROUP_MEMBER_TAG_SYSTEM,
-    MONGO_GROUP_MEMBER_TAG_CODE
+    MONGO_GROUP_EXTENDED_FIELD
 } = require('../../../utils/mongoGroupExtendedTag');
 const {
     GROUP_MEMBER_COLLECTION_NAME
 } = require('../../../constants');
+
+const GROUP_COLLECTION_NAME = 'Group_4_0_0';
 
 describe('Group GET streaming read (extended storage)', () => {
     let requestId;
@@ -44,9 +45,7 @@ describe('Group GET streaming read (extended storage)', () => {
             .send({
                 resourceType: 'Group',
                 id: requestedGroupId,
-                meta: baseGroupMeta([
-                    { system: MONGO_GROUP_MEMBER_TAG_SYSTEM, code: MONGO_GROUP_MEMBER_TAG_CODE }
-                ]),
+                meta: baseGroupMeta(),
                 type: 'person',
                 actual: true
             })
@@ -57,7 +56,12 @@ describe('Group GET streaming read (extended storage)', () => {
         const container = getTestContainer();
         await container.postRequestProcessor.waitTillDoneAsync({ requestId });
         const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
-        const groupDoc = await fhirDb.collection('Group_4_0_0').findOne({ id: groupId });
+        const groupCollection = fhirDb.collection(GROUP_COLLECTION_NAME);
+        await groupCollection.updateOne(
+            { id: groupId },
+            { $set: { [MONGO_GROUP_EXTENDED_FIELD]: true } }
+        );
+        const groupDoc = await groupCollection.findOne({ id: groupId });
         return { groupId, groupUuid: groupDoc && groupDoc._uuid, fhirDb };
     }
 
@@ -130,14 +134,6 @@ describe('Group GET streaming read (extended storage)', () => {
         expect(body.type).toBe('person');
         expect(body.actual).toBe(true);
         expect(body.meta).toBeDefined();
-        expect(body.meta.tag).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    system: MONGO_GROUP_MEMBER_TAG_SYSTEM,
-                    code: MONGO_GROUP_MEMBER_TAG_CODE
-                })
-            ])
-        );
 
         expect(Array.isArray(body.member)).toBe(true);
         expect(body.member).toHaveLength(3);
