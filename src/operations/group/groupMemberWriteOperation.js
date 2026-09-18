@@ -237,7 +237,8 @@ class GroupMemberWriteOperation {
                 requestInfo,
                 resourceType,
                 uuid: updatedResource._uuid,
-                doc: updatedResource
+                doc: updatedResource,
+                contextData: { memberWriteIsIncremental: true }
             });
             await this.databaseBulkInserter.executeAsync({ requestInfo, base_version });
         }
