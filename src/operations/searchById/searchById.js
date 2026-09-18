@@ -247,13 +247,8 @@ class SearchByIdOperation {
             if (resource) {
                 const resourceUuid = resource._uuid;
 
-                const isExtendedGroup = resourceType === 'Group' && isGroupExtended(resource);
-                if (isExtendedGroup && !this.configManager.enableExtendedGroup) {
-                    throw new BadRequestError(new Error(
-                        `Group ${id} uses extended member storage, which is disabled on this server ` +
-                        '(ENABLE_EXTENDED_GROUP is not set).'
-                    ));
-                }
+                const isExtendedGroup = resourceType === 'Group' && isGroupExtended(resource) &&
+                    this.configManager.enableExtendedGroup;
 
                 // remove any nulls or empty objects or arrays
                 resource = removeNull(resource);

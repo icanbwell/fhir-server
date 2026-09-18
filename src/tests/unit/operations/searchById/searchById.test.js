@@ -412,6 +412,40 @@ describe('SearchByIdOperation', () => {
                 expect(mocks.searchManager.streamGroupMemberArrayAsync).not.toHaveBeenCalled();
             });
 
+            test('returns the resource normally, without streaming, when the Group is extended storage but ENABLE_EXTENDED_GROUP is disabled', async () => {
+                const foundResource = {
+                    id: 'group-4',
+                    _uuid: 'uuid-group-4',
+                    resourceType: 'Group',
+                    meta: { versionId: '1', security: [] },
+                    [MONGO_GROUP_EXTENDED_FIELD]: true
+                };
+
+                mocks.databaseQueryFactory.createQuery.mockReturnValue({
+                    findAsync: jest.fn().mockResolvedValue({
+                        toArrayAsync: jest.fn().mockResolvedValue([foundResource])
+                    })
+                });
+
+                const previousValue = process.env.ENABLE_EXTENDED_GROUP;
+                delete process.env.ENABLE_EXTENDED_GROUP;
+                try {
+                    const result = await searchByIdOp.searchByIdAsync({
+                        requestInfo: makeRequestInfo(),
+                        parsedArgs: mockParsedArgs,
+                        resourceType: 'Group',
+                        res: { on: jest.fn() }
+                    });
+
+                    expect(result).toBeDefined();
+                    expect(result.id).toBe('group-4');
+                    expect(mocks.mongoGroupMemberRepository.getMemberCursorAsync).not.toHaveBeenCalled();
+                    expect(mocks.searchManager.streamGroupMemberArrayAsync).not.toHaveBeenCalled();
+                } finally {
+                    process.env.ENABLE_EXTENDED_GROUP = previousValue;
+                }
+            });
+
             test('falls back to returning the resource normally when res is not provided, even for an extended Group', async () => {
                 const foundResource = {
                     id: 'group-3',
