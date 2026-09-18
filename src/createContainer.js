@@ -831,7 +831,8 @@ const createContainer = function () {
             configManager: c.configManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
             base64DataManager: c.base64DataManager,
-            postRequestProcessor: c.postRequestProcessor
+            postRequestProcessor: c.postRequestProcessor,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('createOperation', (c) => new CreateOperation(

@@ -168,6 +168,17 @@ class MongoGroupMemberRepository {
 
         return outcomes;
     }
+
+    async getMemberCursorAsync({ base_version, groupUuid }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        return await databaseQueryManager.findAsync({
+            query: { groupUuid },
+            options: { sort: { memberRowUuid: 1 } }
+        });
+    }
 }
 
 module.exports = { MongoGroupMemberRepository };
