@@ -9,6 +9,7 @@ const { QueryParameterValue } = require('./queryParameterValue');
 const { ParsedArgs } = require('./parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
+const { REJECTED_MODIFIERS } = require('./filters/composite');
 
 /**
  * @classdesc This classes parses an array of args into structured ParsedArgsItem array
@@ -111,6 +112,41 @@ class R4ArgsParser {
             if (!queryParameter.startsWith('_') && queryParameter !== 'base_version' && queryParameter !== 'version_id') {
                 queryParameter = queryParameter.replace('_', '-');
             }
+
+            // chained search: `patient.identifier` or `patient:Patient.identifier`
+            // https://www.hl7.org/fhir/search.html#chaining
+            let chainDescriptor;
+            const typedChainModifierIndex = modifiers.findIndex(m => /^[A-Z][A-Za-z]*\.[A-Za-z0-9-]+$/.test(m));
+            if (typedChainModifierIndex !== -1) {
+                const [explicitTargetType, targetParam] = modifiers[typedChainModifierIndex].split('.');
+                modifiers = modifiers.filter((_, i) => i !== typedChainModifierIndex);
+                chainDescriptor = { explicitTargetType, targetParam };
+            } else if (
+                queryParameter.includes('.') &&
+                queryParameter.indexOf('.') === queryParameter.lastIndexOf('.')
+            ) {
+                // exactly one dot only -- a real chain target param is a plain FHIR search
+                // parameter name and can never itself contain a dot (single-level chaining
+                // only). Two or more dots means this is some other pre-existing dotted
+                // parameter name (e.g. Group's `member.entity._reference`), not a chain.
+                //
+                // Only commit to chain interpretation if the base segment actually resolves to
+                // a reference-type search parameter -- otherwise this is just some other
+                // dotted-looking parameter name that happens to contain one dot (e.g.
+                // `meta.security` used as a raw filter key, which isn't a real search parameter
+                // at all and must fall through to the ordinary unrecognized-parameter handling
+                // below, not a hard 400 regardless of strict/lenient mode).
+                const dotIndex = queryParameter.indexOf('.');
+                const candidateBaseParam = queryParameter.slice(0, dotIndex);
+                const candidatePropertyObj = this.searchParametersManager.getPropertyObject(
+                    { resourceType, queryParameter: candidateBaseParam }
+                );
+                if (candidatePropertyObj && candidatePropertyObj.type === 'reference') {
+                    chainDescriptor = { targetParam: queryParameter.slice(dotIndex + 1) };
+                    queryParameter = candidateBaseParam;
+                }
+            }
+
             /**
              * @type {SearchParameterDefinition}
              */
@@ -120,6 +156,40 @@ class R4ArgsParser {
                     queryParameter
                 }
             );
+
+            /**
+             * @type {{targetType: string, targetParam: string}|undefined}
+             */
+            let chain;
+            if (chainDescriptor) {
+                const targetType = this.searchParametersManager.resolveChainTargetType(
+                    { propertyObj, explicitTargetType: chainDescriptor.explicitTargetType }
+                );
+                if (!targetType) {
+                    throw new BadRequestError(new Error(
+                        `${argName} is not a valid chained search parameter for ${resourceType}: ` +
+                        `${queryParameter} is not an unambiguous reference parameter` +
+                        (chainDescriptor.explicitTargetType
+                            ? ` for target type ${chainDescriptor.explicitTargetType}`
+                            : ' (reference allows more than one target type -- use the :Type modifier)')
+                    ));
+                }
+                const targetPropertyObj = this.searchParametersManager.getPropertyObject(
+                    { resourceType: targetType, queryParameter: chainDescriptor.targetParam }
+                );
+                if (!targetPropertyObj) {
+                    throw new BadRequestError(new Error(
+                        `${chainDescriptor.targetParam} is not a valid search parameter for ${targetType}`
+                    ));
+                }
+                if (REJECTED_MODIFIERS.some(m => modifiers.includes(m))) {
+                    throw new BadRequestError(new Error(
+                        `Modifiers [${REJECTED_MODIFIERS.join(', ')}] are not supported on chained ` +
+                        `search parameters (queryParameter=${argName})`
+                    ));
+                }
+                chain = { targetType, targetParam: chainDescriptor.targetParam };
+            }
             /**
              * @type {string | string[]}
              */
@@ -255,7 +325,8 @@ class R4ArgsParser {
                             operator: useOrFilterForArrays ? '$or' : '$and'
                         }),
                         propertyObj,
-                        modifiers
+                        modifiers,
+                        chain
                     })
                 );
             }
@@ -276,7 +347,8 @@ class R4ArgsParser {
                                     operator: '$and'
                                 }),
                                 propertyObj,
-                                modifiers
+                                modifiers,
+                                chain
                             })
                         );
                     }
@@ -300,7 +372,8 @@ class R4ArgsParser {
                             operator: useOrFilterForArrays ? '$or' : '$and'
                         }),
                         propertyObj,
-                        modifiers: notModifiers
+                        modifiers: notModifiers,
+                        chain
                     })
                 );
             }

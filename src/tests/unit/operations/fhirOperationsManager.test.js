@@ -381,6 +381,156 @@ describe('FhirOperationsManager', () => {
                 requestInfo
             }));
         });
+
+        test('passes a searchResourceAsync capability to queryRewriterManager.rewriteArgsAsync', async () => {
+            await manager.getParsedArgsAsync({
+                args: { base_version: '4_0_0' },
+                resourceType: 'Patient',
+                operation: 'READ',
+                requestInfo: { user: 'caller' }
+            });
+
+            expect(mockQueryRewriterManager.rewriteArgsAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ searchResourceAsync: expect.any(Function) })
+            );
+        });
+    });
+
+    describe('searchResourceForChainAsync', () => {
+        test('runs a fully-scoped sub-search and returns resolved _uuid values', async () => {
+            mockSearchBundleOperation.searchBundleAsync.mockResolvedValue({
+                entry: [
+                    { resource: { _uuid: 'uuid-1' } },
+                    { resource: { _uuid: 'uuid-2' } }
+                ]
+            });
+            const requestInfo = { user: 'caller' };
+
+            const uuids = await manager.searchResourceForChainAsync({
+                resourceType: 'Patient',
+                args: { identifier: 'http://example.com/mrn|123456' },
+                requestInfo,
+                base_version: '4_0_0'
+            });
+
+            expect(uuids).toEqual(['uuid-1', 'uuid-2']);
+            // the sub-search must go through the same authorized search path (r4ArgsParser +
+            // queryRewriterManager + searchBundleOperation) any top-level search uses -- never a
+            // lower-level, separately-scoped query (review.md §E)
+            expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Patient' })
+            );
+            expect(mockSearchBundleOperation.searchBundleAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Patient', requestInfo })
+            );
+        });
+
+        test('returns an empty array when the sub-search resolves no matches', async () => {
+            mockSearchBundleOperation.searchBundleAsync.mockResolvedValue({ entry: [] });
+
+            const uuids = await manager.searchResourceForChainAsync({
+                resourceType: 'Patient',
+                args: { identifier: 'no-such-value' },
+                requestInfo: {},
+                base_version: '4_0_0'
+            });
+
+            expect(uuids).toEqual([]);
+        });
+
+        test('restricts the sub-search response to the _uuid field via _elements', async () => {
+            await manager.searchResourceForChainAsync({
+                resourceType: 'Patient',
+                args: { identifier: 'X' },
+                requestInfo: {},
+                base_version: '4_0_0'
+            });
+
+            expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    args: expect.objectContaining({ _elements: '_uuid' })
+                })
+            );
+        });
+
+        test('checks accessManager.verifyAccess for the chain TARGET resourceType, not just the outer one', async () => {
+            // Regression: a caller restricted to a resourceType allowlist (e.g. a CMS partner
+            // user limited to Patient) could otherwise chain into a resourceType they're barred
+            // from (e.g. patient?general-practitioner.name=X chaining into Practitioner) since
+            // this sub-search never went through accessManager.verifyAccess before.
+            const requestInfo = { user: 'caller' };
+
+            await manager.searchResourceForChainAsync({
+                resourceType: 'Practitioner',
+                args: { name: 'X' },
+                requestInfo,
+                base_version: '4_0_0'
+            });
+
+            expect(mockAccessManager.verifyAccess).toHaveBeenCalledWith({
+                requestInfo, resourceType: 'Practitioner', operation: 'search'
+            });
+        });
+
+        test('propagates the error and never runs the sub-search when access is denied', async () => {
+            const accessError = new Error('not allowed');
+            mockAccessManager.verifyAccess.mockImplementation(() => { throw accessError; });
+
+            await expect(manager.searchResourceForChainAsync({
+                resourceType: 'Practitioner',
+                args: { name: 'X' },
+                requestInfo: {},
+                base_version: '4_0_0'
+            })).rejects.toThrow(accessError);
+
+            expect(mockSearchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
+        });
+
+        test('paginates until exhausted instead of silently truncating at the page-size cap', async () => {
+            // Regression: a full page (page size worth of entries) must not be mistaken for
+            // "that's all of them" -- the sub-search must keep paging until a partial (or
+            // empty) page proves there's nothing left, otherwise matches beyond the first
+            // page are silently dropped with no error or truncation indicator.
+            const page1 = Array.from({ length: 3 }, (_, i) => ({ resource: { _uuid: `uuid-${i}` } }));
+            const page2 = [{ resource: { _uuid: 'uuid-3' } }];
+            mockSearchBundleOperation.searchBundleAsync
+                .mockResolvedValueOnce({ entry: page1 })
+                .mockResolvedValueOnce({ entry: page2 });
+
+            const uuids = await manager.searchResourceForChainAsync({
+                resourceType: 'Patient',
+                args: { identifier: 'X' },
+                requestInfo: {},
+                base_version: '4_0_0',
+                pageSize: 3
+            });
+
+            expect(uuids).toEqual(['uuid-0', 'uuid-1', 'uuid-2', 'uuid-3']);
+            expect(mockSearchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(2);
+            expect(mockR4ArgsParser.parseArgs).toHaveBeenNthCalledWith(1, expect.objectContaining({
+                args: expect.objectContaining({ _count: 3, _getpagesoffset: 0 })
+            }));
+            expect(mockR4ArgsParser.parseArgs).toHaveBeenNthCalledWith(2, expect.objectContaining({
+                args: expect.objectContaining({ _count: 3, _getpagesoffset: 1 })
+            }));
+        });
+
+        test('stops after the first page when it is not full', async () => {
+            mockSearchBundleOperation.searchBundleAsync.mockResolvedValueOnce({
+                entry: [{ resource: { _uuid: 'uuid-0' } }]
+            });
+
+            const uuids = await manager.searchResourceForChainAsync({
+                resourceType: 'Patient',
+                args: { identifier: 'X' },
+                requestInfo: {},
+                base_version: '4_0_0',
+                pageSize: 3
+            });
+
+            expect(uuids).toEqual(['uuid-0']);
+            expect(mockSearchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(1);
+        });
     });
 
     describe('parseParametersFromBody', () => {
