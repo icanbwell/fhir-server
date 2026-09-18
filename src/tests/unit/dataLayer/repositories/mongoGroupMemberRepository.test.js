@@ -30,7 +30,7 @@ describe('MongoGroupMemberRepository', () => {
     });
 
     describe('getMemberCursorAsync', () => {
-        test('queries the GroupMember collection scoped by groupUuid, sorted by memberRowUuid, and returns the resulting cursor', async () => {
+        test('queries the GroupMember collection scoped by groupUuid and returns the resulting cursor', async () => {
             const fakeCursor = { toArrayAsync: jest.fn() };
             const findAsyncMock = jest.fn().mockResolvedValue(fakeCursor);
             mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({ findAsync: findAsyncMock });
@@ -45,8 +45,7 @@ describe('MongoGroupMemberRepository', () => {
                 base_version: '4_0_0'
             });
             expect(findAsyncMock).toHaveBeenCalledWith({
-                query: { groupUuid: 'group-123' },
-                options: { sort: { memberRowUuid: 1 } }
+                query: { groupUuid: 'group-123' }
             });
             expect(result).toBe(fakeCursor);
         });

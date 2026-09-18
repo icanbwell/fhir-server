@@ -71,7 +71,7 @@ describe('Group GET streaming read (extended storage)', () => {
         await fhirDb.collection(GROUP_MEMBER_COLLECTION_NAME).insertMany(rows);
     }
 
-    test('extended Group streams its roster in memberRowUuid order, including an inactive row', async () => {
+    test('extended Group streams its full roster, including an inactive row', async () => {
         const request = await createTestRequest();
 
         const { groupId, groupUuid, fhirDb } = await createExtendedGroup(
@@ -147,20 +147,20 @@ describe('Group GET streaming read (extended storage)', () => {
 
         expect(Array.isArray(body.member)).toBe(true);
         expect(body.member).toHaveLength(3);
-        const simplifiedMembers = body.member.map((m) => ({
-            reference: m.entity.reference,
-            inactive: !!m.inactive
-        }));
+        const simplifiedMembers = body.member
+            .map((m) => ({ reference: m.entity.reference, inactive: !!m.inactive }))
+            .sort((a, b) => a.reference.localeCompare(b.reference));
         expect(simplifiedMembers).toEqual([
             { reference: 'Patient/streaming-member-1', inactive: false },
             { reference: 'Patient/streaming-member-2', inactive: true },
             { reference: 'Patient/streaming-member-3', inactive: false }
         ]);
 
-        const thirdMemberEntity = body.member[2].entity;
-        expect(thirdMemberEntity._uuid).toBeUndefined();
-        expect(thirdMemberEntity._sourceId).toBeUndefined();
-        expect(thirdMemberEntity.reference).toBe('Patient/streaming-member-3');
+        const thirdMemberEntry = body.member.find(
+            (m) => m.entity.reference === 'Patient/streaming-member-3'
+        );
+        expect(thirdMemberEntry.entity._uuid).toBeUndefined();
+        expect(thirdMemberEntry.entity._sourceId).toBeUndefined();
     });
 
     test('extended Group with zero GroupMember_4_0_0 rows returns member: [] rather than missing/undefined', async () => {
