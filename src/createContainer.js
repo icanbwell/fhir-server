@@ -134,6 +134,7 @@ const {S3Client} = require('./utils/s3Client');
 const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
 const {GroupMemberEnrichmentProvider} = require('./enrich/providers/groupMemberEnrichmentProvider');
+const {GroupExtendedTagEnrichmentProvider} = require('./enrich/providers/groupExtendedTagEnrichmentProvider');
 const {CompositionSectionFilterEnrichmentProvider} = require('./enrich/providers/compositionSectionFilterEnrichmentProvider');
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
@@ -223,7 +224,8 @@ const createContainer = function () {
             new GroupMemberEnrichmentProvider({
                 clickHouseClientManager: c.clickHouseClientManager,
                 configManager: c.configManager
-            })
+            }),
+            new GroupExtendedTagEnrichmentProvider()
         ]
     }));
     container.register('identifierEnrichmentProvider', (c) => new IdentifierEnrichmentProvider({
@@ -832,8 +834,7 @@ const createContainer = function () {
             databaseAttachmentManager: c.databaseAttachmentManager,
             base64DataManager: c.base64DataManager,
             postRequestProcessor: c.postRequestProcessor,
-            mongoGroupMemberRepository: c.mongoGroupMemberRepository,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('createOperation', (c) => new CreateOperation(

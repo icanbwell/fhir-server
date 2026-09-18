@@ -8,7 +8,9 @@ const {
     mockHttpContext
 } = require('../common');
 const {
-    MONGO_GROUP_EXTENDED_FIELD
+    MONGO_GROUP_EXTENDED_FIELD,
+    MONGO_GROUP_MEMBER_TAG_SYSTEM,
+    MONGO_GROUP_MEMBER_TAG_CODE
 } = require('../../../utils/mongoGroupExtendedTag');
 const {
     GROUP_MEMBER_COLLECTION_NAME
@@ -134,6 +136,14 @@ describe('Group GET streaming read (extended storage)', () => {
         expect(body.type).toBe('person');
         expect(body.actual).toBe(true);
         expect(body.meta).toBeDefined();
+        expect(body.meta.tag).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    system: MONGO_GROUP_MEMBER_TAG_SYSTEM,
+                    code: MONGO_GROUP_MEMBER_TAG_CODE
+                })
+            ])
+        );
 
         expect(Array.isArray(body.member)).toBe(true);
         expect(body.member).toHaveLength(3);
@@ -225,6 +235,14 @@ describe('Group GET streaming read (extended storage)', () => {
             expect.arrayContaining([
                 { reference: 'Patient/embedded-member-1', inactive: false },
                 { reference: 'Patient/embedded-member-2', inactive: true }
+            ])
+        );
+        expect(body.meta.tag || []).not.toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    system: MONGO_GROUP_MEMBER_TAG_SYSTEM,
+                    code: MONGO_GROUP_MEMBER_TAG_CODE
+                })
             ])
         );
     });
