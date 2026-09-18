@@ -182,10 +182,27 @@ describe('Group GET streaming read (extended storage)', () => {
         expect(body.member).toHaveLength(0);
     });
 
-    test('GET on an extended Group is rejected when ENABLE_EXTENDED_GROUP is disabled', async () => {
+    test('GET on an extended Group returns the resource as-is, without streaming the roster, when ENABLE_EXTENDED_GROUP is disabled', async () => {
         const request = await createTestRequest();
 
-        const { groupId } = await createExtendedGroup(request, 'streaming-read-flag-disabled');
+        const { groupId, groupUuid, fhirDb } = await createExtendedGroup(
+            request,
+            'streaming-read-flag-disabled'
+        );
+        await seedGroupMemberRows(fhirDb, [
+            {
+                id: 'flag-disabled-row',
+                meta: { versionId: '1', lastUpdated: new Date() },
+                _sourceAssigningAuthority: 'test-authority',
+                groupUuid,
+                memberRowUuid: 'flag-disabled-row',
+                groupVersionId: 1,
+                member: {
+                    entity: { reference: 'Patient/flag-disabled-member' },
+                    inactive: false
+                }
+            }
+        ]);
 
         const previousValue = process.env.ENABLE_EXTENDED_GROUP;
         delete process.env.ENABLE_EXTENDED_GROUP;
@@ -193,7 +210,11 @@ describe('Group GET streaming read (extended storage)', () => {
             const resp = await request
                 .get(`/4_0_0/Group/${groupId}`)
                 .set(getHeaders());
-            expect(resp).toHaveStatusCode(400);
+            expect(resp.status).toBe(200);
+            const body = resp.body;
+            expect(body.resourceType).toBe('Group');
+            expect(body.id).toBe(groupId);
+            expect(body.member || []).toEqual([]);
         } finally {
             process.env.ENABLE_EXTENDED_GROUP = previousValue;
         }
