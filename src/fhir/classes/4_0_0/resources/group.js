@@ -65,7 +65,7 @@ class Group extends Resource {
             _sourceAssigningAuthority,
             _uuid,
             _sourceId,
-            _extendedGroupMember,
+            _extendedGroupMember
         }
     ) {
         super({});
@@ -540,7 +540,7 @@ class Group extends Resource {
             _sourceAssigningAuthority,
             _uuid,
             _sourceId,
-            _extendedGroupMember,
+            _extendedGroupMember
         });
 
         /**
@@ -614,7 +614,7 @@ class Group extends Resource {
             _sourceAssigningAuthority,
             _uuid,
             _sourceId,
-            _extendedGroupMember,
+            _extendedGroupMember
         }
     ) {
         return new Group({
@@ -640,7 +640,7 @@ class Group extends Resource {
             _sourceAssigningAuthority,
             _uuid,
             _sourceId,
-            _extendedGroupMember,
+            _extendedGroupMember
         });
     }
 
@@ -676,7 +676,7 @@ class Group extends Resource {
             quantity: this.quantity,
             managingEntity: this.managingEntity && this.managingEntity.toJSON(),
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSON()),
-            member: this.member && this.member.map(v => v.toJSON()),
+            member: this.member && this.member.map(v => v.toJSON())
         });
     }
 
@@ -722,7 +722,7 @@ class Group extends Resource {
             quantity: this.quantity,
             managingEntity: this.managingEntity && this.managingEntity.toJSONInternal(),
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal()),
-            member: this.member && this.member.map(v => v.toJSONInternal()),
+            member: this.member && this.member.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;
