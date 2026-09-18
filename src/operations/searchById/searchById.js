@@ -18,9 +18,8 @@ const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, BLOB_OP } = require('../../constants');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
-const { isGroupExtendedAsync } = require('../../utils/mongoGroupExtendedTag');
+const { isGroupExtended } = require('../../utils/mongoGroupExtendedTag');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
-const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 
 class SearchByIdOperation {
     /**
@@ -50,8 +49,7 @@ class SearchByIdOperation {
             databaseAttachmentManager,
             base64DataManager,
             postRequestProcessor,
-            mongoGroupMemberRepository,
-            resourceLocatorFactory
+            mongoGroupMemberRepository
         }
     ) {
         /**
@@ -117,12 +115,6 @@ class SearchByIdOperation {
 
         this.mongoGroupMemberRepository = mongoGroupMemberRepository;
         assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
-
-        /**
-         * @type {ResourceLocatorFactory}
-         */
-        this.resourceLocatorFactory = resourceLocatorFactory;
-        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
     }
 
     /**
@@ -255,11 +247,7 @@ class SearchByIdOperation {
             if (resource) {
                 const resourceUuid = resource._uuid;
 
-                const isExtendedGroup = resourceType === 'Group' && await isGroupExtendedAsync({
-                    resourceLocatorFactory: this.resourceLocatorFactory,
-                    base_version,
-                    groupUuid: resourceUuid
-                });
+                const isExtendedGroup = resourceType === 'Group' && isGroupExtended(resource);
                 if (isExtendedGroup && !this.configManager.enableExtendedGroup) {
                     throw new BadRequestError(new Error(
                         `Group ${id} uses extended member storage, which is disabled on this server ` +

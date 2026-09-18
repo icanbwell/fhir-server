@@ -37,19 +37,10 @@ const { Base64DataManager } = require('../../../../dataLayer/base64DataManager')
 const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
-const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../../utils/mongoGroupExtendedTag');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
-}
-
-function setRawGroupDoc(resourceLocatorFactory, rawGroupDoc) {
-    resourceLocatorFactory.createResourceLocator = jest.fn().mockReturnValue({
-        getCollectionAsync: jest.fn().mockResolvedValue({
-            findOne: jest.fn().mockResolvedValue(rawGroupDoc || null)
-        })
-    });
 }
 
 describe('SearchByIdOperation', () => {
@@ -70,10 +61,8 @@ describe('SearchByIdOperation', () => {
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
             base64DataManager: createMockInstance(Base64DataManager),
             postRequestProcessor: createMockInstance(PostRequestProcessor),
-            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
-            resourceLocatorFactory: createMockInstance(ResourceLocatorFactory)
+            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
         };
-        setRawGroupDoc(mocks.resourceLocatorFactory, null);
 
         // Setup default mocks
         mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
@@ -333,7 +322,8 @@ describe('SearchByIdOperation', () => {
                     id: 'group-1',
                     _uuid: 'uuid-group-1',
                     resourceType: 'Group',
-                    meta: { versionId: '1', security: [] }
+                    meta: { versionId: '1', security: [] },
+                    [MONGO_GROUP_EXTENDED_FIELD]: true
                 };
 
                 mocks.databaseQueryFactory.createQuery.mockReturnValue({
@@ -341,7 +331,6 @@ describe('SearchByIdOperation', () => {
                         toArrayAsync: jest.fn().mockResolvedValue([foundResource])
                     })
                 });
-                setRawGroupDoc(mocks.resourceLocatorFactory, { [MONGO_GROUP_EXTENDED_FIELD]: true });
 
                 const fakeCursor = { toArrayAsync: jest.fn() };
                 mocks.mongoGroupMemberRepository.getMemberCursorAsync = jest.fn().mockResolvedValue(fakeCursor);
@@ -395,12 +384,13 @@ describe('SearchByIdOperation', () => {
                 expect(mocks.searchManager.streamGroupMemberArrayAsync).not.toHaveBeenCalled();
             });
 
-            test('never streams for a non-Group resourceType, even if the raw-doc lookup would say extended (defense in depth)', async () => {
+            test('never streams for a non-Group resourceType, even if it carries the extended field (defense in depth)', async () => {
                 const foundResource = {
                     id: 'patient-1',
                     _uuid: 'uuid-patient-1',
                     resourceType: 'Patient',
-                    meta: { versionId: '1', security: [] }
+                    meta: { versionId: '1', security: [] },
+                    [MONGO_GROUP_EXTENDED_FIELD]: true
                 };
 
                 mocks.databaseQueryFactory.createQuery.mockReturnValue({
@@ -408,7 +398,6 @@ describe('SearchByIdOperation', () => {
                         toArrayAsync: jest.fn().mockResolvedValue([foundResource])
                     })
                 });
-                setRawGroupDoc(mocks.resourceLocatorFactory, { [MONGO_GROUP_EXTENDED_FIELD]: true });
 
                 const result = await searchByIdOp.searchByIdAsync({
                     requestInfo: makeRequestInfo(),
@@ -419,7 +408,6 @@ describe('SearchByIdOperation', () => {
 
                 expect(result).toBeDefined();
                 expect(result.id).toBe('patient-1');
-                expect(mocks.resourceLocatorFactory.createResourceLocator).not.toHaveBeenCalled();
                 expect(mocks.mongoGroupMemberRepository.getMemberCursorAsync).not.toHaveBeenCalled();
                 expect(mocks.searchManager.streamGroupMemberArrayAsync).not.toHaveBeenCalled();
             });
@@ -429,7 +417,8 @@ describe('SearchByIdOperation', () => {
                     id: 'group-3',
                     _uuid: 'uuid-group-3',
                     resourceType: 'Group',
-                    meta: { versionId: '1', security: [] }
+                    meta: { versionId: '1', security: [] },
+                    [MONGO_GROUP_EXTENDED_FIELD]: true
                 };
 
                 mocks.databaseQueryFactory.createQuery.mockReturnValue({
@@ -437,7 +426,6 @@ describe('SearchByIdOperation', () => {
                         toArrayAsync: jest.fn().mockResolvedValue([foundResource])
                     })
                 });
-                setRawGroupDoc(mocks.resourceLocatorFactory, { [MONGO_GROUP_EXTENDED_FIELD]: true });
 
                 const result = await searchByIdOp.searchByIdAsync({
                     requestInfo: makeRequestInfo(),
