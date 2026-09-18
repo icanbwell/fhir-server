@@ -114,6 +114,39 @@ describe('AuditLogger', () => {
             expect(agents[1].policy).toEqual(['http://example.com/consent']);
         });
 
+        test('includes consentPolicy for an Organization-actor delegated user', () => {
+            const requestInfo = {
+                isUser: true,
+                user: 'patient-1',
+                userType: 'delegatedUser',
+                alternateUserId: 'alt-1',
+                remoteIpAddress: '192.168.1.1',
+                actor: {
+                    reference: 'Organization/org-1',
+                    sub: 'client-abc',
+                    consentPolicy: 'Consent/8e4a1f26-3c9d-4b7e-9a02-6f1d5c8b2e90'
+                }
+            };
+            const agents = auditLogger.buildAgents(requestInfo);
+            expect(agents[1].policy).toEqual(['Consent/8e4a1f26-3c9d-4b7e-9a02-6f1d5c8b2e90']);
+        });
+
+        test('does not set policy for a delegated user with no consentPolicy', () => {
+            const requestInfo = {
+                isUser: true,
+                user: 'patient-1',
+                userType: 'delegatedUser',
+                alternateUserId: 'alt-1',
+                remoteIpAddress: '192.168.1.1',
+                actor: {
+                    reference: 'Organization/org-1',
+                    sub: 'client-abc'
+                }
+            };
+            const agents = auditLogger.buildAgents(requestInfo);
+            expect(agents[1].policy).toBeUndefined();
+        });
+
         test('should handle null requestInfo gracefully with optional chaining', () => {
             const requestInfo = {};
             const agents = auditLogger.buildAgents(requestInfo);
