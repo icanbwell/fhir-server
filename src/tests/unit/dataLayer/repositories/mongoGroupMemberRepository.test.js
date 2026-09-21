@@ -24,7 +24,7 @@ describe('MongoGroupMemberRepository', () => {
 
         repository = new MongoGroupMemberRepository({
             databaseQueryFactory: mockDatabaseQueryFactory,
-            databaseBulkInserter: mockDatabaseBulkInserter,
+            fastDatabaseBulkInserter: mockDatabaseBulkInserter,
             removeHelper: mockRemoveHelper
         });
     });
