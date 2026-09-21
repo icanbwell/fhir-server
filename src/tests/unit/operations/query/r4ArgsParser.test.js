@@ -397,24 +397,54 @@ describe('R4ArgsParser', () => {
             expect(item.chain).toEqual({ targetType: 'Patient', targetParam: 'identifier' });
         });
 
-        test('throws BadRequestError for an untyped chain whose reference has multiple legal targets', () => {
+        test('throws BadRequestError for an untyped chain whose reference has multiple legal targets (strict handling)', () => {
             mockChainLookups({ baseTarget: ['Patient', 'Group'] });
             const args = {
                 'patient.identifier': 'http://example.com/mrn|123456',
-                base_version: '4_0_0'
+                base_version: '4_0_0',
+                handling: 'strict'
             };
 
             expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).toThrow();
         });
 
-        test('throws BadRequestError when the target parameter is not a real search parameter on the target type', () => {
+        test('silently ignores an untyped chain whose reference has multiple legal targets (lenient handling)', () => {
+            mockChainLookups({ baseTarget: ['Patient', 'Group'] });
+            const args = {
+                'patient.identifier': 'http://example.com/mrn|123456',
+                base_version: '4_0_0',
+                handling: 'lenient'
+            };
+
+            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).not.toThrow();
+            const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
+
+            expect(result.parsedArgItems.find(i => i.queryParameter === 'patient')).toBeUndefined();
+        });
+
+        test('throws BadRequestError when the target parameter is not a real search parameter on the target type (strict handling)', () => {
             mockChainLookups({ baseTarget: ['Patient'], targetParamKnown: false });
             const args = {
                 'patient.identifier': 'http://example.com/mrn|123456',
-                base_version: '4_0_0'
+                base_version: '4_0_0',
+                handling: 'strict'
             };
 
             expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).toThrow();
+        });
+
+        test('silently ignores a chain whose target parameter is not real on the target type (lenient handling)', () => {
+            mockChainLookups({ baseTarget: ['Patient'], targetParamKnown: false });
+            const args = {
+                'patient.identifier': 'http://example.com/mrn|123456',
+                base_version: '4_0_0',
+                handling: 'lenient'
+            };
+
+            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).not.toThrow();
+            const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
+
+            expect(result.parsedArgItems.find(i => i.queryParameter === 'patient')).toBeUndefined();
         });
 
         test('does not treat a multi-dot parameter name as a chain (Group member.entity._reference)', () => {
@@ -470,17 +500,32 @@ describe('R4ArgsParser', () => {
         });
 
         test.each(['missing', 'contains', 'above', 'below', 'text', 'of-type'])(
-            'throws BadRequestError when chain is combined with the :%s modifier',
+            'throws BadRequestError when chain is combined with the :%s modifier (strict handling)',
             (modifier) => {
                 mockChainLookups({ baseTarget: ['Patient'] });
                 const args = {
                     [`patient.identifier:${modifier}`]: 'Smith',
-                    base_version: '4_0_0'
+                    base_version: '4_0_0',
+                    handling: 'strict'
                 };
 
                 expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).toThrow();
             }
         );
+
+        test('silently ignores a chain combined with a rejected modifier (lenient handling)', () => {
+            mockChainLookups({ baseTarget: ['Patient'] });
+            const args = {
+                'patient.identifier:missing': 'Smith',
+                base_version: '4_0_0',
+                handling: 'lenient'
+            };
+
+            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).not.toThrow();
+            const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
+
+            expect(result.parsedArgItems.find(i => i.queryParameter === 'patient')).toBeUndefined();
+        });
 
         test('allows chain combined with the :not modifier', () => {
             mockChainLookups({ baseTarget: ['Patient'] });

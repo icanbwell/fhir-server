@@ -166,27 +166,37 @@ class R4ArgsParser {
                     { propertyObj, explicitTargetType: chainDescriptor.explicitTargetType }
                 );
                 if (!targetType) {
-                    throw new BadRequestError(new Error(
-                        `${argName} is not a valid chained search parameter for ${resourceType}: ` +
-                        `${queryParameter} is not an unambiguous reference parameter` +
-                        (chainDescriptor.explicitTargetType
-                            ? ` for target type ${chainDescriptor.explicitTargetType}`
-                            : ' (reference allows more than one target type -- use the :Type modifier)')
-                    ));
+                    if (handlingType === STRICT_SEARCH_HANDLING) {
+                        throw new BadRequestError(new Error(
+                            `${argName} is not a valid chained search parameter for ${resourceType}: ` +
+                            `${queryParameter} is not an unambiguous reference parameter` +
+                            (chainDescriptor.explicitTargetType
+                                ? ` for target type ${chainDescriptor.explicitTargetType}`
+                                : ' (reference allows more than one target type -- use the :Type modifier)')
+                        ));
+                    }
+                    // lenient: a malformed chain is dropped like any other unrecognized parameter
+                    continue;
                 }
                 const targetPropertyObj = this.searchParametersManager.getPropertyObject(
                     { resourceType: targetType, queryParameter: chainDescriptor.targetParam }
                 );
                 if (!targetPropertyObj) {
-                    throw new BadRequestError(new Error(
-                        `${chainDescriptor.targetParam} is not a valid search parameter for ${targetType}`
-                    ));
+                    if (handlingType === STRICT_SEARCH_HANDLING) {
+                        throw new BadRequestError(new Error(
+                            `${chainDescriptor.targetParam} is not a valid search parameter for ${targetType}`
+                        ));
+                    }
+                    continue;
                 }
                 if (REJECTED_MODIFIERS.some(m => modifiers.includes(m))) {
-                    throw new BadRequestError(new Error(
-                        `Modifiers [${REJECTED_MODIFIERS.join(', ')}] are not supported on chained ` +
-                        `search parameters (queryParameter=${argName})`
-                    ));
+                    if (handlingType === STRICT_SEARCH_HANDLING) {
+                        throw new BadRequestError(new Error(
+                            `Modifiers [${REJECTED_MODIFIERS.join(', ')}] are not supported on chained ` +
+                            `search parameters (queryParameter=${argName})`
+                        ));
+                    }
+                    continue;
                 }
                 chain = { targetType, targetParam: chainDescriptor.targetParam };
             }
