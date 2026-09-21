@@ -308,7 +308,10 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             const methods = historyRows.map((h) => h.request.method).sort();
             expect(methods).toEqual(['DELETE', 'PATCH']);
             const tombstone = historyRows.find((h) => h.request.method === 'DELETE');
-            expect(tombstone.resource.member.inactive).toBe(true);
+            // The member was added active (no explicit inactive) and removed without ever being
+            // deactivated -- the tombstone must preserve that actual last-known state, not stamp
+            // inactive:true purely because it's being deleted (that would be data pollution).
+            expect(tombstone.resource.member.inactive).toBe(false);
 
             // Regression test: RemoveHelper.deleteManyAsync unconditionally overwrites
             // meta.lastUpdated with the current wall-clock time before writing history, which
