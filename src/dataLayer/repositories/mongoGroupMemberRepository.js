@@ -3,6 +3,7 @@ const { DatabaseQueryFactory } = require('../databaseQueryFactory');
 const { FastDatabaseBulkInserter } = require('../fastDatabaseBulkInserter');
 const { RemoveHelper } = require('../../operations/remove/removeHelper');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
+const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { GROUP_MEMBER_RESOURCE_TYPE } = require('../../constants');
 const { resolveMemberWrite } = require('../../operations/common/resolveMemberWrite');
@@ -34,8 +35,9 @@ class MongoGroupMemberRepository {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      * @param {RemoveHelper} removeHelper
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
-    constructor({ databaseQueryFactory, fastDatabaseBulkInserter, removeHelper }) {
+    constructor({ databaseQueryFactory, fastDatabaseBulkInserter, removeHelper, resourceLocatorFactory }) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /** @type {DatabaseQueryFactory} */
         this.databaseQueryFactory = databaseQueryFactory;
@@ -47,6 +49,10 @@ class MongoGroupMemberRepository {
         assertTypeEquals(removeHelper, RemoveHelper);
         /** @type {RemoveHelper} */
         this.removeHelper = removeHelper;
+
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+        /** @type {ResourceLocatorFactory} */
+        this.resourceLocatorFactory = resourceLocatorFactory;
     }
 
     /**
@@ -231,6 +237,69 @@ class MongoGroupMemberRepository {
         return await databaseQueryManager.findAsync({
             query: { groupUuid }
         });
+    }
+
+    /**
+     * Reconstructs the roster as it stood at a point in time, straight from
+     * GroupMember_4_0_0_History -- the live GroupMember_4_0_0 collection is never consulted.
+     * That's what makes this correct for a membership that was hard-deleted and never revived
+     * (no live row exists for it, ever again) and for a Group that was deleted and recreated
+     * (live-collection state resets; history doesn't) -- see design doc §6.
+     *
+     * For each row identity (_uuid), only the latest history entry at or before
+     * targetLastUpdated survives; if that latest entry is a tombstone (request.method ===
+     * 'DELETE') the row is dropped entirely, since the membership was already removed as of
+     * that moment.
+     *
+     * Backed by the GroupMember_4_0_0_History compound index (customIndexes.js): match by
+     * groupUuid, then $sort/$group using the same key order/directions as that index lets
+     * MongoDB's $groupByDistinctScan optimization walk it directly (FETCH<-DISTINCT_SCAN, no
+     * blocking SORT/GROUP), verified against 55k rows. Keep the $sort spec here in lockstep with
+     * the index if either changes.
+     *
+     * @param {Object} params
+     * @param {string} params.base_version
+     * @param {string} params.groupUuid
+     * @param {Date} params.targetLastUpdated - the target Group version's own meta.lastUpdated
+     * @returns {Promise<import('mongodb').AggregationCursor>} yields plain GroupMember documents
+     *   (same shape as getMemberCursorAsync's live rows), one per membership still active as of
+     *   targetLastUpdated
+     */
+    async getMemberCursorAtAsync({ base_version, groupUuid, targetLastUpdated }) {
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        const historyCollection = await resourceLocator.getHistoryCollectionAsync();
+        return historyCollection.aggregate([
+            {
+                $match: {
+                    'resource.groupUuid': groupUuid,
+                    'resource.meta.lastUpdated': { $lte: targetLastUpdated }
+                }
+            },
+            {
+                $sort: {
+                    'resource._uuid': 1,
+                    'resource.meta.lastUpdated': -1,
+                    _id: 1
+                }
+            },
+            {
+                $group: {
+                    _id: '$resource._uuid',
+                    latest: { $first: '$$ROOT' }
+                }
+            },
+            {
+                $match: {
+                    'latest.request.method': { $ne: 'DELETE' }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: '$latest.resource' }
+            }
+        ]);
     }
 }
 

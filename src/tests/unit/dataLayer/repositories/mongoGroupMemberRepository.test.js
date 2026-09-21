@@ -4,6 +4,7 @@ const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositori
 const { DatabaseQueryFactory } = require('../../../../dataLayer/databaseQueryFactory');
 const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
 const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
+const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
 
 function createMockInstance (ClassRef, methods = {}) {
     const instance = Object.create(ClassRef.prototype);
@@ -16,16 +17,23 @@ describe('MongoGroupMemberRepository', () => {
     let mockDatabaseQueryFactory;
     let mockDatabaseBulkInserter;
     let mockRemoveHelper;
+    let mockResourceLocatorFactory;
+    let mockResourceLocator;
 
     beforeEach(() => {
         mockDatabaseQueryFactory = createMockInstance(DatabaseQueryFactory);
         mockDatabaseBulkInserter = createMockInstance(FastDatabaseBulkInserter);
         mockRemoveHelper = createMockInstance(RemoveHelper);
+        mockResourceLocator = { getHistoryCollectionAsync: jest.fn() };
+        mockResourceLocatorFactory = createMockInstance(ResourceLocatorFactory, {
+            createResourceLocator: jest.fn().mockReturnValue(mockResourceLocator)
+        });
 
         repository = new MongoGroupMemberRepository({
             databaseQueryFactory: mockDatabaseQueryFactory,
             fastDatabaseBulkInserter: mockDatabaseBulkInserter,
-            removeHelper: mockRemoveHelper
+            removeHelper: mockRemoveHelper,
+            resourceLocatorFactory: mockResourceLocatorFactory
         });
     });
 
@@ -70,6 +78,87 @@ describe('MongoGroupMemberRepository', () => {
             await expect(
                 repository.getMemberCursorAsync({ base_version: '4_0_0', groupUuid: 'group-x' })
             ).rejects.toThrow('mongo exploded');
+        });
+    });
+
+    describe('getMemberCursorAtAsync', () => {
+        test('queries the GroupMember history collection, not the live one', async () => {
+            const fakeCursor = {};
+            mockResourceLocator.getHistoryCollectionAsync.mockResolvedValue({
+                aggregate: jest.fn().mockReturnValue(fakeCursor)
+            });
+
+            const result = await repository.getMemberCursorAtAsync({
+                base_version: '4_0_0',
+                groupUuid: 'group-123',
+                targetLastUpdated: new Date('2026-01-01T00:00:00.000Z')
+            });
+
+            expect(mockResourceLocatorFactory.createResourceLocator).toHaveBeenCalledWith({
+                resourceType: 'GroupMember',
+                base_version: '4_0_0'
+            });
+            expect(mockResourceLocator.getHistoryCollectionAsync).toHaveBeenCalled();
+            expect(result).toBe(fakeCursor);
+        });
+
+        test('matches by groupUuid and lastUpdated <= target, sorts/groups by _uuid keeping the ' +
+            'latest row, excludes DELETE tombstones, and unwraps to the plain resource', async () => {
+            const aggregateMock = jest.fn().mockReturnValue({});
+            mockResourceLocator.getHistoryCollectionAsync.mockResolvedValue({ aggregate: aggregateMock });
+            const target = new Date('2026-01-01T00:00:00.000Z');
+
+            await repository.getMemberCursorAtAsync({
+                base_version: '4_0_0',
+                groupUuid: 'group-123',
+                targetLastUpdated: target
+            });
+
+            expect(aggregateMock).toHaveBeenCalledWith([
+                {
+                    $match: {
+                        'resource.groupUuid': 'group-123',
+                        'resource.meta.lastUpdated': { $lte: target }
+                    }
+                },
+                // Key order/directions here must match customIndexes.js's
+                // GroupMember_4_0_0_History compound index exactly, or MongoDB falls back to an
+                // in-memory SORT/GROUP instead of walking the index directly.
+                {
+                    $sort: {
+                        'resource._uuid': 1,
+                        'resource.meta.lastUpdated': -1,
+                        _id: 1
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$resource._uuid',
+                        latest: { $first: '$$ROOT' }
+                    }
+                },
+                {
+                    $match: {
+                        'latest.request.method': { $ne: 'DELETE' }
+                    }
+                },
+                {
+                    $replaceRoot: { newRoot: '$latest.resource' }
+                }
+            ]);
+        });
+
+        test('propagates rejection from getHistoryCollectionAsync instead of swallowing it', async () => {
+            const error = new Error('history collection unavailable');
+            mockResourceLocator.getHistoryCollectionAsync.mockRejectedValue(error);
+
+            await expect(
+                repository.getMemberCursorAtAsync({
+                    base_version: '4_0_0',
+                    groupUuid: 'group-123',
+                    targetLastUpdated: new Date()
+                })
+            ).rejects.toThrow('history collection unavailable');
         });
     });
 });
