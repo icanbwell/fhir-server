@@ -934,7 +934,8 @@ const createContainer = function () {
             databaseAttachmentManager: c.databaseAttachmentManager,
             base64DataManager: c.base64DataManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
-            identifierEnrichmentProvider: c.identifierEnrichmentProvider
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(

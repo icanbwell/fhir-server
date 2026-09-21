@@ -204,8 +204,9 @@ describe('MongoReadableStream', () => {
             expect(collected).toContainEqual(null);
         });
 
-        test('skips retry and terminates gracefully on timeout when params is not full-search-shaped ' +
-            '(e.g. a minimal {query} params object, as used for the live GroupMember roster cursor)', async () => {
+        test('skips retry and terminates gracefully on timeout when params is neither ' +
+            'rebuildCursorAsync-supplying nor full-search-shaped (e.g. a minimal {query} params ' +
+            'object, as used for the live GroupMember roster cursor)', async () => {
             const timeoutError = new Error('cursor timeout');
             timeoutError.code = 50;
 
@@ -227,6 +228,35 @@ describe('MongoReadableStream', () => {
             expect(mockSearchManager.getCursorForQueryAsync).not.toHaveBeenCalled();
             // Falls straight through to the generic non-retryable error handling.
             expect(mockResponse.statusCode).toBe(500);
+            expect(collected).toContainEqual(null);
+        });
+
+        test('retries via params.rebuildCursorAsync instead of getCursorForQueryAsync when provided ' +
+            '(e.g. an aggregation-pipeline cursor that has no plain find() query to resume)', async () => {
+            const timeoutError = new Error('cursor timeout');
+            timeoutError.code = 50;
+
+            mockCursor.hasNext.mockRejectedValueOnce(timeoutError);
+
+            const newCursor = {
+                hasNext: jest.fn().mockResolvedValue(false),
+                next: jest.fn()
+            };
+            const rebuildCursorAsync = jest.fn().mockResolvedValue(newCursor);
+            mockParams = { rebuildCursorAsync };
+
+            const stream = createStream();
+            stream.lastUUID = 'last-uuid';
+            const collected = [];
+            stream.push = jest.fn((data) => {
+                collected.push(data);
+                return true;
+            });
+
+            await stream.readCursorAsync({ size: 10 });
+
+            expect(rebuildCursorAsync).toHaveBeenCalledWith({ lastUUID: 'last-uuid', maxMongoTimeMS: 60000 });
+            expect(mockSearchManager.getCursorForQueryAsync).not.toHaveBeenCalled();
             expect(collected).toContainEqual(null);
         });
 
