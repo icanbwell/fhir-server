@@ -18,7 +18,7 @@ const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, BLOB_OP } = require('../../constants');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
-const { isGroupExtended } = require('../../utils/mongoGroupExtendedTag');
+const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 
 class SearchByIdOperation {
@@ -247,7 +247,7 @@ class SearchByIdOperation {
             if (resource) {
                 const resourceUuid = resource._uuid;
 
-                const isExtendedGroup = resourceType === 'Group' && isGroupExtended(resource) &&
+                const isExtendedGroup = resourceType === 'Group' && resource[MONGO_GROUP_EXTENDED_FIELD] === true &&
                     this.configManager.enableExtendedGroup;
 
                 // remove any nulls or empty objects or arrays

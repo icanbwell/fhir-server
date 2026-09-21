@@ -8,10 +8,12 @@ const {
     mockHttpContext
 } = require('../common');
 const {
-    MONGO_GROUP_EXTENDED_FIELD,
+    MONGO_GROUP_EXTENDED_FIELD
+} = require('../../../utils/mongoGroupExtendedTag');
+const {
     MONGO_GROUP_MEMBER_TAG_SYSTEM,
     MONGO_GROUP_MEMBER_TAG_CODE
-} = require('../../../utils/mongoGroupExtendedTag');
+} = require('../../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const {
     GROUP_MEMBER_COLLECTION_NAME
 } = require('../../../constants');
@@ -82,10 +84,10 @@ describe('Group GET streaming read (extended storage)', () => {
         await seedGroupMemberRows(fhirDb, [
             {
                 id: 'ccc-row',
+                _uuid: 'ccc-row',
                 meta: { versionId: '1', lastUpdated: new Date() },
                 _sourceAssigningAuthority: 'test-authority',
                 groupUuid,
-                memberRowUuid: 'ccc-row',
                 groupVersionId: 1,
                 member: {
                     entity: {
@@ -98,10 +100,10 @@ describe('Group GET streaming read (extended storage)', () => {
             },
             {
                 id: 'aaa-row',
+                _uuid: 'aaa-row',
                 meta: { versionId: '1', lastUpdated: new Date() },
                 _sourceAssigningAuthority: 'test-authority',
                 groupUuid,
-                memberRowUuid: 'aaa-row',
                 groupVersionId: 1,
                 member: {
                     entity: { reference: 'Patient/streaming-member-1' },
@@ -110,10 +112,10 @@ describe('Group GET streaming read (extended storage)', () => {
             },
             {
                 id: 'bbb-row',
+                _uuid: 'bbb-row',
                 meta: { versionId: '1', lastUpdated: new Date() },
                 _sourceAssigningAuthority: 'test-authority',
                 groupUuid,
-                memberRowUuid: 'bbb-row',
                 groupVersionId: 1,
                 member: {
                     entity: { reference: 'Patient/streaming-member-2' },
@@ -192,10 +194,10 @@ describe('Group GET streaming read (extended storage)', () => {
         await seedGroupMemberRows(fhirDb, [
             {
                 id: 'flag-disabled-row',
+                _uuid: 'flag-disabled-row',
                 meta: { versionId: '1', lastUpdated: new Date() },
                 _sourceAssigningAuthority: 'test-authority',
                 groupUuid,
-                memberRowUuid: 'flag-disabled-row',
                 groupVersionId: 1,
                 member: {
                     entity: { reference: 'Patient/flag-disabled-member' },

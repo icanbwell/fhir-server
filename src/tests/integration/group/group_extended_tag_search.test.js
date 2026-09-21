@@ -7,10 +7,12 @@ const {
     getTestContainer
 } = require('../common');
 const {
-    MONGO_GROUP_EXTENDED_FIELD,
+    MONGO_GROUP_EXTENDED_FIELD
+} = require('../../../utils/mongoGroupExtendedTag');
+const {
     MONGO_GROUP_MEMBER_TAG_SYSTEM,
     MONGO_GROUP_MEMBER_TAG_CODE
-} = require('../../../utils/mongoGroupExtendedTag');
+} = require('../../../enrich/providers/groupExtendedTagEnrichmentProvider');
 
 const GROUP_COLLECTION_NAME = 'Group_4_0_0';
 
