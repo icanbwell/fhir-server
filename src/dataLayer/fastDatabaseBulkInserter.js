@@ -329,24 +329,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
     }
 
     /**
-     * If `doc` is a resource instance (has toJSONInternal), flattens it and runs it through its
-     * resourceType's write serializer -- a no-op for existing callers, which already pass plain
-     * objects: this pipeline's own bulk write executor clones documents generically via
-     * deepcopy() (createContainer.js's `fastMongoBulkWriteExecutor` registration), not
-     * resource.clone(), so a plain object is its native shape, unlike the legacy
-     * DatabaseBulkInserter's executor.
-     *
-     * @param {Object} doc
-     * @returns {Object}
-     */
-    writeSerializeIfResourceInstance(doc) {
-        if (!doc.toJSONInternal) {
-            return doc;
-        }
-        return FhirResourceWriteSerializer.serialize({ obj: doc.toJSONInternal() });
-    }
-
-    /**
      * Inserts item into collection if item doesn't exists else updates the item
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
@@ -370,7 +352,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
-            const serializedDoc = this.writeSerializeIfResourceInstance(doc);
 
             // check to see if we already have this insert and if so use replace
             /** @type {string|null} */
@@ -386,7 +367,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
             if (
                 operationsByResourceType &&
                 operationsByResourceType.filter(
-                    (bulkEntry) => bulkEntry.uuid === serializedDoc._uuid && bulkEntry.operationType === 'insertUniqueId'
+                    (bulkEntry) => bulkEntry.uuid === doc._uuid && bulkEntry.operationType === 'insertUniqueId'
                 ).length > 0
             ) {
                 const previousVersionId = 1;
@@ -394,7 +375,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     base_version,
                     requestInfo,
                     resourceType,
-                    doc: serializedDoc,
+                    doc,
                     previousVersionId: `${previousVersionId}`,
                     patches: null,
                     contextData
@@ -413,10 +394,10 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     this.addOperationForResourceType({
                         requestId,
                         resourceType,
-                        resource: serializedDoc,
+                        resource: doc,
                         operation: {
                             insertOne: {
-                                document: serializedDoc
+                                document: doc
                             }
                         },
                         operationType: 'insert',
@@ -427,15 +408,15 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     this.addOperationForResourceType({
                         requestId,
                         resourceType,
-                        resource: serializedDoc,
+                        resource: doc,
                         operation: {
                             // use an updateOne instead of insertOne to handle concurrency when another entity may have already inserted this entity
                             updateOne: {
                                 filter: {
-                                    _uuid: serializedDoc._uuid
+                                    _uuid: doc._uuid
                                 },
                                 update: {
-                                    $setOnInsert: serializedDoc
+                                    $setOnInsert: doc
                                 },
                                 upsert: true
                             }
@@ -446,11 +427,11 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     });
                 }
             }
-            if (serializedDoc._id) {
+            if (doc._id) {
                 logInfo('_id still present', {
                     args: {
                         source: 'DatabaseBulkInserter.insertOneAsync',
-                        doc: serializedDoc
+                        doc
                     }
                 });
             }
@@ -492,27 +473,26 @@ class FastDatabaseBulkInserter extends EventEmitter {
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
-            const serializedDoc = this.writeSerializeIfResourceInstance(doc);
 
             // see if there are any other pending updates for this doc
             const pendingUpdates = this.getPendingUpdates({ requestId, resourceType })
-                .filter((a) => a.uuid === serializedDoc._uuid);
+                .filter((a) => a.uuid === doc._uuid);
             const previousUpdate = pendingUpdates.length > 0 ? pendingUpdates[pendingUpdates.length - 1] : null;
             if (previousUpdate) {
                 // don't merge but replace
-                previousUpdate.resource = serializedDoc;
-                previousUpdate.operation.replaceOne.replacement = serializedDoc;
+                previousUpdate.resource = doc;
+                previousUpdate.operation.replaceOne.replacement = doc;
                 // replace without a filter so we replace regardless of version in db
                 previousUpdate.operation.replaceOne.filter = null;
                 return;
             }
 
             const pendingInserts = this.getPendingInsertsWithUniqueId({ requestId, resourceType })
-                .filter((a) => a.uuid === serializedDoc._uuid);
+                .filter((a) => a.uuid === doc._uuid);
             const previousInsert = pendingInserts.length > 0 ? pendingInserts[pendingInserts.length - 1] : null;
             if (previousInsert) {
-                previousInsert.resource = serializedDoc;
-                previousInsert.operation.updateOne.update.$setOnInsert = serializedDoc;
+                previousInsert.resource = doc;
+                previousInsert.operation.updateOne.update.$setOnInsert = doc;
                 return;
             }
 
@@ -520,13 +500,13 @@ class FastDatabaseBulkInserter extends EventEmitter {
             this.addOperationForResourceType({
                 requestId,
                 resourceType,
-                resource: serializedDoc,
+                resource: doc,
                 operationType: 'replace',
                 operation: {
                     replaceOne: {
                         filter: { _uuid: uuid },
                         upsert,
-                        replacement: serializedDoc
+                        replacement: doc
                     }
                 },
                 patches,
