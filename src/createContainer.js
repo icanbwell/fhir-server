@@ -977,7 +977,8 @@ const createContainer = function () {
         {
             databaseQueryFactory: c.databaseQueryFactory,
             fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
-            removeHelper: c.removeHelper
+            removeHelper: c.removeHelper,
+            resourceLocatorFactory: c.resourceLocatorFactory
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
