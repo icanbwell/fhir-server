@@ -39,9 +39,9 @@ function rejectMemberOnExtendedGroupWrite({ currentResource, hasMemberField }) {
         hasMemberField
     ) {
         throw new BadRequestError(new Error(
-            `Group ${currentResource.id || currentResource._uuid} uses extended member storage; ` +
-            'member changes must go through PATCH on /member (e.g. PATCH /4_0_0/Group/{id} with a ' +
-            'JSON Patch op on /member), not PUT or $merge. See: https://www.hl7.org/fhir/http.html#patch'
+            `Group ${currentResource.id || currentResource._uuid} does not accept member changes via ` +
+            'PUT or $merge; use PATCH /4_0_0/Group/{id} with a JSON Patch operation on /member instead. ' +
+            'See: https://www.hl7.org/fhir/http.html#patch'
         ));
     }
 }

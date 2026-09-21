@@ -110,8 +110,8 @@ class GroupMemberPatchStrategy {
         if (foundResource._extendedGroupMember === true) {
             if (!this.configManager.enableExtendedGroup) {
                 throw new BadRequestError(new Error(
-                    `Group ${foundResource.id || foundResource._uuid} uses extended member storage, ` +
-                    'which is disabled on this server (ENABLE_EXTENDED_GROUP is not set).'
+                    `Group ${foundResource.id || foundResource._uuid} uses a member-management feature ` +
+                    'that is disabled on this server.'
                 ));
             }
             return 'extended';
@@ -175,8 +175,19 @@ class GroupMemberPatchStrategy {
         // 2. Parse member operations into add/remove events
         // IMPORTANT: Do NOT use fast-json-patch here. We're not applying patches to a document.
         // We're translating operations directly to event-sourced storage sync events.
+        //
+        // eventsToAdd/eventsToRemove (bucketed, no `op` tag) feed ClickHouse's writeEventsAsync,
+        // which takes separate added/removed arrays -- unchanged. orderedMemberEvents is built in
+        // the same pass, tagging each op inline with add/remove as it's encountered, so it
+        // preserves the client's actual submitted sequence -- it's what the extended/Mongo-native
+        // branch below uses instead of concatenating the two buckets back together (which would
+        // always put every remove after every add regardless of the client's real op order,
+        // making applyMemberEventsAsync's last-wins-per-entity resolution always favor removal
+        // for a member that appears in both an add and a remove op in the same PATCH, even when
+        // the client's actual last op for that member was the add).
         const eventsToAdd = [];
         const eventsToRemove = [];
+        const orderedMemberEvents = [];
 
         for (const op of memberOperations) {
             const isValidMemberPath = op.path === PATCH_PATHS.MEMBER_PATH || op.path === PATCH_PATHS.MEMBER_APPEND;
@@ -197,20 +208,27 @@ class GroupMemberPatchStrategy {
 
             if (op.op === PATCH_OPERATIONS.ADD && isValidMemberPath) {
                 // RFC 6902: path "/member/-" means append to member array
-                eventsToAdd.push({
+                const event = {
                     entity: op.value.entity,
                     period: op.value.period,
                     inactive: op.value.inactive
-                });
+                };
+                eventsToAdd.push(event);
+                // Shares `entity` by reference with the entry above -- enrichMemberReferences
+                // (step 5 below) mutates entity in place, so enriching eventsToAdd/eventsToRemove
+                // also enriches this array's entities, with no separate enrichment pass needed.
+                orderedMemberEvents.push({ ...event, op: PATCH_OPERATIONS.ADD });
             } else if (op.op === PATCH_OPERATIONS.REMOVE && isValidMemberPath) {
                 // Server-side extension: remove member by entity reference
                 // Creates MEMBER_REMOVED event in ClickHouse event log
                 // Note: This is a pragmatic extension for event sourcing (not standard RFC 6902)
-                eventsToRemove.push({
+                const event = {
                     entity: op.value.entity,
                     period: op.value.period,
                     inactive: op.value.inactive
-                });
+                };
+                eventsToRemove.push(event);
+                orderedMemberEvents.push({ ...event, op: PATCH_OPERATIONS.REMOVE });
             } else {
                 // UNSUPPORTED: remove by index (e.g., /member/0)
                 // Would require reading current state to resolve index
@@ -298,11 +316,11 @@ class GroupMemberPatchStrategy {
             } else {
                 // Mongo-native (extended) regime: targeted row writes against GroupMember_4_0_0,
                 // via the four-way state table (resolveMemberWrite) -- a single combined event
-                // list, tagged with the op that produced it.
-                const events = [
-                    ...eventsToAdd.map((event) => ({ ...event, op: PATCH_OPERATIONS.ADD })),
-                    ...eventsToRemove.map((event) => ({ ...event, op: PATCH_OPERATIONS.REMOVE }))
-                ];
+                // list, tagged with the op that produced it and in the client's original
+                // submitted order (orderedMemberEvents, built in step 2 above) -- NOT
+                // eventsToAdd/eventsToRemove concatenated back together, which would always place
+                // every remove after every add regardless of actual op order.
+                const events = orderedMemberEvents;
                 // applyMemberEventsAsync flushes its own buffered writes before returning.
                 await this.mongoGroupMemberRepository.applyMemberEventsAsync({
                     requestInfo,

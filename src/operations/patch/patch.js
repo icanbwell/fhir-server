@@ -374,7 +374,14 @@ class PatchOperation {
                         updatedResource
                     });
                 }
-                // Mixed operations: continue with non-member patch below
+                // Mixed operations: continue with non-member patch below. executeMemberOperations()
+                // already committed foundResource's meta bump (versionId N -> N+1) to the database --
+                // foundResource itself is still the pre-bump object from the read above, so it must be
+                // swapped for updatedResource here. Otherwise the non-member patch flow below computes
+                // its own version bump from the stale N, producing a second N+1 (duplicate versionId
+                // History row, instead of a clean N+1 -> N+2 sequence) and stamping the wrong
+                // lastUpdated on it relative to the member write that already landed.
+                foundResource = updatedResource;
             }
             // ====================================================================
 

@@ -6,7 +6,7 @@ describe('rejectMemberOnExtendedGroupWrite', () => {
         const currentResource = { resourceType: 'Group', id: 'group-1', [MONGO_GROUP_EXTENDED_FIELD]: true };
 
         expect(() => rejectMemberOnExtendedGroupWrite({ currentResource, hasMemberField: true }))
-            .toThrow(/extended member storage/);
+            .toThrow(/does not accept member changes via PUT or \$merge/);
     });
 
     test('does not throw when the Group is extended but the submitted body has no member field', () => {

@@ -156,7 +156,7 @@ describe('GroupMemberPatchStrategy', () => {
             mockConfigManager.enableExtendedGroup = false;
             const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
 
-            expect(() => strategy.determineGroupMemberType({ requestInfo: {}, foundResource })).toThrow(/extended member storage/);
+            expect(() => strategy.determineGroupMemberType({ requestInfo: {}, foundResource })).toThrow(/disabled on this server/);
         });
 
         test('returns embedded for a plain Group with no header and no extended marker', () => {
@@ -459,6 +459,35 @@ describe('GroupMemberPatchStrategy', () => {
             });
             expect(mockPostSaveHandlerFactory.getHandlers).not.toHaveBeenCalled();
             expect(updatedResource._uuid).toBe('group-1-uuid');
+        });
+
+        test('preserves the client\'s submitted op order for the same entity, instead of always placing removes after adds', async () => {
+            // Client's actual last op for Patient/1 is "add" -- the combined events list passed to
+            // applyMemberEventsAsync must reflect that (remove, then add), not silently reorder to
+            // (add, then remove) by concatenating an adds-bucket before a removes-bucket, which
+            // would make applyMemberEventsAsync's last-wins-per-entity resolution always favor the
+            // remove regardless of what the client actually asked for last.
+            const memberOperations = [
+                { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/1' } } },
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
+            ];
+
+            await strategy.executeMemberOperations({
+                requestInfo: {},
+                parsedArgs: {},
+                resourceType: 'Group',
+                id: 'group-1',
+                base_version: '4_0_0',
+                memberOperations,
+                foundResource: extendedFoundResource,
+                groupMemberType: 'extended'
+            });
+
+            const { events } = mockMongoGroupMemberRepository.applyMemberEventsAsync.mock.calls[0][0];
+            expect(events).toEqual([
+                { entity: enrichedEntity('Patient/1'), period: undefined, inactive: undefined, op: 'remove' },
+                { entity: enrichedEntity('Patient/1'), period: undefined, inactive: undefined, op: 'add' }
+            ]);
         });
 
         test('does not call mongoGroupMemberRepository when there are no member events', async () => {

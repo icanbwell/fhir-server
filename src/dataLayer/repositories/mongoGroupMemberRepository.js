@@ -27,17 +27,17 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 class MongoGroupMemberRepository {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {FastDatabaseBulkInserter} databaseBulkInserter
+     * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      * @param {RemoveHelper} removeHelper
      */
-    constructor({ databaseQueryFactory, databaseBulkInserter, removeHelper }) {
+    constructor({ databaseQueryFactory, fastDatabaseBulkInserter, removeHelper }) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /** @type {DatabaseQueryFactory} */
         this.databaseQueryFactory = databaseQueryFactory;
 
-        assertTypeEquals(databaseBulkInserter, FastDatabaseBulkInserter);
+        assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
         /** @type {FastDatabaseBulkInserter} */
-        this.databaseBulkInserter = databaseBulkInserter;
+        this.fastDatabaseBulkInserter = fastDatabaseBulkInserter;
 
         assertTypeEquals(removeHelper, RemoveHelper);
         /** @type {RemoveHelper} */
@@ -143,14 +143,14 @@ class MongoGroupMemberRepository {
             }
 
             if (classification === 'create') {
-                await this.databaseBulkInserter.insertOneAsync({
+                await this.fastDatabaseBulkInserter.insertOneAsync({
                     base_version,
                     requestInfo,
                     resourceType: GROUP_MEMBER_RESOURCE_TYPE,
                     doc
                 });
             } else {
-                await this.databaseBulkInserter.replaceOneAsync({
+                await this.fastDatabaseBulkInserter.replaceOneAsync({
                     base_version,
                     requestInfo,
                     resourceType: GROUP_MEMBER_RESOURCE_TYPE,
@@ -163,7 +163,7 @@ class MongoGroupMemberRepository {
         }
 
         if (hasBufferedWrite) {
-            await this.databaseBulkInserter.executeAsync({ requestInfo, base_version });
+            await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
         }
 
         if (docsToDelete.length > 0) {

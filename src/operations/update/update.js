@@ -339,14 +339,14 @@ class UpdateOperation {
             if (data && data.meta) {
                 // found an existing resource
                 foundResource = data;
-                // Extended Group's member[] doesn't exist on the live document -- a submitted
-                // member must go through PATCH instead (design doc §5.1). Checked before any
-                // merge/persist work, and unconditional on ENABLE_EXTENDED_GROUP (see
-                // rejectMemberOnExtendedGroupWrite's own docstring for why).
-                rejectMemberOnExtendedGroupWrite({ currentResource: foundResource, hasMemberField });
                 await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                     requestInfo, resource: foundResource, base_version
                 });
+                // Extended Group's member[] doesn't exist on the live document -- a submitted
+                // member must go through PATCH instead (design doc §5.1). Unconditional on
+                // ENABLE_EXTENDED_GROUP (see rejectMemberOnExtendedGroupWrite's own docstring for
+                // why), but only reached once the caller is already confirmed authorized above.
+                rejectMemberOnExtendedGroupWrite({ currentResource: foundResource, hasMemberField });
                 // If-Match/version check logic (optimistic locking)
                 if (ifMatch) {
                     if (data.meta.versionId) {

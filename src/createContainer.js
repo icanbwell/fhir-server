@@ -969,7 +969,7 @@ const createContainer = function () {
     container.register('mongoGroupMemberRepository', (c) => new MongoGroupMemberRepository(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            databaseBulkInserter: c.fastDatabaseBulkInserter,
+            fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
             removeHelper: c.removeHelper
         }
     ));
