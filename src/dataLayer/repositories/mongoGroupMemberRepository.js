@@ -261,22 +261,32 @@ class MongoGroupMemberRepository {
      * @param {string} params.base_version
      * @param {string} params.groupUuid
      * @param {Date} params.targetLastUpdated - the target Group version's own meta.lastUpdated
+     * @param {string} [params.afterUuid] - resume past this row identity (exclusive). Rows stream
+     *   out in ascending resource._uuid order (see the $sort stage below), so this is how a
+     *   caller resumes a stream after a mid-read failure without re-emitting or skipping rows --
+     *   see MongoReadableStream's timeout-retry path.
+     * @param {number} [params.maxTimeMS] - per-query server-side timeout, widened by a caller
+     *   retrying after a timeout (see streamGroupMemberArrayAsync's rebuildCursorAsync).
      * @returns {Promise<import('mongodb').AggregationCursor>} yields plain GroupMember documents
      *   (same shape as getMemberCursorAsync's live rows), one per membership still active as of
      *   targetLastUpdated
      */
-    async getMemberCursorAtAsync({ base_version, groupUuid, targetLastUpdated }) {
+    async getMemberCursorAtAsync({ base_version, groupUuid, targetLastUpdated, afterUuid, maxTimeMS }) {
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
             resourceType: GROUP_MEMBER_RESOURCE_TYPE,
             base_version
         });
         const historyCollection = await resourceLocator.getHistoryCollectionAsync();
+        const matchStage = {
+            'resource.groupUuid': groupUuid,
+            'resource.meta.lastUpdated': { $lte: targetLastUpdated }
+        };
+        if (afterUuid) {
+            matchStage['resource._uuid'] = { $gt: afterUuid };
+        }
         return historyCollection.aggregate([
             {
-                $match: {
-                    'resource.groupUuid': groupUuid,
-                    'resource.meta.lastUpdated': { $lte: targetLastUpdated }
-                }
+                $match: matchStage
             },
             {
                 $sort: {
@@ -299,7 +309,7 @@ class MongoGroupMemberRepository {
             {
                 $replaceRoot: { newRoot: '$latest.resource' }
             }
-        ]);
+        ], ...(maxTimeMS ? [{ maxTimeMS }] : []));
     }
 }
 

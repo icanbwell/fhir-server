@@ -1404,7 +1404,17 @@ class SearchManager {
         return tracker.id;
     }
 
-    async streamGroupMemberArrayAsync ({ requestId, cursor, groupResourceJson, res }) {
+    /**
+     * @param {string} requestId
+     * @param {import('mongodb').FindCursor|import('mongodb').AggregationCursor} cursor
+     * @param {Object} groupResourceJson
+     * @param {import('http').ServerResponse} res
+     * @param {Function} [rebuildCursorAsync] - resumes the stream past a given _uuid after a
+     *   mid-stream Mongo timeout, for a cursor that doesn't support .getQuery() (e.g. an
+     *   aggregation pipeline) -- see MongoReadableStream.readCursorAsync. Omit for a cursor built
+     *   from a plain find() query, which resumes via the existing getCursorForQueryAsync path.
+     */
+    async streamGroupMemberArrayAsync ({ requestId, cursor, groupResourceJson, res, rebuildCursorAsync }) {
         assertIsValid(requestId);
 
         const highWaterMark = this.configManager.streamingHighWaterMark || 100;
@@ -1443,7 +1453,7 @@ class SearchManager {
             highWaterMark,
             configManager: this.configManager,
             response: res,
-            params: { query: cursor.getQuery() }
+            params: rebuildCursorAsync ? { rebuildCursorAsync } : { query: cursor.getQuery() }
         });
 
         try {
@@ -1456,7 +1466,9 @@ class SearchManager {
             logError(`SearchManager.streamGroupMemberArrayAsync: ${e.message} `, {
                 error: new RethrownError(
                     {
-                        message: `Error streaming GroupMember rows for query: ${mongoQueryStringify(cursor.getQuery())}`,
+                        message: rebuildCursorAsync
+                            ? 'Error streaming reconstructed GroupMember rows'
+                            : `Error streaming GroupMember rows for query: ${mongoQueryStringify(cursor.getQuery())}`,
                         error: e
                     })
             });

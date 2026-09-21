@@ -37,7 +37,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/merge/merge.nullSafety.test.js',
         '<rootDir>/src/tests/unit/operations/patch/strategies/groupMemberPatchStrategy.bugs.test.js',
         '<rootDir>/src/tests/unit/operations/remove/removeHelper.test.js',
-        '<rootDir>/src/tests/unit/operations/searchByVersionId/searchByVersionId.test.js',
         '<rootDir>/src/tests/unit/enrich/enrichmentManager.test.js',
         '<rootDir>/src/tests/unit/enrich/proxyPatientReferenceEnrichmentProvider.test.js',
         '<rootDir>/src/tests/unit/graphql/resolvers/graphqlResolver.crossTenant.test.js',

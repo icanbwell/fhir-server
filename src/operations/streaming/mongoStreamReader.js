@@ -150,14 +150,14 @@ class MongoReadableStream extends Readable {
                     return;
                 }
             } catch (e) {
-                // Handles operation timeout error in mongodb. Retry only when this.params is a
-                // full FHIR-search-shaped object (resourceType, parsedArgs, columns, etc.) --
-                // getCursorForQueryAsync's contract below. A caller with a minimal ad-hoc params
-                // object (e.g. GroupMember's live-roster query, which only ever sets {query})
-                // doesn't fit that shape, so retrying would throw a confusing TypeError instead
-                // of the timeout itself; fall through to the generic non-retryable error handling
-                // below instead.
-                const canRetry = Boolean(this.params.resourceType);
+                // Handles operation timeout error in mongodb. Retry only when this.params is
+                // either a rebuildCursorAsync-supplying caller or a full FHIR-search-shaped
+                // object (resourceType, parsedArgs, columns, etc.) -- getCursorForQueryAsync's
+                // contract below. A caller with a minimal ad-hoc params object (e.g. GroupMember's
+                // live-roster query, which only ever sets {query}) doesn't fit either shape, so
+                // retrying would throw a confusing TypeError instead of the timeout itself; fall
+                // through to the generic non-retryable error handling below instead.
+                const canRetry = Boolean(this.params.rebuildCursorAsync || this.params.resourceType);
                 if (e.code === 50 && !hasRetried && this.lastUUID && canRetry) {
                     logInfo(
                         'MongoReadableStream readAsync: Retrying with new cursor due to mongo query timeout',
@@ -167,24 +167,35 @@ class MongoReadableStream extends Readable {
                     // Increasing maxMongoTimeMS to ensure streaming process to continue for an extended period.
                     this.params.maxMongoTimeMS = this.configManager.mongoStreamingTimeout;
 
-                    // Update existing query to not fetch resources with already processed uuids
-                    const uuidFromQuery = { _uuid: { $gt: this.lastUUID } };
-                    if (this.params.query.$and) {
-                        this.params.query.$and = [
-                            uuidFromQuery,
-                            ...this.params.query.$and.map((f) => f)
-                        ];
+                    if (this.params.rebuildCursorAsync) {
+                        // Caller-supplied resumption -- for a cursor this class didn't build
+                        // itself (e.g. an aggregation pipeline, which doesn't fit
+                        // searchManager.getCursorForQueryAsync's plain-find contract below).
+                        // The callback is responsible for scoping past this.lastUUID itself.
+                        this.cursor = await this.params.rebuildCursorAsync({
+                            lastUUID: this.lastUUID,
+                            maxMongoTimeMS: this.params.maxMongoTimeMS
+                        });
                     } else {
-                        this.params.query = { $and: [this.params.query, uuidFromQuery] };
-                    }
+                        // Update existing query to not fetch resources with already processed uuids
+                        const uuidFromQuery = { _uuid: { $gt: this.lastUUID } };
+                        if (this.params.query.$and) {
+                            this.params.query.$and = [
+                                uuidFromQuery,
+                                ...this.params.query.$and.map((f) => f)
+                            ];
+                        } else {
+                            this.params.query = { $and: [this.params.query, uuidFromQuery] };
+                        }
 
-                    /**
-                     * @type {GetCursorResult}
-                     */
-                    const __ret = await this.searchManager.getCursorForQueryAsync({
-                        ...this.params
-                    });
-                    this.cursor = __ret.cursor;
+                        /**
+                         * @type {GetCursorResult}
+                         */
+                        const __ret = await this.searchManager.getCursorForQueryAsync({
+                            ...this.params
+                        });
+                        this.cursor = __ret.cursor;
+                    }
                     await this.readCursorAsync({size, hasRetried: true}); // Pass true to indicate that retry has happened
                     return;
                 }

@@ -160,5 +160,41 @@ describe('MongoGroupMemberRepository', () => {
                 })
             ).rejects.toThrow('history collection unavailable');
         });
+
+        test('adds a resource._uuid > afterUuid bound and a maxTimeMS option when resuming a ' +
+            'stream past a mid-read failure', async () => {
+            const aggregateMock = jest.fn().mockReturnValue({});
+            mockResourceLocator.getHistoryCollectionAsync.mockResolvedValue({ aggregate: aggregateMock });
+            const target = new Date('2026-01-01T00:00:00.000Z');
+
+            await repository.getMemberCursorAtAsync({
+                base_version: '4_0_0',
+                groupUuid: 'group-123',
+                targetLastUpdated: target,
+                afterUuid: 'row-uuid-5',
+                maxTimeMS: 60000
+            });
+
+            const [pipeline, options] = aggregateMock.mock.calls[0];
+            expect(pipeline[0].$match).toEqual({
+                'resource.groupUuid': 'group-123',
+                'resource.meta.lastUpdated': { $lte: target },
+                'resource._uuid': { $gt: 'row-uuid-5' }
+            });
+            expect(options).toEqual({ maxTimeMS: 60000 });
+        });
+
+        test('passes no options argument when maxTimeMS is not given', async () => {
+            const aggregateMock = jest.fn().mockReturnValue({});
+            mockResourceLocator.getHistoryCollectionAsync.mockResolvedValue({ aggregate: aggregateMock });
+
+            await repository.getMemberCursorAtAsync({
+                base_version: '4_0_0',
+                groupUuid: 'group-123',
+                targetLastUpdated: new Date()
+            });
+
+            expect(aggregateMock.mock.calls[0]).toHaveLength(1);
+        });
     });
 });
