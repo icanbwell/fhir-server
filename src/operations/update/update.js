@@ -208,8 +208,13 @@ class UpdateOperation {
         resource_incoming_json.id = rawId;
 
         // For resources with mongo-with-clickhouse dual-write storage, track if externally-stored fields present
-        // Used later to force UPDATE even if MongoDB sees no changes (member array stripped before save)
-        const hasMemberField = resourceType === 'Group' && resource_incoming_json.member !== undefined;
+        // Used later to force UPDATE even if MongoDB sees no changes (member array stripped before save).
+        // A length check (not just !== undefined) is required here: this runs against the raw
+        // request body, before FhirResourceCreator normalizes an explicit `member: []` away to
+        // undefined, so an undefined check alone would treat an empty array as "has members".
+        const hasMemberField = resourceType === 'Group' &&
+            Array.isArray(resource_incoming_json.member) &&
+            resource_incoming_json.member.length > 0;
 
         // Internal fields (_uuid, _sourceAssigningAuthority, _file_id, etc.) are never
         // legitimate client input -- they're always (re)computed server-side (pre-save

@@ -40,7 +40,7 @@ CUSTOM_SERIALIZER_PROPERTIES_CONFIG = {
         {"name": "_sourceAssigningAuthority", "type": "null"},
         {"name": "_uuid", "type": "null"},
         {"name": "_sourceId", "type": "null"},
-        {"name": "_extendedGroupMember", "type": "null"},
+        {"name": "_extended", "type": "null"},
     ],
     "Attachment": [{"name": "_file_id", "type": "null"}],
 }

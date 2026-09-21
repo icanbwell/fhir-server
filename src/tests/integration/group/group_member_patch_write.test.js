@@ -200,6 +200,7 @@ describe('Group member PATCH write path (DCON-5527)', () => {
                 { op: 'add', path: '/member/-', value: { entity: { reference: memberRef }, period: { start: '2026-01-01' } } }
             ]);
             expect(addResp.status).toBe(200);
+            expect(addResp.body.member).toBeUndefined();
 
             const memberCollection = await getCollection(GROUP_MEMBER_COLLECTION_NAME);
             const rowAfterAdd = await memberCollection.findOne({ 'member.entity.reference': memberRef });
@@ -210,6 +211,10 @@ describe('Group member PATCH write path (DCON-5527)', () => {
                 { op: 'add', path: '/member/-', value: { entity: { reference: memberRef }, period: { start: '2026-02-01', end: '2026-06-30' } } }
             ]);
             expect(updateResp.status).toBe(200);
+            // Metadata-only response for the `update` classification too -- create vs. update is
+            // an internal GroupMember_4_0_0 routing decision (resolveMemberWrite) and must not
+            // change the shape of the Group PATCH response.
+            expect(updateResp.body.member).toBeUndefined();
 
             const rowsForMember = await memberCollection.find({ groupUuid, 'member.entity.reference': memberRef }).toArray();
             expect(rowsForMember).toHaveLength(1);
@@ -315,6 +320,62 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             expect(new Date(tombstone.resource.meta.lastUpdated).toISOString()).toBe(
                 new Date(removeResp.body.meta.lastUpdated).toISOString()
             );
+        });
+
+        test('PATCH remove of a member that is already gone is a no-op: does not bump the Group version or write any history', async () => {
+            const created = await createGroup();
+            await markGroupExtended(created.id);
+            const memberRef = 'Patient/extended-remove-noop';
+
+            // Never added, so this remove has nothing to do.
+            const removeResp = await patchGroup(created.id, [
+                { op: 'remove', path: '/member/', value: { entity: { reference: memberRef } } }
+            ]);
+            expect(removeResp.status).toBe(200);
+            expect(removeResp.body.meta.versionId).toBe(created.meta.versionId);
+            expect(new Date(removeResp.body.meta.lastUpdated).toISOString()).toBe(
+                new Date(created.meta.lastUpdated).toISOString()
+            );
+
+            const groupCollection = await getCollection(GROUP_COLLECTION_NAME);
+            const groupDoc = await groupCollection.findOne({ id: created.id });
+            expect(groupDoc.meta.versionId).toBe(created.meta.versionId);
+
+            const groupHistoryCollection = await getCollection(`${GROUP_COLLECTION_NAME}_History`);
+            const groupHistoryRows = await groupHistoryCollection.find({ 'resource._uuid': groupDoc._uuid }).toArray();
+            // Only the initial create's history row -- the no-op remove must not add a second one.
+            expect(groupHistoryRows).toHaveLength(1);
+
+            const memberCollection = await getCollection(GROUP_MEMBER_COLLECTION_NAME);
+            expect(await memberCollection.findOne({ groupUuid: groupDoc._uuid })).toBeNull();
+        });
+
+        test('re-adding a member with identical period/type/display/inactive is a no-op: does not bump the Group version', async () => {
+            const created = await createGroup();
+            await markGroupExtended(created.id);
+            const memberRef = 'Patient/extended-readd-noop';
+
+            const addResp = await patchGroup(created.id, [
+                { op: 'add', path: '/member/-', value: { entity: { reference: memberRef }, period: { start: '2026-01-01' } } }
+            ]);
+            expect(addResp.status).toBe(200);
+
+            // Identical add again -- resolveMemberWrite should classify this 'none'.
+            const reAddResp = await patchGroup(created.id, [
+                { op: 'add', path: '/member/-', value: { entity: { reference: memberRef }, period: { start: '2026-01-01' } } }
+            ]);
+            expect(reAddResp.status).toBe(200);
+            expect(reAddResp.body.meta.versionId).toBe(addResp.body.meta.versionId);
+            expect(new Date(reAddResp.body.meta.lastUpdated).toISOString()).toBe(
+                new Date(addResp.body.meta.lastUpdated).toISOString()
+            );
+
+            const memberCollection = await getCollection(GROUP_MEMBER_COLLECTION_NAME);
+            const historyCollection = await getCollection(GROUP_MEMBER_HISTORY_COLLECTION_NAME);
+            const row = await memberCollection.findOne({ 'member.entity.reference': memberRef });
+            const historyRows = await historyCollection.find({ 'resource.groupUuid': row.groupUuid }).toArray();
+            // Only the first add's history row -- the identical re-add must not add a second one.
+            expect(historyRows).toHaveLength(1);
         });
 
         test('rejects PATCH on an extended Group when ENABLE_EXTENDED_GROUP is disabled', async () => {

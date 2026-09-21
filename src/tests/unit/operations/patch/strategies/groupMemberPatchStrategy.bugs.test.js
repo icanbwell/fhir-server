@@ -47,7 +47,7 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
             configManager: mockConfigManager,
             resourceMerger: mockResourceMerger,
             databaseBulkInserter: mockDatabaseBulkInserter,
-            mongoGroupMemberRepository: { applyMemberEventsAsync: jestGlobal.fn() }
+            mongoGroupMemberRepository: { applyResolvedMemberWritesAsync: jestGlobal.fn() }
         });
     });
 
@@ -130,7 +130,6 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
             await expect(
                 strategy.executeMemberOperations({
                     requestInfo: {},
-                    parsedArgs: {},
                     resourceType: 'Group',
                     id: 'group-1',
                     base_version: '4_0_0',
@@ -140,8 +139,7 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
                         resourceType: 'Group',
                         _sourceAssigningAuthority: 'test-owner',
                         meta: { versionId: '1' }
-                    },
-                    groupMemberType: 'externalStorage'
+                    }
                 })
             ).rejects.toThrow('ClickHouse connection refused');
 
@@ -177,7 +175,6 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
             await expect(
                 strategy.executeMemberOperations({
                     requestInfo: {},
-                    parsedArgs: {},
                     resourceType: 'Group',
                     id: 'group-1',
                     base_version: '4_0_0',
@@ -186,8 +183,7 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
                         id: 'group-1',
                         resourceType: 'Group'
                         // NOTE: _sourceAssigningAuthority is MISSING (undefined)
-                    },
-                    groupMemberType: 'externalStorage'
+                    }
                 })
             ).rejects.toThrow();
         });
@@ -221,7 +217,6 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
             await expect(
                 strategy.executeMemberOperations({
                     requestInfo: {},
-                    parsedArgs: {},
                     resourceType: 'Group',
                     id: 'group-1',
                     base_version: '4_0_0',
@@ -230,8 +225,7 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
                         id: 'group-1',
                         resourceType: 'Group',
                         _sourceAssigningAuthority: 'owner'
-                    },
-                    groupMemberType: 'externalStorage'
+                    }
                 })
             ).rejects.toThrow('Unsupported PATCH operation');
         });

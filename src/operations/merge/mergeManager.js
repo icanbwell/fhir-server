@@ -179,7 +179,9 @@ class MergeManager {
         // own docstring for why).
         rejectMemberOnExtendedGroupWrite({
             currentResource,
-            hasMemberField: resourceToMerge.resourceType === 'Group' && resourceToMerge.member !== undefined
+            hasMemberField: resourceToMerge.resourceType === 'Group' &&
+                Array.isArray(resourceToMerge.member) &&
+                resourceToMerge.member.length > 0
         });
 
         /**

@@ -141,7 +141,7 @@ class ResourceMerger {
         resourceToMerge.meta.lastUpdated = currentResource.meta.lastUpdated;
         resourceToMerge.meta.source = currentResource.meta.source;
         if (currentResource.resourceType === 'Group') {
-            resourceToMerge._extendedGroupMember = currentResource._extendedGroupMember;
+            resourceToMerge._extended = currentResource._extended;
         }
 
         // Override sourceAssigningAuthority and owner in meta security

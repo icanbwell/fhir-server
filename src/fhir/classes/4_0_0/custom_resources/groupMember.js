@@ -21,14 +21,17 @@ class GroupMember extends Resource {
      * @param {Meta} meta
      * @param {Object} [_access]
      * @param {string} _sourceAssigningAuthority - copied from the owning Group, required by ReferenceGlobalIdHandler
-     * @param {string} _uuid - this row's stable identity; there is no separate memberRowUuid field (design doc §3.2)
+     * @param {string} _uuid - this row's stable identity; there is no separate memberUuid field
      * @param {string} [_sourceId] - not set by this design's own write path; populated automatically by the
      *   universal SourceIdColumnHandler pre-save handler (same as _access/AccessColumnHandler), equal to
      *   `id` (itself equal to `_uuid`) the same way it is for every other resource type -- standard
      *   cross-cutting infra, not GroupMember-specific, kept for consistency with the rest of the write
      *   pipeline's invariants rather than because anything in this design queries or reads it back
      * @param {string} groupUuid
-     * @param {{entity: Object, period: Object|undefined, inactive: boolean}} member
+     * @param {{id: string|undefined, extension: Object[]|undefined, modifierExtension: Object[]|undefined, entity: Object, period: Object|undefined, inactive: boolean}} member -
+     *   shape matches what GroupMemberSerializer's backbone-element write serializer actually
+     *   persists (id/extension/modifierExtension/entity/period/inactive), not just the subset
+     *   this design's own write path populates
      */
     constructor ({
         id,

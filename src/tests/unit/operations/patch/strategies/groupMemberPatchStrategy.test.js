@@ -124,9 +124,20 @@ describe('GroupMemberPatchStrategy', () => {
         // strip.
         test('returns clickhouse when the external-storage header is present and a ClickHouse handler is registered', () => {
             mockPostSaveHandlerFactory.getHandlers.mockReturnValue([{}]);
-            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group' };
 
             expect(strategy.determineGroupMemberType({ requestInfo: requestInfoWithHeader, foundResource })).toBe('externalStorage');
+        });
+
+        test('the extended marker wins over the header even when a ClickHouse handler is registered', () => {
+            // Once a Group is extended, its real roster lives entirely in GroupMember_4_0_0 --
+            // foundResource.member doesn't exist to diff against, so the ClickHouse flow could
+            // never work correctly against it. The permanent per-Group storage fact must win over
+            // a per-request header, not the other way around.
+            mockPostSaveHandlerFactory.getHandlers.mockReturnValue([{}]);
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extended: true };
+
+            expect(strategy.determineGroupMemberType({ requestInfo: requestInfoWithHeader, foundResource })).toBe('extended');
         });
 
         test('ignores the header when ClickHouse is disabled (no handler registered), falling through to embedded', () => {
@@ -141,20 +152,20 @@ describe('GroupMemberPatchStrategy', () => {
 
         test('ignores the header when ClickHouse is disabled, falling through to extended if the marker is set', () => {
             mockPostSaveHandlerFactory.getHandlers.mockReturnValue([]);
-            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extended: true };
 
             expect(strategy.determineGroupMemberType({ requestInfo: requestInfoWithHeader, foundResource })).toBe('extended');
         });
 
         test('returns mongoNative when the Group carries the extended marker, no header, and the feature is enabled', () => {
-            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extended: true };
 
             expect(strategy.determineGroupMemberType({ requestInfo: {}, foundResource })).toBe('extended');
         });
 
         test('throws when the Group is extended but ENABLE_EXTENDED_GROUP is disabled', () => {
             mockConfigManager.enableExtendedGroup = false;
-            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extendedGroupMember: true };
+            const foundResource = { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _extended: true };
 
             expect(() => strategy.determineGroupMemberType({ requestInfo: {}, foundResource })).toThrow(/disabled on this server/);
         });
@@ -166,7 +177,7 @@ describe('GroupMemberPatchStrategy', () => {
         });
     });
 
-    describe('executeMemberOperations (externalStorage)', () => {
+    describe('executeMemberOperations', () => {
         const mockGroupHandler = {
             writeEventsAsync: jest.fn()
         };
@@ -184,13 +195,11 @@ describe('GroupMemberPatchStrategy', () => {
 
             await strategy.executeMemberOperations({
                 requestInfo: {},
-                parsedArgs: {},
                 resourceType: 'Group',
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
-                groupMemberType: 'externalStorage'
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
@@ -211,13 +220,11 @@ describe('GroupMemberPatchStrategy', () => {
 
             await strategy.executeMemberOperations({
                 requestInfo: {},
-                parsedArgs: {},
                 resourceType: 'Group',
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
-                groupMemberType: 'externalStorage'
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
@@ -237,13 +244,11 @@ describe('GroupMemberPatchStrategy', () => {
 
             await strategy.executeMemberOperations({
                 requestInfo: {},
-                parsedArgs: {},
                 resourceType: 'Group',
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
-                groupMemberType: 'externalStorage'
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
@@ -263,13 +268,11 @@ describe('GroupMemberPatchStrategy', () => {
 
             await strategy.executeMemberOperations({
                 requestInfo: {},
-                parsedArgs: {},
                 resourceType: 'Group',
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
-                groupMemberType: 'externalStorage'
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
@@ -294,13 +297,11 @@ describe('GroupMemberPatchStrategy', () => {
                 await expect(
                     strategy.executeMemberOperations({
                         requestInfo: {},
-                        parsedArgs: {},
                         resourceType: 'Group',
                         id: 'group-1',
                         base_version: '4_0_0',
                         memberOperations: [badOp],
-                        foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
-                        groupMemberType: 'externalStorage'
+                        foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
                     })
                 ).rejects.toThrow('Missing required value.entity.reference');
             }
@@ -314,13 +315,11 @@ describe('GroupMemberPatchStrategy', () => {
             await expect(
                 strategy.executeMemberOperations({
                     requestInfo: {},
-                    parsedArgs: {},
                     resourceType: 'Group',
                     id: 'group-1',
                     base_version: '4_0_0',
                     memberOperations,
-                    foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
-                    groupMemberType: 'externalStorage'
+                    foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
                 })
             ).rejects.toThrow();
         });
@@ -333,13 +332,11 @@ describe('GroupMemberPatchStrategy', () => {
             await expect(
                 strategy.executeMemberOperations({
                     requestInfo: {},
-                    parsedArgs: {},
                     resourceType: 'Group',
                     id: 'group-1',
                     base_version: '4_0_0',
                     memberOperations,
-                    foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
-                    groupMemberType: 'externalStorage'
+                    foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
                 })
             ).rejects.toThrow();
         });
@@ -353,13 +350,11 @@ describe('GroupMemberPatchStrategy', () => {
 
             await strategy.executeMemberOperations({
                 requestInfo: {},
-                parsedArgs: {},
                 resourceType: 'Group',
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
-                groupMemberType: 'externalStorage'
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
@@ -376,19 +371,14 @@ describe('GroupMemberPatchStrategy', () => {
         });
     });
 
-    describe('executeMemberOperations (extended)', () => {
+    describe('prepareExtendedMemberWrites', () => {
         let mockMongoGroupMemberRepository;
 
-        const NEW_VERSION_ID = '4';
         const NEW_LAST_UPDATED = new Date('2026-01-01T00:00:00.000Z');
 
         let extendedFoundResource;
 
         beforeEach(() => {
-            // Fresh object per test: the strategy's updatedResource = {...foundResource} shallow
-            // copy shares this same .meta reference, and the updateMeta mock below mutates it in
-            // place (matching the real implementation) -- a shared, mutated-in-place fixture
-            // would leak versionId/lastUpdated changes across tests.
             extendedFoundResource = {
                 id: 'group-1',
                 _uuid: 'group-1-uuid',
@@ -400,17 +390,16 @@ describe('GroupMemberPatchStrategy', () => {
                 }
             };
 
-            // applyMemberEventsAsync flushes its own buffered writes internally, so the strategy
-            // itself has no FastDatabaseBulkInserter dependency to mock here.
-            mockMongoGroupMemberRepository = { applyMemberEventsAsync: jest.fn() };
-
-            // Simulates the real resourceMerger.updateMeta's effect (bumps versionId, stamps
-            // lastUpdated) so the groupVersionId/groupLastUpdated wired through to
-            // applyMemberEventsAsync below reflect a realistic post-update Group.
-            mockResourceMerger.updateMeta = jest.fn(({ patched_resource_incoming }) => {
-                patched_resource_incoming.meta.versionId = NEW_VERSION_ID;
-                patched_resource_incoming.meta.lastUpdated = NEW_LAST_UPDATED;
-            });
+            // prepareExtendedMemberWrites never writes anything, so there's no
+            // FastDatabaseBulkInserter/resourceMerger interaction to mock here -- it only reads.
+            // resolveMemberWritesAsync's default mock echoes whatever write requests it's called
+            // with back as a Map resolved to 'create' (keyed by array index, not a real row uuid
+            // -- these tests don't care about row identity).
+            mockMongoGroupMemberRepository = {
+                applyResolvedMemberWritesAsync: jest.fn(),
+                resolveMemberWritesAsync: jest.fn(async ({ writeRequests }) =>
+                    new Map(writeRequests.map((writeRequest, index) => [`row-${index}`, { writeRequest, writeType: 'create' }])))
+            };
 
             strategy = new GroupMemberPatchStrategy({
                 postSaveHandlerFactory: mockPostSaveHandlerFactory,
@@ -421,150 +410,142 @@ describe('GroupMemberPatchStrategy', () => {
             });
         });
 
-        test('writes a combined add/remove event list through mongoGroupMemberRepository and never touches ClickHouse post-save handlers', async () => {
+        test('resolves the combined add/remove write-request list and never touches the Group\'s meta or ClickHouse post-save handlers', async () => {
+            // patch.js's ordinary non-member PATCH flow always does the Group's own bump; this
+            // method's only job is to parse/enrich/resolve.
             const memberOperations = [
                 { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } },
                 { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/2' } } }
             ];
 
-            const updatedResource = await strategy.executeMemberOperations({
-                requestInfo: {},
-                parsedArgs: {},
-                resourceType: 'Group',
-                id: 'group-1',
+            const result = await strategy.prepareExtendedMemberWrites({
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: extendedFoundResource,
-                groupMemberType: 'extended'
+                foundResource: extendedFoundResource
             });
 
-            expect(mockMongoGroupMemberRepository.applyMemberEventsAsync).toHaveBeenCalledWith({
-                requestInfo: {},
+            expect(mockMongoGroupMemberRepository.resolveMemberWritesAsync).toHaveBeenCalledTimes(1);
+            expect(mockMongoGroupMemberRepository.resolveMemberWritesAsync).toHaveBeenCalledWith({
                 base_version: '4_0_0',
                 groupUuid: 'group-1-uuid',
-                // Reflects the Group's post-updateMeta versionId/lastUpdated (mocked above), not
-                // its pre-write values -- every GroupMember row this call touches is stamped with
-                // these same two values, matching the Group exactly.
-                groupVersionId: Number(NEW_VERSION_ID),
-                groupLastUpdated: NEW_LAST_UPDATED,
-                sourceAssigningAuthority: SOURCE_AUTHORITY,
-                securityTags: extendedFoundResource.meta.security,
                 // inactive is undefined here (not coerced to false), unlike the ClickHouse branch's
                 // events -- resolveMemberWrite needs to tell "not supplied" apart from "explicitly
                 // false" (see resolveMemberWrite.js).
-                events: [
+                writeRequests: [
                     { entity: enrichedEntity('Patient/1'), period: undefined, inactive: undefined, op: 'add' },
                     { entity: enrichedEntity('Patient/2'), period: undefined, inactive: undefined, op: 'remove' }
                 ]
             });
+
+            const resolvedMemberWrites = await mockMongoGroupMemberRepository.resolveMemberWritesAsync.mock.results[0].value;
+            expect(result).toEqual({
+                pendingMemberWrites: resolvedMemberWrites,
+                hasPendingMemberWrites: true,
+                sourceAssigningAuthority: SOURCE_AUTHORITY
+            });
             expect(mockPostSaveHandlerFactory.getHandlers).not.toHaveBeenCalled();
-            expect(updatedResource._uuid).toBe('group-1-uuid');
+            expect(mockResourceMerger.updateMeta).not.toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
+            expect(mockMongoGroupMemberRepository.applyResolvedMemberWritesAsync).not.toHaveBeenCalled();
         });
 
         test('preserves the client\'s submitted op order for the same entity, instead of always placing removes after adds', async () => {
-            // Client's actual last op for Patient/1 is "add" -- the combined events list passed to
-            // applyMemberEventsAsync must reflect that (remove, then add), not silently reorder to
-            // (add, then remove) by concatenating an adds-bucket before a removes-bucket, which
-            // would make applyMemberEventsAsync's last-wins-per-entity resolution always favor the
-            // remove regardless of what the client actually asked for last.
+            // Client's actual last op for Patient/1 is "add" -- the combined write-request list
+            // passed to resolveMemberWritesAsync must reflect that (remove, then add), not
+            // silently reorder to (add, then remove) by concatenating an adds-bucket before a
+            // removes-bucket, which would make resolveMemberWritesAsync's last-wins-per-entity
+            // de-dupe always favor the remove regardless of what the client actually asked for last.
             const memberOperations = [
                 { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/1' } } },
                 { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
             ];
 
-            await strategy.executeMemberOperations({
-                requestInfo: {},
-                parsedArgs: {},
-                resourceType: 'Group',
-                id: 'group-1',
+            await strategy.prepareExtendedMemberWrites({
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: extendedFoundResource,
-                groupMemberType: 'extended'
+                foundResource: extendedFoundResource
             });
 
-            const { events } = mockMongoGroupMemberRepository.applyMemberEventsAsync.mock.calls[0][0];
-            expect(events).toEqual([
+            const { writeRequests } = mockMongoGroupMemberRepository.resolveMemberWritesAsync.mock.calls[0][0];
+            expect(writeRequests).toEqual([
                 { entity: enrichedEntity('Patient/1'), period: undefined, inactive: undefined, op: 'remove' },
                 { entity: enrichedEntity('Patient/1'), period: undefined, inactive: undefined, op: 'add' }
             ]);
         });
 
-        test('deferMemberEventWrite skips the Group commit and the member-event write entirely, returning the parsed/enriched events instead', async () => {
-            // Only ever passed by patch.js for a mixed patch (member + non-member ops) on an
-            // extended Group -- in that mode, the caller's own (unmodified) non-member patch flow
-            // is the single place a version bump gets computed/persisted, and the caller writes
-            // these events back itself afterward, stamped with that real final version. So this
-            // method must not touch the Group's meta, and must not call
-            // mongoGroupMemberRepository at all here -- both would be premature/duplicated.
+        test('reports hasPendingMemberWrites: false when every requested write resolves to a no-op', async () => {
+            // e.g. removing a member that's already gone -- resolveMemberWrite resolves this to
+            // 'none'. The caller (patch.js) uses hasPendingMemberWrites to decide whether this
+            // alone is enough to force a version bump; prepareExtendedMemberWrites itself never
+            // bumps.
+            mockMongoGroupMemberRepository.resolveMemberWritesAsync.mockResolvedValue(
+                new Map([['row-already-gone', {
+                    writeRequest: { entity: { reference: 'Patient/already-gone' } },
+                    writeType: 'none'
+                }]])
+            );
+
             const memberOperations = [
-                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
+                { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/already-gone' } } }
             ];
 
-            const result = await strategy.executeMemberOperations({
-                requestInfo: {},
-                parsedArgs: {},
-                resourceType: 'Group',
-                id: 'group-1',
+            const result = await strategy.prepareExtendedMemberWrites({
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: extendedFoundResource,
-                groupMemberType: 'extended',
-                deferMemberEventWrite: true
+                foundResource: extendedFoundResource
             });
 
+            expect(result.hasPendingMemberWrites).toBe(false);
             expect(mockResourceMerger.updateMeta).not.toHaveBeenCalled();
-            expect(mockDatabaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
-            expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
-            expect(mockMongoGroupMemberRepository.applyMemberEventsAsync).not.toHaveBeenCalled();
-
-            // The events are still parsed/enriched, since the caller needs them as-is to write
-            // later -- just not written here.
-            expect(result.sourceAssigningAuthority).toBe(SOURCE_AUTHORITY);
-            expect(result.pendingMemberEvents).toEqual([
-                { entity: enrichedEntity('Patient/1'), period: undefined, inactive: undefined, op: 'add' }
-            ]);
         });
 
-        test('defaults deferMemberEventWrite to false, preserving the pre-existing immediate-commit behavior when the caller omits it', async () => {
-            const memberOperations = [
-                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
-            ];
-
-            await strategy.executeMemberOperations({
-                requestInfo: {},
-                parsedArgs: {},
-                resourceType: 'Group',
-                id: 'group-1',
-                base_version: '4_0_0',
-                memberOperations,
-                foundResource: extendedFoundResource,
-                groupMemberType: 'extended'
-            });
-
-            expect(mockDatabaseBulkInserter.replaceOneAsync).toHaveBeenCalledTimes(1);
-            expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
-            expect(mockMongoGroupMemberRepository.applyMemberEventsAsync).toHaveBeenCalledTimes(1);
-        });
-
-        test('does not call mongoGroupMemberRepository when there are no member events', async () => {
-            // Every op fails validation before reaching classification, so this test instead
-            // covers the (unreachable via the public parse path today, but defensively handled)
-            // empty-events case by asserting the limit/parse guards run before any backend write.
+        test('does not call mongoGroupMemberRepository when the operations fail to parse', async () => {
+            // Every op fails validation before reaching resolution, so this test instead covers
+            // the (unreachable via the public parse path today, but defensively handled)
+            // empty-write-request case by asserting the limit/parse guards run before any
+            // backend read.
             await expect(
-                strategy.executeMemberOperations({
-                    requestInfo: {},
-                    parsedArgs: {},
-                    resourceType: 'Group',
-                    id: 'group-1',
+                strategy.prepareExtendedMemberWrites({
                     base_version: '4_0_0',
                     memberOperations: [{ op: 'remove', path: '/member/0', value: {} }],
-                    foundResource: extendedFoundResource,
-                    groupMemberType: 'extended'
+                    foundResource: extendedFoundResource
                 })
             ).rejects.toThrow();
 
-            expect(mockMongoGroupMemberRepository.applyMemberEventsAsync).not.toHaveBeenCalled();
+            expect(mockMongoGroupMemberRepository.resolveMemberWritesAsync).not.toHaveBeenCalled();
+            expect(mockMongoGroupMemberRepository.applyResolvedMemberWritesAsync).not.toHaveBeenCalled();
+        });
+
+        test('commitPendingMemberWrites forwards the resolved writes to mongoGroupMemberRepository unchanged', async () => {
+            // The only thing patch.js does with a deferred, mixed-patch result -- it never
+            // touches mongoGroupMemberRepository or a resolved-writes Map itself.
+            const resolvedMemberWrites = new Map([['row-1', {
+                writeRequest: { entity: enrichedEntity('Patient/1') },
+                writeType: 'create'
+            }]]);
+
+            await strategy.commitPendingMemberWrites({
+                requestInfo: {},
+                base_version: '4_0_0',
+                groupUuid: 'group-1-uuid',
+                groupVersionId: 5,
+                groupLastUpdated: NEW_LAST_UPDATED,
+                sourceAssigningAuthority: SOURCE_AUTHORITY,
+                securityTags: extendedFoundResource.meta.security,
+                pendingMemberWrites: resolvedMemberWrites
+            });
+
+            expect(mockMongoGroupMemberRepository.applyResolvedMemberWritesAsync).toHaveBeenCalledWith({
+                requestInfo: {},
+                base_version: '4_0_0',
+                groupUuid: 'group-1-uuid',
+                groupVersionId: 5,
+                groupLastUpdated: NEW_LAST_UPDATED,
+                sourceAssigningAuthority: SOURCE_AUTHORITY,
+                securityTags: extendedFoundResource.meta.security,
+                resolvedMemberWrites
+            });
         });
     });
 });

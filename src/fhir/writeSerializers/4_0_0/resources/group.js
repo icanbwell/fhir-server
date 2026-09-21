@@ -288,7 +288,7 @@ class GroupSerializer extends BaseSerializer {
         _sourceAssigningAuthority: null,
         _uuid: null,
         _sourceId: null,
-        _extendedGroupMember: null
+        _extended: null
     };
 }
 

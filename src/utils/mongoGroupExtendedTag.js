@@ -8,9 +8,9 @@ const { BadRequestError } = require('./httpErrors');
 // it forward from the current resource in resourceMerger.overWriteNonWritableFields (there's no
 // deterministic recompute for it the way UuidColumnHandler recomputes _uuid). There is no
 // meta.tag reflection of this field -- routing (and everything else) must only ever read
-// _extendedGroupMember directly; a persisted meta.tag copy would be a second source of truth
+// _extended directly; a persisted meta.tag copy would be a second source of truth
 // that could drift out of sync with it.
-const MONGO_GROUP_EXTENDED_FIELD = '_extendedGroupMember';
+const MONGO_GROUP_EXTENDED_FIELD = '_extended';
 
 /**
  * Rejects a PUT/$merge write against an already-extended Group whose submitted body carries a
@@ -31,7 +31,8 @@ const MONGO_GROUP_EXTENDED_FIELD = '_extendedGroupMember';
  *
  * @param {Object} params
  * @param {Resource} params.currentResource - the already-loaded, existing Group
- * @param {boolean} params.hasMemberField - whether the client-submitted body includes `member`
+ * @param {boolean} params.hasMemberField - whether the client-submitted body includes a
+ *   non-empty `member` array (an explicit `member: []` does not count -- see call sites)
  */
 function rejectMemberOnExtendedGroupWrite({ currentResource, hasMemberField }) {
     if (currentResource?.resourceType === 'Group' &&

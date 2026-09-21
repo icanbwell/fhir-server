@@ -261,15 +261,18 @@ class PatchOperation {
             let groupMemberOperations = null;
             let hasOnlyMemberOperations = false;
             let effectivePatchContent = patchContent;
-            // Set below, only for a mixed patch (member ops + non-member ops) on an extended Group:
-            // executeMemberOperations() doesn't touch the Group's meta or write anything in that
-            // case -- it only parses/validates/enriches the ops and hands them back here.
-            // pendingMemberEvents is written further down, AFTER the non-member patch flow (below,
-            // completely unmodified) has bumped and persisted the Group's real, final version --
-            // there is only ever one place metadata gets computed, so one PATCH request produces
-            // exactly one Group_4_0_0_History row and one N -> N+1 bump, not two.
-            let pendingMemberEvents = null;
-            let pendingMemberEventsSourceAssigningAuthority = null;
+            // Set below, only when groupMemberType === 'extended': prepareExtendedMemberWrites()
+            // never touches the Group's meta or writes anything -- it only parses, validates,
+            // enriches, and resolves the member ops into per-row write decisions (create/
+            // update/delete/none per GroupMember_4_0_0 row). Those resolved writes are committed
+            // further down, via commitPendingMemberWrites(), AFTER the ordinary non-member
+            // patch flow (below, completely unmodified) has bumped and persisted the Group's
+            // real, final version -- there is only ever one place metadata gets computed, so one
+            // PATCH request (member-only or mixed with other fields alike) produces exactly one
+            // Group_4_0_0_History row and one N -> N+1 bump, not two.
+            let pendingMemberWrites = null;
+            let hasPendingMemberWrites = false;
+            let pendingMemberWritesSourceAssigningAuthority = null;
             const memberOpsResult = this.groupMemberPatchStrategy.detectMemberOperations({
                 patchContent,
                 resourceType
@@ -347,57 +350,67 @@ class PatchOperation {
             // group member type (if any) should handle the member ops. A plain embedded Group
             // determines to 'embedded' and falls through to the standard patch flow below,
             // completely unmodified -- its member[] add/remove already works via ordinary JSON
-            // Patch array semantics, no new code needed.
+            // Patch array semantics, no new code needed. 'extended' and 'externalStorage' are
+            // two entirely separate branches below, each calling its own dedicated strategy
+            // method -- they don't share a commit path, so a change to one type's write
+            // semantics can't silently affect the other.
             const groupMemberType = memberOpsResult
                 ? this.groupMemberPatchStrategy.determineGroupMemberType({ requestInfo, foundResource })
                 : null;
 
-            if (groupMemberType && groupMemberType !== 'embedded') {
+            if (groupMemberType === 'externalStorage') {
                 groupMemberOperations = memberOpsResult.memberOps;
                 hasOnlyMemberOperations = memberOpsResult.hasOnlyMemberOperations;
-
                 if (!hasOnlyMemberOperations) {
                     // Mixed patch: will handle member ops now, then continue with non-member ops
                     effectivePatchContent = memberOpsResult.nonMemberOps;
                 }
 
-                // Only 'extended' defers
-                const deferMemberEventWrite = groupMemberType === 'extended' && !hasOnlyMemberOperations;
-
-                const memberOpsOutcome = await this.groupMemberPatchStrategy.executeMemberOperations({
+                const updatedResource = await this.groupMemberPatchStrategy.executeMemberOperations({
                     requestInfo,
                     parsedArgs,
                     resourceType,
                     id,
                     base_version,
                     memberOperations: groupMemberOperations,
-                    foundResource,
-                    groupMemberType,
-                    deferMemberEventWrite
+                    foundResource
                 });
 
-                if (deferMemberEventWrite) {
-                    // Nothing was bumped or persisted -- foundResource is deliberately left as-is
-                    // so the non-member patch flow below applies on top of the Group's real current
-                    // version, exactly like an ordinary metadata-only PATCH. The parsed/enriched
-                    // events are written after that flow's own single commit, further down.
-                    ({
-                        pendingMemberEvents,
-                        sourceAssigningAuthority: pendingMemberEventsSourceAssigningAuthority
-                    } = memberOpsOutcome);
-                } else if (hasOnlyMemberOperations) {
-                    // Pure member-only patch: executeMemberOperations() already committed
-                    // everything (Group bump + member events) and returned the updated Group.
+                if (hasOnlyMemberOperations) {
+                    // Pure member-only patch: the call above already committed everything
+                    // (Group bump + ClickHouse events) and returned the updated Group.
                     return await this.groupMemberPatchStrategy.buildMemberPatchResponse({
                         requestInfo,
                         parsedArgs,
                         resourceType,
                         id,
                         base_version,
-                        updatedResource: memberOpsOutcome
+                        updatedResource
                     });
                 }
-                // Mixed operations: continue with non-member patch below
+                // Mixed: continue with the non-member ops below -- this intentionally produces a
+                // second, separate Group_4_0_0_History row (Case 11).
+            } else if (groupMemberType === 'extended') {
+                // Mongo-native: always parse/resolve here, never write here -- the ordinary
+                // non-member PATCH flow below always performs the Group's one-and-only version
+                // bump (member-only or mixed with other fields alike), then the resolved writes
+                // are committed right after it lands.
+                groupMemberOperations = memberOpsResult.memberOps;
+                hasOnlyMemberOperations = memberOpsResult.hasOnlyMemberOperations;
+                effectivePatchContent = memberOpsResult.nonMemberOps;
+
+                ({
+                    pendingMemberWrites,
+                    hasPendingMemberWrites,
+                    sourceAssigningAuthority: pendingMemberWritesSourceAssigningAuthority
+                } = await this.groupMemberPatchStrategy.prepareExtendedMemberWrites({
+                    base_version,
+                    memberOperations: groupMemberOperations,
+                    foundResource
+                }));
+                // Always continue with the non-member flow below -- it now handles member-only
+                // (effectivePatchContent empty, forced to bump via hasPendingMemberWrites) and
+                // mixed patches identically.
             }
             // ====================================================================
 
@@ -492,12 +505,17 @@ class PatchOperation {
                 mergedObject: resource.toJSON()
             });
 
-            // pendingMemberEvents forces entry even when the non-member ops alone produced no diff
-            // (appliedPatchContent.length === 0) -- a pending member-roster change still needs a
-            // real, fresh version bump; reusing/skipping it here would let two genuinely different
-            // member states share the same versionId.
-            const hasPendingMemberEvents = pendingMemberEvents && pendingMemberEvents.length > 0;
-            if (appliedPatchContent.length > 0 || hasPendingMemberEvents) {
+            // hasPendingMemberWrites forces entry even when the non-member ops alone produced no
+            // diff (appliedPatchContent.length === 0) -- true for every extended-regime
+            // member-only patch (there are no non-member ops to diff at all), and also for a
+            // mixed patch whose non-member half happened to be a no-diff. A pending member-roster
+            // write still needs a real, fresh version bump in either case; skipping it here
+            // would let two genuinely different member states share the same versionId. It's
+            // already false, not just "no pending writes", when every requested write resolved
+            // to a genuine no-op (e.g. removing an already-absent member) -- prepareExtendedMemberWrites
+            // resolved that above, so an all-none member patch still correctly skips the bump
+            // here even when it's the only thing in the request.
+            if (appliedPatchContent.length > 0 || hasPendingMemberWrites) {
                 this.resourceMerger.updateMeta({
                     patched_resource_incoming: resource,
                     currentResource: foundResource,
@@ -519,7 +537,10 @@ class PatchOperation {
                 // Insert/update our resource record
                 const contextData = buildContextDataForHybridStorage(resourceType, resource, requestInfo);
 
-                // If member operations were already written (mixed PATCH), skip post-save member processing
+                // Member ops are owned end-to-end by groupMemberPatchStrategy (ClickHouse already
+                // wrote them above; the Mongo-native ones are committed right after this block) --
+                // either way, skip the generic post-save member processing that would otherwise
+                // try to handle them too.
                 if (groupMemberOperations && groupMemberOperations.length > 0 && contextData) {
                     contextData.groupMemberEventsWritten = true;
                 }
@@ -559,21 +580,23 @@ class PatchOperation {
                     operationResult: mergeResults
                 });
 
-                // Write the member events deferred from executeMemberOperations() now that the
-                // Group's real, final version has actually been committed above -- the single
-                // place this bump was computed, so the rows written here get stamped with a
-                // version that genuinely reflects this commit (four-way parity), not a stale or
-                // reused one.
-                if (hasPendingMemberEvents) {
-                    await this.mongoGroupMemberRepository.applyMemberEventsAsync({
+                // Commit the GroupMember_4_0_0 row writes resolved by
+                // prepareExtendedMemberWrites() now that the Group's real, final version has
+                // actually been committed above -- the single place this bump was computed, so
+                // the rows written here get stamped with a version that genuinely reflects this
+                // commit (four-way parity), not a stale or reused one. Passes through that same
+                // resolution -- this request never touches mongoGroupMemberRepository or
+                // re-resolves these writes itself.
+                if (hasPendingMemberWrites) {
+                    await this.groupMemberPatchStrategy.commitPendingMemberWrites({
                         requestInfo,
                         base_version,
                         groupUuid: resource._uuid,
                         groupVersionId: parseInt(resource.meta.versionId, 10),
                         groupLastUpdated: resource.meta.lastUpdated,
-                        sourceAssigningAuthority: pendingMemberEventsSourceAssigningAuthority,
+                        sourceAssigningAuthority: pendingMemberWritesSourceAssigningAuthority,
                         securityTags: resource.meta.security,
-                        events: pendingMemberEvents
+                        pendingMemberWrites
                     });
                 }
             }

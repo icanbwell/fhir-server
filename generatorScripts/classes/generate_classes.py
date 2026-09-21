@@ -153,7 +153,7 @@ def main() -> int:
                 ]
                 if resource_name == "Group":
                     resource_extra_properties.append({
-                        "name": "_extendedGroupMember",
+                        "name": "_extended",
                         "type": "boolean"
                     })
                 resource_extra_properties.extend(blob_meta_targets.get(resource_name, []))
