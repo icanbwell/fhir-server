@@ -136,7 +136,17 @@ class GroupMemberPatchStrategy {
      * @param {Array<Object>} params.memberOperations - JSON Patch operations on /member
      * @param {Resource} params.foundResource - The validated Group resource from MongoDB
      * @param {'externalStorage'|'extended'} params.groupMemberType - determined by determineGroupMemberType()
-     * @returns {Promise<Resource>} The updated Group resource
+     * @param {boolean} [params.deferMemberEventWrite] - Only set (by patch.js) for a mixed patch
+     *   (member + non-member ops) on an 'extended' Group: this method does not touch the Group's
+     *   meta or write member events at all in that case -- it only parses/validates/enriches the
+     *   ops and hands the resulting events back for the caller to write itself, once the caller's
+     *   own (unmodified) non-member patch flow has bumped and persisted the Group's real, final
+     *   version. That way one PATCH request produces exactly one Group_4_0_0_History row and one
+     *   N -> N+1 bump, not two -- there is only ever one place metadata gets computed instead of
+     *   two. Never set for 'externalStorage', which always commits+writes immediately here.
+     * @returns {Promise<Resource|{pendingMemberEvents: Array<Object>, sourceAssigningAuthority: string}>}
+     *   The updated Group resource, normally -- or, when deferMemberEventWrite is set, the parsed/
+     *   enriched events for the caller to write itself.
      */
     async executeMemberOperations({
         requestInfo,
@@ -146,7 +156,8 @@ class GroupMemberPatchStrategy {
         base_version,
         memberOperations,
         foundResource,
-        groupMemberType
+        groupMemberType,
+        deferMemberEventWrite = false
     }) {
         const groupId = id;
 
@@ -260,7 +271,23 @@ class GroupMemberPatchStrategy {
             );
         }
 
-        // 4. Update Group metadata in MongoDB FIRST (increment versionId, update lastUpdated)
+        // 4. Enrich member references with _uuid and _sourceId. PATCH bypasses the normal
+        // pre-save pipeline (referenceGlobalIdHandler), so we must enrich references before
+        // writing to either group member type. Doesn't depend on the Group's meta, so it's safe
+        // to do this regardless of which branch below actually ends up writing the events.
+        enrichMemberReferences(eventsToAdd, sourceAssigningAuthority);
+        enrichMemberReferences(eventsToRemove, sourceAssigningAuthority);
+
+        if (deferMemberEventWrite) {
+            // Mixed patch on an extended Group: don't touch the Group's meta or write anything
+            // here. The caller's own non-member patch flow is the only place a version bump gets
+            // computed and persisted; it calls back into mongoGroupMemberRepository itself once
+            // that's done, using these same (already-enriched, already-ordered) events stamped
+            // with the real final versionId/lastUpdated.
+            return { pendingMemberEvents: orderedMemberEvents, sourceAssigningAuthority };
+        }
+
+        // 5. Update Group metadata in MongoDB FIRST (increment versionId, update lastUpdated)
         // IMPORTANT: Write MongoDB first, then ClickHouse (matches CREATE/UPDATE pattern)
         // Different write orders = different failure modes = unpredictable behavior
         const updatedResource = foundResource.clone ? foundResource.clone() : { ...foundResource };
@@ -292,12 +319,6 @@ class GroupMemberPatchStrategy {
             requestInfo,
             base_version
         });
-
-        // 5. Enrich member references with _uuid and _sourceId
-        // PATCH bypasses the normal pre-save pipeline (referenceGlobalIdHandler),
-        // so we must enrich references before writing to either group member type.
-        enrichMemberReferences(eventsToAdd, sourceAssigningAuthority);
-        enrichMemberReferences(eventsToRemove, sourceAssigningAuthority);
 
         // 6. Write events per the determined group member type (AFTER the Group's own MongoDB commit)
         if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {

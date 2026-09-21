@@ -490,6 +490,63 @@ describe('GroupMemberPatchStrategy', () => {
             ]);
         });
 
+        test('deferMemberEventWrite skips the Group commit and the member-event write entirely, returning the parsed/enriched events instead', async () => {
+            // Only ever passed by patch.js for a mixed patch (member + non-member ops) on an
+            // extended Group -- in that mode, the caller's own (unmodified) non-member patch flow
+            // is the single place a version bump gets computed/persisted, and the caller writes
+            // these events back itself afterward, stamped with that real final version. So this
+            // method must not touch the Group's meta, and must not call
+            // mongoGroupMemberRepository at all here -- both would be premature/duplicated.
+            const memberOperations = [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
+            ];
+
+            const result = await strategy.executeMemberOperations({
+                requestInfo: {},
+                parsedArgs: {},
+                resourceType: 'Group',
+                id: 'group-1',
+                base_version: '4_0_0',
+                memberOperations,
+                foundResource: extendedFoundResource,
+                groupMemberType: 'extended',
+                deferMemberEventWrite: true
+            });
+
+            expect(mockResourceMerger.updateMeta).not.toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
+            expect(mockMongoGroupMemberRepository.applyMemberEventsAsync).not.toHaveBeenCalled();
+
+            // The events are still parsed/enriched, since the caller needs them as-is to write
+            // later -- just not written here.
+            expect(result.sourceAssigningAuthority).toBe(SOURCE_AUTHORITY);
+            expect(result.pendingMemberEvents).toEqual([
+                { entity: enrichedEntity('Patient/1'), period: undefined, inactive: undefined, op: 'add' }
+            ]);
+        });
+
+        test('defaults deferMemberEventWrite to false, preserving the pre-existing immediate-commit behavior when the caller omits it', async () => {
+            const memberOperations = [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
+            ];
+
+            await strategy.executeMemberOperations({
+                requestInfo: {},
+                parsedArgs: {},
+                resourceType: 'Group',
+                id: 'group-1',
+                base_version: '4_0_0',
+                memberOperations,
+                foundResource: extendedFoundResource,
+                groupMemberType: 'extended'
+            });
+
+            expect(mockDatabaseBulkInserter.replaceOneAsync).toHaveBeenCalledTimes(1);
+            expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
+            expect(mockMongoGroupMemberRepository.applyMemberEventsAsync).toHaveBeenCalledTimes(1);
+        });
+
         test('does not call mongoGroupMemberRepository when there are no member events', async () => {
             // Every op fails validation before reaching classification, so this test instead
             // covers the (unreachable via the public parse path today, but defensively handled)

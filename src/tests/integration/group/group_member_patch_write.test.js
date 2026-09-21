@@ -87,12 +87,13 @@ describe('Group member PATCH write path (DCON-5527)', () => {
      * History writes are deferred to after the HTTP response (PostRequestProcessor), so poll
      * for the expected count instead of assuming it's already there.
      */
-    async function waitForHistoryRowsAsync(historyCollection, groupUuid, expectedLength, timeoutMs = 5000) {
+    async function waitForHistoryRowsAsync(historyCollection, idValue, expectedLength, timeoutMs = 5000, queryField = 'resource.groupUuid') {
         const start = Date.now();
-        let rows = await historyCollection.find({ 'resource.groupUuid': groupUuid }).toArray();
+        const query = { [queryField]: idValue };
+        let rows = await historyCollection.find(query).toArray();
         while (rows.length < expectedLength && Date.now() - start < timeoutMs) {
             await new Promise((resolve) => setTimeout(resolve, 100));
-            rows = await historyCollection.find({ 'resource.groupUuid': groupUuid }).toArray();
+            rows = await historyCollection.find(query).toArray();
         }
         return rows;
     }
@@ -303,6 +304,17 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             expect(methods).toEqual(['DELETE', 'PATCH']);
             const tombstone = historyRows.find((h) => h.request.method === 'DELETE');
             expect(tombstone.resource.member.inactive).toBe(true);
+
+            // Regression test: RemoveHelper.deleteManyAsync unconditionally overwrites
+            // meta.lastUpdated with the current wall-clock time before writing history, which
+            // clobbered the groupLastUpdated stamped on the tombstone doc -- breaking four-way
+            // parity (Group/Group_History/GroupMember/GroupMember_History must all share the same
+            // lastUpdated) specifically for the remove case. versionId was never touched by
+            // deleteManyAsync, so it always matched; lastUpdated did not, until preserveLastUpdated.
+            expect(tombstone.resource.meta.versionId).toBe(removeResp.body.meta.versionId);
+            expect(new Date(tombstone.resource.meta.lastUpdated).toISOString()).toBe(
+                new Date(removeResp.body.meta.lastUpdated).toISOString()
+            );
         });
 
         test('rejects PATCH on an extended Group when ENABLE_EXTENDED_GROUP is disabled', async () => {
@@ -339,6 +351,51 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             } finally {
                 process.env.ENABLE_EXTENDED_GROUP = saved;
             }
+        });
+
+        test('a mixed PATCH (member op + non-member op) on an extended Group produces exactly one Group_4_0_0_History row and bumps the version by exactly one', async () => {
+            // Regression test: executeMemberOperations used to commit the Group's meta bump
+            // immediately (N -> N+1), then patch.js's normal non-member-patch flow computed and
+            // committed a second bump on top of that (N+1 -> N+2) -- one PATCH request produced
+            // two Group_4_0_0_History rows instead of one.
+            const created = await createGroup({ name: 'before-mixed-patch' });
+            await markGroupExtended(created.id);
+            const startingVersionId = Number(created.meta.versionId);
+            const memberRef = 'Patient/extended-mixed-1';
+
+            const patchResp = await patchGroup(created.id, [
+                { op: 'add', path: '/member/-', value: { entity: { reference: memberRef } } },
+                { op: 'replace', path: '/name', value: 'after-mixed-patch' }
+            ]);
+            expect(patchResp.status).toBe(200);
+            expect(patchResp.body.name).toBe('after-mixed-patch');
+            expect(Number(patchResp.body.meta.versionId)).toBe(startingVersionId + 1);
+
+            const memberCollection = await getCollection(GROUP_MEMBER_COLLECTION_NAME);
+            const row = await memberCollection.findOne({ 'member.entity.reference': memberRef });
+            expect(row).not.toBeNull();
+            // Four-way parity must still hold even though the commit is now deferred/combined.
+            expect(row.meta.versionId).toBe(patchResp.body.meta.versionId);
+            expect(new Date(row.meta.lastUpdated).toISOString()).toBe(
+                new Date(patchResp.body.meta.lastUpdated).toISOString()
+            );
+
+            const groupCollection = await getCollection(GROUP_COLLECTION_NAME);
+            const groupDoc = await groupCollection.findOne({ id: created.id });
+            expect(groupDoc.meta.versionId).toBe(patchResp.body.meta.versionId);
+            expect(groupDoc.name).toBe('after-mixed-patch');
+
+            const groupHistoryCollection = await getCollection(`${GROUP_COLLECTION_NAME}_History`);
+            const groupHistoryRows = await waitForHistoryRowsAsync(
+                groupHistoryCollection, created.id, startingVersionId + 1, 5000, 'resource.id'
+            );
+            // The Group's own create already wrote history row #1 (startingVersionId); this one
+            // mixed PATCH must add exactly one more, not two.
+            expect(groupHistoryRows).toHaveLength(startingVersionId + 1);
+            const versionsInHistory = groupHistoryRows
+                .map((h) => Number(h.resource.meta.versionId))
+                .sort((a, b) => a - b);
+            expect(versionsInHistory).toEqual(Array.from({ length: startingVersionId + 1 }, (_, i) => i + 1));
         });
     });
 

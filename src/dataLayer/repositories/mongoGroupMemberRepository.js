@@ -169,12 +169,17 @@ class MongoGroupMemberRepository {
         if (docsToDelete.length > 0) {
             // Cloned FhirRequestInfo overrides method to 'DELETE' for the tombstone.
             // removeHelper.deleteManyAsync self-flushes (history then delete), unlike the
-            // buffered writes above.
+            // buffered writes above. preserveLastUpdated: true keeps the groupLastUpdated already
+            // stamped on each doc above -- without it, deleteManyAsync unconditionally overwrites
+            // meta.lastUpdated with the current wall-clock time, breaking four-way parity
+            // (Group/Group_History/GroupMember/GroupMember_History must all share the same
+            // lastUpdated) specifically for the remove/tombstone case.
             await this.removeHelper.deleteManyAsync({
                 requestInfo: new FhirRequestInfo({ ...requestInfo, method: 'DELETE' }),
                 resourceType: GROUP_MEMBER_RESOURCE_TYPE,
                 resources: docsToDelete,
-                base_version
+                base_version,
+                preserveLastUpdated: true
             });
         }
 

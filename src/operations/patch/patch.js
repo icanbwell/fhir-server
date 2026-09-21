@@ -261,6 +261,15 @@ class PatchOperation {
             let groupMemberOperations = null;
             let hasOnlyMemberOperations = false;
             let effectivePatchContent = patchContent;
+            // Set below, only for a mixed patch (member ops + non-member ops) on an extended Group:
+            // executeMemberOperations() doesn't touch the Group's meta or write anything in that
+            // case -- it only parses/validates/enriches the ops and hands them back here.
+            // pendingMemberEvents is written further down, AFTER the non-member patch flow (below,
+            // completely unmodified) has bumped and persisted the Group's real, final version --
+            // there is only ever one place metadata gets computed, so one PATCH request produces
+            // exactly one Group_4_0_0_History row and one N -> N+1 bump, not two.
+            let pendingMemberEvents = null;
+            let pendingMemberEventsSourceAssigningAuthority = null;
             const memberOpsResult = this.groupMemberPatchStrategy.detectMemberOperations({
                 patchContent,
                 resourceType
@@ -352,7 +361,10 @@ class PatchOperation {
                     effectivePatchContent = memberOpsResult.nonMemberOps;
                 }
 
-                const updatedResource = await this.groupMemberPatchStrategy.executeMemberOperations({
+                // Only 'extended' defers
+                const deferMemberEventWrite = groupMemberType === 'extended' && !hasOnlyMemberOperations;
+
+                const memberOpsOutcome = await this.groupMemberPatchStrategy.executeMemberOperations({
                     requestInfo,
                     parsedArgs,
                     resourceType,
@@ -360,28 +372,32 @@ class PatchOperation {
                     base_version,
                     memberOperations: groupMemberOperations,
                     foundResource,
-                    groupMemberType
+                    groupMemberType,
+                    deferMemberEventWrite
                 });
 
-                // If only member operations, update metadata and return
-                if (hasOnlyMemberOperations) {
+                if (deferMemberEventWrite) {
+                    // Nothing was bumped or persisted -- foundResource is deliberately left as-is
+                    // so the non-member patch flow below applies on top of the Group's real current
+                    // version, exactly like an ordinary metadata-only PATCH. The parsed/enriched
+                    // events are written after that flow's own single commit, further down.
+                    ({
+                        pendingMemberEvents,
+                        sourceAssigningAuthority: pendingMemberEventsSourceAssigningAuthority
+                    } = memberOpsOutcome);
+                } else if (hasOnlyMemberOperations) {
+                    // Pure member-only patch: executeMemberOperations() already committed
+                    // everything (Group bump + member events) and returned the updated Group.
                     return await this.groupMemberPatchStrategy.buildMemberPatchResponse({
                         requestInfo,
                         parsedArgs,
                         resourceType,
                         id,
                         base_version,
-                        updatedResource
+                        updatedResource: memberOpsOutcome
                     });
                 }
-                // Mixed operations: continue with non-member patch below. executeMemberOperations()
-                // already committed foundResource's meta bump (versionId N -> N+1) to the database --
-                // foundResource itself is still the pre-bump object from the read above, so it must be
-                // swapped for updatedResource here. Otherwise the non-member patch flow below computes
-                // its own version bump from the stale N, producing a second N+1 (duplicate versionId
-                // History row, instead of a clean N+1 -> N+2 sequence) and stamping the wrong
-                // lastUpdated on it relative to the member write that already landed.
-                foundResource = updatedResource;
+                // Mixed operations: continue with non-member patch below
             }
             // ====================================================================
 
@@ -476,7 +492,12 @@ class PatchOperation {
                 mergedObject: resource.toJSON()
             });
 
-            if (appliedPatchContent.length > 0) {
+            // pendingMemberEvents forces entry even when the non-member ops alone produced no diff
+            // (appliedPatchContent.length === 0) -- a pending member-roster change still needs a
+            // real, fresh version bump; reusing/skipping it here would let two genuinely different
+            // member states share the same versionId.
+            const hasPendingMemberEvents = pendingMemberEvents && pendingMemberEvents.length > 0;
+            if (appliedPatchContent.length > 0 || hasPendingMemberEvents) {
                 this.resourceMerger.updateMeta({
                     patched_resource_incoming: resource,
                     currentResource: foundResource,
@@ -537,6 +558,24 @@ class PatchOperation {
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     operationResult: mergeResults
                 });
+
+                // Write the member events deferred from executeMemberOperations() now that the
+                // Group's real, final version has actually been committed above -- the single
+                // place this bump was computed, so the rows written here get stamped with a
+                // version that genuinely reflects this commit (four-way parity), not a stale or
+                // reused one.
+                if (hasPendingMemberEvents) {
+                    await this.mongoGroupMemberRepository.applyMemberEventsAsync({
+                        requestInfo,
+                        base_version,
+                        groupUuid: resource._uuid,
+                        groupVersionId: parseInt(resource.meta.versionId, 10),
+                        groupLastUpdated: resource.meta.lastUpdated,
+                        sourceAssigningAuthority: pendingMemberEventsSourceAssigningAuthority,
+                        securityTags: resource.meta.security,
+                        events: pendingMemberEvents
+                    });
+                }
             }
 
             await this.fhirLoggingManager.logOperationSuccessAsync({
