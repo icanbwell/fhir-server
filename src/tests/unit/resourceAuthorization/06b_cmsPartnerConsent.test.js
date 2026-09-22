@@ -71,6 +71,7 @@ const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 const { DelegatedAccessRulesManager } = require('../../../utils/delegatedAccessRulesManager');
 const { SearchParametersManager } = require('../../../searchParameters/searchParametersManager');
 const { ClinicalNoteSearchClient } = require('../../../utils/clinicalNoteSearchClient');
+const { MongoGroupMemberRepository } = require('../../../dataLayer/repositories/mongoGroupMemberRepository');
 const { ParsedArgs } = require('../../../operations/query/parsedArgs');
 const { AUTH_USER_TYPES } = require('../../../constants');
 
@@ -151,7 +152,8 @@ describe('Resource Authorization §6b — CMS partner data-sharing consent', () 
                 patientScopeManager: mockPatientScopeManager,
                 patientQueryCreator: mockPatientQueryCreator,
                 searchParametersManager: createMockInstance(SearchParametersManager),
-                clinicalNoteSearchClient: createMockInstance(ClinicalNoteSearchClient)
+                clinicalNoteSearchClient: createMockInstance(ClinicalNoteSearchClient),
+                mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
             });
         });
 
