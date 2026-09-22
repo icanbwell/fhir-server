@@ -407,22 +407,12 @@ class GroupMemberPatchStrategy {
 
             if (op.op === PATCH_OPERATIONS.ADD && isValidMemberPath) {
                 // RFC 6902: path "/member/-" means append to member array
-                orderedMemberWriteRequests.push({
-                    entity: op.value.entity,
-                    period: op.value.period,
-                    inactive: op.value.inactive,
-                    op: PATCH_OPERATIONS.ADD
-                });
+                orderedMemberWriteRequests.push({ ...op.value, op: PATCH_OPERATIONS.ADD });
             } else if (op.op === PATCH_OPERATIONS.REMOVE && isValidMemberPath) {
                 // Server-side extension: remove member by entity reference
                 // Note: This is a pragmatic extension for identifying the target row to delete
                 // (not standard RFC 6902)
-                orderedMemberWriteRequests.push({
-                    entity: op.value.entity,
-                    period: op.value.period,
-                    inactive: op.value.inactive,
-                    op: PATCH_OPERATIONS.REMOVE
-                });
+                orderedMemberWriteRequests.push({ ...op.value, op: PATCH_OPERATIONS.REMOVE });
             } else {
                 // UNSUPPORTED: remove by index (e.g., /member/0)
                 // Would require reading current state to resolve index

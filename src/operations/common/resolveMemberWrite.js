@@ -1,13 +1,23 @@
 const deepEqual = require('fast-deep-equal');
 
 /**
- * @param {{start: string|undefined, end: string|undefined}|undefined} a
- * @param {{start: string|undefined, end: string|undefined}|undefined} b
- * @returns {boolean}
+ * `inactive` has three "unset" outcomes rather than one, per its FHIR cardinality (0..1: "if
+ * missing, members are considered active unless explicitly specified otherwise" -- absence is a
+ * valid, meaningful state, not shorthand for `false`): no explicit value on the write always
+ * wins; failing that, `false` if the existing row already had this field set at all (omission on
+ * a re-add means "make them active," which is what lets a bare re-add reactivate a soft-inactive
+ * row); otherwise genuinely unset (nothing to reactivate, and stamping an explicit `false` would
+ * claim a precision -- "explicitly active" -- the request never asserted).
+ *
+ * @param {boolean|undefined} writeInactive - writeRequest.inactive
+ * @param {boolean|undefined} existingInactive - existingMember?.inactive
+ * @returns {boolean|undefined}
  */
-function periodsEqual(a, b) {
-    return (a?.start || undefined) === (b?.start || undefined) &&
-        (a?.end || undefined) === (b?.end || undefined);
+function resolveInactive(writeInactive, existingInactive) {
+    if (writeInactive !== undefined) {
+        return writeInactive;
+    }
+    return existingInactive !== undefined ? false : undefined;
 }
 
 /**
@@ -18,24 +28,24 @@ function periodsEqual(a, b) {
  * embedded Group takes membership changes through the standard FHIR PATCH flow (plain JSON Patch
  * add/remove on member[]), which never calls this function at all.
  *
- * groupMemberPatchStrategy.js only ever builds a writeRequest as {entity, period, inactive, op}
- * -- entity/period/inactive are the only fields a write can actually change. Fields it doesn't
- * supply carry forward from the existing row via a plain object spread (new value wins if
- * present, old value survives if not) rather than being wiped, so a bare re-add never erases
- * period/type/display/extension set by an earlier call. This also covers `member`'s own
- * id/extension/modifierExtension -- never client-supplied, so they simply ride forward from
- * existingMember untouched. The one exception on the entity side is _uuid/_sourceId/
- * _sourceAssigningAuthority: enrichMemberReferences always sets these on every writeRequest
- * before this function is ever called, so they always come from the write side, never falling
- * back to a possibly-stale existing value.
+ * groupMemberPatchStrategy.js is this function's only caller (via
+ * MongoGroupMemberRepository.resolveMemberWritesAsync), and it builds writeRequest by spreading
+ * the client's parsed-JSON op.value wholesale (plus its own `op` routing field) rather than
+ * naming entity/period/inactive individually -- Group.member is a full backbone element
+ * (id/extension/modifierExtension/entity/period/inactive per the FHIR spec), so any of those
+ * fields the client actually sends arrives here. Because it comes from parsed JSON, a field the
+ * client omits is genuinely absent from writeRequest, never a key present with an explicit
+ * `undefined` -- JSON has no way to encode that. That guarantee is what makes a plain top-level
+ * spread (`{...existingMember, ...writeRequest fields}`) safe to carry a field forward when
+ * writeRequest doesn't mention it: an explicit value always wins, an absent key never overwrites
+ * anything.
  *
- * `inactive` is the one field that does NOT carry forward when omitted: unlike period/type/
- * display, "not supplied" defaults it to `false` rather than keeping the existing value, since
- * adding a member is presumed to mean "make them active" unless the caller explicitly says
- * otherwise -- this is also what lets a bare re-add reactivate a soft-inactive row. An explicit
- * `inactive` is honored as-is and is a genuine live-row state (soft deactivation/reactivation),
- * distinct from a 'remove', which always hard-deletes the row regardless of `inactive` -- the two
- * are independent knobs, not the same mechanism.
+ * `inactive` is the one field handled separately from that spread, because -- unlike every other
+ * field -- "the write doesn't mention it" isn't always "carry the existing value forward"; see
+ * resolveInactive. Its result can itself be genuinely `undefined` (no existing row, or an
+ * existing row that never had the field set either), so it's only assigned onto `member` when
+ * defined, rather than as a plain object-literal key that would always be present even when its
+ * value is `undefined`.
  *
  * The resolved write type is an internal routing decision only and is never persisted -- there
  * is no `operation` field on GroupMember. A hard-delete tombstone (from a 'remove' write) is
@@ -43,7 +53,7 @@ function periodsEqual(a, b) {
  * field of the row itself.
  *
  * @param {{id: string|undefined, extension: Object[]|undefined, modifierExtension: Object[]|undefined, entity: Object, period: Object|undefined, inactive: boolean}|undefined} existingMember
- * @param {{entity: {reference:string, id:string|undefined, extension:Object[]|undefined, type:string|undefined, display:string|undefined, _uuid:string, _sourceId:string, _sourceAssigningAuthority:string}, period:Object|undefined, inactive:boolean|undefined, op:'add'|'remove'}} writeRequest
+ * @param {{id: string|undefined, extension: Object[]|undefined, modifierExtension: Object[]|undefined, entity: {reference:string, id:string|undefined, extension:Object[]|undefined, type:string|undefined, display:string|undefined, _uuid:string, _sourceId:string, _sourceAssigningAuthority:string}, period:Object|undefined, inactive:boolean|undefined, op:'add'|'remove'}} writeRequest
  * @returns {{writeType:'create'|'update'|'delete'|'none', member:Object|undefined}}
  */
 function resolveMemberWrite(existingMember, writeRequest) {
@@ -54,21 +64,21 @@ function resolveMemberWrite(existingMember, writeRequest) {
         return { writeType: 'delete', member: { ...existingMember } };
     }
 
-    const entity = { ...existingMember?.entity, ...writeRequest.entity };
-    const period = writeRequest.period !== undefined ? writeRequest.period : existingMember?.period;
-    const inactive = writeRequest.inactive !== undefined ? writeRequest.inactive : false;
-    const member = { ...existingMember, entity, period, inactive };
+    const inactive = resolveInactive(writeRequest.inactive, existingMember?.inactive);
+
+    const { op: _op, inactive: _inactive, ...restOfWriteRequest } = writeRequest;
+    const member = { ...existingMember, ...restOfWriteRequest };
+    if (inactive !== undefined) {
+        member.inactive = inactive;
+    }
 
     if (!existingMember) {
         return { writeType: 'create', member };
     }
-    const changed = !deepEqual(existingMember.entity, entity) ||
-        !periodsEqual(existingMember.period, period) ||
-        Boolean(existingMember.inactive) !== inactive;
-    if (!changed) {
+    if (deepEqual(existingMember, member)) {
         return { writeType: 'none' };
     }
     return { writeType: 'update', member };
 }
 
-module.exports = { resolveMemberWrite, periodsEqual };
+module.exports = { resolveMemberWrite };

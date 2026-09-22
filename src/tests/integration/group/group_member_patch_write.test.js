@@ -147,7 +147,7 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             const memberCollection = await getCollection(GROUP_MEMBER_COLLECTION_NAME);
             const row = await memberCollection.findOne({ 'member.entity.reference': memberRef });
             expect(row).not.toBeNull();
-            expect(row.member.inactive).toBe(false);
+            expect(row.member.inactive).toBeUndefined();
 
             // A GroupMember row's own meta.versionId/lastUpdated always mirror the owning Group's
             // at the time of the write -- there is no independent per-row version counter.
@@ -219,7 +219,7 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             const rowsForMember = await memberCollection.find({ groupUuid, 'member.entity.reference': memberRef }).toArray();
             expect(rowsForMember).toHaveLength(1);
             expect(rowsForMember[0].member.period).toEqual({ start: '2026-02-01', end: '2026-06-30' });
-            expect(rowsForMember[0].member.inactive).toBe(false);
+            expect(rowsForMember[0].member.inactive).toBeUndefined();
 
             const historyCollection = await getCollection(GROUP_MEMBER_HISTORY_COLLECTION_NAME);
             const historyRows = await waitForHistoryRowsAsync(historyCollection, groupUuid, 2);
@@ -308,10 +308,12 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             const methods = historyRows.map((h) => h.request.method).sort();
             expect(methods).toEqual(['DELETE', 'PATCH']);
             const tombstone = historyRows.find((h) => h.request.method === 'DELETE');
-            // The member was added active (no explicit inactive) and removed without ever being
-            // deactivated -- the tombstone must preserve that actual last-known state, not stamp
-            // inactive:true purely because it's being deleted (that would be data pollution).
-            expect(tombstone.resource.member.inactive).toBe(false);
+            // The member was added active (no explicit inactive, so the row never had the field
+            // set at all -- FHIR cardinality 0..1) and removed without ever being deactivated --
+            // the tombstone must preserve that actual last-known state (still unset), not stamp
+            // inactive:true purely because it's being deleted (that would be data pollution), nor
+            // upgrade the omission into an explicit false it never had either.
+            expect(tombstone.resource.member.inactive).toBeUndefined();
 
             // Regression test: RemoveHelper.deleteManyAsync unconditionally overwrites
             // meta.lastUpdated with the current wall-clock time before writing history, which
