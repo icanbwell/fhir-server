@@ -375,10 +375,8 @@ class PatchOperation {
                     memberOperations: groupMemberOperations,
                     foundResource
                 });
-
+                // If only member operations, update metadata and return
                 if (hasOnlyMemberOperations) {
-                    // Pure member-only patch: the call above already committed everything
-                    // (Group bump + ClickHouse events) and returned the updated Group.
                     return await this.groupMemberPatchStrategy.buildMemberPatchResponse({
                         requestInfo,
                         parsedArgs,
@@ -388,8 +386,7 @@ class PatchOperation {
                         updatedResource
                     });
                 }
-                // Mixed: continue with the non-member ops below -- this intentionally produces a
-                // second, separate Group_4_0_0_History row (Case 11).
+                // Mixed operations: continue with non-member patch below
             } else if (groupMemberType === 'extended') {
                 // Mongo-native: always parse/resolve here, never write here -- the ordinary
                 // non-member PATCH flow below always performs the Group's one-and-only version

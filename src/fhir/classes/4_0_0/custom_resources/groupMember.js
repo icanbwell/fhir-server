@@ -55,7 +55,20 @@ class GroupMember extends Resource {
             enumerable: true,
             configurable: true,
             get: () => this.__data.member,
-            set: (value) => { this.__data.member = value; }
+            set: (value) => {
+                if (value === undefined || value === null) {
+                    this.__data.member = undefined;
+                    return;
+                }
+                // Same generated backbone element the write serializer chain delegates to
+                // (GroupMemberSerializer -> GroupMemberBackboneSerializer) -- reused here so this
+                // class's own `member` gets the identical typed getters/setters/toJSON(Internal)
+                // as every other Resource's own backbone-element fields, instead of staying a
+                // raw pass-through object.
+                const GroupMemberBackboneElement = require('../backbone_elements/groupMember');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
+                this.__data.member = FhirResourceCreator.create(value, GroupMemberBackboneElement);
+            }
         });
 
         Object.assign(this, { groupUuid, member });
@@ -118,7 +131,7 @@ class GroupMember extends Resource {
         return {
             ...super.toJSONInternal(),
             groupUuid: this.groupUuid,
-            member: this.member
+            member: this.member && this.member.toJSONInternal()
         };
     }
 }

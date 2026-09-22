@@ -206,7 +206,7 @@ class GroupMemberPatchStrategy {
                 eventsToAdd.push({
                     entity: op.value.entity,
                     period: op.value.period,
-                    inactive: op.value.inactive
+                    inactive: op.value.inactive || false
                 });
             } else if (op.op === PATCH_OPERATIONS.REMOVE && isValidMemberPath) {
                 // Server-side extension: remove member by entity reference
@@ -215,7 +215,7 @@ class GroupMemberPatchStrategy {
                 eventsToRemove.push({
                     entity: op.value.entity,
                     period: op.value.period,
-                    inactive: op.value.inactive
+                    inactive: op.value.inactive || false
                 });
             } else {
                 // UNSUPPORTED: remove by index (e.g., /member/0)
@@ -248,13 +248,7 @@ class GroupMemberPatchStrategy {
             );
         }
 
-        // 4. Enrich member references with _uuid and _sourceId. PATCH bypasses the normal
-        // pre-save pipeline (referenceGlobalIdHandler), so we must enrich references before
-        // writing to ClickHouse.
-        enrichMemberReferences(eventsToAdd, sourceAssigningAuthority);
-        enrichMemberReferences(eventsToRemove, sourceAssigningAuthority);
-
-        // 5. Update Group metadata in MongoDB FIRST (increment versionId, update lastUpdated)
+        // 4. Update Group metadata in MongoDB FIRST (increment versionId, update lastUpdated)
         // IMPORTANT: Write MongoDB first, then ClickHouse (matches CREATE/UPDATE pattern)
         // Different write orders = different failure modes = unpredictable behavior
         const updatedResource = foundResource.clone ? foundResource.clone() : { ...foundResource };
@@ -287,15 +281,19 @@ class GroupMemberPatchStrategy {
             base_version
         });
 
-        // 6. Write events to ClickHouse (AFTER the Group's own MongoDB commit)
+        // 5. Enrich member references with _uuid and _sourceId
+        // PATCH bypasses the normal pre-save pipeline (referenceGlobalIdHandler),
+        // so we must enrich references before writing ClickHouse events.
+        enrichMemberReferences(eventsToAdd, sourceAssigningAuthority);
+        enrichMemberReferences(eventsToRemove, sourceAssigningAuthority);
+
+        // 6. Write events to ClickHouse (AFTER MongoDB commit)
+        // Direct translation: 1 operation = 1 event (added or removed)
         if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
-            // Direct translation: 1 operation = 1 event (added or removed). ClickHouse's event
-            // log expects a concrete boolean, not undefined -- default a not-supplied inactive
-            // to false here.
             await groupHandler.writeEventsAsync({
                 groupId,
-                added: eventsToAdd.map((event) => ({ ...event, inactive: event.inactive ?? false })),
-                removed: eventsToRemove.map((event) => ({ ...event, inactive: event.inactive ?? false })),
+                added: eventsToAdd,
+                removed: eventsToRemove,
                 groupResource: updatedResource // Use updated resource with new versionId
             });
         }
