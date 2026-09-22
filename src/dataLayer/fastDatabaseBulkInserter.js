@@ -352,7 +352,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
-
             // check to see if we already have this insert and if so use replace
             /** @type {string|null} */
             const requestId = requestInfo.requestId;
@@ -444,7 +443,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
 
     /**
      * Replaces a document with this one, skipping resourceMerger's diff-based merge
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string} uuid
@@ -455,7 +453,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async replaceOneAsync({
-        base_version,
         requestInfo,
         resourceType,
         uuid,
