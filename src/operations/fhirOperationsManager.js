@@ -344,7 +344,7 @@ class FhirOperationsManager {
     // partial/empty page proves there's nothing left -- a full page must never be mistaken for
     // "that's all of them", since searchManager caps a single non-streaming page at
     // DB_SEARCH_LIMIT_FOR_IDS regardless of _count.
-    async searchResourceForChainAsync ({ resourceType, args, requestInfo, base_version, pageSize = DB_SEARCH_LIMIT_FOR_IDS }) {
+    async searchResourceForChainAsync ({ resourceType, args, requestInfo, base_version, pageSize = DB_SEARCH_LIMIT_FOR_IDS, debugTags }) {
         this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'search' });
 
         const resolvedUuids = [];
@@ -367,6 +367,10 @@ class FhirOperationsManager {
                 if (entry.resource?._uuid) {
                     resolvedUuids.push(entry.resource._uuid);
                 }
+            }
+            const queryTag = bundle.meta?.tag?.find((t) => t.system === 'https://www.icanbwell.com/query');
+            if (queryTag && debugTags) {
+                debugTags.push(queryTag);
             }
             if (entries.length < pageSize) {
                 break;

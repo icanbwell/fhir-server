@@ -162,4 +162,90 @@ describe('ChainedSearchQueryRewriter', () => {
         await expect(rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync: undefined }))
             .resolves.toBe(parsedArgs);
     });
+
+    test('does not request debug info from the sub-search when _debug/_explain were not requested', async () => {
+        const parsedArgs = buildParsedArgs({
+            queryParameter: 'patient',
+            chain: { targetType: 'Patient', targetParam: 'identifier' },
+            value: 'X'
+        });
+        const searchResourceAsync = jest.fn().mockResolvedValue(['uuid-1']);
+
+        await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
+
+        expect(searchResourceAsync).toHaveBeenCalledWith({
+            resourceType: 'Patient',
+            args: { identifier: 'X' },
+            requestInfo: undefined
+        });
+        expect(parsedArgs.chainDebugDisplay).toBeUndefined();
+    });
+
+    test('threads _debug through to the sub-search and collects its query display onto parsedArgs.chainDebugDisplay', async () => {
+        const parsedArgs = buildParsedArgs({
+            queryParameter: 'patient',
+            chain: { targetType: 'Patient', targetParam: 'identifier' },
+            value: 'X'
+        });
+        parsedArgs._debug = '1';
+        const searchResourceAsync = jest.fn(async ({ debugTags }) => {
+            debugTags.push({ system: 'https://www.icanbwell.com/query', display: 'db.Patient_4_0_0.find(...)' });
+            return ['uuid-1'];
+        });
+
+        await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
+
+        expect(searchResourceAsync).toHaveBeenCalledWith(expect.objectContaining({
+            resourceType: 'Patient',
+            args: { identifier: 'X', _debug: '1' },
+            debugTags: expect.any(Array)
+        }));
+        expect(parsedArgs.chainDebugDisplay).toEqual(
+            expect.stringContaining('db.Patient_4_0_0.find(...)')
+        );
+    });
+
+    test('does not set chainDebugDisplay when the sub-search produced no debug tag', async () => {
+        const parsedArgs = buildParsedArgs({
+            queryParameter: 'patient',
+            chain: { targetType: 'Patient', targetParam: 'identifier' },
+            value: 'X'
+        });
+        parsedArgs._explain = '1';
+        const searchResourceAsync = jest.fn().mockResolvedValue(['uuid-1']);
+
+        await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
+
+        expect(parsedArgs.chainDebugDisplay).toBeUndefined();
+    });
+
+    test('combines multiple chains into a single pipe-joined chainDebugDisplay string, like $everything\'s multi-collection query tag', async () => {
+        const parsedArgs = {
+            _debug: '1',
+            parsedArgItems: [
+                {
+                    queryParameter: 'patient',
+                    chain: { targetType: 'Patient', targetParam: 'identifier' },
+                    queryParameterValue: new QueryParameterValue({ value: 'A' })
+                },
+                {
+                    queryParameter: 'performer',
+                    chain: { targetType: 'Practitioner', targetParam: 'identifier' },
+                    queryParameterValue: new QueryParameterValue({ value: 'B' })
+                }
+            ]
+        };
+        const searchResourceAsync = jest.fn(async ({ resourceType, debugTags }) => {
+            debugTags.push({ system: 'https://www.icanbwell.com/query', display: `db.${resourceType}_4_0_0.find(...)` });
+            return [`${resourceType}-uuid`];
+        });
+
+        await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
+
+        expect(parsedArgs.chainDebugDisplay).toBe(
+            'patient.identifier -> Patient?identifier=A: db.Patient_4_0_0.find(...)' +
+            ' | ' +
+            'performer.identifier -> Practitioner?identifier=B: db.Practitioner_4_0_0.find(...)'
+        );
+    });
 });

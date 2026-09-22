@@ -18,15 +18,31 @@ class ChainedSearchQueryRewriter extends QueryRewriter {
             ));
         }
 
-        await Promise.all(chainedItems.map(async (parsedArg) => {
+        const debugRequested = Boolean(parsedArgs._debug || parsedArgs._explain);
+        // one slot per chain, filled in chainedItems order regardless of resolution order --
+        // mirrors mongoQueryAndOptionsStringify's ' | '-joined multi-collection query display
+        // used by $everything (bundleManager.js), rather than one tag per chain.
+        const chainDisplays = debugRequested ? new Array(chainedItems.length) : undefined;
+
+        await Promise.all(chainedItems.map(async (parsedArg, index) => {
             const { targetType, targetParam } = parsedArg.chain;
             const targetValue = parsedArg.queryParameterValue.values.join(',');
+            const debugTags = debugRequested ? [] : undefined;
 
             const resolvedUuids = await searchResourceAsync({
                 resourceType: targetType,
-                args: { [targetParam]: targetValue },
-                requestInfo
+                args: {
+                    [targetParam]: targetValue,
+                    ...(debugRequested ? { _debug: parsedArgs._debug, _explain: parsedArgs._explain } : {})
+                },
+                requestInfo,
+                ...(debugRequested ? { debugTags } : {})
             });
+
+            if (debugTags && debugTags.length > 0) {
+                chainDisplays[index] = `${parsedArg.queryParameter}.${targetParam} -> ${targetType}?${targetParam}=${targetValue}: ` +
+                    debugTags.map((t) => t.display).join(' | ');
+            }
 
             const newValue = resolvedUuids && resolvedUuids.length > 0
                 ? resolvedUuids.map((uuid) => `${targetType}/${uuid}`).join(',')
@@ -37,6 +53,11 @@ class ChainedSearchQueryRewriter extends QueryRewriter {
                 operator: parsedArg.queryParameterValue.operator
             });
         }));
+
+        const filledChainDisplays = chainDisplays?.filter(Boolean);
+        if (filledChainDisplays?.length > 0) {
+            parsedArgs.chainDebugDisplay = filledChainDisplays.join(' | ');
+        }
 
         return parsedArgs;
     }

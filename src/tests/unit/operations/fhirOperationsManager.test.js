@@ -438,6 +438,44 @@ describe('FhirOperationsManager', () => {
             expect(uuids).toEqual([]);
         });
 
+        test('pushes the sub-search Bundle\'s query debug tag onto the provided debugTags accumulator', async () => {
+            mockSearchBundleOperation.searchBundleAsync.mockResolvedValue({
+                entry: [{ resource: { _uuid: 'uuid-1' } }],
+                meta: {
+                    tag: [
+                        { system: 'https://www.icanbwell.com/query', display: 'db.Patient_4_0_0.find(...)' },
+                        { system: 'https://www.icanbwell.com/queryTime', display: '0.02' }
+                    ]
+                }
+            });
+            const debugTags = [];
+
+            await manager.searchResourceForChainAsync({
+                resourceType: 'Patient',
+                args: { identifier: 'X' },
+                requestInfo: {},
+                base_version: '4_0_0',
+                debugTags
+            });
+
+            expect(debugTags).toEqual([
+                { system: 'https://www.icanbwell.com/query', display: 'db.Patient_4_0_0.find(...)' }
+            ]);
+        });
+
+        test('does not throw when debugTags is omitted and the sub-search Bundle has no meta', async () => {
+            mockSearchBundleOperation.searchBundleAsync.mockResolvedValue({
+                entry: [{ resource: { _uuid: 'uuid-1' } }]
+            });
+
+            await expect(manager.searchResourceForChainAsync({
+                resourceType: 'Patient',
+                args: { identifier: 'X' },
+                requestInfo: {},
+                base_version: '4_0_0'
+            })).resolves.toEqual(['uuid-1']);
+        });
+
         test('restricts the sub-search response to the _uuid field via _elements', async () => {
             await manager.searchResourceForChainAsync({
                 resourceType: 'Patient',
