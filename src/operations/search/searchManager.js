@@ -38,6 +38,9 @@ const { PatientQueryCreator } = require('../common/patientQueryCreator');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const { ClinicalNoteSearchClient } = require('../../utils/clinicalNoteSearchClient');
 const { FilterById } = require('../query/filters/id');
+const { FieldMapper } = require('../query/filters/fieldMapper');
+const { FilterParameters } = require('../query/filters/filterParameters');
+const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const {
     DB_SEARCH_LIMIT_FOR_IDS,
     DB_SEARCH_LIMIT,
@@ -72,6 +75,7 @@ class SearchManager {
      * @param {PatientQueryCreator} patientQueryCreator
      * @param {SearchParametersManager} searchParametersManager
      * @param {ClinicalNoteSearchClient} clinicalNoteSearchClient
+     * @param {MongoGroupMemberRepository} mongoGroupMemberRepository
      */
     constructor (
         {
@@ -93,7 +97,8 @@ class SearchManager {
             patientScopeManager,
             patientQueryCreator,
             searchParametersManager,
-            clinicalNoteSearchClient
+            clinicalNoteSearchClient,
+            mongoGroupMemberRepository
         }
     ) {
         /**
@@ -204,6 +209,12 @@ class SearchManager {
          */
         this.clinicalNoteSearchClient = clinicalNoteSearchClient;
         assertTypeEquals(clinicalNoteSearchClient, ClinicalNoteSearchClient);
+
+        /**
+         * @type {MongoGroupMemberRepository}
+         */
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
     }
 
     /**
@@ -305,6 +316,8 @@ class SearchManager {
      * @param {boolean} useProxyPatientToPersonCache true when the original request was
      *   Person/proxy-patient $everything -- signals DataSharingManager.getValidatedPatientIdsMap
      *   to use the RequestSpecificCache-backed path instead of BwellPersonFinder.
+     * @param {boolean} [skipExtendedGroupMemberLookup] internal recursion guard for the
+     *   extended-Group `member` reverse-lookup below -- never set by real callers.
      * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document, atlasSearchCompound: {must: object[]}|null}>}
      */
     async constructQueryAsync (
@@ -326,7 +339,8 @@ class SearchManager {
             allowConsentedProaDataAccess = false,
             useProxyPatientToPersonCache,
             actor,
-            everythingChunkIndex
+            everythingChunkIndex,
+            skipExtendedGroupMemberLookup = false
         }
     ) {
         try {
@@ -477,6 +491,80 @@ class SearchManager {
             }));
             if (query) {
                 query = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            }
+
+            // `?member=X` on Group only ever matched the inline member[] array above
+            // (via FilterByReference against Group_4_0_0 directly). An "extended" Group has no
+            // inline member[] at all -- its roster lives in GroupMember_4_0_0 -- so without this,
+            // `query` above already silently excludes it. This augments `query` with an $or
+            // branch that finds those Groups by reverse-looking-up GroupMember_4_0_0 and joining
+            // back to Group_4_0_0 by _uuid, so every existing tenant/security/patient-scope
+            // filter this function already computed still applies to that branch too.
+            if (resourceType === 'Group' && this.configManager.enableExtendedGroup && !skipExtendedGroupMemberLookup) {
+                const memberParsedArg = parsedArgs.get('member');
+                // Only the plain-equality case is handled -- `:missing`/`:not` against an
+                // extended Group's (now nonexistent) inline array is a known, documented gap,
+                // not silently guessed at.
+                if (memberParsedArg && memberParsedArg.modifiers.length === 0) {
+                    const fieldMapper = new FieldMapper({ useHistoryTable });
+                    const filterParameters = new FilterParameters({
+                        parsedArg: memberParsedArg,
+                        propertyObj: memberParsedArg.propertyObj,
+                        fnUseAccessIndex: () => false,
+                        fieldMapper,
+                        resourceType
+                    });
+                    const { andSegments } = this.r4SearchQueryCreator.getColumnsAndSegmentsForParameterType({
+                        parsedArg: memberParsedArg,
+                        filterParameters
+                    });
+                    // Same field paths (member.entity._uuid / member.entity._sourceId) on
+                    // GroupMember_4_0_0 as the FilterByReference clause just built above against
+                    // Group_4_0_0's inline array -- reusing the same dispatch keeps the two
+                    // matching semantics from ever drifting apart.
+                    const memberRowQuery = andSegments.length === 1 ? andSegments[0] : { $and: andSegments };
+                    const groupUuidsFromExtendedMembers = await this.mongoGroupMemberRepository
+                        .findGroupUuidsByMemberQueryAsync({ base_version, query: memberRowQuery });
+
+                    if (groupUuidsFromExtendedMembers.length > 0) {
+                        // Re-run this same function (tenant/security filters and all) with
+                        // `member` removed, rather than re-deriving this function's own tenant
+                        // logic here -- a Group only enters the second $or branch below if it
+                        // independently passes every tenant check this function already enforces
+                        // for a plain Group read. skipExtendedGroupMemberLookup guards against
+                        // recursing into this same branch a second time.
+                        const { query: queryWithoutMember } = await this.constructQueryAsync({
+                            user,
+                            scope,
+                            isUser,
+                            userType,
+                            resourceType,
+                            useAccessIndex,
+                            personIdFromJwtToken,
+                            requestId,
+                            parsedArgs: parsedArgs.clone().remove('member'),
+                            useHistoryTable,
+                            operation,
+                            accessRequested,
+                            applyPatientFilter,
+                            addPersonOwnerToContext,
+                            allowConsentedProaDataAccess,
+                            useProxyPatientToPersonCache,
+                            actor,
+                            everythingChunkIndex,
+                            skipExtendedGroupMemberLookup: true
+                        });
+                        const extendedGroupsQuery = this.r4SearchQueryCreator.appendAndQuery({
+                            query: queryWithoutMember,
+                            andQuery: { _uuid: { $in: groupUuidsFromExtendedMembers } }
+                        });
+                        query = MongoQuerySimplifier.simplifyFilter({ filter: { $or: [query, extendedGroupsQuery] } });
+                        // Recomputed from the final $or, not left over from the embedded-only
+                        // branch above -- otherwise _setIndexHint would pick an index scoped to
+                        // only one side of the $or and force it across the whole query.
+                        columns = MongoQuerySimplifier.findColumnsInFilter({ filter: query });
+                    }
+                }
             }
 
             /**

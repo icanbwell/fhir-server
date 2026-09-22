@@ -540,7 +540,8 @@ const createContainer = function () {
                 patientScopeManager: c.patientScopeManager,
                 patientQueryCreator: c.patientQueryCreator,
                 searchParametersManager: c.searchParametersManager,
-                clinicalNoteSearchClient: c.clinicalNoteSearchClient
+                clinicalNoteSearchClient: c.clinicalNoteSearchClient,
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository
             }
         )
     );
