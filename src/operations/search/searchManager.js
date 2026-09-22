@@ -27,7 +27,6 @@ const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
 const { GroupMemberArrayWriter } = require('../streaming/resourceWriters/groupMemberArrayWriter');
-const { captureException } = require('../common/sentry');
 const { DataSharingManager } = require('./dataSharingManager');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { AtlasSearchQueryBuilder, ATLAS_SEARCH_INDEX_NAME } = require('./atlasSearchQueryBuilder');
@@ -1450,13 +1449,17 @@ class SearchManager {
         try {
             await pipeline(readableMongoStream, groupMemberWriter, responseWriter);
         } catch (e) {
-            const error = new RethrownError(
-                {
-                    message: `Error streaming GroupMember rows for query: ${mongoQueryStringify(cursor.getQuery())}`,
-                    error: e
-                });
-            logError(`SearchManager.streamGroupMemberArrayAsync: ${e.message} `, { error });
-            captureException(error);
+            // No captureException here, matching streamResourcesFromCursorAsync's identical
+            // res.on('close') abort pattern above -- a routine client disconnect mid-stream
+            // rejects this pipeline the same way, and isn't a genuine failure worth a Sentry
+            // exception.
+            logError(`SearchManager.streamGroupMemberArrayAsync: ${e.message} `, {
+                error: new RethrownError(
+                    {
+                        message: `Error streaming GroupMember rows for query: ${mongoQueryStringify(cursor.getQuery())}`,
+                        error: e
+                    })
+            });
             ac.abort();
         } finally {
             res.removeListener('close', onResponseClose);
