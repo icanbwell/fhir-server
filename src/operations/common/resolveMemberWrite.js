@@ -1,4 +1,5 @@
 const deepEqual = require('fast-deep-equal');
+const { mergeObject } = require('../../utils/mergeHelper');
 
 /**
  * `inactive` has three "unset" outcomes rather than one, per its FHIR cardinality (0..1: "if
@@ -33,19 +34,14 @@ function resolveInactive(writeInactive, existingInactive) {
  * the client's parsed-JSON op.value wholesale (plus its own `op` routing field) rather than
  * naming entity/period/inactive individually -- Group.member is a full backbone element
  * (id/extension/modifierExtension/entity/period/inactive per the FHIR spec), so any of those
- * fields the client actually sends arrives here. Because it comes from parsed JSON, a field the
- * client omits is genuinely absent from writeRequest, never a key present with an explicit
- * `undefined` -- JSON has no way to encode that. That guarantee is what makes a plain top-level
- * spread (`{...existingMember, ...writeRequest fields}`) safe to carry a field forward when
- * writeRequest doesn't mention it: an explicit value always wins, an absent key never overwrites
- * anything.
+ * fields the client actually sends arrives here.
  *
- * `inactive` is the one field handled separately from that spread, because -- unlike every other
- * field -- "the write doesn't mention it" isn't always "carry the existing value forward"; see
- * resolveInactive. Its result can itself be genuinely `undefined` (no existing row, or an
- * existing row that never had the field set either), so it's only assigned onto `member` when
- * defined, rather than as a plain object-literal key that would always be present even when its
- * value is `undefined`.
+ * `inactive` is the one field excluded from the generic merge below and resolved separately
+ * (resolveInactive), because -- unlike every other field -- "the write doesn't mention it" isn't
+ * always "carry the existing value forward": its resolved value can itself be genuinely
+ * `undefined` (no existing row, or an existing row that never had the field set either), so it's
+ * only assigned onto `member` when defined, rather than as a plain merge input that would carry
+ * forward whatever the existing row happened to have.
  *
  * The resolved write type is an internal routing decision only and is never persisted -- there
  * is no `operation` field on GroupMember. A hard-delete tombstone (from a 'remove' write) is
@@ -67,7 +63,7 @@ function resolveMemberWrite(existingMember, writeRequest) {
     const inactive = resolveInactive(writeRequest.inactive, existingMember?.inactive);
 
     const { op: _op, inactive: _inactive, ...restOfWriteRequest } = writeRequest;
-    const member = { ...existingMember, ...restOfWriteRequest };
+    const member = mergeObject(existingMember, restOfWriteRequest);
     if (inactive !== undefined) {
         member.inactive = inactive;
     }

@@ -101,11 +101,7 @@ describe('resolveMemberWrite', () => {
         expect(result.member.entity.extension).toEqual([{ url: 'http://example.com/entity-ext', valueString: 'y' }]);
     });
 
-    test('add with a new entity value replaces entity wholesale, dropping id/extension the write omitted', () => {
-        // entity.reference is mandatory on every write, so entity is always replaced wholesale
-        // with exactly what was sent -- same whole-value replace-or-carry-forward rule as every
-        // other field (see resolveMemberWrite.js), just one that never actually falls back to
-        // carrying forward since entity is never absent from a real write.
+    test('add with no entity.extension/id supplied carries the existing row value forward', () => {
         const existing = {
             entity: {
                 reference: 'Patient/1',
@@ -117,7 +113,8 @@ describe('resolveMemberWrite', () => {
         const result = resolveMemberWrite(existing, {
             entity: { reference: 'Patient/1', display: 'new' }, op: 'add'
         });
-        expect(result.member.entity).toEqual({ reference: 'Patient/1', display: 'new' });
+        expect(result.member.entity.id).toBe('entity-elem-1');
+        expect(result.member.entity.extension).toEqual(existing.entity.extension);
     });
 
     test('add with no member-level id/extension/modifierExtension supplied carries the existing row value forward', () => {
@@ -155,10 +152,12 @@ describe('resolveMemberWrite', () => {
         expect(result.member.extension).toEqual([{ url: 'http://example.com/new-ext', valueString: 'added' }]);
     });
 
-    test('add with a changed member-level modifierExtension replaces it rather than unioning old and new items', () => {
-        // deepmerge-style array merging (tried and rejected here, see resolveMemberWrite.js) would
-        // treat an extension item with no id/sequence to match against as an *addition* rather
-        // than a replacement, leaving both the old and new item in the array forever.
+    test('add with a changed member-level modifierExtension with no id accumulates rather than replacing', () => {
+        // mergeObject's array merge (src/utils/mergeHelper.js, same helper $merge/PUT use) only
+        // matches an existing item by `id` -- an item with no id to match against is always
+        // treated as an *addition*, so re-sending a corrected modifierExtension with no id
+        // leaves both the old and new item in the array. This is the documented trade-off, not a
+        // bug: use a stable `id` per item (next test) to get update-in-place instead.
         const existing = {
             modifierExtension: [{ url: 'http://example.com/mod', valueString: 'old' }],
             entity: { reference: 'Patient/1' },
@@ -170,7 +169,48 @@ describe('resolveMemberWrite', () => {
             op: 'add'
         });
         expect(result.writeType).toBe('update');
-        expect(result.member.modifierExtension).toEqual([{ url: 'http://example.com/mod', valueString: 'new' }]);
+        expect(result.member.modifierExtension).toEqual([
+            { url: 'http://example.com/mod', valueString: 'old' },
+            { url: 'http://example.com/mod', valueString: 'new' }
+        ]);
+    });
+
+    test('add with a changed member-level modifierExtension sharing an id updates that item in place', () => {
+        const existing = {
+            modifierExtension: [{ id: 'mod-1', url: 'http://example.com/mod', valueString: 'old' }],
+            entity: { reference: 'Patient/1' },
+            inactive: false
+        };
+        const result = resolveMemberWrite(existing, {
+            entity: { reference: 'Patient/1' },
+            modifierExtension: [{ id: 'mod-1', url: 'http://example.com/mod', valueString: 'new' }],
+            op: 'add'
+        });
+        expect(result.writeType).toBe('update');
+        expect(result.member.modifierExtension).toEqual([
+            { id: 'mod-1', url: 'http://example.com/mod', valueString: 'new' }
+        ]);
+    });
+
+    test('add with a modifierExtension update by id leaves an unrelated existing item (different id) untouched', () => {
+        const existing = {
+            modifierExtension: [
+                { id: 'mod-1', url: 'http://example.com/mod', valueString: 'old' },
+                { id: 'mod-2', url: 'http://example.com/other', valueString: 'untouched' }
+            ],
+            entity: { reference: 'Patient/1' },
+            inactive: false
+        };
+        const result = resolveMemberWrite(existing, {
+            entity: { reference: 'Patient/1' },
+            modifierExtension: [{ id: 'mod-1', url: 'http://example.com/mod', valueString: 'new' }],
+            op: 'add'
+        });
+        expect(result.writeType).toBe('update');
+        expect(result.member.modifierExtension).toEqual([
+            { id: 'mod-1', url: 'http://example.com/mod', valueString: 'new' },
+            { id: 'mod-2', url: 'http://example.com/other', valueString: 'untouched' }
+        ]);
     });
 
     test('add always takes _uuid/_sourceId/_sourceAssigningAuthority from the write request, never falling back to the existing row', () => {
@@ -203,7 +243,7 @@ describe('resolveMemberWrite', () => {
         expect(result.member.entity._sourceAssigningAuthority).toBe('new-owner');
     });
 
-    test('add with no period/inactive supplied carries period forward but replaces entity wholesale and defaults inactive to false', () => {
+    test('add with no period/type/display/inactive supplied carries forward period/type/display but defaults inactive to false', () => {
         const existing = {
             entity: { reference: 'Patient/1', type: 'Patient', display: 'Jane' },
             period: { start: '2026-01-01' },
@@ -214,7 +254,7 @@ describe('resolveMemberWrite', () => {
         });
         expect(result.writeType).toBe('update');
         expect(result.member).toEqual({
-            entity: { reference: 'Patient/1' },
+            entity: { reference: 'Patient/1', type: 'Patient', display: 'Jane' },
             period: { start: '2026-01-01' },
             inactive: false
         });
