@@ -1,7 +1,7 @@
 # Approved Technology Stack - icanbwell
 # Owner: Enterprise Architecture
-# Last Updated: 2026-03-03
-# Version: 1.0.0
+# Last Updated: 2026-09-21
+# Version: 1.1.0
 #
 # Purpose: Centralized registry of approved technologies, frameworks, and tools.
 # Any addition requires Tech Design Review with EA approval.
@@ -12,8 +12,8 @@
 #   - Phase 2 enforcement starts at "warn" for all categories
 
 ---
-version: "1.0.0"
-updated: "2026-03-03"
+version: "1.1.0"
+updated: "2026-09-21"
 enforcement:
   defaultSeverity: "warn"
   exceptionProcess: "Tech Design Review with EA (JIRA ticket in EA project)"
@@ -200,6 +200,16 @@ categories:
       - name: "Groundcover"
         versions: ["Current"]
         notes: "K8s observability platform"
+
+  # ============================================================================
+  # BI & Reporting
+  # ============================================================================
+  reporting:
+    severity: "warn"
+    approved:
+      - name: "Sigma"
+        versions: ["Current"]
+        notes: "BI/dashboarding tool, reads from Databricks/Delta Lake. In production use (client-hub dashboard-mfe, data-integration-service's Kafka -> Delta Lake -> Sigma pipeline for CMS network metrics, bwell-databricks sigma_write schema, Helix) prior to being added to this registry -- see EA-2653. A new dashboard on data not already flowing to Sigma (e.g. a new PHI-adjacent data class) still requires its own Tech Design Review for the data-handling posture, even though the tool itself is approved."
 
   # ============================================================================
   # Infrastructure & DevOps
