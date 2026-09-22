@@ -34,6 +34,7 @@ const { buildContextDataForHybridStorage } = require('../../utils/contextDataBui
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { validatePatchDoesNotTargetInternalFields } = require('./validators/patchInternalFieldsValidator');
+const { promoteExistingGroupIfNeeded } = require('../../utils/groupPromotion');
 
 class PatchOperation {
     /**
@@ -529,6 +530,20 @@ class PatchOperation {
                 resource = await this.databaseAttachmentManager.transformAttachments(resource);
                 // TODO: remove alwaysCreateNew when this operation is updated to be version aware
                 resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.INSERT, requestInfo, { alwaysCreateNew: true });
+
+                // An embedded Group whose member[] crosses groupMemberLimit via a standard
+                // JSON-Patch add on /member is promoted here, before it's staged for its own
+                // write -- see DCON-5528. resource._uuid/_sourceAssigningAuthority are already
+                // set (carried forward from foundResource). No-op for non-Group resources and for
+                // an already-extended Group (whose resolved member writes are committed
+                // separately below via groupMemberPatchStrategy.commitPendingMemberWrites).
+                await promoteExistingGroupIfNeeded({
+                    doc: resource,
+                    requestInfo,
+                    base_version,
+                    configManager: this.configManager,
+                    mongoGroupMemberRepository: this.mongoGroupMemberRepository
+                });
 
                 // Same as update from this point on
                 // Insert/update our resource record

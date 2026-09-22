@@ -34,6 +34,8 @@ const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeable
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { COLLECTION } = require('../../constants');
 const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
+const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
+const { isGroupOverLimit, promoteExistingGroupIfNeeded } = require('../../utils/groupPromotion');
 
 class MergeManager {
     /**
@@ -51,6 +53,7 @@ class MergeManager {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {MongoGroupMemberRepository} mongoGroupMemberRepository
      */
     constructor (
         {
@@ -66,7 +69,8 @@ class MergeManager {
             configManager,
             databaseAttachmentManager,
             base64DataManager,
-            postRequestProcessor
+            postRequestProcessor,
+            mongoGroupMemberRepository
         }
     ) {
         /**
@@ -141,6 +145,12 @@ class MergeManager {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /**
+         * @type {MongoGroupMemberRepository}
+         */
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
     }
 
     /**
@@ -683,6 +693,32 @@ class MergeManager {
                 });
             }
 
+            // A Group crossing groupMemberLimit via this $merge update is promoted here, before
+            // it's staged for its own write. resourceToMerge._uuid/
+            // _sourceAssigningAuthority are already set (this method's own preSaveManager.preSaveAsync
+            // call above already ran the full pre-save chain, unlike create/update/patch which rely
+            // on insertOneAsync/replaceOneAsync to run it).
+            //
+            // flush: false -- mergeResourceListAsync stages every resource in the batch into the
+            // SAME requestId's operations map and doesn't flush it until the whole batch loop
+            // finishes (merge.js calls executeAsync once, after the loop). Left at its default
+            // (flush: true), applyResolvedMemberWritesAsync would flush and clear that shared map
+            // immediately, taking every other resource already staged earlier in this same batch
+            // with it and silently dropping their outcomes from the final response Bundle. With
+            // flush: false, the roster's create/update ops simply join the batch's own buffer
+            // under the real requestId and get flushed together with everything else by merge.js's
+            // own end-of-batch executeAsync call.
+            if (isGroupOverLimit({ doc: resourceToMerge, configManager: this.configManager })) {
+                await promoteExistingGroupIfNeeded({
+                    doc: resourceToMerge,
+                    requestInfo,
+                    base_version,
+                    configManager: this.configManager,
+                    mongoGroupMemberRepository: this.mongoGroupMemberRepository,
+                    flush: false
+                });
+            }
+
             await this.databaseBulkInserter.mergeOneAsync(
                 {
                     base_version,
@@ -724,6 +760,21 @@ class MergeManager {
             // Update attachments after all validations
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
             resourceToMerge = await this.base64DataManager.transformAsync(resourceToMerge, BLOB_OP.INSERT, requestInfo);
+
+            // Brand-new Group via $merge-insert, already over the limit -- see DCON-5528.
+            // resourceToMerge._uuid/_sourceAssigningAuthority are already set by this method's own
+            // preSaveManager.preSaveAsync call above. flush: false for the same reason as
+            // performMergeDbUpdateAsync above -- see that method's comment for the full reasoning.
+            if (isGroupOverLimit({ doc: resourceToMerge, configManager: this.configManager })) {
+                await promoteExistingGroupIfNeeded({
+                    doc: resourceToMerge,
+                    requestInfo,
+                    base_version,
+                    configManager: this.configManager,
+                    mongoGroupMemberRepository: this.mongoGroupMemberRepository,
+                    flush: false
+                });
+            }
 
             // Insert/update our resource record
             const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo);

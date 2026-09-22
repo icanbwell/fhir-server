@@ -28,6 +28,10 @@ const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identif
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
+const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
+const { SourceAssigningAuthorityColumnHandler } = require('../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const { UuidColumnHandler } = require('../../preSaveHandlers/handlers/uuidColumnHandler');
+const { promoteExistingGroupIfNeeded, promoteNewGroupIfNeeded } = require('../../utils/groupPromotion');
 
 /**
  * Update Operation
@@ -49,6 +53,9 @@ class UpdateOperation {
      * @param {SearchManager} searchManager
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {MongoGroupMemberRepository} mongoGroupMemberRepository
+     * @param {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
+     * @param {UuidColumnHandler} uuidColumnHandler
      */
     constructor (
         {
@@ -65,7 +72,10 @@ class UpdateOperation {
             base64DataManager,
             searchManager,
             postSaveHandlerFactory,
-            identifierEnrichmentProvider
+            identifierEnrichmentProvider,
+            mongoGroupMemberRepository,
+            sourceAssigningAuthorityColumnHandler,
+            uuidColumnHandler
         }
     ) {
         /**
@@ -145,6 +155,24 @@ class UpdateOperation {
          */
         this.identifierEnrichmentProvider = identifierEnrichmentProvider;
         assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
+
+        /**
+         * @type {MongoGroupMemberRepository}
+         */
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
+
+        /**
+         * @type {SourceAssigningAuthorityColumnHandler}
+         */
+        this.sourceAssigningAuthorityColumnHandler = sourceAssigningAuthorityColumnHandler;
+        assertTypeEquals(sourceAssigningAuthorityColumnHandler, SourceAssigningAuthorityColumnHandler);
+
+        /**
+         * @type {UuidColumnHandler}
+         */
+        this.uuidColumnHandler = uuidColumnHandler;
+        assertTypeEquals(uuidColumnHandler, UuidColumnHandler);
     }
 
     /**
@@ -438,6 +466,19 @@ class UpdateOperation {
                         requestInfo, currentResource: foundResource, updatedResource: doc
                     });
 
+                    // doc._uuid/_sourceAssigningAuthority are already set here -- carried forward
+                    // from foundResource -- so an existing Group crossing groupMemberLimit via this
+                    // PUT can be promoted directly (see DCON-5528). Must run before
+                    // buildContextDataForHybridStorage so contextData reflects the already-promoted
+                    // doc (no member[] to carry through).
+                    await promoteExistingGroupIfNeeded({
+                        doc,
+                        requestInfo,
+                        base_version,
+                        configManager: this.configManager,
+                        mongoGroupMemberRepository: this.mongoGroupMemberRepository
+                    });
+
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 
                     await this.databaseBulkInserter.replaceOneAsync(
@@ -462,6 +503,17 @@ class UpdateOperation {
                     // every access tag on doc counts as an addition the caller must be authorized for
                     this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
                         requestInfo, currentResource: null, updatedResource: doc
+                    });
+
+                    // Brand-new Group via create-via-PUT, already over the limit.
+                    await promoteNewGroupIfNeeded({
+                        doc,
+                        requestInfo,
+                        base_version,
+                        configManager: this.configManager,
+                        mongoGroupMemberRepository: this.mongoGroupMemberRepository,
+                        sourceAssigningAuthorityColumnHandler: this.sourceAssigningAuthorityColumnHandler,
+                        uuidColumnHandler: this.uuidColumnHandler
                     });
 
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);

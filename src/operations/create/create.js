@@ -21,6 +21,10 @@ const { buildContextDataForHybridStorage } = require('../../utils/contextDataBui
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
+const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
+const { SourceAssigningAuthorityColumnHandler } = require('../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const { UuidColumnHandler } = require('../../preSaveHandlers/handlers/uuidColumnHandler');
+const { promoteNewGroupIfNeeded } = require('../../utils/groupPromotion');
 
 class CreateOperation {
     /**
@@ -35,6 +39,9 @@ class CreateOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {MongoGroupMemberRepository} mongoGroupMemberRepository
+     * @param {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
+     * @param {UuidColumnHandler} uuidColumnHandler
      */
     constructor (
         {
@@ -47,7 +54,10 @@ class CreateOperation {
             configManager,
             databaseAttachmentManager,
             base64DataManager,
-            identifierEnrichmentProvider
+            identifierEnrichmentProvider,
+            mongoGroupMemberRepository,
+            sourceAssigningAuthorityColumnHandler,
+            uuidColumnHandler
         }
     ) {
         /**
@@ -105,6 +115,24 @@ class CreateOperation {
          */
         this.identifierEnrichmentProvider = identifierEnrichmentProvider;
         assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
+
+        /**
+         * @type {MongoGroupMemberRepository}
+         */
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
+
+        /**
+         * @type {SourceAssigningAuthorityColumnHandler}
+         */
+        this.sourceAssigningAuthorityColumnHandler = sourceAssigningAuthorityColumnHandler;
+        assertTypeEquals(sourceAssigningAuthorityColumnHandler, SourceAssigningAuthorityColumnHandler);
+
+        /**
+         * @type {UuidColumnHandler}
+         */
+        this.uuidColumnHandler = uuidColumnHandler;
+        assertTypeEquals(uuidColumnHandler, UuidColumnHandler);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -247,6 +275,20 @@ class CreateOperation {
             // the _id parameter in the original document
             // noinspection JSValidateTypes
             logDebug('Inserting', { user, args: { doc } });
+
+            // A Group whose member[] already arrives over the limit is promoted to extended
+            // member storage before it's ever staged for its own write. Must run
+            // before buildContextDataForHybridStorage so contextData reflects the already-promoted
+            // doc (no member[] to carry through).
+            await promoteNewGroupIfNeeded({
+                doc,
+                requestInfo,
+                base_version,
+                configManager: this.configManager,
+                mongoGroupMemberRepository: this.mongoGroupMemberRepository,
+                sourceAssigningAuthorityColumnHandler: this.sourceAssigningAuthorityColumnHandler,
+                uuidColumnHandler: this.uuidColumnHandler
+            });
 
             // Insert our resource record
             const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);

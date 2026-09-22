@@ -1358,12 +1358,18 @@ class ConfigManager {
 
     /**
      * Enables the MongoDB-native large-Group member storage: the GroupMember_4_0_0 /
-     * GroupMember_4_0_0_History collections and the extended-regime branch of $member-add /
-     * $member-remove. Default: false -- when disabled, $member-add / $member-remove reject any
-     * Group already tagged groupSize|extended rather than silently falling back to the
-     * embedded regime (which would risk writing member[] inline on a Group whose roster already
-     * lives in GroupMember_4_0_0). Independent of enableClickHouse -- a Group is tracked by at
-     * most one of the two external-storage mechanisms, never both.
+     * GroupMember_4_0_0_History collections, the `_extended` branch of
+     * GroupMemberPatchStrategy.determineGroupMemberType, and the promoteNewGroupIfNeeded /
+     * promoteExistingGroupIfNeeded checks in src/utils/groupPromotion.js -- called from the
+     * create/update/patch/merge write paths right before a Group is staged for its own write --
+     * which promote an embedded Group to this storage once its member[] crosses groupMemberLimit.
+     * Default: false -- when disabled, a Group already marked
+     * `_extended: true` still has its member changes rejected on PUT/$merge (see
+     * rejectMemberOnExtendedGroupWrite) rather than silently falling back to the embedded regime
+     * (which would risk writing member[] inline on a Group whose roster already lives in
+     * GroupMember_4_0_0), but no further Group can be promoted into this storage while the flag
+     * is off. Independent of enableClickHouse -- a Group is tracked by at most one of the two
+     * external-storage mechanisms, never both.
      * @returns {boolean}
      */
     get enableExtendedGroup() {

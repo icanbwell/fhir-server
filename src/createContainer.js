@@ -565,7 +565,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                postRequestProcessor: c.postRequestProcessor
+                postRequestProcessor: c.postRequestProcessor,
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository
             }
         )
     );
@@ -848,7 +849,10 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                identifierEnrichmentProvider: c.identifierEnrichmentProvider
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+                sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+                uuidColumnHandler: c.uuidColumnHandler
             }
         )
     );
@@ -869,7 +873,10 @@ const createContainer = function () {
                 base64DataManager: c.base64DataManager,
                 searchManager: c.searchManager,
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
-                identifierEnrichmentProvider: c.identifierEnrichmentProvider
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+                sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+                uuidColumnHandler: c.uuidColumnHandler
             }
         )
     );
