@@ -206,11 +206,11 @@ class GetIncompatibleResourcesRunner extends BaseBulkOperationRunner {
                 query = {
                     $and: [
                         query,
-                        { [isUuid(this.startFromId) ? '_uuid' : '_sourceId']: this.startFromId }
+                        { [isUuid(this.startFromId) ? '_uuid' : '_sourceId']: { $gte: this.startFromId } }
                     ]
                 };
             } else {
-                query = { [isUuid(this.startFromId) ? '_uuid' : '_sourceId']: this.startFromId };
+                query = { [isUuid(this.startFromId) ? '_uuid' : '_sourceId']: { $gte: this.startFromId } };
             }
         }
 

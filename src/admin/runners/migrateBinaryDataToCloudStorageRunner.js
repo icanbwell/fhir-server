@@ -301,14 +301,18 @@ class MigrateBinaryDataToCloudStorageRunner extends BaseScriptRunner {
                 .batchSize(this.batchSize)
                 .addCursorFlag('noCursorTimeout', true);
 
-            if (this.count) {
+            // MongoDB cursor.limit(0) means "no limit" (unlimited), not zero documents, so an
+            // explicit --count 0 must be handled by skipping the scan entirely rather than by
+            // passing 0 through to .limit().
+            const countIsSet = this.count !== undefined && this.count !== null;
+            if (countIsSet && this.count > 0) {
                 cursor = cursor.limit(this.count);
             }
 
             let refreshTimestamp = moment();
             const numberOfSecondsBetweenSessionRefreshes = 10 * 60;
 
-            while (await cursor.hasNext()) {
+            while (!(countIsSet && this.count === 0) && await cursor.hasNext()) {
                 if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
                     this.adminLogger.logInfo('refreshing session with sessionId', { session_id: sessionId });
                     const adminResult = await db.admin().command({ refreshSessions: [sessionId] });

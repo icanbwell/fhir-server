@@ -32,6 +32,7 @@ function deriveActionFromInteraction (interaction) {
         case INTERACTIONS.DELETE:
         case INTERACTIONS.PATCH:
         case INTERACTIONS.OPERATIONS_POST:
+        case INTERACTIONS.OPERATIONS_PUT:
             return 'write';
 
         default:
