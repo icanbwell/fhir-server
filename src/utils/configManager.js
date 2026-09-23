@@ -1359,7 +1359,7 @@ class ConfigManager {
     /**
      * Enables the MongoDB-native large-Group member storage: the GroupMember_4_0_0 /
      * GroupMember_4_0_0_History collections, the `_extended` branch of
-     * GroupMemberPatchStrategy.determineGroupMemberType, and the promoteNewGroupIfNeeded /
+     * GroupMemberPatchStrategy.determineGroupMemberType, and the rejectNewGroupIfOverLimit /
      * promoteExistingGroupIfNeeded checks in src/utils/groupPromotion.js -- called from the
      * create/update/patch/merge write paths right before a Group is staged for its own write --
      * which promote an embedded Group to this storage once its member[] crosses groupMemberLimit.

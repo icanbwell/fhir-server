@@ -70,8 +70,7 @@ function isGroupOverLimit ({ doc, configManager }) {
  *   Group is left exactly as if promotion had crashed mid-flight: still over-limit, not yet
  *   marked extended. The next write to the same uuid re-enters promotion and resolves every
  *   member through the same resolveMemberWrite state table, so rows already buffered/flushed here
- *   classify as 'none'/'update' instead of duplicating -- see
- *   docs/runbooks/group-promotion-recovery.md.
+ *   classify as 'none'/'update' instead of duplicating.
  */
 async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberRepository, flush = true }) {
     const members = doc.member;
@@ -182,14 +181,13 @@ async function promoteExistingGroupIfNeeded ({ doc, requestInfo, base_version, c
  * Rejects a brand-new Group (CREATE, PUT-insert) whose member[] already arrives over the limit. A
  * brand-new Group has no addressable identity yet -- a fresh POST always mints a new id/_uuid, so
  * if promotion durably wrote the roster and the Group's own write then failed, no client retry
- * could ever reach those rows to complete or clean up promotion (see
- * docs/runbooks/group-promotion-recovery.md). Every other path -- PUT-update, PATCH, and both
- * $merge branches -- keeps promoting instead of rejecting: all four operate on a Group that
- * already has (or, for $merge-insert, is given by the client rather than server-minted) a stable,
- * addressable identity, so if the roster write durably lands but the Group's own write then fails
- * for any of them, nothing is orphaned -- the Group's version is never bumped, and the next write
- * to that same uuid simply re-enters promotion and resolves cleanly, same as the crash-recovery
- * case in the runbook. This is a narrower reject scope
+ * could ever reach those rows to complete or clean up promotion. Every other path -- PUT-update,
+ * PATCH, and both $merge branches -- keeps promoting instead of rejecting: all four operate on a
+ * Group that already has (or, for $merge-insert, is given by the client rather than
+ * server-minted) a stable, addressable identity, so if the roster write durably lands but the
+ * Group's own write then fails for any of them, nothing is orphaned -- the Group's version is
+ * never bumped, and the next write to that same uuid simply re-enters promotion and resolves
+ * cleanly, same as any other crash-recovery case. This is a narrower reject scope
  * than the original epic doc's Task B1 (which rejected any single bulk write, including PUT-update
  * and $merge, promoting only a dedicated incremental-add operation that no longer exists in this
  * codebase) -- scoped down deliberately to just the orphan-risk case, not full doc fidelity.

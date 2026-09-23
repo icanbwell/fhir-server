@@ -15,8 +15,8 @@
  * A brand-new Group (CREATE, PUT-insert) is rejected outright instead of promoted when member[]
  * already arrives over the limit (rejectNewGroupIfOverLimit): a fresh POST always mints a
  * server-generated id, so a promote-then-fail on that path could orphan roster rows with nothing
- * left to recover through (see docs/runbooks/group-promotion-recovery.md). $merge-insert is the
- * one brand-new-Group path that still promotes: the client (not the server) supplies id there, so
+ * left to recover through. $merge-insert is the one brand-new-Group path that still promotes: the
+ * client (not the server) supplies id there, so
  * identity is stable across a retry -- if the Group's own write then fails, the roster rows
  * already staged are simply left as they are (see "Group's own write fails after promotion
  * already staged the roster" below), and the next write to the same uuid resolves them
