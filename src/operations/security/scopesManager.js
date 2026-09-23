@@ -3,6 +3,8 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
+const { RESOURCE_TYPE_SCOPE_NAMESPACES } = require('../../constants');
+const { parseScopeToken, getRequiredCrudsForAccessRequested, isCrudsRequirementSatisfied } = require('./smartScopeParser');
 
 class ScopesManager {
     /**
@@ -41,7 +43,7 @@ class ScopesManager {
 
     /**
      * Returns all the access codes present in scopes
-     * @param {string} action
+     * @param {string} action legacy 'read'/'write' or a single v2 CRUDS letter ('c'/'r'/'u'/'d'/'s')
      * @param {string} user
      * @param {string|null} scope
      * @return {string[]} security tags allowed by scopes
@@ -57,20 +59,17 @@ class ScopesManager {
          * @type {string[]}
          */
         const access_codes = [];
-        /**
-         * @type {string}
-         */
+        const requiredCruds = getRequiredCrudsForAccessRequested(action);
         for (const scope1 of scopes) {
-            if (scope1.startsWith('access/')) {
-                // ex: access/client.*
-                /**
-                 * @type {string}
-                 */
-                const inner_scope = scope1.replace('access/', '');
-                const [securityTag, accessType] = inner_scope.split('.');
-                if (accessType === '*' || accessType === action) {
-                    access_codes.push(securityTag);
-                }
+            if (!scope1.startsWith('access/')) {
+                continue;
+            }
+            // ex: access/client.* -- parseScopeToken's generic {prefix, resourceType, cruds}
+            // shape names the segment before the suffix `resourceType`, but for access/ scopes
+            // it is actually the security tag/tenant code, not a FHIR resource type.
+            const parsed = parseScopeToken(scope1, this.configManager.enableSmartV2CrudsScopes);
+            if (parsed && isCrudsRequirementSatisfied(parsed.cruds, requiredCruds)) {
+                access_codes.push(parsed.resourceType);
             }
         }
         return access_codes;
@@ -412,7 +411,12 @@ class ScopesManager {
     }
 
     /**
-     * Gets user scopes from the passed in scope string
+     * Gets user scopes from the passed in scope string.
+     *
+     * NOTE: this remains the documented §3 parser for the `user/` namespace (see
+     * docs/resource-authorization.md §3) even though ScopesValidator now calls
+     * getResourceTypeScopes() instead, which additionally honors `system/` scopes. Keep this
+     * method - it has its own doc-anchored regression test.
      * @param {string|undefined} scope
      * @returns {string[]}
      */
@@ -425,6 +429,35 @@ class ScopesManager {
          */
         const scopes = scope.split(' ');
         return scopes.filter(s => s.startsWith('user/'));
+    }
+
+    /**
+     * Returns the scopes belonging to any of the given namespace prefixes.
+     *
+     * Matching is deliberately case-SENSITIVE, unlike hasPatientScope/isUser. Those two only ask
+     * "is a patient scope present at all"; these strings go straight to
+     * @asymmetrik/sof-scope-checker, which compares by exact string. Case-folding here would
+     * produce candidates that can never match while widening what we claim to have parsed.
+     * @param {string|undefined} scope
+     * @param {string[]} namespaces e.g. ['user/', 'system/']
+     * @returns {string[]}
+     */
+    getScopesForNamespaces ({ scope, namespaces }) {
+        return this.parseScopes(scope).filter(s => namespaces.some(ns => s.startsWith(ns)));
+    }
+
+    /**
+     * The scopes the resource-type/action gate evaluates for a non-patient-scoped caller:
+     * `user/` and SMART on FHIR v2 `system/`.
+     *
+     * This does NOT relax any tenant check. A caller authorized here still has to clear
+     * getAccessCodesFromScopes() (>= 1 access/<tag> code) in ScopesValidator, and still has to
+     * clear getSecurityTagsFromScope() before any Mongo query is built.
+     * @param {string|undefined} scope
+     * @returns {string[]}
+     */
+    getResourceTypeScopes ({ scope }) {
+        return this.getScopesForNamespaces({ scope, namespaces: RESOURCE_TYPE_SCOPE_NAMESPACES });
     }
 
     /**

@@ -5,12 +5,15 @@ const {
     DEFAULT_CACHE_EXPIRY_TIME,
     DEFAULT_CACHE_MAX_COUNT,
     USER_INFO_CACHE_EXPIRY_TIME,
-    AUTH_USER_TYPES
+    AUTH_USER_TYPES,
+    DELEGATED_ACCESS
 } = require('../constants');
 const {logDebug, logError, logInfo, logWarn} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
+const {DelegatedAccessRulesManager} = require('../utils/delegatedAccessRulesManager');
+const {ReferenceParser} = require('../utils/referenceParser');
 
 /**
  * @typedef {Object} UserInfo
@@ -47,10 +50,12 @@ class AuthService {
      * Constructor for the AuthService
      * @param {ConfigManager} configManager
      * @param {WellKnownConfigurationManager} wellKnownConfigurationManager
+     * @param {DelegatedAccessRulesManager} delegatedAccessRulesManager
      */
     constructor({
                     configManager,
-                    wellKnownConfigurationManager
+                    wellKnownConfigurationManager,
+                    delegatedAccessRulesManager
                 }) {
         /**
          * @type {ConfigManager}
@@ -63,6 +68,12 @@ class AuthService {
          */
         this.wellKnownConfigurationManager = wellKnownConfigurationManager;
         assertTypeEquals(wellKnownConfigurationManager, WellKnownConfigurationManager);
+
+        /**
+         * @type {DelegatedAccessRulesManager}
+         */
+        this.delegatedAccessRulesManager = delegatedAccessRulesManager;
+        assertTypeEquals(delegatedAccessRulesManager, DelegatedAccessRulesManager);
 
         this.requestTimeout = (this.configManager.externalRequestTimeoutSec || 30) * 1000;
         this.requiredJWTFields = {
@@ -93,6 +104,16 @@ class AuthService {
          * @type {string[]}
          */
         this.cidCheckClientIds = this.configManager.authCidCheckClientIds;
+
+        /**
+         * @type {string[]}
+         */
+        this.audienceWhitelist = this.configManager.authAudienceWhitelist;
+
+        /**
+         * @type {string[]}
+         */
+        this.audienceBlacklist = this.configManager.authAudienceBlacklist;
 
         if (AuthService.jwksCache === undefined) {
             AuthService.jwksCache = new LRUCache(this.cacheOptions);
@@ -261,9 +282,9 @@ class AuthService {
      * @param {import("passport-jwt").VerifiedCallback} done
      * @param {string} client_id
      * @param {string} scope
-     * @return {void}
+     * @return {Promise<void>}
      */
-    processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+    async processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope}) {
         // A token that resolves to a completely empty scope (nothing on the JWT itself,
         // no groups, and userinfo enrichment -- if attempted -- found nothing either) is
         // authenticated but carries zero permissions; treat it as an auth failure (401),
@@ -331,6 +352,30 @@ class AuthService {
 
                     if (Array.isArray(jwt_payload.entitlements)) {
                         context.purposeOfUse = jwt_payload.entitlements;
+                        // Only take the async Consent-dereference path when entitlements
+                        // actually names one -- bare codes stay fully synchronous.
+                        const consentReferences = jwt_payload.entitlements.filter(
+                            (entitlement) => ReferenceParser.parseReference(entitlement).resourceType === 'Consent'
+                        );
+                        if (consentReferences.length > 0) {
+                            const resolvedPurposeOfUse = await this.delegatedAccessRulesManager.resolvePurposeOfEventCodesAsync({
+                                entitlements: jwt_payload.entitlements
+                            });
+                            // null = Consent genuinely unresolvable -> fail closed (401). A
+                            // transient lookup error rejects instead (503 via verify()'s catch).
+                            if (resolvedPurposeOfUse === null) {
+                                logWarn('Auth rejected', {
+                                    reason: 'delegated_actor_consent_not_found',
+                                    username,
+                                    subject
+                                });
+                                done(null, false, { reason: 'delegated_actor_consent_not_found' });
+                                return;
+                            }
+                            context.purposeOfUse = resolvedPurposeOfUse;
+                            // Surfaced as agent.policy on the AuditEvent -- see AuditLogger.buildAgents.
+                            context.actor.consentPolicy = consentReferences[0];
+                        }
                     }
                 }
             }
@@ -450,6 +495,8 @@ class AuthService {
             scope = scopes.join(' ');
         }
 
+        const isUser = scopes.some((s) => s.toLowerCase().startsWith('patient/'));
+
         const username = jwt_payload.username
             ? jwt_payload.username
             : this.getFirstPropertyFromPayload({
@@ -470,8 +517,6 @@ class AuthService {
                 jwt_payload,
                 propertyNames: this.configManager.authCustomClientId
             });
-
-        const isUser = scopes.some((s) => s.toLowerCase().startsWith('patient/'));
 
         return {scope, isUser, username, subject, clientId};
     }
@@ -530,8 +575,11 @@ class AuthService {
         }
 
         let isValidInput = true;
-        // validate reference
-        isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' && act[this.requiredActorFields.reference].startsWith('RelatedPerson/');
+        // validate reference: human delegate (RelatedPerson) or client (Organization)
+        isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' &&
+            DELEGATED_ACCESS.ALLOWED_ACTOR_RESOURCE_TYPES.includes(
+                ReferenceParser.parseReference(act[this.requiredActorFields.reference]).resourceType
+            );
         // validate sub
         isValidInput &&= typeof act[this.requiredActorFields.sub] === 'string';
 
@@ -565,6 +613,26 @@ class AuthService {
     verify({request, jwt_payload, token, done}) {
         if (jwt_payload) {
             request.jwtPayload = jwt_payload;
+            if (this.audienceBlacklist.length > 0) {
+                const tokenAudiences = Array.isArray(jwt_payload.aud) ? jwt_payload.aud : [jwt_payload.aud];
+                if (tokenAudiences.some((aud) => this.audienceBlacklist.includes(aud))) {
+                    logInfo(`Audience ${jwt_payload.aud} is denied`, {
+                        reason: 'audience_denied',
+                        userClaim: jwt_payload.sub
+                    });
+                    return done(null, false, { reason: 'audience_denied' });
+                }
+            }
+            if (this.audienceWhitelist.length > 0) {
+                const tokenAudiences = Array.isArray(jwt_payload.aud) ? jwt_payload.aud : [jwt_payload.aud];
+                if (!tokenAudiences.some((aud) => this.audienceWhitelist.includes(aud))) {
+                    logInfo(`Audience ${jwt_payload.aud} is not allowed`, {
+                        reason: 'audience_not_allowed',
+                        userClaim: jwt_payload.sub
+                    });
+                    return done(null, false, { reason: 'audience_not_allowed' });
+                }
+            }
             if (this.cidCheckIssuer && jwt_payload.iss === this.cidCheckIssuer) {
                 if (!this.cidCheckClientIds.includes(jwt_payload.cid)) {
                     logInfo(`Client ID ${jwt_payload.cid} is not allowed from issuer ${jwt_payload.iss}`, {
@@ -590,7 +658,7 @@ class AuthService {
                             subject: subject1,
                             clientId: clientId1
                         } = userInfo;
-                        this.processUserInfo({
+                        return this.processUserInfo({
                             username: username1 || username,
                             subject: subject1 || subject,
                             isUser: isUser1 || isUser,
@@ -600,7 +668,7 @@ class AuthService {
                             scope: scope1 || scope
                         });
                     } else {
-                        this.processUserInfo({
+                        return this.processUserInfo({
                             username: username,
                             subject: subject,
                             isUser,
@@ -648,6 +716,14 @@ class AuthService {
                     done,
                     client_id: clientId,
                     scope
+                }).catch((error) => {
+                    // processUserInfo is async now (may await a Consent lookup) -- catch here
+                    // too, so a rejection doesn't become an unhandled rejection.
+                    logError(`Error while processing user info: ${error.message}`, {
+                        reason: 'process_user_info_error',
+                        error
+                    });
+                    done(error);
                 });
             }
         } else {
