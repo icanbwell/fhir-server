@@ -59,6 +59,7 @@ describe('AuthService', () => {
         Object.defineProperty(mockConfigManager, 'authCidCheckIssuer', { get: () => '', configurable: true });
         Object.defineProperty(mockConfigManager, 'authCidCheckClientIds', { get: () => [], configurable: true });
         Object.defineProperty(mockConfigManager, 'authAudienceWhitelist', { get: () => [], configurable: true });
+        Object.defineProperty(mockConfigManager, 'authAudienceBlacklist', { get: () => [], configurable: true });
         Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => false, configurable: true });
 
         mockWellKnownConfigManager = createMockInstance(WellKnownConfigurationManager);
@@ -139,6 +140,18 @@ describe('AuthService', () => {
                 delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             expect(svc.audienceWhitelist).toEqual(['aud-1', 'aud-2']);
+        });
+
+        test('sets audienceBlacklist from config', () => {
+            Object.defineProperty(mockConfigManager, 'authAudienceBlacklist', { get: () => ['aud-1', 'aud-2'], configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            const svc = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+            expect(svc.audienceBlacklist).toEqual(['aud-1', 'aud-2']);
         });
     });
 
@@ -1343,6 +1356,75 @@ describe('AuthService', () => {
                 expect.objectContaining({ id: 'c1' }),
                 expect.any(Object)
             );
+        });
+
+        test('rejects when audience is in blacklist', () => {
+            authService.audienceBlacklist = ['denied-aud'];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { aud: 'denied-aud', scope: 'user/*.read' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(null, false, { reason: 'audience_denied' });
+        });
+
+        test('rejects when aud is an array containing a denied value', () => {
+            authService.audienceBlacklist = ['denied-aud'];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { aud: ['other-aud', 'denied-aud'], scope: 'user/*.read' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(null, false, { reason: 'audience_denied' });
+        });
+
+        test('passes audience check when aud does not match blacklist', () => {
+            authService.audienceBlacklist = ['denied-aud'];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { aud: 'other-aud', scope: 'user/*.read', client_id: 'c1' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.objectContaining({ id: 'c1' }),
+                expect.any(Object)
+            );
+        });
+
+        test('skips audience check when audienceBlacklist is empty', () => {
+            authService.audienceBlacklist = [];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { scope: 'user/*.read', client_id: 'c1' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.objectContaining({ id: 'c1' }),
+                expect.any(Object)
+            );
+        });
+
+        test('checks blacklist before whitelist and rejects even when aud would pass whitelist', () => {
+            authService.audienceBlacklist = ['shared-aud'];
+            authService.audienceWhitelist = ['shared-aud'];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { aud: 'shared-aud', scope: 'user/*.read' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(null, false, { reason: 'audience_denied' });
         });
 
         test('rejects when cid check fails', () => {
