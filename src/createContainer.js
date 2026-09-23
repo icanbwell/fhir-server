@@ -849,10 +849,7 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-                mongoGroupMemberRepository: c.mongoGroupMemberRepository,
-                sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
-                uuidColumnHandler: c.uuidColumnHandler
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider
             }
         )
     );
@@ -874,9 +871,7 @@ const createContainer = function () {
                 searchManager: c.searchManager,
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-                mongoGroupMemberRepository: c.mongoGroupMemberRepository,
-                sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
-                uuidColumnHandler: c.uuidColumnHandler
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository
             }
         )
     );

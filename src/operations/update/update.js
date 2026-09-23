@@ -29,9 +29,7 @@ const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
-const { SourceAssigningAuthorityColumnHandler } = require('../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
-const { UuidColumnHandler } = require('../../preSaveHandlers/handlers/uuidColumnHandler');
-const { promoteExistingGroupIfNeeded, promoteNewGroupIfNeeded } = require('../../utils/groupPromotion');
+const { promoteExistingGroupIfNeeded, rejectNewGroupIfOverLimit } = require('../../utils/groupPromotion');
 
 /**
  * Update Operation
@@ -54,8 +52,6 @@ class UpdateOperation {
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      * @param {MongoGroupMemberRepository} mongoGroupMemberRepository
-     * @param {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
-     * @param {UuidColumnHandler} uuidColumnHandler
      */
     constructor (
         {
@@ -73,9 +69,7 @@ class UpdateOperation {
             searchManager,
             postSaveHandlerFactory,
             identifierEnrichmentProvider,
-            mongoGroupMemberRepository,
-            sourceAssigningAuthorityColumnHandler,
-            uuidColumnHandler
+            mongoGroupMemberRepository
         }
     ) {
         /**
@@ -161,18 +155,6 @@ class UpdateOperation {
          */
         this.mongoGroupMemberRepository = mongoGroupMemberRepository;
         assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
-
-        /**
-         * @type {SourceAssigningAuthorityColumnHandler}
-         */
-        this.sourceAssigningAuthorityColumnHandler = sourceAssigningAuthorityColumnHandler;
-        assertTypeEquals(sourceAssigningAuthorityColumnHandler, SourceAssigningAuthorityColumnHandler);
-
-        /**
-         * @type {UuidColumnHandler}
-         */
-        this.uuidColumnHandler = uuidColumnHandler;
-        assertTypeEquals(uuidColumnHandler, UuidColumnHandler);
     }
 
     /**
@@ -505,16 +487,7 @@ class UpdateOperation {
                         requestInfo, currentResource: null, updatedResource: doc
                     });
 
-                    // Brand-new Group via create-via-PUT, already over the limit.
-                    await promoteNewGroupIfNeeded({
-                        doc,
-                        requestInfo,
-                        base_version,
-                        configManager: this.configManager,
-                        mongoGroupMemberRepository: this.mongoGroupMemberRepository,
-                        sourceAssigningAuthorityColumnHandler: this.sourceAssigningAuthorityColumnHandler,
-                        uuidColumnHandler: this.uuidColumnHandler
-                    });
+                    rejectNewGroupIfOverLimit({ doc, configManager: this.configManager });
 
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 

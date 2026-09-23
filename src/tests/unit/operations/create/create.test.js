@@ -59,9 +59,6 @@ const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAtt
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
-const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
-const { SourceAssigningAuthorityColumnHandler } = require('../../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
-const { UuidColumnHandler } = require('../../../../preSaveHandlers/handlers/uuidColumnHandler');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -83,10 +80,7 @@ describe('CreateOperation', () => {
             configManager: createMockInstance(ConfigManager),
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
             base64DataManager: createMockInstance(Base64DataManager),
-            identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
-            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
-            sourceAssigningAuthorityColumnHandler: createMockInstance(SourceAssigningAuthorityColumnHandler),
-            uuidColumnHandler: createMockInstance(UuidColumnHandler)
+            identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider)
         };
 
         // Setup default mocks

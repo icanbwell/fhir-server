@@ -89,8 +89,6 @@ const { SearchManager } = require('../../../../operations/search/searchManager')
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
-const { SourceAssigningAuthorityColumnHandler } = require('../../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
-const { UuidColumnHandler } = require('../../../../preSaveHandlers/handlers/uuidColumnHandler');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 const { QueryRewriterManager } = require('../../../../queryRewriters/queryRewriterManager');
 const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
@@ -158,9 +156,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
                 require('../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory
             ),
             identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
-            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
-            sourceAssigningAuthorityColumnHandler: createMockInstance(SourceAssigningAuthorityColumnHandler),
-            uuidColumnHandler: createMockInstance(UuidColumnHandler)
+            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
         };
 
         // Basic mocks

@@ -1,15 +1,19 @@
 const { logInfo, logError } = require('../operations/common/logging');
 const { RethrownError } = require('./rethrownError');
+const { BadRequestError } = require('./httpErrors');
 const { enrichMemberReferences } = require('./referenceEnricher');
-const { isUuid } = require('./uid.util');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('./mongoGroupExtendedTag');
+const { createTooCostlyError } = require('./fhirErrorFactory');
+const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const { PATCH_OPERATIONS } = require('../constants/groupConstants');
 
 /**
  * True when doc is a Group whose member[] has crossed configManager.groupMemberLimit and still
- * needs promoting to MongoDB-native extended member storage (GroupMember_4_0_0). There is no
- * member-count reject anywhere (see DCON-5528): a Group that arrives already over the limit (via
- * POST, PUT-insert, or $merge-insert) is promoted on its first save, same as one that crosses the
- * limit later via PUT/$merge/PATCH.
+ * needs promoting to MongoDB-native extended member storage (GroupMember_4_0_0). Only reachable
+ * for an existing Group crossing the limit (PUT-update, PATCH, $merge-update/insert, all of which
+ * already have an addressable identity and a safe rollback -- see promoteExistingGroupIfNeeded and
+ * mergeManager.js). A brand-new Group (CREATE, PUT-insert) that arrives already over the limit is
+ * rejected outright instead -- see rejectNewGroupIfOverLimit.
  *
  * @param {Object} params
  * @param {Resource} params.doc
@@ -42,9 +46,10 @@ function isGroupOverLimit ({ doc, configManager }) {
  * strip+flag rides along in the SAME physical write and the SAME meta.versionId bump the caller
  * already intends, instead of a second, separately-versioned write.
  *
- * Callers must have already ensured doc._uuid and doc._sourceAssigningAuthority are set (either
- * because doc is an existing resource carrying them forward, or via the early handler calls in
- * promoteNewGroupIfNeeded below for a brand-new resource).
+ * Callers must have already ensured doc._uuid and doc._sourceAssigningAuthority are set -- true for
+ * every caller of promoteGroup, since only an existing resource (carrying them forward) is ever
+ * promoted; a brand-new Group already over the limit is rejected outright instead (see
+ * rejectNewGroupIfOverLimit) rather than promoted.
  *
  * @param {Object} params
  * @param {Resource} params.doc - Mutated in place (member deleted, MONGO_GROUP_EXTENDED_FIELD set).
@@ -57,7 +62,15 @@ function isGroupOverLimit ({ doc, configManager }) {
  *   resource under the same requestId's buffer and only flushes once, after its whole loop
  *   finishes, so the roster's create/update ops just need to join that same buffer, not trigger
  *   their own premature flush of everything staged so far.
- * @returns {Promise<void>}
+ * @returns {Promise<Map<string, {writeRequest: Object, writeType: 'create'|'update'|'delete'|'none', member: Object|undefined}>>}
+ *   the resolvedMemberWrites this call staged. A `flush: false` caller (mergeManager.js) that
+ *   goes on to stage its own doc right after this call does NOT roll these back if that
+ *   subsequent staging fails -- the Group's own version is never bumped on that failure, so the
+ *   Group is left exactly as if promotion had crashed mid-flight: still over-limit, not yet
+ *   marked extended. The next write to the same uuid re-enters promotion and resolves every
+ *   member through the same resolveMemberWrite state table, so rows already buffered/flushed here
+ *   classify as 'none'/'update' instead of duplicating -- see
+ *   docs/runbooks/group-promotion-recovery.md.
  */
 async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberRepository, flush = true }) {
     const members = doc.member;
@@ -70,21 +83,24 @@ async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberR
         // that's already enriched.
         enrichMemberReferences(members, doc._sourceAssigningAuthority);
 
-        const writeRequests = members
-            .map((member) => ({
-                entity: {
-                    reference: member.entity?.reference,
-                    type: member.entity?.type,
-                    display: member.entity?.display,
-                    _uuid: member.entity?._uuid,
-                    _sourceId: member.entity?._sourceId,
-                    _sourceAssigningAuthority: member.entity?._sourceAssigningAuthority
-                },
-                period: member.period,
-                inactive: member.inactive,
-                op: 'add'
-            }))
-            .filter((writeRequest) => writeRequest.entity.reference);
+        const memberMissingReference = members.find((member) => !member.entity?.reference);
+        if (memberMissingReference) {
+            throw new BadRequestError({
+                message: `Missing required member.entity.reference while promoting Group to extended member storage: ${JSON.stringify(memberMissingReference)}`,
+                toString: function () { return this.message; }
+            }, {
+                issue: [new OperationOutcomeIssue({
+                    severity: 'error',
+                    code: 'required',
+                    diagnostics: 'Each Group member must include entity.reference to be promoted to extended member storage'
+                })]
+            });
+        }
+
+        const writeRequests = members.map((member) => ({
+            ...member.toJSONInternal(),
+            op: PATCH_OPERATIONS.ADD
+        }));
 
         const groupUuid = doc._uuid;
 
@@ -122,6 +138,8 @@ async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberR
             groupId: doc.id,
             rosterSize: members.length
         });
+
+        return resolvedMemberWrites;
     } catch (error) {
         logError('Error promoting Group to extended member storage', {
             error: error.message,
@@ -147,58 +165,49 @@ async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberR
  * @param {import('./configManager').ConfigManager} params.configManager
  * @param {import('../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} params.mongoGroupMemberRepository
  * @param {boolean} [params.flush] - see promoteGroup's docstring.
- * @returns {Promise<void>}
+ * @returns {Promise<Map|undefined>} promoteGroup's resolvedMemberWrites, or undefined if doc
+ *   wasn't over the limit and nothing was promoted. See promoteGroup's own docstring for how a
+ *   `flush: false` caller must use this to roll back on a subsequent failure.
  */
 async function promoteExistingGroupIfNeeded ({ doc, requestInfo, base_version, configManager, mongoGroupMemberRepository, flush = true }) {
     if (!isGroupOverLimit({ doc, configManager })) {
-        return;
+        return undefined;
     }
-    await promoteGroup({ doc, requestInfo, base_version, mongoGroupMemberRepository, flush });
+    return promoteGroup({ doc, requestInfo, base_version, mongoGroupMemberRepository, flush });
 }
 
 /**
- * Promotes a brand-new Group (CREATE, PUT-insert, $merge-insert) whose member[] already arrives
- * over the limit. A new resource has no _uuid/_sourceAssigningAuthority yet -- those are normally
- * computed by SourceAssigningAuthorityColumnHandler/UuidColumnHandler inside preSaveManager, which
- * itself only runs later, inside the caller's own insertOneAsync call. Since the roster write
- * needs both fields now, this runs the same two handlers early, mirroring the established
- * "compute _uuid ahead of the normal pre-save pipeline" pattern already used by
- * MergeResourceValidator and the bulk-import handler. Both handlers are idempotent (guarded by
- * "already set?" checks), so preSaveManager running them again later, inside insertOneAsync, is
- * harmless.
+ * Rejects a brand-new Group (CREATE, PUT-insert) whose member[] already arrives over the limit. A
+ * brand-new Group has no addressable identity yet -- a fresh POST always mints a new id/_uuid, so
+ * if promotion durably wrote the roster and the Group's own write then failed, no client retry
+ * could ever reach those rows to complete or clean up promotion (see
+ * docs/runbooks/group-promotion-recovery.md). Every other path -- PUT-update, PATCH, and both
+ * $merge branches -- keeps promoting instead of rejecting: all four operate on a Group that
+ * already has (or, for $merge-insert, is given by the client rather than server-minted) a stable,
+ * addressable identity, so if the roster write durably lands but the Group's own write then fails
+ * for any of them, nothing is orphaned -- the Group's version is never bumped, and the next write
+ * to that same uuid simply re-enters promotion and resolves cleanly, same as the crash-recovery
+ * case in the runbook. This is a narrower reject scope
+ * than the original epic doc's Task B1 (which rejected any single bulk write, including PUT-update
+ * and $merge, promoting only a dedicated incremental-add operation that no longer exists in this
+ * codebase) -- scoped down deliberately to just the orphan-risk case, not full doc fidelity.
  *
  * @param {Object} params
  * @param {Resource} params.doc
- * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
- * @param {string} params.base_version
  * @param {import('./configManager').ConfigManager} params.configManager
- * @param {import('../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} params.mongoGroupMemberRepository
- * @param {import('../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler').SourceAssigningAuthorityColumnHandler} params.sourceAssigningAuthorityColumnHandler
- * @param {import('../preSaveHandlers/handlers/uuidColumnHandler').UuidColumnHandler} params.uuidColumnHandler
- * @returns {Promise<void>}
+ * @returns {void}
+ * @throws {BadRequestError} when doc.member[] exceeds configManager.groupMemberLimit
  */
-async function promoteNewGroupIfNeeded ({
-    doc,
-    requestInfo,
-    base_version,
-    configManager,
-    mongoGroupMemberRepository,
-    sourceAssigningAuthorityColumnHandler,
-    uuidColumnHandler
-}) {
+function rejectNewGroupIfOverLimit ({ doc, configManager }) {
     if (!isGroupOverLimit({ doc, configManager })) {
         return;
     }
-    // Order matters: UuidColumnHandler's hash-based branch (id isn't already a uuid) reads
-    // _sourceAssigningAuthority, so it must run second -- same order preSaveManager itself
-    // registers them in.
-    await sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource: doc });
-    if (isUuid(doc.id)) {
-        doc._uuid = doc.id;
-    } else {
-        await uuidColumnHandler.preSaveAsync({ resource: doc });
-    }
-    await promoteGroup({ doc, requestInfo, base_version, mongoGroupMemberRepository });
+    const { message, options } = createTooCostlyError({
+        actual: doc.member.length,
+        limit: configManager.groupMemberLimit,
+        operation: 'PUT'
+    });
+    throw new BadRequestError({ message }, options);
 }
 
-module.exports = { isGroupOverLimit, promoteExistingGroupIfNeeded, promoteNewGroupIfNeeded };
+module.exports = { isGroupOverLimit, promoteExistingGroupIfNeeded, rejectNewGroupIfOverLimit };
