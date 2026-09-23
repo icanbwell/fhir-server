@@ -424,8 +424,8 @@ describe('Group promotion to extended member storage', () => {
             const groupUuid = (await getGroupDoc(groupId))._uuid;
 
             const container = getTestContainer();
-            const realMergeOneAsync = container.databaseBulkInserter.mergeOneAsync.bind(container.databaseBulkInserter);
-            const spy = jest.spyOn(container.databaseBulkInserter, 'mergeOneAsync')
+            const realMergeOneAsync = container.fastDatabaseBulkInserter.mergeOneAsync.bind(container.fastDatabaseBulkInserter);
+            const spy = jest.spyOn(container.fastDatabaseBulkInserter, 'mergeOneAsync')
                 .mockImplementation(async (params) => {
                     // Only the Group's own staging call fails -- promoteExistingGroupIfNeeded's
                     // roster writes (flush: false) have already joined the same batch buffer by

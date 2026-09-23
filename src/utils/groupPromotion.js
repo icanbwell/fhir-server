@@ -6,6 +6,7 @@ const { MONGO_GROUP_EXTENDED_FIELD } = require('./mongoGroupExtendedTag');
 const { createTooCostlyError } = require('./fhirErrorFactory');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { PATCH_OPERATIONS } = require('../constants/groupConstants');
+const Resource = require('../fhir/classes/4_0_0/resources/resource');
 
 /**
  * True when doc is a Group whose member[] has crossed configManager.groupMemberLimit and still
@@ -97,8 +98,9 @@ async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberR
             });
         }
 
+        const isResourceInstance = doc instanceof Resource;
         const writeRequests = members.map((member) => ({
-            ...member.toJSONInternal(),
+            ...(isResourceInstance ? member.toJSONInternal() : member),
             op: PATCH_OPERATIONS.ADD
         }));
 
