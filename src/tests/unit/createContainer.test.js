@@ -44,7 +44,7 @@ const { describe, test, expect, jest: jestObj } = require('@jest/globals');
 jestObj.mock('@icanbwell/fhirpatientsummary', () => ({
     ComprehensiveIPSCompositionBuilder: class ComprehensiveIPSCompositionBuilder {},
     TBundle: class TBundle {}
-}), { virtual: true });
+}));
 
 // PERSON_MATCHING_SERVICE_* are required by OAuthClientCredentialsHelper (constructed as part of
 // personMatchManager's dependency chain) but are NOT set by jest/setEnvVars.js. createContainer's
