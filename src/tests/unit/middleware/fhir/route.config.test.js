@@ -62,9 +62,6 @@ const { CustomOperationsController } = require('../../../../middleware/fhir/4_0_
 
 const EXPRESS_METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 const INTERACTION_VALUES = Object.values(INTERACTIONS);
-// enableResourceRoutes skips base-level entries (no `:resource` placeholder) —
-// those are registered exactly once by enableBaseRoute so they can't be shadowed.
-const RESOURCE_SCOPED_ROUTES = routes.filter((r) => r.path.includes(':resource'));
 
 /**
  * Builds an express `app` double that records every route registration.
@@ -227,9 +224,9 @@ describe('route.config — middleware chain wired by FhirRouter', () => {
     });
 
     test('every resource route is registered with the authentication middleware in its chain', () => {
-        // Base-level routes are deliberately skipped by enableResourceRoutes; they
-        // are registered once by enableBaseRoute instead, so only :resource-scoped routes here.
-        expect(registrations.length).toBe(RESOURCE_SCOPED_ROUTES.length);
+        // enableResourceRoutes registers every entry in `routes`, including base-level ones
+        // (no :resource placeholder) -- see the ":resource is substituted..." test below.
+        expect(registrations.length).toBe(routes.length);
         const unauthenticated = registrations
             .filter((r) => !r.chain.includes(AUTH_MW))
             .map((r) => `${r.method.toUpperCase()} ${r.path}`);
@@ -263,22 +260,24 @@ describe('route.config — middleware chain wired by FhirRouter', () => {
     });
 
     test(':resource is substituted with the profile name on every path that declares it', () => {
-        const templatePaths = RESOURCE_SCOPED_ROUTES.map((r) => r.path);
+        const templatePaths = routes.map((r) => r.path);
         const expected = templatePaths.map((p) => p.replace(':resource', 'Patient'));
         expect(registrations.map((r) => r.path)).toEqual(expected);
         expect(registrations.some((r) => r.path.includes(':resource'))).toBe(false);
     });
 
-    test('base-level routes (no :resource placeholder) are not registered by enableResourceRoutes', () => {
-        // Those three entries (GET/POST /:base_version, PUT /:base_version/) would otherwise be
-        // registered here first and permanently shadow base.controller.batch.
+    test('base-level routes (no :resource placeholder) are also registered by enableResourceRoutes, ahead of enableBaseRoute', () => {
+        // Those three entries (GET/POST /:base_version, PUT /:base_version/) are registered here
+        // first (FhirRouter.setRoutes runs enableResourceRoutes before enableBaseRoute), so this
+        // resource-level registration shadows base.controller.batch -- Express dispatches to the
+        // first matching registration for a given verb+path.
         const baseLevelRoutes = routes.filter((r) => !r.path.includes(':resource'));
         expect(baseLevelRoutes.length).toBeGreaterThan(0);
         for (const baseLevelRoute of baseLevelRoutes) {
             const match = registrations.find(
                 (r) => r.method === baseLevelRoute.type && r.path === baseLevelRoute.path
             );
-            expect(match).toBeUndefined();
+            expect(match).toBeDefined();
         }
     });
 

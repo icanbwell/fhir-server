@@ -423,14 +423,6 @@ class FhirRouter {
                 //     continue;
                 // }
 
-                // Base-level routes (no :resource placeholder) are not resource-scoped; they
-                // are registered once by enableBaseRoute. Registering them here too would make
-                // this resource-level handler the first Express match, shadowing
-                // base.controller.batch for every base-level batch/transaction endpoint.
-                if (!route.path.includes(':resource')) {
-                    continue;
-                }
-
                 // Calculate the cors setting we want for this route
                 const corsOptions = Object.assign({}, corsDefaults, profile.corsOptions, {
                     methods: [route.type.toUpperCase()]

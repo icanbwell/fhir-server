@@ -180,6 +180,16 @@ class ApplyClickHouseDDLRunner extends BaseScriptRunner {
             const char = sqlText[i];
             const next = sqlText[i + 1];
 
+            if (inString && char === '\\') {
+                // a backslash-escaped character (e.g. \' or \\) never terminates the string,
+                // regardless of what it escapes
+                result += char;
+                if (next !== undefined) {
+                    result += next;
+                    i++;
+                }
+                continue;
+            }
             if (char === "'" && !inString) {
                 inString = true;
                 result += char;

@@ -136,6 +136,20 @@ describe('ApplyClickHouseDDLRunner', () => {
             expect(statements[0]).toContain('https://a--b.example.com');
         });
 
+        test('a backslash-escaped quote inside a string literal must not end the string early', () => {
+            // ClickHouse also permits backslash-escaping a quote (\') in addition to the doubled
+            // '' convention. Without recognising \', the string is treated as closed at that
+            // point, so a later "--" in the same literal is misread as a real line comment and
+            // (with no trailing newline) discards the rest of the statement entirely.
+            const runner = makeRunner({});
+            const sql = "CREATE TABLE t (c String DEFAULT 'it\\'s a --value') ENGINE=Memory;";
+
+            const statements = runner._parseStatements(sql);
+
+            expect(statements[0]).toContain('ENGINE=Memory');
+            expect(statements[0]).toContain('it\\\'s a --value');
+        });
+
         test('drops purely whitespace segments between semicolons', () => {
             const runner = makeRunner({});
             const statements = runner._parseStatements('   \n  ;\nCREATE DATABASE only;');
