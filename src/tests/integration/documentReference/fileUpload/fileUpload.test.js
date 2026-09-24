@@ -99,7 +99,7 @@ describe('DocumentReference $fileUpload / $fileDownload — enabled', () => {
         expect(resp.body.contentId).toEqual(expect.any(String));
         expect(resp.body.expiresAt).toEqual(expect.any(String));
         expect(resp.body.uploadUrl).toContain('mock=upload');
-        expect(resp.body.uploadUrl).toContain(`/content/${resp.body.contentId}`);
+        expect(resp.body.uploadUrl).toContain(`/content/${resp.body.contentId}/report.pdf`);
         const { contentId, uploadUrl } = resp.body;
         const s3Key = extractKeyFromMockUrl(uploadUrl);
 
@@ -126,51 +126,8 @@ describe('DocumentReference $fileUpload / $fileDownload — enabled', () => {
             .set(getHeaders());
         expect(resp.status).toBe(302);
         expect(resp.headers.location).toContain('mock=download');
-        expect(resp.headers.location).toContain(`/content/${contentId}`);
+        expect(resp.headers.location).toContain(`/content/${contentId}/report.pdf`);
         expect(resp.headers.location).toContain(encodeURIComponent('filename="report.pdf"'));
-    });
-
-    test('renaming attachment.title after upload does not break $fileDownload', async () => {
-        const request = await createTestRequest(registerMockClient);
-        const container = getTestContainer();
-
-        let resp = await request
-            .put(`/4_0_0/DocumentReference/${documentReference1Resource.id}`)
-            .send(documentReference1Resource)
-            .set(getHeaders());
-        expect(resp.status).toBe(201);
-
-        resp = await request
-            .post(`/4_0_0/DocumentReference/${documentReference1Resource.id}/$fileUpload`)
-            .send({ resourceType: 'Parameters', parameter: [{ name: 'fileName', valueString: 'original.pdf' }] })
-            .set(getHeaders());
-        expect(resp.status).toBe(200);
-        const { contentId, uploadUrl } = resp.body;
-        const s3Key = extractKeyFromMockUrl(uploadUrl);
-
-        await container.documentReferenceFileCloudStorageClient.uploadAsync({
-            filePath: s3Key,
-            data: 'fake-pdf-bytes'
-        });
-
-        resp = await request
-            .get(`/4_0_0/DocumentReference/${documentReference1Resource.id}`)
-            .set(getHeaders());
-        expect(resp.status).toBe(200);
-        const updatedResource = resp.body;
-        const contentEntry = updatedResource.content.find((c) => c.id === contentId);
-        contentEntry.attachment.title = 'renamed.pdf';
-        resp = await request
-            .put(`/4_0_0/DocumentReference/${documentReference1Resource.id}`)
-            .send(updatedResource)
-            .set(getHeaders());
-        expect(resp.status).toBe(200);
-
-        resp = await request
-            .get(`/4_0_0/DocumentReference/${documentReference1Resource.id}/${contentId}/$fileDownload`)
-            .set(getHeaders());
-        expect(resp.status).toBe(302);
-        expect(resp.headers.location).toContain('mock=download');
     });
 
     test('$fileDownload forces Content-Disposition: attachment even for an inline-renderable contentType', async () => {

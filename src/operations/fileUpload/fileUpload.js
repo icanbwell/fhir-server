@@ -139,7 +139,8 @@ class FileUploadOperation {
             });
 
             const contentId = generateUUID();
-            const key = `DocumentReference_4_0_0/${foundResource._uuid}/content/${contentId}`;
+            const key = `DocumentReference_4_0_0/${foundResource._uuid}/content/${contentId}` +
+                (sanitizedFileName ? `/${sanitizedFileName}` : '');
 
             const expiresInSeconds = this.configManager.documentReferenceFileUploadUrlExpiryInSeconds;
             const uploadUrl = await this.documentReferenceFileCloudStorageClient.getPresignedPutUrlAsync({

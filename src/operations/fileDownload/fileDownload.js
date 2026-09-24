@@ -122,13 +122,14 @@ class FileDownloadOperation {
                 throw new NotFoundError(`Content not found: ${resourceType}/${id}/${contentId}`);
             }
 
-            const key = `DocumentReference_4_0_0/${foundResource._uuid}/content/${contentId}`;
+            const fileName = contentEntry.attachment && contentEntry.attachment.title;
+            const key = `DocumentReference_4_0_0/${foundResource._uuid}/content/${contentId}` +
+                (fileName ? `/${fileName}` : '');
 
             if (!(await this.documentReferenceFileCloudStorageClient.existsAsync(key))) {
                 throw new NotFoundError(`Content not found: ${resourceType}/${id}/${contentId}`);
             }
 
-            const fileName = contentEntry.attachment && contentEntry.attachment.title;
             const url = await this.documentReferenceFileCloudStorageClient.getPresignedGetUrlAsync({
                 filePath: key,
                 expiresInSeconds: this.configManager.documentReferenceFileDownloadUrlExpiryInSeconds,
