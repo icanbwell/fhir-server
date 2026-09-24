@@ -3,8 +3,9 @@ const { QueryParameterValue } = require('../../operations/query/queryParameterVa
 const { BadRequestError } = require('../../utils/httpErrors');
 
 // Never a real resource id; used so a zero-match chain filters out everything instead of nothing
-// (review.md §D).
-const UNMATCHABLE_UUID = '00000000-0000-0000-0000-000000000000';
+// (review.md §D). Same sentinel already used elsewhere in this codebase (e.g.
+// personToPatientIdsExpander.js, dataSharingManager.js, searchManager.js, patientQueryCreator.js).
+const UNMATCHABLE_ID = '__invalid__';
 
 class ChainedSearchQueryRewriter extends QueryRewriter {
     async rewriteArgsAsync ({ parsedArgs, requestInfo, searchResourceAsync }) {
@@ -57,7 +58,7 @@ class ChainedSearchQueryRewriter extends QueryRewriter {
 
             const newValue = resolvedUuids && resolvedUuids.length > 0
                 ? resolvedUuids.map((uuid) => `${targetType}/${uuid}`).join(',')
-                : `${targetType}/${UNMATCHABLE_UUID}`;
+                : UNMATCHABLE_ID;
 
             parsedArg.queryParameterValue = new QueryParameterValue({
                 value: newValue,

@@ -158,12 +158,10 @@ describe('ChainedSearchQueryRewriter', () => {
 
         const result = await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
 
-        const rewrittenValue = result.parsedArgItems[0].queryParameterValue.value;
-        expect(rewrittenValue).toMatch(/^Patient\//);
-        // Must not equal any uuid that could plausibly be a real Patient _uuid resolved above,
-        // and must not be empty/falsy (which would read downstream as "no filter").
-        expect(rewrittenValue).toBeTruthy();
-        expect(rewrittenValue).not.toBe('Patient/uuid-1');
+        // '__invalid__' is the same sentinel already used elsewhere in this codebase
+        // (personToPatientIdsExpander.js, dataSharingManager.js, searchManager.js,
+        // patientQueryCreator.js) for "guaranteed to never match a real id".
+        expect(result.parsedArgItems[0].queryParameterValue.value).toBe('__invalid__');
     });
 
     test('batches multiple comma-separated values on one chain into a single sub-search call', async () => {
