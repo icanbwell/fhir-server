@@ -35,7 +35,7 @@ const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourc
 const { COLLECTION } = require('../../constants');
 const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
-const { isGroupOverLimit, promoteExistingGroupIfNeeded } = require('../../utils/groupPromotion');
+const { isGroupOverLimit, promoteExistingGroupIfNeeded, cleanupExtendedGroupOrphansIfNeeded } = require('../../utils/groupPromotion');
 
 class MergeManager {
     /**
@@ -693,6 +693,23 @@ class MergeManager {
                 });
             }
 
+            // A no-op unless resourceToMerge is already extended, per its own guard -- reading
+            // that flag here, before promoteExistingGroupIfNeeded below has a chance to run, is
+            // what makes this safe: a not-yet-extended Group's flag is still false/undefined at
+            // this point, so this can't mistake the fresh rows promoteGroup is about to write for
+            // a forward-dangling orphan and delete them (running this the other way round did
+            // exactly that -- see cleanupExtendedGroupOrphansIfNeeded's own docstring). This
+            // $merge may be metadata-only (no member[] submitted, per
+            // rejectMemberOnExtendedGroupWrite above), so this must still run regardless of
+            // hasMemberField.
+            await cleanupExtendedGroupOrphansIfNeeded({
+                doc: resourceToMerge,
+                requestInfo,
+                base_version,
+                configManager: this.configManager,
+                mongoGroupMemberRepository: this.mongoGroupMemberRepository
+            });
+
             // A Group crossing groupMemberLimit via this $merge update is promoted here, before
             // it's staged for its own write. resourceToMerge._uuid/
             // _sourceAssigningAuthority are already set (this method's own preSaveManager.preSaveAsync
@@ -760,6 +777,18 @@ class MergeManager {
             // Update attachments after all validations
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
             resourceToMerge = await this.base64DataManager.transformAsync(resourceToMerge, BLOB_OP.INSERT, requestInfo);
+
+            // Always a no-op here in practice (a brand-new resource can't already be extended) --
+            // kept only for symmetry with performMergeDbUpdateAsync's own call, and run before
+            // promoteExistingGroupIfNeeded below for the same reason as there -- see
+            // cleanupExtendedGroupOrphansIfNeeded's own docstring.
+            await cleanupExtendedGroupOrphansIfNeeded({
+                doc: resourceToMerge,
+                requestInfo,
+                base_version,
+                configManager: this.configManager,
+                mongoGroupMemberRepository: this.mongoGroupMemberRepository
+            });
 
             // Brand-new Group via $merge-insert, already over the limit -- see DCON-5528.
             // resourceToMerge._uuid/_sourceAssigningAuthority are already set by this method's own

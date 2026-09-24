@@ -105,10 +105,20 @@ async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberR
 
         const groupUuid = doc._uuid;
 
-        // Resolve against the current GroupMember_4_0_0 roster first (same two-phase API
-        // GroupMemberPatchStrategy's extended-regime PATCH uses) -- on a retry after a prior
-        // crash, rows already written resolve to 'none'/'update' instead of blindly re-creating
-        // them.
+        // A Group reaching this point has never successfully extended (isGroupOverLimit already
+        // confirmed MONGO_GROUP_EXTENDED_FIELD isn't set), so there is no legitimate row for it
+        // in GroupMember_4_0_0 yet -- anything found can only be leftover from an earlier
+        // promotion attempt that wrote the roster but never reached its own commit (a crash, or
+        // losing doc's own optimistic-concurrency race to an unrelated write). Unlike the
+        // already-extended steady-state case, there's no existing content here worth preserving
+        // or merging against, so wipe it unconditionally rather than trying to tell stale rows
+        // apart from fresh ones by version. See MongoGroupMemberRepository.removeMembersAsync's
+        // own docstring for why that's also true for the already-extended case, just handled
+        // differently (see cleanupExtendedGroupOrphansIfNeeded below).
+        await mongoGroupMemberRepository.removeMembersAsync({ requestInfo, base_version, groupUuid });
+
+        // Every member below is therefore a fresh create -- resolveMemberWritesAsync's own DB
+        // read (against the now-empty roster) will find nothing to resolve against.
         const resolvedMemberWrites = await mongoGroupMemberRepository.resolveMemberWritesAsync({
             base_version,
             groupUuid,
@@ -178,6 +188,35 @@ async function promoteExistingGroupIfNeeded ({ doc, requestInfo, base_version, c
 }
 
 /**
+ * Deletes any GroupMember_4_0_0 row left behind by a failed write to an already-extended Group,
+ * before this write's own commit proceeds. Needed because, once a Group is extended, nothing
+ * else re-examines the roster on every write the way isGroupOverLimit's "still over the limit"
+ * check does for a not-yet-extended Group (see promoteGroup's own wipe-before-promote for that
+ * case) -- so without this, a plain metadata-only write could advance the Group's version right
+ * past a dangling row and make it indistinguishable from a real member.
+ *
+ * @param {Object} params
+ * @param {Resource} params.doc - the resource about to be written, with meta.versionId already
+ *   bumped in-memory to the version this write is about to claim.
+ * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
+ * @param {string} params.base_version
+ * @param {import('./configManager').ConfigManager} params.configManager
+ * @param {import('../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} params.mongoGroupMemberRepository
+ * @returns {Promise<void>}
+ */
+async function cleanupExtendedGroupOrphansIfNeeded ({ doc, requestInfo, base_version, configManager, mongoGroupMemberRepository }) {
+    if (doc.resourceType !== 'Group' || !configManager.enableExtendedGroup || doc[MONGO_GROUP_EXTENDED_FIELD] !== true) {
+        return;
+    }
+    await mongoGroupMemberRepository.removeMembersAsync({
+        requestInfo,
+        base_version,
+        groupUuid: doc._uuid,
+        versionId: parseInt(doc.meta.versionId, 10)
+    });
+}
+
+/**
  * Rejects a brand-new Group (CREATE, PUT-insert) whose member[] already arrives over the limit. A
  * brand-new Group has no addressable identity yet -- a fresh POST always mints a new id/_uuid, so
  * if promotion durably wrote the roster and the Group's own write then failed, no client retry
@@ -210,4 +249,9 @@ function rejectNewGroupIfOverLimit ({ doc, configManager }) {
     throw new BadRequestError({ message }, options);
 }
 
-module.exports = { isGroupOverLimit, promoteExistingGroupIfNeeded, rejectNewGroupIfOverLimit };
+module.exports = {
+    isGroupOverLimit,
+    promoteExistingGroupIfNeeded,
+    rejectNewGroupIfOverLimit,
+    cleanupExtendedGroupOrphansIfNeeded
+};

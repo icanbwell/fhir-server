@@ -354,9 +354,11 @@ describe('Group promotion to extended member storage', () => {
                 const rowsAfterCrash = await getMemberRows(groupDocAfterCrash._uuid);
                 expect(rowsAfterCrash).toHaveLength(4);
 
-                // Retrying the same PUT re-enters promoteExistingGroupIfNeeded; the roster write
-                // resolves every row back to 'none' (already current, no duplicates) and this
-                // time the Group document's own commit succeeds, completing promotion.
+                // Retrying the same PUT re-enters promoteExistingGroupIfNeeded; promoteGroup wipes
+                // the 4 rows the abandoned attempt already wrote (this Group was never
+                // successfully extended, so none of them were ever legitimate) and writes 4 fresh
+                // ones from the same content, and this time the Group document's own commit
+                // succeeds, completing promotion.
                 const retryResp = await request
                     .put(`/4_0_0/Group/${groupId}`)
                     .send({
@@ -495,6 +497,167 @@ describe('Group promotion to extended member storage', () => {
         // Both reject an over-limit brand-new Group outright instead of promoting it (see the
         // "CREATE" describe block above) -- nothing is ever staged for either write, so there is no
         // roster-vs-Group scenario to exercise for that path.
+    });
+
+    describe('not-yet-extended: promotion wipes stale rows before retrying', () => {
+        test('a retry with a different member set than the one that crashed does not resurrect the abandoned attempt\'s rows', async () => {
+            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+
+            const created = await createGroup({ member: buildMembers(2, 'wipe-retry-base') });
+            expect(created.status).toBe(201);
+            const groupId = created.body.id;
+
+            const realBulkWrite = Collection.prototype.bulkWrite;
+            let thrown = false;
+            jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(function (operations, options) {
+                if (this.collectionName === GROUP_COLLECTION_NAME && !thrown) {
+                    thrown = true;
+                    return Promise.reject(new Error('simulated crash after roster write, before Group document commit'));
+                }
+                return realBulkWrite.call(this, operations, options);
+            });
+
+            try {
+                const firstAttemptMembers = [
+                    ...buildMembers(2, 'wipe-retry-base'),
+                    ...buildMembers(2, 'wipe-retry-first-attempt')
+                ];
+                const putResp = await request
+                    .put(`/4_0_0/Group/${groupId}`)
+                    .send({
+                        resourceType: 'Group',
+                        id: groupId,
+                        type: 'person',
+                        actual: true,
+                        meta: defaultMeta(),
+                        member: firstAttemptMembers
+                    })
+                    .set(getHeaders());
+                expect(putResp.status).toBeGreaterThanOrEqual(500);
+                expect(thrown).toBe(true);
+
+                const groupDocAfterCrash = await getGroupDoc(groupId);
+                expect(groupDocAfterCrash[MONGO_GROUP_EXTENDED_FIELD]).not.toBe(true);
+                expect(groupDocAfterCrash.member).toHaveLength(2);
+                const rowsAfterCrash = await getMemberRows(groupDocAfterCrash._uuid);
+                expect(rowsAfterCrash).toHaveLength(4);
+            } finally {
+                Collection.prototype.bulkWrite.mockRestore();
+            }
+
+            // Retry with a DIFFERENT pair of new members -- not a resend of the same request.
+            // Both attempts target the same next version number (the Group never advanced past
+            // its pre-crash version), so without promoteGroup's wipe, the abandoned attempt's rows
+            // (wipe-retry-first-attempt-*) would still be sitting at that same number and could be
+            // mistaken for real members once this retry's Group commit lands there for real.
+            const secondAttemptMembers = [
+                ...buildMembers(2, 'wipe-retry-base'),
+                ...buildMembers(2, 'wipe-retry-second-attempt')
+            ];
+            const retryResp = await request
+                .put(`/4_0_0/Group/${groupId}`)
+                .send({
+                    resourceType: 'Group',
+                    id: groupId,
+                    type: 'person',
+                    actual: true,
+                    meta: defaultMeta(),
+                    member: secondAttemptMembers
+                })
+                .set(getHeaders());
+            expect(retryResp.status).toBe(200);
+
+            await expectPromoted(groupId, 4);
+            const groupDoc = await getGroupDoc(groupId);
+            const rows = await getMemberRows(groupDoc._uuid);
+            const references = rows.map((r) => r.member.entity.reference).sort();
+            expect(references).toEqual([
+                'Patient/wipe-retry-base-0',
+                'Patient/wipe-retry-base-1',
+                'Patient/wipe-retry-second-attempt-0',
+                'Patient/wipe-retry-second-attempt-1'
+            ]);
+        });
+    });
+
+    describe('already-extended: a failed member PATCH leaves a forward-dangling orphan, cleaned up by the next write', () => {
+        test('a later metadata-only PATCH removes the dangling row from the failed member add before committing its own change', async () => {
+            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+
+            const created = await createGroup({ member: buildMembers(3, 'orphan-cleanup') });
+            expect(created.status).toBe(201);
+            const groupId = created.body.id;
+
+            const putResp = await request
+                .put(`/4_0_0/Group/${groupId}`)
+                .send({
+                    resourceType: 'Group',
+                    id: groupId,
+                    type: 'person',
+                    actual: true,
+                    meta: defaultMeta(),
+                    member: buildMembers(4, 'orphan-cleanup')
+                })
+                .set(getHeaders());
+            expect(putResp.status).toBe(200);
+            await expectPromoted(groupId, 4);
+            const groupDocAfterPromotion = await getGroupDoc(groupId);
+            const groupUuid = groupDocAfterPromotion._uuid;
+            const versionAfterPromotion = parseInt(groupDocAfterPromotion.meta.versionId, 10);
+
+            // Fail only the Group's own commit. commitPendingMemberWrites (the roster's own
+            // write) now runs BEFORE it -- see patch.js's reordering -- so this simulates exactly
+            // the case that reorder was meant to convert: a forward-dangling orphan instead of a
+            // silently-stale row nothing could ever detect.
+            const realBulkWrite = Collection.prototype.bulkWrite;
+            let thrown = false;
+            jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(function (operations, options) {
+                if (this.collectionName === GROUP_COLLECTION_NAME && !thrown) {
+                    thrown = true;
+                    return Promise.reject(new Error('simulated crash after roster write, before Group document commit'));
+                }
+                return realBulkWrite.call(this, operations, options);
+            });
+
+            try {
+                const failedPatchResp = await patchGroup(groupId, [
+                    { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/orphan-cleanup-dangling' } } }
+                ]);
+                expect(failedPatchResp.status).toBeGreaterThanOrEqual(500);
+                expect(thrown).toBe(true);
+            } finally {
+                Collection.prototype.bulkWrite.mockRestore();
+            }
+
+            // The Group's own commit never landed -- still at its pre-patch version -- but the
+            // roster write that ran before it did, leaving a row stamped one version ahead of what
+            // the Group actually shows.
+            const groupDocAfterFailedPatch = await getGroupDoc(groupId);
+            expect(parseInt(groupDocAfterFailedPatch.meta.versionId, 10)).toBe(versionAfterPromotion);
+            const rowsAfterFailedPatch = await getMemberRows(groupUuid);
+            expect(rowsAfterFailedPatch).toHaveLength(5);
+            const danglingRow = rowsAfterFailedPatch.find(
+                (r) => r.member.entity.reference === 'Patient/orphan-cleanup-dangling'
+            );
+            expect(danglingRow).toBeDefined();
+            expect(parseInt(danglingRow.meta.versionId, 10)).toBe(versionAfterPromotion + 1);
+
+            // A completely unrelated, metadata-only PATCH -- no member ops at all -- still removes
+            // the dangling row before committing its own change, via cleanupExtendedGroupOrphansIfNeeded.
+            const metadataPatchResp = await patchGroup(groupId, [
+                { op: 'add', path: '/active', value: true }
+            ]);
+            expect(metadataPatchResp.status).toBe(200);
+
+            const groupDocAfterMetadataPatch = await getGroupDoc(groupId);
+            expect(parseInt(groupDocAfterMetadataPatch.meta.versionId, 10)).toBe(versionAfterPromotion + 1);
+            expect(groupDocAfterMetadataPatch[MONGO_GROUP_EXTENDED_FIELD]).toBe(true);
+            expect(groupDocAfterMetadataPatch.member).toBeUndefined();
+
+            const rowsAfterCleanup = await getMemberRows(groupUuid);
+            expect(rowsAfterCleanup).toHaveLength(4);
+            expect(rowsAfterCleanup.some((r) => r.member.entity.reference === 'Patient/orphan-cleanup-dangling')).toBe(false);
+        });
     });
 
     describe('ClickHouse-tracked Group', () => {

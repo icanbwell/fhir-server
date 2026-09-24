@@ -29,7 +29,8 @@ const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
-const { promoteExistingGroupIfNeeded, rejectNewGroupIfOverLimit } = require('../../utils/groupPromotion');
+const { promoteExistingGroupIfNeeded, rejectNewGroupIfOverLimit, cleanupExtendedGroupOrphansIfNeeded } = require('../../utils/groupPromotion');
+const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
 
 /**
  * Update Operation
@@ -448,6 +449,24 @@ class UpdateOperation {
                         requestInfo, currentResource: foundResource, updatedResource: doc
                     });
 
+                    // A no-op unless doc is already extended, per its own guard -- reading that
+                    // flag here, before promoteExistingGroupIfNeeded below has a chance to run,
+                    // is what makes this safe: a not-yet-extended Group's flag is still
+                    // false/undefined at this point, so this can't mistake the fresh rows
+                    // promoteGroup is about to write for a forward-dangling orphan and delete
+                    // them (running this the other way round did exactly that -- see
+                    // cleanupExtendedGroupOrphansIfNeeded's own docstring). This PUT may be
+                    // metadata-only (no member[] submitted, per rejectMemberOnExtendedGroupWrite
+                    // above), so this must still run unconditionally rather than only when
+                    // member[] changed.
+                    await cleanupExtendedGroupOrphansIfNeeded({
+                        doc,
+                        requestInfo,
+                        base_version,
+                        configManager: this.configManager,
+                        mongoGroupMemberRepository: this.mongoGroupMemberRepository
+                    });
+
                     // doc._uuid/_sourceAssigningAuthority are already set here -- carried forward
                     // from foundResource -- so an existing Group crossing groupMemberLimit via this
                     // PUT can be promoted directly (see DCON-5528). Must run before
@@ -563,6 +582,7 @@ class UpdateOperation {
 
                 // enrich resource
                 this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
+                GroupExtendedTagEnrichmentProvider.addExtendedTagIfNeeded(result.resource);
                 result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
 
                 return result;
@@ -599,6 +619,7 @@ class UpdateOperation {
 
                 // enrich resource
                 this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
+                GroupExtendedTagEnrichmentProvider.addExtendedTagIfNeeded(result.resource);
                 result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
 
                 return result;
