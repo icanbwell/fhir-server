@@ -1054,6 +1054,8 @@ const createContainer = function () {
         scopesValidator: c.scopesValidator,
         configManager: c.configManager,
         fhirLoggingManager: c.fhirLoggingManager,
+        auditLogger: c.auditLogger,
+        postRequestProcessor: c.postRequestProcessor,
         documentReferenceFileCloudStorageClient: c.documentReferenceFileCloudStorageClient
     }));
 
@@ -1063,6 +1065,8 @@ const createContainer = function () {
         scopesValidator: c.scopesValidator,
         configManager: c.configManager,
         fhirLoggingManager: c.fhirLoggingManager,
+        auditLogger: c.auditLogger,
+        postRequestProcessor: c.postRequestProcessor,
         documentReferenceFileCloudStorageClient: c.documentReferenceFileCloudStorageClient
     }));
 

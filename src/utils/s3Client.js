@@ -161,15 +161,21 @@ class S3Client extends CloudStorageClient {
      * @typedef {Object} GetPresignedGetUrlAsyncParams
      * @property {string} filePath
      * @property {number} expiresInSeconds
+     * @property {string} [responseContentDisposition] - overrides the Content-Disposition header
+     *          the object is served with, e.g. `attachment; filename="report.pdf"`.
      *
      * @param {GetPresignedGetUrlAsyncParams}
      * @returns {Promise<string>}
      */
-    async getPresignedGetUrlAsync({ filePath, expiresInSeconds }) {
+    async getPresignedGetUrlAsync({ filePath, expiresInSeconds, responseContentDisposition }) {
         try {
+            const params = { Bucket: this.bucketName, Key: filePath };
+            if (responseContentDisposition) {
+                params.ResponseContentDisposition = responseContentDisposition;
+            }
             return await getSignedUrl(
                 this.client,
-                new GetObjectCommand({ Bucket: this.bucketName, Key: filePath }),
+                new GetObjectCommand(params),
                 { expiresIn: expiresInSeconds }
             );
         } catch (err) {

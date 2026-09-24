@@ -15,8 +15,11 @@ class TestDocumentReferenceFileS3Client extends MockS3Client {
         return `https://mock-s3.example/${this.bucketName}/${filePath}?mock=upload&expiresIn=${expiresInSeconds}`;
     }
 
-    async getPresignedGetUrlAsync({ filePath, expiresInSeconds }) {
-        return `https://mock-s3.example/${this.bucketName}/${filePath}?mock=download&expiresIn=${expiresInSeconds}`;
+    async getPresignedGetUrlAsync({ filePath, expiresInSeconds, responseContentDisposition }) {
+        const disposition = responseContentDisposition
+            ? `&disposition=${encodeURIComponent(responseContentDisposition)}`
+            : '';
+        return `https://mock-s3.example/${this.bucketName}/${filePath}?mock=download&expiresIn=${expiresInSeconds}${disposition}`;
     }
 }
 
@@ -96,7 +99,7 @@ describe('DocumentReference $fileUpload / $fileDownload — enabled', () => {
         expect(resp.body.contentId).toEqual(expect.any(String));
         expect(resp.body.expiresAt).toEqual(expect.any(String));
         expect(resp.body.uploadUrl).toContain('mock=upload');
-        expect(resp.body.uploadUrl).toContain(`/content/${resp.body.contentId}/report.pdf`);
+        expect(resp.body.uploadUrl).toContain(`/content/${resp.body.contentId}`);
         const { contentId, uploadUrl } = resp.body;
         const s3Key = extractKeyFromMockUrl(uploadUrl);
 
@@ -123,7 +126,123 @@ describe('DocumentReference $fileUpload / $fileDownload — enabled', () => {
             .set(getHeaders());
         expect(resp.status).toBe(302);
         expect(resp.headers.location).toContain('mock=download');
-        expect(resp.headers.location).toContain(`/content/${contentId}/report.pdf`);
+        expect(resp.headers.location).toContain(`/content/${contentId}`);
+        expect(resp.headers.location).toContain(encodeURIComponent('filename="report.pdf"'));
+    });
+
+    test('renaming attachment.title after upload does not break $fileDownload', async () => {
+        const request = await createTestRequest(registerMockClient);
+        const container = getTestContainer();
+
+        let resp = await request
+            .put(`/4_0_0/DocumentReference/${documentReference1Resource.id}`)
+            .send(documentReference1Resource)
+            .set(getHeaders());
+        expect(resp.status).toBe(201);
+
+        resp = await request
+            .post(`/4_0_0/DocumentReference/${documentReference1Resource.id}/$fileUpload`)
+            .send({ resourceType: 'Parameters', parameter: [{ name: 'fileName', valueString: 'original.pdf' }] })
+            .set(getHeaders());
+        expect(resp.status).toBe(200);
+        const { contentId, uploadUrl } = resp.body;
+        const s3Key = extractKeyFromMockUrl(uploadUrl);
+
+        await container.documentReferenceFileCloudStorageClient.uploadAsync({
+            filePath: s3Key,
+            data: 'fake-pdf-bytes'
+        });
+
+        resp = await request
+            .get(`/4_0_0/DocumentReference/${documentReference1Resource.id}`)
+            .set(getHeaders());
+        expect(resp.status).toBe(200);
+        const updatedResource = resp.body;
+        const contentEntry = updatedResource.content.find((c) => c.id === contentId);
+        contentEntry.attachment.title = 'renamed.pdf';
+        resp = await request
+            .put(`/4_0_0/DocumentReference/${documentReference1Resource.id}`)
+            .send(updatedResource)
+            .set(getHeaders());
+        expect(resp.status).toBe(200);
+
+        resp = await request
+            .get(`/4_0_0/DocumentReference/${documentReference1Resource.id}/${contentId}/$fileDownload`)
+            .set(getHeaders());
+        expect(resp.status).toBe(302);
+        expect(resp.headers.location).toContain('mock=download');
+    });
+
+    test('$fileDownload forces Content-Disposition: attachment even for an inline-renderable contentType', async () => {
+        const request = await createTestRequest(registerMockClient);
+        const container = getTestContainer();
+
+        let resp = await request
+            .put(`/4_0_0/DocumentReference/${documentReference1Resource.id}`)
+            .send(documentReference1Resource)
+            .set(getHeaders());
+        expect(resp.status).toBe(201);
+
+        resp = await request
+            .post(`/4_0_0/DocumentReference/${documentReference1Resource.id}/$fileUpload`)
+            .send({
+                resourceType: 'Parameters',
+                parameter: [
+                    { name: 'fileName', valueString: 'page.html' },
+                    { name: 'contentType', valueString: 'text/html' }
+                ]
+            })
+            .set(getHeaders());
+        expect(resp.status).toBe(200);
+        const { contentId, uploadUrl } = resp.body;
+        const s3Key = extractKeyFromMockUrl(uploadUrl);
+
+        await container.documentReferenceFileCloudStorageClient.uploadAsync({
+            filePath: s3Key,
+            data: '<script>alert(1)</script>'
+        });
+
+        resp = await request
+            .get(`/4_0_0/DocumentReference/${documentReference1Resource.id}/${contentId}/$fileDownload`)
+            .set(getHeaders());
+        expect(resp.status).toBe(302);
+        expect(resp.headers.location).toContain(encodeURIComponent('attachment'));
+    });
+
+    test('$fileUpload rejects a non-string contentType (e.g. duplicated query param parsed as an array)', async () => {
+        const request = await createTestRequest(registerMockClient);
+        const container = getTestContainer();
+
+        let resp = await request
+            .put(`/4_0_0/DocumentReference/${documentReference1Resource.id}`)
+            .send(documentReference1Resource)
+            .set(getHeaders());
+        expect(resp.status).toBe(201);
+
+        resp = await request
+            .post(`/4_0_0/DocumentReference/${documentReference1Resource.id}/$fileUpload?contentType=text/plain&contentType=text/html`)
+            .send({ resourceType: 'Parameters', parameter: [] })
+            .set(getHeaders());
+        expect(resp.status).toBe(400);
+        expect(Object.keys(container.documentReferenceFileCloudStorageClient.uploadedData)).toHaveLength(0);
+    });
+
+    test('$fileUpload rejects a non-string fileName (e.g. duplicated query param parsed as an array)', async () => {
+        const request = await createTestRequest(registerMockClient);
+        const container = getTestContainer();
+
+        let resp = await request
+            .put(`/4_0_0/DocumentReference/${documentReference1Resource.id}`)
+            .send(documentReference1Resource)
+            .set(getHeaders());
+        expect(resp.status).toBe(201);
+
+        resp = await request
+            .post(`/4_0_0/DocumentReference/${documentReference1Resource.id}/$fileUpload?fileName=a.pdf&fileName=b.pdf`)
+            .send({ resourceType: 'Parameters', parameter: [] })
+            .set(getHeaders());
+        expect(resp.status).toBe(400);
+        expect(Object.keys(container.documentReferenceFileCloudStorageClient.uploadedData)).toHaveLength(0);
     });
 
     test('$fileUpload works with no fileName/contentType supplied (binary upload, no filename segment)', async () => {

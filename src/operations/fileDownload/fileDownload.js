@@ -7,6 +7,8 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { NotFoundError, BadRequestError } = require('../../utils/httpErrors');
 const { OPERATIONS: { READ } } = require('../../constants');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 class FileDownloadOperation {
     /**
@@ -16,6 +18,8 @@ class FileDownloadOperation {
      * @param {ScopesValidator} params.scopesValidator
      * @param {ConfigManager} params.configManager
      * @param {FhirLoggingManager} params.fhirLoggingManager
+     * @param {AuditLogger} params.auditLogger
+     * @param {PostRequestProcessor} params.postRequestProcessor
      * @param {import('../../utils/s3Client').S3Client|null} params.documentReferenceFileCloudStorageClient
      */
     constructor ({
@@ -24,6 +28,8 @@ class FileDownloadOperation {
         scopesValidator,
         configManager,
         fhirLoggingManager,
+        auditLogger,
+        postRequestProcessor,
         documentReferenceFileCloudStorageClient
     }) {
         this.databaseQueryFactory = databaseQueryFactory;
@@ -40,6 +46,12 @@ class FileDownloadOperation {
 
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
 
         // Nullable — disabled unless enableDocumentReferenceFileOperations is on.
         this.documentReferenceFileCloudStorageClient = documentReferenceFileCloudStorageClient;
@@ -76,7 +88,7 @@ class FileDownloadOperation {
             });
 
             const { base_version, id, contentId } = parsedArgs;
-            const { user, scope, isUser, personIdFromJwtToken } = requestInfo;
+            const { user, scope, isUser, personIdFromJwtToken, requestId } = requestInfo;
 
             const { query } = await this.searchManager.constructQueryAsync({
                 user,
@@ -110,18 +122,34 @@ class FileDownloadOperation {
                 throw new NotFoundError(`Content not found: ${resourceType}/${id}/${contentId}`);
             }
 
-            const fileName = contentEntry.attachment && contentEntry.attachment.title;
-            const key = `DocumentReference_4_0_0/${foundResource._uuid}/content/${contentId}` +
-                (fileName ? `/${fileName}` : '');
+            const key = `DocumentReference_4_0_0/${foundResource._uuid}/content/${contentId}`;
 
             if (!(await this.documentReferenceFileCloudStorageClient.existsAsync(key))) {
                 throw new NotFoundError(`Content not found: ${resourceType}/${id}/${contentId}`);
             }
 
+            const fileName = contentEntry.attachment && contentEntry.attachment.title;
             const url = await this.documentReferenceFileCloudStorageClient.getPresignedGetUrlAsync({
                 filePath: key,
-                expiresInSeconds: this.configManager.documentReferenceFileDownloadUrlExpiryInSeconds
+                expiresInSeconds: this.configManager.documentReferenceFileDownloadUrlExpiryInSeconds,
+                responseContentDisposition: this._buildContentDisposition(fileName)
             });
+
+            if (resourceType !== 'AuditEvent') {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        await this.auditLogger.logAuditEntryAsync({
+                            requestInfo,
+                            base_version,
+                            resourceType,
+                            operation: 'read',
+                            args: parsedArgs.getRawArgs(),
+                            ids: [foundResource._uuid]
+                        });
+                    }
+                });
+            }
 
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo, args: parsedArgs.getRawArgs(), resourceType, startTime, action: currentOperationName
@@ -134,6 +162,25 @@ class FileDownloadOperation {
             });
             throw e;
         }
+    }
+
+    /**
+     * @param {string|undefined} fileName
+     * @returns {string}
+     * @private
+     */
+    _buildContentDisposition (fileName) {
+        if (!fileName) {
+            return 'attachment';
+        }
+        const sanitizedFileName = fileName
+            // eslint-disable-next-line no-control-regex
+            .replace(/[\x00-\x1f\x7f]/g, '')
+            .replace(/[\\"]/g, (char) => `\\${char}`);
+        if (!sanitizedFileName) {
+            return 'attachment';
+        }
+        return `attachment; filename="${sanitizedFileName}"`;
     }
 }
 

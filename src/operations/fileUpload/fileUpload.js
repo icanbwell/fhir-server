@@ -12,10 +12,14 @@ const { OPERATIONS: { WRITE } } = require('../../constants');
 const { generateUUID } = require('../../utils/uid.util');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const DocumentReferenceContentSerializer = require('../../fhir/writeSerializers/4_0_0/backboneElements/documentReferenceContent');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 const FILE_NAME_MAX_LENGTH = 255;
 // eslint-disable-next-line no-control-regex
 const INVALID_FILE_NAME_PATTERN = /[/\\\x00-\x1f]|\.\./;
+const CONTENT_TYPE_MAX_LENGTH = 255;
+const VALID_CONTENT_TYPE_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9!#$&\-^_.+]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&\-^_.+]*$/;
 
 class FileUploadOperation {
     /**
@@ -26,6 +30,8 @@ class FileUploadOperation {
      * @param {ScopesValidator} params.scopesValidator
      * @param {ConfigManager} params.configManager
      * @param {FhirLoggingManager} params.fhirLoggingManager
+     * @param {AuditLogger} params.auditLogger
+     * @param {PostRequestProcessor} params.postRequestProcessor
      * @param {import('../../utils/s3Client').S3Client|null} params.documentReferenceFileCloudStorageClient
      */
     constructor ({
@@ -35,6 +41,8 @@ class FileUploadOperation {
         scopesValidator,
         configManager,
         fhirLoggingManager,
+        auditLogger,
+        postRequestProcessor,
         documentReferenceFileCloudStorageClient
     }) {
         this.databaseQueryFactory = databaseQueryFactory;
@@ -54,6 +62,12 @@ class FileUploadOperation {
 
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
 
         // Nullable — disabled unless enableDocumentReferenceFileOperations is on.
         this.documentReferenceFileCloudStorageClient = documentReferenceFileCloudStorageClient;
@@ -80,6 +94,7 @@ class FileUploadOperation {
 
             const { base_version, id, fileName, contentType } = parsedArgs;
             const sanitizedFileName = this._sanitizeFileName(fileName);
+            const sanitizedContentType = this._sanitizeContentType(contentType);
 
             await this.scopesValidator.verifyHasValidScopesAsync({
                 requestInfo,
@@ -90,7 +105,7 @@ class FileUploadOperation {
                 accessRequested: 'write'
             });
 
-            const { user, scope, isUser, personIdFromJwtToken } = requestInfo;
+            const { user, scope, isUser, personIdFromJwtToken, requestId } = requestInfo;
 
             const { query } = await this.searchManager.constructQueryAsync({
                 user,
@@ -124,13 +139,12 @@ class FileUploadOperation {
             });
 
             const contentId = generateUUID();
-            const key = `DocumentReference_4_0_0/${foundResource._uuid}/content/${contentId}` +
-                (sanitizedFileName ? `/${sanitizedFileName}` : '');
+            const key = `DocumentReference_4_0_0/${foundResource._uuid}/content/${contentId}`;
 
             const expiresInSeconds = this.configManager.documentReferenceFileUploadUrlExpiryInSeconds;
             const uploadUrl = await this.documentReferenceFileCloudStorageClient.getPresignedPutUrlAsync({
                 filePath: key,
-                contentType,
+                contentType: sanitizedContentType,
                 expiresInSeconds
             });
 
@@ -142,7 +156,7 @@ class FileUploadOperation {
                 id: contentId,
                 attachment: {
                     url: downloadUrl,
-                    contentType,
+                    contentType: sanitizedContentType,
                     title: sanitizedFileName,
                     creation: new Date().toISOString()
                 }
@@ -162,6 +176,22 @@ class FileUploadOperation {
             });
             if (!savedResource) {
                 throw new BadRequestError(new Error('Failed to save DocumentReference content entry'));
+            }
+
+            if (resourceType !== 'AuditEvent') {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        await this.auditLogger.logAuditEntryAsync({
+                            requestInfo,
+                            base_version,
+                            resourceType,
+                            operation: 'update',
+                            args: parsedArgs.getRawArgs(),
+                            ids: [foundResource._uuid]
+                        });
+                    }
+                });
             }
 
             await this.fhirLoggingManager.logOperationSuccessAsync({
@@ -189,13 +219,38 @@ class FileUploadOperation {
      * @private
      */
     _sanitizeFileName (fileName) {
-        if (!fileName) {
+        if (fileName === undefined || fileName === null || fileName === '') {
             return undefined;
         }
-        if (fileName.length > FILE_NAME_MAX_LENGTH || INVALID_FILE_NAME_PATTERN.test(fileName)) {
+        if (
+            typeof fileName !== 'string' ||
+            fileName.length > FILE_NAME_MAX_LENGTH ||
+            INVALID_FILE_NAME_PATTERN.test(fileName)
+        ) {
             throw new BadRequestError(new Error(`Invalid fileName: ${fileName}`));
         }
         return fileName;
+    }
+
+    /**
+     * Rejects a client-supplied contentType that isn't a single well-formed `type/subtype` MIME
+     * string (e.g. a duplicated query param parsed into an array, or an oversized/malformed value).
+     * @param {string|undefined} contentType
+     * @returns {string|undefined}
+     * @private
+     */
+    _sanitizeContentType (contentType) {
+        if (contentType === undefined || contentType === null || contentType === '') {
+            return undefined;
+        }
+        if (
+            typeof contentType !== 'string' ||
+            contentType.length > CONTENT_TYPE_MAX_LENGTH ||
+            !VALID_CONTENT_TYPE_PATTERN.test(contentType)
+        ) {
+            throw new BadRequestError(new Error(`Invalid contentType: ${contentType}`));
+        }
+        return contentType;
     }
 
     /**

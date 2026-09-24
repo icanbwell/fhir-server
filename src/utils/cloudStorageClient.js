@@ -91,11 +91,12 @@ class CloudStorageClient {
      * @typedef {Object} GetPresignedGetUrlAsyncParams
      * @property {string} filePath
      * @property {number} expiresInSeconds
+     * @property {string} [responseContentDisposition]
      *
      * @param {GetPresignedGetUrlAsyncParams}
      * @returns {Promise<string>}
      */
-    async getPresignedGetUrlAsync({ filePath, expiresInSeconds }) {
+    async getPresignedGetUrlAsync({ filePath, expiresInSeconds, responseContentDisposition }) {
         throw Error('Not Implemented');
     }
 
