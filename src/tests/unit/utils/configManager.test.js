@@ -240,6 +240,21 @@ describe('ConfigManager', () => {
             process.env.AUTH_AUDIENCE_WHITELIST = 'aud1, aud2 ,aud3';
             expect(new ConfigManager().authAudienceWhitelist).toEqual(['aud1', 'aud2', 'aud3']);
         });
+
+        test('authAudienceBlacklist splits on comma', () => {
+            process.env.AUTH_AUDIENCE_BLACKLIST = 'aud1,aud2';
+            expect(new ConfigManager().authAudienceBlacklist).toEqual(['aud1', 'aud2']);
+        });
+
+        test('authAudienceBlacklist returns empty array when not set', () => {
+            delete process.env.AUTH_AUDIENCE_BLACKLIST;
+            expect(new ConfigManager().authAudienceBlacklist).toEqual([]);
+        });
+
+        test('authAudienceBlacklist trims whitespace around entries', () => {
+            process.env.AUTH_AUDIENCE_BLACKLIST = 'aud1, aud2 ,aud3';
+            expect(new ConfigManager().authAudienceBlacklist).toEqual(['aud1', 'aud2', 'aud3']);
+        });
     });
 
     // ========== supportLegacyIds ==========
