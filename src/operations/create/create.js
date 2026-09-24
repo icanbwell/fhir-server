@@ -249,7 +249,7 @@ class CreateOperation {
             // noinspection JSValidateTypes
             logDebug('Inserting', { user, args: { doc } });
 
-            rejectNewGroupIfOverLimit({ doc, configManager: this.configManager });
+            rejectNewGroupIfOverLimit({ doc, configManager: this.configManager, requestInfo });
 
             // Insert our resource record
             const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);

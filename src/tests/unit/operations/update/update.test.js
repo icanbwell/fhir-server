@@ -51,6 +51,7 @@ const { Base64DataManager } = require('../../../../dataLayer/base64DataManager')
 const { SearchManager } = require('../../../../operations/search/searchManager');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
+const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 
 function createMockInstance(ClassType) {
@@ -80,6 +81,7 @@ describe('UpdateOperation', () => {
                 require('../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory
             ),
             identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
+            groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
             mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
         };
 
@@ -112,6 +114,7 @@ describe('UpdateOperation', () => {
         mocks.auditLogger.logAuditEntryAsync = jest.fn().mockResolvedValue(undefined);
         mocks.postSaveHandlerFactory.getHandlers = jest.fn().mockReturnValue([]);
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jest.fn();
+        mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jest.fn(({ resources }) => Promise.resolve(resources));
 
         Object.defineProperty(mocks.configManager, 'useAccessIndex', { get: () => false });
 

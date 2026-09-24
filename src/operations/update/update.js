@@ -52,6 +52,7 @@ class UpdateOperation {
      * @param {SearchManager} searchManager
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
      * @param {MongoGroupMemberRepository} mongoGroupMemberRepository
      */
     constructor (
@@ -70,6 +71,7 @@ class UpdateOperation {
             searchManager,
             postSaveHandlerFactory,
             identifierEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider,
             mongoGroupMemberRepository
         }
     ) {
@@ -150,6 +152,12 @@ class UpdateOperation {
          */
         this.identifierEnrichmentProvider = identifierEnrichmentProvider;
         assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
+
+        /**
+         * @type {GroupExtendedTagEnrichmentProvider}
+         */
+        this.groupExtendedTagEnrichmentProvider = groupExtendedTagEnrichmentProvider;
+        assertTypeEquals(groupExtendedTagEnrichmentProvider, GroupExtendedTagEnrichmentProvider);
 
         /**
          * @type {MongoGroupMemberRepository}
@@ -468,7 +476,7 @@ class UpdateOperation {
                     });
 
                     // doc._uuid/_sourceAssigningAuthority are already set here -- carried forward
-                    // from foundResource -- so an existing Group crossing groupMemberLimit via this
+                    // from foundResource -- so an existing Group crossing groupMemberPromotionLimit via this
                     // PUT can be promoted directly (see DCON-5528). Must run before
                     // buildContextDataForHybridStorage so contextData reflects the already-promoted
                     // doc (no member[] to carry through).
@@ -506,7 +514,7 @@ class UpdateOperation {
                         requestInfo, currentResource: null, updatedResource: doc
                     });
 
-                    rejectNewGroupIfOverLimit({ doc, configManager: this.configManager });
+                    rejectNewGroupIfOverLimit({ doc, configManager: this.configManager, requestInfo });
 
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 
@@ -582,7 +590,7 @@ class UpdateOperation {
 
                 // enrich resource
                 this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
-                GroupExtendedTagEnrichmentProvider.addExtendedTagIfNeeded(result.resource);
+                [result.resource] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({ resources: [result.resource] });
                 result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
 
                 return result;
@@ -619,7 +627,7 @@ class UpdateOperation {
 
                 // enrich resource
                 this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
-                GroupExtendedTagEnrichmentProvider.addExtendedTagIfNeeded(result.resource);
+                [result.resource] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({ resources: [result.resource] });
                 result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
 
                 return result;

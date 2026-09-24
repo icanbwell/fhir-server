@@ -225,12 +225,13 @@ const createContainer = function () {
                 clickHouseClientManager: c.clickHouseClientManager,
                 configManager: c.configManager
             }),
-            new GroupExtendedTagEnrichmentProvider()
+            c.groupExtendedTagEnrichmentProvider
         ]
     }));
     container.register('identifierEnrichmentProvider', (c) => new IdentifierEnrichmentProvider({
         fhirTypesManager: c.fhirTypesManager
     }));
+    container.register('groupExtendedTagEnrichmentProvider', () => new GroupExtendedTagEnrichmentProvider());
     container.register('compositionSectionFilterEnrichmentProvider', (c) => new CompositionSectionFilterEnrichmentProvider({
         configManager: c.configManager
     }));
@@ -871,6 +872,7 @@ const createContainer = function () {
                 searchManager: c.searchManager,
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+                groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
                 mongoGroupMemberRepository: c.mongoGroupMemberRepository
             }
         )
@@ -994,6 +996,7 @@ const createContainer = function () {
             resourceValidator: c.resourceValidator,
             postSaveHandlerFactory: c.postSaveHandlerFactory,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
             mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));

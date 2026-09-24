@@ -1,7 +1,7 @@
 /**
  * Group promotion to extended member storage (DCON-5528)
  *
- * Once an *existing* Group's member[] crosses configManager.groupMemberLimit,
+ * Once an *existing* Group's member[] crosses configManager.groupMemberPromotionLimit,
  * promoteExistingGroupIfNeeded (src/utils/groupPromotion.js) promotes it: called directly from the
  * write paths that can promote an existing Group -- update.js's PUT-existing branch, patch.js (the
  * embedded-regime branch), and mergeManager.js (both branches) -- right before each one's own
@@ -32,6 +32,7 @@ const { Collection } = require('mongodb');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getHeaders, getHeadersJsonPatch } = require('../common');
 const { GROUP_MEMBER_COLLECTION_NAME, GROUP_MEMBER_HISTORY_COLLECTION_NAME } = require('../../../constants');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../utils/mongoGroupExtendedTag');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
 
 const GROUP_COLLECTION_NAME = 'Group_4_0_0';
 
@@ -52,6 +53,7 @@ function buildMembers(count, prefix) {
 describe('Group promotion to extended member storage', () => {
     let request;
     let savedLimit;
+    let savedPromotionLimit;
 
     beforeAll(async () => {
         await commonBeforeEach();
@@ -64,6 +66,7 @@ describe('Group promotion to extended member storage', () => {
 
     beforeEach(() => {
         savedLimit = process.env.MAX_GROUP_MEMBERS_PER_PUT;
+        savedPromotionLimit = process.env.GROUP_MEMBER_PROMOTION_LIMIT;
     });
 
     afterEach(() => {
@@ -71,6 +74,11 @@ describe('Group promotion to extended member storage', () => {
             delete process.env.MAX_GROUP_MEMBERS_PER_PUT;
         } else {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = savedLimit;
+        }
+        if (savedPromotionLimit === undefined) {
+            delete process.env.GROUP_MEMBER_PROMOTION_LIMIT;
+        } else {
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = savedPromotionLimit;
         }
     });
 
@@ -148,6 +156,7 @@ describe('Group promotion to extended member storage', () => {
     describe('CREATE', () => {
         test('member[] already over the limit is rejected outright, nothing is written', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
             const members = buildMembers(4, 'create-over-limit');
 
             const createResp = await createGroup({ member: members });
@@ -159,6 +168,7 @@ describe('Group promotion to extended member storage', () => {
 
         test('via PUT-insert (new id), member[] already over the limit is rejected outright, nothing is written', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
             const groupId = 'put-insert-over-limit';
             const members = buildMembers(4, 'put-insert-over-limit');
 
@@ -184,6 +194,7 @@ describe('Group promotion to extended member storage', () => {
 
         test('via $merge (insert), member[] already over the limit still succeeds and promotes -- client-supplied id keeps identity stable across a retry, unlike plain CREATE/PUT-insert', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
             const groupId = 'create-via-merge-over-limit';
             const members = buildMembers(4, 'create-merge-over-limit');
 
@@ -207,6 +218,7 @@ describe('Group promotion to extended member storage', () => {
     describe('existing Group crossing the limit', () => {
         test('PUT with 5 more members over a 50-member limit (49 -> 54) succeeds and promotes', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '50';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '50';
             const created = await createGroup({ member: buildMembers(49, 'put-cross') });
             expect(created.status).toBe(201);
 
@@ -229,6 +241,7 @@ describe('Group promotion to extended member storage', () => {
 
         test('$merge with the full updated member[] crossing the limit succeeds and promotes', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
             const created = await createGroup({ member: buildMembers(2, 'merge-cross') });
             expect(created.status).toBe(201);
 
@@ -251,6 +264,7 @@ describe('Group promotion to extended member storage', () => {
 
         test('standard PATCH add ops on an embedded Group crossing the limit succeed and promote', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
             const created = await createGroup({ member: buildMembers(2, 'patch-cross') });
             expect(created.status).toBe(201);
 
@@ -267,6 +281,7 @@ describe('Group promotion to extended member storage', () => {
     describe('already extended', () => {
         test('a further PATCH add on an already-promoted Group does not re-promote', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
             // Created under the limit, then crossed via PUT-update -- CREATE itself now rejects an
             // over-limit brand-new Group outright (see the "CREATE" describe block above), so
             // getting to an already-promoted Group has to go through an existing-Group crossing.
@@ -310,6 +325,7 @@ describe('Group promotion to extended member storage', () => {
     describe('crash recovery', () => {
         test('a failure in the outer Group write leaves the roster durably written; the next write completes promotion', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
 
             // Create under the limit first (no promotion attempted), so a failed update below
             // leaves this pre-existing, known document in place -- unlike a failed create, which
@@ -382,6 +398,7 @@ describe('Group promotion to extended member storage', () => {
     describe('member missing entity.reference', () => {
         test('promotion rejects the whole write instead of silently dropping the member', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
             const groupId = 'missing-ref-merge';
             const members = [
                 ...buildMembers(3, 'missing-ref'),
@@ -420,6 +437,7 @@ describe('Group promotion to extended member storage', () => {
     describe('Group\'s own write fails after promotion already staged the roster', () => {
         test('$merge update: roster rows are left as staged (not rolled back), and a retry completes promotion idempotently', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
             const created = await createGroup({ member: buildMembers(2, 'merge-rollback') });
             expect(created.status).toBe(201);
             const groupId = created.body.id;
@@ -502,6 +520,7 @@ describe('Group promotion to extended member storage', () => {
     describe('not-yet-extended: promotion wipes stale rows before retrying', () => {
         test('a retry with a different member set than the one that crashed does not resurrect the abandoned attempt\'s rows', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
 
             const created = await createGroup({ member: buildMembers(2, 'wipe-retry-base') });
             expect(created.status).toBe(201);
@@ -583,6 +602,7 @@ describe('Group promotion to extended member storage', () => {
     describe('already-extended: a failed member PATCH leaves a forward-dangling orphan, cleaned up by the next write', () => {
         test('a later metadata-only PATCH removes the dangling row from the failed member add before committing its own change', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
 
             const created = await createGroup({ member: buildMembers(3, 'orphan-cleanup') });
             expect(created.status).toBe(201);
@@ -666,19 +686,33 @@ describe('Group promotion to extended member storage', () => {
         // configManager.enableClickHouse/mongoWithClickHouseResources fresh on every call (unlike
         // the old PostSaveHandler-based design, whose handler list was frozen once when
         // postSaveProcessor was first resolved by the shared test app/container).
-        test('is skipped entirely -- member[] stays inline, no promotion attempted', async () => {
+        test('is skipped entirely -- member[] is handled by ClickHouse, never promoted to Mongo-native storage', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
             const savedEnableClickHouse = process.env.ENABLE_CLICKHOUSE;
             const savedResources = process.env.MONGO_WITH_CLICKHOUSE_RESOURCES;
             process.env.ENABLE_CLICKHOUSE = '1';
             process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
             try {
-                const created = await createGroup({ member: buildMembers(4, 'clickhouse-skip') });
+                // isGroupOverLimit's ClickHouse exemption is a per-request fact, not a per-server
+                // one (see its own docstring) -- server config alone isn't enough, this create
+                // must also opt in via the useexternalstorage header, same as
+                // GroupMemberPatchStrategy.determineGroupMemberType requires for routing writes.
+                const created = await request
+                    .post('/4_0_0/Group')
+                    .send({
+                        resourceType: 'Group',
+                        type: 'person',
+                        actual: true,
+                        meta: defaultMeta(),
+                        member: buildMembers(4, 'clickhouse-skip')
+                    })
+                    .set({ ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' });
                 expect(created.status).toBe(201);
 
                 const groupDoc = await getGroupDoc(created.body.id);
                 expect(groupDoc[MONGO_GROUP_EXTENDED_FIELD]).not.toBe(true);
-                expect(groupDoc.member).toHaveLength(4);
+                expect(groupDoc.member).toBeUndefined();
                 const rows = await getMemberRows(groupDoc._uuid);
                 expect(rows).toHaveLength(0);
             } finally {
@@ -699,6 +733,7 @@ describe('Group promotion to extended member storage', () => {
     describe('versionId/lastUpdated parity across Group, GroupMember, and their history', () => {
         test('Group at version 4 with 4 inline members, promoted by a PATCH adding 50 more (54 total): every GroupMember row and both history collections land at version 5 with the Group\'s own lastUpdated', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '50';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '50';
 
             // v1: create with 4 inline members -- well under the 50-member limit.
             const created = await createGroup({ member: buildMembers(4, 'parity') });
@@ -772,6 +807,7 @@ describe('Group promotion to extended member storage', () => {
 
         test('a $merge update crossing the limit also keeps Group, GroupMember, and both history collections in parity', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
             const created = await createGroup({ member: buildMembers(2, 'parity-merge') });
             expect(created.status).toBe(201);
             const groupId = created.body.id;

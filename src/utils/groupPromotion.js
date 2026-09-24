@@ -7,21 +7,32 @@ const { createTooCostlyError } = require('./fhirErrorFactory');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { PATCH_OPERATIONS } = require('../constants/groupConstants');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
+const { isTrue } = require('./isTrue');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('./contextDataBuilder');
+const { hasExternalStorageMemberTag } = require('./clickHouseGroupPreSave');
 
 /**
- * True when doc is a Group whose member[] has crossed configManager.groupMemberLimit and still
- * needs promoting to MongoDB-native extended member storage (GroupMember_4_0_0). Only reachable
- * for an existing Group crossing the limit (PUT-update, PATCH, $merge-update/insert, all of which
- * already have an addressable identity and a safe rollback -- see promoteExistingGroupIfNeeded and
- * mergeManager.js). A brand-new Group (CREATE, PUT-insert) that arrives already over the limit is
- * rejected outright instead -- see rejectNewGroupIfOverLimit.
+ * True when doc is a Group whose member[] has crossed `limit` and still needs promoting to
+ * MongoDB-native extended member storage (GroupMember_4_0_0), or -- for a brand-new Group --
+ * rejecting outright. Which applies is entirely the caller's choice of `limit`:
+ * promoteExistingGroupIfNeeded passes configManager.groupMemberPromotionLimit (existing Group,
+ * PUT-update/PATCH/$merge-update/insert, all of which already have an addressable identity and a
+ * safe rollback -- see mergeManager.js), while rejectNewGroupIfOverLimit passes
+ * configManager.groupMemberLimit (brand-new Group, CREATE/PUT-insert, rejected outright instead
+ * of promoted). This function itself is agnostic to which one it's given.
  *
  * @param {Object} params
  * @param {Resource} params.doc
  * @param {import('./configManager').ConfigManager} params.configManager
+ * @param {number} params.limit - the member-count threshold to compare doc.member.length against;
+ *   see the caller-specific configManager getters above.
+ * @param {import('./fhirRequestInfo').FhirRequestInfo} [params.requestInfo] - used only to read
+ *   the per-request `useexternalstorage` header (see below); safe to omit for callers that can
+ *   never reach a ClickHouse-tracked Group (none currently do, but this keeps the parameter
+ *   optional rather than forcing every caller to thread it through).
  * @returns {boolean}
  */
-function isGroupOverLimit ({ doc, configManager }) {
+function isGroupOverLimit ({ doc, configManager, limit, requestInfo }) {
     // isGroupOverLimit is called for every resource write, not just Group ones (unlike
     // GroupMemberPatchStrategy.determineGroupMemberType, whose caller already filters to Group
     // before it's ever invoked) -- so resourceType is checked first, to bail out before touching
@@ -33,12 +44,29 @@ function isGroupOverLimit ({ doc, configManager }) {
         return false;
     }
     // Mutually exclusive with ClickHouse tracking by design (see configManager's
-    // enableExtendedGroup docstring) -- guarded explicitly here too, defensively, rather than
-    // relying only on operators never enabling both for the same resource type.
-    if (configManager.enableClickHouse && configManager.mongoWithClickHouseResources.includes('Group')) {
+    // enableExtendedGroup docstring), but that exclusivity is a per-REQUEST fact, not a
+    // per-SERVER one: GroupMemberPatchStrategy.determineGroupMemberType only routes a given
+    // write to ClickHouse when *this* request's own `useexternalstorage` header is truthy --
+    // every other write to the same Group (header absent) falls through to the embedded array
+    // regardless of server config. Checking enableClickHouse/mongoWithClickHouseResources alone,
+    // without the header, would incorrectly disable promotion/rejection for those embedded
+    // writes too, letting member[] grow past `limit` with no safety net at all whenever a server
+    // merely has ClickHouse+Group configured, whether or not any given caller actually uses it.
+    //
+    // The header alone isn't enough either, though: addExternalStorageTagIfNeeded's
+    // externalStorageFields|member tag is permanent once set (see its own docstring), but a
+    // later write to that same Group -- e.g. a plain metadata-only PUT -- has no reason to also
+    // resend the useexternalstorage header. Without also checking the persisted tag, such a
+    // write would wrongly fall through to the member-limit check below on a Group whose real
+    // roster is already ClickHouse's responsibility, not Mongo-native's.
+    if (
+        configManager.enableClickHouse &&
+        configManager.mongoWithClickHouseResources.includes('Group') &&
+        (isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER]) || hasExternalStorageMemberTag(doc))
+    ) {
         return false;
     }
-    return (doc.member || []).length > configManager.groupMemberLimit;
+    return (doc.member || []).length > limit;
 }
 
 /**
@@ -181,7 +209,7 @@ async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberR
  *   `flush: false` caller must use this to roll back on a subsequent failure.
  */
 async function promoteExistingGroupIfNeeded ({ doc, requestInfo, base_version, configManager, mongoGroupMemberRepository, flush = true }) {
-    if (!isGroupOverLimit({ doc, configManager })) {
+    if (!isGroupOverLimit({ doc, configManager, limit: configManager.groupMemberPromotionLimit, requestInfo })) {
         return undefined;
     }
     return promoteGroup({ doc, requestInfo, base_version, mongoGroupMemberRepository, flush });
@@ -234,11 +262,13 @@ async function cleanupExtendedGroupOrphansIfNeeded ({ doc, requestInfo, base_ver
  * @param {Object} params
  * @param {Resource} params.doc
  * @param {import('./configManager').ConfigManager} params.configManager
+ * @param {import('./fhirRequestInfo').FhirRequestInfo} [params.requestInfo] - see
+ *   isGroupOverLimit's own docstring for why this matters.
  * @returns {void}
  * @throws {BadRequestError} when doc.member[] exceeds configManager.groupMemberLimit
  */
-function rejectNewGroupIfOverLimit ({ doc, configManager }) {
-    if (!isGroupOverLimit({ doc, configManager })) {
+function rejectNewGroupIfOverLimit ({ doc, configManager, requestInfo }) {
+    if (!isGroupOverLimit({ doc, configManager, limit: configManager.groupMemberLimit, requestInfo })) {
         return;
     }
     const { message, options } = createTooCostlyError({

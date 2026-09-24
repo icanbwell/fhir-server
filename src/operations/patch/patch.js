@@ -54,6 +54,7 @@ class PatchOperation {
      * @param {ResourceValidator} resourceValidator
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
      * @param {import('../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} mongoGroupMemberRepository
      */
     constructor (
@@ -72,6 +73,7 @@ class PatchOperation {
             resourceValidator,
             postSaveHandlerFactory,
             identifierEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider,
             mongoGroupMemberRepository
         }
     ) {
@@ -181,6 +183,12 @@ class PatchOperation {
          */
         this.identifierEnrichmentProvider = identifierEnrichmentProvider;
         assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
+
+        /**
+         * @type {GroupExtendedTagEnrichmentProvider}
+         */
+        this.groupExtendedTagEnrichmentProvider = groupExtendedTagEnrichmentProvider;
+        assertTypeEquals(groupExtendedTagEnrichmentProvider, GroupExtendedTagEnrichmentProvider);
     }
 
     /**
@@ -549,7 +557,7 @@ class PatchOperation {
                     mongoGroupMemberRepository: this.mongoGroupMemberRepository
                 });
 
-                // An embedded Group whose member[] crosses groupMemberLimit via a standard
+                // An embedded Group whose member[] crosses groupMemberPromotionLimit via a standard
                 // JSON-Patch add on /member is promoted here, before it's staged for its own
                 // write. resource._uuid/_sourceAssigningAuthority are already
                 // set (carried forward from foundResource). No-op for non-Group resources and for
@@ -638,7 +646,7 @@ class PatchOperation {
 
             // enrich resource
             this.identifierEnrichmentProvider.enrichIdentifierList(resource);
-            GroupExtendedTagEnrichmentProvider.addExtendedTagIfNeeded(resource);
+            [resource] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({ resources: [resource] });
             resource = FhirResourceSerializer.serialize(resource.toJSONInternal());
 
             return {

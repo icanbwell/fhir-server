@@ -1337,13 +1337,30 @@ class ConfigManager {
     }
 
     /**
-     * Maximum number of members allowed in Group.member array for CREATE/PUT operations
-     * Default: 50000 (can be overridden in production based on infrastructure)
-     * PATCH operations bypass this limit (they append events, not full arrays)
+     * Maximum number of members allowed in Group.member array for a brand-new Group arriving
+     * already over the limit (CREATE, PUT-insert) -- see rejectNewGroupIfOverLimit in
+     * src/utils/groupPromotion.js. Default: 50000 (can be overridden in production based on
+     * infrastructure). Unrelated to groupMemberPromotionLimit, which governs when an *existing*
+     * Group crossing the limit via PUT-update/PATCH/$merge gets promoted instead of rejected --
+     * the two are deliberately separate knobs, even though they defaulted to the same value and
+     * the same env var historically.
      * @returns {number}
      */
     get groupMemberLimit() {
         return parseInt(env.MAX_GROUP_MEMBERS_PER_PUT || '50000', 10);
+    }
+
+    /**
+     * Member-count threshold above which an existing Group (PUT-update, PATCH, $merge-update/
+     * insert) is promoted from embedded member[] to MongoDB-native extended member storage -- see
+     * isGroupOverLimit/promoteExistingGroupIfNeeded in src/utils/groupPromotion.js. Default:
+     * 50000. Deliberately a separate env var from MAX_GROUP_MEMBERS_PER_PUT/groupMemberLimit
+     * (which only governs rejecting a brand-new over-limit Group on CREATE/PUT-insert): promotion
+     * and outright rejection are different tradeoffs an operator may want to tune independently.
+     * @returns {number}
+     */
+    get groupMemberPromotionLimit() {
+        return parseInt(env.GROUP_MEMBER_PROMOTION_LIMIT || '50000', 10);
     }
 
     /**
@@ -1362,7 +1379,8 @@ class ConfigManager {
      * GroupMemberPatchStrategy.determineGroupMemberType, and the rejectNewGroupIfOverLimit /
      * promoteExistingGroupIfNeeded checks in src/utils/groupPromotion.js -- called from the
      * create/update/patch/merge write paths right before a Group is staged for its own write --
-     * which promote an embedded Group to this storage once its member[] crosses groupMemberLimit.
+     * which promote an embedded Group to this storage once its member[] crosses
+     * groupMemberPromotionLimit.
      * Default: false -- when disabled, a Group already marked
      * `_extended: true` still has its member changes rejected on PUT/$merge (see
      * rejectMemberOnExtendedGroupWrite) rather than silently falling back to the embedded regime

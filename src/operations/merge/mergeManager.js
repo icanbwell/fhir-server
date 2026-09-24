@@ -710,7 +710,7 @@ class MergeManager {
                 mongoGroupMemberRepository: this.mongoGroupMemberRepository
             });
 
-            // A Group crossing groupMemberLimit via this $merge update is promoted here, before
+            // A Group crossing groupMemberPromotionLimit via this $merge update is promoted here, before
             // it's staged for its own write. resourceToMerge._uuid/
             // _sourceAssigningAuthority are already set (this method's own preSaveManager.preSaveAsync
             // call above already ran the full pre-save chain, unlike create/update/patch which rely
@@ -725,7 +725,12 @@ class MergeManager {
             // flush: false, the roster's create/update ops simply join the batch's own buffer
             // under the real requestId and get flushed together with everything else by merge.js's
             // own end-of-batch executeAsync call.
-            if (isGroupOverLimit({ doc: resourceToMerge, configManager: this.configManager })) {
+            if (isGroupOverLimit({
+                doc: resourceToMerge,
+                configManager: this.configManager,
+                limit: this.configManager.groupMemberPromotionLimit,
+                requestInfo
+            })) {
                 await promoteExistingGroupIfNeeded({
                     doc: resourceToMerge,
                     requestInfo,
@@ -794,7 +799,12 @@ class MergeManager {
             // resourceToMerge._uuid/_sourceAssigningAuthority are already set by this method's own
             // preSaveManager.preSaveAsync call above. flush: false for the same reason as
             // performMergeDbUpdateAsync above -- see that method's comment for the full reasoning.
-            if (isGroupOverLimit({ doc: resourceToMerge, configManager: this.configManager })) {
+            if (isGroupOverLimit({
+                doc: resourceToMerge,
+                configManager: this.configManager,
+                limit: this.configManager.groupMemberPromotionLimit,
+                requestInfo
+            })) {
                 await promoteExistingGroupIfNeeded({
                     doc: resourceToMerge,
                     requestInfo,
