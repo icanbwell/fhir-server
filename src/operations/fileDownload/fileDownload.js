@@ -59,6 +59,10 @@ class FileDownloadOperation {
         const currentOperationName = 'fileDownload';
         const startTime = Date.now();
         try {
+            if (!this.documentReferenceFileCloudStorageClient) {
+                throw new NotFoundError(`Invalid url: ${requestInfo.path}`);
+            }
+
             assertIsValid(parsedArgs.id, 'id is required for $fileDownload');
             assertIsValid(parsedArgs.contentId, 'contentId is required for $fileDownload');
 
@@ -70,10 +74,6 @@ class FileDownloadOperation {
                 action: currentOperationName,
                 accessRequested: 'read'
             });
-
-            if (!this.documentReferenceFileCloudStorageClient) {
-                throw new NotFoundError(`Invalid url: ${requestInfo.path}`);
-            }
 
             const { base_version, id, contentId } = parsedArgs;
             const { user, scope, isUser, personIdFromJwtToken } = requestInfo;

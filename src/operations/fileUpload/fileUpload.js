@@ -72,6 +72,10 @@ class FileUploadOperation {
         const currentOperationName = 'fileUpload';
         const startTime = Date.now();
         try {
+            if (!this.documentReferenceFileCloudStorageClient) {
+                throw new NotFoundError(`Invalid url: ${requestInfo.path}`);
+            }
+
             assertIsValid(parsedArgs.id, 'id is required for $fileUpload');
 
             const { base_version, id, fileName, contentType } = parsedArgs;
@@ -85,10 +89,6 @@ class FileUploadOperation {
                 action: currentOperationName,
                 accessRequested: 'write'
             });
-
-            if (!this.documentReferenceFileCloudStorageClient) {
-                throw new NotFoundError(`Invalid url: ${requestInfo.path}`);
-            }
 
             const { user, scope, isUser, personIdFromJwtToken } = requestInfo;
 

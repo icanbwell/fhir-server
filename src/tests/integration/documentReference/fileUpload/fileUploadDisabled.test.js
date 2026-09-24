@@ -49,4 +49,37 @@ describe('DocumentReference $fileUpload / $fileDownload — disabled by default'
 
         expect(resp.status).toBe(404);
     });
+
+    test('$fileUpload returns 404, not 403, for a caller without write access when disabled', async () => {
+        const request = await createTestRequest();
+
+        let resp = await request
+            .put(`/4_0_0/DocumentReference/${documentReference1Resource.id}`)
+            .send(documentReference1Resource)
+            .set(getHeaders());
+        expect(resp.status).toBe(201);
+
+        resp = await request
+            .post(`/4_0_0/DocumentReference/${documentReference1Resource.id}/$fileUpload`)
+            .send({ resourceType: 'Parameters', parameter: [] })
+            .set(getHeaders('user/DocumentReference.read access/bwell.*'));
+
+        expect(resp.status).toBe(404);
+    });
+
+    test('$fileDownload returns 404, not 403, for a caller without read access when disabled', async () => {
+        const request = await createTestRequest();
+
+        let resp = await request
+            .put(`/4_0_0/DocumentReference/${documentReference1Resource.id}`)
+            .send(documentReference1Resource)
+            .set(getHeaders());
+        expect(resp.status).toBe(201);
+
+        resp = await request
+            .get(`/4_0_0/DocumentReference/${documentReference1Resource.id}/some-content-id/$fileDownload`)
+            .set(getHeaders('user/Patient.* access/bwell.*'));
+
+        expect(resp.status).toBe(404);
+    });
 });
