@@ -74,6 +74,9 @@ class FileUploadOperation {
         try {
             assertIsValid(parsedArgs.id, 'id is required for $fileUpload');
 
+            const { base_version, id, fileName, contentType } = parsedArgs;
+            const sanitizedFileName = this._sanitizeFileName(fileName);
+
             await this.scopesValidator.verifyHasValidScopesAsync({
                 requestInfo,
                 parsedArgs,
@@ -87,7 +90,6 @@ class FileUploadOperation {
                 throw new NotFoundError(`Invalid url: ${requestInfo.path}`);
             }
 
-            const { base_version, id, fileName, contentType } = parsedArgs;
             const { user, scope, isUser, personIdFromJwtToken } = requestInfo;
 
             const { query } = await this.searchManager.constructQueryAsync({
@@ -120,8 +122,6 @@ class FileUploadOperation {
             await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                 requestInfo, resource: foundResource, base_version
             });
-
-            const sanitizedFileName = this._sanitizeFileName(fileName);
 
             const contentId = generateUUID();
             const key = `DocumentReference_4_0_0/${foundResource._uuid}/content/${contentId}` +

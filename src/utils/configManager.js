@@ -1010,16 +1010,6 @@ class ConfigManager {
     }
 
     /**
-     * Force path-style S3 addressing (`http://host/bucket/key` instead of
-     * `http://bucket.host/key`). Off by default; turn on for S3-compatible endpoints (MinIO, etc.)
-     * that don't support virtual-hosted-style requests.
-     * @returns {boolean}
-     */
-    get s3ForcePathStyle() {
-        return isTrue(env.S3_FORCE_PATH_STYLE);
-    }
-
-    /**
      * Limit for number of History resources to Cloud storage in a cron job
      * @returns {number}
      */

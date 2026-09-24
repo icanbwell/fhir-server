@@ -1425,11 +1425,6 @@ const createContainer = function () {
                 config: {
                     correctClockSkew: true,
                     maxAttempts: c.configManager.cloudStorageClientMaxRetry,
-                    // Path-style addressing (bucket in the URL path, not a virtual-hosted subdomain) --
-                    // required for presigned URLs to resolve against an S3-compatible endpoint like
-                    // MinIO that doesn't do wildcard-subdomain-per-bucket DNS. Off by default (AWS S3
-                    // prefers virtual-hosted-style); only turned on for local/non-AWS endpoints.
-                    forcePathStyle: c.configManager.s3ForcePathStyle,
                     requestHandler: {
                         requestTimeout: c.configManager.cloudStorageClientRequestTimeout,
                         connectionTimeout: c.configManager.cloudStorageClientConnectionTimeout
