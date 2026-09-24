@@ -1106,6 +1106,24 @@ class ConfigManager {
     }
 
     /**
+     * Allowlisted audience (aud) claim values parsed from AUTH_AUDIENCE_WHITELIST env var.
+     * When empty, the audience claim is not checked (backwards-compatible default).
+     * @returns {string[]}
+     */
+    get authAudienceWhitelist() {
+        return this._parseCommaSeparatedList(env.AUTH_AUDIENCE_WHITELIST, []);
+    }
+
+    /**
+     * Denylisted audience (aud) claim values parsed from AUTH_AUDIENCE_BLACKLIST env var.
+     * When empty, no audience is denied (backwards-compatible default).
+     * @returns {string[]}
+     */
+    get authAudienceBlacklist() {
+        return this._parseCommaSeparatedList(env.AUTH_AUDIENCE_BLACKLIST, []);
+    }
+
+    /**
      * Allowlisted purposeOfUse codes parsed from CMS_ALLOWED_PURPOSE_OF_USE env var.
      * @returns {Set<string>}
      */

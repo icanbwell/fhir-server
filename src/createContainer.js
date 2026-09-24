@@ -1444,7 +1444,8 @@ const createContainer = function () {
         return new AuthService
         ({
             configManager: c.configManager,
-            wellKnownConfigurationManager: c.wellKnownConfigurationManager
+            wellKnownConfigurationManager: c.wellKnownConfigurationManager,
+            delegatedAccessRulesManager: c.delegatedAccessRulesManager
         });
     });
 
