@@ -545,12 +545,17 @@ describe('FhirOperationsManager', () => {
 
             expect(uuids).toEqual(['uuid-0', 'uuid-1', 'uuid-2', 'uuid-3']);
             expect(mockSearchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(2);
-            expect(mockR4ArgsParser.parseArgs).toHaveBeenNthCalledWith(1, expect.objectContaining({
-                args: expect.objectContaining({ _count: 3, _getpagesoffset: 0 })
-            }));
-            expect(mockR4ArgsParser.parseArgs).toHaveBeenNthCalledWith(2, expect.objectContaining({
-                args: expect.objectContaining({ _count: 3, _getpagesoffset: 1 })
-            }));
+            // keyset/cursor pagination (id:above the last-seen _uuid), not _getpagesoffset --
+            // offset pagination makes Mongo skip() + re-scan N*pageSize docs on every page.
+            const firstCallArgs = mockR4ArgsParser.parseArgs.mock.calls[0][0].args;
+            expect(firstCallArgs._count).toBe(3);
+            expect(firstCallArgs['id:above']).toBeUndefined();
+            expect(firstCallArgs._getpagesoffset).toBeUndefined();
+
+            const secondCallArgs = mockR4ArgsParser.parseArgs.mock.calls[1][0].args;
+            expect(secondCallArgs._count).toBe(3);
+            expect(secondCallArgs['id:above']).toBe('uuid-2');
+            expect(secondCallArgs._getpagesoffset).toBeUndefined();
         });
 
         test('stops after the first page when it is not full', async () => {

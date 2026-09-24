@@ -447,6 +447,100 @@ describe('R4ArgsParser', () => {
             expect(result.parsedArgItems.find(i => i.queryParameter === 'patient')).toBeUndefined();
         });
 
+        test('resolves a chain into Patient.identifier -- the only currently-supported target', () => {
+            mockChainLookups({ baseTarget: ['Patient'] });
+            const args = {
+                'patient.identifier': 'http://example.com/mrn|123456',
+                base_version: '4_0_0'
+            };
+
+            const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
+
+            const item = result.parsedArgItems.find(i => i.queryParameter === 'patient');
+            expect(item).toBeDefined();
+            expect(item.chain).toEqual({ targetType: 'Patient', targetParam: 'identifier' });
+        });
+
+        test('rejects a chain into a target type other than Patient (e.g. Practitioner.identifier), even though the target parameter itself is real (strict handling)', () => {
+            const baseRefPropertyObj = new SearchParameterDefinition({
+                type: 'reference', field: 'performer', target: ['Practitioner']
+            });
+            const targetPropertyObj = new SearchParameterDefinition({ type: 'token', field: 'identifier' });
+            mockSearchParametersManager.getPropertyObject.mockImplementation(
+                ({ resourceType, queryParameter }) => {
+                    if (resourceType === 'Observation' && queryParameter === 'performer') {
+                        return baseRefPropertyObj;
+                    }
+                    if (resourceType === 'Practitioner' && queryParameter === 'identifier') {
+                        return targetPropertyObj;
+                    }
+                    return undefined;
+                }
+            );
+            mockSearchParametersManager.resolveChainTargetType = jest.fn(() => 'Practitioner');
+            const args = {
+                'performer.identifier': 'http://example.com/npi|123456',
+                base_version: '4_0_0',
+                handling: 'strict'
+            };
+
+            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).toThrow();
+        });
+
+        test('silently ignores a chain into a target type other than Patient (lenient handling)', () => {
+            const baseRefPropertyObj = new SearchParameterDefinition({
+                type: 'reference', field: 'performer', target: ['Practitioner']
+            });
+            const targetPropertyObj = new SearchParameterDefinition({ type: 'token', field: 'identifier' });
+            mockSearchParametersManager.getPropertyObject.mockImplementation(
+                ({ resourceType, queryParameter }) => {
+                    if (resourceType === 'Observation' && queryParameter === 'performer') {
+                        return baseRefPropertyObj;
+                    }
+                    if (resourceType === 'Practitioner' && queryParameter === 'identifier') {
+                        return targetPropertyObj;
+                    }
+                    return undefined;
+                }
+            );
+            mockSearchParametersManager.resolveChainTargetType = jest.fn(() => 'Practitioner');
+            const args = {
+                'performer.identifier': 'http://example.com/npi|123456',
+                base_version: '4_0_0'
+            };
+
+            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).not.toThrow();
+            const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
+
+            expect(result.parsedArgItems.find(i => i.queryParameter === 'performer')).toBeUndefined();
+        });
+
+        test('rejects a chain into a Patient field other than identifier (e.g. Patient.name), even though the target parameter itself is real (strict handling)', () => {
+            const baseRefPropertyObj = new SearchParameterDefinition({
+                type: 'reference', field: 'subject', target: ['Patient']
+            });
+            const targetPropertyObj = new SearchParameterDefinition({ type: 'string', field: 'name' });
+            mockSearchParametersManager.getPropertyObject.mockImplementation(
+                ({ resourceType, queryParameter }) => {
+                    if (resourceType === 'Observation' && queryParameter === 'patient') {
+                        return baseRefPropertyObj;
+                    }
+                    if (resourceType === 'Patient' && queryParameter === 'name') {
+                        return targetPropertyObj;
+                    }
+                    return undefined;
+                }
+            );
+            mockSearchParametersManager.resolveChainTargetType = jest.fn(() => 'Patient');
+            const args = {
+                'patient.name': 'Smith',
+                base_version: '4_0_0',
+                handling: 'strict'
+            };
+
+            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).toThrow();
+        });
+
         test('does not treat a multi-dot parameter name as a chain (Group member.entity._reference)', () => {
             // member.entity._reference is a pre-existing, unrelated dotted parameter name
             // (regression: CI run 35106413973, job 104828682944) -- `member` genuinely is a
@@ -499,33 +593,23 @@ describe('R4ArgsParser', () => {
             expect(item.chain).toBeUndefined();
         });
 
-        test.each(['missing', 'contains', 'above', 'below', 'text', 'of-type'])(
-            'throws BadRequestError when chain is combined with the :%s modifier (strict handling)',
+        test.each(['missing', 'contains', 'above', 'below', 'text', 'of-type', 'exact'])(
+            'allows chain combined with the :%s modifier and preserves it for the target sub-search to apply',
             (modifier) => {
                 mockChainLookups({ baseTarget: ['Patient'] });
                 const args = {
                     [`patient.identifier:${modifier}`]: 'Smith',
-                    base_version: '4_0_0',
-                    handling: 'strict'
+                    base_version: '4_0_0'
                 };
 
-                expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).toThrow();
+                const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
+
+                const item = result.parsedArgItems.find(i => i.queryParameter === 'patient');
+                expect(item).toBeDefined();
+                expect(item.chain).toEqual({ targetType: 'Patient', targetParam: 'identifier' });
+                expect(item.modifiers).toEqual([modifier]);
             }
         );
-
-        test('silently ignores a chain combined with a rejected modifier (lenient handling)', () => {
-            mockChainLookups({ baseTarget: ['Patient'] });
-            const args = {
-                'patient.identifier:missing': 'Smith',
-                base_version: '4_0_0',
-                handling: 'lenient'
-            };
-
-            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).not.toThrow();
-            const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
-
-            expect(result.parsedArgItems.find(i => i.queryParameter === 'patient')).toBeUndefined();
-        });
 
         test('allows chain combined with the :not modifier', () => {
             mockChainLookups({ baseTarget: ['Patient'] });

@@ -14,12 +14,13 @@ describe('ChainedSearchQueryRewriter', () => {
     /**
      * Helper to build a parsedArgs object with a single parsedArgItem
      */
-    function buildParsedArgs ({ queryParameter, chain, value, operator = '$and' }) {
+    function buildParsedArgs ({ queryParameter, chain, value, operator = '$and', modifiers }) {
         return {
             parsedArgItems: [
                 {
                     queryParameter,
                     chain,
+                    modifiers,
                     queryParameterValue: new QueryParameterValue({ value, operator })
                 }
             ]
@@ -53,6 +54,81 @@ describe('ChainedSearchQueryRewriter', () => {
             requestInfo
         });
         expect(result.parsedArgItems[0].queryParameterValue.value).toBe('Patient/uuid-1');
+    });
+
+    test.each(['missing', 'contains', 'above', 'below', 'text', 'of-type', 'exact'])(
+        'forwards the :%s modifier onto the sub-search\'s target parameter',
+        async (modifier) => {
+            const parsedArgs = buildParsedArgs({
+                queryParameter: 'subject',
+                chain: { targetType: 'Patient', targetParam: 'name' },
+                value: 'Smith',
+                modifiers: [modifier]
+            });
+            const searchResourceAsync = jest.fn().mockResolvedValue(['uuid-1']);
+
+            await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
+
+            expect(searchResourceAsync).toHaveBeenCalledWith(expect.objectContaining({
+                resourceType: 'Patient',
+                args: { [`name:${modifier}`]: 'Smith' }
+            }));
+        }
+    );
+
+    test('does not forward the :not modifier to the sub-search -- it negates the outer reference filter instead', async () => {
+        const parsedArgs = buildParsedArgs({
+            queryParameter: 'patient',
+            chain: { targetType: 'Patient', targetParam: 'identifier' },
+            value: 'http://example.com/mrn|123456',
+            modifiers: ['not']
+        });
+        const searchResourceAsync = jest.fn().mockResolvedValue(['uuid-1']);
+
+        await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
+
+        expect(searchResourceAsync).toHaveBeenCalledWith(expect.objectContaining({
+            resourceType: 'Patient',
+            args: { identifier: 'http://example.com/mrn|123456' }
+        }));
+    });
+
+    test.each(['missing', 'contains', 'above', 'below', 'text', 'of-type', 'exact'])(
+        'clears the :%s modifier off the parsedArg after resolving, so the outer reference filter dispatch does not also misapply it',
+        async (modifier) => {
+            // Regression: r4.js's top-level filter dispatch checks parsedArg.modifiers
+            // generically for ANY param (missing/contains/above/below/text/of-type all take
+            // priority over the normal type-based filter there). If this rewriter forwards a
+            // modifier into the sub-search but leaves it sitting on the same parsedArg, the
+            // OUTER reference filter (now holding the resolved Target/<uuid> value) gets
+            // hijacked into running e.g. FilterByMissing/FilterByContains against the resolved
+            // reference field instead of a normal equality match -- silently wrong results.
+            const parsedArgs = buildParsedArgs({
+                queryParameter: 'performer',
+                chain: { targetType: 'Practitioner', targetParam: 'identifier' },
+                value: 'X',
+                modifiers: [modifier]
+            });
+            const searchResourceAsync = jest.fn().mockResolvedValue(['uuid-1']);
+
+            const result = await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
+
+            expect(result.parsedArgItems[0].modifiers).toEqual([]);
+        }
+    );
+
+    test('keeps the :not modifier on the parsedArg after resolving, since it belongs to the outer reference filter', async () => {
+        const parsedArgs = buildParsedArgs({
+            queryParameter: 'patient',
+            chain: { targetType: 'Patient', targetParam: 'identifier' },
+            value: 'http://example.com/mrn|123456',
+            modifiers: ['not']
+        });
+        const searchResourceAsync = jest.fn().mockResolvedValue(['uuid-1']);
+
+        const result = await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
+
+        expect(result.parsedArgItems[0].modifiers).toEqual(['not']);
     });
 
     test('joins multiple resolved ids with OR semantics', async () => {

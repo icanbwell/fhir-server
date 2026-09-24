@@ -9,7 +9,14 @@ const { QueryParameterValue } = require('./queryParameterValue');
 const { ParsedArgs } = require('./parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
-const { REJECTED_MODIFIERS } = require('./filters/composite');
+
+// Chained search is deliberately gated to only the (target type, target field) pairs listed
+// here, even though the resolution mechanism can already handle any resource type/field. Add an
+// entry to expand support once its chain has been separately verified (see review.md §E --
+// chaining is a cross-tenant join, so widening this allowlist is a security-relevant change).
+const SUPPORTED_CHAIN_TARGETS = {
+    Patient: ['identifier']
+};
 
 /**
  * @classdesc This classes parses an array of args into structured ParsedArgsItem array
@@ -189,11 +196,11 @@ class R4ArgsParser {
                     }
                     continue;
                 }
-                if (REJECTED_MODIFIERS.some(m => modifiers.includes(m))) {
+                if (!(SUPPORTED_CHAIN_TARGETS[`${targetType}`] || []).includes(chainDescriptor.targetParam)) {
                     if (handlingType === STRICT_SEARCH_HANDLING) {
                         throw new BadRequestError(new Error(
-                            `Modifiers [${REJECTED_MODIFIERS.join(', ')}] are not supported on chained ` +
-                            `search parameters (queryParameter=${argName})`
+                            `Chained search into ${targetType}.${chainDescriptor.targetParam} is not currently ` +
+                            `supported (queryParameter=${argName})`
                         ));
                     }
                     continue;

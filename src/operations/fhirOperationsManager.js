@@ -348,10 +348,19 @@ class FhirOperationsManager {
         this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'search' });
 
         const resolvedUuids = [];
-        let pageOffset = 0;
+        // keyset/cursor pagination (id:above the last-seen _uuid, relying on the default
+        // ascending _uuid sort) instead of _getpagesoffset -- offset pagination makes Mongo
+        // skip() + re-scan all N*pageSize preceding docs on every page.
+        let lastUuid;
         while (true) {
             const parsedArgs = await this.getParsedArgsAsync({
-                args: { ...args, base_version, _elements: '_uuid', _count: pageSize, _getpagesoffset: pageOffset },
+                args: {
+                    ...args,
+                    base_version,
+                    _elements: '_uuid',
+                    _count: pageSize,
+                    ...(lastUuid ? { 'id:above': lastUuid } : {})
+                },
                 resourceType,
                 operation: READ,
                 requestInfo
@@ -366,6 +375,7 @@ class FhirOperationsManager {
             for (const entry of entries) {
                 if (entry.resource?._uuid) {
                     resolvedUuids.push(entry.resource._uuid);
+                    lastUuid = entry.resource._uuid;
                 }
             }
             const queryTag = bundle.meta?.tag?.find((t) => t.system === 'https://www.icanbwell.com/query');
@@ -375,7 +385,6 @@ class FhirOperationsManager {
             if (entries.length < pageSize) {
                 break;
             }
-            pageOffset += 1;
         }
         return resolvedUuids;
     }

@@ -29,10 +29,21 @@ class ChainedSearchQueryRewriter extends QueryRewriter {
             const targetValue = parsedArg.queryParameterValue.values.join(',');
             const debugTags = debugRequested ? [] : undefined;
 
+            // Any modifier left on this item belongs to the chain's target parameter (e.g.
+            // `subject:Patient.name:exact=Smith` means an exact match on Patient.name) and must
+            // be forwarded into the sub-search so it's applied there -- except :not, which
+            // negates the *outer* reference filter after resolution (applied later by the
+            // normal filter pipeline on this same parsedArg), not the sub-search itself.
+            const hadNotModifier = (parsedArg.modifiers || []).includes('not');
+            const targetModifiers = (parsedArg.modifiers || []).filter((m) => m !== 'not');
+            const targetKey = targetModifiers.length > 0
+                ? `${targetParam}:${targetModifiers.join(':')}`
+                : targetParam;
+
             const resolvedUuids = await searchResourceAsync({
                 resourceType: targetType,
                 args: {
-                    [targetParam]: targetValue,
+                    [targetKey]: targetValue,
                     ...(debugRequested ? { _debug: parsedArgs._debug, _explain: parsedArgs._explain } : {})
                 },
                 requestInfo,
@@ -40,7 +51,7 @@ class ChainedSearchQueryRewriter extends QueryRewriter {
             });
 
             if (debugTags && debugTags.length > 0) {
-                chainDisplays[index] = `${parsedArg.queryParameter}.${targetParam} -> ${targetType}?${targetParam}=${targetValue}: ` +
+                chainDisplays[index] = `${parsedArg.queryParameter}.${targetParam} -> ${targetType}?${targetKey}=${targetValue}: ` +
                     debugTags.map((t) => t.display).join(' | ');
             }
 
@@ -52,6 +63,12 @@ class ChainedSearchQueryRewriter extends QueryRewriter {
                 value: newValue,
                 operator: parsedArg.queryParameterValue.operator
             });
+            // Every modifier except :not was just consumed by the sub-search above; leaving
+            // any of them on this same parsedArg would make r4.js's outer filter dispatch
+            // (which checks modifiers generically for any param) misapply e.g.
+            // FilterByMissing/FilterByContains against the resolved reference field instead of
+            // a normal equality match.
+            parsedArg.modifiers = hadNotModifier ? ['not'] : [];
         }));
 
         const filledChainDisplays = chainDisplays?.filter(Boolean);
