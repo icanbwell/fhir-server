@@ -71,6 +71,35 @@ class CloudStorageClient {
     }
 
     /**
+     * Generates a presigned URL that lets a caller PUT an object directly, without proxying the
+     * bytes through this server.
+     * @typedef {Object} GetPresignedPutUrlAsyncParams
+     * @property {string} filePath
+     * @property {string} [contentType]
+     * @property {number} expiresInSeconds
+     *
+     * @param {GetPresignedPutUrlAsyncParams}
+     * @returns {Promise<string>}
+     */
+    async getPresignedPutUrlAsync({ filePath, contentType, expiresInSeconds }) {
+        throw Error('Not Implemented');
+    }
+
+    /**
+     * Generates a presigned URL that lets a caller GET an object directly, without proxying the
+     * bytes through this server.
+     * @typedef {Object} GetPresignedGetUrlAsyncParams
+     * @property {string} filePath
+     * @property {number} expiresInSeconds
+     *
+     * @param {GetPresignedGetUrlAsyncParams}
+     * @returns {Promise<string>}
+     */
+    async getPresignedGetUrlAsync({ filePath, expiresInSeconds }) {
+        throw Error('Not Implemented');
+    }
+
+    /**
      * Starts a multi-part upload for the file provided
      * @typedef {Object} CreateMultiPartUploadAsyncParams
      * @property {string} filePath

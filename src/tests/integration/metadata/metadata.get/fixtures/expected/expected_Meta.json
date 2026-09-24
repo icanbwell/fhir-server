@@ -17371,6 +17371,18 @@
           }
         },
         {
+          "name": "file-upload",
+          "definition": {
+            "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html"
+          }
+        },
+        {
+          "name": "file-download",
+          "definition": {
+            "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html"
+          }
+        },
+        {
           "name": "everything",
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"

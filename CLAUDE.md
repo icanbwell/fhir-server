@@ -72,6 +72,19 @@ Express middleware chain -> FhirRouter -> Operations -> DataLayer (MongoDB) -> R
 ### IoC Container
 All dependency wiring is in `src/createContainer.js` (~130+ services registered in `SimpleContainer`). New classes must be registered here. For tests, override services in `src/tests/createTestContainer.js`.
 
+### Resource Serialization
+Two parallel paths exist for turning a FHIR resource into something writable to Mongo:
+- **Class-based (deprecated for new work)**: `FhirResourceCreator`, `Resource`/backbone/complex-type
+  class instances (getter/setter-defined properties), `.clone()`/`.toJSON()`/`.toJSONInternal()`,
+  `DatabaseBulkInserter`. Still what `create`/`update`/`patch`/`remove` use today, but it will
+  eventually be removed once those are migrated off it. **Do not use this path in new features.**
+- **Plain-object `writeSerializer` (use this for anything new)**: `FhirResourceWriteSerializer`
+  (`src/fhir/fhirResourceWriteSerializer.js`), `fastFindOneAsync` (`DatabaseQueryManager`),
+  `FastDatabaseUpdateManager`/`FastDatabaseBulkInserter`, and
+  `resourceMerger.fastMergeResourceAsync`/`fastUpdateMeta`. Operates on plain JS objects instead of
+  constructing a full tree of class instances per resource. `$merge`, `$bulkImport`, and the audit
+  logger already use this path — mirror them, not `create`/`update`/`patch`.
+
 ### Key Entry Points
 - `src/index.js` - Process entry, cluster mode, Sentry init
 - `src/app.js` - Express app setup, middleware registration

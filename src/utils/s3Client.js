@@ -14,6 +14,7 @@ const {
     NoSuchKey
 } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { RethrownError } = require('./rethrownError');
 const { assertIsValid } = require('./assertType');
 const { logError } = require('../operations/common/logging');
@@ -118,6 +119,62 @@ class S3Client extends CloudStorageClient {
             }
             throw new RethrownError({
                 message: `Error in existsAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: { filePath }
+            });
+        }
+    }
+
+    /**
+     * Generates a presigned URL that lets a caller PUT an object directly, without proxying the
+     * bytes through this server.
+     * @typedef {Object} GetPresignedPutUrlAsyncParams
+     * @property {string} filePath
+     * @property {string} [contentType] - when supplied, the presigned URL only accepts a PUT whose
+     *          Content-Type header matches exactly.
+     * @property {number} expiresInSeconds
+     *
+     * @param {GetPresignedPutUrlAsyncParams}
+     * @returns {Promise<string>}
+     */
+    async getPresignedPutUrlAsync({ filePath, contentType, expiresInSeconds }) {
+        try {
+            const params = { Bucket: this.bucketName, Key: filePath };
+            if (contentType) {
+                params.ContentType = contentType;
+            }
+            return await getSignedUrl(this.client, new PutObjectCommand(params), { expiresIn: expiresInSeconds });
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in getPresignedPutUrlAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: { filePath }
+            });
+        }
+    }
+
+    /**
+     * Generates a presigned URL that lets a caller GET an object directly, without proxying the
+     * bytes through this server.
+     * @typedef {Object} GetPresignedGetUrlAsyncParams
+     * @property {string} filePath
+     * @property {number} expiresInSeconds
+     *
+     * @param {GetPresignedGetUrlAsyncParams}
+     * @returns {Promise<string>}
+     */
+    async getPresignedGetUrlAsync({ filePath, expiresInSeconds }) {
+        try {
+            return await getSignedUrl(
+                this.client,
+                new GetObjectCommand({ Bucket: this.bucketName, Key: filePath }),
+                { expiresIn: expiresInSeconds }
+            );
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in getPresignedGetUrlAsync: ${err.message}`,
                 error: err,
                 source: 'S3Client',
                 args: { filePath }

@@ -31,6 +31,10 @@ jest.mock('@aws-sdk/lib-storage', () => ({
     }))
 }));
 
+jest.mock('@aws-sdk/s3-request-presigner', () => ({
+    getSignedUrl: jest.fn()
+}));
+
 jest.mock('../../../utils/rethrownError', () => ({
     RethrownError: class RethrownError extends Error {
         constructor({ message, error, source, args }) {
@@ -56,7 +60,8 @@ jest.mock('../../../operations/common/logging', () => ({
 }));
 
 const { S3Client } = require('../../../utils/s3Client');
-const { NoSuchKey } = require('@aws-sdk/client-s3');
+const { NoSuchKey, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
 describe('S3Client', () => {
     let s3Client;
@@ -299,6 +304,66 @@ describe('S3Client', () => {
                     partNumber: 1
                 })
             ).rejects.toThrow('UploadId is required to upload part of a file');
+        });
+    });
+
+    describe('getPresignedPutUrlAsync', () => {
+        test('returns a signed PUT url for the given key, without ContentType when none supplied', async () => {
+            getSignedUrl.mockResolvedValue('https://signed.example/put-url');
+
+            const result = await s3Client.getPresignedPutUrlAsync({
+                filePath: 'DocumentReference_4_0_0/uuid-1/content/content-1/report.pdf',
+                expiresInSeconds: 900
+            });
+
+            expect(result).toBe('https://signed.example/put-url');
+            expect(getSignedUrl).toHaveBeenCalledWith(
+                s3Client.client,
+                expect.objectContaining({ _type: 'PutObject' }),
+                { expiresIn: 900 }
+            );
+            expect(PutObjectCommand).toHaveBeenCalledWith({
+                Bucket: 'test-bucket',
+                Key: 'DocumentReference_4_0_0/uuid-1/content/content-1/report.pdf'
+            });
+        });
+
+        test('binds ContentType on the presigned command when supplied', async () => {
+            getSignedUrl.mockResolvedValue('https://signed.example/put-url');
+
+            await s3Client.getPresignedPutUrlAsync({
+                filePath: 'some/key',
+                contentType: 'application/pdf',
+                expiresInSeconds: 300
+            });
+
+            expect(PutObjectCommand).toHaveBeenCalledWith({
+                Bucket: 'test-bucket',
+                Key: 'some/key',
+                ContentType: 'application/pdf'
+            });
+        });
+    });
+
+    describe('getPresignedGetUrlAsync', () => {
+        test('returns a signed GET url for the given key', async () => {
+            getSignedUrl.mockResolvedValue('https://signed.example/get-url');
+
+            const result = await s3Client.getPresignedGetUrlAsync({
+                filePath: 'some/key',
+                expiresInSeconds: 900
+            });
+
+            expect(result).toBe('https://signed.example/get-url');
+            expect(getSignedUrl).toHaveBeenCalledWith(
+                s3Client.client,
+                expect.objectContaining({ _type: 'GetObject' }),
+                { expiresIn: 900 }
+            );
+            expect(GetObjectCommand).toHaveBeenCalledWith({
+                Bucket: 'test-bucket',
+                Key: 'some/key'
+            });
         });
     });
 });

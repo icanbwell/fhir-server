@@ -165,6 +165,8 @@ const { GenericClickHouseQueryBuilder } = require('./dataLayer/builders/genericC
 const { GenericClickHouseRepository } = require('./dataLayer/repositories/genericClickHouseRepository');
 const { AccessHistoryClickHouseRepository } = require('./dataLayer/repositories/accessHistoryClickHouseRepository');
 const { AccessHistoryOperation } = require('./operations/accessHistory/accessHistory');
+const { FileUploadOperation } = require('./operations/fileUpload/fileUpload');
+const { FileDownloadOperation } = require('./operations/fileDownload/fileDownload');
 const { BaseSerializer } = require('./fhir/writeSerializers/4_0_0/customSerializers');
 const deepcopy = require('deepcopy');
 
@@ -1045,6 +1047,25 @@ const createContainer = function () {
         scopesValidator: c.scopesValidator
     }));
 
+    container.register('fileUploadOperation', (c) => new FileUploadOperation({
+        databaseQueryFactory: c.databaseQueryFactory,
+        databaseUpdateFactory: c.databaseUpdateFactory,
+        searchManager: c.searchManager,
+        scopesValidator: c.scopesValidator,
+        configManager: c.configManager,
+        fhirLoggingManager: c.fhirLoggingManager,
+        documentReferenceFileCloudStorageClient: c.documentReferenceFileCloudStorageClient
+    }));
+
+    container.register('fileDownloadOperation', (c) => new FileDownloadOperation({
+        databaseQueryFactory: c.databaseQueryFactory,
+        searchManager: c.searchManager,
+        scopesValidator: c.scopesValidator,
+        configManager: c.configManager,
+        fhirLoggingManager: c.fhirLoggingManager,
+        documentReferenceFileCloudStorageClient: c.documentReferenceFileCloudStorageClient
+    }));
+
     container.register('databaseAttachmentManager', (c) => new DatabaseAttachmentManager(
         {
             mongoDatabaseManager: c.mongoDatabaseManager,
@@ -1080,7 +1101,9 @@ const createContainer = function () {
                 accessManager: c.accessManager,
                 cmsManager: c.cmsManager,
                 accessHistoryOperation: c.accessHistoryOperation,
-                customTracer: c.customTracer
+                customTracer: c.customTracer,
+                fileUploadOperation: c.fileUploadOperation,
+                fileDownloadOperation: c.fileDownloadOperation
             }
         )
     );
@@ -1382,6 +1405,31 @@ const createContainer = function () {
                     correctClockSkew: true,
                     // https://github.com/aws/aws-sdk-js-v3/blob/main/supplemental-docs/CLIENTS.md#retry-strategy-retrystrategy-retrymode-maxattempts
                     maxAttempts: c.configManager.cloudStorageClientMaxRetry,
+                    requestHandler: {
+                        requestTimeout: c.configManager.cloudStorageClientRequestTimeout,
+                        connectionTimeout: c.configManager.cloudStorageClientConnectionTimeout
+                    }
+                }
+            });
+        }
+        return null;
+    });
+
+    // Cloud storage client for client-uploaded DocumentReference $fileUpload/$fileDownload content.
+    // Nullable — the two operations 404 (as if the route didn't exist) when this is null.
+    container.register('documentReferenceFileCloudStorageClient', (c) => {
+        if (c.configManager.enableDocumentReferenceFileOperations) {
+            return new S3Client({
+                bucketName: c.configManager.documentReferenceFileBucketName,
+                region: c.configManager.awsRegion,
+                config: {
+                    correctClockSkew: true,
+                    maxAttempts: c.configManager.cloudStorageClientMaxRetry,
+                    // Path-style addressing (bucket in the URL path, not a virtual-hosted subdomain) --
+                    // required for presigned URLs to resolve against an S3-compatible endpoint like
+                    // MinIO that doesn't do wildcard-subdomain-per-bucket DNS. Off by default (AWS S3
+                    // prefers virtual-hosted-style); only turned on for local/non-AWS endpoints.
+                    forcePathStyle: c.configManager.s3ForcePathStyle,
                     requestHandler: {
                         requestTimeout: c.configManager.cloudStorageClientRequestTimeout,
                         connectionTimeout: c.configManager.cloudStorageClientConnectionTimeout

@@ -204,7 +204,10 @@ const INTERACTION_TO_CRUDS_LETTER = {
     searchStreaming: 's',
     everything: 's',
     summary: 's',
-    expand: 's'
+    expand: 's',
+    // Appends to an existing resource's content[] -- an update, not a create of a new resource.
+    fileUpload: 'u',
+    fileDownload: 'r'
 };
 
 /**

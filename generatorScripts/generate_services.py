@@ -65,6 +65,19 @@ def main() -> int:
                 "          method: 'GET',\n"
                 "          reference: 'https://www.hl7.org/fhir/security.html'\n"
                 "        }") if resourceType == 'Person' else ""
+            document_reference_operations = (",\n"
+                "        {\n"
+                "          name: 'file-upload',\n"
+                "          route: '/:id/$fileUpload',\n"
+                "          method: 'POST',\n"
+                "          reference: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html'\n"
+                "        },\n"
+                "        {\n"
+                "          name: 'file-download',\n"
+                "          route: '/:id/:contentId/$fileDownload',\n"
+                "          method: 'GET',\n"
+                "          reference: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html'\n"
+                "        }") if resourceType == 'DocumentReference' else ""
             config_entries.append(f"""
     {resourceType}: {{
       service: './src/services/{resourceType.lower()}/{resourceType.lower()}.service.js',
@@ -159,7 +172,7 @@ def main() -> int:
           route: '/:id/$summary',
           method: 'GET',
           reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
-        }}{person_operations}
+        }}{person_operations}{document_reference_operations}
       ]
     }},""")
         else:

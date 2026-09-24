@@ -976,6 +976,50 @@ class ConfigManager {
     }
 
     /**
+     * Whether the DocumentReference `$fileUpload`/`$fileDownload` presigned-S3-URL operations are
+     * enabled. Off by default.
+     * @returns {boolean}
+     */
+    get enableDocumentReferenceFileOperations() {
+        return isTrue(env.ENABLE_DOCUMENT_REFERENCE_FILE_OPERATIONS);
+    }
+
+    /**
+     * Bucket holding client-uploaded DocumentReference content, keyed by
+     * `DocumentReference_4_0_0/{_uuid}/content/{contentId}[/{fileName}]`.
+     * @returns {string|undefined}
+     */
+    get documentReferenceFileBucketName() {
+        return env.DOCUMENT_REFERENCE_FILE_BUCKET_NAME;
+    }
+
+    /**
+     * Expiry (in seconds) for a `$fileUpload`-issued presigned PUT URL.
+     * @returns {number}
+     */
+    get documentReferenceFileUploadUrlExpiryInSeconds() {
+        return parseInt(env.DOCUMENT_REFERENCE_FILE_UPLOAD_URL_EXPIRY_IN_SECONDS || '900', 10);
+    }
+
+    /**
+     * Expiry (in seconds) for a `$fileDownload`-issued presigned GET URL.
+     * @returns {number}
+     */
+    get documentReferenceFileDownloadUrlExpiryInSeconds() {
+        return parseInt(env.DOCUMENT_REFERENCE_FILE_DOWNLOAD_URL_EXPIRY_IN_SECONDS || '900', 10);
+    }
+
+    /**
+     * Force path-style S3 addressing (`http://host/bucket/key` instead of
+     * `http://bucket.host/key`). Off by default; turn on for S3-compatible endpoints (MinIO, etc.)
+     * that don't support virtual-hosted-style requests.
+     * @returns {boolean}
+     */
+    get s3ForcePathStyle() {
+        return isTrue(env.S3_FORCE_PATH_STYLE);
+    }
+
+    /**
      * Limit for number of History resources to Cloud storage in a cron job
      * @returns {number}
      */

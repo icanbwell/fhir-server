@@ -4320,6 +4320,18 @@ const profiles = {
           route: '/:id/$summary',
           method: 'GET',
           reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
+        },
+        {
+          name: 'file-upload',
+          route: '/:id/$fileUpload',
+          method: 'POST',
+          reference: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html'
+        },
+        {
+          name: 'file-download',
+          route: '/:id/:contentId/$fileDownload',
+          method: 'GET',
+          reference: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html'
         }
       ]
     },

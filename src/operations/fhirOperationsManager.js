@@ -74,6 +74,8 @@ class FhirOperationsManager {
      * @param {CMSManager} cmsManager
      * @param {AccessHistoryOperation} accessHistoryOperation
      * @param {CustomTracer} customTracer
+     * @param {FileUploadOperation} fileUploadOperation
+     * @param {FileDownloadOperation} fileDownloadOperation
      */
     constructor(
         {
@@ -102,7 +104,9 @@ class FhirOperationsManager {
             accessManager,
             cmsManager,
             accessHistoryOperation,
-            customTracer
+            customTracer,
+            fileUploadOperation,
+            fileDownloadOperation
         }
     ) {
         /**
@@ -242,6 +246,16 @@ class FhirOperationsManager {
          */
         this.customTracer = customTracer;
         assertTypeEquals(customTracer, CustomTracer);
+
+        /**
+         * @type {FileUploadOperation}
+         */
+        this.fileUploadOperation = fileUploadOperation;
+
+        /**
+         * @type {FileDownloadOperation}
+         */
+        this.fileDownloadOperation = fileDownloadOperation;
     }
 
     /**
@@ -1327,6 +1341,65 @@ class FhirOperationsManager {
             requestInfo,
             parsedArgs,
             resourceType
+        });
+    }
+
+    /**
+     * Mints a presigned S3 URL for uploading new DocumentReference attachment content
+     * @param {Object} args
+     * @param {import('http').IncomingMessage} req
+     * @param {import('express').Response} res
+     * @param {string} resourceType
+     * @returns {Promise<Object>}
+     */
+    async fileUpload(args, { req, res }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'fileUpload' });
+
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: combined_args,
+            resourceType,
+            headers: req.headers,
+            operation: WRITE,
+            requestInfo
+        });
+
+        return await this.fileUploadOperation.fileUploadAsync({
+            requestInfo,
+            parsedArgs,
+            resourceType
+        });
+    }
+
+    /**
+     * Redirects to a presigned S3 URL for downloading previously-uploaded DocumentReference
+     * attachment content
+     * @param {Object} args
+     * @param {import('http').IncomingMessage} req
+     * @param {import('express').Response} res
+     * @param {string} resourceType
+     * @returns {Promise<void>}
+     */
+    async fileDownload(args, { req, res }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'fileDownload' });
+
+        let combined_args = get_all_args(req, args);
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: combined_args,
+            resourceType,
+            headers: req.headers,
+            operation: READ,
+            requestInfo
+        });
+
+        return await this.fileDownloadOperation.fileDownloadAsync({
+            requestInfo,
+            parsedArgs,
+            resourceType,
+            res
         });
     }
 }
