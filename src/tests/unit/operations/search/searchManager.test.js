@@ -1418,4 +1418,32 @@ describe('SearchManager.streamGroupMemberArrayAsync', () => {
         expect(parsed.id).toBe('group-empty');
         expect(parsed.member).toEqual([]);
     });
+
+    test('streams via a cursor with no getQuery() when rebuildCursorAsync is supplied instead ' +
+        '(e.g. an aggregation-pipeline cursor, per DCON-5530\'s point-in-time reconstruction)', async () => {
+        const sm = makeStreamingSearchManager();
+        const groupResourceJson = { resourceType: 'Group', id: 'group-1', active: true };
+        const docs = [{ member: { entity: { reference: 'Patient/1' }, inactive: false } }];
+        // No getQuery() method at all -- proves the rebuildCursorAsync branch never calls it.
+        const remaining = [...docs];
+        const cursor = {
+            hasNext: jest.fn(async () => remaining.length > 0),
+            next: jest.fn(async () => remaining.shift())
+        };
+        const res = makeFakeResponse();
+        const rebuildCursorAsync = jest.fn();
+
+        await sm.streamGroupMemberArrayAsync({
+            requestId: 'req-3',
+            cursor,
+            groupResourceJson,
+            res,
+            rebuildCursorAsync
+        });
+
+        expect(res.end).toHaveBeenCalled();
+        const parsed = JSON.parse(res.chunks.join(''));
+        expect(parsed.member).toHaveLength(1);
+        expect(rebuildCursorAsync).not.toHaveBeenCalled(); // no timeout occurred, so no retry needed
+    });
 });

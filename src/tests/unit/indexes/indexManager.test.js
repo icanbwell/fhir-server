@@ -173,6 +173,33 @@ describe('IndexManager', () => {
             expect(result.indexes.find(i => i.options.name === 'id_1')).toBeUndefined();
         });
 
+        test('applies a resource-specific history index only to that resource\'s history collection', async () => {
+            mockIndexProvider.getIndexes.mockReturnValue({
+                '*_History': [
+                    {
+                        keys: { id: 1 },
+                        options: { name: 'id_1' }
+                    }
+                ],
+                GroupMember_4_0_0_History: [
+                    {
+                        keys: { 'resource.groupUuid': 1 },
+                        options: { name: 'groupUuid_1' }
+                    }
+                ]
+            });
+            const result = await indexManager.getIndexesToCreateForCollectionAsync({
+                collectionName: 'GroupMember_4_0_0_History'
+            });
+            expect(result.indexes.find(i => i.options.name === 'id_1')).toBeDefined();
+            expect(result.indexes.find(i => i.options.name === 'groupUuid_1')).toBeDefined();
+
+            const otherResult = await indexManager.getIndexesToCreateForCollectionAsync({
+                collectionName: 'Patient_4_0_0_History'
+            });
+            expect(otherResult.indexes.find(i => i.options.name === 'groupUuid_1')).toBeUndefined();
+        });
+
         test('respects include list', async () => {
             mockIndexProvider.getIndexes.mockReturnValue({
                 '*': [
