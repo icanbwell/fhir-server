@@ -10,6 +10,7 @@ const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { fhirContentTypes } = require('../../utils/contentTypes');
 const { ParsedArgs } = require('../query/parsedArgs');
@@ -51,6 +52,7 @@ class PatchOperation {
      * @param {ResourceValidator} resourceValidator
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {import('../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} mongoGroupMemberRepository
      */
     constructor (
         {
@@ -67,7 +69,8 @@ class PatchOperation {
             resourceMerger,
             resourceValidator,
             postSaveHandlerFactory,
-            identifierEnrichmentProvider
+            identifierEnrichmentProvider,
+            mongoGroupMemberRepository
         }
     ) {
         /**
@@ -143,6 +146,12 @@ class PatchOperation {
         assertTypeEquals(postSaveHandlerFactory, require('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory);
 
         /**
+         * @type {MongoGroupMemberRepository}
+         */
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
+
+        /**
          * Strategy for handling resource-specific PATCH operations
          *
          * NOTE: When adding a second strategy (e.g., ObservationComponentPatchStrategy),
@@ -161,7 +170,8 @@ class PatchOperation {
             postSaveHandlerFactory: this.postSaveHandlerFactory,
             configManager: this.configManager,
             resourceMerger: this.resourceMerger,
-            databaseBulkInserter: this.databaseBulkInserter
+            databaseBulkInserter: this.databaseBulkInserter,
+            mongoGroupMemberRepository: this.mongoGroupMemberRepository
         });
 
         /**
@@ -242,26 +252,31 @@ class PatchOperation {
             const { base_version, id } = parsedArgs;
 
             // ============ SPECIAL HANDLING FOR GROUP MEMBER OPERATIONS ============
-            // For storage-synced Groups, member operations bypass MongoDB array updates
-            // and write directly to event log (FHIR R4B PATCH with RFC 6902)
-            // IMPORTANT: We detect member ops early but validate/write AFTER security checks below
+            // For extended-storage Groups (ClickHouse or Mongo-native), member operations bypass
+            // MongoDB array updates and write directly per the Group's member type (FHIR R4B
+            // PATCH with a pragmatic RFC 6902 extension). Detecting that a patch touches /member
+            // can happen before the Group is fetched; determining *which* group member type (or
+            // none, for a plain embedded Group) needs the loaded document, so that determination
+            // is deferred below.
             let groupMemberOperations = null;
             let hasOnlyMemberOperations = false;
             let effectivePatchContent = patchContent;
+            // Set below, only when groupMemberType === 'extended': prepareExtendedMemberWrites()
+            // never touches the Group's meta or writes anything -- it only parses, validates,
+            // enriches, and resolves the member ops into per-row write decisions (create/
+            // update/delete/none per GroupMember_4_0_0 row). Those resolved writes are committed
+            // further down, via commitPendingMemberWrites(), AFTER the ordinary non-member
+            // patch flow (below, completely unmodified) has bumped and persisted the Group's
+            // real, final version -- there is only ever one place metadata gets computed, so one
+            // PATCH request (member-only or mixed with other fields alike) produces exactly one
+            // Group_4_0_0_History row and one N -> N+1 bump, not two.
+            let pendingMemberWrites = null;
+            let hasPendingMemberWrites = false;
+            let pendingMemberWritesSourceAssigningAuthority = null;
             const memberOpsResult = this.groupMemberPatchStrategy.detectMemberOperations({
                 patchContent,
-                resourceType,
-                requestInfo
+                resourceType
             });
-            if (memberOpsResult) {
-                groupMemberOperations = memberOpsResult.memberOps;
-                hasOnlyMemberOperations = memberOpsResult.hasOnlyMemberOperations;
-
-                if (!hasOnlyMemberOperations) {
-                    // Mixed patch: will handle member ops after validation, then continue with non-member ops
-                    effectivePatchContent = memberOpsResult.nonMemberOps;
-                }
-            }
             // ====================================================================
 
             // Get current record
@@ -331,8 +346,26 @@ class PatchOperation {
             });
 
             // ============ EXECUTE GROUP MEMBER OPERATIONS (AFTER VALIDATION) ============
-            // Now that we've validated the resource exists and user has access, handle member operations
-            if (groupMemberOperations && groupMemberOperations.length > 0) {
+            // Now that we've validated the resource exists and user has access, determine which
+            // group member type (if any) should handle the member ops. A plain embedded Group
+            // determines to 'embedded' and falls through to the standard patch flow below,
+            // completely unmodified -- its member[] add/remove already works via ordinary JSON
+            // Patch array semantics, no new code needed. 'extended' and 'externalStorage' are
+            // two entirely separate branches below, each calling its own dedicated strategy
+            // method -- they don't share a commit path, so a change to one type's write
+            // semantics can't silently affect the other.
+            const groupMemberType = memberOpsResult
+                ? this.groupMemberPatchStrategy.determineGroupMemberType({ requestInfo, foundResource })
+                : null;
+
+            if (groupMemberType === 'externalStorage') {
+                groupMemberOperations = memberOpsResult.memberOps;
+                hasOnlyMemberOperations = memberOpsResult.hasOnlyMemberOperations;
+                if (!hasOnlyMemberOperations) {
+                    // Mixed patch: will handle member ops now, then continue with non-member ops
+                    effectivePatchContent = memberOpsResult.nonMemberOps;
+                }
+
                 const updatedResource = await this.groupMemberPatchStrategy.executeMemberOperations({
                     requestInfo,
                     parsedArgs,
@@ -342,7 +375,6 @@ class PatchOperation {
                     memberOperations: groupMemberOperations,
                     foundResource
                 });
-
                 // If only member operations, update metadata and return
                 if (hasOnlyMemberOperations) {
                     return await this.groupMemberPatchStrategy.buildMemberPatchResponse({
@@ -355,6 +387,27 @@ class PatchOperation {
                     });
                 }
                 // Mixed operations: continue with non-member patch below
+            } else if (groupMemberType === 'extended') {
+                // Mongo-native: always parse/resolve here, never write here -- the ordinary
+                // non-member PATCH flow below always performs the Group's one-and-only version
+                // bump (member-only or mixed with other fields alike), then the resolved writes
+                // are committed right after it lands.
+                groupMemberOperations = memberOpsResult.memberOps;
+                hasOnlyMemberOperations = memberOpsResult.hasOnlyMemberOperations;
+                effectivePatchContent = memberOpsResult.nonMemberOps;
+
+                ({
+                    pendingMemberWrites,
+                    hasPendingMemberWrites,
+                    sourceAssigningAuthority: pendingMemberWritesSourceAssigningAuthority
+                } = await this.groupMemberPatchStrategy.prepareExtendedMemberWrites({
+                    base_version,
+                    memberOperations: groupMemberOperations,
+                    foundResource
+                }));
+                // Always continue with the non-member flow below -- it now handles member-only
+                // (effectivePatchContent empty, forced to bump via hasPendingMemberWrites) and
+                // mixed patches identically.
             }
             // ====================================================================
 
@@ -449,7 +502,17 @@ class PatchOperation {
                 mergedObject: resource.toJSON()
             });
 
-            if (appliedPatchContent.length > 0) {
+            // hasPendingMemberWrites forces entry even when the non-member ops alone produced no
+            // diff (appliedPatchContent.length === 0) -- true for every extended-regime
+            // member-only patch (there are no non-member ops to diff at all), and also for a
+            // mixed patch whose non-member half happened to be a no-diff. A pending member-roster
+            // write still needs a real, fresh version bump in either case; skipping it here
+            // would let two genuinely different member states share the same versionId. It's
+            // already false, not just "no pending writes", when every requested write resolved
+            // to a genuine no-op (e.g. removing an already-absent member) -- prepareExtendedMemberWrites
+            // resolved that above, so an all-none member patch still correctly skips the bump
+            // here even when it's the only thing in the request.
+            if (appliedPatchContent.length > 0 || hasPendingMemberWrites) {
                 this.resourceMerger.updateMeta({
                     patched_resource_incoming: resource,
                     currentResource: foundResource,
@@ -471,7 +534,10 @@ class PatchOperation {
                 // Insert/update our resource record
                 const contextData = buildContextDataForHybridStorage(resourceType, resource, requestInfo);
 
-                // If member operations were already written (mixed PATCH), skip post-save member processing
+                // Member ops are owned end-to-end by groupMemberPatchStrategy (ClickHouse already
+                // wrote them above; the Mongo-native ones are committed right after this block) --
+                // either way, skip the generic post-save member processing that would otherwise
+                // try to handle them too.
                 if (groupMemberOperations && groupMemberOperations.length > 0 && contextData) {
                     contextData.groupMemberEventsWritten = true;
                 }
@@ -510,6 +576,26 @@ class PatchOperation {
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     operationResult: mergeResults
                 });
+
+                // Commit the GroupMember_4_0_0 row writes resolved by
+                // prepareExtendedMemberWrites() now that the Group's real, final version has
+                // actually been committed above -- the single place this bump was computed, so
+                // the rows written here get stamped with a version that genuinely reflects this
+                // commit (four-way parity), not a stale or reused one. Passes through that same
+                // resolution -- this request never touches mongoGroupMemberRepository or
+                // re-resolves these writes itself.
+                if (hasPendingMemberWrites) {
+                    await this.groupMemberPatchStrategy.commitPendingMemberWrites({
+                        requestInfo,
+                        base_version,
+                        groupUuid: resource._uuid,
+                        groupVersionId: parseInt(resource.meta.versionId, 10),
+                        groupLastUpdated: resource.meta.lastUpdated,
+                        sourceAssigningAuthority: pendingMemberWritesSourceAssigningAuthority,
+                        securityTags: resource.meta.security,
+                        pendingMemberWrites
+                    });
+                }
             }
 
             await this.fhirLoggingManager.logOperationSuccessAsync({

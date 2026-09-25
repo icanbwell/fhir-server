@@ -184,6 +184,30 @@ describe('RemoveHelper', () => {
 
                 expect(resource.meta.lastUpdated).toBeInstanceOf(Date);
             });
+
+            test('preserveLastUpdated:true keeps the caller-supplied meta.lastUpdated instead of overwriting it with the current time', async () => {
+                // Regression test: MongoGroupMemberRepository stamps a GroupMember delete
+                // tombstone with the owning Group's own lastUpdated for four-way parity --
+                // deleteManyAsync must not clobber that with "now" when this flag is set.
+                httpContext.get.mockReturnValue(undefined);
+                mockCollection.deleteMany.mockResolvedValue({ deletedCount: 1 });
+
+                const callerSuppliedLastUpdated = new Date('2026-01-01T00:00:00.000Z');
+                const resource = {
+                    id: 'patient-1',
+                    _uuid: 'uuid-1',
+                    _sourceAssigningAuthority: 'auth-1',
+                    meta: { lastUpdated: callerSuppliedLastUpdated }
+                };
+
+                await removeHelper.deleteManyAsync({
+                    ...baseParams,
+                    resources: [resource],
+                    preserveLastUpdated: true
+                });
+
+                expect(resource.meta.lastUpdated).toBe(callerSuppliedLastUpdated);
+            });
         });
 
         describe('with >1 resources', () => {

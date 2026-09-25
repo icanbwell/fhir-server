@@ -34,4 +34,5 @@ process.env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES = "Resource";
 process.env.RESOURCE_SERVER = "http://localhost:3000";
 process.env.SERVER_PORT = 3000;
 process.env.ENABLE_CLICKHOUSE = '0';
+process.env.ENABLE_EXTENDED_GROUP = '1';
 process.env.CMS_ALLOWED_PURPOSE_OF_USE = 'PATRQT';
