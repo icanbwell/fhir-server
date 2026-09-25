@@ -27,6 +27,7 @@ const { buildContextDataForHybridStorage } = require('../../utils/contextDataBui
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
+const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
 
 /**
  * Update Operation
@@ -207,8 +208,13 @@ class UpdateOperation {
         resource_incoming_json.id = rawId;
 
         // For resources with mongo-with-clickhouse dual-write storage, track if externally-stored fields present
-        // Used later to force UPDATE even if MongoDB sees no changes (member array stripped before save)
-        const hasMemberField = resourceType === 'Group' && resource_incoming_json.member !== undefined;
+        // Used later to force UPDATE even if MongoDB sees no changes (member array stripped before save).
+        // A length check (not just !== undefined) is required here: this runs against the raw
+        // request body, before FhirResourceCreator normalizes an explicit `member: []` away to
+        // undefined, so an undefined check alone would treat an empty array as "has members".
+        const hasMemberField = resourceType === 'Group' &&
+            Array.isArray(resource_incoming_json.member) &&
+            resource_incoming_json.member.length > 0;
 
         // Internal fields (_uuid, _sourceAssigningAuthority, _file_id, etc.) are never
         // legitimate client input -- they're always (re)computed server-side (pre-save
@@ -341,6 +347,11 @@ class UpdateOperation {
                 await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                     requestInfo, resource: foundResource, base_version
                 });
+                // Extended Group's member[] doesn't exist on the live document -- a submitted
+                // member must go through PATCH instead (design doc §5.1). Unconditional on
+                // ENABLE_EXTENDED_GROUP (see rejectMemberOnExtendedGroupWrite's own docstring for
+                // why), but only reached once the caller is already confirmed authorized above.
+                rejectMemberOnExtendedGroupWrite({ currentResource: foundResource, hasMemberField });
                 // If-Match/version check logic (optimistic locking)
                 if (ifMatch) {
                     if (data.meta.versionId) {
