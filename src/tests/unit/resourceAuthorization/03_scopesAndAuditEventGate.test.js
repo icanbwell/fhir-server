@@ -46,6 +46,7 @@ const { AtlasSearchQueryBuilder } = require('../../../operations/search/atlasSea
 const { PatientQueryCreator } = require('../../../operations/common/patientQueryCreator');
 const { SearchParametersManager } = require('../../../searchParameters/searchParametersManager');
 const { ClinicalNoteSearchClient } = require('../../../utils/clinicalNoteSearchClient');
+const { MongoGroupMemberRepository } = require('../../../dataLayer/repositories/mongoGroupMemberRepository');
 
 jest.mock('../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -479,7 +480,8 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                 patientScopeManager: mockPatientScopeManager,
                 patientQueryCreator: mockPatientQueryCreator,
                 searchParametersManager: createMockInstance(SearchParametersManager),
-                clinicalNoteSearchClient: createMockInstance(ClinicalNoteSearchClient)
+                clinicalNoteSearchClient: createMockInstance(ClinicalNoteSearchClient),
+                mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
             });
         });
 
