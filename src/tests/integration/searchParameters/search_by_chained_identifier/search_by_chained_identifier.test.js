@@ -44,13 +44,23 @@ describe('Observation search_by_chained_identifier Tests', () => {
         expect(idsInBundle(resp)).toEqual([observation1Resource.id]);
     });
 
-    test('ambiguous untyped chain on a multi-target reference param is rejected with 400', async () => {
+    test('ambiguous untyped chain on a multi-target reference param is rejected with 400 (strict handling)', async () => {
         const request = await seed();
-        // performer targets 6 resource types on Observation -- untyped chain must be rejected
+        // performer targets 6 resource types on Observation -- untyped chain is unresolvable and
+        // must be rejected under strict handling (handling=strict); under the default lenient
+        // handling it is silently dropped instead, per the "lenient by default" chain design.
+        const resp = await request
+            .get('/4_0_0/Observation?_bundle=1&performer.identifier=http://example.com/fhir/identifier/mrn|123456&handling=strict')
+            .set(getHeaders());
+        expect(resp.status).toBe(400);
+    });
+
+    test('ambiguous untyped chain on a multi-target reference param is silently ignored under default (lenient) handling', async () => {
+        const request = await seed();
         const resp = await request
             .get('/4_0_0/Observation?_bundle=1&performer.identifier=http://example.com/fhir/identifier/mrn|123456')
             .set(getHeaders());
-        expect(resp.status).toBe(400);
+        expect(resp.status).toBe(200);
     });
 
     test('chain with no matching identifier returns an empty result, not an unfiltered search', async () => {
