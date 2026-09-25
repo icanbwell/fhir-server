@@ -110,6 +110,11 @@ class AuthService {
          */
         this.audienceWhitelist = this.configManager.authAudienceWhitelist;
 
+        /**
+         * @type {string[]}
+         */
+        this.audienceBlacklist = this.configManager.authAudienceBlacklist;
+
         if (AuthService.jwksCache === undefined) {
             AuthService.jwksCache = new LRUCache(this.cacheOptions);
         }
@@ -608,6 +613,16 @@ class AuthService {
     verify({request, jwt_payload, token, done}) {
         if (jwt_payload) {
             request.jwtPayload = jwt_payload;
+            if (this.audienceBlacklist.length > 0) {
+                const tokenAudiences = Array.isArray(jwt_payload.aud) ? jwt_payload.aud : [jwt_payload.aud];
+                if (tokenAudiences.some((aud) => this.audienceBlacklist.includes(aud))) {
+                    logInfo(`Audience ${jwt_payload.aud} is denied`, {
+                        reason: 'audience_denied',
+                        userClaim: jwt_payload.sub
+                    });
+                    return done(null, false, { reason: 'audience_denied' });
+                }
+            }
             if (this.audienceWhitelist.length > 0) {
                 const tokenAudiences = Array.isArray(jwt_payload.aud) ? jwt_payload.aud : [jwt_payload.aud];
                 if (!tokenAudiences.some((aud) => this.audienceWhitelist.includes(aud))) {
