@@ -88,6 +88,10 @@ describe('MongoReadableStream', () => {
         };
 
         mockParams = {
+            // resourceType at the top level is what marks this as a full FHIR-search-shaped
+            // params object getCursorForQueryAsync's retry path can rebuild a cursor from --
+            // see mongoGroupMemberRepository's minimal {query} params for the non-retryable case.
+            resourceType: 'Patient',
             query: { resourceType: 'Patient' },
             maxMongoTimeMS: 30000
         };
@@ -197,6 +201,32 @@ describe('MongoReadableStream', () => {
 
             expect(mockSearchManager.getCursorForQueryAsync).toHaveBeenCalled();
             // After retry, the new cursor returns no results so push(null) is called
+            expect(collected).toContainEqual(null);
+        });
+
+        test('skips retry and terminates gracefully on timeout when params is not full-search-shaped ' +
+            '(e.g. a minimal {query} params object, as used for the live GroupMember roster cursor)', async () => {
+            const timeoutError = new Error('cursor timeout');
+            timeoutError.code = 50;
+
+            mockCursor.hasNext.mockRejectedValueOnce(timeoutError);
+            mockParams = { query: { groupUuid: 'group-1' } };
+
+            const stream = createStream();
+            stream.lastUUID = 'last-uuid';
+            const collected = [];
+            stream.push = jest.fn((data) => {
+                collected.push(data);
+                return true;
+            });
+
+            await stream.readCursorAsync({ size: 10 });
+
+            // Retry was never attempted -- getCursorForQueryAsync would have thrown on this
+            // params shape (missing parsedArgs/resourceType/etc.) instead of resuming.
+            expect(mockSearchManager.getCursorForQueryAsync).not.toHaveBeenCalled();
+            // Falls straight through to the generic non-retryable error handling.
+            expect(mockResponse.statusCode).toBe(500);
             expect(collected).toContainEqual(null);
         });
 
