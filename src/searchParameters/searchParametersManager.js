@@ -103,6 +103,23 @@ class SearchParametersManager {
     }
 
     /**
+     * Resolves the target resource type for a chained reference search parameter, or null if
+     * ambiguous/invalid.
+     * @param {SearchParameterDefinition|undefined} propertyObj
+     * @param {string|undefined} explicitTargetType the `:Type` modifier, if given
+     * @return {string|null}
+     */
+    resolveChainTargetType ({ propertyObj, explicitTargetType }) {
+        if (!propertyObj || propertyObj.type !== 'reference' || !propertyObj.target) {
+            return null;
+        }
+        if (explicitTargetType) {
+            return propertyObj.target.includes(explicitTargetType) ? explicitTargetType : null;
+        }
+        return propertyObj.target.length === 1 ? propertyObj.target[0] : null;
+    }
+
+    /**
      * returns all search parameters
      * @return {[string, Record<string, SearchParameterDefinition>][]}
      */

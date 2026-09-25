@@ -46,16 +46,26 @@ class ParsedArgs {
          */
         const existingParseArgItem = this.parsedArgItems.find(
             a => a.queryParameter === propertyName &&
-                (a.modifiers && a.modifiers.toString()) === (parsedArgItem.modifiers && parsedArgItem.modifiers.toString())
+                (a.modifiers && a.modifiers.toString()) === (parsedArgItem.modifiers && parsedArgItem.modifiers.toString()) &&
+                // Two chains on the same base reference param (e.g. general-practitioner
+                // chained to .name in one occurrence and .address-state in another) are
+                // different constraints and must never collapse into one -- each is evaluated
+                // separately per FHIR's chaining rules. Only merge when the chain descriptor
+                // (or absence of one) is identical.
+                JSON.stringify(a.chain) === JSON.stringify(parsedArgItem.chain)
         );
         if (existingParseArgItem) {
             existingParseArgItem.queryParameterValue = parsedArgItem.queryParameterValue;
             existingParseArgItem.propertyObj = parsedArgItem.propertyObj;
             existingParseArgItem.modifiers = parsedArgItem.modifiers;
+            existingParseArgItem.chain = parsedArgItem.chain;
         } else {
             this.parsedArgItems.push(parsedArgItem);
             if (parsedArgItem.modifiers && parsedArgItem.modifiers.length > 0) {
                 propertyName = propertyName + ':' + parsedArgItem.modifiers.join(':');
+            }
+            if (parsedArgItem.chain) {
+                propertyName = propertyName + '.' + parsedArgItem.chain.targetParam;
             }
             Object.defineProperty(
                 this,

@@ -352,6 +352,68 @@ describe('BundleManager', () => {
             const queryTag = result.meta.tag.find(t => t.system === 'https://www.icanbwell.com/query');
             expect(queryTag).toBeDefined();
         });
+
+        it('appends parsedArgs.chainDebugDisplay onto the existing query tag rather than adding a new tag', () => {
+            const entries = [];
+            const originalQuery = new QueryItem({ query: {}, resourceType: 'Patient', collectionName: 'Patient_4_0_0' });
+            const parsedArgs = {
+                _explain: false,
+                _debug: true,
+                chainDebugDisplay: 'patient.identifier -> Patient?identifier=X: db.Patient_4_0_0.find(...)'
+            };
+
+            const result = bundleManager.createRawBundleFromEntries({
+                requestId: 'req-1',
+                type: 'searchset',
+                originalUrl: '/4_0_0/Patient/123/$everything',
+                host: 'localhost:3000',
+                protocol: 'http',
+                entries,
+                total_count: 0,
+                parsedArgs,
+                originalQuery,
+                originalOptions: {},
+                columns: new Set(),
+                stopTime: 100,
+                startTime: 0,
+                user: null,
+                explanations: []
+            });
+
+            // no new tag system introduced -- same single 'query' tag, extended
+            const queryTags = result.meta.tag.filter(t => t.system === 'https://www.icanbwell.com/query');
+            expect(queryTags).toHaveLength(1);
+            expect(queryTags[0].display.endsWith(
+                ' | patient.identifier -> Patient?identifier=X: db.Patient_4_0_0.find(...)'
+            )).toBe(true);
+            expect(result.meta.tag.some(t => t.system === 'https://www.icanbwell.com/chainedQuery')).toBe(false);
+        });
+
+        it('does not add meta.tag at all when neither debug info nor chainDebugDisplay apply', () => {
+            const entries = [];
+            const originalQuery = new QueryItem({ query: {}, resourceType: 'Patient', collectionName: 'Patient_4_0_0' });
+            const parsedArgs = { _explain: false, _debug: false };
+
+            const result = bundleManager.createRawBundleFromEntries({
+                requestId: 'req-1',
+                type: 'searchset',
+                originalUrl: '/4_0_0/Patient/123/$everything',
+                host: 'localhost:3000',
+                protocol: 'http',
+                entries,
+                total_count: 0,
+                parsedArgs,
+                originalQuery,
+                originalOptions: {},
+                columns: new Set(),
+                stopTime: 100,
+                startTime: 0,
+                user: null,
+                explanations: []
+            });
+
+            expect(result.meta).toBeUndefined();
+        });
     });
 
     describe('createBundleFromEntries', () => {
@@ -410,6 +472,41 @@ describe('BundleManager', () => {
             });
 
             expect(result).toBeDefined();
+        });
+
+        it('appends parsedArgs.chainDebugDisplay onto the existing query tag rather than adding a new tag', () => {
+            const entries = [];
+            const originalQuery = new QueryItem({ query: {}, resourceType: 'Patient', collectionName: 'Patient_4_0_0' });
+            const parsedArgs = {
+                _explain: false,
+                _debug: true,
+                chainDebugDisplay: 'patient.identifier -> Patient?identifier=X: db.Patient_4_0_0.find(...)'
+            };
+
+            const result = bundleManager.createBundleFromEntries({
+                requestId: 'req-1',
+                type: 'searchset',
+                originalUrl: '/4_0_0/Observation',
+                host: 'localhost:3000',
+                protocol: 'http',
+                entries,
+                total_count: 0,
+                parsedArgs,
+                originalQuery,
+                originalOptions: {},
+                columns: new Set(),
+                stopTime: 200,
+                startTime: 100,
+                user: null,
+                explanations: []
+            });
+
+            const queryTags = result.meta.tag.filter(t => t.system === 'https://www.icanbwell.com/query');
+            expect(queryTags).toHaveLength(1);
+            expect(queryTags[0].display.endsWith(
+                ' | patient.identifier -> Patient?identifier=X: db.Patient_4_0_0.find(...)'
+            )).toBe(true);
+            expect(result.meta.tag.some(t => t.system === 'https://www.icanbwell.com/chainedQuery')).toBe(false);
         });
     });
 

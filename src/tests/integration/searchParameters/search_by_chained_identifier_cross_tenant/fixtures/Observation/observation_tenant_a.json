@@ -1,0 +1,14 @@
+{
+    "resourceType": "Observation",
+    "id": "chainCrossTenantObservationA001",
+    "meta": {
+        "source": "tenantA",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "tenantA" },
+            { "system": "https://www.icanbwell.com/access", "code": "tenantA" }
+        ]
+    },
+    "status": "final",
+    "code": { "coding": [{ "system": "http://loinc.org", "code": "8480-6" }] },
+    "subject": { "reference": "Patient/chainCrossTenantAPatient001" }
+}

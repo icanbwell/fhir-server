@@ -611,4 +611,26 @@ describe('ReferenceQueryRewriter', () => {
             expect(result.parsedArgItems[0].queryParameterValue.operator).toBe('$or');
         });
     });
+
+    describe('chained search items are left untouched', () => {
+        test('does not rewrite a parsedArgItem with .chain set, even though propertyObj.type is reference', async () => {
+            // Regression: this rewriter runs before ChainedSearchQueryRewriter
+            // (createContainer.js). A chain item's queryParameterValue is still the raw,
+            // unresolved target-param value (e.g. a token "system|value" identifier), not a
+            // reference -- rewriting it here (e.g. via the sourceAssigningAuthority branch,
+            // which fires for any non-uuid "id|authority"-shaped value) corrupts it before the
+            // chain rewriter ever reads it.
+            const parsedArgs = buildParsedArgs({
+                queryParameter: 'patient',
+                propertyObj: { type: fhirFilterTypes.reference },
+                value: 'urn:oid:1.2.3|123456'
+            });
+            parsedArgs.parsedArgItems[0].chain = { targetType: 'Patient', targetParam: 'identifier' };
+
+            const result = await rewriter.rewriteArgsAsync({ parsedArgs });
+
+            expect(result.parsedArgItems[0].queryParameterValue.value).toBe('urn:oid:1.2.3|123456');
+            expect(ReferenceParser.parseReference).not.toHaveBeenCalled();
+        });
+    });
 });
