@@ -114,7 +114,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
                 })
                 .catch((resp) => {
                     const responseBody = resp?.body || resp?.response?.body || resp;
-                    const status = resp?.status || resp.response.status;
+                    const status = resp?.status || resp?.response?.status;
                     this.adminLogger.logError(
                         `Collection-${collectionName}, ${status ? `Status: ${status}` : ''} Error-${JSON.stringify(responseBody)}`
                     );

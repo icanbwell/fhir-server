@@ -148,6 +148,9 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
                 } catch (e) {
                     console.error(e);
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+                    this.adminLogger.logError(
+                        `Error processing collection ${collectionName}: bulk write failed. ${e}. At ${this.startFromIdContainer.startFromId}`
+                    );
                 }
                 console.log(`Finished loop ${collectionName}`);
             }

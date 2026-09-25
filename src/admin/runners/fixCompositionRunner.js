@@ -72,7 +72,10 @@ class FixCompositionRunner extends BaseBulkOperationRunner {
             // Update first coding array element in every section
             resource.section = resource.section.map((section) => {
                 const historySection = historyResource.section?.find(s => (
-                    s.title === section.title && section.entry && section.entry[0].reference === s.entry[0].reference
+                    s.title === section.title &&
+                    section.entry && section.entry[0] &&
+                    s.entry && s.entry[0] &&
+                    section.entry[0].reference === s.entry[0].reference
                 ));
                 // Update all sections they should match the history
                 if (historySection?.code?.coding && section?.code?.coding) {

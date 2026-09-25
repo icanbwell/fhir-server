@@ -201,6 +201,10 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 } catch (e) {
                     console.error(e);
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+                    this.adminLogger.logError(
+                        `Error processing collection ${collectionName}: ${e}`,
+                        { error: e }
+                    );
                 }
                 console.log(`Finished loop ${collectionName}`);
             }

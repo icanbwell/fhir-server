@@ -23,7 +23,7 @@ async function main () {
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
 
-    const csvFileName = 'masterPatientUsage.csv';
+    const csvFileName = parameters.csvFileName || 'masterPatientUsage.csv';
 
     const adminLogger = new AdminLogger();
 

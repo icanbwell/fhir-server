@@ -14,7 +14,7 @@ async function main() {
     const parameters = CommandLineParser.parseCommandLine();
     const adminLogger = new AdminLogger();
     const collections = parameters.collections
-        ? parameters.collections.split(',')
+        ? parameters.collections.split(',').map((x) => x.trim())
         : [
               'AllergyIntolerance_4_0_0',
               'CarePlan_4_0_0',
