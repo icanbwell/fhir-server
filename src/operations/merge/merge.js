@@ -16,7 +16,7 @@ const { QueryItem } = require('../graph/queryItem');
 const { ConfigManager } = require('../../utils/configManager');
 const { MergeValidator } = require('./mergeValidator');
 const { logError } = require('../common/logging');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { ACCESS_LOGS_ENTRY_DATA, GROUP_MEMBER_RESOURCE_TYPE } = require('../../constants');
 const { isTrue } = require('../../utils/isTrue');
 const { Transform } = require('stream'); // <- for Transform stream class
 const { pipeline } = require('stream/promises'); // <- for async pipeline
@@ -254,7 +254,17 @@ class MergeOperation {
                     base_version
                 })
             });
-            mergeResults = mergeResults.concat(inserted);
+            // GroupMember_4_0_0 rows are an internal MongoDB-native storage detail for
+            // extended Group member storage (see groupPromotion.js): promoteExistingGroupIfNeeded
+            // stages them into this same requestId's shared batch buffer with flush: false so
+            // they flush together with the caller's own resource, but the caller never submitted
+            // them and they must not appear in its response -- for a single (non-list) request,
+            // mergeResults[0] below would otherwise arbitrarily return one of these instead of
+            // the resource the caller actually asked about, once mergeResults.sort() reorders by
+            // _uuid.
+            mergeResults = mergeResults.concat(
+                inserted.filter(r => r.resourceType !== GROUP_MEMBER_RESOURCE_TYPE)
+            );
 
             // addSuccessfulMergesToMergeResult must run AFTER the bulk insert —
             // it skips UUIDs already present in mergeResults, including the
@@ -630,10 +640,18 @@ class MergeOperation {
             base_version
         });
 
-        const insertedUuids = new Set(inserted.map(r => r._uuid));
+        // See the equivalent filter in mergeAsync above: GroupMember_4_0_0 rows are internal
+        // bookkeeping for extended Group member storage, staged into this same shared batch
+        // buffer by promoteExistingGroupIfNeeded (flush: false) so they flush alongside the
+        // caller's own resource -- but here that buffer is drained straight into the
+        // client-visible NDJSON response stream, so without this filter they'd leak out as
+        // extra, unrequested entries in that stream.
+        const visibleInserted = inserted.filter(r => r.resourceType !== GROUP_MEMBER_RESOURCE_TYPE);
+
+        const insertedUuids = new Set(visibleInserted.map(r => r._uuid));
 
         // Push actual inserted results
-        inserted.forEach(res => {
+        visibleInserted.forEach(res => {
             finalMergeResults.push(res);
             stream.push(res);
         });
