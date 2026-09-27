@@ -416,6 +416,34 @@ describe('EverythingHelper', () => {
         });
     });
 
+    describe('getNonClinicalIdChunks', () => {
+        beforeEach(() => {
+            mockConfigManager.mongoInQueryIdBatchSize = 2;
+        });
+
+        // A chunk of [''] becomes `id: ''`, which the args parser drops, so the
+        // follow-up find has no id filter and scans the whole collection.
+        test('yields no chunk when every id is empty', () => {
+            const chunks = Array.from(everythingHelper.getNonClinicalIdChunks({ ids: new Set(['']), explain: false }));
+            expect(chunks).toEqual([]);
+        });
+
+        test('yields no chunk for an explain query when every id is empty', () => {
+            const chunks = Array.from(everythingHelper.getNonClinicalIdChunks({ ids: new Set(['', undefined]), explain: true }));
+            expect(chunks).toEqual([]);
+        });
+
+        test('drops empty ids and chunks the rest by mongoInQueryIdBatchSize', () => {
+            const chunks = Array.from(everythingHelper.getNonClinicalIdChunks({ ids: new Set(['a', '', 'b', 'c']), explain: false }));
+            expect(chunks).toEqual([['a', 'b'], ['c']]);
+        });
+
+        test('returns all non-empty ids as one chunk for an explain query', () => {
+            const chunks = Array.from(everythingHelper.getNonClinicalIdChunks({ ids: new Set(['a', '', 'b', 'c']), explain: true }));
+            expect(chunks).toEqual([['a', 'b', 'c']]);
+        });
+    });
+
     describe('parseQueryStringIntoArgs', () => {
         test('parses simple query string', () => {
             const mockParsed = { id: 'parsed' };

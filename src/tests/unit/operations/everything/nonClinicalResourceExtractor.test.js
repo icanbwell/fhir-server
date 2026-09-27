@@ -452,6 +452,56 @@ describe('NonClinicalReferencesExtractor', () => {
             // This is a security concern - it extracts whatever is in _sourceId
             expect(extractor.nestedResourceReferences['Practitioner'].has('cross-tenant-pract-id')).toBe(true);
         });
+
+        // An empty id reaches the follow-up query as `id: ''`, which the args parser drops,
+        // leaving a find with no id filter that walks the whole Practitioner collection.
+        test.each([
+            'Practitioner/',
+            'Practitioner/|some-authority'
+        ])('does not extract an empty Practitioner id from _sourceId %s', async (sourceId) => {
+            const resource = {
+                resourceType: 'Encounter',
+                participant: [
+                    {
+                        individual: {
+                            _uuid: 'Practitioner/pract-uuid-1',
+                            _sourceId: sourceId
+                        }
+                    }
+                ]
+            };
+
+            await extractor.processResource(resource);
+
+            expect(extractor.nestedResourceReferences).not.toHaveProperty('Practitioner');
+        });
+
+        test('keeps the valid Practitioner id when a sibling reference has an empty id', async () => {
+            const resource = {
+                resourceType: 'Encounter',
+                participant: [
+                    { individual: { _uuid: 'Practitioner/pract-uuid-1', _sourceId: 'Practitioner/' } },
+                    { individual: { _uuid: 'Practitioner/pract-uuid-2', _sourceId: 'Practitioner/pract-source-2' } }
+                ]
+            };
+
+            await extractor.processResource(resource);
+
+            expect(Array.from(extractor.nestedResourceReferences['Practitioner'])).toEqual(['pract-source-2']);
+        });
+    });
+
+    describe('Empty reference ids for other non-clinical types', () => {
+        test('does not extract an empty Organization id', async () => {
+            const resource = {
+                resourceType: 'Encounter',
+                serviceProvider: { _uuid: 'Organization/' }
+            };
+
+            await extractor.processResource(resource);
+
+            expect(extractor.nestedResourceReferences).not.toHaveProperty('Organization');
+        });
     });
 
     describe('BUG: Non-array, non-null values from getNestedProperty', () => {
