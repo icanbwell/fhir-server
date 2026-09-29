@@ -1,0 +1,14 @@
+{
+    "resourceType": "Patient",
+    "id": "54ed40a8-49d1-4471-9afd-c8039f49ed31",
+    "meta": {
+        "source": "client2",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "client2" },
+            { "system": "https://www.icanbwell.com/owner", "code": "client2" }
+        ]
+    },
+    "name": [{ "use": "usual", "family": "PATIENT1", "given": ["SHYLA"] }],
+    "gender": "female",
+    "birthDate": "2017-01-01"
+}

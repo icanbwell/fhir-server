@@ -22,6 +22,7 @@ const { ResourceLocatorFactory } = require('../../operations/common/resourceLoca
 const { ConfigManager } = require('../../utils/configManager');
 const { PostSaveProcessor } = require('../postSaveProcessor');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { Base64DataManager } = require('../base64DataManager');
 
 // MongoDB BSON document hard limit is 16 MiB (16,777,216 bytes). The Node driver and
 // libbson allocate a 17 MiB scratch buffer (kMaxBSONSize + 1 MiB headroom = 17,825,792 bytes),
@@ -69,6 +70,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {Function} cloneResource - Strategy: (resource) => cloned resource
      * @param {Function} createUpdateManager - Strategy: ({resourceType, base_version}) => DatabaseUpdateManager
+     * @param {Base64DataManager} base64DataManager
      */
     constructor ({
         resourceLocatorFactory,
@@ -76,7 +78,8 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
         postSaveProcessor,
         postRequestProcessor,
         cloneResource,
-        createUpdateManager
+        createUpdateManager,
+        base64DataManager
     }) {
         super();
 
@@ -121,6 +124,12 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
          */
         this.createUpdateManager = createUpdateManager;
         assertIsValid(typeof createUpdateManager === 'function', 'createUpdateManager must be a function');
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
     }
 
     /**
@@ -549,6 +558,10 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                     }
                 }
             );
+        }
+
+        if (!bulkInsertUpdateEntry.skipped && !hasBulkWriteErrors) {
+            await this.base64DataManager.cleanupPreviousLiveObjectAsync(bulkInsertUpdateEntry.resource, requestInfo);
         }
 
         // fire change events

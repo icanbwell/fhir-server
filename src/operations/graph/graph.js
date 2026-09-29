@@ -93,16 +93,32 @@ class GraphOperation {
             /**
              * @type {string}
              */
-            method
+            method,
+            /** @type {string|null} */
+            scope
         } = requestInfo;
 
+        // _explain/_debug/_setIndexHint expose Mongo query plans, collection internals, and
+        // let the caller pick the query's index; only an admin-scoped caller may use them.
+        if ((parsedArgs._explain || parsedArgs._debug || parsedArgs._setIndexHint) && !this.scopesValidator.isAdminScope({ scope })) {
+            parsedArgs._explain = undefined;
+            parsedArgs._debug = undefined;
+            parsedArgs._setIndexHint = undefined;
+        }
+
+        // DELETE dispatches to deleteGraphAsync below and must be scope-checked as a write,
+        // not a read -- otherwise a read-only-scoped caller could delete the resource graph.
+        // Guard defensively rather than calling method.toLowerCase() unconditionally: an
+        // undefined/malformed method should surface at the dispatch check below (inside the
+        // try block, where it's caught and logged), not crash this pre-flight scope check.
+        const accessRequested = (method && method.toLowerCase() === 'delete') ? 'write' : 'read';
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
-            accessRequested: 'read'
+            accessRequested
         });
 
         try {

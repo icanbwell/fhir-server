@@ -10,6 +10,14 @@ const { ParsedArgs } = require('./parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 
+// Chained search is deliberately gated to only the (target type, target field) pairs listed
+// here, even though the resolution mechanism can already handle any resource type/field. Add an
+// entry to expand support once its chain has been separately verified (see review.md §E --
+// chaining is a cross-tenant join, so widening this allowlist is a security-relevant change).
+const SUPPORTED_CHAIN_TARGETS = {
+    Patient: ['identifier']
+};
+
 /**
  * @classdesc This classes parses an array of args into structured ParsedArgsItem array
  */
@@ -111,6 +119,41 @@ class R4ArgsParser {
             if (!queryParameter.startsWith('_') && queryParameter !== 'base_version' && queryParameter !== 'version_id') {
                 queryParameter = queryParameter.replace('_', '-');
             }
+
+            // chained search: `patient.identifier` or `patient:Patient.identifier`
+            // https://www.hl7.org/fhir/search.html#chaining
+            let chainDescriptor;
+            const typedChainModifierIndex = modifiers.findIndex(m => /^[A-Z][A-Za-z]*\.[A-Za-z0-9-]+$/.test(m));
+            if (typedChainModifierIndex !== -1) {
+                const [explicitTargetType, targetParam] = modifiers[typedChainModifierIndex].split('.');
+                modifiers = modifiers.filter((_, i) => i !== typedChainModifierIndex);
+                chainDescriptor = { explicitTargetType, targetParam };
+            } else if (
+                queryParameter.includes('.') &&
+                queryParameter.indexOf('.') === queryParameter.lastIndexOf('.')
+            ) {
+                // exactly one dot only -- a real chain target param is a plain FHIR search
+                // parameter name and can never itself contain a dot (single-level chaining
+                // only). Two or more dots means this is some other pre-existing dotted
+                // parameter name (e.g. Group's `member.entity._reference`), not a chain.
+                //
+                // Only commit to chain interpretation if the base segment actually resolves to
+                // a reference-type search parameter -- otherwise this is just some other
+                // dotted-looking parameter name that happens to contain one dot (e.g.
+                // `meta.security` used as a raw filter key, which isn't a real search parameter
+                // at all and must fall through to the ordinary unrecognized-parameter handling
+                // below, not a hard 400 regardless of strict/lenient mode).
+                const dotIndex = queryParameter.indexOf('.');
+                const candidateBaseParam = queryParameter.slice(0, dotIndex);
+                const candidatePropertyObj = this.searchParametersManager.getPropertyObject(
+                    { resourceType, queryParameter: candidateBaseParam }
+                );
+                if (candidatePropertyObj && candidatePropertyObj.type === 'reference') {
+                    chainDescriptor = { targetParam: queryParameter.slice(dotIndex + 1) };
+                    queryParameter = candidateBaseParam;
+                }
+            }
+
             /**
              * @type {SearchParameterDefinition}
              */
@@ -120,6 +163,50 @@ class R4ArgsParser {
                     queryParameter
                 }
             );
+
+            /**
+             * @type {{targetType: string, targetParam: string}|undefined}
+             */
+            let chain;
+            if (chainDescriptor) {
+                const targetType = this.searchParametersManager.resolveChainTargetType(
+                    { propertyObj, explicitTargetType: chainDescriptor.explicitTargetType }
+                );
+                if (!targetType) {
+                    if (handlingType === STRICT_SEARCH_HANDLING) {
+                        throw new BadRequestError(new Error(
+                            `${argName} is not a valid chained search parameter for ${resourceType}: ` +
+                            `${queryParameter} is not an unambiguous reference parameter` +
+                            (chainDescriptor.explicitTargetType
+                                ? ` for target type ${chainDescriptor.explicitTargetType}`
+                                : ' (reference allows more than one target type -- use the :Type modifier)')
+                        ));
+                    }
+                    // lenient: a malformed chain is dropped like any other unrecognized parameter
+                    continue;
+                }
+                const targetPropertyObj = this.searchParametersManager.getPropertyObject(
+                    { resourceType: targetType, queryParameter: chainDescriptor.targetParam }
+                );
+                if (!targetPropertyObj) {
+                    if (handlingType === STRICT_SEARCH_HANDLING) {
+                        throw new BadRequestError(new Error(
+                            `${chainDescriptor.targetParam} is not a valid search parameter for ${targetType}`
+                        ));
+                    }
+                    continue;
+                }
+                if (!(SUPPORTED_CHAIN_TARGETS[`${targetType}`] || []).includes(chainDescriptor.targetParam)) {
+                    if (handlingType === STRICT_SEARCH_HANDLING) {
+                        throw new BadRequestError(new Error(
+                            `Chained search into ${targetType}.${chainDescriptor.targetParam} is not currently ` +
+                            `supported (queryParameter=${argName})`
+                        ));
+                    }
+                    continue;
+                }
+                chain = { targetType, targetParam: chainDescriptor.targetParam };
+            }
             /**
              * @type {string | string[]}
              */
@@ -181,10 +268,60 @@ class R4ArgsParser {
                     }
                 ) : null;
 
+            // FilterByToken dispatches once per field (baseFilter.filter() calls
+            // filterByItem(field, v) for every entry in propertyObj.fields), so a token
+            // property with 2+ fields of different underlying FHIR types (e.g. polymorphic
+            // value[x] alternatives resolved to ['valueCodeableConcept', 'valueBoolean'])
+            // needs each field's own type -- otherwise every field but the first is queried
+            // against the wrong shape.
+            if (propertyObj.type === 'token' && propertyObj.fields.length > 1) {
+                propertyObj.fieldTypesObj = {};
+                for (const field of propertyObj.fields) {
+                    propertyObj.fieldTypesObj[field] = this.fhirTypesManager.getTypeForField({ resourceType, field });
+                }
+            }
+
+            // composite params resolve fieldType per component instead of on the top-level
+            // propertyObj (which has no field/fields of its own -- only scopes). Mutating each
+            // component in place mirrors the existing top-level fieldType assignment above;
+            // idempotent across requests since it depends only on resourceType + that
+            // component's own field.
+            if (propertyObj.type === 'composite' && propertyObj.scopes) {
+                for (const scope of propertyObj.scopes) {
+                    for (const component of scope.components) {
+                        component.fieldType = component.fields.length > 0
+                            ? this.fhirTypesManager.getTypeForField(
+                                {
+                                    resourceType,
+                                    field: component.arrayField
+                                        ? `${component.arrayField}.${component.firstField}`
+                                        : component.firstField
+                                }
+                            ) : null;
+
+                        // same per-field fix as above, scoped to this component's own fields
+                        if (component.type === 'token' && component.fields.length > 1) {
+                            component.fieldTypesObj = {};
+                            for (const field of component.fields) {
+                                const dottedField = component.arrayField ? `${component.arrayField}.${field}` : field;
+                                component.fieldTypesObj[field] = this.fhirTypesManager.getTypeForField({ resourceType, field: dottedField });
+                            }
+                        }
+                    }
+                }
+            }
+
             let orQueryParameterValue, andQueryParameterValue, notQueryParameterValue, newModifiers = [];
             ({ orQueryParameterValue, andQueryParameterValue, notQueryParameterValue, newModifiers } = convertGraphQLParameters(
                 queryParameterValue
             ));
+
+            // Keep the pre-concat modifiers (from the colon-suffixed argName) separately: newModifiers
+            // (e.g. 'contains', 'exact', 'missing') describes orQueryParameterValue/andQueryParameterValue,
+            // not notQueryParameterValue, since convertGraphQLParameters returns them from the same call
+            // with no way to tell them apart. Applying newModifiers to the not-item below as well would
+            // route its value through the wrong filter (e.g. 'missing' forcing it through FilterByMissing).
+            const preConvertModifiers = modifiers;
 
             if (newModifiers && Array.isArray(newModifiers) && newModifiers.length) {
                 modifiers = modifiers.concat(newModifiers);
@@ -205,7 +342,8 @@ class R4ArgsParser {
                             operator: useOrFilterForArrays ? '$or' : '$and'
                         }),
                         propertyObj,
-                        modifiers
+                        modifiers,
+                        chain
                     })
                 );
             }
@@ -226,7 +364,8 @@ class R4ArgsParser {
                                     operator: '$and'
                                 }),
                                 propertyObj,
-                                modifiers
+                                modifiers,
+                                chain
                             })
                         );
                     }
@@ -240,8 +379,8 @@ class R4ArgsParser {
                     notQueryParameterValue.filter(v => v).length > 0
                 )
             ) {
-                const newModifiers = deepcopy(modifiers);
-                newModifiers.push('not');
+                const notModifiers = deepcopy(preConvertModifiers);
+                notModifiers.push('not');
                 parseArgItems.push(
                     new ParsedArgsItem({
                         queryParameter,
@@ -250,7 +389,8 @@ class R4ArgsParser {
                             operator: useOrFilterForArrays ? '$or' : '$and'
                         }),
                         propertyObj,
-                        modifiers: newModifiers
+                        modifiers: notModifiers,
+                        chain
                     })
                 );
             }

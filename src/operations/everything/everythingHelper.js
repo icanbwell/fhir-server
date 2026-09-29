@@ -3,7 +3,7 @@
  */
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { AuditLogger } = require('../../utils/auditLogger');
+const { AuditLogger, sanitizeOutcomeDesc } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const { ConfigManager } = require('../../utils/configManager');
@@ -20,10 +20,13 @@ const { logError } = require('../common/logging');
 const { sliceIntoChunksGenerator } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { PatientEverythingCacheKeyGenerator } = require('./patientEverythingCachekeyGenerator')
 const {
     GRIDFS: { RETRIEVE },
     OPERATIONS: { READ },
+    BLOB_OP,
+    SUBSCRIPTION_RESOURCE_TYPES,
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS,
     SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP,
     PATIENT_REFERENCE_PREFIX,
@@ -44,6 +47,7 @@ const { ResourceProccessedTracker } = require('../../fhir/resourceProcessedTrack
 const { NonClinicalReferencesExtractor } = require('./nonClinicalResourceExtractor');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
+const { FilterById } = require('../query/filters/id');
 const { EverythingRelatedResourceManager } = require('./everythingRelatedResourceManager');
 const { isUuid } = require('../../utils/uid.util');
 const { isTrue } = require('../../utils/isTrue');
@@ -54,6 +58,7 @@ const { CustomTracer } = require('../../utils/customTracer');
 const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
+const { RedisManager } = require('../../utils/redisManager');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const httpContext = require('express-http-context');
 const { recordOutboundEverything } = require('../../utils/metrics');
@@ -66,6 +71,49 @@ const { recordOutboundEverything } = require('../../utils/metrics');
  *
  * @typedef {Record<string, Set<string>> | null} NestedResourceReferences
  */
+
+/**
+ * Escapes a value for safe interpolation into a JSON-template string that will later be
+ * passed to JSON.parse(). The customQuery templates in everythingRelatedResourcesMapper.js
+ * substitute `{placeholder}` markers that always sit inside an existing JSON string literal
+ * (e.g. `"{resourceType}/{_uuid}"`), so this only needs to escape the characters that are
+ * significant inside a JSON string (quotes, backslashes, control characters) -- it does not
+ * add surrounding quotes, since the template already provides them. Without this, a
+ * parent resource field containing `"` or `}` (e.g. an attacker-influenced `_sourceId`
+ * set at an earlier create/merge) could break out of the string literal and inject
+ * arbitrary structure/operators into the resulting MongoDB query.
+ * @param {*} value
+ * @return {string}
+ */
+function escapeForJsonTemplate(value) {
+    return JSON.stringify(String(value)).slice(1, -1);
+}
+
+/**
+ * @param {Promise[]} promises
+ * @return {Promise<*[]>}
+ */
+async function settleAllOrThrow(promises) {
+    const settled = await Promise.allSettled(promises);
+    const rejected = settled.find((s) => s.status === 'rejected');
+    if (rejected) {
+        throw rejected.reason;
+    }
+    return settled.map((s) => s.value);
+}
+
+/**
+ * @param {*[]} target
+ * @param {*[]|undefined} [source]
+ */
+function pushAll(target, source) {
+    if (!source) {
+        return;
+    }
+    for (const item of source) {
+        target.push(item);
+    }
+}
 
 /**
  * This class is for $everything operation
@@ -81,6 +129,7 @@ class EverythingHelper {
      * @property {EnrichmentManager} enrichmentManager
      * @property {R4ArgsParser} r4ArgsParser
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
+     * @property {Base64DataManager} base64DataManager
      * @property {SearchParametersManager} searchParametersManager
      * @property {CustomTracer} customTracer
      * @property {PatientDataViewControlManager} patientDataViewControlManager
@@ -89,6 +138,7 @@ class EverythingHelper {
      *
      * @param {EverythingHelperParams}
      * @param {RedisStreamManager} redisStreamManager
+     * @param {RedisManager} redisManager
      */
     constructor({
         databaseQueryFactory,
@@ -99,13 +149,15 @@ class EverythingHelper {
         enrichmentManager,
         r4ArgsParser,
         databaseAttachmentManager,
+        base64DataManager,
         searchParametersManager,
         everythingRelatedResourceMapper,
         customTracer,
         patientDataViewControlManager,
         auditLogger,
         postRequestProcessor,
-        redisStreamManager
+        redisStreamManager,
+        redisManager
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -154,6 +206,12 @@ class EverythingHelper {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {SearchParametersManager}
@@ -218,6 +276,12 @@ class EverythingHelper {
          * @type {RedisStreamManager}
          */
         this.redisStreamManager = redisStreamManager;
+
+        /**
+         * @type {RedisManager}
+         */
+        this.redisManager = redisManager;
+        assertTypeEquals(redisManager, RedisManager);
     }
 
     /**
@@ -283,13 +347,17 @@ class EverythingHelper {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string} base_version
+     * @param {boolean} [isPersonEverything] - true only for a genuine Person $everything request;
+     *  included in the cache key so a genuine Person $everything response (potentially
+     *  PROA-expanded) and the equivalent proxy-patient $everything response (never PROA-expanded)
+     *  don't collide on the same key despite sharing the same id/isPersonId/scope/_type
      * @returns {Promise<string|undefined>}
      */
-    async getCacheKey(parsedArgs, requestInfo, resourceType, base_version) {
+    async getCacheKey(parsedArgs, requestInfo, resourceType, base_version, isPersonEverything) {
         if (!requestInfo.personIdFromJwtToken || requestInfo.userType) {
             return undefined;
         }
-        const keyGenerator = new PatientEverythingCacheKeyGenerator();
+        const keyGenerator = new PatientEverythingCacheKeyGenerator({ redisManager: this.redisManager });
         if (!keyGenerator.isResponseTypeCacheable(requestInfo.accept, parsedArgs)) {
             return undefined;
         }
@@ -317,9 +385,90 @@ class EverythingHelper {
                 id: idForCache,
                 isPersonId: isProxyPatient,
                 parsedArgs: parsedArgs,
-                scope: requestInfo.scope
+                scope: requestInfo.scope,
+                isPersonEverything
             })
             : undefined;
+    }
+
+    /**
+     * Id chunks for a non-clinical follow-up fetch, with empty ids removed. An empty chunk
+     * would be sent as `id: ''`, which the args parser drops, leaving an unfiltered query.
+     * @param {Object} params
+     * @param {Iterable<string|undefined>} params.ids
+     * @param {boolean} params.explain - explain queries use a single chunk
+     * @returns {Iterable<string[]>}
+     */
+    getNonClinicalIdChunks({ ids, explain }) {
+        const nonEmptyIds = Array.from(ids).filter(Boolean);
+        if (nonEmptyIds.length === 0) {
+            return [];
+        }
+        return explain
+            ? [nonEmptyIds]
+            : sliceIntoChunksGenerator(nonEmptyIds, this.configManager.mongoInQueryIdBatchSize);
+    }
+
+    /**
+     * Groups `resourcesToAudit` by resource type and enqueues an AuditEvent per type. When
+     * `outcome` is provided, the AuditEvent(s) also carry `outcome`/`outcomeDesc`, falling back
+     * to `resourceType` with an empty entity list when nothing was streamed.
+     * @param {Object} params
+     * @param {{_uuid: string, resourceType: string}[]} params.resourcesToAudit
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {string} params.resourceType
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} [params.outcome]
+     * @param {string} [params.outcomeDesc]
+     */
+    _logAuditForRequestAsync({
+        resourcesToAudit, requestInfo, base_version, resourceType, parsedArgs, outcome, outcomeDesc
+    }) {
+        if (resourceType === 'AuditEvent') {
+            return;
+        }
+        if (resourcesToAudit.length === 0 && outcome === undefined) {
+            return;
+        }
+
+        const requestId = requestInfo.requestId;
+
+        // Group resources by type for proper audit logging
+        const resourcesByType = new Map();
+        resourcesToAudit.forEach(resource => {
+            const type = resource.resourceType;
+            if (!resourcesByType.has(type)) {
+                resourcesByType.set(type, []);
+            }
+            resourcesByType.get(type).push(resource._uuid);
+        });
+
+        if (resourcesByType.size === 0 && outcome !== undefined) {
+            resourcesByType.set(resourceType, []);
+        }
+
+        for (const [type, ids] of resourcesByType.entries()) {
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => {
+                    // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
+                    // calling in setImmediate to process it in next iteration of event loop
+                    setImmediate(async () => {
+                        await this.auditLogger.logAuditEntryAsync({
+                            requestInfo,
+                            base_version,
+                            resourceType: type,
+                            operation: 'read',
+                            args: parsedArgs.getRawArgs(),
+                            ids,
+                            outcome,
+                            outcomeDesc
+                        });
+                    });
+                }
+            });
+        }
     }
 
     /**
@@ -331,6 +480,10 @@ class EverythingHelper {
      * @property {ParsedArgs} parsedArgs
      * @property {boolean} supportLegacyId
      * @property {boolean} includeNonClinicalResources
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
+     * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
+     *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
      *
      * @param {retriveEverythingAsyncParams}
      * @return {Promise<Bundle>}
@@ -341,7 +494,9 @@ class EverythingHelper {
         resourceType,
         responseStreamer,
         parsedArgs,
-        includeNonClinicalResources = true
+        includeNonClinicalResources = true,
+        scopedPersonIds,
+        isPersonEverything
     }) {
         if (!this.supportedResources.includes(resourceType)) {
             throw new Error('$everything is not supported for resource: ' + resourceType);
@@ -350,6 +505,12 @@ class EverythingHelper {
         assertTypeEquals(parsedArgs, ParsedArgs);
         let cachedStreamer = undefined;
         let cacheKey = undefined;
+        /**
+         * @type {{_uuid: string, resourceType: string}[]} - Track resource IDs with types for
+         * audit logging; pushed into directly at write time so it survives a throw from any
+         * level of this call chain
+         */
+        let streamedResources = [];
 
         try {
             /**
@@ -398,13 +559,9 @@ class EverythingHelper {
              * @type {ResourceProccessedTracker}
              */
             let bundleEntryIdsProcessedTracker = new ResourceProccessedTracker();
-            /**
-             * @type {{_uuid: string, resourceType: string}[]} - Track resource IDs with types for audit logging
-             */
-            let streamedResources = [];
             const writeCache = this.configManager.writeToCacheForEverythingOperation;
             cacheKey = writeCache ? await this.getCacheKey(
-                parsedArgs, requestInfo, resourceType, base_version
+                parsedArgs, requestInfo, resourceType, base_version, isPersonEverything
             ) : undefined;
             cachedStreamer = cacheKey ? new CachedFhirResponseStreamer({
                 redisStreamManager: this.redisStreamManager,
@@ -425,7 +582,7 @@ class EverythingHelper {
             let fallbackToMongo = false;
             if (readFromCache) {
                 try {
-                    streamedResources = await cachedStreamer.streamFromCacheAsync();
+                    await cachedStreamer.streamFromCacheAsync({ streamedResources });
                 } catch (err) {
                     fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
                     logError('Error reading everything response from cache', { error: err, cacheKey });
@@ -435,6 +592,7 @@ class EverythingHelper {
                 }
             }
             if (!readFromCache || fallbackToMongo) {
+                let everythingChunkIndex = 0;
                 for (const idChunk of idChunks) {
                     const parsedArgsForChunk = parsedArgs.clone();
                     parsedArgsForChunk.id = idChunk;
@@ -464,8 +622,7 @@ class EverythingHelper {
                         entries: entries1,
                         queryItems: queryItems1,
                         options: options1,
-                        explanations: explanations1,
-                        streamedResources: streamedRes1
+                        explanations: explanations1
                     } = await this.retrieveEverythingMulipleIdsAsync(
                         {
                             base_version,
@@ -478,7 +635,11 @@ class EverythingHelper {
                             responseStreamer,
                             includeNonClinicalResources,
                             proxyPatientIds,
-                            cachedStreamer
+                            cachedStreamer,
+                            everythingChunkIndex: everythingChunkIndex++,
+                            scopedPersonIds,
+                            isPersonEverything,
+                            streamedResources
                         }
                     );
 
@@ -486,7 +647,6 @@ class EverythingHelper {
                     queryItems = queryItems.concat(queryItems1);
                     options = options.concat(options1);
                     explanations = explanations.concat(explanations1);
-                    streamedResources = streamedResources.concat(streamedRes1 || []);
                 }
             }
             /**
@@ -526,43 +686,6 @@ class EverythingHelper {
                 ? streamedResources
                 : resources.map((r) => ({ _uuid: r._uuid, resourceType: r.resourceType }));
 
-            if (resourcesToAudit.length > 0 && resourceType !== 'AuditEvent') {
-                const requestId = requestInfo.requestId;
-
-                // Group resources by type for proper audit logging
-                const resourcesByType = new Map();
-
-                // Group by actual resource type from tracked data
-                resourcesToAudit.forEach(resource => {
-                    const type = resource.resourceType;
-                    if (!resourcesByType.has(type)) {
-                        resourcesByType.set(type, []);
-                    }
-                    resourcesByType.get(type).push(resource._uuid);
-                });
-
-                // Create audit events for each resource type
-                for (const [type, ids] of resourcesByType.entries()) {
-                    this.postRequestProcessor.add({
-                        requestId,
-                        fnTask: async () => {
-                            // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
-                            // calling in setImmediate to process it in next iteration of event loop
-                            setImmediate(async () => {
-                                await this.auditLogger.logAuditEntryAsync({
-                                    requestInfo,
-                                    base_version,
-                                    resourceType: type,
-                                    operation: 'read',
-                                    args: parsedArgs.getRawArgs(),
-                                    ids
-                                });
-                            });
-                        }
-                    });
-                }
-            }
-
             if (responseStreamer) {
                 responseStreamer.setBundle({ bundle });
             }
@@ -578,8 +701,26 @@ class EverythingHelper {
                 ? streamedResources.length
                 : (bundle.entry ? bundle.entry.length : 0);
             recordOutboundEverything(resourceType, entryLength);
+
+            this._logAuditForRequestAsync({
+                resourcesToAudit, requestInfo, base_version, resourceType, parsedArgs
+            });
+
             return bundle;
         } catch (error) {
+            if (responseStreamer) {
+                const statusCode = error.statusCode || 500;
+                this._logAuditForRequestAsync({
+                    resourcesToAudit: streamedResources,
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    parsedArgs,
+                    outcome: statusCode >= 500 ? '8' : '4',
+                    outcomeDesc: sanitizeOutcomeDesc({ error, statusCode })
+                });
+            }
+
             // Deleting cached stream if any error occurs during processing
             if (cachedStreamer && !cachedStreamer.isFirstEntry) {
                 await this.redisStreamManager.deleteStream(cacheKey);
@@ -613,6 +754,13 @@ class EverythingHelper {
      * @property {boolean} includeNonClinicalResources
      * @property {string[]} proxyPatientIds
      * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
+     * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
+     *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
+     * @property {{_uuid: string, resourceType: string}[]} [streamedResources] - accumulator for
+     *  audit logging, pushed into directly at write time so it survives a throw from any level
+     *  of this call chain
      *
      * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -628,14 +776,19 @@ class EverythingHelper {
         bundleEntryIdsProcessedTracker,
         includeNonClinicalResources = false,
         proxyPatientIds = [],
-        cachedStreamer = null
+        cachedStreamer = null,
+        everythingChunkIndex,
+        scopedPersonIds,
+        isPersonEverything,
+        streamedResources = []
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
             const everythingRelatedResourceManager = new EverythingRelatedResourceManager({
                 resourceFilterList: parsedArgs.resourceFilterList,
                 everythingRelatedResourceMapper: this.everythingRelatedResourceMapper,
-                userType: requestInfo.userType
+                userType: requestInfo.userType,
+                topLevelResourceType: isPersonEverything ? "Person" : "Patient"
             });
 
             /**
@@ -652,10 +805,41 @@ class EverythingHelper {
 
             const realtedResourcesMap = everythingRelatedResourceManager.getRelatedResourcesMap();
 
+            // Subscription resources are fetched in a dedicated step at the end of the batch
+            // (after all clinical resources) so that Person identifiers are available for their
+            // custom query. Split them out of the main clinical loop here.
+            /**
+             * @type {import('./everythingRelatedResourcesMapper').EverythingRelatedResources[]}
+             */
+            const subscriptionRelatedResources = realtedResourcesMap.filter((r) =>
+                SUBSCRIPTION_RESOURCE_TYPES.includes(r.type)
+            );
+            /**
+             * @type {import('./everythingRelatedResourcesMapper').EverythingRelatedResources[]}
+             */
+            const clinicalRelatedResources = realtedResourcesMap.filter(
+                (r) => !SUBSCRIPTION_RESOURCE_TYPES.includes(r.type)
+            );
+
+            // Subscription custom queries match on Person as well, so Person must be fetched (to
+            // collect its identifiers) even when a _type filter would otherwise exclude it.
+            // allowedToBeSent('Person') still governs whether Person is emitted in the response.
+            if (
+                subscriptionRelatedResources.length > 0 &&
+                !clinicalRelatedResources.some((r) => r.type === 'Person')
+            ) {
+                clinicalRelatedResources.push(
+                    ...this.everythingRelatedResourceMapper.relatedResources(
+                        everythingRelatedResourceManager.topLevelResourceType,
+                        new Set(['Person'])
+                    )
+                );
+            }
+
             /**
              * @type {Generator<import('./everythingRelatedResourcesMapper').EverythingRelatedResources[],void, unknown>}
              */
-            const relatedResourceMapChunks = sliceIntoChunksGenerator(realtedResourcesMap, this.configManager.everythingMaxParallelProcess)
+            const relatedResourceMapChunks = sliceIntoChunksGenerator(clinicalRelatedResources, this.configManager.everythingMaxParallelProcess)
 
             /**
              * @type {BundleEntry[]}
@@ -685,10 +869,6 @@ class EverythingHelper {
              * @type {ResourceMapper}
              */
             let resourceMapper = new ResourceMapper();
-            /**
-             * @type {{_uuid: string, resourceType: string}[]} - Track resource IDs with types for audit logging
-             */
-            let streamedResources = [];
 
             // Handle UUID-only responses:
             if (isTrue(parsedArgs._includeUuidOnly)) {
@@ -722,16 +902,17 @@ class EverythingHelper {
                     requestInfo,
                     useUuidProjection,
                     resourceMapper,
-                    cachedStreamer
+                    cachedStreamer,
+                    everythingChunkIndex,
+                    scopedPersonIds,
+                    isPersonEverything,
+                    streamedResources
                 });
 
                 optionsForQueries = baseResult.options;
                 explanations = baseResult.explanations;
                 entries = baseResult.entries;
                 queries = baseResult.queryItems;
-
-                // Collect streamed resources from base Patient fetch
-                streamedResources = streamedResources.concat(baseResult.streamedResources || []);
             }
 
             if (isTrue(parsedArgs._excludeProxyPatientLinked)) {
@@ -783,12 +964,20 @@ class EverythingHelper {
                 baseResourcesProcessedTracker.add(resourceIdentifier);
             })
 
+            // Person resources discovered while fetching clinical related resources, keyed by
+            // _uuid so a Person reached through several patients is only templated once. Their
+            // identifiers drive the subscription custom query (client_person_id).
+            /**
+             * @type {Map<string, ResourceIdentifier>}
+             */
+            const personResourceIdentifierMap = new Map();
+
             // Fetch related resources
             /**
              * @type {import('mongodb').Document[]}
              */
             for (const relatedResourceMapChunk of relatedResourceMapChunks) {
-                let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions, streamedResources: streamedRes } = await this.retriveveRelatedResourcesParallelyAsync({
+                let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions } = await this.retriveveRelatedResourcesParallelyAsync({
                     requestInfo,
                     base_version,
                     parentResourceType: resourceType,
@@ -806,14 +995,16 @@ class EverythingHelper {
                     useUuidProjection,
                     resourceToExcludeIdsMap,
                     resourceMapper,
-                    cachedStreamer
+                    cachedStreamer,
+                    everythingChunkIndex,
+                    personResourceIdentifierMap,
+                    scopedPersonIds,
+                    isPersonEverything,
+                    streamedResources
                 });
 
                 if (!responseStreamer) {
-                    entries.push(...(relatedEntities || []))
-                } else {
-                    // Collect streamed resources with their types
-                    streamedResources.push(...(streamedRes || []));
+                    pushAll(entries, relatedEntities);
                 }
 
                 for (const q of queryItems) {
@@ -830,6 +1021,62 @@ class EverythingHelper {
 
                 if (relatedOptions) {
                     optionsForQueries.push(...relatedOptions);
+                }
+            }
+
+            // Dedicated subscription fetch step. Runs after all clinical resources (so every Person
+            // has been discovered) but before non-clinical expansion (so non-clinical resources
+            // referenced by subscriptions are still expanded). Subscriptions match on the
+            // discovered Person _uuids (client_person_id).
+            if (subscriptionRelatedResources.length > 0) {
+                // Sorted so the generated query is deterministic (stable across runs).
+                const personResourceIdentifiers = Array.from(personResourceIdentifierMap.values())
+                    .sort((a, b) => a._uuid.localeCompare(b._uuid));
+
+                let { entities: subscriptionEntities, queryItems: subscriptionQueryItems, optionsForQueries: subscriptionOptions } = await this.retriveveRelatedResourcesParallelyAsync({
+                    requestInfo,
+                    base_version,
+                    parentResourceType: resourceType,
+                    relatedResources: subscriptionRelatedResources,
+                    parentResourceIdentifiers: baseResourceIdentifiers,
+                    parentResourcesProcessedTracker: baseResourcesProcessedTracker,
+                    explain,
+                    debug,
+                    parsedArgs,
+                    responseStreamer,
+                    bundleEntryIdsProcessedTracker,
+                    proxyPatientIds,
+                    nonClinicalReferencesExtractor,
+                    everythingRelatedResourceManager,
+                    useUuidProjection,
+                    resourceToExcludeIdsMap,
+                    resourceMapper,
+                    cachedStreamer,
+                    everythingChunkIndex,
+                    personResourceIdentifiers,
+                    scopedPersonIds,
+                    isPersonEverything,
+                    streamedResources
+                });
+
+                if (!responseStreamer) {
+                    pushAll(entries, subscriptionEntities);
+                }
+
+                for (const q of subscriptionQueryItems) {
+                    if (q) {
+                        queries.push(q);
+                    }
+
+                    if (q?.explanations) {
+                        for (const e of q.explanations) {
+                            explanations.push(e);
+                        }
+                    }
+                }
+
+                if (subscriptionOptions) {
+                    optionsForQueries.push(...subscriptionOptions);
                 }
             }
 
@@ -855,8 +1102,7 @@ class EverythingHelper {
                             : null;
 
                     for (const res of Object.entries(referenceExtractor.nestedResourceReferences)) {
-                        let [resourceType, ids] = res;
-                        ids = Array.from(ids);
+                        const [resourceType, ids] = res;
 
                         const baseArgs = {
                             base_version: base_version,
@@ -871,9 +1117,7 @@ class EverythingHelper {
                         }
 
                         // if explain query, don't break in chunks as will be limit to single resource later
-                        const idChunks = explain
-                            ? [ids]
-                            : sliceIntoChunksGenerator(ids, this.configManager.mongoInQueryIdBatchSize);
+                        const idChunks = this.getNonClinicalIdChunks({ ids, explain });
 
                         for (const idChunk of idChunks) {
                             const childParseArgs = this.r4ArgsParser.parseArgs({
@@ -895,22 +1139,23 @@ class EverythingHelper {
                                 nonClinicalReferencesExtractor: referenceExtractorForNextLevel,
                                 everythingRelatedResourceManager,
                                 resourceMapper,
-                                cachedStreamer
+                                cachedStreamer,
+                                everythingChunkIndex,
+                                scopedPersonIds,
+                                isPersonEverything,
+                                streamedResources
                             });
 
                             depthParallelProcess.push(result);
 
                             if (depthParallelProcess.length >= this.configManager.everythingMaxParallelProcess) {
-                                const depthResults = await Promise.all(depthParallelProcess);
+                                const depthResults = await settleAllOrThrow(depthParallelProcess);
                                 depthResults.forEach((result) => {
-                                    queries.push(...(result.queryItems || []));
-                                    explanations.push(...(result.explanations || []));
-                                    optionsForQueries.push(...(result.options || []));
+                                    pushAll(queries, result.queryItems);
+                                    pushAll(explanations, result.explanations);
+                                    pushAll(optionsForQueries, result.options);
                                     if (!responseStreamer) {
-                                        entries.push(...(result.entries || []));
-                                    } else {
-                                        // Collect streamed resources for audit logging
-                                        streamedResources.push(...(result.streamedResources || []));
+                                        pushAll(entries, result.entries);
                                     }
                                 });
                                 depthParallelProcess = [];
@@ -919,16 +1164,13 @@ class EverythingHelper {
                     }
 
                     if (depthParallelProcess.length > 0) {
-                        const depthResults = await Promise.all(depthParallelProcess);
+                        const depthResults = await settleAllOrThrow(depthParallelProcess);
                         depthResults.forEach((result) => {
-                            queries.push(...(result.queryItems || []));
-                            explanations.push(...(result.explanations || []));
-                            optionsForQueries.push(...(result.options || []));
+                            pushAll(queries, result.queryItems);
+                            pushAll(explanations, result.explanations);
+                            pushAll(optionsForQueries, result.options);
                             if (!responseStreamer) {
-                                entries.push(...(result.entries || []));
-                            } else {
-                                // Collect streamed resources for audit logging
-                                streamedResources.push(...(result.streamedResources || []));
+                                pushAll(entries, result.entries);
                             }
                         });
                     }
@@ -967,7 +1209,8 @@ class EverythingHelper {
         } catch (e) {
             logError(`Error in retrieveEverythingMulipleIdsAsync(): ${e.message}`, { error: e });
             throw new RethrownError({
-                message: 'Error in retrieveEverythingMulipleIdsAsync(): ' + `resourceType: ${resourceType} , `,
+                message: 'Error in retrieveEverythingMulipleIdsAsync(): ' +
+                    `resourceType: ${resourceType} , ` + e.message,
                 error: e,
                 args: {
                     base_version,
@@ -999,6 +1242,13 @@ class EverythingHelper {
      * @property {Boolean} useUuidProjection
      * @property {ResourceMapper} resourceMapper
      * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
+     * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
+     *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
+     * @property {{_uuid: string, resourceType: string}[]} [streamedResources] - accumulator for
+     *  audit logging, pushed into directly at write time so it survives a throw from any level
+     *  of this call chain
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -1018,7 +1268,11 @@ class EverythingHelper {
         useUuidProjection = false,
         applyPatientFilter = true,
         resourceMapper = new ResourceMapper(),
-        cachedStreamer = null
+        cachedStreamer = null,
+        everythingChunkIndex,
+        scopedPersonIds,
+        isPersonEverything,
+        streamedResources = []
     }) {
 
         /**
@@ -1037,10 +1291,6 @@ class EverythingHelper {
          * @type {import('mongodb').Document[]}
          */
         let explanations = [];
-        /**
-         * @type {{_uuid: string, resourceType: string}[]} - Track resources with types for audit logging
-         */
-        let streamedResources = [];
 
         let isQueryById = !!parsedArgs.get('id') || !!parsedArgs.get('_id');
 
@@ -1064,7 +1314,17 @@ class EverythingHelper {
                 accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
                 addPersonOwnerToContext: requestInfo.isUser,
                 applyPatientFilter,
-                allowConsentedProaDataAccess: true
+                // PROA consented-data-access expansion is only for a genuine Person $everything
+                // request -- it must not apply to Patient $everything, including proxy-patient
+                // $everything (routed through this same Patient $everything path with a
+                // Person-prefixed id). resourceType here is always 'Patient' regardless of which
+                // of those three cases this is (see fhirOperationsManager.js), so isPersonEverything
+                // is the only signal that actually distinguishes a genuine Person request from a
+                // client-issued proxy-patient one -- unlike scopedPersonIds/useProxyPatientToPersonCache
+                // below, which are (by design) identical for both.
+                allowConsentedProaDataAccess: Boolean(isPersonEverything),
+                useProxyPatientToPersonCache: Boolean(scopedPersonIds?.length),
+                everythingChunkIndex
             });
 
 
@@ -1124,7 +1384,7 @@ class EverythingHelper {
 
             explanations.push(...explanations1);
 
-            const { bundleEntries, streamedResources: streamedResources1 } = await this.processCursorAsync({
+            const { bundleEntries } = await this.processCursorAsync({
                 cursor,
                 requestInfo,
                 parentParsedArgs: parsedArgs,
@@ -1135,11 +1395,11 @@ class EverythingHelper {
                 everythingRelatedResourceManager,
                 useUuidProjection,
                 resourceMapper,
-                cachedStreamer
+                cachedStreamer,
+                streamedResources
             });
 
-            entries.push(...(bundleEntries || []));
-            streamedResources = streamedResources.concat(streamedResources1 || []);
+            pushAll(entries, bundleEntries);
         }
 
         return new ProcessMultipleIdsAsyncResult({
@@ -1147,7 +1407,7 @@ class EverythingHelper {
             queryItems: queries,
             options: optionsForQueries,
             explanations,
-            streamedResources: streamedResources || []
+            streamedResources
         })
 
     }
@@ -1174,6 +1434,13 @@ class EverythingHelper {
      * @property {{_uuid: string, resourceType: string}[]} streamedResources
      * @property {ResourceMapper} resourceMapper
      * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
+     * @property {number|undefined} [everythingChunkIndex]
+     * @property {Map<string, ResourceIdentifier>|null} [personResourceIdentifierMap] - when provided, Person resources found are added to it, keyed by _uuid
+     * @property {ResourceIdentifier[]} [personResourceIdentifiers] - Person identifiers used to build the customQuery of related resources flagged with matchPerson
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
+     * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
+     *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {_uuid: string, resourceType: string}[]}>}
@@ -1194,9 +1461,15 @@ class EverythingHelper {
         everythingRelatedResourceManager,
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
+        everythingChunkIndex,
         resourceToExcludeIdsMap,
         resourceMapper = new ResourceMapper(),
-        cachedStreamer = null
+        cachedStreamer = null,
+        personResourceIdentifierMap = null,
+        personResourceIdentifiers = [],
+        scopedPersonIds,
+        isPersonEverything,
+        streamedResources = []
     }
     ) {
 
@@ -1214,10 +1487,6 @@ class EverythingHelper {
          * @type {BundleEntry[]}
          */
         const bundleEntries = [];
-        /**
-         * @type {{_uuid: string, resourceType: string}[]} - Collect streamed resources with types
-         */
-        const streamedResources = [];
 
         /**
          * @type {EverythingRelatedResources[]}
@@ -1320,21 +1589,43 @@ class EverythingHelper {
                 applyPatientFilter:
                     requestInfo.isUser &&
                     this.relatedResourceNeedingPatientScopeFilter[parentResourceType].includes(relatedResourceType),
-                allowConsentedProaDataAccess: true
+                // Same Person-only PROA boundary as fetchResourceByArgsAsync above -- isPersonEverything
+                // reflects the originating request, not parentResourceType (which is always 'Patient'
+                // here regardless of whether this traversal started from a genuine Person request, a
+                // real Patient request, or a client-issued proxy-patient request).
+                allowConsentedProaDataAccess: Boolean(isPersonEverything),
+                useProxyPatientToPersonCache: Boolean(scopedPersonIds?.length),
+                everythingChunkIndex
             });
 
             if (filterTemplateCustomQuery) {
                 let customParentQuery = [];
                 parentLookupField = filterTemplateCustomQuery.fieldForParentLookup;
-                parentResourceIdentifiers.forEach((parentResourceIdentifier) => {
-                    let patientQuery = filterTemplateCustomQuery.query;
+
+                // Subscription resources link to the member via the Person _uuid stored under the
+                // client_person_id system, so their customQuery is templated against the Persons
+                // discovered during the clinical fetch rather than the base Patient identifiers.
+                const customQueryIdentifiers = filterTemplateCustomQuery.matchPerson
+                    ? personResourceIdentifiers
+                    : parentResourceIdentifiers;
+
+                // No Person discovered means no subscription can be attributed to this request.
+                // Skip the resource type rather than falling through to an unrestricted query.
+                if (filterTemplateCustomQuery.matchPerson && customQueryIdentifiers.length === 0) {
+                    continue;
+                }
+
+                customQueryIdentifiers.forEach((customQueryIdentifier) => {
+                    let identifierQuery = filterTemplateCustomQuery.query;
                     filterTemplateCustomQuery.requiredValues.forEach((requiredValue) => {
-                        if (!parentResourceIdentifier[requiredValue]) {
+                        if (!customQueryIdentifier[requiredValue]) {
                             throw new Error(`${requiredValue} is not present in parent resource identifier`);
                         }
-                        patientQuery = patientQuery.replace(`{${requiredValue}}`, parentResourceIdentifier[requiredValue]);
+                        identifierQuery = identifierQuery.replace(
+                            `{${requiredValue}}`, escapeForJsonTemplate(customQueryIdentifier[requiredValue])
+                        );
                     })
-                    customParentQuery.push(JSON.parse(patientQuery));
+                    customParentQuery.push(JSON.parse(identifierQuery));
                 });
 
                 if (filterTemplateCustomQuery.includeProxyPatient && proxyPatientIds.length > 0) {
@@ -1354,21 +1645,15 @@ class EverythingHelper {
                             if (!proxyPatientIdentifier[requiredValue]) {
                                 throw new Error(`${requiredValue} is not present in proxy patient resource identifier`);
                             }
-                            patientQuery = patientQuery.replace(`{${requiredValue}}`, proxyPatientIdentifier[requiredValue]);
+                            patientQuery = patientQuery.replace(
+                                `{${requiredValue}}`, escapeForJsonTemplate(proxyPatientIdentifier[requiredValue])
+                            );
                         });
                         customParentQuery.push(JSON.parse(patientQuery));
                     });
                 }
 
-                if (httpContext.get(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED)) {
-                    if (!query.$or?.length > 0 || !query.$or.every(q => q.$and?.length > 0)) {
-                        logError(
-                            `Expected $or operator in query for resource ${relatedResourceType} when consented PROA data is accessed.`,
-                            { query, relatedResourceType }
-                        );
-                        query = { _uuid: '__invalid__' };
-                        continue;
-                    }
+                if (httpContext.get(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED) && query.$or?.length > 0 && query.$or.every(q => q.$and?.length > 0)) {
                     for (const orQuery of query.$or) {
                         if (customParentQuery.length == 1) {
                             orQuery.$and.push(customParentQuery[0]);
@@ -1389,6 +1674,15 @@ class EverythingHelper {
                     }
                 }
 
+                query = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            }
+
+            // When the original request was Person $everything, restrict the returned Person
+            // resources to only the ids explicitly requested (the reverse `link.target` search
+            // above can otherwise surface other Person resources linked to the same patient(s)).
+            if (relatedResourceType === 'Person' && scopedPersonIds?.length > 0) {
+                query.$and = query.$and || [];
+                query.$and.push(FilterById.getListFilter(scopedPersonIds));
                 query = MongoQuerySimplifier.simplifyFilter({ filter: query });
             }
 
@@ -1471,7 +1765,10 @@ class EverythingHelper {
                 parentResourceType,
                 useUuidProjection,
                 resourceMapper,
-                cachedStreamer
+                cachedStreamer,
+                personResourceIdentifierMap,
+                personResourceIdentifiers,
+                streamedResources
             })
 
             parallelProcess.push(promiseResult)
@@ -1484,13 +1781,9 @@ class EverythingHelper {
             }))
         }
 
-        const result = await Promise.all(parallelProcess);
+        const result = await settleAllOrThrow(parallelProcess);
         result.forEach(entry => {
-            bundleEntries.push(...(entry.bundleEntries || []));
-            // Collect streamed resources with their types
-            if (entry.streamedResources) {
-                streamedResources.push(...entry.streamedResources);
-            }
+            pushAll(bundleEntries, entry.bundleEntries);
         })
 
 
@@ -1520,6 +1813,9 @@ class EverythingHelper {
      *  useUuidProjection: boolean,
      *  resourceMapper?: ResourceMapper,
      *  cachedStreamer?: CachedFhirResponseStreamer|null,
+     *  personResourceIdentifierMap?: Map<string, ResourceIdentifier>|null,
+     *  personResourceIdentifiers?: ResourceIdentifier[],
+     *  streamedResources?: {_uuid: string, resourceType: string}[],
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {_uuid: string, resourceType: string}[]}>}
      */
@@ -1538,16 +1834,15 @@ class EverythingHelper {
         everythingRelatedResourceManager,
         useUuidProjection,
         resourceMapper = new ResourceMapper(),
-        cachedStreamer = null
+        cachedStreamer = null,
+        personResourceIdentifierMap = null,
+        personResourceIdentifiers = [],
+        streamedResources = []
     }) {
         /**
          * @type {BundleEntry[]}
          */
         const bundleEntries = [];
-        /**
-         * @type {{_uuid: string, resourceType: string}[]} - Track resources with types for audit logging
-         */
-        const streamedResources = [];
         while (await cursor.hasNext()) {
             /**
              * element
@@ -1561,6 +1856,9 @@ class EverythingHelper {
 
                 startResource = await this.databaseAttachmentManager.transformAttachments(
                     startResource, RETRIEVE
+                );
+                startResource = await this.base64DataManager.transformAsync(
+                    startResource, BLOB_OP.RETRIEVE
                 );
                 let current_entity = {
                     id: startResource._sourceId,
@@ -1603,41 +1901,35 @@ class EverythingHelper {
                      */
                     let matchingParentReferences = [];
 
-                    let useUuidSet = true;
+                    /**
+                     * @type {Set<string>}
+                     */
+                    let parentReferenceKeys = parentResourcesProcessedTracker.uuidSet;
 
-                    // for handling case for subscription resources where instead of
-                    // reference we only have id of person/patient resource in extension/identifier
+                    // Subscription resources carry the parent as a bare id inside extension/identifier
+                    // rather than as a reference. They resolve by Person identity, so validate the
+                    // client_person_id against the Persons this request discovered -- the accompanying
+                    // source_patient_id may name a patient no longer linked to that Person.
                     if (
                         references.length == 0 &&
                         SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS.includes(parentLookupField)
                     ) {
-
-                        properties.flat().map((r) => {
-                            if (
-                                r[
-                                SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['key']
-                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person
-                            ) {
-                                references.push(
-                                    PERSON_REFERENCE_PREFIX +
-                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
-                                );
-                            } else if (
-                                r[
-                                SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['key']
-                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient
-                            ) {
-                                references.push(
-                                    PATIENT_REFERENCE_PREFIX +
-                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
-                                );
+                        const keyMap = SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField];
+                        properties.flat().forEach((r) => {
+                            if (r[keyMap.key] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person) {
+                                references.push(PERSON_REFERENCE_PREFIX + r[keyMap.value]);
                             }
                         });
-                        useUuidSet = false;
+                        parentReferenceKeys = new Set(
+                            personResourceIdentifiers.map(
+                                (personResourceIdentifier) =>
+                                    `${personResourceIdentifier.resourceType}/${personResourceIdentifier._uuid}`
+                            )
+                        );
                     }
 
                     const referencesSet = new Set(references);
-                    parentResourcesProcessedTracker[useUuidSet ? 'uuidSet' : 'sourceIdSet'].forEach(parentReference => {
+                    parentReferenceKeys.forEach(parentReference => {
                         if (referencesSet.has(parentReference)) {
                             matchingParentReferences.push(parentReference);
                         }
@@ -1677,6 +1969,16 @@ class EverythingHelper {
                     // find references
                     if (nonClinicalReferencesExtractor) {
                         await nonClinicalReferencesExtractor.processResource(startResource);
+                    }
+
+                    // Collect Person identifiers so the subscription step can match on the Person
+                    // _uuid (client_person_id). Kept OUTSIDE the bundleEntryIdsProcessedTracker guard:
+                    // that tracker spans every id-chunk of the request while this map is per-chunk, so a
+                    // Person first seen in an earlier chunk would never reach this chunk's subscription
+                    // query -- which applies its own per-chunk view-control exclusions. The Map itself is
+                    // the dedupe.
+                    if (personResourceIdentifierMap && resourceIdentifier.resourceType === 'Person') {
+                        personResourceIdentifierMap.set(resourceIdentifier._uuid, resourceIdentifier);
                     }
 
                     if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
@@ -1815,5 +2117,7 @@ class EverythingHelper {
 }
 
 module.exports = {
-    EverythingHelper
+    EverythingHelper,
+    escapeForJsonTemplate,
+    pushAll
 };

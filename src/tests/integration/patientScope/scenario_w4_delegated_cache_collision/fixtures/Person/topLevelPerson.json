@@ -1,0 +1,22 @@
+{
+    "resourceType": "Person",
+    "id": "personTopLevel",
+    "meta": {
+        "source": "https://www.icanbwell.com",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/access", "code": "bwell" }
+        ]
+    },
+    "active": true,
+    "link": [
+        {
+            "target": { "reference": "Patient/patient1|healthsystem1" },
+            "assurance": "level4"
+        },
+        {
+            "target": { "reference": "Person/person1|client" },
+            "assurance": "level4"
+        }
+    ]
+}

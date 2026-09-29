@@ -25,6 +25,7 @@ class QueryBuilder {
      * @param {number} params.limit - Page size
      * @param {string|null} params.afterGroupId - Seek cursor (group_id to start after)
      * @param {number} params.skip - Offset for numeric pagination (fallback)
+     * @param {string[]|null} [params.requestedIds] - Requested `_id` constraint; when present, restricts results to these group ids so LIMIT applies after id filtering
      * @returns {{query: string, query_params: Object}}
      */
     static buildFindGroupsByMemberQuery({
@@ -34,11 +35,18 @@ class QueryBuilder {
         ownerTags = [],
         limit,
         afterGroupId = null,
-        skip = 0
+        skip = 0,
+        requestedIds = null
     }) {
         const havingClause = this._buildActiveMemberHavingClause(
             accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
         );
+
+        // Push any requested `_id` constraint into the SQL so LIMIT and ordering
+        // apply to the id-filtered set, not before it. group_id is a plain column,
+        // so it belongs in WHERE (combined with the pagination cursor via AND).
+        const hasRequestedIds = Array.isArray(requestedIds) && requestedIds.length > 0;
+        const requestedIdsPredicate = 'group_id IN ({requestedIds:Array(String)})';
 
         let query;
         const query_params = {
@@ -46,14 +54,18 @@ class QueryBuilder {
             memberReferenceSourceId: memberReferenceSourceId || '',
             limit,
             ...(accessTags.length > 0 && { accessTags }),
-            ...(ownerTags.length > 0 && { ownerTags })
+            ...(ownerTags.length > 0 && { ownerTags }),
+            ...(hasRequestedIds && { requestedIds })
         };
 
         if (afterGroupId) {
+            const whereClause = hasRequestedIds
+                ? `WHERE group_id > {afterGroupId:String} AND ${requestedIdsPredicate}`
+                : 'WHERE group_id > {afterGroupId:String}';
             query = `
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                WHERE group_id > {afterGroupId:String}
+                ${whereClause}
                 GROUP BY group_id, entity_reference
                 HAVING ${havingClause}
                 ORDER BY group_id
@@ -61,9 +73,11 @@ class QueryBuilder {
             `;
             query_params.afterGroupId = afterGroupId;
         } else if (skip > 0) {
+            const whereClause = hasRequestedIds ? `WHERE ${requestedIdsPredicate}` : '';
             query = `
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
+                ${whereClause}
                 GROUP BY group_id, entity_reference
                 HAVING ${havingClause}
                 ORDER BY group_id
@@ -72,9 +86,11 @@ class QueryBuilder {
             `;
             query_params.skip = skip;
         } else {
+            const whereClause = hasRequestedIds ? `WHERE ${requestedIdsPredicate}` : '';
             query = `
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
+                ${whereClause}
                 GROUP BY group_id, entity_reference
                 HAVING ${havingClause}
                 ORDER BY group_id
@@ -94,23 +110,31 @@ class QueryBuilder {
      * @param {string} [params.memberReferenceSourceId] - Source ID reference
      * @param {string[]} params.accessTags - Access security tags for filtering
      * @param {string[]} params.ownerTags - Owner security tags for filtering
+     * @param {string[]|null} [params.requestedIds] - Requested `_id` constraint; when present, restricts the count to these group ids so total matches the id-filtered result set
      * @returns {{query: string, query_params: Object}}
      */
     static buildCountGroupsByMemberQuery({
         memberReferenceUuid,
         memberReferenceSourceId,
         accessTags = [],
-        ownerTags = []
+        ownerTags = [],
+        requestedIds = null
     }) {
         const havingClause = this._buildActiveMemberHavingClause(
             accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
         );
+
+        // Mirror the find query: when an `_id` constraint is present, restrict the
+        // counted set to those group ids so Bundle.total matches Bundle.entry.
+        const hasRequestedIds = Array.isArray(requestedIds) && requestedIds.length > 0;
+        const whereClause = hasRequestedIds ? 'WHERE group_id IN ({requestedIds:Array(String)})' : '';
 
         const query = `
             SELECT count() as total
             FROM (
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
+                ${whereClause}
                 GROUP BY group_id, entity_reference
                 HAVING ${havingClause}
             )
@@ -120,7 +144,8 @@ class QueryBuilder {
             memberReferenceUuid: memberReferenceUuid || '',
             memberReferenceSourceId: memberReferenceSourceId || '',
             ...(accessTags.length > 0 && { accessTags }),
-            ...(ownerTags.length > 0 && { ownerTags })
+            ...(ownerTags.length > 0 && { ownerTags }),
+            ...(hasRequestedIds && { requestedIds })
         };
 
         return { query, query_params };
@@ -130,15 +155,27 @@ class QueryBuilder {
      * Builds query for active members of a specific Group (roster query)
      * Supports seek cursor pagination via afterReference
      *
+     * Tenant filtering: access_tags/owner_tags are projected from the current
+     * state table and filtered in the outer WHERE when tags are provided.
+     *
      * @param {Object} params
      * @param {string} params.groupId - Group ID to query
      * @param {number} params.limit - Page size
      * @param {string|null} params.afterReference - Seek cursor (entity_reference to start after)
+     * @param {string[]} params.accessTags - Access security tags for tenant filtering
+     * @param {string[]} params.ownerTags - Owner security tags for tenant filtering
      * @returns {{query: string, query_params: Object}}
      */
-    static buildActiveMembers({ groupId, limit, afterReference = null }) {
+    static buildActiveMembers({ groupId, limit, afterReference = null, accessTags = [], ownerTags = [] }) {
         const cursorClause = afterReference
             ? 'AND entity_reference > {afterReference:String}'
+            : '';
+
+        const accessTagClause = accessTags.length > 0
+            ? 'AND hasAny(access_tags, {accessTags:Array(String)})'
+            : '';
+        const ownerTagClause = ownerTags.length > 0
+            ? 'AND hasAny(owner_tags, {ownerTags:Array(String)})'
             : '';
 
         const query = `
@@ -151,13 +188,17 @@ class QueryBuilder {
                     entity_reference,
                     argMaxMerge(entity_type) AS entity_type,
                     argMaxMerge(event_type)  AS event_type,
-                    argMaxMerge(inactive)    AS inactive
+                    argMaxMerge(inactive)    AS inactive,
+                    argMaxMerge(access_tags) AS access_tags,
+                    argMaxMerge(owner_tags)  AS owner_tags
                 FROM ${TABLES.GROUP_MEMBER_CURRENT} FINAL
                 WHERE group_id = {groupId:String}
                 GROUP BY entity_reference
             )
             WHERE event_type = '${EVENT_TYPES.MEMBER_ADDED}'
               AND inactive = 0
+              ${accessTagClause}
+              ${ownerTagClause}
               ${cursorClause}
             ORDER BY entity_reference
             LIMIT {limit:UInt32}
@@ -166,7 +207,9 @@ class QueryBuilder {
         const query_params = {
             groupId,
             limit,
-            ...(afterReference && { afterReference })
+            ...(afterReference && { afterReference }),
+            ...(accessTags.length > 0 && { accessTags }),
+            ...(ownerTags.length > 0 && { ownerTags })
         };
 
         return { query, query_params };
@@ -175,11 +218,18 @@ class QueryBuilder {
     /**
      * Builds count query for active members of a specific Group
      *
+     * Tenant filtering: access_tags/owner_tags clauses are appended to the
+     * HAVING when tags are provided (reuses _buildActiveMemberHavingClause).
+     *
      * @param {Object} params
      * @param {string} params.groupId - Group ID to query
+     * @param {string[]} params.accessTags - Access security tags for tenant filtering
+     * @param {string[]} params.ownerTags - Owner security tags for tenant filtering
      * @returns {{query: string, query_params: Object}}
      */
-    static buildActiveMemberCount({ groupId }) {
+    static buildActiveMemberCount({ groupId, accessTags = [], ownerTags = [] }) {
+        const havingClause = this._buildActiveMemberHavingClause(accessTags, ownerTags);
+
         const query = `
             SELECT count() as count
             FROM (
@@ -187,12 +237,17 @@ class QueryBuilder {
                 FROM ${TABLES.GROUP_MEMBER_CURRENT} FINAL
                 WHERE group_id = {groupId:String}
                 GROUP BY entity_reference
-                HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}'
-                   AND argMaxMerge(inactive) = 0
+                HAVING ${havingClause}
             )
         `;
 
-        return { query, query_params: { groupId } };
+        const query_params = {
+            groupId,
+            ...(accessTags.length > 0 && { accessTags }),
+            ...(ownerTags.length > 0 && { ownerTags })
+        };
+
+        return { query, query_params };
     }
 
     /**

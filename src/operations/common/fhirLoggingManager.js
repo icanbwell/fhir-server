@@ -180,7 +180,9 @@ class FhirLoggingManager {
             const elapsedMilliSeconds = stopTime - startTime;
             detail.push({
                 type: 'duration',
-                valuePositiveInt: elapsedMilliSeconds
+                // valuePositiveInt must never be negative (FHIR positiveInt); clock skew or
+                // callers passing a stopTime before startTime should not produce invalid data
+                valuePositiveInt: Math.max(0, elapsedMilliSeconds)
             });
         }
         /**

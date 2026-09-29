@@ -10,7 +10,8 @@ const { SearchManager } = require('../search/searchManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { ScopesManager } = require('../security/scopesManager');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
+const { GRIDFS: { RETRIEVE }, BLOB_OP, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
@@ -26,6 +27,7 @@ class SearchByVersionIdOperation {
      * @param {SearchManager} searchManager
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {CloudStorageClient | null} historyResourceCloudStorageClient
      */
     constructor (
@@ -38,6 +40,7 @@ class SearchByVersionIdOperation {
             searchManager,
             scopesManager,
             databaseAttachmentManager,
+            base64DataManager,
             historyResourceCloudStorageClient
         }
     ) {
@@ -84,6 +87,12 @@ class SearchByVersionIdOperation {
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
+
+        /**
          * @type {CloudStorageClient | null}
          */
         this.historyResourceCloudStorageClient = historyResourceCloudStorageClient;
@@ -127,6 +136,24 @@ class SearchByVersionIdOperation {
             const forbiddenError =  new ForbiddenError(
                 `user ${user} with scopes [${scope}] failed access check to ${resourceType}'s ` +
                     'history: Access to history resources not allowed if patient scope is present'
+            );
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs?.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: forbiddenError
+            });
+            throw forbiddenError;
+        }
+
+        // SEC-1580 SAE-1: see ScopesManager.hasHistoryAccess for why a tenant-scoped access
+        // code is never sufficient to read a specific historical version.
+        if (!this.scopesManager.hasHistoryAccess({ resourceType, scope })) {
+            const forbiddenError = new ForbiddenError(
+                `user ${user} with scopes [${scope}] failed access check to ${resourceType}'s ` +
+                    'history: history access requires a non-tenant-specific access scope (access/*.read or access/*.*)'
             );
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
@@ -249,6 +276,9 @@ class SearchByVersionIdOperation {
                 )[0];
 
                 historyResource = await this.databaseAttachmentManager.transformAttachments(historyResource, RETRIEVE);
+                historyResource = await this.base64DataManager.transformAsync(
+                    historyResource, BLOB_OP.RETRIEVE, undefined, { historyRead: true }
+                );
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args: parsedArgs.getRawArgs(),

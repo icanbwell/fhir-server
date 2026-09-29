@@ -24,6 +24,7 @@ const { ParsedArgsItem } = require('../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../operations/query/queryParameterValue');
 const { searchParameterQueries } = require('../searchParameters/searchParameters');
 const { mongoQueryAndOptionsStringify } = require('../utils/mongoQueryStringify');
+const { OperationAccessManager } = require('../utils/operationAccessManager');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQLV2 resolvers to load the data
@@ -39,6 +40,7 @@ class FhirDataSource {
      * @property {PatientDataViewControlManager} patientDataViewControlManager
      * @property {CustomTracer} customTracer
      * @property {PatientScopeManager} patientScopeManager
+     * @property {OperationAccessManager} accessManager
      * @param {FhirDataSourceParams} params
      */
     constructor (
@@ -50,7 +52,8 @@ class FhirDataSource {
             configManager,
             patientDataViewControlManager,
             customTracer,
-            patientScopeManager
+            patientScopeManager,
+            accessManager
         }
     ) {
         assertIsValid(requestInfo !== undefined);
@@ -107,6 +110,12 @@ class FhirDataSource {
          */
         this.patientScopeManager = patientScopeManager;
         assertTypeEquals(this.patientScopeManager, PatientScopeManager);
+
+        /**
+         * @type {OperationAccessManager}
+         */
+        this.accessManager = accessManager;
+        assertTypeEquals(this.accessManager, OperationAccessManager);
 
         /**
          * whether the caller has requested debug mode
@@ -208,6 +217,16 @@ class FhirDataSource {
                     if (!resourceType) {
                         return [];
                     }
+                    // DCON-4846: getResources/getResourcesBundle gate their own root resourceType,
+                    // but a reference field (e.g. Patient.generalPractitioner) resolves through this
+                    // batch loader for the *referenced* resourceType, bypassing that gate entirely --
+                    // gate it here too so a CMS-partner/delegated-user caller can't pivot through a
+                    // reference to read a disallowed resource type.
+                    this.accessManager.verifyGraphQLReadAccess({
+                        requestInfo,
+                        resourceType,
+                        operation: 'search'
+                    });
                     /**
                      * @type {string[]}
                      */
@@ -461,6 +480,13 @@ class FhirDataSource {
      * @return {Promise<Resource[]>}
      */
     async getResources (parent, args, context, info, resourceType) {
+        // DCON-4846: REST search runs this same allowlist check (fhirOperationsManager.search) --
+        // GraphQL reads must too, or a CMS-partner/delegated-user caller could bypass it entirely
+        this.accessManager.verifyGraphQLReadAccess({
+            requestInfo: context.fhirRequestInfo,
+            resourceType,
+            operation: 'search'
+        });
         this.generateResourceProjections(info);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const args1 = {
@@ -509,6 +535,12 @@ class FhirDataSource {
      * @return {Promise<Bundle>}
      */
     async getResourcesBundle (parent, args, context, info, resourceType) {
+        // DCON-4846: see getResources -- same allowlist check REST search already enforces
+        this.accessManager.verifyGraphQLReadAccess({
+            requestInfo: context.fhirRequestInfo,
+            resourceType,
+            operation: 'search'
+        });
         this.createDataLoader(args);
         this.generateResourceProjections(info);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
@@ -576,6 +608,27 @@ class FhirDataSource {
     }
 
     /**
+     * Builds the baseline Mongo projection field set for a resource type, before any
+     * caller-requested fields are added. Subscription/SubscriptionStatus/SubscriptionTopic
+     * always need extension/identifier projected too: Patient.subscriptions* resolvers join on
+     * source_patient_id, which collides across source systems, so they also check service_slug
+     * (carried in extension/identifier) against the parent Patient's source -- that field must
+     * be present even when the caller's selection set doesn't ask for it directly, or the
+     * security check silently sees no candidates.
+     * @param {string} resourceType
+     * @return {Set<string>}
+     */
+    getBaseProjectionForResourceType (resourceType) {
+        const projection = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType']);
+        if (resourceType === 'Subscription' || resourceType === 'SubscriptionStatus') {
+            projection.add('extension');
+        } else if (resourceType === 'SubscriptionTopic') {
+            projection.add('identifier');
+        }
+        return projection;
+    }
+
+    /**
      * Extracts the list of all top level fields requested for
      * each resource from nested fields data
      * @param {Object} resolvedFieldsInfo
@@ -598,7 +651,7 @@ class FhirDataSource {
                     const resourceFields = Object.getOwnPropertyNames(new resource({}));
 
                     if (!this.resourceProjections[resourceType]) {
-                        this.resourceProjections[resourceType] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType'])
+                        this.resourceProjections[resourceType] = this.getBaseProjectionForResourceType(resourceType)
                     }
                     Object.values(value).forEach(field => {
                         // check if field is valid for resource type as some resources have custom fields
@@ -716,7 +769,14 @@ class FhirDataSource {
             // Its called later too in the request lifecycle but as its result is cached,
             // it will not be executed again
             await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext: true
+                base_version,
+                isUser,
+                personIdFromJwtToken,
+                addPersonOwnerToContext: true,
+                // Apply the caller's access-tag security filter while traversing Person.link so a
+                // Person/Patient reachable only via a cross-tenant link on the caller's own Person is
+                // not silently included in the patient-scope filter.
+                requestInfo: this.requestInfo
             });
 
             await this.customTracer.trace({
@@ -780,7 +840,7 @@ class FhirDataSource {
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
-                base_version, parsedArgs, resourceType, operation: READ
+                base_version, parsedArgs, resourceType, operation: READ, requestInfo: this.requestInfo
             }
         );
         headers = {

@@ -3,7 +3,6 @@ require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { MergeManager } = require('./mergeManager');
 const { NdjsonParser } = require('./ndJsonParser');
-const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { BundleManager } = require('../common/bundleManager');
@@ -21,10 +20,10 @@ const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isTrue } = require('../../utils/isTrue');
 const { Transform } = require('stream'); // <- for Transform stream class
 const { pipeline } = require('stream/promises'); // <- for async pipeline
+const { getRequestDecompressor } = require('../../utils/requestDecompressor');
 const { HttpResponseWriter } = require('../streaming/responseWriter');
 const { ObjectSerializedFhirResourceNdJsonWriter } = require('../streaming/resourceWriters/objectSerializedFhirResourceNdJsonWriter');
 const { fhirContentTypes } = require('../../utils/contentTypes');
-const { FastMergeManager } = require('./fastMergeManager');
 const { recordMergeOutcomes, recordInboundBundleSize, OPERATION } = require('../../utils/metrics');
 const { CustomTracer } = require('../../utils/customTracer');
 
@@ -32,8 +31,6 @@ const { CustomTracer } = require('../../utils/customTracer');
 class MergeOperation {
     /**
      * @param {MergeManager} mergeManager
-     * @param {FastMergeManager} fastMergeManager
-     * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {BundleManager} bundleManager
@@ -44,8 +41,6 @@ class MergeOperation {
     constructor (
         {
             mergeManager,
-            fastMergeManager,
-            databaseBulkInserter,
             fastDatabaseBulkInserter,
             fhirLoggingManager,
             bundleManager,
@@ -54,31 +49,17 @@ class MergeOperation {
             customTracer
         }
     ) {
-        if (configManager.enableMergeFastSerializer) {
-            /**
-             * @type {FastMergeManager}
-             */
-            this.mergeManager = fastMergeManager;
-            assertTypeEquals(fastMergeManager, FastMergeManager);
+        /**
+         * @type {MergeManager}
+         */
+        this.mergeManager = mergeManager;
+        assertTypeEquals(mergeManager, MergeManager);
 
-            /**
-             * @type {FastDatabaseBulkInserter}
-             */
-            this.databaseBulkInserter = fastDatabaseBulkInserter;
-            assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
-        } else {
-            /**
-             * @type {MergeManager}
-             */
-            this.mergeManager = mergeManager;
-            assertTypeEquals(mergeManager, MergeManager);
-
-            /**
-             * @type {DatabaseBulkInserter}
-             */
-            this.databaseBulkInserter = databaseBulkInserter;
-            assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-        }
+        /**
+         * @type {FastDatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = fastDatabaseBulkInserter;
+        assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
 
         /**
          * @type {FhirLoggingManager}
@@ -308,7 +289,7 @@ class MergeOperation {
              * @type {number}
              */
             const stopTime = Date.now();
-            if (headers.prefer && headers.prefer === 'return=OperationOutcome') {
+            if (headers && headers.prefer && headers.prefer === 'return=OperationOutcome') {
                 // https://hl7.org/fhir/http.html#ops
                 // Client is requesting the result as OperationOutcome
                 // Create a bundle of OperationOutcomes
@@ -422,6 +403,27 @@ class MergeOperation {
         assertIsValid(requestInfo);
         assertIsValid(resourceType);
         assertTypeEquals(parsedArgs, ParsedArgs);
+
+        // The streaming $merge path reads the raw request stream directly (it can't use
+        // express.json(), which only supports buffered bodies), so unlike the buffered
+        // $merge path it does not get express.json()'s automatic Content-Encoding
+        // decompression - or its payloadLimit body-size cap - for free. Resolve both
+        // explicitly: a compressed streaming request must not be fed still-compressed
+        // bytes into the ndjson line parser, and decompression must not be allowed to
+        // produce an unbounded amount of data (a decompression-bomb DoS the buffered
+        // path doesn't have to worry about, since express.json() enforces its limit
+        // during the read itself).
+        // Resolved before constructing any of the pipeline streams below:
+        // HttpResponseWriter's _construct() runs automatically once the object exists,
+        // independent of whether pipeline() itself ever runs, so throwing after
+        // constructing it (but before calling pipeline()) would leave a dangling
+        // _construct() call that fires after the error response below has already been
+        // sent and crashes trying to mutate it.
+        const decompressors = getRequestDecompressor(
+            req.headers['content-encoding'],
+            'streaming $merge',
+            this.configManager.payloadLimit
+        );
 
         const currentOperationName = 'merge';
         const startTime = Date.now();
@@ -564,6 +566,7 @@ class MergeOperation {
                 // Run pipeline
                 await pipeline(
                     req,
+                    ...decompressors,
                     new NdjsonParser({ configManager: self.configManager }),
                     mergeTransform,
                     fhirWriter,

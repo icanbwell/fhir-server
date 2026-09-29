@@ -41,3 +41,9 @@ src/admin/scripts/.env.dev
 /**/temp/
 generatorScripts/data/
 /**/__pycache__/
+
+# Personal Claude working memory (local, not team-governed)
+CLAUDE.local.md
+
+# Subagent-driven-development scratch workspace (per-plan ledgers/briefs/reports)
+.superpowers/

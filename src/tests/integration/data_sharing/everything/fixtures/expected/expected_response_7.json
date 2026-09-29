@@ -1,0 +1,38 @@
+{
+    "entry": [],
+    "type": "searchset",
+    "timestamp": "2026-08-14T07:55:46.4646Z",
+    "resourceType": "Bundle",
+    "total": 0,
+    "id": "61ae8759-9e36-4b60-a35a-515e68515305",
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "db.Patient_4_0_0.find({'$and':[{'_uuid':'bb7862e6-b7ac-470e-bde3-e85cee9d1ce7'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]}, {'_id':0}) "
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": "Patient_4_0_0"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "[{'projection':{'_id':0}}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "[]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime",
+                "display": "0.013"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple"
+            }
+        ]
+    }
+}

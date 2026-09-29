@@ -47,11 +47,15 @@ class BaseCacheKeyGenerator {
      * @property {boolean} isPersonId
      * @property {ParsedArgs} parsedArgs
      * @property {string} scope
+     * @property {boolean} [isPersonEverything] - when set, included in the key so a genuine
+     *  Person $everything response (which may include PROA consented-data-access expansion) is
+     *  never served from cache to, or overwritten by, the equivalent proxy-patient $everything
+     *  request (which must not) even though both share the same id/isPersonId/scope/_type
      *
      * @param {options} options
      * @returns {Promise<string|undefined>}
      */
-    async generateCacheKey({ id, isPersonId, parsedArgs, scope }) {
+    async generateCacheKey({ id, isPersonId, parsedArgs, scope, isPersonEverything }) {
         const rawArgs = parsedArgs.getRawArgs();
 
         // Don't cache if any cache-invalidating params are present and their value is not false
@@ -82,6 +86,10 @@ class BaseCacheKeyGenerator {
         }
 
         cacheKey += `:Scopes:${this.normalizeScopesForCaching(scope)}`;
+
+        if (isPersonEverything !== undefined) {
+            cacheKey += `:AllowProa:${Boolean(isPersonEverything)}`;
+        }
 
         if (this.keyParamsforCache && this.keyParamsforCache.length > 0) {
             const params = {};

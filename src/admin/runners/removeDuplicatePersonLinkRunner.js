@@ -86,8 +86,11 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
      */
     async removeDuplicateLinks (resource) {
         const linkSet = new Set();
-        resource.link = resource.link.reduce((uniqueLinks, link) => {
-            const reference = link?.target?._uuid;
+        resource.link = (resource.link || []).reduce((uniqueLinks, link) => {
+            // Fall back to target.reference when target._uuid is missing so that links
+            // without a _uuid (e.g. not yet matched) aren't all treated as duplicates of
+            // each other just because they share the same undefined _uuid.
+            const reference = link?.target?._uuid || link?.target?.reference;
             if (!linkSet.has(reference)) {
                 linkSet.add(reference);
                 uniqueLinks.push(link);
@@ -126,7 +129,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         // for speed, first check if the incoming resource is exactly the same
         const updatedResourceJsonInternal = updatedResource.toJSONInternal();
         const currentResourceJsonInternal = currentResource.toJSONInternal();
-        if (deepEqual(updatedResourceJsonInternal.link, currentResourceJsonInternal.link) === true) {
+        if (deepEqual(updatedResourceJsonInternal.link || [], currentResourceJsonInternal.link || []) === true) {
             return operations;
         }
 

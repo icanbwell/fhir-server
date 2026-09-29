@@ -1,0 +1,21 @@
+{
+  "resourceType": "Practitioner",
+  "id": "attacker-target-doc",
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "active": true,
+  "gender": "male",
+  "name": [
+    {
+      "family": "NotReferencedByPatient",
+      "given": ["Dr"]
+    }
+  ]
+}

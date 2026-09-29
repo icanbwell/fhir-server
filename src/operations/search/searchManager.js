@@ -1,5 +1,5 @@
 const { isTrue } = require('../../utils/isTrue');
-const { logDebug, logError } = require('../common/logging');
+const { logDebug, logError, logInfo, logWarn } = require('../common/logging');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const { pipeline } = require('stream/promises');
@@ -23,21 +23,31 @@ const { ScopesManager } = require('../security/scopesManager');
 const { GetCursorResult } = require('./getCursorResult');
 const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
+const { GroupMemberArrayWriter } = require('../streaming/resourceWriters/groupMemberArrayWriter');
 const { DataSharingManager } = require('./dataSharingManager');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
+const { AtlasSearchQueryBuilder, ATLAS_SEARCH_INDEX_NAME } = require('./atlasSearchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { PatientScopeManager } = require('../security/patientScopeManager');
 const { PatientQueryCreator } = require('../common/patientQueryCreator');
+const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
+const { ClinicalNoteSearchClient } = require('../../utils/clinicalNoteSearchClient');
+const { FilterById } = require('../query/filters/id');
 const {
     DB_SEARCH_LIMIT_FOR_IDS,
     DB_SEARCH_LIMIT,
     OPERATIONS: { READ },
     GRIDFS: { RETRIEVE },
-    AUTH_USER_TYPES
+    BLOB_OP,
+    AUTH_USER_TYPES,
+    UNSUPPORTED_SORT_FIELDS,
+    CUSTOM_SORT_FIELDS,
+    FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES
 } = require('../../constants');
 
 class SearchManager {
@@ -53,11 +63,15 @@ class SearchManager {
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
+     * @param {AtlasSearchQueryBuilder} atlasSearchQueryBuilder
      * @param {PatientScopeManager} patientScopeManager
      * @param {PatientQueryCreator} patientQueryCreator
+     * @param {SearchParametersManager} searchParametersManager
+     * @param {ClinicalNoteSearchClient} clinicalNoteSearchClient
      */
     constructor (
         {
@@ -71,11 +85,15 @@ class SearchManager {
             queryRewriterManager,
             scopesManager,
             databaseAttachmentManager,
+            base64DataManager,
             fhirResourceWriterFactory,
             dataSharingManager,
             searchQueryBuilder,
+            atlasSearchQueryBuilder,
             patientScopeManager,
-            patientQueryCreator
+            patientQueryCreator,
+            searchParametersManager,
+            clinicalNoteSearchClient
         }
     ) {
         /**
@@ -134,6 +152,12 @@ class SearchManager {
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
+
+        /**
          * @type {FhirResourceWriterFactory}
          */
         this.fhirResourceWriterFactory = fhirResourceWriterFactory;
@@ -152,6 +176,12 @@ class SearchManager {
         assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
 
         /**
+         * @type {AtlasSearchQueryBuilder}
+         */
+        this.atlasSearchQueryBuilder = atlasSearchQueryBuilder;
+        assertTypeEquals(atlasSearchQueryBuilder, AtlasSearchQueryBuilder);
+
+        /**
          * @type {PatientScopeManager}
          */
         this.patientScopeManager = patientScopeManager;
@@ -163,6 +193,94 @@ class SearchManager {
         this.patientQueryCreator = patientQueryCreator;
         assertTypeEquals(patientQueryCreator, PatientQueryCreator);
 
+        /**
+         * @type {SearchParametersManager}
+         */
+        this.searchParametersManager = searchParametersManager;
+        assertTypeEquals(searchParametersManager, SearchParametersManager);
+
+        /**
+         * @type {ClinicalNoteSearchClient}
+         */
+        this.clinicalNoteSearchClient = clinicalNoteSearchClient;
+        assertTypeEquals(clinicalNoteSearchClient, ClinicalNoteSearchClient);
+    }
+
+    /**
+     * Resolves the `_content` search parameter (if present) into an `_id`-shaped Mongo filter by
+     * delegating candidate lookup to fhir-notes-vector-store's Atlas Search index. The returned
+     * filter is meant to be AND'd into the request's normal query via
+     * `this.r4SearchQueryCreator.appendAndQuery` -- every candidate id still passes through the
+     * same tenant/patient/access-tag scoping every other search parameter goes through.
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.operation `'READ'|'WRITE'|'DELETE'` (any casing) -- `_content` only
+     *   applies to read/search operations, see below
+     * @param {boolean|undefined} [params.useHistoryTable]
+     * @param {string[]|undefined} [params.patientIds] The caller's already-resolved patient-scope
+     *   id list (from `patientScopeManager.getPatientIdsFromScopeAsync`), if this is a
+     *   patient-scoped request -- never derived from a raw request param, so a caller can't widen
+     *   it. Passed through to the vector-store query as a defense-in-depth pre-filter; absent for
+     *   tenant/service-account callers, who have no such bounded id list to narrow by.
+     * @returns {Promise<import('mongodb').Document|null>} null when `_content` is absent
+     */
+    async buildContentSearchIdFilterAsync ({ resourceType, parsedArgs, operation, useHistoryTable, patientIds }) {
+        const contentArg = parsedArgs.get('_content');
+        if (!contentArg) {
+            return null;
+        }
+        if (!this.configManager.fhirNotesFullTextSearchConfigured) {
+            // The feature is off (the default posture). `_content` is a recognized-but-unresolved
+            // search parameter in that case -- silently ignored for every resourceType, matching
+            // `_content`'s behavior on main today (before this feature existed at all).
+            return null;
+        }
+        if (String(operation).toUpperCase() !== 'READ') {
+            // constructQueryAsync is also the query builder for update/patch/remove. Never let a
+            // full-text hit against an external, staleable index gate a WRITE/DELETE -- the design
+            // scoped `_content` to search/read only. Silently ignored here (not a BadRequestError)
+            // for the same reason the feature-off case above is silent: a caller conditionally
+            // deleting/patching by other search params shouldn't have that request rejected just
+            // because they also (irrelevantly) passed `_content`.
+            return null;
+        }
+        if (useHistoryTable) {
+            // History documents nest the resource under a `resource.` prefix (see fieldMapper.js).
+            // FilterById.getListFilter always builds a non-history field mapping, so an `_id`/
+            // `_uuid` filter built here would target the wrong path on the history collection and
+            // silently match nothing -- i.e. "no candidates found" would look identical to "found
+            // candidates but the filter path was wrong", which is exactly the fail-open shape
+            // review.md warns about. Ignore `_content` on history reads until that's supported.
+            return null;
+        }
+        if (!FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.includes(resourceType)) {
+            throw new BadRequestError(new Error(
+                `_content search is not supported for resourceType=${resourceType}. ` +
+                `Supported types: ${FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES.join(', ')}`
+            ));
+        }
+        const contentQuery = contentArg.queryParameterValue.value;
+        if (Array.isArray(contentQuery)) {
+            throw new BadRequestError(new Error(
+                '_content does not support multiple repeated values'
+            ));
+        }
+        const candidateIds = await this.clinicalNoteSearchClient.findMatchingResourceIdsAsync({
+            resourceType,
+            contentQuery,
+            patientIds: patientIds && patientIds.length > 0 ? patientIds : undefined
+        });
+        if (candidateIds.length === 0) {
+            // FilterById.getListFilter([]) returns {_uuid: {$in: []}}, but MongoQuerySimplifier
+            // deletes empty $in arrays (and the now-empty parent clauses around them), which would
+            // silently erase this filter and turn a zero-match _content search into "no filter,
+            // return everything". Use the same __invalid__ sentinel the codebase already uses
+            // elsewhere (e.g. patientQueryCreator.js, dataSharingManager.js) for "return nothing" --
+            // it survives simplification because it can never match a real _uuid.
+            return { _uuid: '__invalid__' };
+        }
+        return FilterById.getListFilter(candidateIds);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -184,7 +302,10 @@ class SearchManager {
      * @param {boolean} applyPatientFilter
      * @param {boolean} addPersonOwnerToContext
      * @param {boolean} allowConsentedProaDataAccess
-     * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
+     * @param {boolean} useProxyPatientToPersonCache true when the original request was
+     *   Person/proxy-patient $everything -- signals DataSharingManager.getValidatedPatientIdsMap
+     *   to use the RequestSpecificCache-backed path instead of BwellPersonFinder.
+     * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document, atlasSearchCompound: {must: object[]}|null}>}
      */
     async constructQueryAsync (
         {
@@ -203,7 +324,9 @@ class SearchManager {
             applyPatientFilter = true,
             addPersonOwnerToContext = false,
             allowConsentedProaDataAccess = false,
-            actor
+            useProxyPatientToPersonCache,
+            actor,
+            everythingChunkIndex
         }
     ) {
         try {
@@ -213,6 +336,32 @@ class SearchManager {
             const { base_version } = parsedArgs;
             assertIsValid(base_version, 'base_version is not set');
             const accessViaPatientScopes = this.scopesManager.isAccessAllowedByPatientScopes({ scope, resourceType });
+            /**
+             * Resolved ahead of buildContentSearchIdFilterAsync (rather than only inside the
+             * accessViaPatientScopes branch below, where it used to live) so `_content` can use
+             * this same, already-authorized id list as a vector-store pre-filter -- never a raw
+             * request param, so a caller can't widen it. `getPatientIdsFromScopeAsync` is
+             * idempotent per request; resolving it once here and reusing it below avoids a
+             * second, redundant resolution.
+             * @type {string[]|undefined}
+             */
+            let allPatientIdsFromJwtToken;
+            if (accessViaPatientScopes) {
+                allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
+                    base_version,
+                    isUser,
+                    personIdFromJwtToken,
+                    addPersonOwnerToContext,
+                    // Apply the caller's access-tag security filter while traversing Person.link so a
+                    // Person/Patient reachable only via a cross-tenant link on the caller's own Person
+                    // is not silently included in the patient-scope filter. Only supplied when we have
+                    // a real user identity to check against (see getSecurityTagsFromScope).
+                    requestInfo: typeof user === 'string' && scope ? { user, scope } : undefined
+                });
+            }
+            const contentSearchIdFilter = await this.buildContentSearchIdFilterAsync({
+                resourceType, parsedArgs, operation, useHistoryTable, patientIds: allPatientIdsFromJwtToken
+            });
 
             /**
              * @type {string[]}
@@ -243,14 +392,12 @@ class SearchManager {
                 isUser
             }));
 
+            if (contentSearchIdFilter) {
+                query = this.r4SearchQueryCreator.appendAndQuery({ query, andQuery: contentSearchIdFilter });
+            }
+
             if (accessViaPatientScopes) {
                 shouldUpdateColumns = true;
-                /**
-                 * @type {string[]}
-                 */
-                const allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                    base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext
-                });
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
                     allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {
@@ -273,7 +420,8 @@ class SearchManager {
                             patientIds: allPatientIdsFromJwtToken,
                             resourceType,
                             query,
-                            actor
+                            actor,
+                            securityTags
                         });
                     }
                 }
@@ -289,7 +437,7 @@ class SearchManager {
                     useHistoryTable
                 });
 
-                if (this.configManager.enableConsentedProaDataAccess || this.configManager.enableHIETreatmentRelatedDataAccess) {
+                if (allowConsentedProaDataAccess && this.configManager.enableConsentedProaDataAccess) {
                     query = await this.dataSharingManager.updateQueryConsideringDataSharing({
                         base_version,
                         resourceType,
@@ -299,7 +447,9 @@ class SearchManager {
                         useHistoryTable,
                         requestId,
                         isUser,
-                        allowConsentedProaDataAccess
+                        allowConsentedProaDataAccess,
+                        everythingChunkIndex,
+                        useProxyPatientToPersonCache
                     });
                 }
             }
@@ -328,7 +478,23 @@ class SearchManager {
             if (query) {
                 query = MongoQuerySimplifier.simplifyFilter({ filter: query });
             }
-            return { base_version, query, columns };
+
+            /**
+             * @type {{must: object[]}|null}
+             */
+            let atlasSearchCompound = null;
+            if (
+                operation === READ &&
+                !useHistoryTable &&
+                ['Patient', 'Person', 'Practitioner'].includes(resourceType)
+            ) {
+                atlasSearchCompound = this.atlasSearchQueryBuilder.buildSearchQuery({
+                    resourceType,
+                    parsedArgs
+                });
+            }
+
+            return { base_version, query, columns, atlasSearchCompound };
         } catch (e) {
             throw new RethrownError({
                     message: 'Error in constructQueryAsync(): ' + (e.message || ''),
@@ -361,6 +527,7 @@ class SearchManager {
      * @param {boolean} useAccessIndex
      * @param {boolean} useAggregationPipeline
      * @param {Object} extraInfo
+     * @param {{must: object[]}|null} [atlasSearchCompound]
      * @returns {Promise<GetCursorResult>}
      */
     async getCursorForQueryAsync (
@@ -376,7 +543,8 @@ class SearchManager {
             isStreaming,
             useAccessIndex,
             useAggregationPipeline = false,
-            extraInfo
+            extraInfo = {},
+            atlasSearchCompound
         }
     ) {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
@@ -390,7 +558,7 @@ class SearchManager {
         }
         // if _sort is specified then add sort criteria to mongo query
         if (parsedArgs._sort) {
-            const __ret = this.handleSortQuery({ parsedArgs, columns, options });
+            const __ret = this.handleSortQuery({ parsedArgs, columns, options, resourceType });
             columns = __ret.columns;
             options = __ret.options;
         }
@@ -453,7 +621,70 @@ class SearchManager {
          * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
          */
         let cursorQuery;
-        if (useAggregationPipeline) {
+        /**
+         * Tracks whether the Atlas $search path actually served this request's cursor, separate
+         * from the caller-provided atlasSearchCompound param -- an Atlas failure falls back to
+         * the standard query path, at which point index-hint and totals-count handling below must
+         * follow the standard path too, even though the caller still passed a non-null compound.
+         * @type {{must: object[]}|null}
+         */
+        let effectiveAtlasSearchCompound = atlasSearchCompound;
+        if (atlasSearchCompound) {
+            try {
+                // Native sort requires defaultSortId to be mapped as a sortable (token-type)
+                // field in the Atlas index -- independently toggled from isAtlasSearchEnabled so
+                // the index change and this code path can roll out to each environment on their
+                // own schedules. See docs/adr/0003-atlas-search-for-patient-person-practitioner-lookup.md
+                // Decision Log #8. When enabled, sorting happens inside $search itself (by
+                // relevance score, then defaultSortId as a tie-break) instead of a separate
+                // $sort stage -- this is the first time relevance ordering reaches the caller,
+                // a deliberate behavior change beyond the pure performance optimization.
+                const useNativeSort = this.configManager.isAtlasSearchNativeSortEnabled;
+                const searchStage = useNativeSort
+                    ? {
+                        $search: {
+                            index: ATLAS_SEARCH_INDEX_NAME,
+                            compound: atlasSearchCompound,
+                            sort: { score: { $meta: 'searchScore' }, [defaultSortId]: 1 }
+                        }
+                    }
+                    : { $search: { index: ATLAS_SEARCH_INDEX_NAME, compound: atlasSearchCompound } };
+                const pipeline = [
+                    searchStage,
+                    { $match: query },
+                    ...(!useNativeSort && options.sort && Object.keys(options.sort).length ? [{ $sort: options.sort }] : []),
+                    ...(options.skip ? [{ $skip: options.skip }] : []),
+                    ...(options.limit ? [{ $limit: options.limit }] : []),
+                    ...(options.projection && Object.keys(options.projection).length ? [{ $project: options.projection }] : [])
+                ];
+                cursorQuery = await databaseQueryManager.findUsingAggregationAsync({
+                    query: pipeline,
+                    projection: options.projection || {},
+                    options: {},
+                    extraInfo: { ...extraInfo, matchQueryProvided: true }
+                });
+                cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
+                // Aggregation cursors execute lazily -- the server isn't actually contacted until
+                // the cursor is first iterated. Without this, an Atlas index/pipeline error (e.g.
+                // the index doesn't exist, or is in INITIAL_SYNC) would only surface later in the
+                // streaming/read loop, outside this try/catch, defeating the fallback below.
+                // hasNext() peeks/buffers internally -- it does not consume the cursor, so the
+                // normal read loop's first next() call afterward still returns the first document.
+                await cursorQuery.hasNext();
+            } catch (e) {
+                logWarn(
+                    'Atlas $search pipeline failed; falling back to the standard query path',
+                    { user, args: { resourceType, error: e.message } }
+                );
+                cursorQuery = await databaseQueryManager.findAsync({ query, options, extraInfo });
+                cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
+                // The page of results is now coming from the standard `query` alone, so any later
+                // _total=accurate handling must use the standard count path too -- otherwise it
+                // would compute the total via the Atlas $count pipeline (a possibly-smaller
+                // |atlas ∩ query| count) while describing a page that came from `query` alone.
+                effectiveAtlasSearchCompound = null;
+            }
+        } else if (useAggregationPipeline) {
             // Projection arguement to be used for aggregation query
             let projection = parsedArgs.projection || {};
             if (options.projection) {
@@ -465,11 +696,11 @@ class SearchManager {
                 options,
                 extraInfo
             });
+            cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
         } else {
             cursorQuery = await databaseQueryManager.findAsync({ query, options, extraInfo });
+            cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
         }
-
-        cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
 
         // set batch size if specified
         if (process.env.MONGO_BATCH_SIZE || parsedArgs._cursorBatchSize) {
@@ -485,7 +716,7 @@ class SearchManager {
 
         // find columns being queried and match them to an index
         // noinspection JSUnresolvedReference
-        if (isTrue(process.env.SET_INDEX_HINTS) || parsedArgs._setIndexHint) {
+        if (!effectiveAtlasSearchCompound && (isTrue(process.env.SET_INDEX_HINTS) || parsedArgs._setIndexHint)) {
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
                 { resourceType, base_version });
             const collectionName = resourceLocator.getCollectionName();
@@ -512,7 +743,8 @@ class SearchManager {
                     base_version,
                     query,
                     maxMongoTimeMS,
-                    extraInfo
+                    extraInfo,
+                    atlasSearchCompound: effectiveAtlasSearchCompound
                 });
         }
 
@@ -612,6 +844,28 @@ class SearchManager {
             }
             // always include _uuid for audit logging
             projection._uuid = 1;
+            // Only project _blobMeta sidecars when the corresponding `data` field is also
+            // projected — otherwise Base64DataManager.transformAsync(RETRIEVE) has nothing
+            // to rehydrate, so the sidecar would just be dead weight in the result.
+            const base64Entries = this.base64DataManager.resourcePaths[resourceType];
+            if (base64Entries) {
+                for (const entry of base64Entries) {
+                    const dataProjectionPath = entry.dataPath
+                        .replace(/^\//, '')
+                        .replace(/\/\[\]/g, '')
+                        .replace(/\//g, '.');
+                    // GraphQL/_elements projections request top-level fields (e.g. `content`),
+                    // so check the top-level segment of the dotted path.
+                    const topLevelKey = dataProjectionPath.split('.')[0];
+                    if (projection[dataProjectionPath] || projection[topLevelKey]) {
+                        const blobMetaProjectionPath = entry.blobMetaPath
+                            .replace(/^\//, '')
+                            .replace(/\/\[\]/g, '')
+                            .replace(/\//g, '.');
+                        projection[blobMetaProjectionPath] = 1;
+                    }
+                }
+            }
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
             projection._id = 0;
             if (
@@ -635,12 +889,13 @@ class SearchManager {
      * @param {string} base_version
      * @param {Object} query
      * @param {number} maxMongoTimeMS
+     * @param {{must: object[]}|null} [atlasSearchCompound]
      * @return {Promise<number>}
      */
     async handleGetTotalsAsync (
         {
             resourceType, base_version,
-            query, maxMongoTimeMS, extraInfo
+            query, maxMongoTimeMS, extraInfo, atlasSearchCompound
         }
     ) {
         try {
@@ -650,6 +905,36 @@ class SearchManager {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
             );
+            if (atlasSearchCompound) {
+                try {
+                    const pipeline = [
+                        { $search: { index: ATLAS_SEARCH_INDEX_NAME, compound: atlasSearchCompound } },
+                        { $match: query },
+                        { $count: 'total' }
+                    ];
+                    let countCursor = await databaseQueryManager.findUsingAggregationAsync({
+                        query: pipeline,
+                        projection: {},
+                        options: {},
+                        extraInfo: { ...extraInfo, matchQueryProvided: true }
+                    });
+                    countCursor = countCursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+                    if (!(await countCursor.hasNext())) {
+                        return 0;
+                    }
+                    const result = await countCursor.next();
+                    return result.total || 0;
+                } catch (e) {
+                    // The Atlas Search index is owned/maintained by a different service
+                    // (person-matching-service) and can disappear, be renamed, or go into
+                    // INITIAL_SYNC at any time. Degrade gracefully like the cursor path
+                    // (getCursorForQueryAsync) does, instead of 500ing on _total=accurate.
+                    logWarn(
+                        'Atlas $search count pipeline failed; falling back to the standard count path',
+                        { args: { resourceType, error: e.message } }
+                    );
+                }
+            }
             return await databaseQueryManager.exactDocumentCountAsync({
                 query,
                 options: { maxTimeMS: maxMongoTimeMS },
@@ -664,15 +949,34 @@ class SearchManager {
     }
 
     /**
+     * builds the set of Mongo field paths that are valid `_sort` targets for a resourceType --
+     * every field path already declared on that resource's search-parameter definitions (via
+     * SearchParametersManager.getAllowedFieldsForResource, which applies the same
+     * resourceType-then-Resource fallback rule as the rest of the search-parameter lookups, and
+     * covers legitimate nested dotted paths, e.g. meta.lastUpdated under the generic Resource
+     * bucket), plus the configured default sort tie-breaker field, which is a raw system field
+     * with no search-parameter definition of its own but is already used directly as a _sort
+     * value today.
+     * @param {string} resourceType
+     * @return {Set<string>}
+     */
+    getAllowedSortFields ({ resourceType }) {
+        const allowedFields = new Set(this.searchParametersManager.getAllowedFieldsForResource({ resourceType }).keys());
+        allowedFields.add(this.configManager.defaultSortId);
+        return allowedFields;
+    }
+
+    /**
      * handles sort: https://www.hl7.org/fhir/search.html#sort
      * @param {ParsedArgs} parsedArgs
      * @param {Set} columns
      * @param {Object} options
+     * @param {string} resourceType
      * @return {{columns:Set, options: Object}} columns selected and changed options
      */
     handleSortQuery (
         {
-            parsedArgs, columns, options
+            parsedArgs, columns, options, resourceType
         }
     ) {
         // GET [base]/Observation?_sort=status,-date,category
@@ -683,29 +987,99 @@ class SearchManager {
          */
         const sort_properties_list = parsedArgs.get('_sort').queryParameterValue.values;
         if (sort_properties_list && sort_properties_list.length > 0) {
+            const allowedSortFields = this.getAllowedSortFields({ resourceType });
             /**
              * @type {import('mongodb').Sort}
              */
             const sort = {};
-            /**
-             * @type {string}
-             */
             for (const sortProperty of sort_properties_list) {
-                if (sortProperty.startsWith('-')) {
-                    /**
-                     * @type {string}
-                     */
-                    const sortPropertyWithoutMinus = sortProperty.substring(1);
-                    sort[`${sortPropertyWithoutMinus}`] = -1;
-                    columns.add(sortPropertyWithoutMinus);
-                } else {
-                    sort[`${sortProperty}`] = 1;
-                    columns.add(sortProperty);
+                const descending = sortProperty.startsWith('-');
+                /**
+                 * @type {string}
+                 */
+                const sortCode = descending ? sortProperty.substring(1) : sortProperty;
+                const sortField = this.resolveSortField({ resourceType, sortCode, allowedSortFields });
+                if (!sortField || UNSUPPORTED_SORT_FIELDS.includes(sortField)) {
+                    logWarn(`Ignoring _sort value '${sortProperty}' for ${resourceType}: not a recognized sortable field`);
+                    continue;
                 }
+                sort[`${sortField}`] = descending ? -1 : 1;
+                columns.add(sortField);
             }
             options.sort = sort;
         }
         return { columns, options };
+    }
+
+    /**
+     * Resolves a single _sort code (the sort value with any leading '-' already stripped) to the
+     * Mongo field to sort by, trying each recognition rule in order until one matches:
+     *  1. a search-parameter code that resolves to a field, e.g. 'date' -> 'effectiveDateTime'
+     *  2. a field already declared verbatim on some search parameter for this resourceType
+     *  3. a `<field>.start`/`<field>.end` boundary on a field declared as a Period type -- lets
+     *     e.g. _sort=effectivePeriod.end work for any resource whose 'effectivePeriod' field is
+     *  4. a resourceType/sortCode pair on the temporary CUSTOM_SORT_FIELDS allowlist
+     * @param {string} resourceType
+     * @param {string} sortCode
+     * @param {Set<string>} allowedSortFields
+     * @return {string | null}
+     */
+    resolveSortField ({ resourceType, sortCode, allowedSortFields }) {
+        const resolvedField = this.searchParametersManager.getFieldNameForSearchParameter(resourceType, sortCode);
+        if (resolvedField) {
+            return resolvedField;
+        }
+        if (allowedSortFields.has(sortCode)) {
+            return sortCode;
+        }
+        const periodBoundaryField = this.resolvePeriodBoundarySortField({ resourceType, sortCode });
+        if (periodBoundaryField) {
+            return periodBoundaryField;
+        }
+        return this.resolveCustomSortField({ resourceType, sortCode });
+    }
+
+    /**
+     * Recognizes `<field>.start`/`<field>.end` as a valid _sort target for any FHIR Period-typed
+     * field (fieldType 'period') declared on this resourceType, without requiring a dedicated
+     * search parameter for that exact dotted path -- e.g. _sort=effectivePeriod.end works for any
+     * resource whose 'effectivePeriod' field is declared as type 'period' by some search
+     * parameter, not just resources with a hand-added `_xPeriodEnd` parameter.
+     * @param {string} resourceType
+     * @param {string} sortCode
+     * @return {string | null}
+     */
+    resolvePeriodBoundarySortField ({ resourceType, sortCode }) {
+        const lastDotIndex = sortCode.lastIndexOf('.');
+        if (lastDotIndex === -1) {
+            return null;
+        }
+        const boundary = sortCode.substring(lastDotIndex + 1);
+        if (boundary !== 'start' && boundary !== 'end') {
+            return null;
+        }
+        const baseField = sortCode.substring(0, lastDotIndex);
+        const fieldType = this.searchParametersManager.getFieldType({ resourceType, field: baseField });
+        return fieldType === 'period' ? sortCode : null;
+    }
+
+    /**
+     * TEMPORARY: recognizes a fixed set of resourceType/sortCode pairs (CUSTOM_SORT_FIELDS in
+     * constants.js) that are valid Mongo field paths but are not declared by any FHIR search
+     * parameter, so callers who relied on the pre-hardening dotted-path passthrough behavior keep
+     * sorting correctly. Remove once those callers migrate to real search parameters or sort
+     * client-side.
+     * @param {string} resourceType
+     * @param {string} sortCode
+     * @return {string | null}
+     */
+    resolveCustomSortField ({ resourceType, sortCode }) {
+        const customSortFields = CUSTOM_SORT_FIELDS[resourceType];
+        if (!customSortFields || !customSortFields.includes(sortCode)) {
+            return null;
+        }
+        logInfo(`Using temporary custom sort field '${sortCode}' for ${resourceType}: not a declared FHIR search parameter`);
+        return sortCode;
     }
 
     // noinspection FunctionWithInconsistentReturnsJS
@@ -744,6 +1118,7 @@ class SearchManager {
                 cursor,
                 signal: ac.signal,
                 databaseAttachmentManager: this.databaseAttachmentManager,
+                base64DataManager: this.base64DataManager,
                 highWaterMark,
                 configManager: this.configManager
             });
@@ -987,6 +1362,7 @@ class SearchManager {
             cursor,
             signal: ac.signal,
             databaseAttachmentManager: this.databaseAttachmentManager,
+            base64DataManager: this.base64DataManager,
             searchManager: this,
             highWaterMark,
             configManager: this.configManager,
@@ -1026,6 +1402,71 @@ class SearchManager {
             res.end();
         }
         return tracker.id;
+    }
+
+    async streamGroupMemberArrayAsync ({ requestId, cursor, groupResourceJson, res }) {
+        assertIsValid(requestId);
+
+        const highWaterMark = this.configManager.streamingHighWaterMark || 100;
+
+        const ac = new AbortController();
+
+        function onResponseClose () {
+            ac.abort();
+        }
+
+        res.on('close', onResponseClose);
+
+        const groupMemberWriter = new GroupMemberArrayWriter({
+            groupResourceJson,
+            signal: ac.signal,
+            highWaterMark,
+            configManager: this.configManager,
+            response: res
+        });
+
+        const responseWriter = new HttpResponseWriter({
+            requestId,
+            response: res,
+            contentType: groupMemberWriter.getContentType(),
+            signal: ac.signal,
+            highWaterMark,
+            configManager: this.configManager
+        });
+
+        const readableMongoStream = new MongoReadableStream({
+            cursor,
+            signal: ac.signal,
+            databaseAttachmentManager: this.databaseAttachmentManager,
+            base64DataManager: this.base64DataManager,
+            searchManager: this,
+            highWaterMark,
+            configManager: this.configManager,
+            response: res,
+            params: { query: cursor.getQuery() }
+        });
+
+        try {
+            await pipeline(readableMongoStream, groupMemberWriter, responseWriter);
+        } catch (e) {
+            // No captureException here, matching streamResourcesFromCursorAsync's identical
+            // res.on('close') abort pattern above -- a routine client disconnect mid-stream
+            // rejects this pipeline the same way, and isn't a genuine failure worth a Sentry
+            // exception.
+            logError(`SearchManager.streamGroupMemberArrayAsync: ${e.message} `, {
+                error: new RethrownError(
+                    {
+                        message: `Error streaming GroupMember rows for query: ${mongoQueryStringify(cursor.getQuery())}`,
+                        error: e
+                    })
+            });
+            ac.abort();
+        } finally {
+            res.removeListener('close', onResponseClose);
+        }
+        if (!res.writableEnded) {
+            res.end();
+        }
     }
 
     /**
@@ -1250,6 +1691,7 @@ class SearchManager {
                  */
 
                 startResource = await this.databaseAttachmentManager.transformAttachments(startResource, RETRIEVE);
+                startResource = await this.base64DataManager.transformAsync(startResource, BLOB_OP.RETRIEVE);
                 let current_entity = {
                     id: startResource._sourceId,
                     resource: startResource

@@ -21,7 +21,7 @@ const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOpera
 const { ConfigManager } = require('../utils/configManager');
 const { FhirRequestInfoBuilder } = require('../utils/fhirRequestInfoBuilder');
 const { logError } = require('../operations/common/logging');
-const { STATUS_CODES } = require('http');
+const { sanitizeOutcomeDesc } = require('../utils/auditLogger');
 
 class MyFHIRServer {
     /**
@@ -144,7 +144,6 @@ class MyFHIRServer {
         // Enable the body parser
         this.app.use(
             express.urlencoded({
-                extended: true,
                 limit: this.configManager.payloadLimit,
                 parameterLimit: 50000
             })
@@ -298,8 +297,9 @@ class MyFHIRServer {
                         // next();
                         res1.end();
                     } else {
-                        if (req.id && !res.headersSent) {
-                            res1.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
+                        const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
+                        if (req.id && !res.headersSent && userRequestId) {
+                            res1.setHeader('X-Request-ID', String(userRequestId));
                         }
                         // If there is an error and it is an OperationOutcome
                         if (err && err.resourceType === OperationOutcome.resourceType) {
@@ -377,8 +377,9 @@ class MyFHIRServer {
                     }
                 ]
             });
-            if (req.id && !res.headersSent) {
-                res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
+            const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
+            if (req.id && !res.headersSent && userRequestId) {
+                res.setHeader('X-Request-ID', String(userRequestId));
             }
             res.status(404).json(error);
         });
@@ -402,17 +403,9 @@ class MyFHIRServer {
             const resourceType = req.resourceType || (req.url.split('/')[2])?.split('?')[0];
             const requestInfo = FhirRequestInfoBuilder.fromRequest(req);
             let extraParams;
-            let errorMessage;
-            if (status === 403) {
-                errorMessage = err.message
-                    || err.issue?.[0]?.diagnostics
-                    || err.issue?.[0]?.details?.text
-                    || 'Forbidden';
-                if (req.authInfo?.scope) {
-                    extraParams = [{ type: 'scope', valueString: req.authInfo.scope }];
-                }
-            } else {
-                errorMessage = STATUS_CODES[`${status}`] || 'Internal Server Error';
+            const errorMessage = sanitizeOutcomeDesc({ error: err, statusCode: status });
+            if (status === 403 && req.authInfo?.scope) {
+                extraParams = [{ type: 'scope', valueString: req.authInfo.scope }];
             }
             auditLogger.logErrorAuditEntryAsync({
                 requestInfo,

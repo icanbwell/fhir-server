@@ -12,6 +12,7 @@ const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { ConfigManager } = require('../utils/configManager');
+const { Base64DataManager } = require('./base64DataManager');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
@@ -19,9 +20,7 @@ const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
 const BundleEntryWriteSerializer = require('../fhir/writeSerializers/4_0_0/backboneElements/bundleEntry.js');
 
 const { handleClickHouseGroupPreSave } = require('../utils/clickHouseGroupPreSave');
-const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
-const deepEqual = require('fast-deep-equal');
 const { CustomTracer } = require('../utils/customTracer');
 
 /**
@@ -39,6 +38,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {Base64DataManager} base64DataManager
      * @param {BulkWriteExecutor[]} bulkWriteExecutors
      * @param {CustomTracer} customTracer
      */
@@ -52,6 +52,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
         resourceMerger,
         configManager,
         postSaveProcessor,
+        base64DataManager,
         bulkWriteExecutors,
         customTracer
     }) {
@@ -111,6 +112,12 @@ class FastDatabaseBulkInserter extends EventEmitter {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {BulkWriteExecutor[]}
@@ -300,23 +307,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 });
             }
 
-            if (this.configManager.verifyResourceBeforeWrite && !isAccessLogOperation && resourceType !== 'AuditEvent') {
-                // This check needs to be removed after fast serializer write operation is verified
-                // JSON.stringify to convert date time object to string for comparision
-                let resourceCopy = JSON.parse(JSON.stringify(doc));
-
-                const serializedCopy = FhirResourceWriteSerializer.serialize({ obj: deepcopy(resourceCopy) });
-                if (!deepEqual(serializedCopy, resourceCopy)) {
-                    logError('Serialized doc differ from original while writing resource', {
-                        args: {
-                            source: 'DatabaseBulkInserter.getOperationForResourceAsync',
-                            resourceUuid: resourceCopy._uuid,
-                            resourceType: resourceCopy.resourceType
-                        }
-                    });
-                }
-            }
-
             return new BulkInsertUpdateEntry({
                 id: doc.id,
                 uuid: doc._uuid,
@@ -361,6 +351,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
             handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
+
             // check to see if we already have this insert and if so use replace
             /** @type {string|null} */
             const requestId = requestInfo.requestId;
@@ -451,6 +442,81 @@ class FastDatabaseBulkInserter extends EventEmitter {
     }
 
     /**
+     * Replaces a document with this one, skipping resourceMerger's diff-based merge
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {string} uuid
+     * @param {Object} doc
+     * @param {boolean} [upsert]
+     * @param {MergePatchEntry[]|null} [patches]
+     * @param {Object|null} [contextData]
+     * @returns {Promise<void>}
+     */
+    async replaceOneAsync({
+        requestInfo,
+        resourceType,
+        uuid,
+        doc,
+        upsert = false,
+        patches = null,
+        contextData = null
+    }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        const requestId = requestInfo.requestId;
+        try {
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
+            handleClickHouseGroupPreSave(doc, contextData, this.configManager);
+
+            assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
+
+
+            // see if there are any other pending updates for this doc
+            const pendingUpdates = this.getPendingUpdates({ requestId, resourceType })
+                .filter((a) => a.uuid === doc._uuid);
+            const previousUpdate = pendingUpdates.length > 0 ? pendingUpdates[pendingUpdates.length - 1] : null;
+            if (previousUpdate) {
+                // don't merge but replace
+                previousUpdate.resource = doc;
+                previousUpdate.operation.replaceOne.replacement = doc;
+                // replace without a filter so we replace regardless of version in db
+                previousUpdate.operation.replaceOne.filter = null;
+                return;
+            }
+
+            const pendingInserts = this.getPendingInsertsWithUniqueId({ requestId, resourceType })
+                .filter((a) => a.uuid === doc._uuid);
+            const previousInsert = pendingInserts.length > 0 ? pendingInserts[pendingInserts.length - 1] : null;
+            if (previousInsert) {
+                previousInsert.resource = doc;
+                previousInsert.operation.updateOne.update.$setOnInsert = doc;
+                return;
+            }
+
+            // no previous insert or update found
+            this.addOperationForResourceType({
+                requestId,
+                resourceType,
+                resource: doc,
+                operationType: 'replace',
+                operation: {
+                    replaceOne: {
+                        filter: { _uuid: uuid },
+                        upsert,
+                        replacement: doc
+                    }
+                },
+                patches,
+                contextData
+            });
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
+    }
+
+    /**
      * Inserts item into history collection
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
@@ -490,6 +556,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
             }
 
             FhirResourceWriteSerializer.serialize({obj: historyResource, SerializerClass: BundleEntryWriteSerializer});
+
+            await this.base64DataManager.transformHistoryAsync(historyResource, requestInfo);
 
             this.addHistoryOperationForResourceType({
                 requestId,
@@ -577,7 +645,11 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     doc = updatedResource;
                     previousUpdate.resource = doc;
                     previousUpdate.operation.replaceOne.replacement = doc;
-                    previousUpdate.patches = [...previousUpdate.patches, mergePatches];
+                    // previousUpdate.patches can be null (e.g. a prior replaceOneAsync/mergeOneAsync
+                    // call in this same batch that had no patches to record); guard against spreading
+                    // null. Also spread mergePatches (an array) instead of pushing it as a single
+                    // nested-array element, so history diagnostics stay a flat list of patch ops.
+                    previousUpdate.patches = [...(previousUpdate.patches || []), ...mergePatches];
                 } else {
                     // no change so ignore
                 }
@@ -625,7 +697,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     assertIsValid(
                         !lastVersionId || lastVersionId < parseInt(doc.meta.versionId),
                         `lastVersionId ${lastVersionId} is not less than doc versionId ${doc.meta.versionId}` +
-                            `, doc: ${JSON.stringify(doc)}`
+                            `, resource_uuid: ${doc._uuid}`
                     );
                     // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
                     this.addOperationForResourceType({

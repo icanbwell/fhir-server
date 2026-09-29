@@ -1,0 +1,270 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "active": true,
+        "actor": [
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "PractitionerRole/1720233406-SCH-MPCS"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "PractitionerRole/71848579-270b-5517-9e88-72936c2ed717"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "client"
+              }
+            ],
+            "reference": "PractitionerRole/1720233406-SCH-MPCS"
+          }
+        ],
+        "extension": [
+          {
+            "extension": [
+              {
+                "id": "forsystem",
+                "url": "forSystem",
+                "valueUri": "http://clienthealth.org/IDHP"
+              },
+              {
+                "id": "searchable",
+                "url": "searchCharacteristic",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "code": "hide-from-search",
+                      "id": "1",
+                      "system": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/ValueSet/search_characteristic"
+                    }
+                  ],
+                  "id": "1",
+                  "text": "Provider is not searchable"
+                }
+              },
+              {
+                "id": "bookable",
+                "url": "bookable",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "code": "not-bookable",
+                      "id": "1",
+                      "system": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/ValueSet/search_characteristic"
+                    },
+                    {
+                      "code": "bookable-phone",
+                      "id": "client-bookable-phone-value-coding",
+                      "system": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/ValueSet/search_characteristic"
+                    },
+                    {
+                      "code": "bookable-online",
+                      "id": "client-bookable-online-value-coding",
+                      "system": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/ValueSet/search_characteristic"
+                    }
+                  ],
+                  "id": "2",
+                  "text": "Provider is not online bookable"
+                }
+              }
+            ],
+            "id": "providersearch-IDHP",
+            "url": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search"
+          },
+          {
+            "extension": [
+              {
+                "url": "for_system",
+                "valueUri": "http://clienthealth.org/IDHP"
+              },
+              {
+                "id": "availability_score",
+                "url": "availability_score",
+                "valueDecimal": 1
+              }
+            ],
+            "id": "IDHP",
+            "url": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search"
+          }
+        ],
+        "id": "1720233406-SCH-MPCS",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1720233406-SCH-MPCS"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "71848579-270b-5517-9e88-72936c2ed717"
+          }
+        ],
+        "meta": {
+        "security": [
+          {
+            "code": "client",
+            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+            "system": "https://www.icanbwell.com/access"
+          },
+          {
+            "code": "client",
+            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+            "system": "https://www.icanbwell.com/owner"
+          },
+            {
+              "code": "asymmetrik",
+              "id": "b917b26d-9a7f-5575-a6f6-c574db124d1e",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "asymmetrik",
+              "id": "b70640e4-f038-5ecc-9c08-1575a9ea33c7",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+          {
+            "code": "client",
+            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+          }
+          ],
+          "source": "http://clienthealth.org/provider",
+          "versionId": "2"
+        },
+        "resourceType": "Schedule",
+        "serviceType": [
+          {
+            "coding": [
+              {
+                "id": "8b1a486e-3550-5b27-8fa4-45c0335a539d",
+                "code": "NEW",
+                "display": "NEW",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "id": "fc57d33d-8a19-54a7-9f47-700949978886",
+                "code": "RET",
+                "display": "RET",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "id": "e5b4d889-612f-5990-8b4e-e905233347a3",
+                "code": "REX",
+                "display": "REX",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "id": "bb9d7634-0c9e-587a-a9f3-c59348b15f12",
+                "code": "EV4",
+                "display": "EV4",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "id": "02b5eab5-a884-50e3-9a31-e528b0f94953",
+                "code": "ERN",
+                "display": "ERN",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "id": "71ae0613-8c80-542a-97d2-90a74ad667a7",
+                "code": "ERX",
+                "display": "ERX",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "id": "f53ca44a-3ccf-5e7c-9b40-ff363ba08cc7",
+                "code": "PHN",
+                "display": "PHN",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "id": "5bf60543-fb3b-5fec-ab3b-8a127920c7b9",
+                "code": "PHY",
+                "display": "PHY",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "id": "06b95594-a0af-5744-9590-627865a992e1",
+                "code": "MEW",
+                "display": "MEW",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "id": "b0dceb6c-121e-5a96-8a26-8f96fe034867",
+                "code": "PH2",
+                "display": "PH2",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "id": "5fbb26ed-bf4b-514d-b1fd-29735b27c746",
+                "code": "PrimaryCare",
+                "display": "PrimaryCare",
+                "system": "http://clienthealth.org/protocol"
+              }
+            ],
+            "text": "Client Protocol Departments"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

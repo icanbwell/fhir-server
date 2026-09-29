@@ -5,7 +5,13 @@
  * storage layer to improve maintainability and prevent errors.
  */
 
+// Common prefix for all ClickPipe Kafka topics produced by the FHIR server.
+// Topics follow the pattern `${CLICKPIPE_KAFKA_TOPIC_PREFIX}.resource.<ResourceType>_<version>`.
+const CLICKPIPE_KAFKA_TOPIC_PREFIX = 'fhir_server';
+
 module.exports = {
+    CLICKPIPE_KAFKA_TOPIC_PREFIX,
+
     // Table names
     TABLES: {
         GROUP_MEMBER_EVENTS: 'fhir.Group_4_0_0_MemberEvents',
@@ -36,7 +42,7 @@ module.exports = {
         MAX_PAGE_SIZE: 10000,
         MAX_BATCH_SIZE: 50000,
         // Maximum number of JSON Patch operations per PATCH request for Group.member
-        // Based on empirical testing (see src/tests/performance/patch_operations_limit.test.js)
+        // Based on empirical testing (see src/tests/integration/performance/patch_operations_limit.test.js)
         // Kubernetes uses 10K as precedent. Adjust based on actual performance measurements.
         MAX_PATCH_OPERATIONS: 10000
     },
@@ -45,6 +51,11 @@ module.exports = {
     QUERY_FORMAT: {
         JSON_EACH_ROW: 'JSONEachRow'
     },
+
+    // Rolling window (in days) covered by the $access-history operation.
+    // Shared between the ClickHouse aggregation query and the summary section
+    // of the Parameters response so the two never drift apart.
+    ACCESS_HISTORY_WINDOW_DAYS: 90,
 
     // DateTime conversion patterns
     DATETIME_CONVERSION: {
@@ -68,7 +79,14 @@ module.exports = {
     // live in the executor layer and are selected by DI container wiring.
     // MongoDB is not listed — it's the default when no ClickHouse schema exists.
     WRITE_STRATEGIES: {
-        SYNC_DIRECT: 'sync-direct'       // Synchronous write via clickHouseClientManager
+        SYNC_DIRECT: 'sync-direct',      // Synchronous write via clickHouseClientManager
+        KAFKA_CLICKPIPE: 'kafka-clickpipe' // Async produce to Kafka (MSK) -> ClickPipes -> ClickHouse
+    },
+
+    // Kafka topics for the KAFKA_CLICKPIPE write strategy (one topic per resource -> table).
+    // The ClickPipes source consumes these topics and inserts into the mapped table.
+    KAFKA_TOPICS: {
+        AUDIT_EVENT: `${CLICKPIPE_KAFKA_TOPIC_PREFIX}.resource.AuditEvent_4_0_0`
     },
 
     // Supported ClickHouse engine types for schema validation

@@ -7,6 +7,7 @@ const {
     CONSENT_CATEGORY,
     PERSON_PROXY_PREFIX
 } = require('../../constants');
+const { dateQueryBuilder } = require('../../utils/querybuilder.util');
 
 class CmsConsentManager {
     /**
@@ -24,9 +25,14 @@ class CmsConsentManager {
     /**
      * @description Fetches all the consent resources for provided proxy patients.
      * @param {string[]} proxyPatientRefs - proxy patient references
+     * @param {string[]} ownerTags - tenant owner tags the caller is authorized for. Empty/absent
+     *   means the caller has wildcard ('*') access, matching the convention used everywhere else
+     *   this array is threaded through (e.g. searchManager's securityTags) -- so no owner filter
+     *   is applied, rather than the filter matching nothing.
      * @returns Consent resource list
      */
-    async getConsentResources(proxyPatientRefs) {
+    async getConsentResources(proxyPatientRefs, ownerTags) {
+        const currDate = new Date().toISOString();
         const query = {
             $and: [
                 { status: 'active' },
@@ -39,9 +45,44 @@ class CmsConsentManager {
                         }
                     }
                 },
-                { 'provision.type': 'permit' }
+                { 'provision.type': 'permit' },
+                // Period start must not be in the future OR not exist
+                {
+                    $or: [
+                        { 'provision.period.start': { $exists: false } },
+                        {
+                            'provision.period.start': dateQueryBuilder({
+                                date: `le${currDate}`,
+                                type: 'dateTime'
+                            })
+                        }
+                    ]
+                },
+                // Period end must be in the future OR not exist
+                {
+                    $or: [
+                        { 'provision.period.end': { $exists: false } },
+                        {
+                            'provision.period.end': dateQueryBuilder({
+                                date: `ge${currDate}`,
+                                type: 'dateTime'
+                            })
+                        }
+                    ]
+                }
             ]
         };
+
+        if (ownerTags && ownerTags.length > 0) {
+            query.$and.push({
+                'meta.security': {
+                    $elemMatch: {
+                        system: 'https://www.icanbwell.com/owner',
+                        code: { $in: ownerTags }
+                    }
+                }
+            });
+        }
 
         const consentDataBaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Consent',
@@ -72,9 +113,10 @@ class CmsConsentManager {
     /**
      * For each patient that has consent, return the latest consent covering that patient.
      * @param {{[key: string]: string[]}} patientIdToImmediatePersonUuid patient id to immediate person map
+     * @param {string[]} ownerTags tenant owner tags the caller is authorized for
      * @returns {Promise<Map<string, { _uuid: string, versionId: string, updatedAt: number }>>} patient id -> latest consent
      */
-    async getPatientIdsWithConsent(patientIdToImmediatePersonUuid) {
+    async getPatientIdsWithConsent(patientIdToImmediatePersonUuid, ownerTags) {
         /**
          * Reverse map: person UUID -> Set of patient IDs
          * @type {Map<string, Set<string>>}
@@ -95,7 +137,7 @@ class CmsConsentManager {
         const proxyPatientRefs = Array.from(personToPatientIds.keys()).map(
             (personUuid) => `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${personUuid}`
         );
-        const consentResources = await this.getConsentResources(proxyPatientRefs);
+        const consentResources = await this.getConsentResources(proxyPatientRefs, ownerTags);
 
         /**
          * Patient UUID -> latest consent pointer for that patient.

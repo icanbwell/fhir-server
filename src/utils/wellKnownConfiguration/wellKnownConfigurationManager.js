@@ -113,7 +113,11 @@ class WellKnownConfigurationManager {
      * @returns {Promise<WellKnownConfigurationInfo|undefined>}
      */
     async getWellKnownConfigurationForIssuerAsync(issuer) {
-        if (WellKnownConfigurationManager.cache.size === 0 && this.urls.length > 0) {
+        // this.urls.length > 0 must be checked first: the static cache is only ever
+        // initialized (in the constructor) when this.urls.length > 0, so an instance
+        // with no configured URLs leaves WellKnownConfigurationManager.cache undefined --
+        // evaluating `.size` on it before this check throws.
+        if (this.urls.length > 0 && WellKnownConfigurationManager.cache.size === 0) {
             await this.fetchAllConfigurationsAsync();
         }
         for (const url of this.urls) {
@@ -129,13 +133,29 @@ class WellKnownConfigurationManager {
     }
 
     /**
+     * Resolves JWKS URLs from all configured well-known-configuration endpoints.
+     *
+     * INC-322: "zero well-known URLs configured" and "every configured well-known URL
+     * transiently failed to fetch" must be distinguishable to callers -- both would
+     * otherwise resolve to the same `[]`, and a caller falling back to this method
+     * (e.g. AuthService.getExternalJwksAsync) can't tell a total outage from "there's
+     * legitimately nothing here" without that distinction. So: no configured URLs at
+     * all still returns `[]` with no error (unchanged, real "not configured" case);
+     * but if every URL fails to fetch (a total outage), this throws a transient/503
+     * error instead of silently returning `[]`. Partial failures (at least one URL
+     * resolved) still return whatever JWKS URLs were successfully found.
      * @returns {Promise<string[]>}
      */
     async getJwksUrlsAsync() {
+        if (this.urls.length === 0) {
+            return [];
+        }
         /**
          * @type {string[]}
          */
         const jwksUrls = [];
+        let failureCount = 0;
+        let lastError;
         for (const url of this.urls) {
             try {
                 const config = await this.fetchConfigurationAsync(url);
@@ -143,8 +163,19 @@ class WellKnownConfigurationManager {
                     jwksUrls.push(config.jwks_uri);
                 }
             } catch (error) {
+                failureCount++;
+                lastError = error;
                 logError('Error fetching configuration', {url: url, error: error.message});
             }
+        }
+        if (jwksUrls.length === 0 && failureCount === this.urls.length) {
+            const error = new Error(
+                `Failed to resolve any JWKS URL from ${this.urls.length} configured well-known ` +
+                `endpoint(s): ${lastError ? lastError.message : 'unknown error'}`
+            );
+            error.isTransient = true;
+            error.statusCode = 503;
+            throw error;
         }
         return jwksUrls;
     }

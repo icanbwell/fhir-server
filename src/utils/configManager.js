@@ -1,6 +1,7 @@
 const {isTrue, isTrueWithFallback} = require('./isTrue');
 const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
+const { DEFAULT_ASSURANCE_MINIMUM_LEVEL } = require('./personLinkAssuranceLevel');
 
 const env = process.env;
 
@@ -62,6 +63,15 @@ class ConfigManager {
      */
     get environmentValue() {
         return env.ENVIRONMENT || '';
+    }
+
+    /**
+     * Whether K8sClient derives its namespace from environmentValue instead of
+     * reading it from the kube config context. Defaults to true.
+     * @return {boolean}
+     */
+    get useEnvironmentValueForK8sNamespace() {
+        return isTrueWithFallback(env.USE_ENVIRONMENT_VALUE_FOR_K8S_NAMESPACE, true);
     }
 
     /**
@@ -149,6 +159,41 @@ class ConfigManager {
                 break;
         }
         return indexList;
+    }
+
+    /**
+     * Whether Patient/Person/Practitioner search should route eligible queries through the
+     * MongoDB Atlas Search index (`hybrid-full-text-search`) instead of the regex-based path.
+     * Gated per resource type; default false everywhere. See
+     * docs/adr/0003-atlas-search-for-patient-person-practitioner-lookup.md
+     * @param {string} resourceType
+     * @returns {boolean}
+     */
+    isAtlasSearchEnabled(resourceType) {
+        switch (resourceType) {
+            case 'Patient':
+                return isTrue(env.ATLAS_SEARCH_ENABLED_PATIENT);
+            case 'Person':
+                return isTrue(env.ATLAS_SEARCH_ENABLED_PERSON);
+            case 'Practitioner':
+                return isTrue(env.ATLAS_SEARCH_ENABLED_PRACTITIONER);
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Whether the Atlas Search pipeline should sort natively inside the `$search` stage
+     * (by relevance score, then `defaultSortId` as a tie-break) instead of appending a
+     * separate `$sort` aggregation stage. Requires `defaultSortId` (`_uuid`) to be mapped as a
+     * sortable (`token`-type) field in the `hybrid-full-text-search` index -- independent of,
+     * and default-off separately from, `isAtlasSearchEnabled`, so the index change and this
+     * code path can roll out to each environment on their own schedules. See
+     * docs/adr/0003-atlas-search-for-patient-person-practitioner-lookup.md Decision Log #8.
+     * @returns {boolean}
+     */
+    get isAtlasSearchNativeSortEnabled() {
+        return isTrue(env.ATLAS_SEARCH_NATIVE_SORT_ENABLED);
     }
 
     /**
@@ -391,11 +436,10 @@ class ConfigManager {
      */
     get enabledGridFsResources() {
         const gridFsResources = env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
-        // restrict gridFs resources to DocumentReference when fast serializer in merge
+        // restrict gridFs resources to DocumentReference
         if (
-            this.enableMergeFastSerializer &&
-            (gridFsResources.length > 1 ||
-            (gridFsResources.length === 1 && gridFsResources[0] !== 'DocumentReference'))
+            gridFsResources.length > 1 ||
+            (gridFsResources.length === 1 && gridFsResources[0] !== 'DocumentReference')
         ) {
             throw new Error('Only DocumentReference is supported as a GridFS resource');
         }
@@ -416,22 +460,6 @@ class ConfigManager {
      */
     get getConsentConnectionTypesList() {
         return env.CONSENT_CONNECTION_TYPES_LIST ? env.CONSENT_CONNECTION_TYPES_LIST.split(',') : ['proa'];
-    }
-
-    /**
-     * Specifies whether to enable HIE/Treatment related data access.
-     * @return {boolean}
-     */
-    get enableHIETreatmentRelatedDataAccess() {
-        return isTrue(env.ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS);
-    }
-
-    /**
-     * Specifies allowed connection types for HIE/Treatment related data.
-     * @return {string[]}
-     */
-    get getHIETreatmentConnectionTypesList() {
-        return env.HIE_TREATMENT_CONNECTION_TYPES_LIST ? env.HIE_TREATMENT_CONNECTION_TYPES_LIST.split(',') : ['hipaa'];
     }
 
     /**
@@ -491,6 +519,18 @@ class ConfigManager {
     }
 
     /**
+     * number of reverse proxy hops to trust for express's 'trust proxy' setting
+     * @returns {number}
+     */
+    get trustProxyHopCount() {
+        const value = env.TRUST_PROXY_HOP_COUNT?.trim();
+        const hopCount = Number(value);
+        return value && Number.isInteger(hopCount) && hopCount >= 0
+            ? hopCount
+            : 20;
+    }
+
+    /**
      * whether to enable stats endpoint
      * @returns {boolean}
      */
@@ -536,6 +576,17 @@ class ConfigManager {
     }
 
     /**
+     * whether to enable the /mcp (Model Context Protocol) endpoint
+     * @returns {boolean}
+     */
+    get enableMcp() {
+        if (env.ENABLE_MCP === null || env.ENABLE_MCP === undefined) {
+            return false;
+        }
+        return isTrue(env.ENABLE_MCP);
+    }
+
+    /**
      * returns the batch size used in dataloader to fetch resources
      * @returns {number}
      */
@@ -552,6 +603,43 @@ class ConfigManager {
             return false;
         }
         return isTrue(env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ);
+    }
+
+    /**
+     * True only when every field needed to reach the fhir-notes-vector-store cluster and its
+     * Atlas Search index is present, AND the ENABLE_FULL_TEXT_SEARCH flag is explicitly on. The
+     * flag is separate from connection config so an operator can deploy the connection ahead of a
+     * rollout and flip this one flag to enable/disable, or use it as an emergency kill switch
+     * without touching connection env vars (mirrors enableAuditEventArchiveRead's pattern above).
+     * `_content` search and derived-text enrichment/reverse-lookup are all gated on this.
+     *
+     * `../config` is required lazily here (rather than at module scope) so that merely importing
+     * `ConfigManager` doesn't pull in `config.js`'s unconditional `require('@sentry/node')` for
+     * every consumer - that transitive weight surprised at least one existing unit test that
+     * mocks `fs` and broke when Sentry's own `require('node:fs')` picked up the same mock.
+     * @returns {boolean}
+     */
+    get fhirNotesFullTextSearchConfigured() {
+        if (!isTrue(env.ENABLE_FULL_TEXT_SEARCH)) {
+            return false;
+        }
+        const { fhirNotesMongoConfig } = require('../config');
+        return Boolean(
+            fhirNotesMongoConfig.connection &&
+            fhirNotesMongoConfig.db_name &&
+            fhirNotesMongoConfig.collection_name &&
+            fhirNotesMongoConfig.index_name
+        );
+    }
+
+    get fhirNotesMongoCollectionName() {
+        const { fhirNotesMongoConfig } = require('../config');
+        return fhirNotesMongoConfig.collection_name;
+    }
+
+    get fhirNotesTextSearchIndexName() {
+        const { fhirNotesMongoConfig } = require('../config');
+        return fhirNotesMongoConfig.index_name;
     }
 
     /**
@@ -597,6 +685,19 @@ class ConfigManager {
     }
 
     /**
+     * maximum serialized size (in bytes) allowed for a single inbound AuditEvent.
+     * Oversized AuditEvents are rejected to bound document size and avoid
+     * write-path memory pressure. Defaults to 16 MiB when
+     * AUDIT_EVENT_MAX_SIZE_BYTES is not set.
+     * @returns {number}
+     */
+    get auditEventMaxSizeBytes() {
+        return env.AUDIT_EVENT_MAX_SIZE_BYTES
+            ? parseInt(env.AUDIT_EVENT_MAX_SIZE_BYTES)
+            : 16 * 1024 * 1024;
+    }
+
+    /**
      * returns the UUID of the organization used for AuditEvent.source.observer
      * @returns {string}
      */
@@ -623,35 +724,11 @@ class ConfigManager {
     }
 
     /**
-     * whether to enable fast serializer in merge operation
-     * @returns {boolean}
-     */
-    get enableMergeFastSerializer() {
-        return isTrue(env.ENABLE_MERGE_FAST_SERIALIZER);
-    }
-
-    /**
-     * whether to verify resource before write in merge operation
-     * @returns {boolean}
-     */
-    get verifyResourceBeforeWrite() {
-        return this.enableMergeFastSerializer && isTrueWithFallback(env.VERIFY_RESOURCE_BEFORE_WRITE, true);
-    }
-
-    /**
-     * whether to enable the new validations in merge operation
-     * @returns {boolean}
-     */
-    get updateMergeValidations() {
-        return this.enableMergeFastSerializer && isTrueWithFallback(env.UPDATE_MERGE_VALIDATIONS, true);
-    }
-
-    /**
-     * whether to enable logging of validation errors in updated merge operation
+     * whether to enable logging of validation errors in merge operation
      * @returns {boolean}
      */
     get logUpdatedMergeValidations() {
-        return this.updateMergeValidations && isTrueWithFallback(env.LOG_UPDATED_MERGE_VALIDATION_ERRORS, true);
+        return isTrueWithFallback(env.LOG_UPDATED_MERGE_VALIDATION_ERRORS, true);
     }
 
     /**
@@ -857,11 +934,60 @@ class ConfigManager {
     }
 
     /**
+     * Whether to offload `Binary.data` (and other base64 fields listed in
+     * src/dataLayer/base64DataResources.json) above the threshold to cloud storage on write.
+     * @returns {boolean}
+     */
+    get enableBase64FieldCloudStorage() {
+        return isTrue(env.BASE64_FIELD_CLOUD_STORAGE_ENABLED);
+    }
+
+    /**
+     * Cloud storage client implementation for live base64 payloads
+     * (e.g. CLOUD_STORAGE_CLIENTS.S3_CLIENT).
+     * The history-side client reuses the existing `historyResourceCloudStorageClient`.
+     * @returns {string|undefined}
+     */
+    get base64FieldCloudStorageClient() {
+        return env.BASE64_FIELD_CLOUD_STORAGE_CLIENT;
+    }
+
+    /**
+     * Bucket holding current (live) FHIR resource payloads externalized to cloud storage.
+     * Keyed by `{ResourceType}_4_0_0/{_uuid}[/<nested-path-with-indices>]`.
+     * The parallel `historyResourceBucketName` holds historical versions; the
+     * `Binary_4_0_0/...` key prefix used here does not collide with the
+     * `Binary_4_0_0_History/...` prefix used by the whole-history migration script.
+     * @returns {string|undefined}
+     */
+    get resourceBucketName() {
+        return env.RESOURCE_BUCKET_NAME;
+    }
+
+    /**
+     * Size threshold (in KB) above which a base64 payload is offloaded to cloud storage.
+     * Sized from the base64 string's byte length — that's the actual MongoDB cost.
+     * @returns {number}
+     */
+    get base64FieldDataThresholdKB() {
+        return env.BASE64_FIELD_DATA_THRESHOLD_KB
+            ? parseInt(env.BASE64_FIELD_DATA_THRESHOLD_KB)
+            : 64;
+    }
+
+    /**
      * Limit for number of History resources to Cloud storage in a cron job
      * @returns {number}
      */
     get historyResourceCronJobMigrationLimit() {
         return env.HISTORY_CRON_JOB_MIGRATION_LIMIT ? parseInt(env.HISTORY_CRON_JOB_MIGRATION_LIMIT) : 100000;
+    }
+
+    get enableHistoryToCloudStorageMigration() {
+        if (env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION === null || env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION === undefined) {
+            return true;
+        }
+        return isTrue(env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION);
     }
 
     /**
@@ -977,6 +1103,24 @@ class ConfigManager {
      */
     get authCidCheckClientIds() {
         return env.AUTH_CID_CHECK_CLIENT_IDS ? env.AUTH_CID_CHECK_CLIENT_IDS.split(',') : [];
+    }
+
+    /**
+     * Allowlisted audience (aud) claim values parsed from AUTH_AUDIENCE_WHITELIST env var.
+     * When empty, the audience claim is not checked (backwards-compatible default).
+     * @returns {string[]}
+     */
+    get authAudienceWhitelist() {
+        return this._parseCommaSeparatedList(env.AUTH_AUDIENCE_WHITELIST, []);
+    }
+
+    /**
+     * Denylisted audience (aud) claim values parsed from AUTH_AUDIENCE_BLACKLIST env var.
+     * When empty, no audience is denied (backwards-compatible default).
+     * @returns {string[]}
+     */
+    get authAudienceBlacklist() {
+        return this._parseCommaSeparatedList(env.AUTH_AUDIENCE_BLACKLIST, []);
     }
 
     /**
@@ -1172,6 +1316,27 @@ class ConfigManager {
     }
 
     /**
+     * Whether AuditEvent writes are routed through the KAFKA_CLICKPIPE strategy
+     * (async produce to Kafka -> ClickPipes -> ClickHouse) instead of a
+     * synchronous direct ClickHouse insert.
+     *
+     * Default false. AuditEvent is only routed to the Kafka path when it also has
+     * a ClickHouse schema registered (see clickHouseOnlyResources) and the V2 Kafka
+     * cluster is enabled (ENABLE_EVENTS_KAFKA_V2, i.e. configManager.kafkaV2EnableEvents)
+     * — this is the separate MSK cluster that ClickPipes reads from, NOT the legacy
+     * ENABLE_EVENTS_KAFKA flag. A disabled V2 client (DummyKafkaClientV2) would silently
+     * drop audits. Rollback = set this flag false (reverts to SYNC_DIRECT).
+     *
+     * Configuration:
+     * ENABLE_AUDIT_EVENT_CLICKPIPE=1
+     *
+     * @return {boolean}
+     */
+    get enableAuditEventClickPipe() {
+        return isTrue(env.ENABLE_AUDIT_EVENT_CLICKPIPE);
+    }
+
+    /**
      * Maximum number of members allowed in Group.member array for CREATE/PUT operations
      * Default: 50000 (can be overridden in production based on infrastructure)
      * PATCH operations bypass this limit (they append events, not full arrays)
@@ -1189,6 +1354,20 @@ class ConfigManager {
      */
     get groupPatchOperationsLimit() {
         return parseInt(env.GROUP_PATCH_OPERATIONS_LIMIT || '10000', 10);
+    }
+
+    /**
+     * Enables the MongoDB-native large-Group member storage: the GroupMember_4_0_0 /
+     * GroupMember_4_0_0_History collections and the extended-regime branch of $member-add /
+     * $member-remove. Default: false -- when disabled, $member-add / $member-remove reject any
+     * Group already tagged groupSize|extended rather than silently falling back to the
+     * embedded regime (which would risk writing member[] inline on a Group whose roster already
+     * lives in GroupMember_4_0_0). Independent of enableClickHouse -- a Group is tracked by at
+     * most one of the two external-storage mechanisms, never both.
+     * @returns {boolean}
+     */
+    get enableExtendedGroup() {
+        return isTrue(env.ENABLE_EXTENDED_GROUP);
     }
 
     /**
@@ -1247,6 +1426,60 @@ class ConfigManager {
         return isTrue(env.ENABLE_DELEGATED_ACCESS_DETECTION);
     }
 
+    /**
+     * Kill switch for SMART v2 fine-grained (`.cruds`) scope suffix grammar. Default off: a
+     * scope token with a v2 suffix (e.g. `user/Patient.rs`, `access/tenantA.c`) parses as
+     * invalid until this is enabled, exactly matching this server's original behavior of
+     * only recognizing the legacy `read`/`write`/`*` suffixes. Recognizing v2 grammar is a
+     * one-way loosening of what scope strings are honored (see docs/superpowers/specs/
+     * 2026-09-13-smart-v2-scope-granularity-design.md, "Open items") -- turn on only once every
+     * phase of that design has shipped and live IdP client scope configurations have been
+     * audited for strings that would newly parse as valid v2 grammar.
+     */
+    get enableSmartV2CrudsScopes() {
+        return isTrue(env.ENABLE_SMART_V2_CRUDS_SCOPES);
+    }
+
+    /**
+     * Minimum FHIR R4 `identity-assuranceLevel` (`level1`-`level4`) a `Person.link` must carry
+     * to be considered trustworthy enough to follow during Person.link traversal
+     * (personToPatientIdsExpander.js). Used by both the dry-run logging
+     * (logPersonLinkAssuranceBelowMinimum) and the enforcement gate
+     * (enforcePersonLinkAssuranceMinimum) below.
+     * @return {string}
+     */
+    get personLinkAssuranceMinimumLevel() {
+        return env.PERSON_LINK_ASSURANCE_MINIMUM_LEVEL || DEFAULT_ASSURANCE_MINIMUM_LEVEL;
+    }
+
+    /**
+     * When true, logs a warning every time a `Person.link` below
+     * personLinkAssuranceMinimumLevel is followed during traversal, without changing traversal
+     * behavior. Meant to be observed in a real environment (to see whether real Person.link data
+     * is populated meaningfully enough) before enforcePersonLinkAssuranceMinimum is ever
+     * considered. Defaults to false.
+     * @return {boolean}
+     */
+    get logPersonLinkAssuranceBelowMinimum() {
+        return isTrue(env.LOG_PERSON_LINK_ASSURANCE_BELOW_MINIMUM);
+    }
+
+    /**
+     * When true, excludes a `Person.link` below personLinkAssuranceMinimumLevel from being
+     * followed during traversal (personToPatientIdsExpander.js), instead of merely logging it.
+     *
+     * Do NOT enable this in any real environment without first running with
+     * logPersonLinkAssuranceBelowMinimum=true there long enough to confirm real Person.link data
+     * actually clears the configured minimum -- enabling this blind risks silently dropping
+     * legitimate links (e.g. the intentional cross-tenant Main-Person-to-Client-Person linking
+     * this data model relies on) if real assurance data turns out to be sparse or absent.
+     * Defaults to false, in code, regardless of environment configuration.
+     * @return {boolean}
+     */
+    get enforcePersonLinkAssuranceMinimum() {
+        return isTrue(env.ENFORCE_PERSON_LINK_ASSURANCE_MINIMUM);
+    }
+
     get dataSharingAccessCodes() {
         return this._parseCommaSeparatedList(
             env.DATA_SHARING_ACCESS_CONSENT_CODES,
@@ -1269,6 +1502,181 @@ class ConfigManager {
     get bulkImportMaxFilesPerRequest() {
         const parsed = parseInt(env.BULK_IMPORT_MAX_FILES_PER_REQUEST, 10);
         return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+    }
+
+    /**
+     * Kafka topic for bulk import byte-range messages
+     * @return {string}
+     */
+    get kafkaBulkImportEventTopic() {
+        return env.KAFKA_BULK_IMPORT_EVENT_TOPIC || 'fhir_server.bulk_import.events';
+    }
+
+    /**
+     * Kafka consumer group ID for bulk import consumers
+     * @return {string}
+     */
+    get bulkImportConsumerGroupId() {
+        return env.BULK_IMPORT_CONSUMER_GROUP_ID || 'fhir-bulk-import-consumer';
+    }
+
+    /**
+     * Byte-range marker size in MB for bulk import file splitting
+     * @return {number}
+     */
+    get bulkImportRangeSizeMb() {
+        const parsed = parseInt(env.BULK_IMPORT_RANGE_SIZE_MB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+    }
+
+    /**
+     * Minimum file size in MB for bulk import
+     * @return {number}
+     */
+    get bulkImportMinFileSizeMb() {
+        const parsed = parseInt(env.BULK_IMPORT_MIN_FILE_SIZE_MB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 50;
+    }
+
+    /**
+     * Maximum file size in GB for bulk import
+     * @return {number}
+     */
+    get bulkImportMaxFileSizeGb() {
+        const parsed = parseInt(env.BULK_IMPORT_MAX_FILE_SIZE_GB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 5;
+    }
+
+    /**
+     * Maximum line size in MB for bulk import NDJSON files
+     * @return {number}
+     */
+    get bulkImportMaxLineSizeMb() {
+        const parsed = parseInt(env.BULK_IMPORT_MAX_LINE_SIZE_MB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 16;
+    }
+
+    /**
+     * Number of resources to buffer before flushing a Mongo bulk write during bulk import
+     * @return {number}
+     */
+    get bulkImportBatchSize() {
+        const parsed = parseInt(env.BULK_IMPORT_BATCH_SIZE, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+    }
+
+    /**
+     * Delay in milliseconds between bulk import batch flushes, to pace MongoDB write load
+     * @return {number}
+     */
+    get bulkImportBatchDelayMs() {
+        const parsed = parseInt(env.BULK_IMPORT_BATCH_DELAY_MS, 10);
+        return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+    }
+
+    /**
+     * Kafka topic for bulk import task-created notifications
+     * @return {string}
+     */
+    get kafkaBulkImportTaskCreatedTopic() {
+        return env.KAFKA_BULK_IMPORT_TASK_CREATED_TOPIC || 'fhir_server.bulk_import.requested';
+    }
+
+    /**
+     * Kafka consumer group ID for the import orchestrator
+     * @return {string}
+     */
+    get bulkImportOrchestratorGroupId() {
+        return env.BULK_IMPORT_ORCHESTRATOR_GROUP_ID || 'fhir-bulk-import-orchestrator';
+    }
+
+    get bulkImportRangeProgressGroupId() {
+        return env.BULK_IMPORT_RANGE_PROGRESS_GROUP_ID || 'fhir-bulk-import-range-progress';
+    }
+
+    /**
+     * Kafka topic for worker->orchestrator range-progress reports (ImportRangeStarted/
+     * ImportRangeCompleted/ImportRangeFailed). The orchestrator is the only process that ever
+     * writes to the Task resource once it exists -- workers only emit onto this topic, never
+     * touch the Task themselves -- so a redelivered or reordered report is always resolved by
+     * a single consumer instead of racing another writer.
+     * @return {string}
+     */
+    get kafkaBulkImportRangeProgressTopic() {
+        return env.KAFKA_BULK_IMPORT_RANGE_PROGRESS_TOPIC || 'fhir_server.bulk_import.processing.events';
+    }
+
+    // ── Kafka v2 (new MSK cluster) ──────────────────────────────────────────
+
+    /**
+     * @return {boolean}
+     */
+    get kafkaV2EnableEvents() {
+        return isTrue(env.ENABLE_EVENTS_KAFKA_V2);
+    }
+
+    /**
+     * @return {string}
+     */
+    get kafkaV2ClientId() {
+        return env.KAFKA_V2_CLIENT_ID || 'fhir-server';
+    }
+
+    /**
+     * @return {string[]}
+     */
+    get kafkaV2Brokers() {
+        return env.KAFKA_V2_URLS ? env.KAFKA_V2_URLS.split(',') : [];
+    }
+
+    /**
+     * @return {boolean}
+     */
+    get kafkaV2UseSsl() {
+        return isTrue(env.KAFKA_V2_SSL);
+    }
+
+    /**
+     * @return {boolean}
+     */
+    get kafkaV2UseSasl() {
+        return isTrue(env.KAFKA_V2_SASL);
+    }
+
+    /**
+     * Auth type: 'iam' for MSK IAM, 'scram' for SASL/SCRAM, or empty for no auth
+     * @return {string}
+     */
+    get kafkaV2AuthType() {
+        return env.KAFKA_V2_AUTH_TYPE || '';
+    }
+
+    /**
+     * @return {string}
+     */
+    get kafkaV2AuthMechanism() {
+        return env.KAFKA_V2_SASL_MECHANISM || 'scram-sha-512';
+    }
+
+    /**
+     * @return {string|null}
+     */
+    get kafkaV2UserName() {
+        return env.KAFKA_V2_SASL_USERNAME || null;
+    }
+
+    /**
+     * @return {string|null}
+     */
+    get kafkaV2Password() {
+        return env.KAFKA_V2_SASL_PASSWORD || null;
+    }
+
+    /**
+     * @return {string}
+     */
+    get kafkaV2AwsRegion() {
+        return env.KAFKA_V2_AWS_REGION || 'us-east-1';
     }
 
     /**

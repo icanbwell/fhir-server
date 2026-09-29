@@ -75,10 +75,11 @@ class CachedFhirResponseStreamer {
 
     /**
      * Stream from Redis cache
+     * @param {Array} [streamedResources] - accumulator pushed into by reference (by
+     *  processEntriesBatch) so it survives a throw from any batch after the first
      * @returns {Promise<object[]>}
      */
-    async streamFromCacheAsync() {
-        let streamedResources = [];
+    async streamFromCacheAsync({ streamedResources = [] } = {}) {
         let { entries, hasMore, lastId } = await this.redisStreamManager.readBundleEntriesFromStream(this.cacheKey, '0-0');
         this.responseStreamer.response.setHeader('X-Cache', 'Hit');
         await this.processEntriesBatch({ entries, streamedResources });

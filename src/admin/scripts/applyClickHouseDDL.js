@@ -16,20 +16,25 @@ const { AdminLogger } = require('../adminLogger');
  *   CLICKHOUSE_PASSWORD (default: empty)
  *
  * Options:
- *   --dir <path>    Directory of .sql files to apply in lexical order (default: clickhouse-init)
- *   --file <path>   Apply a single .sql file (overrides --dir)
- *   --dry-run       Log statements without executing
+ *   --dir <path>              Directory of .sql files to apply in lexical order (default: clickhouse-init)
+ *   --file <path>             Apply a single .sql file (overrides --dir)
+ *   --dry-run                 Log statements without executing
+ *   --skip-database-creation  Skip `CREATE DATABASE` statements. Use in environments (e.g.
+ *                             dev/staging) where the configured ClickHouse user lacks
+ *                             CREATE DATABASE privileges and the database already exists.
  *
  * Examples:
  *   ENABLE_CLICKHOUSE=1 CLICKHOUSE_HOST=http://localhost CLICKHOUSE_PORT=8123 \
  *     node src/admin/scripts/applyClickHouseDDL.js --dir clickhouse-init
  *   node src/admin/scripts/applyClickHouseDDL.js --file clickhouse-init/02-audit-event.sql --dry-run
+ *   node src/admin/scripts/applyClickHouseDDL.js --dir clickhouse-init --skip-database-creation
  */
 async function main() {
     const args = CommandLineParser.parseCommandLine();
     const dir = args.dir || 'clickhouse-init';
     const file = args.file;
     const dryRun = Boolean(args.dryRun);
+    const skipDatabaseCreation = Boolean(args.skipDatabaseCreation);
 
     const container = createContainer();
 
@@ -42,7 +47,8 @@ async function main() {
                 clickHouseClientManager: c.clickHouseClientManager,
                 dir,
                 file,
-                dryRun
+                dryRun,
+                skipDatabaseCreation
             })
     );
 

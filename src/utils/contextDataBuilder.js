@@ -27,7 +27,7 @@ function buildContextDataForHybridStorage(resourceType, resource, requestInfo = 
         const useExternalStorage = isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER]);
 
         return {
-            groupMembers: resource.member || [],
+            groupMembers: resource.member,  // Preserve undefined to distinguish missing vs empty
             resourceType,
             resourceId: resource.id,
             useExternalStorage,

@@ -79,9 +79,15 @@ const BaseSerializer = require('../customSerializers/baseSerializer.js');
 /** @type {import('{{ path }}')} */
 let {{ type }}Serializer;
 {% endfor %}
+{# Lazy imports for complex extra properties (e.g. _blobMeta) #}
+{% set complex_extras = extra_properties | selectattr('is_complex') | list %}
+{% for property in complex_extras %}
+/** @type {import('{{ property.import_path }}')} */
+let {{ property.cleaned_type }}Serializer;
+{% endfor %}
 
 class {{ fhir_entity.cleaned_name }}Serializer extends BaseSerializer {
-    {% if imported_types %}
+    {% if imported_types or complex_extras %}
     // Private cache for lazy-loaded property configs
     #configCache = {};
 
@@ -94,7 +100,22 @@ class {{ fhir_entity.cleaned_name }}Serializer extends BaseSerializer {
     allPropertyToSerializerMap = {
 {{ render_property_map(fhir_entity, imported_types) -}}
     {% for property in extra_properties %}
+        {% if property.is_complex %}
+        '{{ property.name }}': () => {
+            if (!this.#configCache['{{ property.name }}']) {
+                if (!{{ property.cleaned_type }}Serializer) {
+                    {{ property.cleaned_type }}Serializer = require('{{ property.import_path }}');
+                }
+                this.#configCache['{{ property.name }}'] = {
+                    serializeFunction: 'serialize',
+                    serializerClass: {{ property.cleaned_type }}Serializer
+                };
+            }
+            return this.#configCache['{{ property.name }}'];
+        },
+        {% else %}
         '{{ property.name }}': {{ property.type }},
+        {% endif %}
         {% endfor %}
     {{- "    };" }}
     {% else %}

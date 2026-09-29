@@ -6,6 +6,7 @@
  **/
 const { assertIsValid } = require('../../utils/assertType');
 const { removeNull } = require('../../utils/nullRemover');
+const { splitUnescaped } = require('../../utils/searchValueEscaping');
 
 class QueryParameterValue {
     /**
@@ -27,7 +28,7 @@ class QueryParameterValue {
          * @type {QueryParameterType}
          */
         this.operator = operator;
-        if (typeof value === 'string' && value.includes(',')) {
+        if (typeof value === 'string' && splitUnescaped(value, ',').length > 1) {
             this.operator = '$or';
         }
         assertIsValid(['$or', '$and'].includes(operator), `operator ${operator} is not in $or, $and`);
@@ -49,7 +50,7 @@ class QueryParameterValue {
         if (
             typeof queryParameterValue === 'string'
         ) {
-            const parts = queryParameterValue.split(',');
+            const parts = splitUnescaped(queryParameterValue, ',');
             if (parts.length > 1) {
                 return parts;
             }

@@ -1,7 +1,7 @@
 const { isUuid, generateUUIDv5 } = require('./uid.util');
 
 /**
- * Enriches member entity references with _uuid and _sourceId.
+ * Enriches member entity references with _uuid, _sourceId, and _sourceAssigningAuthority.
  * Replicates referenceGlobalIdHandler.updateReferenceAsync logic for flows
  * that bypass the normal pre-save pipeline (PATCH, diff-computed removals).
  *
@@ -15,7 +15,7 @@ function enrichMemberReferences(members, resourceSourceAssigningAuthority) {
         }
 
         // Skip if already enriched
-        if (member.entity._uuid && member.entity._sourceId) {
+        if (member.entity._uuid && member.entity._sourceId && member.entity._sourceAssigningAuthority) {
             continue;
         }
 
@@ -43,6 +43,7 @@ function enrichMemberReferences(members, resourceSourceAssigningAuthority) {
         const resourcePrefix = referenceResourceType ? `${referenceResourceType}/` : '';
         member.entity._uuid = resourcePrefix + uuid;
         member.entity._sourceId = resourcePrefix + referenceId;
+        member.entity._sourceAssigningAuthority = sourceAssigningAuthority;
     }
 }
 

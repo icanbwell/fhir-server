@@ -198,6 +198,12 @@ class GroupMemberEventBuilder {
         const ownerTags = SecurityTagExtractor.extractOwnerTags(groupResource);
 
         return members.map(member => {
+            if (!member || !member.entity) {
+                throw new Error(
+                    `Group member missing required 'entity' field for Group ${groupId}: ` +
+                        `${JSON.stringify(member)}`
+                );
+            }
             const entityReference = member.entity.reference;
 
             return this._createEventObject({

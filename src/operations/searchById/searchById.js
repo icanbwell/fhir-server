@@ -14,9 +14,12 @@ const { getFirstResourceOrNull } = require('../../utils/list.util');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, BLOB_OP } = require('../../constants');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
+const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 
 class SearchByIdOperation {
     /**
@@ -30,6 +33,7 @@ class SearchByIdOperation {
      * @param {EnrichmentManager} enrichmentManager
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor (
@@ -43,7 +47,9 @@ class SearchByIdOperation {
             enrichmentManager,
             configManager,
             databaseAttachmentManager,
-            postRequestProcessor
+            base64DataManager,
+            postRequestProcessor,
+            mongoGroupMemberRepository
         }
     ) {
         /**
@@ -96,10 +102,19 @@ class SearchByIdOperation {
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
+
+        /**
          * @type {PostRequestProcessor}
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
     }
 
     /**
@@ -111,7 +126,7 @@ class SearchByIdOperation {
      * @param {searchByIdAsyncParams} searchByIdAsyncParams
      * @return {Resource}
      */
-    async searchByIdAsync ({ requestInfo, parsedArgs, resourceType }) {
+    async searchByIdAsync ({ requestInfo, parsedArgs, resourceType, res }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -231,6 +246,10 @@ class SearchByIdOperation {
 
             if (resource) {
                 const resourceUuid = resource._uuid;
+
+                const isExtendedGroup = resourceType === 'Group' && resource[MONGO_GROUP_EXTENDED_FIELD] === true &&
+                    this.configManager.enableExtendedGroup;
+
                 // remove any nulls or empty objects or arrays
                 resource = removeNull(resource);
 
@@ -272,7 +291,23 @@ class SearchByIdOperation {
                 });
 
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+                resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
                 FhirResourceSerializer.serializeByResourceType(resource, resourceType);
+
+                if (isExtendedGroup && res) {
+                    const memberCursor = await this.mongoGroupMemberRepository.getMemberCursorAsync({
+                        base_version,
+                        groupUuid: resourceUuid
+                    });
+                    await this.searchManager.streamGroupMemberArrayAsync({
+                        requestId,
+                        cursor: memberCursor,
+                        groupResourceJson: resource,
+                        res
+                    });
+                    return null;
+                }
+
                 return resource;
             } else {
                 throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);

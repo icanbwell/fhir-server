@@ -12,6 +12,10 @@ function convertGraphQLParameters (queryParameterValue) {
         !Array.isArray(queryParameterValue) &&
         queryParameterValue.searchType
     ) {
+        // keep a reference to the original input object: some branches below (e.g. notEquals
+        // handling for string/reference/quantity) reassign the local `queryParameterValue`
+        // variable to `[]`, which would otherwise hide the caller-supplied `missing` property
+        const originalQueryParameterValue = queryParameterValue;
         let useNotEquals = false;
         switch (queryParameterValue.searchType) {
             case 'string':
@@ -219,9 +223,9 @@ function convertGraphQLParameters (queryParameterValue) {
                 orQueryParameterValue = queryParameterValue;
                 break;
         }
-        if (Object.hasOwn(queryParameterValue, 'missing') && orQueryParameterValue === null) {
+        if (Object.hasOwn(originalQueryParameterValue, 'missing') && orQueryParameterValue === null) {
             modifiers.push('missing');
-            orQueryParameterValue = queryParameterValue.missing;
+            orQueryParameterValue = originalQueryParameterValue.missing;
         }
     } else {
         orQueryParameterValue = queryParameterValue;

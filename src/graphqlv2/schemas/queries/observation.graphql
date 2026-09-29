@@ -200,6 +200,47 @@ extend type Query {
         """
         value_string: SearchString
 
+        """
+        code-value-concept (FHIR type: composite)
+        Code and coded value parameter pair
+        """
+        code_value_concept: SearchString
+        """
+        code-value-date (FHIR type: composite)
+        Code and date/time value parameter pair
+        """
+        code_value_date: SearchString
+        """
+        code-value-quantity (FHIR type: composite)
+        Code and quantity value parameter pair
+        """
+        code_value_quantity: SearchString
+        """
+        code-value-string (FHIR type: composite)
+        Code and string value parameter pair
+        """
+        code_value_string: SearchString
+        """
+        combo-code-value-concept (FHIR type: composite)
+        Code and coded value parameter pair, including in components
+        """
+        combo_code_value_concept: SearchString
+        """
+        combo-code-value-quantity (FHIR type: composite)
+        Code and quantity value parameter pair, including in components
+        """
+        combo_code_value_quantity: SearchString
+        """
+        component-code-value-concept (FHIR type: composite)
+        Component code and component coded value parameter pair
+        """
+        component_code_value_concept: SearchString
+        """
+        component-code-value-quantity (FHIR type: composite)
+        Component code and component quantity value parameter pair
+        """
+        component_code_value_quantity: SearchString
+
         # miscellaneous parameters
         """
         return total number of records that meet this query

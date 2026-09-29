@@ -1,10 +1,10 @@
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { assertTypeEquals, assertIsValid, assertFail } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryParameterValue } = require('../query/queryParameterValue');
-const { PATIENT_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS, SENSITIVE_CATEGORY } = require('../../constants');
+const { PATIENT_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS, SENSITIVE_CATEGORY, DATA_SHARING_PATIENT_TO_PERSON_DATA } = require('../../constants');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { logError, logInfo } = require('../common/logging');
@@ -100,16 +100,26 @@ class DataSharingManager {
 
     /**
      * Returns data sharing manager.
+     *
+     * The cache is keyed by everythingChunkIndex (different $everything chunks can have
+     * different effective scopes) and by securityTags, since two calls in the same request
+     * with different securityTags represent different access scopes and must not share
+     * cached patient-id resolution.
      * @param {string} requestId
-     * @returns {Map<string, Resource[]>}
+     * @param {number|undefined} everythingChunkIndex
+     * @param {string[]|undefined} securityTags
+     * @returns {Map<string, *>}
      */
-    getDataSharingManagerCache ({ requestId }) {
-        return this.requestSpecificCache.getMap({ requestId, name: 'dataSharingManager' });
+    getDataSharingManagerCache ({ requestId, everythingChunkIndex, securityTags }) {
+        const chunkSuffix = everythingChunkIndex !== undefined ? `_${everythingChunkIndex}` : '';
+        const securityTagsSuffix = securityTags?.length ? `_${[...securityTags].sort().join(',')}` : '';
+        const name = `dataSharingManager${chunkSuffix}${securityTagsSuffix}`;
+        return this.requestSpecificCache.getMap({ requestId, name });
     }
 
     /**
-     * Update the query to consider data sharing logic, which includes HIE/Treatment related data linked to the client person
-     * and consented data(PROA only) and return mongo query from it.
+     * Update the query to consider data sharing logic for consented data (PROA only)
+     * and return mongo query from it.
      * @typedef {Object} RewriteDataSharingQuery
      * @property {string} base_version Base Version
      * @property {string} resourceType Resource Type
@@ -119,6 +129,8 @@ class DataSharingManager {
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @property {boolean} isUser whether request is with patient scope
      * @property {boolean} allowConsentedProaDataAccess whether to allow consented PROA data access
+     * @property {number|undefined} everythingChunkIndex
+     * @property {boolean} useProxyPatientToPersonCache true when the original request was Person/proxy-patient $everything
      * @param {RewriteDataSharingQuery} param
      */
     async updateQueryConsideringDataSharing({
@@ -130,12 +142,14 @@ class DataSharingManager {
         useHistoryTable,
         requestId,
         isUser,
-        allowConsentedProaDataAccess
+        allowConsentedProaDataAccess,
+        everythingChunkIndex,
+        useProxyPatientToPersonCache
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         let everythingCacheMap;
         if (requestId) {
-            everythingCacheMap = this.getDataSharingManagerCache({ requestId });
+            everythingCacheMap = this.getDataSharingManagerCache({ requestId, everythingChunkIndex, securityTags });
         }
         let patientIdToImmediatePersonUuid;
         let patientsList;
@@ -155,7 +169,9 @@ class DataSharingManager {
             } = await this.getValidatedPatientIdsMap({
                 resourceType,
                 parsedArgs,
-                securityTags
+                securityTags,
+                useProxyPatientToPersonCache,
+                requestId
             }));
             if (patientIdToImmediatePersonUuid && !Object.keys(patientIdToImmediatePersonUuid).length) {
                 return query;
@@ -181,29 +197,33 @@ class DataSharingManager {
          */
         let allowedPatientIds;
         /**
+         * Uuids of persons having a valid data-sharing consent, used to allow proxy-patient
+         * references (Patient/person.<personUuid>) into the consented query branch.
+         * @type {Set<string>}
+         */
+        let consentedPersonUuids;
+        /**
          * Updated query filter with consented data.
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
         let queryWithConsentedData;
-        /**
-         * Updated query filter with HIE/Treatment related data.
-         * @type {import('mongodb').Filter<import('mongodb').Document>}
-         */
-        let queryWithHIETreatmentData;
 
         // Case when consented proa data access is enabled.
         if (allowConsentedProaDataAccess && this.configManager.enableConsentedProaDataAccess) {
             if (everythingCacheMap?.has('allowedPatientIds')) {
                 allowedPatientIds = everythingCacheMap.get('allowedPatientIds');
+                consentedPersonUuids = everythingCacheMap.get('consentedPersonUuids');
             } else {
                 // Filter Patients which have provided consent to view data.
-                allowedPatientIds = await this.proaConsentManager.getPatientIdsWithConsent({
-                    patientIdToImmediatePersonUuid,
-                    securityTags,
-                    personToLinkedPatientsMap
-                });
+                ({ allowedPatientIds, consentedPersonUuids } =
+                    await this.proaConsentManager.getPatientIdsWithConsent({
+                        patientIdToImmediatePersonUuid,
+                        securityTags,
+                        personToLinkedPatientsMap
+                    }));
                 if (requestId) {
                     everythingCacheMap.set('allowedPatientIds', allowedPatientIds);
+                    everythingCacheMap.set('consentedPersonUuids', consentedPersonUuids);
                 }
             }
             allowedConnectionTypesList = this.configManager.getConsentConnectionTypesList;
@@ -212,7 +232,15 @@ class DataSharingManager {
                 patientIdToConnectionTypeMap,
                 allowedConnectionTypesList
             });
-            if (allowedPatientIds.size > 0 && allowedConnectionTypesList.length) {
+            // Proxy-patient references are never admitted for the Patient resource itself
+            // (the proxy patient has no document).
+            /**
+             * Persons whose proxy-patient references may enter the consented branch.
+             * @type {Set<string>}
+             */
+            const consentedProxyPersonUuids =
+                resourceType !== 'Patient' ? consentedPersonUuids : new Set();
+            if ((allowedPatientIds.size > 0 || consentedProxyPersonUuids.size > 0) && allowedConnectionTypesList.length) {
                 queryWithConsentedData = this.getConnectionTypeFilteredQuery({
                     base_version,
                     resourceType,
@@ -221,45 +249,15 @@ class DataSharingManager {
                     allowedConnectionTypesList,
                     useHistoryTable,
                     patientsList,
-                    isUser
-                });
-            }
-        }
-
-        // Case when HIE/Treatment related data access is enabled.
-        if (this.configManager.enableHIETreatmentRelatedDataAccess) {
-            allowedPatientIds = new Set(Object.keys(patientIdToImmediatePersonUuid));
-            allowedConnectionTypesList = this.configManager.getHIETreatmentConnectionTypesList;
-            this.filterPatientsByConnectionType({
-                allowedPatientIds,
-                patientIdToConnectionTypeMap,
-                allowedConnectionTypesList
-            });
-            if (allowedPatientIds.size > 0 && allowedConnectionTypesList.length) {
-                queryWithHIETreatmentData = this.getConnectionTypeFilteredQuery({
-                    base_version,
-                    resourceType,
-                    allowedPatientIds,
-                    parsedArgs,
-                    allowedConnectionTypesList,
-                    useHistoryTable,
-                    patientsList,
-                    isUser
+                    isUser,
+                    consentedProxyPersonUuids
                 });
             }
         }
 
         if (queryWithConsentedData) {
             httpContext.set(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED, true);
-        }
-
-        // Logic to update original query to consider above 2 cases.
-        if (queryWithConsentedData && queryWithHIETreatmentData) {
-            query = { $or: [query, queryWithConsentedData, queryWithHIETreatmentData] };
-        } else if (queryWithConsentedData) {
             query = { $or: [query, queryWithConsentedData] };
-        } else if (queryWithHIETreatmentData) {
-            query = { $or: [query, queryWithHIETreatmentData] };
         }
         return query;
     }
@@ -271,11 +269,12 @@ class DataSharingManager {
      * @property {string[]} patientIds Set of patient ids from JWT token
      * @property {object} query Query object
      * @property {import('../../utils/fhirRequestInfo').JwtActor | null} [actor] actor token
+     * @property {string[]} securityTags security Tags of the caller
      *
      * @param {UpdateQueryConsideringCmsDataSharing} param
      * @returns {Promise<object>} Updated query object considering CMS data sharing
      */
-    async updateQueryConsideringCmsDataSharing({ resourceType, patientIds, query, actor }) {
+    async updateQueryConsideringCmsDataSharing({ resourceType, patientIds, query, actor, securityTags }) {
         // CMS data sharing is only applicable for Patient resource type as of now.
         if (resourceType !== 'Patient') {
             return query;
@@ -291,7 +290,8 @@ class DataSharingManager {
         });
 
         const patientIdsWithConsent = await this.cmsConsentManager.getPatientIdsWithConsent(
-            patientReferenceToPersonUuid
+            patientReferenceToPersonUuid,
+            securityTags
         );
 
         if (patientIdsWithConsent.size === 0) {
@@ -325,9 +325,12 @@ class DataSharingManager {
      * @property {string} resourceType Resource Type
      * @property {ParsedArgs} parsedArgs Args
      * @property {string[]} securityTags security Tags
+     * @property {boolean} useProxyPatientToPersonCache true when the original request was Person/proxy-patient $everything
+     * @property {string} requestId Only required when useProxyPatientToPersonCache is
+     *   true -- used to look up the RequestSpecificCache entry PatientProxyQueryRewriter wrote.
      * @param {ValidatedPatientIdsMap} param
      */
-    async getValidatedPatientIdsMap ({ resourceType, parsedArgs, securityTags }) {
+    async getValidatedPatientIdsMap ({ resourceType, parsedArgs, securityTags, useProxyPatientToPersonCache, requestId }) {
         /**
          * Patient id to immediate person map.
          * @type {{[key: string]: string[]}}
@@ -360,15 +363,60 @@ class DataSharingManager {
                     }
                 });
 
-                // 6. Creating patient id to immediate person map with owner same as in security tags provided.
-                (
-                    {
-                        patientReferenceToPersonUuid: patientIdToImmediatePersonUuid,
-                        personToLinkedPatientsMap
-                    } = await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({
-                        patientReferences, securityTags
-                    })
-                );
+                if (useProxyPatientToPersonCache) {
+                    // Person/proxy-patient $everything: PatientProxyQueryRewriter already computed
+                    // an owner-tag-verified Person<->Patient map once for this request and cached
+                    // it. Use it directly instead of re-querying Person via bwellPersonFinder.
+                    // Fail closed (throw) only when the cache is entirely absent
+                    assertIsValid(requestId, 'requestId required for PROA cache lookup');
+                    // Note: unlike its sibling getDataSharingManagerCache, this cache lookup is
+                    // NOT keyed by securityTags. That's safe only because securityTags is
+                    // scope-derived and constant for the lifetime of one request on this
+                    // read-only path -- a future change that made securityTags vary within a
+                    // request would need to account for this.
+                    const cached = this.requestSpecificCache.getMap({ requestId, name: DATA_SHARING_PATIENT_TO_PERSON_DATA });
+                    if (cached.size === 0 || !cached.has('personToLinkedPatientsMap') || !cached.has('patientReferenceToPersonUuid')) {
+                        assertFail({
+                            source: 'DataSharingManager.getValidatedPatientIdsMap',
+                            message: 'proaSafePatientToPersonData missing in RequestSpecificCache for a ' +
+                                'Person/proxy-patient $everything PROA data-sharing resolution',
+                            args: { requestId, resourceType }
+                        });
+                    }
+                    const cachedPatientReferenceToPersonUuid = cached.get('patientReferenceToPersonUuid');
+                    patientIdToImmediatePersonUuid = {};
+                    for (const patientReference of patientReferences) {
+                        if (!patientReference.id) {
+                            // No id to look up in the cache; skip rather than crash (matches
+                            // the falsy-id guard used for the sibling loop above).
+                            continue;
+                        }
+                        if (patientReference.id.startsWith(PERSON_PROXY_PREFIX)) {
+                            // Proxy-patient references never resolve to a patient-owning Person;
+                            // not an error, just not cache-eligible.
+                            continue;
+                        }
+                        const personUuids = cachedPatientReferenceToPersonUuid[patientReference.id];
+                        if (personUuids) {
+                            patientIdToImmediatePersonUuid[patientReference.id] = personUuids;
+                        }
+                        // A miss here means "not PROA-eligible" (e.g. reachable only via a Person
+                        // the caller can read but doesn't own) -- omit, don't throw. Matches
+                        // bwellPersonFinder's legacy exclusion behavior exactly.
+                    }
+                    personToLinkedPatientsMap = cached.get('personToLinkedPatientsMap');
+                    // bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync is NOT called in this branch.
+                } else {
+                    // 6. Creating patient id to immediate person map with owner same as in security tags provided.
+                    (
+                        {
+                            patientReferenceToPersonUuid: patientIdToImmediatePersonUuid,
+                            personToLinkedPatientsMap
+                        } = await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({
+                            patientReferences, securityTags
+                        })
+                    );
+                }
             }
         }
         return { patientIdToImmediatePersonUuid, patientsList, personToLinkedPatientsMap };
@@ -387,6 +435,8 @@ class DataSharingManager {
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @property {any[]} patientsList List of patients containing id, _sourceId, _uuid & meta.security
      * @property {boolean} isUser whether request is with patient scope
+     * @property {Set<string>|undefined} consentedProxyPersonUuids Persons with valid consent whose
+     *   proxy-patient references (Patient/person.<personUuid>) may enter the consented branch
      * @param {RewriteDataSharingQuery2} param
      */
     getConnectionTypeFilteredQuery({
@@ -397,13 +447,20 @@ class DataSharingManager {
         allowedConnectionTypesList,
         useHistoryTable,
         patientsList,
-        isUser
+        isUser,
+        consentedProxyPersonUuids = new Set()
     }) {
         /**
          * Clone of the original parsed arguments
          * @type {ParsedArgs}
          * */
         const updatedParsedArgs = parsedArgs.clone();
+
+        // Becomes true if a patient-reference filter had values originally but none of them
+        // survived the allowedPatientIds restriction. Dropping such a filter (rather than
+        // rebuilding it as an unsatisfiable one) would leave this resourceType's query with
+        // no patient scoping at all, so the whole connection-type branch must be discarded.
+        let patientFilterEmptied = false;
 
         updatedParsedArgs
             .parsedArgItems
@@ -415,20 +472,45 @@ class DataSharingManager {
                     /** @type {string[]} */
                     const newQueryParameterValues = [];
 
+                    // Mixed-target params (e.g. Observation.performer, which also targets
+                    // Practitioner/Organization/...) can carry non-Patient references; only
+                    // Patient-typed (or typeless) ones are ever rebuilt below, so only these
+                    // should count toward "was the patient scoping genuinely emptied".
+                    const patientTypedReferences = item.references.filter(
+                        (ref) => !ref.resourceType || ref.resourceType === 'Patient'
+                    );
+
                     // update the query-param values
-                    item.references.forEach((ref) => {
-                        if (!ref.resourceType || ref.resourceType === 'Patient') {
-                            // Check if ref.id is uuid or sourceId.
-                            if (isUuid(ref.id) && allowedPatientIds.has(ref.id)) {
+                    patientTypedReferences.forEach((ref) => {
+                        // Check if ref.id is uuid or sourceId.
+                        if (isUuid(ref.id) && allowedPatientIds.has(ref.id)) {
+                            newQueryParameterValues.push(`Patient/${ref.id}`);
+                        } else if (ref.id.startsWith(PERSON_PROXY_PREFIX)) {
+                            // Proxy-patient reference: kept only when the person behind the
+                            // proxy has a valid consent (consentedProxyPersonUuids is empty
+                            // otherwise).
+                            const personUuid = ref.id.replace(PERSON_PROXY_PREFIX, '');
+                            if (consentedProxyPersonUuids.has(personUuid)) {
                                 newQueryParameterValues.push(`Patient/${ref.id}`);
-                            } else if (!isUuid(ref.id) && !ref.id.includes(PERSON_PROXY_PREFIX)) {
-                                const refUUID = patientsList.find(patient => patient.id === ref.id)?._uuid;
-                                if (refUUID && allowedPatientIds.has(refUUID)) {
-                                    newQueryParameterValues.push(`Patient/${refUUID}`);
-                                }
+                            }
+                        } else if (!isUuid(ref.id) && !ref.id.includes(PERSON_PROXY_PREFIX)) {
+                            const refUUID = patientsList.find(patient => patient.id === ref.id)?._uuid;
+                            if (refUUID && allowedPatientIds.has(refUUID)) {
+                                newQueryParameterValues.push(`Patient/${refUUID}`);
                             }
                         }
                     });
+
+                    // A 'not'-modified filter rebuilds into an exclusion ($nor) clause, where an
+                    // empty result just excludes nothing extra (a safe no-op) rather than making
+                    // the branch unsatisfiable, so it must not trip this check.
+                    if (
+                        !item.modifiers.includes('not') &&
+                        patientTypedReferences.length > 0 &&
+                        newQueryParameterValues.length === 0
+                    ) {
+                        patientFilterEmptied = true;
+                    }
 
                     // rebuild the query value
                     const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
@@ -452,6 +534,14 @@ class DataSharingManager {
                         }
                     });
 
+                    if (
+                        !item.modifiers.includes('not') &&
+                        item.queryParameterValue.values.length > 0 &&
+                        newQueryParameterValues.length === 0
+                    ) {
+                        patientFilterEmptied = true;
+                    }
+
                     const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
                     item.queryParameterValue = new QueryParameterValue({
                         value: newValue,
@@ -459,6 +549,13 @@ class DataSharingManager {
                     });
                 }
             });
+
+        // None of the referenced patients survived the connection-type restriction for at
+        // least one patient-scoped filter — this branch would otherwise match this resourceType
+        // with no patient scoping at all (see getConnectionTypeFilteredQuery caller), so skip it.
+        if (patientFilterEmptied) {
+            return null;
+        }
 
         /**
          * Reconstructed query.

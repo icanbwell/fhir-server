@@ -1,6 +1,14 @@
 const { SENSITIVE_CATEGORY } = require('../constants');
 const { logInfo } = require('../operations/common/logging');
 
+/**
+ * A pure denylist-membership check: does this section carry any coding whose system is the
+ * sensitivity-category system and whose code is in the caller-supplied denylist? Callers that
+ * also want the hardcoded `unclassified` code excluded (see
+ * CompositionSectionFilterEnrichmentProvider.getDeniedSensitiveCategorySet) fold it into
+ * deniedSensitiveCategorySet themselves before calling filterCompositionSensitiveSections --
+ * this function stays a simple set-membership check with no implicit special case.
+ */
 function shouldRemoveSection({ section, deniedSensitiveCategorySet }) {
     if (!Array.isArray(section?.code?.coding)) {
         return false;
@@ -16,7 +24,9 @@ function filterSections({ sections, deniedSensitiveCategorySet, compositionUuid,
         const section = sections[i];
         const currentPath = `${path}section[${i}]`;
         if (shouldRemoveSection({ section, deniedSensitiveCategorySet })) {
-            logInfo(`Dropping section ${section?.id} from Composition/${compositionUuid} at ${currentPath}`);
+            logInfo(
+                `Dropping section ${section?.id} from Composition/${compositionUuid} at ${currentPath}`
+            );
             continue;
         }
         if (section.section) {

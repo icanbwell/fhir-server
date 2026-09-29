@@ -91,11 +91,15 @@ class EverythingOperation {
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
      * @property {BaseResponseStreamer|undefined} [responseStreamer]
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
+     * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
+     *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
      *
      * @param {everythingAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingAsync({requestInfo, parsedArgs, resourceType, responseStreamer}) {
+    async everythingAsync({requestInfo, parsedArgs, resourceType, responseStreamer, scopedPersonIds, isPersonEverything}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -110,7 +114,9 @@ class EverythingOperation {
                 requestInfo,
                 parsedArgs,
                 resourceType,
-                responseStreamer // disable response streaming if we are answering a question
+                responseStreamer, // disable response streaming if we are answering a question
+                scopedPersonIds,
+                isPersonEverything
             });
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
@@ -133,17 +139,29 @@ class EverythingOperation {
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
      * @property {BaseResponseStreamer|undefined} [responseStreamer]
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
+     * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
+     *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
      *
      * @param {everythingBundleAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingBundleAsync({requestInfo, parsedArgs, resourceType, responseStreamer}) {
+    async everythingBundleAsync({requestInfo, parsedArgs, resourceType, responseStreamer, scopedPersonIds, isPersonEverything}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'everything';
 
         const {user, scope, isUser} = requestInfo;
+
+        // _explain/_debug/_setIndexHint expose Mongo query plans, collection internals, and
+        // let the caller pick the query's index; only an admin-scoped caller may use them.
+        if ((parsedArgs._explain || parsedArgs._debug || parsedArgs._setIndexHint) && !this.scopesValidator.isAdminScope({ scope })) {
+            parsedArgs._explain = undefined;
+            parsedArgs._debug = undefined;
+            parsedArgs._setIndexHint = undefined;
+        }
 
         /**
          * @type {number}
@@ -250,7 +268,9 @@ class EverythingOperation {
                     resourceType,
                     responseStreamer,
                     parsedArgs,
-                    includeNonClinicalResources: isFalseWithFallback(parsedArgs._includePatientLinkedOnly, true)
+                    includeNonClinicalResources: isFalseWithFallback(parsedArgs._includePatientLinkedOnly, true),
+                    scopedPersonIds,
+                    isPersonEverything
                 });
             } else {
                 // Grab an instance of our DB and collection
@@ -285,7 +305,7 @@ class EverythingOperation {
                         throw new Error('$everything is not supported for resource: ' + resourceType);
                 }
 
-                if (resourceFilter) {
+                if (resourceFilter && parsedArgs.resource) {
                     parsedArgs.resource = filterGraphResources(
                         deepcopy(parsedArgs.resource),
                         parsedArgs.resourceFilterList

@@ -1,0 +1,23 @@
+{
+    "resourceType": "Binary",
+    "id": "binary-contract",
+    "meta": {
+        "source": "https://test.example.com/source",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "test"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "test"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "test"
+            }
+        ]
+    },
+    "contentType": "application/pdf",
+    "data": "QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0QmluYXJ5Q29udHJhY3RUZXN0"
+}

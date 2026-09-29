@@ -1,3 +1,7 @@
+const contentType = require('content-type');
+const { fhirContentTypes } = require('../../../utils/contentTypes');
+const { UnsupportedMediaTypeError } = require('../../../utils/httpErrors');
+
 /**
  * returns params from the request
  * @param {import('http').IncomingMessage} req
@@ -5,13 +9,32 @@
  */
 const parseParams = req => {
     const params = {};
-    const isSearch = req.url && req.url.endsWith('_search');
+    const pathSegments = req.path ? req.path.split('/').filter(Boolean) : [];
+    const isSearch = pathSegments.length > 0 &&
+        pathSegments[pathSegments.length - 1].toLowerCase() === '_search';
 
     if (req.query && req.method === 'GET' && Object.keys(req.query).length) {
         Object.assign(params, req.query);
     }
 
     if (req.body && ['PUT', 'POST'].includes(req.method) && Object.keys(req.body).length && isSearch) {
+        // Per https://hl7.org/fhir/R4B/search.html#Introduction, POST search parameters are only
+        // defined as an application/x-www-form-urlencoded submission. A JSON body (application/json,
+        // application/fhir+json, etc.) is not a valid FHIR search parameter payload.
+        const contentTypeHeader = req.headers && req.headers['content-type'];
+        let isFormUrlEncoded = false;
+        try {
+            isFormUrlEncoded = !!contentTypeHeader &&
+                contentType.parse(contentTypeHeader).type === fhirContentTypes.form_urlencoded;
+        } catch (e) {
+            isFormUrlEncoded = false;
+        }
+
+        if (!isFormUrlEncoded) {
+            throw new UnsupportedMediaTypeError(
+                `Unsupported content type "${contentTypeHeader}" for ${req.method} _search.`
+            );
+        }
         Object.assign(params, req.body);
     }
 
@@ -29,7 +52,12 @@ const parseParams = req => {
 
 const getArgsMiddleware = function (config, required) {
     return function (req, res, next) {
-        const currentArgs = parseParams(req);
+        let currentArgs;
+        try {
+            currentArgs = parseParams(req);
+        } catch (err) {
+            return next(err);
+        }
         req.sanitized_args = currentArgs;
         next();
     };

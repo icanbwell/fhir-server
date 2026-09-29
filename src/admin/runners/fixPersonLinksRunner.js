@@ -112,7 +112,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
         if (isSame === undefined && resource.name && resource.name.length && linkedResource.name && linkedResource.name.length) {
             const currentPersonName = resource.name[0];
             const linkedPersonName = linkedResource.name[0];
-            isSame = currentPersonName.family === linkedPersonName.family && currentPersonName.given.join(',') === linkedPersonName.given.join(',');
+            isSame = currentPersonName.family === linkedPersonName.family && (currentPersonName.given || []).join(',') === (linkedPersonName.given || []).join(',');
         }
         return !!isSame;
     }

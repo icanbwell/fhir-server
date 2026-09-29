@@ -1,6 +1,6 @@
 const { EnrichmentProvider } = require('./enrichmentProvider');
 const { filterCompositionSensitiveSections } = require('../../utils/compositionSectionFilter');
-const { AUTH_USER_TYPES } = require('../../constants');
+const { AUTH_USER_TYPES, SENSITIVE_CATEGORY } = require('../../constants');
 
 /**
  * Enrichment provider that strips sensitive sections from Composition resources
@@ -20,7 +20,13 @@ class CompositionSectionFilterEnrichmentProvider extends EnrichmentProvider {
     }
 
     /**
-     * Reads the denied sensitive categories Set from the actor's pre-loaded filtering rules.
+     * Reads the denied sensitive categories Set from the actor's pre-loaded filtering rules, and
+     * folds in the hardcoded unclassified code alongside the Consent-derived ones -- mirroring
+     * DataSharingManager.updateQueryForDelegatedAccessSensitiveData's query-level exclusion
+     * (dataSharingManager.js), which also always excludes unclassified regardless of what the
+     * grantor's Consent denies. filterCompositionSensitiveSections/shouldRemoveSection stay a
+     * pure denylist-membership check with no implicit special case -- this is where the special
+     * case belongs, at the call site, not baked into the shared low-level utility.
      * @param {EnrichmentContext|undefined} enrichmentContext
      * @returns {Set<string>|null}
      */
@@ -29,7 +35,9 @@ class CompositionSectionFilterEnrichmentProvider extends EnrichmentProvider {
         if (!filteringRules) {
             return null;
         }
-        return new Set(filteringRules.deniedSensitiveCategories || []);
+        const deniedSensitiveCategorySet = new Set(filteringRules.deniedSensitiveCategories || []);
+        deniedSensitiveCategorySet.add(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE);
+        return deniedSensitiveCategorySet;
     }
 
     /**

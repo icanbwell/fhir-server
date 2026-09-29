@@ -1,0 +1,14 @@
+{
+    "resourceType": "Observation",
+    "id": "observationTenantBOwn001",
+    "meta": {
+        "source": "tenantB",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "tenantB" },
+            { "system": "https://www.icanbwell.com/access", "code": "tenantB" }
+        ]
+    },
+    "status": "final",
+    "code": { "coding": [ { "system": "http://loinc.org", "code": "1234-5" } ] },
+    "subject": { "reference": "Patient/tenantBOwnPatient001" }
+}

@@ -22,8 +22,8 @@ function filterGraphResources(resourceEverythingGraph, resourceFilterList) {
             }
         });
         if (linksList.length > 0) {
-            link.target = linksList;
-            result['link'] = result['link'].concat(link);
+            const linkCopy = { ...link, target: linksList };
+            result['link'] = result['link'].concat(linkCopy);
         }
     });
     if (result['link'].length === 0) {

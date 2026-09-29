@@ -9,7 +9,8 @@ A delegated access token is a patient-scoped token which has an `act` and `sub` 
   "act": {
     "reference": "RelatedPerson/<id>",
     "sub": "<sub claim>"
-  }
+  },
+  "entitlements": ["<entitlement code>"] // optional; recorded on the audit event (see Audit Logging)
   // rest of the payload
 }
 ```
@@ -28,8 +29,13 @@ When `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled, the server inspects the JWT
 
 1. **No `act` claim**: proceeds normally (no delegated actor)
 2. **`act` is a string**: logged and skipped (future format, not yet supported)
-3. **`act` is an object with `reference: "RelatedPerson/<id>" and sub: "<sub>"`**: delegated actor is detected and set on `context.actor`
+3. **`act` is an object with `reference: "RelatedPerson/<id>"` or `"Organization/<id>"` and `sub: "<sub>"`**: delegated actor is detected and set on `context.actor`
 4. **Any other format**: authentication fails (401) with message indicating the expected format
+
+Two actor shapes are supported for `act.reference`:
+
+- **`RelatedPerson/<id>`** — a human delegate acting on a grantor's behalf, via the Health Circle / Appointment-of-Representative flow.
+- **`Organization/<id>`** — a backend/service-integration client acting on a Person it has itself onboarded, with no human grantee anywhere in the flow. Minted by an upstream RFC 8693 token-exchange grant for client-initiated access. See "Organization Actors" below — the Consent lookup and filtering-rules flow differ for this actor type.
 
 When a delegated actor is detected, `userType` is set to `delegatedUser` regardless of what the token claims.
 
@@ -71,6 +77,18 @@ After the query returns:
 - No active Consent found: Forbidden 403 — `"actor {actor} doesn't have enough permissions to perform this action"`
 - Multiple Consents found: Forbidden 403 — `"ambiguous permissions found for the actor {actor}"`
 - Invalid `act` claim format (when detection enabled): 401 Unauthorized — the `act` must be an object with `reference` and `sub` field.
+
+## Organization Actors
+
+The Consent Query above ties a grantor **person** to a delegated actor via a `patient`-scoped Consent. That model doesn't apply when the delegated actor is an `Organization`: the authorizing Consent for that flow is an **org-level grant, established once at client onboarding, with no `patient` field at all** — it authorizes the Organization generally, not a specific person.
+
+Because that Consent can never satisfy the `patient.reference` match above, `DelegatedAccessRulesManager.getFilteringRulesAsync` **skips the per-person Consent lookup entirely** when the actor reference is `Organization/<id>`, rather than trying to adapt the query. This is a deliberate trust boundary, not an oversight: the upstream token-minting service already verifies Person ownership and an active org-level Consent (`dataSharingAccess` category, Treatment scope, matching `provision.actor`) before it ever mints the token — fhir-server trusts that mint-time verification for this actor type, the same way it trusts every other signed JWT claim, rather than re-deriving a per-person consent that was never meant to exist.
+
+Consequences of the skip:
+- `hasValidConsentAsync` returns `true` unconditionally for an `Organization` actor — no database query, no ambiguous/no-consent rejection path.
+- No `deniedSensitiveCategories` are derived from a Consent (there is no nested `provision.provision` to walk) — the sensitive-data exclusion filter falls back to its always-on `unclassified` exclusion only (see "Filtering of Unclassified Resources" below).
+- `actor.consentPolicy` is left unset for this actor type — there is no per-person Consent reference to point at.
+- The org-level Consent named in the JWT's `entitlements` claim is unrelated to this gate (`hasValidConsentAsync` never dereferences it). It's used for two other things instead: `purposeOfEvent` resolution, and populating `agent.policy` on the AuditEvent (see below) — both handled in `AuthService.processUserInfo` at authentication time, not here.
 
 ## Building Filtering Rules
 
@@ -160,6 +178,51 @@ When a delegated actor is present, the audit event contains **two agents**:
 
 The `source.observer` references the delegated actor.
 
+### Purpose of Event (Entitlements)
+
+If the delegated user's JWT carries an `entitlements` array, those values are copied into `context.purposeOfUse` during authentication and then surface as `purposeOfEvent.coding` on the two-agent AuditEvent. `entitlements` supports two shapes:
+
+1. **Legacy: bare v3-ActReason code(s)** — e.g. `"entitlements": ["FAMRQT"]`. Each code is copied through **as-is**, with no validation or mapping, and becomes one `purposeOfEvent[].coding[]` entry.
+2. **Consent reference** — e.g. `"entitlements": ["Consent/<id>"]`. This is the shape minted by an upstream token-exchange grant for client-initiated access: the token has no live end-user session to carry a bare ActReason code, so it instead points at the org-level `Consent` created during client onboarding. During authentication, `AuthService.processUserInfo` detects the `Consent/<id>` shape and calls `DelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync` to dereference the `Consent`, substituting its `provision.purpose[].code` values in place of the raw reference before it is ever stored on `context.purposeOfUse`. A bare-code `entitlements` array skips this resolution entirely and stays synchronous.
+
+**If the Consent named in `entitlements` cannot be resolved** (deleted, wrong id, transient DB error), authentication fails closed: `processUserInfo` rejects with `done(null, false, { reason: 'delegated_actor_consent_not_found' })` (401), the same way any other malformed/unverifiable claim is rejected. This is a fail-closed change from an earlier iteration that silently proceeded with an empty `purposeOfEvent` — a `Consent/<id>` entitlement is supposed to be verifiable proof of a purpose, so failing to verify it now denies the request rather than degrading quietly. This is distinct from "the Consent was found but has no `provision.purpose` codes," which still just produces an empty `purposeOfEvent` on an otherwise-successful request (a data-quality issue, not an authorization failure).
+
+In both cases the resulting codes are rendered into `purposeOfEvent[].coding[]` with `system` always `http://terminology.hl7.org/CodeSystem/v3-ActReason`. If the JWT has no `entitlements` array (or it is empty), or a resolved Consent has no purpose codes, `purposeOfEvent` is omitted from the audit event.
+
+### Consent Policy (agent.policy)
+
+Separately from `purposeOfEvent`, a successfully-resolved `Consent/<id>` entitlement is also recorded as-is (the raw reference, not dereferenced further) on `context.actor.consentPolicy`, and `AuditLogger.buildAgents` surfaces it as the delegated actor agent's `agent.policy` — FHIR's designated slot for "the specific patient consent, guarantor funding, etc." that authorized the event. This is the same field `hasValidConsentAsync` sets for the per-person grantor↔actor Consent in the `RelatedPerson` flow; whichever flow applies to a given actor sets it.
+
+For example, a JWT with `"entitlements": ["FAMRQT"]` produces:
+
+```json
+"purposeOfEvent": [
+  {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        "code": "FAMRQT"
+      }
+    ]
+  }
+]
+```
+
+A JWT with `"entitlements": ["Consent/consent-uuid-123"]`, where that Consent has `provision.purpose: [{ "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason", "code": "TREAT" }]`, produces the same shape but with the Consent's code substituted in:
+
+```json
+"purposeOfEvent": [
+  {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        "code": "TREAT"
+      }
+    ]
+  }
+]
+```
+
 ## Local Testing
 
 ### Generate a delegated access token
@@ -184,9 +247,40 @@ The generated token will contain:
   "act": {
     "reference": "RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425",
     "sub": "46265db4-0da2-4436-b4e8-85bf7e52a426"
-  }
+  },
+  "entitlements": ["FAMRQT"]
 }
 ```
+
+### Generate a delegated access token (Organization actor)
+
+```
+curl --request POST \
+  --url http://localhost:8080/realms/master/protocol/openid-connect/token \
+  --header 'content-type: application/x-www-form-urlencoded' \
+  --data client_id=bwell-client-id \
+  --data client_secret=bwell-secret \
+  --data 'username=delegated-org-client@example.com' \
+  --data password=password \
+  --data grant_type=password \
+  --data 'scope=patient/Patient.read patient/Observation.read patient/Condition.read access/*.read'
+```
+
+The generated token will contain:
+```json
+{
+  "clientFhirPersonId": "0b2ad38a-20bc-5cf5-9739-13f242b05892",
+  "clientFhirPatientId": "22aa18af-af51-5799-bc55-367c22c85407",
+  "act": {
+    "reference": "Organization/50d67a31-af1f-4f30-8d41-51e90a5054fa",
+    "sub": "client-abc"
+  },
+  "managingOrganization": "50d67a31-af1f-4f30-8d41-51e90a5054fa",
+  "entitlements": ["Consent/8e4a1f26-3c9d-4b7e-9a02-6f1d5c8b2e90"]
+}
+```
+
+A `Consent` with that exact `id` (org-level, no `patient` field, `provision.actor.reference` = the same `Organization/<id>` as `act.reference`, `provision.purpose` carrying the code you expect to see on the audit event) must actually exist before generating the token -- an unresolvable `Consent/<id>` entitlement now fails authentication closed (401, `delegated_actor_consent_not_found`) rather than just producing an empty `purposeOfEvent`.
 
 ## Composition Sensitive Section Filtering
 
@@ -195,7 +289,13 @@ When `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled and the user is a `delegated
 The denied categories come from the Consent's nested `deny` provisions (`securityLabel` entries), pre-loaded onto `actor._filteringRules.deniedSensitiveCategories` by `DataSharingManager`.
 
 **Behavior:**
-- Only sections with sensitivity codes in the Consent's denied list are removed
+- Sections with sensitivity codes in the Consent's denied list are removed
+- The hardcoded `unclassified` sensitivity code is **always** folded into the denied set as well,
+  regardless of what the grantor's Consent actually denies — mirroring the query-level exclusion in
+  `DataSharingManager.updateQueryForDelegatedAccessSensitiveData`. This fold-in happens in
+  `CompositionSectionFilterEnrichmentProvider.getDeniedSensitiveCategorySet`, not in the shared
+  `filterCompositionSensitiveSections`/`shouldRemoveSection` utility itself, which stays a pure
+  denylist-membership check.
 - If a section has multiple `code.coding` entries and **any** matches a denied code, the section is removed
 - Filtering is recursive — nested sections (`section.section`) are checked at every level
 - If a parent section itself is sensitive, the entire section (including all children) is removed
@@ -205,4 +305,4 @@ Filtering happens at the **enrichment level** via `EnrichmentManager`, across al
 
 ## Config
 
-- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**, including Composition section filtering. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules (including Composition section filtering), and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.
+- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**, including Composition section filtering. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules (including Composition section filtering), copies any JWT `entitlements` into `context.purposeOfUse` (recorded as `purposeOfEvent` on the audit event), and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.

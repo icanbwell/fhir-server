@@ -112,6 +112,34 @@ describe('ClickHouseSchemaRegistry', () => {
             expect(() => registry.registerSchema('Bad', schema)).toThrow('not yet supported');
         });
 
+        test('rejects KAFKA_CLICKPIPE schema without kafkaTopic', () => {
+            const schema = { ...validSchema, writeStrategy: WRITE_STRATEGIES.KAFKA_CLICKPIPE };
+            expect(() => registry.registerSchema('Bad', schema)).toThrow(
+                'kafkaTopic must be a non-empty string'
+            );
+        });
+
+        test('rejects KAFKA_CLICKPIPE schema with empty kafkaTopic', () => {
+            const schema = { ...validSchema, writeStrategy: WRITE_STRATEGIES.KAFKA_CLICKPIPE, kafkaTopic: '' };
+            expect(() => registry.registerSchema('Bad', schema)).toThrow(
+                'kafkaTopic must be a non-empty string'
+            );
+        });
+
+        test('accepts KAFKA_CLICKPIPE schema with non-empty kafkaTopic', () => {
+            const schema = {
+                ...validSchema,
+                writeStrategy: WRITE_STRATEGIES.KAFKA_CLICKPIPE,
+                kafkaTopic: 'fhir.audit_event.stream'
+            };
+            expect(() => registry.registerSchema('KafkaGood', schema)).not.toThrow();
+        });
+
+        test('accepts SYNC_DIRECT schema without kafkaTopic', () => {
+            const schema = { ...validSchema, writeStrategy: WRITE_STRATEGIES.SYNC_DIRECT };
+            expect(() => registry.registerSchema('SyncGood', schema)).not.toThrow();
+        });
+
         test('rejects requiredFilter not in fieldMappings', () => {
             const schema = { ...validSchema, requiredFilters: ['nonexistent'] };
             expect(() => registry.registerSchema('Bad', schema)).toThrow(
@@ -190,6 +218,26 @@ describe('ClickHouseSchemaRegistry', () => {
             const schema = registry.getSchema('AuditEvent');
 
             expect(schema.securityMappings.accessTags).toBe('access_tags');
+        });
+
+        test('defaults to SYNC_DIRECT with no kafkaTopic', () => {
+            const { getAuditEventClickHouseSchema } = require('../../../../dataLayer/clickHouse/auditEventClickHouseSchema');
+            const auditSchema = getAuditEventClickHouseSchema();
+            expect(auditSchema.writeStrategy).toBe(WRITE_STRATEGIES.SYNC_DIRECT);
+            expect(auditSchema.kafkaTopic).toBeNull();
+        });
+
+        test('registers with KAFKA_CLICKPIPE strategy and topic when provided', () => {
+            const { getAuditEventClickHouseSchema } = require('../../../../dataLayer/clickHouse/auditEventClickHouseSchema');
+            const { KAFKA_TOPICS } = require('../../../../constants/clickHouseConstants');
+            const auditSchema = getAuditEventClickHouseSchema({
+                writeStrategy: WRITE_STRATEGIES.KAFKA_CLICKPIPE,
+                kafkaTopic: KAFKA_TOPICS.AUDIT_EVENT
+            });
+            expect(() => registry.registerSchema('AuditEvent', auditSchema)).not.toThrow();
+            const schema = registry.getSchema('AuditEvent');
+            expect(schema.writeStrategy).toBe(WRITE_STRATEGIES.KAFKA_CLICKPIPE);
+            expect(schema.kafkaTopic).toBe(KAFKA_TOPICS.AUDIT_EVENT);
         });
     });
 });

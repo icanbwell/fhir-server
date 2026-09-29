@@ -17,7 +17,7 @@ Note: Any insert or update requires write permission on that resource.
 
 The $merge endpoint accepts data in following formats:
 1. A FHIR Bundle resource: https://www.hl7.org/fhir/bundle.html
-2. A of list of resources at top level (sample here: https://github.com/icanbwell/fhir-server/blob/main/src/tests/graphql/condition/fixtures/conditions.json)
+2. A of list of resources at top level (sample here: https://github.com/icanbwell/fhir-server/blob/main/src/tests/integration/graphql/condition/fixtures/conditions.json)
 
 For each resource in the bundle, the FHIR server checks:
 
@@ -156,4 +156,4 @@ Note: In streaming $merge, the response is always returned as ndjson only.
 
 ### unit tests
 
-[src/tests/claims](../src/tests/claims)
+[src/tests/integration/claims](../src/tests/integration/claims)

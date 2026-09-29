@@ -1,0 +1,29 @@
+{
+    "resourceType": "Consent",
+    "id": "b615669f-3e05-4850-acd0-f9ca72e957dd",
+    "meta": {
+        "source": "client2",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "client2" },
+            { "system": "https://www.icanbwell.com/owner", "code": "client2" }
+        ]
+    },
+    "status": "active",
+    "category": [
+        {
+            "coding": [
+                { "system": "http://www.icanbwell.com/consent-category", "code": "dataSharing" }
+            ]
+        }
+    ],
+    "scope": {
+        "coding": [
+            { "system": "http://terminology.hl7.org/CodeSystem/consentscope", "code": "patient-privacy" }
+        ]
+    },
+    "patient": { "reference": "Patient/54ed40a8-49d1-4471-9afd-c8039f49ed31" },
+    "dateTime": "2022-09-08T14:05:07.350Z",
+    "provision": {
+        "type": "permit"
+    }
+}

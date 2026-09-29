@@ -1,0 +1,92 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "c42615d2-6a68-4cdd-af63-6646a2169f3c",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-11-10T14:34:58.000Z",
+          "source": "client-1",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "id": "6ecd25a8-d651-54df-a87f-cf15a6096f1e",
+              "code": "client-1"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "id": "f0eb75ae-8b01-5624-b1c6-1d4b8fef9486",
+              "code": "client-1"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "id": "a5eb71b9-d97f-5f50-80d8-9e78e0bfaea2",
+              "code": "client-1"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "c42615d2-6a68-4cdd-af63-6646a2169f3c"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "c42615d2-6a68-4cdd-af63-6646a2169f3c"
+          }
+        ],
+        "name": [
+          {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT1",
+            "given": [
+              "SHYLA"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2017-01-01"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "meta": {
+    "tag": [
+      {
+        "system": "https://www.icanbwell.com/query",
+        "display": "db.Patient_4_0_0.find({'$and':[{'_uuid':{'$in':['ab4426c7-8326-4400-90a9-66d24fbe2e97','b380829e-9715-4183-bdaf-803f80c377fe','c42615d2-6a68-4cdd-af63-6646a2169f3c','person.bdc02b42-ad3a-4e8b-a607-6210316cf58e']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client-1'}}}]}, {}).sort({'_uuid':1}).limit(1000)"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryCollection",
+        "code": "Patient_4_0_0"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptions",
+        "display": "{'limit':1000,'sort':{'_uuid':1}}"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryFields",
+        "display": "['_uuid','meta.security.system','meta.security.code']"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryDatabase",
+        "code": "fhir"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  },
+  "type": "searchset",
+  "total": 0
+}

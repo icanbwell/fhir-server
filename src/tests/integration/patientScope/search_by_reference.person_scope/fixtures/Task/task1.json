@@ -1,0 +1,31 @@
+{
+  "resourceType": "Task",
+  "id": "Task1",
+  "meta": {
+    "versionId": "1",
+    "source": "mps",
+    "lastUpdated": "2023-02-15T01:06:29.000Z",
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "mps-api"
+      }
+    ]
+  },
+  "status": "draft",
+  "intent": "plan",
+  "for": {
+    "reference": "Patient/person.4a12829a-9c25-5953-881d-d5d15daa3f25"
+  }
+}

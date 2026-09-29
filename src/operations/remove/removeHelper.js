@@ -6,11 +6,12 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { DELETE } = require('../../constants').GRIDFS;
 const httpContext = require('express-http-context');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 
 class RemoveHelper {
     /**
@@ -20,6 +21,7 @@ class RemoveHelper {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {Base64DataManager} base64DataManager
      */
     constructor({
         resourceLocatorFactory,
@@ -27,7 +29,8 @@ class RemoveHelper {
         databaseAttachmentManager,
         databaseBulkInserter,
         postRequestProcessor,
-        postSaveProcessor
+        postSaveProcessor,
+        base64DataManager
     }) {
         /**
          * @type {ResourceLocatorFactory}
@@ -64,6 +67,12 @@ class RemoveHelper {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
     }
 
     /**
@@ -74,11 +83,19 @@ class RemoveHelper {
      * @property {string} resourceType
      * @property {string} base_version
      * @property {Resource} resources
+     * @property {boolean} [preserveLastUpdated] - Skip stamping resource.meta.lastUpdated with the
+     *   current time before writing history, keeping whatever the caller already set it to. Default
+     *   (false) is correct for a real, standalone resource deletion, where "now" is genuinely the
+     *   moment of deletion. Set true only when the caller has its own reason the tombstone's
+     *   lastUpdated must match something else already computed elsewhere in the same request --
+     *   e.g. MongoGroupMemberRepository stamps a GroupMember delete tombstone with the owning
+     *   Group's own lastUpdated (four-way parity: Group/Group_History/GroupMember/
+     *   GroupMember_History must all agree), which "now" would silently overwrite otherwise.
      *
      * @param {DeleteManyAsyncOption}
      * @return {Promise<Number>}
      */
-    async deleteManyAsync({ requestInfo, options = {}, resourceType, resources, base_version }) {
+    async deleteManyAsync({ requestInfo, options = {}, resourceType, resources, base_version, preserveLastUpdated = false }) {
         const { requestId } = requestInfo;
         let uuidList = [];
         let query = {};
@@ -89,6 +106,7 @@ class RemoveHelper {
             });
 
             const deletionResult = [];
+            const liveObjectRefsByResource = [];
 
             for (const resource of resources) {
                 if (!resource) {
@@ -99,9 +117,28 @@ class RemoveHelper {
                 uuidList.push(resourceUuid);
 
                 await this.databaseAttachmentManager.transformAttachments(resource, DELETE);
-                resource.meta.lastUpdated = new Date(
-                    moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
-                );
+                if (!preserveLastUpdated) {
+                    resource.meta.lastUpdated = new Date(
+                        moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+                    );
+                }
+                // Snapshot the live-bucket cleanup boundary per configured leaf, for cleanup AFTER
+                // the Mongo delete commits (not here — deleting the live object before the Mongo
+                // write commits would orphan it if that write then failed). Captured BEFORE
+                // transformAsync below, not after: a leaf that gets newly externalized at delete
+                // time (never externalized, over threshold) gets a brand-new `_blobMeta` with no
+                // corresponding live object, so capturing first correctly excludes it here. A leaf
+                // with no `_blobMeta` at all still gets a boundary (`resource.meta.lastUpdated`, set
+                // above) so a stray object from an earlier externalized version whose own supersede
+                // cleanup never ran still gets swept.
+                const liveRefs = this.base64DataManager.getLiveObjectRefsOrResourceLastUpdated(resource);
+                // Ensure this version's base64 data (if any) is durably in the history bucket, and
+                // strip it from `resource` to `_blobMeta`-only, BEFORE it's snapshotted into history
+                // below — a no-op for a resource type with no configured base64 paths.
+                await this.base64DataManager.transformAsync(resource, BLOB_OP.DELETE);
+                liveObjectRefsByResource.push({
+                    resource, liveRefs
+                });
                 await this.databaseBulkInserter.insertOneHistoryAsync({
                     requestInfo,
                     base_version,
@@ -132,6 +169,17 @@ class RemoveHelper {
             }
             const collection = await resourceLocator.getCollectionAsync({});
             const result = await collection.deleteMany(query, options);
+
+            // Now that the Mongo delete has committed, clean up any live-bucket objects this
+            // resource's base64 leaves referenced — they're superseded by the history-bucket copy
+            // persisted above. Never throws (deleteLiveObjectAsync catches + logs internally).
+            for (const { resource, liveRefs } of liveObjectRefsByResource) {
+                for (const lastUpdated of liveRefs.values()) {
+                    await this.base64DataManager.deleteLiveObjectAsync(
+                        resource.resourceType, resource._uuid, lastUpdated
+                    );
+                }
+            }
 
             const operationResult = httpContext.get(ACCESS_LOGS_ENTRY_DATA)?.operationResult || [];
             operationResult.push(...deletionResult);

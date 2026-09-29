@@ -2,8 +2,8 @@
 module.exports = {
     watchman: false,
     watchPathIgnorePatterns: ['globalConfig'],
-    globalSetup: '<rootDir>/src/tests/jestGlobalSetup.js',
-    globalTeardown: '<rootDir>/src/tests/jestGlobalTeardown.js',
+    globalSetup: '<rootDir>/src/tests/integration/jestGlobalSetup.js',
+    globalTeardown: '<rootDir>/src/tests/integration/jestGlobalTeardown.js',
     verbose: false,
     testEnvironment: 'node',
     collectCoverage: false,
@@ -22,9 +22,21 @@ module.exports = {
         '<rootDir>/src/graphql/resolvers',
         '<rootDir>/src/graphqlv2/resolvers'
     ],
-    testPathIgnorePatterns: ['<rootDir>/src/tests/performance/', '<rootDir>/.claude/'],
-    setupFiles: ['<rootDir>/jest/patchClickHouseClient.js', '<rootDir>/jest/setEnvVars.js'],
-    setupFilesAfterEnv: ['<rootDir>/src/tests/testSetup.js'],
+    testPathIgnorePatterns: [
+        '<rootDir>/src/tests/integration/performance/',
+        // Has its own dedicated config (jest.atlasSearch.config.js) -- needs a real Atlas
+        // Search deployment (mongodb-atlas-local), not this suite's MongoMemoryReplSet, which
+        // has no $search support at all.
+        '<rootDir>/src/tests/integration/atlasSearch/',
+        '<rootDir>/.claude/',
+        '<rootDir>/src/tests/unit/'
+    ],
+    setupFiles: [
+        '<rootDir>/jest/patchClickHouseClient.js',
+        '<rootDir>/jest/patchClickHouseManager.js',
+        '<rootDir>/jest/setEnvVars.js'
+    ],
+    setupFilesAfterEnv: ['<rootDir>/src/tests/integration/testSetup.js'],
     testTimeout: 60000,
     injectGlobals: false
 };

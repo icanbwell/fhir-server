@@ -1,0 +1,75 @@
+{
+    "resourceType": "Bundle",
+    "type": "history",
+    "total": 2,
+    "entry": [
+        {
+            "id": "__BINARY_A_UUID__",
+            "resource": {
+                "resourceType": "Binary",
+                "id": "binary-history-type-A",
+                "meta": {
+                    "versionId": "1",
+                    "source": "https://test.example.com/source",
+                    "security": [
+                        {
+                            "id": "393b248d-39c0-5a90-8833-2ba9ad8e78fc",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "test"
+                        },
+                        {
+                            "id": "ef7e6bf0-3950-5433-b871-0fc6a7e1573e",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "test"
+                        },
+                        {
+                            "id": "48850590-7eb6-51cd-8556-5c574aad2782",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "test"
+                        }
+                    ]
+                },
+                "contentType": "application/pdf",
+                "data": "__LARGE_DATA__"
+            },
+            "request": {
+                "method": "PUT",
+                "url": "/4_0_0/Binary/binary-history-type-A"
+            }
+        },
+        {
+            "id": "__BINARY_B_UUID__",
+            "resource": {
+                "resourceType": "Binary",
+                "id": "binary-history-type-B",
+                "meta": {
+                    "versionId": "1",
+                    "source": "https://test.example.com/source",
+                    "security": [
+                        {
+                            "id": "393b248d-39c0-5a90-8833-2ba9ad8e78fc",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "test"
+                        },
+                        {
+                            "id": "ef7e6bf0-3950-5433-b871-0fc6a7e1573e",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "test"
+                        },
+                        {
+                            "id": "48850590-7eb6-51cd-8556-5c574aad2782",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "test"
+                        }
+                    ]
+                },
+                "contentType": "application/pdf",
+                "data": "__ALT_LARGE_DATA__"
+            },
+            "request": {
+                "method": "PUT",
+                "url": "/4_0_0/Binary/binary-history-type-B"
+            }
+        }
+    ]
+}
