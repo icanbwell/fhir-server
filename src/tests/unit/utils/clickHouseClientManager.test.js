@@ -90,7 +90,8 @@ describe('ClickHouseClientManager', () => {
 
             // Make ping succeed
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue([{ ping: 1 }])
+                json: jest.fn().mockResolvedValue([{ ping: 1 }]),
+                close: jest.fn()
             });
 
             // Two concurrent calls when client is null
@@ -118,7 +119,8 @@ describe('ClickHouseClientManager', () => {
 
             // resultSet.json() could return null in some edge cases
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue(null)
+                json: jest.fn().mockResolvedValue(null),
+                close: jest.fn()
             });
 
             // Should handle null result gracefully and return empty array
@@ -132,7 +134,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue(undefined)
+                json: jest.fn().mockResolvedValue(undefined),
+                close: jest.fn()
             });
 
             // Should handle undefined result gracefully and return empty array
@@ -145,7 +148,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue([{ id: 1 }, { id: 2 }])
+                json: jest.fn().mockResolvedValue([{ id: 1 }, { id: 2 }]),
+                close: jest.fn()
             });
 
             const result = await manager.queryAsync({ query: 'SELECT id FROM table' });
@@ -157,7 +161,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue({ data: [{ id: 1 }] })
+                json: jest.fn().mockResolvedValue({ data: [{ id: 1 }] }),
+                close: jest.fn()
             });
 
             const result = await manager.queryAsync({ query: 'SELECT id FROM table' });
@@ -170,7 +175,8 @@ describe('ClickHouseClientManager', () => {
 
             // Object without .data field - falls to `result.data || []` which is `undefined || []`
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue({ meta: 'info' })
+                json: jest.fn().mockResolvedValue({ meta: 'info' }),
+                close: jest.fn()
             });
 
             const result = await manager.queryAsync({ query: 'SELECT 1' });
@@ -185,7 +191,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue(null)
+                json: jest.fn().mockResolvedValue(null),
+                close: jest.fn()
             });
 
             // pingAsync should always return a boolean value
@@ -203,7 +210,8 @@ describe('ClickHouseClientManager', () => {
             manager.client = { query: mockQuery, insert: mockInsert, close: mockClose };
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue([{ ping: 1 }])
+                json: jest.fn().mockResolvedValue([{ ping: 1 }]),
+                close: jest.fn()
             });
 
             const result = await manager.pingAsync();
@@ -337,8 +345,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery
-                .mockResolvedValueOnce({ json: jest.fn().mockResolvedValue([{ a: 1 }]) })
-                .mockResolvedValueOnce({ json: jest.fn().mockResolvedValue([{ b: 2 }]) });
+                .mockResolvedValueOnce({ json: jest.fn().mockResolvedValue([{ a: 1 }]), close: jest.fn() })
+                .mockResolvedValueOnce({ json: jest.fn().mockResolvedValue([{ b: 2 }]), close: jest.fn() });
 
             const results = await manager.executeBatchAsync([
                 { query: 'SELECT 1 AS a' },
@@ -354,7 +362,7 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery
-                .mockResolvedValueOnce({ json: jest.fn().mockResolvedValue([{ a: 1 }]) })
+                .mockResolvedValueOnce({ json: jest.fn().mockResolvedValue([{ a: 1 }]), close: jest.fn() })
                 .mockRejectedValueOnce(new Error('Query timeout'));
 
             await expect(
@@ -372,7 +380,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue([{ 1: 1 }])
+                json: jest.fn().mockResolvedValue([{ 1: 1 }]),
+                close: jest.fn()
             });
 
             const result = await manager.tableExistsAsync('test_table');
@@ -384,7 +393,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue([])
+                json: jest.fn().mockResolvedValue([]),
+                close: jest.fn()
             });
 
             const result = await manager.tableExistsAsync('nonexistent_table');
