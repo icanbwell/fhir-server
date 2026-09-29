@@ -68,6 +68,35 @@ class MongoGroupMemberRepository {
     }
 
     /**
+     * Finds every distinct groupUuid with a GroupMember_4_0_0 row matching the given query --
+     * the reverse lookup for GET /Group?member=X. The caller builds `query` using the same
+     * field-resolution rules the standard reference search parameter already uses
+     * (member.entity._uuid / member.entity._sourceId) so this method's matching semantics never
+     * drift from the embedded-Group case -- it just runs that same shape of filter against this
+     * collection instead. Matches active and inactive rows alike: FHIR's `member` search
+     * parameter has no notion of "currently active member".
+     *
+     * No tenant filter here -- a GroupMember row's copied security tags exist for the shared
+     * write pipeline's own invariants, not as a second, independently-checked tenant boundary.
+     * The caller is responsible for joining the returned groupUuids back against Group_4_0_0
+     * and applying the caller's own tenant filter there.
+     *
+     * @param {Object} params
+     * @param {string} params.base_version
+     * @param {import('mongodb').Document} params.query
+     * @returns {Promise<string[]>}
+     */
+    async findGroupUuidsByMemberQueryAsync ({ base_version, query }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        const cursor = await databaseQueryManager.findAsync({ query });
+        const rows = await cursor.toArrayAsync();
+        return [...new Set(rows.map((row) => row.groupUuid))];
+    }
+
+    /**
      * Reads current membership for the given requested writes and, for each one, resolves (via
      * resolveMemberWrite) exactly what it needs: create/update/delete/none. Writes nothing
      * itself.
