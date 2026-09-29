@@ -262,6 +262,50 @@ describe('Group promotion to extended member storage', () => {
             await expectPromoted(created.body.id, 4);
         });
 
+        test('$merge whose roster write fails reports the Group as failed and never mentions GroupMember', async () => {
+            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
+            const created = await createGroup({ member: buildMembers(2, 'merge-roster-fail') });
+            expect(created.status).toBe(201);
+            const groupId = created.body.id;
+
+            const realBulkWrite = Collection.prototype.bulkWrite;
+            jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(function (operations, options) {
+                if (this.collectionName === GROUP_MEMBER_COLLECTION_NAME) {
+                    // 10334 (document too large) is reported per entry by mongoBulkWriteExecutor
+                    // instead of being rethrown, which is the path that used to be silently dropped.
+                    return Promise.reject(Object.assign(new Error('simulated roster write failure'), { code: 10334 }));
+                }
+                return realBulkWrite.call(this, operations, options);
+            });
+
+            try {
+                const mergeResp = await request
+                    .post('/4_0_0/Group/$merge')
+                    .send({
+                        resourceType: 'Group',
+                        id: groupId,
+                        type: 'person',
+                        actual: true,
+                        meta: defaultMeta(),
+                        member: [...buildMembers(2, 'merge-roster-fail'), ...buildMembers(2, 'merge-roster-fail-new')]
+                    })
+                    .set(getHeaders());
+                expect(mergeResp.status).toBe(200);
+
+                const entries = Array.isArray(mergeResp.body) ? mergeResp.body : [mergeResp.body];
+                expect(entries).toHaveLength(1);
+                expect(entries[0].resourceType).toBe('Group');
+                expect(entries[0].id).toBe(groupId);
+                expect(entries[0].created).toBeFalsy();
+                expect(entries[0].updated).toBeFalsy();
+                expect(entries[0].issue).toBeDefined();
+                expect(JSON.stringify(mergeResp.body)).not.toContain('GroupMember');
+            } finally {
+                Collection.prototype.bulkWrite.mockRestore();
+            }
+        });
+
         test('standard PATCH add ops on an embedded Group crossing the limit succeed and promote', async () => {
             process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
             process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';

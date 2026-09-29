@@ -24,6 +24,8 @@ class MergeResultEntry {
      * @param {number|undefined} [sourceByteOffset] - absolute byte offset of the source NDJSON
      *   line this entry came from (bulk import only); used to restore output ordering to match
      *   the source file. Not part of toJSON() -- internal-only, doesn't change the NDJSON schema.
+     * @param {string|undefined} [groupUuid] - parent Group's _uuid, set only on GroupMember
+     *   entries so a roster write failure can be reported against its Group. Not part of toJSON().
      */
     constructor (
         {
@@ -35,7 +37,8 @@ class MergeResultEntry {
             resourceType,
             updated,
             sourceAssigningAuthority,
-            sourceByteOffset
+            sourceByteOffset,
+            groupUuid
         }
     ) {
         /**
@@ -74,6 +77,10 @@ class MergeResultEntry {
          * @type {number|undefined}
          */
         this.sourceByteOffset = sourceByteOffset;
+        /**
+         * @type {string|undefined}
+         */
+        this.groupUuid = groupUuid;
     }
 
     toJSON () {

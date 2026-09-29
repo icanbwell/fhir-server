@@ -27,6 +27,34 @@ const { fhirContentTypes } = require('../../utils/contentTypes');
 const { recordMergeOutcomes, recordInboundBundleSize, OPERATION } = require('../../utils/metrics');
 const { CustomTracer } = require('../../utils/customTracer');
 
+/**
+ * GroupMember rows are internal storage for an extended Group and never appear in a $merge
+ * response; a failed roster write is reported as a failure of its parent Group's own entry.
+ * @param {MergeResultEntry[]} inserted
+ * @returns {MergeResultEntry[]} inserted without any GroupMember entries
+ */
+function hideGroupMemberResults (inserted) {
+    const groupUuidsWithFailedRoster = new Set(
+        inserted
+            .filter(r => r.resourceType === GROUP_MEMBER_RESOURCE_TYPE && r.issue && r.groupUuid)
+            .map(r => r.groupUuid)
+    );
+    const visible = inserted.filter(r => r.resourceType !== GROUP_MEMBER_RESOURCE_TYPE);
+    for (const entry of visible) {
+        if (groupUuidsWithFailedRoster.has(entry._uuid)) {
+            entry.created = false;
+            entry.updated = false;
+            entry.issue = entry.issue || new OperationOutcomeIssue({
+                severity: 'error',
+                code: 'exception',
+                details: new CodeableConcept({ text: 'Error writing Group members' }),
+                diagnostics: 'Error writing Group members',
+                expression: [`${entry.resourceType}/${entry.id}`]
+            });
+        }
+    }
+    return visible;
+}
 
 class MergeOperation {
     /**
@@ -254,17 +282,10 @@ class MergeOperation {
                     base_version
                 })
             });
-            // GroupMember_4_0_0 rows are an internal MongoDB-native storage detail for
-            // extended Group member storage (see groupPromotion.js): promoteExistingGroupIfNeeded
-            // stages them into this same requestId's shared batch buffer with flush: false so
-            // they flush together with the caller's own resource, but the caller never submitted
-            // them and they must not appear in its response -- for a single (non-list) request,
-            // mergeResults[0] below would otherwise arbitrarily return one of these instead of
-            // the resource the caller actually asked about, once mergeResults.sort() reorders by
-            // _uuid.
-            mergeResults = mergeResults.concat(
-                inserted.filter(r => r.resourceType !== GROUP_MEMBER_RESOURCE_TYPE)
-            );
+            // promoteExistingGroupIfNeeded stages GroupMember rows into this same batch (flush:
+            // false); the caller never submitted them, and for a single (non-list) request
+            // mergeResults[0] could otherwise become one of them after the _uuid sort below.
+            mergeResults = mergeResults.concat(hideGroupMemberResults(inserted));
 
             // addSuccessfulMergesToMergeResult must run AFTER the bulk insert —
             // it skips UUIDs already present in mergeResults, including the
@@ -640,13 +661,7 @@ class MergeOperation {
             base_version
         });
 
-        // See the equivalent filter in mergeAsync above: GroupMember_4_0_0 rows are internal
-        // bookkeeping for extended Group member storage, staged into this same shared batch
-        // buffer by promoteExistingGroupIfNeeded (flush: false) so they flush alongside the
-        // caller's own resource -- but here that buffer is drained straight into the
-        // client-visible NDJSON response stream, so without this filter they'd leak out as
-        // extra, unrequested entries in that stream.
-        const visibleInserted = inserted.filter(r => r.resourceType !== GROUP_MEMBER_RESOURCE_TYPE);
+        const visibleInserted = hideGroupMemberResults(inserted);
 
         const insertedUuids = new Set(visibleInserted.map(r => r._uuid));
 
