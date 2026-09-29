@@ -1337,13 +1337,8 @@ class ConfigManager {
     }
 
     /**
-     * Maximum number of members allowed in Group.member array for a brand-new Group arriving
-     * already over the limit (CREATE, PUT-insert) -- see rejectNewGroupIfOverLimit in
-     * src/utils/groupPromotion.js. Default: 50000 (can be overridden in production based on
-     * infrastructure). Unrelated to groupMemberPromotionLimit, which governs when an *existing*
-     * Group crossing the limit via PUT-update/PATCH/$merge gets promoted instead of rejected --
-     * the two are deliberately separate knobs, even though they defaulted to the same value and
-     * the same env var historically.
+     * Maximum number of members a POST, PUT or $merge (merged result) may leave in an embedded
+     * Group's member[]; over it the write is rejected with too-costly, pointing to PATCH.
      * @returns {number}
      */
     get groupMemberLimit() {
@@ -1351,12 +1346,11 @@ class ConfigManager {
     }
 
     /**
-     * Member-count threshold above which an existing Group (PUT-update, PATCH, $merge-update/
-     * insert) is promoted from embedded member[] to MongoDB-native extended member storage -- see
-     * isGroupOverLimit/promoteExistingGroupIfNeeded in src/utils/groupPromotion.js. Default:
-     * 50000. Deliberately a separate env var from MAX_GROUP_MEMBERS_PER_PUT/groupMemberLimit
-     * (which only governs rejecting a brand-new over-limit Group on CREATE/PUT-insert): promotion
-     * and outright rejection are different tradeoffs an operator may want to tune independently.
+     * Member-count threshold above which a PATCH promotes a Group from embedded member[] to
+     * MongoDB-native extended member storage -- see isGroupOverLimit/promoteExistingGroupIfNeeded
+     * in src/utils/groupPromotion.js. Default: 50000. A separate env var from
+     * MAX_GROUP_MEMBERS_PER_PUT/groupMemberLimit (which rejects an over-limit POST/PUT/$merge):
+     * promotion and rejection are different tradeoffs an operator may want to tune independently.
      * @returns {number}
      */
     get groupMemberPromotionLimit() {
@@ -1376,14 +1370,13 @@ class ConfigManager {
     /**
      * Enables the MongoDB-native large-Group member storage: the GroupMember_4_0_0 /
      * GroupMember_4_0_0_History collections, the `_extended` branch of
-     * GroupMemberPatchStrategy.determineGroupMemberType, and the rejectNewGroupIfOverLimit /
-     * promoteExistingGroupIfNeeded checks in src/utils/groupPromotion.js -- called from the
-     * create/update/patch/merge write paths right before a Group is staged for its own write --
-     * which promote an embedded Group to this storage once its member[] crosses
-     * groupMemberPromotionLimit.
+     * GroupMemberPatchStrategy.determineGroupMemberType, and the checks in
+     * src/utils/groupPromotion.js: getGroupMemberLimitError rejects an over-limit POST/PUT/$merge,
+     * and promoteExistingGroupIfNeeded promotes an embedded Group to this storage once a PATCH
+     * pushes its member[] over groupMemberPromotionLimit.
      * Default: false -- when disabled, a Group already marked
      * `_extended: true` still has its member changes rejected on PUT/$merge (see
-     * rejectMemberOnExtendedGroupWrite) rather than silently falling back to the embedded regime
+     * getExtendedGroupMemberWriteError) rather than silently falling back to the embedded regime
      * (which would risk writing member[] inline on a Group whose roster already lives in
      * GroupMember_4_0_0), but no further Group can be promoted into this storage while the flag
      * is off. Independent of enableClickHouse -- a Group is tracked by at most one of the two

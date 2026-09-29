@@ -1,7 +1,7 @@
 'use strict';
 
 const { describe, test, expect } = require('@jest/globals');
-const { isGroupOverLimit } = require('../../../utils/groupPromotion');
+const { isGroupOverLimit, getGroupMemberLimitError, rejectGroupOverMemberLimit } = require('../../../utils/groupPromotion');
 const { EXTERNAL_STORAGE_TAG_SYSTEM, EXTERNAL_STORAGE_TAG_CODE } = require('../../../utils/clickHouseGroupPreSave');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
 
@@ -83,5 +83,46 @@ describe('isGroupOverLimit', () => {
     test('false when under the limit', () => {
         const doc = buildGroupDoc({ memberCount: 2 });
         expect(isGroupOverLimit({ doc, configManager: buildConfigManager(), limit: 3 })).toBe(false);
+    });
+});
+
+describe('getGroupMemberLimitError', () => {
+    const configManager = { ...buildConfigManager(), groupMemberLimit: 3, groupMemberPromotionLimit: 100 };
+
+    test('returns a too-costly error when member[] exceeds groupMemberLimit, regardless of groupMemberPromotionLimit', () => {
+        const error = getGroupMemberLimitError({ doc: buildGroupDoc({ memberCount: 4 }), configManager });
+
+        expect(error.statusCode).toBe(400);
+        expect(error.message).toBe('Group members count exceeds maximum (4 > 3)');
+        expect(error.issue[0].code).toBe('too-costly');
+        expect(error.issue[0].diagnostics).toContain('PATCH');
+    });
+
+    test('returns undefined at exactly groupMemberLimit', () => {
+        expect(getGroupMemberLimitError({ doc: buildGroupDoc({ memberCount: 3 }), configManager })).toBeUndefined();
+    });
+
+    test('returns undefined for an extended Group (its member changes are rejected separately)', () => {
+        const doc = buildGroupDoc({ memberCount: 4, extended: true });
+        expect(getGroupMemberLimitError({ doc, configManager })).toBeUndefined();
+    });
+
+    test('returns undefined for a ClickHouse-tracked Group', () => {
+        const doc = buildGroupDoc({ memberCount: 4, clickHouseTagged: true });
+        const clickHouseConfigManager = { ...configManager, enableClickHouse: true, mongoWithClickHouseResources: ['Group'] };
+        expect(getGroupMemberLimitError({ doc, configManager: clickHouseConfigManager })).toBeUndefined();
+    });
+});
+
+describe('rejectGroupOverMemberLimit', () => {
+    const configManager = { ...buildConfigManager(), groupMemberLimit: 3 };
+
+    test('throws the too-costly error when over the limit', () => {
+        expect(() => rejectGroupOverMemberLimit({ doc: buildGroupDoc({ memberCount: 4 }), configManager }))
+            .toThrow('Group members count exceeds maximum (4 > 3)');
+    });
+
+    test('does not throw when within the limit', () => {
+        expect(() => rejectGroupOverMemberLimit({ doc: buildGroupDoc({ memberCount: 3 }), configManager })).not.toThrow();
     });
 });

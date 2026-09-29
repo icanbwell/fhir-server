@@ -12,14 +12,11 @@ const { USE_EXTERNAL_STORAGE_HEADER } = require('./contextDataBuilder');
 const { hasExternalStorageMemberTag } = require('./clickHouseGroupPreSave');
 
 /**
- * True when doc is a Group whose member[] has crossed `limit` and still needs promoting to
- * MongoDB-native extended member storage (GroupMember_4_0_0), or -- for a brand-new Group --
- * rejecting outright. Which applies is entirely the caller's choice of `limit`:
- * promoteExistingGroupIfNeeded passes configManager.groupMemberPromotionLimit (existing Group,
- * PUT-update/PATCH/$merge-update/insert, all of which already have an addressable identity and a
- * safe rollback -- see mergeManager.js), while rejectNewGroupIfOverLimit passes
- * configManager.groupMemberLimit (brand-new Group, CREATE/PUT-insert, rejected outright instead
- * of promoted). This function itself is agnostic to which one it's given.
+ * True when doc is a Group, still in embedded member storage, whose member[] has crossed `limit`.
+ * Which limit is the caller's choice: promoteExistingGroupIfNeeded (PATCH) passes
+ * configManager.groupMemberPromotionLimit and promotes the Group to MongoDB-native extended member
+ * storage (GroupMember_4_0_0); getGroupMemberLimitError (POST, PUT, $merge) passes
+ * configManager.groupMemberLimit and rejects the write with too-costly, pointing to PATCH.
  *
  * @param {Object} params
  * @param {Resource} params.doc
@@ -75,37 +72,27 @@ function isGroupOverLimit ({ doc, configManager, limit, requestInfo }) {
  * strip+flag rides along in the SAME physical write and the SAME meta.versionId bump the caller
  * already intends, instead of a second, separately-versioned write.
  *
- * Callers must have already ensured doc._uuid and doc._sourceAssigningAuthority are set -- true for
- * every caller of promoteGroup, since only an existing resource (carrying them forward) is ever
- * promoted; a brand-new Group already over the limit is rejected outright instead (see
- * rejectNewGroupIfOverLimit) rather than promoted.
+ * Only PATCH promotes, and only an existing resource can be patched, so doc._uuid and
+ * doc._sourceAssigningAuthority are always already set (carried forward from the loaded Group).
  *
  * @param {Object} params
  * @param {Resource} params.doc - Mutated in place (member deleted, MONGO_GROUP_EXTENDED_FIELD set).
  * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
  * @param {string} params.base_version
  * @param {import('../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} params.mongoGroupMemberRepository
- * @param {boolean} [params.flush] - forwarded to applyResolvedMemberWritesAsync; see that
- *   method's own docstring. Defaults to true (self-flush) for create/update/patch, which each
- *   handle one resource per request. mergeManager passes false: a $merge batch stages every
- *   resource under the same requestId's buffer and only flushes once, after its whole loop
- *   finishes, so the roster's create/update ops just need to join that same buffer, not trigger
- *   their own premature flush of everything staged so far.
  * @returns {Promise<Map<string, {writeRequest: Object, writeType: 'create'|'update'|'delete'|'none', member: Object|undefined}>>}
- *   the resolvedMemberWrites this call staged. A `flush: false` caller (mergeManager.js) that
- *   goes on to stage its own doc right after this call does NOT roll these back if that
- *   subsequent staging fails -- the Group's own version is never bumped on that failure, so the
- *   Group is left exactly as if promotion had crashed mid-flight: still over-limit, not yet
- *   marked extended. The next write to the same uuid re-enters promotion and resolves every
- *   member through the same resolveMemberWrite state table, so rows already buffered/flushed here
- *   classify as 'none'/'update' instead of duplicating.
+ *   the resolvedMemberWrites this call wrote. They are not rolled back if the caller's own write
+ *   of doc then fails -- the Group's own version is never bumped on that failure, so the Group is
+ *   left exactly as if promotion had crashed mid-flight: still over-limit, not yet marked
+ *   extended. The next PATCH that crosses the limit re-enters promotion, which wipes these rows
+ *   first.
+ * @throws if the roster write fails; doc is left unmodified, so the caller must not write it.
  */
-async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberRepository, flush = true }) {
+async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberRepository }) {
     const members = doc.member;
     try {
-        // Members submitted directly on a create/PUT/$merge body, or appended via a standard
-        // JSON-Patch op on the embedded array, never go through referenceGlobalIdHandler (that
-        // only runs later, inside the caller's own insertOneAsync/replaceOneAsync/mergeOneAsync
+        // Members appended via a standard JSON-Patch op on the embedded array never go through
+        // referenceGlobalIdHandler (that only runs later, inside patch.js's own replaceOneAsync
         // call) -- so entity._uuid/_sourceId may not be populated yet. enrichMemberReferences
         // mirrors that handler for exactly this kind of bypass and is a no-op for any entry
         // that's already enriched.
@@ -164,8 +151,7 @@ async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberR
             groupLastUpdated: doc.meta.lastUpdated,
             sourceAssigningAuthority: doc._sourceAssigningAuthority,
             securityTags: doc.meta.security,
-            resolvedMemberWrites,
-            flush
+            resolvedMemberWrites
         });
 
         // Only now, with the roster durably written, fold the promotion into the doc that's about
@@ -193,9 +179,9 @@ async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberR
 }
 
 /**
- * Promotes an existing Group (PUT-update, PATCH, $merge-update) whose member[] has crossed the
- * limit. doc._uuid/_sourceAssigningAuthority are already set -- they're persisted fields carried
- * forward from the resource that was loaded, not something this request computes.
+ * Promotes a Group whose member[] a PATCH has pushed over groupMemberPromotionLimit. PATCH is the
+ * only write that promotes; POST, PUT and $merge reject an over-limit member[] instead (see
+ * getGroupMemberLimitError).
  *
  * @param {Object} params
  * @param {Resource} params.doc
@@ -203,16 +189,14 @@ async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberR
  * @param {string} params.base_version
  * @param {import('./configManager').ConfigManager} params.configManager
  * @param {import('../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} params.mongoGroupMemberRepository
- * @param {boolean} [params.flush] - see promoteGroup's docstring.
  * @returns {Promise<Map|undefined>} promoteGroup's resolvedMemberWrites, or undefined if doc
- *   wasn't over the limit and nothing was promoted. See promoteGroup's own docstring for how a
- *   `flush: false` caller must use this to roll back on a subsequent failure.
+ *   wasn't over the limit and nothing was promoted.
  */
-async function promoteExistingGroupIfNeeded ({ doc, requestInfo, base_version, configManager, mongoGroupMemberRepository, flush = true }) {
+async function promoteExistingGroupIfNeeded ({ doc, requestInfo, base_version, configManager, mongoGroupMemberRepository }) {
     if (!isGroupOverLimit({ doc, configManager, limit: configManager.groupMemberPromotionLimit, requestInfo })) {
         return undefined;
     }
-    return promoteGroup({ doc, requestInfo, base_version, mongoGroupMemberRepository, flush });
+    return promoteGroup({ doc, requestInfo, base_version, mongoGroupMemberRepository });
 }
 
 /**
@@ -245,43 +229,52 @@ async function cleanupExtendedGroupOrphansIfNeeded ({ doc, requestInfo, base_ver
 }
 
 /**
- * Rejects a brand-new Group (CREATE, PUT-insert) whose member[] already arrives over the limit. A
- * brand-new Group has no addressable identity yet -- a fresh POST always mints a new id/_uuid, so
- * if promotion durably wrote the roster and the Group's own write then failed, no client retry
- * could ever reach those rows to complete or clean up promotion. Every other path -- PUT-update,
- * PATCH, and both $merge branches -- keeps promoting instead of rejecting: all four operate on a
- * Group that already has (or, for $merge-insert, is given by the client rather than
- * server-minted) a stable, addressable identity, so if the roster write durably lands but the
- * Group's own write then fails for any of them, nothing is orphaned -- the Group's version is
- * never bumped, and the next write to that same uuid simply re-enters promotion and resolves
- * cleanly, same as any other crash-recovery case. This is a narrower reject scope
- * than the original epic doc's Task B1 (which rejected any single bulk write, including PUT-update
- * and $merge, promoting only a dedicated incremental-add operation that no longer exists in this
- * codebase) -- scoped down deliberately to just the orphan-risk case, not full doc fidelity.
+ * too-costly error for a POST, PUT or $merge whose Group member[] exceeds
+ * configManager.groupMemberLimit, or undefined when the write is allowed. Large rosters go
+ * through PATCH, which promotes the Group to extended member storage once it crosses
+ * groupMemberPromotionLimit, so these writes never touch GroupMember_4_0_0. For $merge, doc is
+ * the merged result, so the count includes the members the Group already has.
  *
  * @param {Object} params
  * @param {Resource} params.doc
  * @param {import('./configManager').ConfigManager} params.configManager
  * @param {import('./fhirRequestInfo').FhirRequestInfo} [params.requestInfo] - see
  *   isGroupOverLimit's own docstring for why this matters.
- * @returns {void}
- * @throws {BadRequestError} when doc.member[] exceeds configManager.groupMemberLimit
+ * @returns {BadRequestError|undefined}
  */
-function rejectNewGroupIfOverLimit ({ doc, configManager, requestInfo }) {
+function getGroupMemberLimitError ({ doc, configManager, requestInfo }) {
     if (!isGroupOverLimit({ doc, configManager, limit: configManager.groupMemberLimit, requestInfo })) {
-        return;
+        return undefined;
     }
     const { message, options } = createTooCostlyError({
         actual: doc.member.length,
         limit: configManager.groupMemberLimit,
         operation: 'PUT'
     });
-    throw new BadRequestError({ message }, options);
+    return new BadRequestError({ message }, options);
+}
+
+/**
+ * Throwing form of getGroupMemberLimitError, for POST and PUT.
+ *
+ * @param {Object} params
+ * @param {Resource} params.doc
+ * @param {import('./configManager').ConfigManager} params.configManager
+ * @param {import('./fhirRequestInfo').FhirRequestInfo} [params.requestInfo]
+ * @returns {void}
+ * @throws {BadRequestError} when doc.member[] exceeds configManager.groupMemberLimit
+ */
+function rejectGroupOverMemberLimit ({ doc, configManager, requestInfo }) {
+    const error = getGroupMemberLimitError({ doc, configManager, requestInfo });
+    if (error) {
+        throw error;
+    }
 }
 
 module.exports = {
     isGroupOverLimit,
     promoteExistingGroupIfNeeded,
-    rejectNewGroupIfOverLimit,
+    getGroupMemberLimitError,
+    rejectGroupOverMemberLimit,
     cleanupExtendedGroupOrphansIfNeeded
 };

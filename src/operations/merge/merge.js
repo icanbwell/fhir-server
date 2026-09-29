@@ -16,7 +16,7 @@ const { QueryItem } = require('../graph/queryItem');
 const { ConfigManager } = require('../../utils/configManager');
 const { MergeValidator } = require('./mergeValidator');
 const { logError } = require('../common/logging');
-const { ACCESS_LOGS_ENTRY_DATA, GROUP_MEMBER_RESOURCE_TYPE } = require('../../constants');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isTrue } = require('../../utils/isTrue');
 const { Transform } = require('stream'); // <- for Transform stream class
 const { pipeline } = require('stream/promises'); // <- for async pipeline
@@ -27,34 +27,6 @@ const { fhirContentTypes } = require('../../utils/contentTypes');
 const { recordMergeOutcomes, recordInboundBundleSize, OPERATION } = require('../../utils/metrics');
 const { CustomTracer } = require('../../utils/customTracer');
 
-/**
- * GroupMember rows are internal storage for an extended Group and never appear in a $merge
- * response; a failed roster write is reported as a failure of its parent Group's own entry.
- * @param {MergeResultEntry[]} inserted
- * @returns {MergeResultEntry[]} inserted without any GroupMember entries
- */
-function hideGroupMemberResults (inserted) {
-    const groupUuidsWithFailedRoster = new Set(
-        inserted
-            .filter(r => r.resourceType === GROUP_MEMBER_RESOURCE_TYPE && r.issue && r.groupUuid)
-            .map(r => r.groupUuid)
-    );
-    const visible = inserted.filter(r => r.resourceType !== GROUP_MEMBER_RESOURCE_TYPE);
-    for (const entry of visible) {
-        if (groupUuidsWithFailedRoster.has(entry._uuid)) {
-            entry.created = false;
-            entry.updated = false;
-            entry.issue = entry.issue || new OperationOutcomeIssue({
-                severity: 'error',
-                code: 'exception',
-                details: new CodeableConcept({ text: 'Error writing Group members' }),
-                diagnostics: 'Error writing Group members',
-                expression: [`${entry.resourceType}/${entry.id}`]
-            });
-        }
-    }
-    return visible;
-}
 
 class MergeOperation {
     /**
@@ -282,10 +254,7 @@ class MergeOperation {
                     base_version
                 })
             });
-            // promoteExistingGroupIfNeeded stages GroupMember rows into this same batch (flush:
-            // false); the caller never submitted them, and for a single (non-list) request
-            // mergeResults[0] could otherwise become one of them after the _uuid sort below.
-            mergeResults = mergeResults.concat(hideGroupMemberResults(inserted));
+            mergeResults = mergeResults.concat(inserted);
 
             // addSuccessfulMergesToMergeResult must run AFTER the bulk insert —
             // it skips UUIDs already present in mergeResults, including the
@@ -661,12 +630,10 @@ class MergeOperation {
             base_version
         });
 
-        const visibleInserted = hideGroupMemberResults(inserted);
-
-        const insertedUuids = new Set(visibleInserted.map(r => r._uuid));
+        const insertedUuids = new Set(inserted.map(r => r._uuid));
 
         // Push actual inserted results
-        visibleInserted.forEach(res => {
+        inserted.forEach(res => {
             finalMergeResults.push(res);
             stream.push(res);
         });

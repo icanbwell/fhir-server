@@ -7,6 +7,7 @@ const { generateUUIDv5 } = require('../../utils/uid.util');
 const { GROUP_MEMBER_RESOURCE_TYPE } = require('../../constants');
 const { resolveMemberWrite } = require('../../operations/common/resolveMemberWrite');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { logError } = require('../../operations/common/logging');
 
 /**
  * Repository for the MongoDB-native, large-Group ("extended") member storage, written from
@@ -21,9 +22,8 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
  * members, deciding what each requested write actually needs to do) and then, unless every one
  * of them resolved to a no-op, pass that same result into applyResolvedMemberWritesAsync() to
  * write it -- one DB read+resolve per PATCH request, not two. applyResolvedMemberWritesAsync()
- * flushes its own buffered create/update writes before returning (so callers don't need their
- * own reference to this same FastDatabaseBulkInserter instance just to commit it), unless told
- * not to via `flush: false` -- see that method's own docstring for when a caller needs that.
+ * flushes its create/update ops before returning, ahead of the Group's own write, and throws if
+ * any of them fails.
  *
  * A PATCH remove hard-deletes the GroupMember document instead of a soft inactive:true flag, via
  * RemoveHelper.deleteManyAsync() (history-then-delete), wired to the databaseBulkInserter
@@ -142,16 +142,11 @@ class MongoGroupMemberRepository {
      * @param {Coding[]|undefined} params.securityTags - copied from the owning Group's meta.security
      * @param {Map<string, {writeRequest: Object, writeType: 'create'|'update'|'delete'|'none', member: Object|undefined}>} params.resolvedMemberWrites
      *   the result of a prior resolveMemberWritesAsync call against these same requested writes.
-     * @param {boolean} [params.flush] - defaults to true (flush immediately, the PATCH caller's
-     *   behavior: one resource per request, nothing else sharing its buffer). A caller that stages
-     *   other resources under the same requestId's buffer before its own end-of-request flush (e.g.
-     *   a $merge batch, which only flushes once after its whole resource loop finishes) should pass
-     *   false: the create/update ops staged here then simply join that same buffer and get flushed
-     *   together with everything else, instead of this call prematurely flushing and clearing
-     *   entries the caller already staged earlier for other resources under the same requestId.
      * @returns {Promise<Array<{reference:string, operation:'create'|'update'|'delete'|'none'}>>}
+     * @throws {Error} if any create/update fails to write, so the caller never goes on to write
+     *   the Group itself against a roster that isn't there.
      */
-    async applyResolvedMemberWritesAsync({ requestInfo, base_version, groupUuid, groupVersionId, groupLastUpdated, sourceAssigningAuthority, securityTags, resolvedMemberWrites, flush = true }) {
+    async applyResolvedMemberWritesAsync({ requestInfo, base_version, groupUuid, groupVersionId, groupLastUpdated, sourceAssigningAuthority, securityTags, resolvedMemberWrites }) {
         if (!resolvedMemberWrites || resolvedMemberWrites.size === 0) {
             return [];
         }
@@ -207,8 +202,19 @@ class MongoGroupMemberRepository {
             hasBufferedWrite = true;
         }
 
-        if (hasBufferedWrite && flush) {
-            await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+        if (hasBufferedWrite) {
+            const results = await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+            const failedResults = results.filter((result) => result.issue);
+            if (failedResults.length > 0) {
+                logError('Error writing Group members', {
+                    args: {
+                        requestId: requestInfo.requestId,
+                        groupUuid,
+                        issues: failedResults.map((result) => result.issue)
+                    }
+                });
+                throw new Error('Error writing Group members');
+            }
         }
 
         if (docsToDelete.length > 0) {

@@ -307,7 +307,6 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                                 created: false,
                                 updated: false,
                                 resourceType,
-                                groupUuid: operationByCollection.resource?.groupUuid,
                                 issue: new OperationOutcomeIssue({
                                     severity: 'error',
                                     code: 'exception',
@@ -531,8 +530,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
             sourceAssigningAuthority: bulkInsertUpdateEntry.sourceAssigningAuthority,
             created: bulkInsertUpdateEntry.isCreateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
             updated: bulkInsertUpdateEntry.isUpdateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
-            resourceType,
-            groupUuid: bulkInsertUpdateEntry.resource?.groupUuid
+            resourceType
         });
         if (hasBulkWriteErrors) {
             const bulkWriteErrors = bulkWriteResult.getWriteErrors();

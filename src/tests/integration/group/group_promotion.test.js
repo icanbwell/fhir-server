@@ -1,29 +1,17 @@
 /**
  * Group promotion to extended member storage (DCON-5528)
  *
- * Once an *existing* Group's member[] crosses configManager.groupMemberPromotionLimit,
- * promoteExistingGroupIfNeeded (src/utils/groupPromotion.js) promotes it: called directly from the
- * write paths that can promote an existing Group -- update.js's PUT-existing branch, patch.js (the
- * embedded-regime branch), and mergeManager.js (both branches) -- right before each one's own
- * replaceOneAsync/mergeOneAsync call. Promotion first bulk-writes the roster into GroupMember_4_0_0
- * (via the same MongoGroupMemberRepository the PATCH write path already uses -- see
- * group_member_patch_write.test.js), then -- only once that succeeds -- mutates the in-memory doc
- * (unsets member[], sets MONGO_GROUP_EXTENDED_FIELD/_extended: true) that the caller is about to
- * persist, so the strip+flag rides along in the SAME physical write and the SAME meta.versionId
- * bump the caller already intended, rather than a second, separately-versioned write.
+ * PATCH is the only write that promotes. Once a PATCH pushes an embedded Group's member[] over
+ * configManager.groupMemberPromotionLimit, promoteExistingGroupIfNeeded (src/utils/groupPromotion.js)
+ * first bulk-writes the roster into GroupMember_4_0_0 (via the same MongoGroupMemberRepository the
+ * extended PATCH write path uses -- see group_member_patch_write.test.js), then -- only once that
+ * succeeds -- mutates the in-memory doc (unsets member[], sets MONGO_GROUP_EXTENDED_FIELD/_extended:
+ * true) that patch.js is about to persist, so the strip+flag rides along in the SAME physical write
+ * and the SAME meta.versionId bump, rather than a second, separately-versioned write.
  *
- * A brand-new Group (CREATE, PUT-insert) is rejected outright instead of promoted when member[]
- * already arrives over the limit (rejectNewGroupIfOverLimit): a fresh POST always mints a
- * server-generated id, so a promote-then-fail on that path could orphan roster rows with nothing
- * left to recover through. $merge-insert is the one brand-new-Group path that still promotes: the
- * client (not the server) supplies id there, so
- * identity is stable across a retry -- if the Group's own write then fails, the roster rows
- * already staged are simply left as they are (see "Group's own write fails after promotion
- * already staged the roster" below), and the next write to the same uuid resolves them
- * idempotently, same as any other crash-recovery case. This reject is narrower than the original
- * epic doc's Task B1, which rejected any single bulk write over the limit (including PUT-update
- * and $merge) and promoted only a dedicated incremental-add operation that no longer exists in
- * this codebase -- scoped down deliberately to just the orphan-risk case.
+ * POST, PUT and $merge never promote: when the Group's member[] (for $merge, the merged result)
+ * exceeds configManager.groupMemberLimit, the write is rejected with too-costly, pointing to PATCH.
+ * $merge reports that as the Group's own failed entry; the rest of the batch is unaffected.
  *
  * ENABLE_EXTENDED_GROUP is set to '1' globally in jest/setEnvVars.js.
  */
@@ -33,12 +21,14 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, 
 const { GROUP_MEMBER_COLLECTION_NAME, GROUP_MEMBER_HISTORY_COLLECTION_NAME } = require('../../../constants');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../utils/mongoGroupExtendedTag');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
+const { hasExternalStorageMemberTag } = require('../../../utils/clickHouseGroupPreSave');
+const { assertTooCostlyOperationOutcome } = require('./groupTestHelpers');
 
 const GROUP_COLLECTION_NAME = 'Group_4_0_0';
 
-function defaultMeta() {
+function defaultMeta(source = 'http://test-system.com/Group') {
     return {
-        source: 'http://test-system.com/Group',
+        source,
         security: [
             { system: 'https://www.icanbwell.com/owner', code: 'test-owner' },
             { system: 'https://www.icanbwell.com/access', code: 'test-access' }
@@ -48,6 +38,14 @@ function defaultMeta() {
 
 function buildMembers(count, prefix) {
     return Array.from({ length: count }, (_, i) => ({ entity: { reference: `Patient/${prefix}-${i}` } }));
+}
+
+function groupBody(groupId, members) {
+    return { resourceType: 'Group', id: groupId, type: 'person', actual: true, meta: defaultMeta(), member: members };
+}
+
+function addMemberOps(references) {
+    return references.map((reference) => ({ op: 'add', path: '/member/-', value: { entity: { reference } } }));
 }
 
 describe('Group promotion to extended member storage', () => {
@@ -67,6 +65,8 @@ describe('Group promotion to extended member storage', () => {
     beforeEach(() => {
         savedLimit = process.env.MAX_GROUP_MEMBERS_PER_PUT;
         savedPromotionLimit = process.env.GROUP_MEMBER_PROMOTION_LIMIT;
+        process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+        process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
     });
 
     afterEach(() => {
@@ -108,6 +108,17 @@ describe('Group promotion to extended member storage', () => {
             .set(getHeadersJsonPatch());
     }
 
+    async function putGroup(groupId, members) {
+        return request
+            .put(`/4_0_0/Group/${groupId}`)
+            .send(groupBody(groupId, members))
+            .set(getHeaders());
+    }
+
+    async function mergeResources(body) {
+        return request.post('/4_0_0/Group/$merge').send(body).set(getHeaders());
+    }
+
     async function getGroupDoc(groupId) {
         const groupCollection = await getCollection(GROUP_COLLECTION_NAME);
         return groupCollection.findOne({ id: groupId });
@@ -139,6 +150,28 @@ describe('Group promotion to extended member storage', () => {
         expect(rows).toHaveLength(expectedRosterSize);
     }
 
+    async function expectNotPromoted(groupId, embeddedMemberCount, expectedRowCount = 0) {
+        const groupDoc = await getGroupDoc(groupId);
+        expect(groupDoc[MONGO_GROUP_EXTENDED_FIELD]).not.toBe(true);
+        expect(groupDoc.member).toHaveLength(embeddedMemberCount);
+        expect(await getMemberRows(groupDoc._uuid)).toHaveLength(expectedRowCount);
+    }
+
+    /**
+     * Creates an embedded Group at the limit (3 members), then promotes it with a PATCH adding
+     * one more -- 4 GroupMember rows.
+     */
+    async function createPromotedGroup(prefix) {
+        const created = await createGroup({ member: buildMembers(3, prefix) });
+        expect(created.status).toBe(201);
+        const groupId = created.body.id;
+
+        const patchResp = await patchGroup(groupId, addMemberOps([`Patient/${prefix}-3`]));
+        expect(patchResp.status).toBe(200);
+        await expectPromoted(groupId, 4);
+        return groupId;
+    }
+
     /**
      * History writes are deferred to after the HTTP response (PostRequestProcessor), so poll
      * for the expected count instead of assuming it's already there.
@@ -153,487 +186,233 @@ describe('Group promotion to extended member storage', () => {
         return rows;
     }
 
-    describe('CREATE', () => {
-        test('member[] already over the limit is rejected outright, nothing is written', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
-            const members = buildMembers(4, 'create-over-limit');
+    /**
+     * Fails the next Group_4_0_0 bulk write only -- i.e. the Group's own commit, after
+     * promotion or commitPendingMemberWrites has already written the roster.
+     */
+    function failNextGroupWrite() {
+        const realBulkWrite = Collection.prototype.bulkWrite;
+        const state = { thrown: false };
+        jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(function (operations, options) {
+            if (this.collectionName === GROUP_COLLECTION_NAME && !state.thrown) {
+                state.thrown = true;
+                return Promise.reject(new Error('simulated crash after roster write, before Group document commit'));
+            }
+            return realBulkWrite.call(this, operations, options);
+        });
+        return state;
+    }
 
-            const createResp = await createGroup({ member: members });
-            expect(createResp.status).toBe(400);
+    describe('POST, PUT and $merge over MAX_GROUP_MEMBERS_PER_PUT are rejected with too-costly', () => {
+        test('POST: rejected, nothing is written', async () => {
+            const createResp = await createGroup({ member: buildMembers(4, 'post-over-limit') });
 
-            const rows = await getMemberRowsByReferencePrefix('create-over-limit');
-            expect(rows).toHaveLength(0);
+            assertTooCostlyOperationOutcome(createResp, 4, 3);
+            expect(await getMemberRowsByReferencePrefix('post-over-limit')).toHaveLength(0);
         });
 
-        test('via PUT-insert (new id), member[] already over the limit is rejected outright, nothing is written', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
+        test('PUT-insert (new id): rejected, nothing is written', async () => {
             const groupId = 'put-insert-over-limit';
-            const members = buildMembers(4, 'put-insert-over-limit');
 
-            const putResp = await request
-                .put(`/4_0_0/Group/${groupId}`)
-                .send({
-                    resourceType: 'Group',
-                    id: groupId,
-                    type: 'person',
-                    actual: true,
-                    meta: defaultMeta(),
-                    member: members
-                })
-                .set(getHeaders());
-            expect(putResp.status).toBe(400);
+            const putResp = await putGroup(groupId, buildMembers(4, 'put-insert-over-limit'));
 
-            const groupDoc = await getGroupDoc(groupId);
-            expect(groupDoc).toBeNull();
-
-            const rows = await getMemberRowsByReferencePrefix('put-insert-over-limit');
-            expect(rows).toHaveLength(0);
+            assertTooCostlyOperationOutcome(putResp, 4, 3);
+            expect(await getGroupDoc(groupId)).toBeNull();
+            expect(await getMemberRowsByReferencePrefix('put-insert-over-limit')).toHaveLength(0);
         });
 
-        test('via $merge (insert), member[] already over the limit still succeeds and promotes -- client-supplied id keeps identity stable across a retry, unlike plain CREATE/PUT-insert', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
-            const groupId = 'create-via-merge-over-limit';
-            const members = buildMembers(4, 'create-merge-over-limit');
-
-            const mergeResp = await request
-                .post('/4_0_0/Group/$merge')
-                .send({
-                    resourceType: 'Group',
-                    id: groupId,
-                    type: 'person',
-                    actual: true,
-                    meta: defaultMeta(),
-                    member: members
-                })
-                .set(getHeaders());
-            expect(mergeResp.status).toBe(200);
-
-            await expectPromoted(groupId, 4);
-        });
-    });
-
-    describe('existing Group crossing the limit', () => {
-        test('PUT with 5 more members over a 50-member limit (49 -> 54) succeeds and promotes', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '50';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '50';
-            const created = await createGroup({ member: buildMembers(49, 'put-cross') });
-            expect(created.status).toBe(201);
-
-            const allMembers = [...buildMembers(49, 'put-cross'), ...buildMembers(5, 'put-cross-new')];
-            const putResp = await request
-                .put(`/4_0_0/Group/${created.body.id}`)
-                .send({
-                    resourceType: 'Group',
-                    id: created.body.id,
-                    type: 'person',
-                    actual: true,
-                    meta: defaultMeta(),
-                    member: allMembers
-                })
-                .set(getHeaders());
-            expect(putResp.status).toBe(200);
-
-            await expectPromoted(created.body.id, 54);
-        });
-
-        test('$merge with the full updated member[] crossing the limit succeeds and promotes', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
-            const created = await createGroup({ member: buildMembers(2, 'merge-cross') });
-            expect(created.status).toBe(201);
-
-            const allMembers = [...buildMembers(2, 'merge-cross'), ...buildMembers(2, 'merge-cross-new')];
-            const mergeResp = await request
-                .post('/4_0_0/Group/$merge')
-                .send({
-                    resourceType: 'Group',
-                    id: created.body.id,
-                    type: 'person',
-                    actual: true,
-                    meta: defaultMeta(),
-                    member: allMembers
-                })
-                .set(getHeaders());
-            expect(mergeResp.status).toBe(200);
-
-            await expectPromoted(created.body.id, 4);
-        });
-
-        test('$merge whose roster write fails reports the Group as failed and never mentions GroupMember', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
-            const created = await createGroup({ member: buildMembers(2, 'merge-roster-fail') });
+        test('PUT-update: rejected, the existing Group is unchanged and not promoted', async () => {
+            const created = await createGroup({ member: buildMembers(2, 'put-update-over-limit') });
             expect(created.status).toBe(201);
             const groupId = created.body.id;
 
-            const realBulkWrite = Collection.prototype.bulkWrite;
-            jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(function (operations, options) {
-                if (this.collectionName === GROUP_MEMBER_COLLECTION_NAME) {
-                    // 10334 (document too large) is reported per entry by mongoBulkWriteExecutor
-                    // instead of being rethrown, which is the path that used to be silently dropped.
-                    return Promise.reject(Object.assign(new Error('simulated roster write failure'), { code: 10334 }));
-                }
-                return realBulkWrite.call(this, operations, options);
-            });
+            const putResp = await putGroup(groupId, buildMembers(4, 'put-update-over-limit'));
 
-            try {
-                const mergeResp = await request
-                    .post('/4_0_0/Group/$merge')
-                    .send({
-                        resourceType: 'Group',
-                        id: groupId,
-                        type: 'person',
-                        actual: true,
-                        meta: defaultMeta(),
-                        member: [...buildMembers(2, 'merge-roster-fail'), ...buildMembers(2, 'merge-roster-fail-new')]
-                    })
-                    .set(getHeaders());
-                expect(mergeResp.status).toBe(200);
-
-                const entries = Array.isArray(mergeResp.body) ? mergeResp.body : [mergeResp.body];
-                expect(entries).toHaveLength(1);
-                expect(entries[0].resourceType).toBe('Group');
-                expect(entries[0].id).toBe(groupId);
-                expect(entries[0].created).toBeFalsy();
-                expect(entries[0].updated).toBeFalsy();
-                expect(entries[0].issue).toBeDefined();
-                expect(JSON.stringify(mergeResp.body)).not.toContain('GroupMember');
-            } finally {
-                Collection.prototype.bulkWrite.mockRestore();
-            }
+            assertTooCostlyOperationOutcome(putResp, 4, 3);
+            expect((await getGroupDoc(groupId)).meta.versionId).toBe('1');
+            await expectNotPromoted(groupId, 2);
         });
 
-        test('standard PATCH add ops on an embedded Group crossing the limit succeed and promote', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
-            const created = await createGroup({ member: buildMembers(2, 'patch-cross') });
+        test('$merge-insert: the Group entry fails with too-costly and the Group is not written', async () => {
+            const groupId = 'merge-insert-over-limit';
+
+            const mergeResp = await mergeResources(groupBody(groupId, buildMembers(4, 'merge-insert-over-limit')));
+
+            expect(mergeResp.status).toBe(200);
+            expect(mergeResp.body).toEqual(expect.objectContaining({
+                resourceType: 'Group', id: groupId, created: false, updated: false
+            }));
+            expect(mergeResp.body.issue.code).toBe('too-costly');
+            expect(mergeResp.body.issue.diagnostics).toContain('4 > 3');
+            expect(await getGroupDoc(groupId)).toBeNull();
+            expect(await getMemberRowsByReferencePrefix('merge-insert-over-limit')).toHaveLength(0);
+        });
+
+        test('$merge-update: checked on the merged result -- 2 existing + 2 new members is rejected though the body only has 2', async () => {
+            const created = await createGroup({ member: buildMembers(2, 'merge-update-existing') });
             expect(created.status).toBe(201);
+            const groupId = created.body.id;
 
-            const patchResp = await patchGroup(created.body.id, [
-                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/patch-cross-new-0' } } },
-                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/patch-cross-new-1' } } }
+            const mergeResp = await mergeResources(groupBody(groupId, buildMembers(2, 'merge-update-new')));
+
+            expect(mergeResp.status).toBe(200);
+            expect(mergeResp.body).toEqual(expect.objectContaining({ id: groupId, created: false, updated: false }));
+            expect(mergeResp.body.issue.code).toBe('too-costly');
+            expect(mergeResp.body.issue.diagnostics).toContain('4 > 3');
+            expect((await getGroupDoc(groupId)).meta.versionId).toBe('1');
+            await expectNotPromoted(groupId, 2);
+        });
+
+        test('$merge list with other resource types: only the over-limit Group fails, the rest are written', async () => {
+            const patientId = 'merge-mixed-patient';
+            const overLimitGroupId = 'merge-mixed-group-over';
+            const underLimitGroupId = 'merge-mixed-group-under';
+
+            const mergeResp = await mergeResources([
+                { resourceType: 'Patient', id: patientId, meta: defaultMeta('http://test-system.com/Patient') },
+                groupBody(overLimitGroupId, buildMembers(4, 'merge-mixed-over')),
+                groupBody(underLimitGroupId, buildMembers(2, 'merge-mixed-under'))
             ]);
-            expect(patchResp.status).toBe(200);
 
-            await expectPromoted(created.body.id, 4);
+            expect(mergeResp.status).toBe(200);
+            expect(mergeResp.body).toHaveLength(3);
+            const entryFor = (resourceType, id) => mergeResp.body.find(
+                (entry) => entry.resourceType === resourceType && entry.id === id
+            );
+
+            expect(entryFor('Patient', patientId)).toEqual(expect.objectContaining({ created: true }));
+            expect(entryFor('Group', underLimitGroupId)).toEqual(expect.objectContaining({ created: true }));
+            const overLimitEntry = entryFor('Group', overLimitGroupId);
+            expect(overLimitEntry).toEqual(expect.objectContaining({ created: false, updated: false }));
+            expect(overLimitEntry.issue.code).toBe('too-costly');
+
+            expect(await getGroupDoc(overLimitGroupId)).toBeNull();
+            await expectNotPromoted(underLimitGroupId, 2);
         });
     });
 
-    describe('already extended', () => {
-        test('a further PATCH add on an already-promoted Group does not re-promote', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
-            // Created under the limit, then crossed via PUT-update -- CREATE itself now rejects an
-            // over-limit brand-new Group outright (see the "CREATE" describe block above), so
-            // getting to an already-promoted Group has to go through an existing-Group crossing.
-            const created = await createGroup({ member: buildMembers(3, 'no-repromote') });
+    describe('PATCH promotes', () => {
+        test('standard PATCH add ops on an embedded Group crossing the limit succeed and promote', async () => {
+            const created = await createGroup({ member: buildMembers(2, 'patch-cross') });
             expect(created.status).toBe(201);
 
-            const putResp = await request
-                .put(`/4_0_0/Group/${created.body.id}`)
-                .send({
-                    resourceType: 'Group',
-                    id: created.body.id,
-                    type: 'person',
-                    actual: true,
-                    meta: defaultMeta(),
-                    member: buildMembers(4, 'no-repromote')
-                })
-                .set(getHeaders());
-            expect(putResp.status).toBe(200);
-            await expectPromoted(created.body.id, 4);
-            const groupDocAfterFirstPromotion = await getGroupDoc(created.body.id);
-            const firstVersionId = groupDocAfterFirstPromotion.meta.versionId;
-
-            const patchResp = await patchGroup(created.body.id, [
-                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/no-repromote-extra' } } }
-            ]);
+            const patchResp = await patchGroup(created.body.id, addMemberOps([
+                'Patient/patch-cross-new-0',
+                'Patient/patch-cross-new-1'
+            ]));
             expect(patchResp.status).toBe(200);
 
-            const groupDoc = await getGroupDoc(created.body.id);
+            await expectPromoted(created.body.id, 4);
+        });
+
+        test('uses GROUP_MEMBER_PROMOTION_LIMIT, not MAX_GROUP_MEMBERS_PER_PUT', async () => {
+            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '5';
+            const created = await createGroup({ member: buildMembers(3, 'patch-own-limit') });
+            expect(created.status).toBe(201);
+            const groupId = created.body.id;
+
+            // 4 members: over MAX_GROUP_MEMBERS_PER_PUT (3) but within the promotion limit (5).
+            const firstPatch = await patchGroup(groupId, addMemberOps(['Patient/patch-own-limit-3']));
+            expect(firstPatch.status).toBe(200);
+            await expectNotPromoted(groupId, 4);
+
+            // 6 members: over the promotion limit.
+            const secondPatch = await patchGroup(groupId, addMemberOps([
+                'Patient/patch-own-limit-4',
+                'Patient/patch-own-limit-5'
+            ]));
+            expect(secondPatch.status).toBe(200);
+            await expectPromoted(groupId, 6);
+        });
+
+        test('a further PATCH add on an already-promoted Group does not re-promote', async () => {
+            const groupId = await createPromotedGroup('no-repromote');
+            const firstVersionId = (await getGroupDoc(groupId)).meta.versionId;
+
+            const patchResp = await patchGroup(groupId, addMemberOps(['Patient/no-repromote-extra']));
+            expect(patchResp.status).toBe(200);
+
+            const groupDoc = await getGroupDoc(groupId);
             expect(groupDoc[MONGO_GROUP_EXTENDED_FIELD]).toBe(true);
             expect(groupDoc.member).toBeUndefined();
-            // Metadata-only PATCH write on an already-extended Group still bumps versionId once,
-            // via the ordinary write path -- it just never re-enters promoteExistingGroupIfNeeded's
-            // promotion branch again (doc[MONGO_GROUP_EXTENDED_FIELD] === true short-circuits it).
             expect(parseInt(groupDoc.meta.versionId, 10)).toBeGreaterThan(parseInt(firstVersionId, 10));
+            expect(await getMemberRows(groupDoc._uuid)).toHaveLength(5);
+        });
 
-            const rows = await getMemberRows(groupDoc._uuid);
-            expect(rows).toHaveLength(5);
+        test('a member missing entity.reference rejects the whole PATCH instead of silently dropping the member', async () => {
+            const created = await createGroup({ member: buildMembers(3, 'missing-ref') });
+            expect(created.status).toBe(201);
+            const groupId = created.body.id;
+
+            const patchResp = await patchGroup(groupId, [
+                { op: 'add', path: '/member/-', value: { entity: { display: 'no reference on this one' } } }
+            ]);
+            expect(patchResp.status).toBeGreaterThanOrEqual(400);
+
+            // Validation runs before any roster write is attempted, so rejection is all-or-nothing
+            // -- not a partial promotion that writes the other 3 and drops the bad entry.
+            expect((await getGroupDoc(groupId)).meta.versionId).toBe('1');
+            await expectNotPromoted(groupId, 3);
         });
     });
 
     describe('crash recovery', () => {
-        test('a failure in the outer Group write leaves the roster durably written; the next write completes promotion', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
-
-            // Create under the limit first (no promotion attempted), so a failed update below
-            // leaves this pre-existing, known document in place -- unlike a failed create, which
-            // would leave nothing to look up a groupUuid from at all.
+        test('a failure in the Group\'s own write leaves the roster written; the next PATCH completes promotion', async () => {
             const created = await createGroup({ member: buildMembers(2, 'crash-recovery') });
             expect(created.status).toBe(201);
             const groupId = created.body.id;
+            const newMemberOps = addMemberOps(['Patient/crash-recovery-2', 'Patient/crash-recovery-3']);
 
-            const realBulkWrite = Collection.prototype.bulkWrite;
-            let thrown = false;
-            jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(function (operations, options) {
-                // Only the OUTER Group_4_0_0 write fails -- the roster write inside
-                // promoteExistingGroupIfNeeded targets GroupMember_4_0_0 and must succeed, since
-                // it runs (and is awaited) BEFORE this failing call even happens.
-                if (this.collectionName === GROUP_COLLECTION_NAME && !thrown) {
-                    thrown = true;
-                    return Promise.reject(new Error('simulated crash after roster write, before Group document commit'));
-                }
-                return realBulkWrite.call(this, operations, options);
-            });
-
+            const state = failNextGroupWrite();
             try {
-                const putResp = await request
-                    .put(`/4_0_0/Group/${groupId}`)
-                    .send({
-                        resourceType: 'Group',
-                        id: groupId,
-                        type: 'person',
-                        actual: true,
-                        meta: defaultMeta(),
-                        member: buildMembers(4, 'crash-recovery')
-                    })
-                    .set(getHeaders());
-                expect(putResp.status).toBeGreaterThanOrEqual(500);
-                expect(thrown).toBe(true);
+                const patchResp = await patchGroup(groupId, newMemberOps);
+                expect(patchResp.status).toBeGreaterThanOrEqual(500);
+                expect(state.thrown).toBe(true);
 
-                // The Group document never committed, so it still shows its pre-update state --
-                // but the roster write already ran (and was awaited) before the failing call.
-                const groupDocAfterCrash = await getGroupDoc(groupId);
-                expect(groupDocAfterCrash[MONGO_GROUP_EXTENDED_FIELD]).not.toBe(true);
-                expect(groupDocAfterCrash.member).toHaveLength(2);
-                const rowsAfterCrash = await getMemberRows(groupDocAfterCrash._uuid);
-                expect(rowsAfterCrash).toHaveLength(4);
-
-                // Retrying the same PUT re-enters promoteExistingGroupIfNeeded; promoteGroup wipes
-                // the 4 rows the abandoned attempt already wrote (this Group was never
-                // successfully extended, so none of them were ever legitimate) and writes 4 fresh
-                // ones from the same content, and this time the Group document's own commit
-                // succeeds, completing promotion.
-                const retryResp = await request
-                    .put(`/4_0_0/Group/${groupId}`)
-                    .send({
-                        resourceType: 'Group',
-                        id: groupId,
-                        type: 'person',
-                        actual: true,
-                        meta: defaultMeta(),
-                        member: buildMembers(4, 'crash-recovery')
-                    })
-                    .set(getHeaders());
-                expect(retryResp.status).toBe(200);
-
-                await expectPromoted(groupId, 4);
+                // The Group document never committed, but the roster write already ran before it.
+                await expectNotPromoted(groupId, 2, 4);
             } finally {
                 Collection.prototype.bulkWrite.mockRestore();
             }
-        });
-    });
 
-    describe('member missing entity.reference', () => {
-        test('promotion rejects the whole write instead of silently dropping the member', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
-            const groupId = 'missing-ref-merge';
-            const members = [
-                ...buildMembers(3, 'missing-ref'),
-                { entity: { display: 'no reference on this one' } }
-            ];
-
-            // Routed through $merge (insert) rather than plain CREATE: CREATE now rejects an
-            // over-limit brand-new Group outright before promoteGroup's own validation ever runs
-            // (see the "CREATE" describe block above), so $merge-insert -- which still promotes --
-            // is what exercises promoteGroup's entity.reference guard here.
-            const mergeResp = await request
-                .post('/4_0_0/Group/$merge')
-                .send({
-                    resourceType: 'Group',
-                    id: groupId,
-                    type: 'person',
-                    actual: true,
-                    meta: defaultMeta(),
-                    member: members
-                })
-                .set(getHeaders());
-            expect(mergeResp.status).toBe(200);
-            const groupEntry = Array.isArray(mergeResp.body) ? mergeResp.body[0] : mergeResp.body;
-            expect(groupEntry.created).toBeFalsy();
-            expect(groupEntry.updated).toBeFalsy();
-
-            // Validation runs before any roster write is attempted, so rejection is all-or-nothing
-            // -- not a partial promotion that silently drops just the bad entry while writing the
-            // other 3 (which is what used to happen: the doc.member delete erased all 4 forever,
-            // but only 3 had ever actually been written to GroupMember_4_0_0).
-            const rows = await getMemberRowsByReferencePrefix('missing-ref');
-            expect(rows).toHaveLength(0);
-        });
-    });
-
-    describe('Group\'s own write fails after promotion already staged the roster', () => {
-        test('$merge update: roster rows are left as staged (not rolled back), and a retry completes promotion idempotently', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
-            const created = await createGroup({ member: buildMembers(2, 'merge-rollback') });
-            expect(created.status).toBe(201);
-            const groupId = created.body.id;
-            const groupUuid = (await getGroupDoc(groupId))._uuid;
-
-            const container = getTestContainer();
-            const realMergeOneAsync = container.fastDatabaseBulkInserter.mergeOneAsync.bind(container.fastDatabaseBulkInserter);
-            const spy = jest.spyOn(container.fastDatabaseBulkInserter, 'mergeOneAsync')
-                .mockImplementation(async (params) => {
-                    // Only the Group's own staging call fails -- promoteExistingGroupIfNeeded's
-                    // roster writes (flush: false) have already joined the same batch buffer by
-                    // the time mergeManager reaches this call.
-                    if (params.resourceType === 'Group') {
-                        throw new Error('simulated failure staging the Group\'s own write, after roster promotion already ran');
-                    }
-                    return realMergeOneAsync(params);
-                });
-
-            const allMembers = [...buildMembers(2, 'merge-rollback'), ...buildMembers(2, 'merge-rollback-new')];
-            const mergeRequestBody = {
-                resourceType: 'Group',
-                id: groupId,
-                type: 'person',
-                actual: true,
-                meta: defaultMeta(),
-                member: allMembers
-            };
-
-            try {
-                const mergeResp = await request
-                    .post('/4_0_0/Group/$merge')
-                    .send(mergeRequestBody)
-                    .set(getHeaders());
-
-                // The batch call itself still responds 200 -- $merge reports per-resource outcomes
-                // in the body rather than failing the whole HTTP call.
-                expect(mergeResp.status).toBe(200);
-                const groupEntry = Array.isArray(mergeResp.body) ? mergeResp.body[0] : mergeResp.body;
-                expect(groupEntry.created).toBeFalsy();
-                expect(groupEntry.updated).toBeFalsy();
-
-                // The Group document itself never changed: still 2 embedded members, never
-                // promoted -- its own write never made it past staging.
-                const groupDocAfter = await getGroupDoc(groupId);
-                expect(groupDocAfter[MONGO_GROUP_EXTENDED_FIELD]).not.toBe(true);
-                expect(groupDocAfter.member).toHaveLength(2);
-
-                // promoteExistingGroupIfNeeded already staged 4 GroupMember create ops (flush:
-                // false) before the Group's own mergeOneAsync failed. There is no rollback for
-                // this: the Group's own meta.versionId was never bumped (that write is exactly the
-                // one that threw), so those rows surviving the batch's end-of-loop executeAsync()
-                // flush is harmless -- the Group looks exactly like the crash-recovery case, and a
-                // retry resolves them as no-ops rather than duplicating.
-                const rows = await getMemberRows(groupUuid);
-                expect(rows).toHaveLength(4);
-            } finally {
-                spy.mockRestore();
-            }
-
-            // The critical assertion: retrying the identical request (mergeOneAsync no longer
-            // mocked) completes promotion, and the 4 rows already written above are resolved as
-            // no-ops rather than duplicated.
-            const retryResp = await request
-                .post('/4_0_0/Group/$merge')
-                .send(mergeRequestBody)
-                .set(getHeaders());
+            // Retrying re-enters promotion; promoteGroup wipes the 4 rows the abandoned attempt
+            // wrote (this Group was never successfully extended, so none were legitimate) and
+            // writes 4 fresh ones, and this time the Group's own commit succeeds.
+            const retryResp = await patchGroup(groupId, newMemberOps);
             expect(retryResp.status).toBe(200);
-            const retryEntry = Array.isArray(retryResp.body) ? retryResp.body[0] : retryResp.body;
-            expect(retryEntry.updated).toBe(true);
-
             await expectPromoted(groupId, 4);
         });
 
-        // CREATE (and update.js's create-via-PUT branch) intentionally has NO equivalent test here.
-        // Both reject an over-limit brand-new Group outright instead of promoting it (see the
-        // "CREATE" describe block above) -- nothing is ever staged for either write, so there is no
-        // roster-vs-Group scenario to exercise for that path.
-    });
-
-    describe('not-yet-extended: promotion wipes stale rows before retrying', () => {
-        test('a retry with a different member set than the one that crashed does not resurrect the abandoned attempt\'s rows', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
-
+        test('a retry with a different member set does not resurrect the abandoned attempt\'s rows', async () => {
             const created = await createGroup({ member: buildMembers(2, 'wipe-retry-base') });
             expect(created.status).toBe(201);
             const groupId = created.body.id;
 
-            const realBulkWrite = Collection.prototype.bulkWrite;
-            let thrown = false;
-            jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(function (operations, options) {
-                if (this.collectionName === GROUP_COLLECTION_NAME && !thrown) {
-                    thrown = true;
-                    return Promise.reject(new Error('simulated crash after roster write, before Group document commit'));
-                }
-                return realBulkWrite.call(this, operations, options);
-            });
-
+            const state = failNextGroupWrite();
             try {
-                const firstAttemptMembers = [
-                    ...buildMembers(2, 'wipe-retry-base'),
-                    ...buildMembers(2, 'wipe-retry-first-attempt')
-                ];
-                const putResp = await request
-                    .put(`/4_0_0/Group/${groupId}`)
-                    .send({
-                        resourceType: 'Group',
-                        id: groupId,
-                        type: 'person',
-                        actual: true,
-                        meta: defaultMeta(),
-                        member: firstAttemptMembers
-                    })
-                    .set(getHeaders());
-                expect(putResp.status).toBeGreaterThanOrEqual(500);
-                expect(thrown).toBe(true);
-
-                const groupDocAfterCrash = await getGroupDoc(groupId);
-                expect(groupDocAfterCrash[MONGO_GROUP_EXTENDED_FIELD]).not.toBe(true);
-                expect(groupDocAfterCrash.member).toHaveLength(2);
-                const rowsAfterCrash = await getMemberRows(groupDocAfterCrash._uuid);
-                expect(rowsAfterCrash).toHaveLength(4);
+                const patchResp = await patchGroup(groupId, addMemberOps([
+                    'Patient/wipe-retry-first-attempt-0',
+                    'Patient/wipe-retry-first-attempt-1'
+                ]));
+                expect(patchResp.status).toBeGreaterThanOrEqual(500);
+                expect(state.thrown).toBe(true);
+                await expectNotPromoted(groupId, 2, 4);
             } finally {
                 Collection.prototype.bulkWrite.mockRestore();
             }
 
-            // Retry with a DIFFERENT pair of new members -- not a resend of the same request.
             // Both attempts target the same next version number (the Group never advanced past
-            // its pre-crash version), so without promoteGroup's wipe, the abandoned attempt's rows
-            // (wipe-retry-first-attempt-*) would still be sitting at that same number and could be
-            // mistaken for real members once this retry's Group commit lands there for real.
-            const secondAttemptMembers = [
-                ...buildMembers(2, 'wipe-retry-base'),
-                ...buildMembers(2, 'wipe-retry-second-attempt')
-            ];
-            const retryResp = await request
-                .put(`/4_0_0/Group/${groupId}`)
-                .send({
-                    resourceType: 'Group',
-                    id: groupId,
-                    type: 'person',
-                    actual: true,
-                    meta: defaultMeta(),
-                    member: secondAttemptMembers
-                })
-                .set(getHeaders());
+            // its pre-crash version), so without promoteGroup's wipe the abandoned attempt's rows
+            // would still be sitting at that number and look like real members.
+            const retryResp = await patchGroup(groupId, addMemberOps([
+                'Patient/wipe-retry-second-attempt-0',
+                'Patient/wipe-retry-second-attempt-1'
+            ]));
             expect(retryResp.status).toBe(200);
 
             await expectPromoted(groupId, 4);
             const groupDoc = await getGroupDoc(groupId);
-            const rows = await getMemberRows(groupDoc._uuid);
-            const references = rows.map((r) => r.member.entity.reference).sort();
+            const references = (await getMemberRows(groupDoc._uuid)).map((r) => r.member.entity.reference).sort();
             expect(references).toEqual([
                 'Patient/wipe-retry-base-0',
                 'Patient/wipe-retry-base-1',
@@ -643,59 +422,80 @@ describe('Group promotion to extended member storage', () => {
         });
     });
 
-    describe('already-extended: a failed member PATCH leaves a forward-dangling orphan, cleaned up by the next write', () => {
-        test('a later metadata-only PATCH removes the dangling row from the failed member add before committing its own change', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
+    describe('roster write fails', () => {
+        /**
+         * Fails the GroupMember_4_0_0 bulk write with 10334 (document too large), which
+         * mongoBulkWriteExecutor reports per entry instead of rethrowing. Only bulk writes whose
+         * operations mention `referencePrefix` fail.
+         */
+        function failRosterWritesMatching (referencePrefix) {
+            const realBulkWrite = Collection.prototype.bulkWrite;
+            jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(function (operations, options) {
+                if (this.collectionName === GROUP_MEMBER_COLLECTION_NAME && JSON.stringify(operations).includes(referencePrefix)) {
+                    return Promise.reject(Object.assign(new Error('simulated roster write failure'), { code: 10334 }));
+                }
+                return realBulkWrite.call(this, operations, options);
+            });
+        }
 
-            const created = await createGroup({ member: buildMembers(3, 'orphan-cleanup') });
+        test('PATCH promotion: the request fails and the Group is left unchanged instead of being saved with no members', async () => {
+            const created = await createGroup({ member: buildMembers(2, 'promote-roster-fail') });
             expect(created.status).toBe(201);
             const groupId = created.body.id;
 
-            const putResp = await request
-                .put(`/4_0_0/Group/${groupId}`)
-                .send({
-                    resourceType: 'Group',
-                    id: groupId,
-                    type: 'person',
-                    actual: true,
-                    meta: defaultMeta(),
-                    member: buildMembers(4, 'orphan-cleanup')
-                })
-                .set(getHeaders());
-            expect(putResp.status).toBe(200);
-            await expectPromoted(groupId, 4);
+            failRosterWritesMatching('promote-roster-fail');
+            try {
+                const patchResp = await patchGroup(groupId, addMemberOps([
+                    'Patient/promote-roster-fail-2',
+                    'Patient/promote-roster-fail-3'
+                ]));
+                expect(patchResp.status).toBeGreaterThanOrEqual(500);
+            } finally {
+                Collection.prototype.bulkWrite.mockRestore();
+            }
+
+            expect((await getGroupDoc(groupId)).meta.versionId).toBe('1');
+            await expectNotPromoted(groupId, 2);
+        });
+
+        test('PATCH on an already-extended Group: the request fails and the Group version is not bumped', async () => {
+            const groupId = await createPromotedGroup('patch-roster-fail');
+            const versionBefore = (await getGroupDoc(groupId)).meta.versionId;
+
+            failRosterWritesMatching('patch-roster-fail-extra');
+            try {
+                const patchResp = await patchGroup(groupId, addMemberOps(['Patient/patch-roster-fail-extra']));
+                expect(patchResp.status).toBeGreaterThanOrEqual(500);
+            } finally {
+                Collection.prototype.bulkWrite.mockRestore();
+            }
+
+            const groupDoc = await getGroupDoc(groupId);
+            expect(groupDoc.meta.versionId).toBe(versionBefore);
+            expect(await getMemberRows(groupDoc._uuid)).toHaveLength(4);
+        });
+    });
+
+    describe('already-extended: a failed member PATCH leaves a forward-dangling orphan, cleaned up by the next write', () => {
+        test('a later metadata-only PATCH removes the dangling row from the failed member add before committing its own change', async () => {
+            const groupId = await createPromotedGroup('orphan-cleanup');
             const groupDocAfterPromotion = await getGroupDoc(groupId);
             const groupUuid = groupDocAfterPromotion._uuid;
             const versionAfterPromotion = parseInt(groupDocAfterPromotion.meta.versionId, 10);
 
-            // Fail only the Group's own commit. commitPendingMemberWrites (the roster's own
-            // write) now runs BEFORE it -- see patch.js's reordering -- so this simulates exactly
-            // the case that reorder was meant to convert: a forward-dangling orphan instead of a
-            // silently-stale row nothing could ever detect.
-            const realBulkWrite = Collection.prototype.bulkWrite;
-            let thrown = false;
-            jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(function (operations, options) {
-                if (this.collectionName === GROUP_COLLECTION_NAME && !thrown) {
-                    thrown = true;
-                    return Promise.reject(new Error('simulated crash after roster write, before Group document commit'));
-                }
-                return realBulkWrite.call(this, operations, options);
-            });
-
+            // Fail only the Group's own commit. commitPendingMemberWrites (the roster's own write)
+            // runs BEFORE it, so this leaves a forward-dangling orphan.
+            const state = failNextGroupWrite();
             try {
-                const failedPatchResp = await patchGroup(groupId, [
-                    { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/orphan-cleanup-dangling' } } }
-                ]);
+                const failedPatchResp = await patchGroup(groupId, addMemberOps(['Patient/orphan-cleanup-dangling']));
                 expect(failedPatchResp.status).toBeGreaterThanOrEqual(500);
-                expect(thrown).toBe(true);
+                expect(state.thrown).toBe(true);
             } finally {
                 Collection.prototype.bulkWrite.mockRestore();
             }
 
             // The Group's own commit never landed -- still at its pre-patch version -- but the
-            // roster write that ran before it did, leaving a row stamped one version ahead of what
-            // the Group actually shows.
+            // roster write that ran before it did, leaving a row stamped one version ahead.
             const groupDocAfterFailedPatch = await getGroupDoc(groupId);
             expect(parseInt(groupDocAfterFailedPatch.meta.versionId, 10)).toBe(versionAfterPromotion);
             const rowsAfterFailedPatch = await getMemberRows(groupUuid);
@@ -706,8 +506,8 @@ describe('Group promotion to extended member storage', () => {
             expect(danglingRow).toBeDefined();
             expect(parseInt(danglingRow.meta.versionId, 10)).toBe(versionAfterPromotion + 1);
 
-            // A completely unrelated, metadata-only PATCH -- no member ops at all -- still removes
-            // the dangling row before committing its own change, via cleanupExtendedGroupOrphansIfNeeded.
+            // A metadata-only PATCH -- no member ops at all -- still removes the dangling row
+            // before committing its own change, via cleanupExtendedGroupOrphansIfNeeded.
             const metadataPatchResp = await patchGroup(groupId, [
                 { op: 'add', path: '/active', value: true }
             ]);
@@ -725,19 +525,74 @@ describe('Group promotion to extended member storage', () => {
     });
 
     describe('ClickHouse-tracked Group', () => {
-        // Safe to flip these env vars mid-file, inside a single test: isGroupOverLimit (called by
-        // both rejectNewGroupIfOverLimit/promoteExistingGroupIfNeeded) reads
-        // configManager.enableClickHouse/mongoWithClickHouseResources fresh on every call (unlike
-        // the old PostSaveHandler-based design, whose handler list was frozen once when
-        // postSaveProcessor was first resolved by the shared test app/container).
-        test('is skipped entirely -- member[] is handled by ClickHouse, never promoted to Mongo-native storage', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
+        // Safe to flip these env vars mid-file, inside a single test: isGroupOverLimit,
+        // handleClickHouseGroupPreSave and GroupMemberEnrichmentProvider all read
+        // configManager.enableClickHouse/mongoWithClickHouseResources fresh on every call.
+        async function withClickHouseEnabledForGroup(fn) {
             const savedEnableClickHouse = process.env.ENABLE_CLICKHOUSE;
             const savedResources = process.env.MONGO_WITH_CLICKHOUSE_RESOURCES;
             process.env.ENABLE_CLICKHOUSE = '1';
             process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
             try {
+                await fn();
+            } finally {
+                if (savedEnableClickHouse === undefined) {
+                    delete process.env.ENABLE_CLICKHOUSE;
+                } else {
+                    process.env.ENABLE_CLICKHOUSE = savedEnableClickHouse;
+                }
+                if (savedResources === undefined) {
+                    delete process.env.MONGO_WITH_CLICKHOUSE_RESOURCES;
+                } else {
+                    process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = savedResources;
+                }
+            }
+        }
+
+        test('the useexternalstorage header on an already-extended Group neither tags it for ClickHouse nor changes its reads', async () => {
+            const groupId = await createPromotedGroup('ch-header-extended');
+            const headers = { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
+            const metadataOnlyBody = (name) => ({
+                resourceType: 'Group', id: groupId, type: 'person', actual: true, name, meta: defaultMeta()
+            });
+
+            await withClickHouseEnabledForGroup(async () => {
+                const putResp = await request
+                    .put(`/4_0_0/Group/${groupId}`)
+                    .send(metadataOnlyBody('renamed-by-put'))
+                    .set(headers);
+                expect(putResp.status).toBe(200);
+
+                const mergeWithHeaderResp = await request
+                    .post('/4_0_0/Group/$merge')
+                    .send(metadataOnlyBody('renamed-by-merge-with-header'))
+                    .set(headers);
+                expect(mergeWithHeaderResp.status).toBe(200);
+                expect(mergeWithHeaderResp.body.updated).toBe(true);
+
+                const patchResp = await request
+                    .patch(`/4_0_0/Group/${groupId}`)
+                    .send(addMemberOps(['Patient/ch-header-extended-extra']))
+                    .set({ ...getHeadersJsonPatch(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' });
+                expect(patchResp.status).toBe(200);
+
+                const groupDoc = await getGroupDoc(groupId);
+                expect(groupDoc[MONGO_GROUP_EXTENDED_FIELD]).toBe(true);
+                expect(groupDoc.name).toBe('renamed-by-merge-with-header');
+                expect(hasExternalStorageMemberTag(groupDoc)).toBe(false);
+                expect(await getMemberRows(groupDoc._uuid)).toHaveLength(5);
+
+                // Without the guard, GroupMemberEnrichmentProvider would overwrite quantity with
+                // the ClickHouse count for this Group (0).
+                const getResp = await request.get(`/4_0_0/Group/${groupId}`).set(headers);
+                expect(getResp.status).toBe(200);
+                expect(getResp.body.quantity).toBeUndefined();
+                expect(getResp.body.member).toHaveLength(5);
+            });
+        });
+
+        test('is skipped entirely -- no too-costly and no promotion; member[] is handled by ClickHouse', async () => {
+            await withClickHouseEnabledForGroup(async () => {
                 // isGroupOverLimit's ClickHouse exemption is a per-request fact, not a per-server
                 // one (see its own docstring) -- server config alone isn't enough, this create
                 // must also opt in via the useexternalstorage header, same as
@@ -757,20 +612,8 @@ describe('Group promotion to extended member storage', () => {
                 const groupDoc = await getGroupDoc(created.body.id);
                 expect(groupDoc[MONGO_GROUP_EXTENDED_FIELD]).not.toBe(true);
                 expect(groupDoc.member).toBeUndefined();
-                const rows = await getMemberRows(groupDoc._uuid);
-                expect(rows).toHaveLength(0);
-            } finally {
-                if (savedEnableClickHouse === undefined) {
-                    delete process.env.ENABLE_CLICKHOUSE;
-                } else {
-                    process.env.ENABLE_CLICKHOUSE = savedEnableClickHouse;
-                }
-                if (savedResources === undefined) {
-                    delete process.env.MONGO_WITH_CLICKHOUSE_RESOURCES;
-                } else {
-                    process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = savedResources;
-                }
-            }
+                expect(await getMemberRows(groupDoc._uuid)).toHaveLength(0);
+            });
         });
     });
 
@@ -785,8 +628,7 @@ describe('Group promotion to extended member storage', () => {
             expect(created.body.meta.versionId).toBe('1');
             const groupId = created.body.id;
 
-            // v2 -> v4: three metadata-only bumps that never touch /member, to reach version 4
-            // with the roster still at 4 embedded members, matching the exact scenario asked for.
+            // v2 -> v4: three metadata-only bumps that never touch /member.
             let lastResp;
             lastResp = await patchGroup(groupId, [{ op: 'add', path: '/active', value: true }]);
             expect(lastResp.status).toBe(200);
@@ -833,9 +675,8 @@ describe('Group promotion to extended member storage', () => {
             expect(groupHistoryRows).toHaveLength(1);
             expect(new Date(groupHistoryRows[0].resource.meta.lastUpdated).toISOString()).toBe(expectedLastUpdated);
 
-            // GroupMember history: 54 fresh 'create' rows (this Group was never promoted before,
-            // so none of these are updates to a pre-existing row), every one at version 5 with the
-            // same lastUpdated as the Group and its own history row above.
+            // GroupMember history: 54 fresh 'create' rows, every one at version 5 with the same
+            // lastUpdated as the Group and its own history row above.
             const memberHistoryCollection = await getCollection(GROUP_MEMBER_HISTORY_COLLECTION_NAME);
             const memberHistoryRows = await waitForHistoryRowsAsync(
                 memberHistoryCollection,
@@ -845,63 +686,6 @@ describe('Group promotion to extended member storage', () => {
             expect(memberHistoryRows).toHaveLength(54);
             for (const historyRow of memberHistoryRows) {
                 expect(historyRow.resource.meta.versionId).toBe('5');
-                expect(new Date(historyRow.resource.meta.lastUpdated).toISOString()).toBe(expectedLastUpdated);
-            }
-        });
-
-        test('a $merge update crossing the limit also keeps Group, GroupMember, and both history collections in parity', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
-            process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
-            const created = await createGroup({ member: buildMembers(2, 'parity-merge') });
-            expect(created.status).toBe(201);
-            const groupId = created.body.id;
-
-            const allMembers = [...buildMembers(2, 'parity-merge'), ...buildMembers(3, 'parity-merge-new')];
-            const mergeResp = await request
-                .post('/4_0_0/Group/$merge')
-                .send({
-                    resourceType: 'Group',
-                    id: groupId,
-                    type: 'person',
-                    actual: true,
-                    meta: defaultMeta(),
-                    member: allMembers
-                })
-                .set(getHeaders());
-            expect(mergeResp.status).toBe(200);
-
-            // $merge's response is a MergeResultEntry bundle, not the resource itself -- read the
-            // persisted Group directly, same as the existing $merge promotion tests above do.
-            const groupDoc = await getGroupDoc(groupId);
-            expect(groupDoc[MONGO_GROUP_EXTENDED_FIELD]).toBe(true);
-            expect(Number(groupDoc.meta.versionId)).toBe(2);
-            const expectedLastUpdated = new Date(groupDoc.meta.lastUpdated).toISOString();
-
-            const memberRows = await getMemberRows(groupDoc._uuid);
-            expect(memberRows).toHaveLength(5);
-            for (const row of memberRows) {
-                expect(row.meta.versionId).toBe(groupDoc.meta.versionId);
-                expect(new Date(row.meta.lastUpdated).toISOString()).toBe(expectedLastUpdated);
-            }
-
-            const groupHistoryCollection = await getCollection(`${GROUP_COLLECTION_NAME}_History`);
-            const groupHistoryRows = await waitForHistoryRowsAsync(
-                groupHistoryCollection,
-                { 'resource._uuid': groupDoc._uuid, 'resource.meta.versionId': groupDoc.meta.versionId },
-                1
-            );
-            expect(groupHistoryRows).toHaveLength(1);
-            expect(new Date(groupHistoryRows[0].resource.meta.lastUpdated).toISOString()).toBe(expectedLastUpdated);
-
-            const memberHistoryCollection = await getCollection(GROUP_MEMBER_HISTORY_COLLECTION_NAME);
-            const memberHistoryRows = await waitForHistoryRowsAsync(
-                memberHistoryCollection,
-                { 'resource.groupUuid': groupDoc._uuid },
-                5
-            );
-            expect(memberHistoryRows).toHaveLength(5);
-            for (const historyRow of memberHistoryRows) {
-                expect(historyRow.resource.meta.versionId).toBe(groupDoc.meta.versionId);
                 expect(new Date(historyRow.resource.meta.lastUpdated).toISOString()).toBe(expectedLastUpdated);
             }
         });

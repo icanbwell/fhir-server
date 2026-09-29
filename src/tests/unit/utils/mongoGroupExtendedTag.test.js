@@ -1,12 +1,37 @@
 const { describe, test, expect } = require('@jest/globals');
-const { rejectMemberOnExtendedGroupWrite, MONGO_GROUP_EXTENDED_FIELD } = require('../../../utils/mongoGroupExtendedTag');
+const {
+    getExtendedGroupMemberWriteError,
+    rejectMemberOnExtendedGroupWrite,
+    MONGO_GROUP_EXTENDED_FIELD
+} = require('../../../utils/mongoGroupExtendedTag');
+
+describe('getExtendedGroupMemberWriteError', () => {
+    test('returns a too-costly error pointing to PATCH when the Group is extended and the body carries member', () => {
+        const currentResource = { resourceType: 'Group', id: 'group-1', [MONGO_GROUP_EXTENDED_FIELD]: true };
+
+        const error = getExtendedGroupMemberWriteError({ currentResource, hasMemberField: true });
+
+        expect(error.statusCode).toBe(400);
+        expect(error.message).toBe('Group group-1 members can only be changed with PATCH');
+        expect(error.issue).toHaveLength(1);
+        expect(error.issue[0].code).toBe('too-costly');
+        expect(error.issue[0].diagnostics).toContain('PATCH');
+        expect(error.issue[0].diagnostics).toContain('/4_0_0/Group/group-1');
+    });
+
+    test('returns undefined for a metadata-only write to an extended Group', () => {
+        const currentResource = { resourceType: 'Group', id: 'group-1', [MONGO_GROUP_EXTENDED_FIELD]: true };
+
+        expect(getExtendedGroupMemberWriteError({ currentResource, hasMemberField: false })).toBeUndefined();
+    });
+});
 
 describe('rejectMemberOnExtendedGroupWrite', () => {
-    test('throws when the Group is extended and the submitted body carries member', () => {
+    test('throws the too-costly error when the Group is extended and the submitted body carries member', () => {
         const currentResource = { resourceType: 'Group', id: 'group-1', [MONGO_GROUP_EXTENDED_FIELD]: true };
 
         expect(() => rejectMemberOnExtendedGroupWrite({ currentResource, hasMemberField: true }))
-            .toThrow(/does not accept member changes via PUT or \$merge/);
+            .toThrow('Group group-1 members can only be changed with PATCH');
     });
 
     test('does not throw when the Group is extended but the submitted body has no member field', () => {
