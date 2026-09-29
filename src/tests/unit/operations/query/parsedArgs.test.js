@@ -34,7 +34,8 @@ function createMockParsedArgsItem ({
     queryParameter,
     value = 'test-value',
     modifiers = [],
-    propertyObj = undefined
+    propertyObj = undefined,
+    chain = undefined
 } = {}) {
     const queryParameterValue = {
         get value () { return this._value; },
@@ -47,7 +48,8 @@ function createMockParsedArgsItem ({
         queryParameterValue,
         _queryParameterValue: queryParameterValue,
         modifiers,
-        propertyObj
+        propertyObj,
+        chain
     };
 
     item.clone = jestObj.fn(() => {
@@ -239,6 +241,51 @@ describe('ParsedArgs', () => {
             args.add(item2);
 
             expect(args.parsedArgItems[0].propertyObj).toBe(propertyObj2);
+        });
+
+        test('two different chains on the same base param+modifiers create separate entries, not a merge', () => {
+            // Regression: general-practitioner:Practitioner.name=Joe and
+            // general-practitioner:Practitioner.address-state=MN both end up with
+            // queryParameter='general-practitioner' and modifiers=[] (the typed chain modifier
+            // is stripped during chain detection) -- before this fix, add() only compared
+            // (queryParameter, modifiers), so the second call silently merged into the first,
+            // taking its value but keeping the first's stale .chain.
+            const args = new ParsedArgs({ base_version: '4_0_0' });
+            const item1 = createMockParsedArgsItem({
+                queryParameter: 'general-practitioner', value: 'Joe', modifiers: [],
+                chain: { targetType: 'Practitioner', targetParam: 'name' }
+            });
+            const item2 = createMockParsedArgsItem({
+                queryParameter: 'general-practitioner', value: 'MN', modifiers: [],
+                chain: { targetType: 'Practitioner', targetParam: 'address-state' }
+            });
+
+            args.add(item1);
+            args.add(item2);
+
+            expect(args.parsedArgItems).toHaveLength(2);
+            expect(args.parsedArgItems[0].chain.targetParam).toBe('name');
+            expect(args.parsedArgItems[0].queryParameterValue.value).toBe('Joe');
+            expect(args.parsedArgItems[1].chain.targetParam).toBe('address-state');
+            expect(args.parsedArgItems[1].queryParameterValue.value).toBe('MN');
+        });
+
+        test('two adds with an identical chain descriptor still merge like any other duplicate', () => {
+            const args = new ParsedArgs({ base_version: '4_0_0' });
+            const chain = { targetType: 'Practitioner', targetParam: 'name' };
+            const item1 = createMockParsedArgsItem({
+                queryParameter: 'general-practitioner', value: 'Joe', modifiers: [], chain
+            });
+            const item2 = createMockParsedArgsItem({
+                queryParameter: 'general-practitioner', value: 'Jane', modifiers: [],
+                chain: { ...chain }
+            });
+
+            args.add(item1);
+            args.add(item2);
+
+            expect(args.parsedArgItems).toHaveLength(1);
+            expect(args.parsedArgItems[0].queryParameterValue.value).toBe('Jane');
         });
     });
 

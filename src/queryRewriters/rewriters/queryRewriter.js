@@ -22,10 +22,11 @@ class QueryRewriter {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {'READ'|'WRITE'} operation
+     * @param {function({resourceType: string, args: Object, requestInfo: Object}): Promise<string[]>} [searchResourceAsync]
      * @return {Promise<ParsedArgs>}
      */
 
-    async rewriteArgsAsync ({ base_version, parsedArgs, resourceType, operation }) {
+    async rewriteArgsAsync ({ base_version, parsedArgs, resourceType, operation, searchResourceAsync }) {
         return parsedArgs;
     }
 }

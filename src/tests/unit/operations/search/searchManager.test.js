@@ -10,6 +10,7 @@
  */
 
 const { describe, beforeEach, afterEach, it, test, expect, jest } = require('@jest/globals');
+const { EventEmitter } = require('events');
 
 const { SearchManager } = require('../../../../operations/search/searchManager');
 const { DatabaseQueryFactory } = require('../../../../dataLayer/databaseQueryFactory');
@@ -1336,5 +1337,85 @@ describe('SearchManager.buildContentSearchIdFilterAsync', () => {
             parsedArgs: makeParsedArgsWithContent('diabetes'),
             operation: 'READ'
         }), 504);
+    });
+});
+
+describe('SearchManager.streamGroupMemberArrayAsync', () => {
+    function makeFakeCursor (docs, query) {
+        const remaining = [...docs];
+        return {
+            hasNext: jest.fn(async () => remaining.length > 0),
+            next: jest.fn(async () => remaining.shift()),
+            getQuery: jest.fn(() => query)
+        };
+    }
+
+    function makeFakeResponse () {
+        const res = new EventEmitter();
+        res.statusCode = 200;
+        res.headersSent = false;
+        res.writableEnded = false;
+        res.writable = true;
+        res.chunks = [];
+        res.setHeader = jest.fn();
+        res.removeHeader = jest.fn();
+        res.setTimeout = jest.fn();
+        res.flushHeaders = jest.fn(() => { res.headersSent = true; });
+        res.write = jest.fn((chunk) => { res.chunks.push(chunk); return true; });
+        res.end = jest.fn(() => { res.writableEnded = true; });
+        return res;
+    }
+
+    function makeStreamingSearchManager () {
+        const sm = makeSearchManager({
+            configManager: { streamingHighWaterMark: 100, logStreamSteps: false, mongoStreamingTimeout: 3600000 },
+            clinicalNoteSearchClient: {}
+        });
+        sm.databaseAttachmentManager.transformAttachments = jest.fn(async (doc) => doc);
+        sm.base64DataManager.transformAsync = jest.fn(async (doc) => doc);
+        return sm;
+    }
+
+    test('streams GroupMember rows into a member array spliced onto the (member-less) Group shell, and ends the response', async () => {
+        const sm = makeStreamingSearchManager();
+        const groupResourceJson = { resourceType: 'Group', id: 'group-1', active: true };
+        const docs = [
+            { member: { entity: { reference: 'Patient/1' }, inactive: false } },
+            { member: { entity: { reference: 'Patient/2' }, inactive: true } }
+        ];
+        const cursor = makeFakeCursor(docs, { groupUuid: 'group-1' });
+        const res = makeFakeResponse();
+
+        await sm.streamGroupMemberArrayAsync({
+            requestId: 'req-1',
+            cursor,
+            groupResourceJson,
+            res
+        });
+
+        expect(res.end).toHaveBeenCalled();
+        const body = res.chunks.join('');
+        const parsed = JSON.parse(body);
+        expect(parsed.resourceType).toBe('Group');
+        expect(parsed.id).toBe('group-1');
+        expect(parsed.member).toHaveLength(2);
+        expect(parsed.member[0].entity.reference).toBe('Patient/1');
+        expect(parsed.member[1].inactive).toBe(true);
+    });
+
+    test('produces a valid Group document with an empty member array when the cursor has no rows', async () => {
+        const sm = makeStreamingSearchManager();
+        const groupResourceJson = { resourceType: 'Group', id: 'group-empty' };
+        const cursor = makeFakeCursor([], { groupUuid: 'group-empty' });
+        const res = makeFakeResponse();
+
+        await sm.streamGroupMemberArrayAsync({ requestId: 'req-2', cursor, groupResourceJson, res });
+
+        expect(res.end).toHaveBeenCalled();
+        const body = res.chunks.join('');
+        const parsed = JSON.parse(body);
+        expect(parsed.resourceType).toBe('Group');
+        expect(parsed.id).toBe('group-empty');
+        expect(parsed.member).toEqual([]);
     });
 });

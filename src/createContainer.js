@@ -36,6 +36,7 @@ const {SearchByVersionIdOperation} = require('./operations/searchByVersionId/sea
 const {HistoryByIdOperation} = require('./operations/historyById/historyById');
 const {HistoryOperation} = require('./operations/history/history');
 const {PatchOperation} = require('./operations/patch/patch');
+const {MongoGroupMemberRepository} = require('./dataLayer/repositories/mongoGroupMemberRepository');
 const {ValidateOperation} = require('./operations/validate/validate');
 const {GraphOperation} = require('./operations/graph/graph');
 const {ExpandOperation} = require('./operations/expand/expand');
@@ -109,6 +110,7 @@ const {PostSaveHandlerFactory} = require('./dataLayer/postSaveHandlers/postSaveH
 const {ConsentCacheInvalidationHandler} = require('./dataLayer/postSaveHandlers/handlers/consentCacheInvalidationHandler');
 const {ProfileUrlMapper} = require('./utils/profileMapper');
 const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
+const {ChainedSearchQueryRewriter} = require('./queryRewriters/rewriters/chainedSearchQueryRewriter');
 const {PatientScopeManager} = require('./operations/security/patientScopeManager');
 const {WriteAllowedByScopesValidator} = require('./operations/merge/validators/writeAllowedByScopesValidator');
 const {PatientQueryCreator} = require('./operations/common/patientQueryCreator');
@@ -133,6 +135,7 @@ const {S3Client} = require('./utils/s3Client');
 const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
 const {GroupMemberEnrichmentProvider} = require('./enrich/providers/groupMemberEnrichmentProvider');
+const {GroupExtendedTagEnrichmentProvider} = require('./enrich/providers/groupExtendedTagEnrichmentProvider');
 const {CompositionSectionFilterEnrichmentProvider} = require('./enrich/providers/compositionSectionFilterEnrichmentProvider');
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
@@ -222,7 +225,8 @@ const createContainer = function () {
             new GroupMemberEnrichmentProvider({
                 clickHouseClientManager: c.clickHouseClientManager,
                 configManager: c.configManager
-            })
+            }),
+            new GroupExtendedTagEnrichmentProvider()
         ]
     }));
     container.register('identifierEnrichmentProvider', (c) => new IdentifierEnrichmentProvider({
@@ -488,7 +492,8 @@ const createContainer = function () {
 
     container.register('queryRewriterManager', (c) => new QueryRewriterManager({
         queryRewriters: [
-            new ReferenceQueryRewriter()
+            new ReferenceQueryRewriter(),
+            new ChainedSearchQueryRewriter()
         ],
         operationSpecificQueryRewriters: {
             [READ]: [
@@ -830,7 +835,8 @@ const createContainer = function () {
             configManager: c.configManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
             base64DataManager: c.base64DataManager,
-            postRequestProcessor: c.postRequestProcessor
+            postRequestProcessor: c.postRequestProcessor,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('createOperation', (c) => new CreateOperation(
@@ -965,6 +971,13 @@ const createContainer = function () {
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
         }
     ));
+    container.register('mongoGroupMemberRepository', (c) => new MongoGroupMemberRepository(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
+            removeHelper: c.removeHelper
+        }
+    ));
     container.register('patchOperation', (c) => new PatchOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
@@ -980,7 +993,8 @@ const createContainer = function () {
             resourceMerger: c.resourceMerger,
             resourceValidator: c.resourceValidator,
             postSaveHandlerFactory: c.postSaveHandlerFactory,
-            identifierEnrichmentProvider: c.identifierEnrichmentProvider
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(

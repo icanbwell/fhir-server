@@ -426,6 +426,35 @@ describe('ParsedArgsItem', () => {
             const cloned = item.clone();
             expect(cloned.propertyObj).toBeUndefined();
         });
+
+        test('clone preserves the chain descriptor', () => {
+            const item = createParsedArgsItem({
+                queryParameter: 'patient',
+                value: 'X',
+                target: ['Patient']
+            });
+            item.chain = { targetType: 'Patient', targetParam: 'identifier' };
+
+            const cloned = item.clone();
+
+            expect(cloned.chain).toEqual({ targetType: 'Patient', targetParam: 'identifier' });
+        });
+    });
+
+    describe('chain', () => {
+        test('is undefined by default for a non-chained parsed arg', () => {
+            const item = createParsedArgsItem();
+
+            expect(item.chain).toBeUndefined();
+        });
+
+        test('can be set to a chain descriptor for a chained parsed arg', () => {
+            const item = createParsedArgsItem({ queryParameter: 'patient', target: ['Patient'] });
+
+            item.chain = { targetType: 'Patient', targetParam: 'identifier' };
+
+            expect(item.chain).toEqual({ targetType: 'Patient', targetParam: 'identifier' });
+        });
     });
 
     describe('toJSON', () => {
@@ -442,6 +471,19 @@ describe('ParsedArgsItem', () => {
             expect(json).toHaveProperty('queryParameter', 'subject');
             expect(json).toHaveProperty('queryParameterValue');
             expect(json).toHaveProperty('modifiers');
+        });
+
+        test('includes the chain descriptor when set', () => {
+            const item = createParsedArgsItem({
+                queryParameter: 'patient',
+                value: 'X',
+                target: ['Patient']
+            });
+            item.chain = { targetType: 'Patient', targetParam: 'identifier' };
+
+            const json = item.toJSON();
+
+            expect(json).toHaveProperty('chain', { targetType: 'Patient', targetParam: 'identifier' });
         });
 
         test('removes null values from output', () => {

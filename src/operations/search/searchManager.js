@@ -26,6 +26,7 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
+const { GroupMemberArrayWriter } = require('../streaming/resourceWriters/groupMemberArrayWriter');
 const { DataSharingManager } = require('./dataSharingManager');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { AtlasSearchQueryBuilder, ATLAS_SEARCH_INDEX_NAME } = require('./atlasSearchQueryBuilder');
@@ -1401,6 +1402,71 @@ class SearchManager {
             res.end();
         }
         return tracker.id;
+    }
+
+    async streamGroupMemberArrayAsync ({ requestId, cursor, groupResourceJson, res }) {
+        assertIsValid(requestId);
+
+        const highWaterMark = this.configManager.streamingHighWaterMark || 100;
+
+        const ac = new AbortController();
+
+        function onResponseClose () {
+            ac.abort();
+        }
+
+        res.on('close', onResponseClose);
+
+        const groupMemberWriter = new GroupMemberArrayWriter({
+            groupResourceJson,
+            signal: ac.signal,
+            highWaterMark,
+            configManager: this.configManager,
+            response: res
+        });
+
+        const responseWriter = new HttpResponseWriter({
+            requestId,
+            response: res,
+            contentType: groupMemberWriter.getContentType(),
+            signal: ac.signal,
+            highWaterMark,
+            configManager: this.configManager
+        });
+
+        const readableMongoStream = new MongoReadableStream({
+            cursor,
+            signal: ac.signal,
+            databaseAttachmentManager: this.databaseAttachmentManager,
+            base64DataManager: this.base64DataManager,
+            searchManager: this,
+            highWaterMark,
+            configManager: this.configManager,
+            response: res,
+            params: { query: cursor.getQuery() }
+        });
+
+        try {
+            await pipeline(readableMongoStream, groupMemberWriter, responseWriter);
+        } catch (e) {
+            // No captureException here, matching streamResourcesFromCursorAsync's identical
+            // res.on('close') abort pattern above -- a routine client disconnect mid-stream
+            // rejects this pipeline the same way, and isn't a genuine failure worth a Sentry
+            // exception.
+            logError(`SearchManager.streamGroupMemberArrayAsync: ${e.message} `, {
+                error: new RethrownError(
+                    {
+                        message: `Error streaming GroupMember rows for query: ${mongoQueryStringify(cursor.getQuery())}`,
+                        error: e
+                    })
+            });
+            ac.abort();
+        } finally {
+            res.removeListener('close', onResponseClose);
+        }
+        if (!res.writableEnded) {
+            res.end();
+        }
     }
 
     /**

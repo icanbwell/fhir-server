@@ -392,6 +392,24 @@ class EverythingHelper {
     }
 
     /**
+     * Id chunks for a non-clinical follow-up fetch, with empty ids removed. An empty chunk
+     * would be sent as `id: ''`, which the args parser drops, leaving an unfiltered query.
+     * @param {Object} params
+     * @param {Iterable<string|undefined>} params.ids
+     * @param {boolean} params.explain - explain queries use a single chunk
+     * @returns {Iterable<string[]>}
+     */
+    getNonClinicalIdChunks({ ids, explain }) {
+        const nonEmptyIds = Array.from(ids).filter(Boolean);
+        if (nonEmptyIds.length === 0) {
+            return [];
+        }
+        return explain
+            ? [nonEmptyIds]
+            : sliceIntoChunksGenerator(nonEmptyIds, this.configManager.mongoInQueryIdBatchSize);
+    }
+
+    /**
      * Groups `resourcesToAudit` by resource type and enqueues an AuditEvent per type. When
      * `outcome` is provided, the AuditEvent(s) also carry `outcome`/`outcomeDesc`, falling back
      * to `resourceType` with an empty entity list when nothing was streamed.
@@ -1084,8 +1102,7 @@ class EverythingHelper {
                             : null;
 
                     for (const res of Object.entries(referenceExtractor.nestedResourceReferences)) {
-                        let [resourceType, ids] = res;
-                        ids = Array.from(ids);
+                        const [resourceType, ids] = res;
 
                         const baseArgs = {
                             base_version: base_version,
@@ -1100,9 +1117,7 @@ class EverythingHelper {
                         }
 
                         // if explain query, don't break in chunks as will be limit to single resource later
-                        const idChunks = explain
-                            ? [ids]
-                            : sliceIntoChunksGenerator(ids, this.configManager.mongoInQueryIdBatchSize);
+                        const idChunks = this.getNonClinicalIdChunks({ ids, explain });
 
                         for (const idChunk of idChunks) {
                             const childParseArgs = this.r4ArgsParser.parseArgs({

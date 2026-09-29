@@ -33,6 +33,7 @@ const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_element
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { COLLECTION } = require('../../constants');
+const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
 
 class MergeManager {
     /**
@@ -170,6 +171,17 @@ class MergeManager {
         // found an existing resource
         currentResource = await this.preSaveManager.preSaveAsync({
             resource: currentResource, options: preSaveOptions
+        });
+
+        // Extended Group's member[] doesn't exist on the live document -- a submitted member
+        // must go through PATCH instead (design doc §5.1). Checked before any merge/persist
+        // work, and unconditional on ENABLE_EXTENDED_GROUP (see rejectMemberOnExtendedGroupWrite's
+        // own docstring for why).
+        rejectMemberOnExtendedGroupWrite({
+            currentResource,
+            hasMemberField: resourceToMerge.resourceType === 'Group' &&
+                Array.isArray(resourceToMerge.member) &&
+                resourceToMerge.member.length > 0
         });
 
         /**

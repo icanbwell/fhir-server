@@ -786,6 +786,59 @@ describe('QueryRewriterManager', () => {
                 expect(receivedParams[0].resourceType).toBe('Observation');
                 expect(receivedParams[0].parsedArgs).toEqual({ foo: 'bar' });
             });
+
+            test('forwards searchResourceAsync through to each rewriter unchanged', async () => {
+                // Chained-search resolution needs a way to run a fully-scoped sub-search without
+                // the rewriter itself depending on searchManager/fhirOperationsManager (which would
+                // create a DI cycle back through queryRewriterManager). The caller
+                // (fhirOperationsManager) instead passes the capability in at call time.
+                const receivedParams = [];
+                const searchResourceAsync = async () => ['uuid-1'];
+
+                const rewriter = {
+                    rewriteQueryAsync: async ({ query, columns }) => ({ query, columns }),
+                    rewriteArgsAsync: async (params) => {
+                        receivedParams.push(params);
+                        return params.parsedArgs;
+                    }
+                };
+
+                manager = new QueryRewriterManager({
+                    queryRewriters: [rewriter],
+                    operationSpecificQueryRewriters: {}
+                });
+
+                await manager.rewriteArgsAsync({
+                    base_version: '4_0_0',
+                    parsedArgs: {},
+                    resourceType: 'Observation',
+                    operation: 'READ',
+                    searchResourceAsync
+                });
+
+                expect(receivedParams[0].searchResourceAsync).toBe(searchResourceAsync);
+            });
+
+            test('rewriters that ignore searchResourceAsync are unaffected when it is absent', async () => {
+                const rewriter = {
+                    rewriteQueryAsync: async ({ query, columns }) => ({ query, columns }),
+                    rewriteArgsAsync: async ({ parsedArgs }) => ({ ...parsedArgs, ran: true })
+                };
+
+                manager = new QueryRewriterManager({
+                    queryRewriters: [rewriter],
+                    operationSpecificQueryRewriters: {}
+                });
+
+                const result = await manager.rewriteArgsAsync({
+                    base_version: '4_0_0',
+                    parsedArgs: {},
+                    resourceType: 'Patient',
+                    operation: 'READ'
+                });
+
+                expect(result.ran).toBe(true);
+            });
         });
     });
 

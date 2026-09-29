@@ -44,13 +44,28 @@ describe('enrichMemberReferences', () => {
             entity: {
                 reference: 'Patient/xyz',
                 _uuid: 'Patient/existing-uuid',
-                _sourceId: 'Patient/existing-source'
+                _sourceId: 'Patient/existing-source',
+                _sourceAssigningAuthority: 'existing-saa'
             }
         }];
         enrichMemberReferences(members, 'bwell');
 
         expect(members[0].entity._uuid).toBe('Patient/existing-uuid');
         expect(members[0].entity._sourceId).toBe('Patient/existing-source');
+        expect(members[0].entity._sourceAssigningAuthority).toBe('existing-saa');
+    });
+
+    test('backfills a missing _sourceAssigningAuthority even when _uuid/_sourceId are already set', () => {
+        const members = [{
+            entity: {
+                reference: 'Patient/xyz',
+                _uuid: 'Patient/existing-uuid',
+                _sourceId: 'Patient/existing-source'
+            }
+        }];
+        enrichMemberReferences(members, 'bwell');
+
+        expect(members[0].entity._sourceAssigningAuthority).toBe('bwell');
     });
 
     test('handles reference without resource type prefix', () => {
