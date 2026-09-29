@@ -18,6 +18,10 @@ const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
 const { withNockSuspended } = require('../testContainerUtils');
+const {
+    GROUP_MEMBER_COLLECTION_NAME,
+    GROUP_MEMBER_HISTORY_COLLECTION_NAME
+} = require('../../../constants');
 
 // Set env vars
 // These are read lazily by ConfigManager getters, not at import time.
@@ -200,6 +204,10 @@ async function cleanupAllData() {
         if (container?.mongoClient) {
             const db = container.mongoClient.db(container.configManager.mongoDbName);
             await db.collection('Group_4_0_0').deleteMany({});
+            // The Mongo-native ("extended") regime writes its roster to these two collections, so
+            // leaving them behind lets rows accumulate across tests in the same run.
+            await db.collection(GROUP_MEMBER_COLLECTION_NAME).deleteMany({});
+            await db.collection(GROUP_MEMBER_HISTORY_COLLECTION_NAME).deleteMany({});
         }
     } catch (e) {
         if (!e.message.includes('does not exist')) {
