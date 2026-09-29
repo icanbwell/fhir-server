@@ -29,7 +29,6 @@ function createMockConfigManager(overrides = {}) {
     const manager = Object.create(ConfigManager.prototype);
     Object.defineProperty(manager, 'useAccessIndex', { get: () => false, configurable: true });
     Object.defineProperty(manager, 'enableConsentedProaDataAccess', { get: () => false, configurable: true });
-    Object.defineProperty(manager, 'enableHIETreatmentRelatedDataAccess', { get: () => false, configurable: true });
     Object.assign(manager, overrides);
     return manager;
 }
@@ -148,6 +147,12 @@ describe('Cross-Tenant Security - Search Query Construction', () => {
         });
     });
 
+    // NOTE: this quarantined test's premise contradicts the CURRENT, INTENDED behavior, confirmed by
+    // src/tests/mcp/mcpResourceAuthorization.integration.test.js's "_includeHidden=true" test and
+    // documented in docs/resource-authorization.md §8: _includeHidden is an unauthenticated-scope
+    // override available to ANY caller (the access-tag tenant filter still ANDs on top, so there is no
+    // cross-tenant consequence), not something requiring admin scope. Do not resurrect this test as a
+    // "regression" without first re-confirming which behavior is actually intended.
     describe('VULN-1: _includeHidden parameter bypasses hidden resource filter', () => {
         test('query with _includeHidden=true from user input should still exclude hidden resources for non-admin users', () => {
             // VULNERABILITY: A user can pass _includeHidden=true as a URL parameter
@@ -364,16 +369,16 @@ describe('Cross-Tenant Security - Search Query Construction', () => {
         test('data sharing alternate query branch must include security tag constraints', () => {
             // VULNERABILITY: In dataSharingManager.js updateQueryConsideringDataSharing(),
             // when data sharing is enabled, the query becomes:
-            //   { $or: [originalQuery, queryWithConsentedData, queryWithHIETreatmentData] }
+            //   { $or: [originalQuery, queryWithConsentedData] }
             //
             // The originalQuery has security tags applied, but queryWithConsentedData
-            // and queryWithHIETreatmentData only check connectionType.
+            // only checks connectionType.
             // This means resources from ANY tenant that happen to have the right
             // connectionType could be returned.
             //
-            // The alternate branches MUST also include the security tag filter
+            // The alternate branch MUST also include the security tag filter
             // or at least restrict to the specific patients identified through the
-            // consent/HIE process.
+            // consent process.
 
             // Simulate the data sharing query construction
             const originalQuery = {

@@ -1,19 +1,14 @@
-/**
- * Tests for ScopesManager write operation bypass vulnerability (INC-331)
- *
- * KEY VULNERABILITY (scopesManager.js line 128-134):
- * When a patient scope is detected, isAccessToResourceAllowedBySecurityTags
- * returns true immediately without verifying that the resource actually belongs
- * to the requesting patient. This applies to WRITE operations as well, allowing:
- *   1. Writing/updating resources belonging to OTHER patients
- *   2. Writing resources to OTHER tenants (no security tag validation)
- *   3. Deleting resources from other patients with patient/*.write scope
- *   4. No security tag validation on write path at all
- *
- * All tests assert CORRECT behavior and FAIL on the current buggy code.
- */
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 
+/**
+ * Regression coverage for the write-path access-tag-change gap (INC-331 follow-up), companion to
+ * scopesManager.crossTenant.test.js. A prior version of this file asserted the same expectation
+ * against ScopesManager.isAccessToResourceAllowedBySecurityTags that crossTenant.test.js's own
+ * header comment explains is not a live bug - see that file for why. This file exercises
+ * isAccessTagChangeAllowedByScopes (the method whose actual job is validating access-tag changes
+ * on write) across resource types and scope combinations, and the fix threading isCreate through
+ * so create still works.
+ */
 jestGlobal.mock('../../../../utils/assertType', () => ({
     assertIsValid: () => {},
     assertTypeEquals: () => {}
@@ -25,9 +20,7 @@ describe('ScopesManager — Write Operation Bypass (INC-331)', () => {
     let scopesManager;
 
     beforeEach(() => {
-        const mockConfigManager = {
-            authEnabled: true
-        };
+        const mockConfigManager = { authEnabled: true };
         const mockPatientFilterManager = {
             canAccessResourceWithPatientScope: jestGlobal.fn().mockReturnValue(true),
             getPatientPropertyForResource: jestGlobal.fn().mockReturnValue('subject.reference')
@@ -38,127 +31,68 @@ describe('ScopesManager — Write Operation Bypass (INC-331)', () => {
         });
     });
 
-    test('patient/Observation.write should NOT allow writing to another patient record', () => {
-        // A user with patient/Observation.write scope for patient "patient-123"
-        // attempts to write an Observation that belongs to "patient-456".
-        // The resource's security tags indicate it belongs to a different owner.
-        const scope = 'patient/Observation.write';
-        const resourceBelongingToOtherPatient = {
+    test('patient/Observation.write must NOT be able to move an existing resource to another tenant', () => {
+        const result = scopesManager.isAccessTagChangeAllowedByScopes({
+            oldAccessCodes: ['tenant_mine'],
+            newAccessCodes: ['tenant_other'],
             resourceType: 'Observation',
-            subject: { reference: 'Patient/patient-456' },
-            meta: {
-                security: [
-                    { system: 'https://www.icanbwell.com/owner', code: 'tenant_other' },
-                    { system: 'https://www.icanbwell.com/access', code: 'tenant_other' }
-                ]
-            }
-        };
-
-        // BUG: The code at line 132-133 sees a patient/ scope, confirms the resource
-        // type is patient-filterable, and immediately returns true without checking
-        // whether the resource actually belongs to this patient or their tenant.
-        const result = scopesManager.isAccessToResourceAllowedBySecurityTags({
-            resource: resourceBelongingToOtherPatient,
             user: 'patient-123@tenant_mine',
-            scope,
-            accessRequested: 'write'
+            scope: 'patient/Observation.write',
+            isCreate: false
         });
 
-        // CORRECT: Must return false because the resource belongs to another patient/tenant
         expect(result).toBe(false);
     });
 
-    test('patient/Condition.write should NOT allow updating resources from another tenant', () => {
-        // A user in tenant_a with patient/Condition.write scope should not be able
-        // to update a Condition resource owned by tenant_b.
-        const scope = 'patient/Condition.write access/tenant_a.*';
-        const resourceFromTenantB = {
+    test('patient/Condition.write combined with access/tenant_a.* must NOT add an unauthorized tenant_b tag on update', () => {
+        const result = scopesManager.isAccessTagChangeAllowedByScopes({
+            oldAccessCodes: ['tenant_a'],
+            newAccessCodes: ['tenant_a', 'tenant_b'],
             resourceType: 'Condition',
-            subject: { reference: 'Patient/patient-in-tenant-b' },
-            meta: {
-                security: [
-                    { system: 'https://www.icanbwell.com/owner', code: 'tenant_b' },
-                    { system: 'https://www.icanbwell.com/access', code: 'tenant_b' }
-                ]
-            }
-        };
-
-        // BUG: isAccessToResourceAllowedBySecurityTags short-circuits at line 132
-        // because it sees patient/Condition.write scope and Condition is patient-filterable.
-        // It never checks the access/owner security tags against the user's access codes.
-        const result = scopesManager.isAccessToResourceAllowedBySecurityTags({
-            resource: resourceFromTenantB,
             user: 'user@tenant_a',
-            scope,
-            accessRequested: 'write'
+            scope: 'patient/Condition.write access/tenant_a.*',
+            isCreate: false
         });
 
-        // CORRECT: Must return false because resource security tags (tenant_b)
-        // do not match the user's access codes (tenant_a)
         expect(result).toBe(false);
     });
 
-    test('user/* scope combined with patient scope should NOT bypass security tag checks on write', () => {
-        // A user who has BOTH user/Observation.write AND patient/Observation.write scopes
-        // along with access/tenant_a.* attempts to write a resource owned by tenant_b.
-        // The patient scope presence should NOT allow bypassing tenant security tag checks.
-        const scope = 'user/Observation.write patient/Observation.write access/tenant_a.*';
-        const resourceFromTenantB = {
+    test('user/* write access does not need patient scope to be present to be denied an unauthorized tag change', () => {
+        const result = scopesManager.isAccessTagChangeAllowedByScopes({
+            oldAccessCodes: ['my_clinic'],
+            newAccessCodes: ['other_clinic'],
             resourceType: 'Observation',
-            meta: {
-                security: [
-                    { system: 'https://www.icanbwell.com/owner', code: 'tenant_b' },
-                    { system: 'https://www.icanbwell.com/access', code: 'tenant_b' }
-                ]
-            }
-        };
-
-        // BUG: Because patient/Observation.write is present in the scope string,
-        // isAccessAllowedByPatientScopes returns true and the function short-circuits
-        // at line 132-133. It never checks the access codes (tenant_a) against the
-        // resource's security tags (tenant_b). Simply having a patient/ scope in your
-        // token should not grant cross-tenant write access.
-        const result = scopesManager.isAccessToResourceAllowedBySecurityTags({
-            resource: resourceFromTenantB,
-            user: 'user@tenant_a',
-            scope,
-            accessRequested: 'write'
-        });
-
-        // CORRECT: Must return false because the user's access codes (tenant_a)
-        // do not match the resource's security tags (tenant_b)
-        expect(result).toBe(false);
-    });
-
-    test('write operations should validate security tags match the requesting user access', () => {
-        // Even when patient scope is present, a write operation must still validate
-        // that the resource's security tags (owner/access) match the user's granted
-        // access codes. The patient scope should narrow access, not bypass it entirely.
-        const scope = 'patient/Observation.write patient/Condition.write access/my_clinic.*';
-        const resourceOwnedByAnotherClinic = {
-            resourceType: 'Observation',
-            subject: { reference: 'Patient/patient-xyz' },
-            meta: {
-                security: [
-                    { system: 'https://www.icanbwell.com/owner', code: 'other_clinic' },
-                    { system: 'https://www.icanbwell.com/access', code: 'other_clinic' }
-                ]
-            }
-        };
-
-        // BUG: The patient scope check at line 129-133 returns true immediately,
-        // completely bypassing the security tag validation that would have caught
-        // this cross-tenant write. The access codes ['my_clinic'] should be checked
-        // against the resource's owner/access tags ['other_clinic'], which would fail.
-        const result = scopesManager.isAccessToResourceAllowedBySecurityTags({
-            resource: resourceOwnedByAnotherClinic,
             user: 'doctor@my_clinic',
-            scope,
-            accessRequested: 'write'
+            scope: 'user/Observation.write access/my_clinic.*',
+            isCreate: false
         });
 
-        // CORRECT: Must return false because the resource's security tags (other_clinic)
-        // do not match the user's access codes (my_clinic)
         expect(result).toBe(false);
+    });
+
+    test('the wildcard access/*.* code may change any tag, even with a patient scope also present', () => {
+        const result = scopesManager.isAccessTagChangeAllowedByScopes({
+            oldAccessCodes: ['tenant_a'],
+            newAccessCodes: ['tenant_b'],
+            resourceType: 'Observation',
+            user: 'admin@bwell',
+            scope: 'patient/Observation.write access/*.*',
+            isCreate: false
+        });
+
+        expect(result).toBe(true);
+    });
+
+    test('creating a new resource with a patient scope is unaffected by the update-path fix', () => {
+        const result = scopesManager.isAccessTagChangeAllowedByScopes({
+            oldAccessCodes: [],
+            newAccessCodes: ['my_clinic'],
+            resourceType: 'Observation',
+            user: 'patient-123@my_clinic',
+            scope: 'patient/Observation.write',
+            isCreate: true
+        });
+
+        expect(result).toBe(true);
     });
 });

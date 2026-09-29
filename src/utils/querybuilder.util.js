@@ -4,6 +4,7 @@
 
 const moment = require('moment-timezone');
 const { escapeRegExp } = require('./regexEscaper');
+const { splitUnescaped, unescapeSearchValue } = require('./searchValueEscaping');
 const { BadRequestError } = require('./httpErrors');
 const { FhirTypesManager } = require('../fhir/fhirTypesManager');
 /**
@@ -17,6 +18,7 @@ const stringQueryBuilder = function ({ target }) {
     if (typeof target !== 'string') {
         return {};
     }
+    target = unescapeSearchValue(target);
     let t2 = target.replace(/[\\(\\)\\-\\_\\+\\=\\/\\.]/g, '\\$&');
     return { $regex: new RegExp('^' + escapeRegExp(t2), 'i') };
 };
@@ -158,8 +160,14 @@ const tokenQueryBuilder = function ({ target, type, field, required, exists_flag
         return queryBuilder;
     }
 
-    if (typeof target === 'string' && target.includes('|')) {
-        [system, value] = target.split('|');
+    const targetPipeParts = typeof target === 'string' ? splitUnescaped(target, '|') : null;
+    if (targetPipeParts && targetPipeParts.length > 1) {
+        // splitUnescaped only, never unescapeSearchValue here -- `value` may still need its own
+        // comma-split below, which must see any escaped comma still escaped. Gating on the
+        // split's own length (not the escape-oblivious target.includes('|')) matters: a
+        // value-only target whose only '|' is escaped (e.g. 'a\|b', meaning literal value
+        // 'a|b') must fall into the value-only branch below, not be mistaken for system|value.
+        [system, value] = targetPipeParts;
     } else {
         value = target;
     }
@@ -170,13 +178,14 @@ const tokenQueryBuilder = function ({ target, type, field, required, exists_flag
 
     const queryBuilderElementMatch = {};
     if (system) {
+        system = unescapeSearchValue(system);
         queryBuilder[`${field}.system`] = system;
         queryBuilderElementMatch.system = system;
     }
 
     if (value) {
-        if (typeof value === 'string' && value.includes(',')) {
-            const values = value.split(',');
+        if (typeof value === 'string' && splitUnescaped(value, ',').length > 1) {
+            const values = splitUnescaped(value, ',').map(unescapeSearchValue);
             queryBuilder[`${field}.${type}`] = {
                 $in: values
             };
@@ -184,6 +193,7 @@ const tokenQueryBuilder = function ({ target, type, field, required, exists_flag
                 $in: values
             };
         } else {
+            value = typeof value === 'string' ? unescapeSearchValue(value) : value;
             queryBuilder[`${field}.${type}`] = value;
             queryBuilderElementMatch[`${type}`] = value;
         }
@@ -236,8 +246,14 @@ const tokenQueryContainsBuilder = function ({ target, type, field, required, exi
         return queryBuilder;
     }
 
-    if (typeof target === 'string' && target.includes('|')) {
-        [system, value] = target.split('|');
+    const targetPipeParts = typeof target === 'string' ? splitUnescaped(target, '|') : null;
+    if (targetPipeParts && targetPipeParts.length > 1) {
+        // splitUnescaped only, never unescapeSearchValue here -- `value` may still need its own
+        // comma-split below, which must see any escaped comma still escaped. Gating on the
+        // split's own length (not the escape-oblivious target.includes('|')) matters: a
+        // value-only target whose only '|' is escaped (e.g. 'a\|b', meaning literal value
+        // 'a|b') must fall into the value-only branch below, not be mistaken for system|value.
+        [system, value] = targetPipeParts;
     } else {
         value = target;
     }
@@ -248,6 +264,7 @@ const tokenQueryContainsBuilder = function ({ target, type, field, required, exi
 
     const queryBuilderElementMatch = {};
     if (system) {
+        system = unescapeSearchValue(system);
         queryBuilder[`${field}.system`] = {
             $regex: escapeRegExp(system),
             $options: 'i'
@@ -259,8 +276,8 @@ const tokenQueryContainsBuilder = function ({ target, type, field, required, exi
     }
 
     if (value) {
-        if (typeof value === 'string' && value.includes(',')) {
-            const values = value.split(',');
+        if (typeof value === 'string' && splitUnescaped(value, ',').length > 1) {
+            const values = splitUnescaped(value, ',').map(unescapeSearchValue);
             queryBuilder[`${field}.${type}`] = {
                 $regex: values.map(v => escapeRegExp(v)).join('|'),
                 $options: 'i'
@@ -270,6 +287,7 @@ const tokenQueryContainsBuilder = function ({ target, type, field, required, exi
                 $options: 'i'
             };
         } else {
+            value = typeof value === 'string' ? unescapeSearchValue(value) : value;
             queryBuilder[`${field}.${type}`] = {
                 $regex: escapeRegExp(value),
                 $options: 'i'
@@ -292,7 +310,7 @@ const tokenQueryContainsBuilder = function ({ target, type, field, required, exi
 const tokenIdentifierOfTypeQueryBuilder = function ({ target, field }) {
     let queryBuilder = {};
 
-    let targetArray = target.split('|').filter((t) => t !== '');
+    let targetArray = splitUnescaped(target, '|').map(unescapeSearchValue).filter((t) => t !== '');
     if (targetArray.length !== 3) {
         return queryBuilder;
     }
@@ -342,15 +360,16 @@ const exactMatchQueryBuilder = function ({ target, field, exists_flag }) {
         return queryBuilder;
     }
 
-    const value = target;
+    let value = target;
 
     if (value !== undefined) {
-        if (typeof value === 'string' && value.includes(',')) {
-            const values = value.split(',');
+        if (typeof value === 'string' && splitUnescaped(value, ',').length > 1) {
+            const values = splitUnescaped(value, ',').map(unescapeSearchValue);
             queryBuilder[`${field}`] = {
                 $in: values
             };
         } else {
+            value = typeof value === 'string' ? unescapeSearchValue(value) : value;
             queryBuilder[`${field}`] = value;
         }
     }
@@ -458,12 +477,16 @@ const quantityQueryBuilder = function ({ target, field }) {
         return qB;
     }
     // split by the two pipes
-    let [num, system, code] = target.split('|');
+    let [num, system, code] = splitUnescaped(target, '|');
 
     if (system) {
+        // num is parsed as a number below (Number(strNum)/isNaN(num)) and never legitimately
+        // contains an escape sequence, so it's deliberately left un-unescaped.
+        system = unescapeSearchValue(system);
         qB[`${field}.system`] = system;
     }
     if (code) {
+        code = unescapeSearchValue(code);
         qB[`${field}.code`] = code;
     }
 
@@ -1282,8 +1305,14 @@ const extensionQueryBuilder = function ({ target, type, field, required, exists_
         return queryBuilder;
     }
 
-    if (typeof target === 'string' && target.includes('|')) {
-        [url, value] = target.split('|');
+    const targetPipeParts = typeof target === 'string' ? splitUnescaped(target, '|') : null;
+    if (targetPipeParts && targetPipeParts.length > 1) {
+        // splitUnescaped only, never unescapeSearchValue here -- `value` may still need its own
+        // comma-split below, which must see any escaped comma still escaped. Gating on the
+        // split's own length (not the escape-oblivious target.includes('|')) matters: a
+        // value-only target whose only '|' is escaped (e.g. 'a\|b', meaning literal value
+        // 'a|b') must fall into the value-only branch below, not be mistaken for url|value.
+        [url, value] = targetPipeParts;
     } else {
         value = target;
     }
@@ -1294,13 +1323,14 @@ const extensionQueryBuilder = function ({ target, type, field, required, exists_
 
     const queryBuilderElementMatch = {};
     if (url) {
+        url = unescapeSearchValue(url);
         queryBuilder[`${field}.url`] = url;
         queryBuilderElementMatch.url = url;
     }
 
     if (value) {
-        if (typeof value === 'string' && value.includes(',')) {
-            const values = value.split(',');
+        if (typeof value === 'string' && splitUnescaped(value, ',').length > 1) {
+            const values = splitUnescaped(value, ',').map(unescapeSearchValue);
             queryBuilder[`${field}.${type}`] = {
                 $in: values
             };
@@ -1308,6 +1338,7 @@ const extensionQueryBuilder = function ({ target, type, field, required, exists_
                 $in: values
             };
         } else {
+            value = typeof value === 'string' ? unescapeSearchValue(value) : value;
             queryBuilder[`${field}.${type}`] = value;
             queryBuilderElementMatch[`${type}`] = value;
         }

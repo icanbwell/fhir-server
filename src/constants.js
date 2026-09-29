@@ -9,6 +9,20 @@ module.exports = {
     AUDIT_EVENT_CLIENT_DB: 'auditEventClient_db',
     DB_SEARCH_LIMIT: 100,
     DB_SEARCH_LIMIT_FOR_IDS: 1000,
+    UNSUPPORTED_SORT_FIELDS: ['id'],
+    // TEMPORARY: hardcoded allowlist for _sort fields that are valid Mongo paths but not declared
+    // FHIR search parameters, added for callers who relied on pre-hardening dotted-path sort
+    // behavior. Remove once these callers migrate to real search parameters or sort client-side.
+    CUSTOM_SORT_FIELDS: {
+        VerificationResult: ['statusDate'],
+        Person: ['active'],
+        Coverage: ['period.start', 'period.end'],
+        ExplanationOfBenefit: ['billablePeriod.start', 'billablePeriod.end'],
+        CarePlan: ['created'],
+        AllergyIntolerance: ['onsetDateTime', 'onsetPeriod.start', 'onsetPeriod.end'],
+        Questionnaire: ['_sourceId'],
+        Procedure: ['encounter.period.start', 'encounter.period.end']
+    },
     COLLECTION: {
         ACCOUNT: 'Account',
         ACTIVITYDEFINITION: 'ActivityDefinition',
@@ -169,6 +183,12 @@ module.exports = {
         'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer', '_rewritePatientReference', '_keepOldUI',
         '_includeNonClinicalResources', '_nonClinicalResourcesDepth', '_includePatientLinkedOnly', '_includeUuidOnly'
     ],
+    /**
+     * Resource types fhir-notes-vector-store extracts and Atlas-Search-indexes attachment/note
+     * text for. `_content` search and derived-text enrichment are only supported for these.
+     * @type {string[]}
+     */
+    FULL_TEXT_SEARCH_SUPPORTED_RESOURCE_TYPES: ['DocumentReference', 'DiagnosticReport', 'CarePlan'],
     REQUEST_ID_HEADER: 'x-request-id',
     REGEX: {
         INSTANT: /^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$/,
@@ -219,8 +239,14 @@ module.exports = {
         SYSTEM_GENERATED_REQUEST_ID: 'systemGeneratedRequestId'
     },
     RESPONSE_NONCE: 'responseNonce',
+    MCP_REQUEST_INFO_CONTEXT_KEY: 'mcpFhirRequestInfo',
     ACCESS_LOGS_COLLECTION_NAME: 'access-logs',
     ACCESS_LOGS_ENTRY_DATA: 'access-logs-entry-data',
+    // Collection names are derived by ResourceLocator as `${resourceType}_${base_version}` --
+    // these must stay in sync with GROUP_MEMBER_RESOURCE_TYPE, not be renamed independently.
+    GROUP_MEMBER_RESOURCE_TYPE: 'GroupMember',
+    GROUP_MEMBER_COLLECTION_NAME: 'GroupMember_4_0_0',
+    GROUP_MEMBER_HISTORY_COLLECTION_NAME: 'GroupMember_4_0_0_History',
     PATIENT_REFERENCE_PREFIX: 'Patient/',
     PERSON_REFERENCE_PREFIX: 'Person/',
     PERSON_PROXY_PREFIX: 'person.',
@@ -229,6 +255,7 @@ module.exports = {
         SYSTEM: 'http://terminology.hl7.org/3.1.0/CodeSystem-v3-RoleCode.html',
         CODE: 'AUT'
     },
+    DATA_SHARING_PATIENT_TO_PERSON_DATA: 'dataSharingPatientToPersonData',
     RESOURCE_RESTRICTION_TAG: {
         SYSTEM: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
         CODE: 'R'
@@ -305,6 +332,10 @@ module.exports = {
     CLOUD_EVENT: {
         SOURCE: 'https://www.icanbwell.com/fhir-server'
     },
+    BULK_IMPORT_TASK: {
+        TYPE_SYSTEM: 'https://www.icanbwell.com/task-type',
+        TYPE_CODE: 'bulk-import'
+    },
     CACHE_STATUS: {
         HIT: 'Hit',
         MISS: 'Miss'
@@ -313,6 +344,14 @@ module.exports = {
         cmsPartnerUser: 'cms-partner',
         delegatedUser: 'delegatedUser'
     },
+    /**
+     * Namespaces the resource-type/action gate evaluates for a caller NOT on the patient-scope
+     * branch. SMART v2 `system/` is the backend-services equivalent of this server's
+     * pre-existing `user/` service-account namespace (see authService.js's isUser derivation:
+     * `user/` never implied a human user), so both are evaluated together in ONE branch rather
+     * than as separate authorization paths. See docs/resource-authorization.md §3.
+     */
+    RESOURCE_TYPE_SCOPE_NAMESPACES: ['user/', 'system/'],
     EXTERNAL_SERVICE_REQUEST_CONFIG: {
         ignoredParams: ['_debug', '_explain'],
         defaultHeaders: {
@@ -338,6 +377,14 @@ module.exports = {
             'searchById',
             'everything',
             'graph'
-        ]
+        ],
+        /**
+         * Resource types a JWT `act` claim's `reference` may name as the delegated actor.
+         * - RelatedPerson: a human delegate acting on a grantor's behalf (Health Circle / AoR flow).
+         * - Organization: a backend/service-integration client acting on a Person it has itself
+         *   onboarded, with no human grantee -- an upstream token-exchange grant for
+         *   client-initiated access.
+         */
+        ALLOWED_ACTOR_RESOURCE_TYPES: ['RelatedPerson', 'Organization']
     }
 };

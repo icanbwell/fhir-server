@@ -1,0 +1,104 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "for": {
+          "reference": "Patient/mps-patient-1",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/mps-patient-1"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/b6bb8165-a72d-5454-8674-ca12787bc7d2"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ]
+        },
+        "id": "23d392b9-395b-4ba4-95e1-48d3edd0d88e",
+        "intent": "plan",
+        "meta": {
+          "versionId": "1",
+          "source": "test",
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+          ],
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "bwell",
+              "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "bwell",
+              "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "bwell",
+              "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c"
+            }
+          ]
+        },
+        "resourceType": "Task",
+        "status": "draft",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "23d392b9-395b-4ba4-95e1-48d3edd0d88e"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "23d392b9-395b-4ba4-95e1-48d3edd0d88e"
+          }
+        ]
+      }
+    }
+  ],
+  "type": "searchset",
+  "resourceType": "Bundle",
+  "total": 0,
+  "meta": {
+    "tag": [
+      {
+        "system": "https://www.icanbwell.com/query",
+        "display": "db.Task_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'for._uuid':{'$in':['Patient/person.41db6857-b989-4617-ac8b-35d853250449','Patient/b6bb8165-a72d-5454-8674-ca12787bc7d2']}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryCollection",
+        "code": "Task_4_0_0"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptions",
+        "display": "{'limit':100,'sort':{'_uuid':1}}"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryFields",
+        "display": "['meta.tag.system','meta.tag.code','for._uuid','meta.security.system','meta.security.code','_uuid']"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryDatabase",
+        "code": "fhir"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  }
+}

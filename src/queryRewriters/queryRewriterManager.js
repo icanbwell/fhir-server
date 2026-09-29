@@ -71,12 +71,15 @@ class QueryRewriterManager {
      * @property {string} resourceType
      * @property {'READ'|'WRITE'} operation
      * @property {FhirRequestInfo} requestInfo
+     * @property {function({resourceType: string, args: Object, requestInfo: FhirRequestInfo}): Promise<string[]>} [searchResourceAsync]
+     *   call-time only, not constructor-injected -- avoids a DI cycle with rewriters whose
+     *   dependencies (searchManager, fhirOperationsManager) themselves depend on this manager
      *
      * @param {rewriteArgsAsyncParams}
      * @return {Promise<ParsedArgs>}
      */
 
-    async rewriteArgsAsync ({ base_version, parsedArgs, resourceType, operation, requestInfo }) {
+    async rewriteArgsAsync ({ base_version, parsedArgs, resourceType, operation, requestInfo, searchResourceAsync }) {
         /**
          * @typedef {import('./rewriters/queryRewriter').QueryRewriter[]}
          */
@@ -85,7 +88,9 @@ class QueryRewriterManager {
             ...(this.operationSpecificQueryRewriters[`${operation}`] || [])
         ];
         for (const queryRewriter of queryRewriters) {
-            parsedArgs = await queryRewriter.rewriteArgsAsync({ base_version, parsedArgs, resourceType, requestInfo });
+            parsedArgs = await queryRewriter.rewriteArgsAsync({
+                base_version, parsedArgs, resourceType, requestInfo, searchResourceAsync
+            });
         }
         return parsedArgs;
     }

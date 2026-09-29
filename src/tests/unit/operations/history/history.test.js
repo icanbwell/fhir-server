@@ -78,7 +78,10 @@ describe('HistoryOperation', () => {
             logOperationFailureAsync: jest.fn().mockResolvedValue(undefined)
         };
         mockScopesValidator = {
-            verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined)
+            verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined),
+            // Default to admin so pre-existing _explain/_debug tests (unrelated to the
+            // DCON-4808 admin-scope gating) keep exercising their original code path.
+            isAdminScope: jest.fn().mockReturnValue(true)
         };
         mockBundleManager = {
             createRawBundleFromEntries: jest.fn().mockReturnValue({
@@ -219,6 +222,37 @@ describe('HistoryOperation', () => {
             mockCursor.hasNext.mockResolvedValue(false);
 
             // Should NOT throw because explain is requested
+            await expect(
+                historyOp.fetchHistoryAsync({
+                    requestInfo: makeRequestInfo(),
+                    parsedArgs: mockParsedArgs,
+                    resourceType: 'Patient'
+                })
+            ).resolves.toBeDefined();
+        });
+
+        // DCON-4808: _explain/_debug expose Mongo query plans/collection internals and must
+        // be dropped for a non-admin-scoped caller before they reach cursor.explainAsync().
+        test('non-admin caller: _explain is cleared, cursor.explainAsync() is not called', async () => {
+            mockScopesValidator.isAdminScope.mockReturnValue(false);
+            mockParsedArgs._explain = true;
+            mockCursor.hasNext.mockResolvedValue(false);
+
+            await expect(
+                historyOp.fetchHistoryAsync({
+                    requestInfo: makeRequestInfo(),
+                    parsedArgs: mockParsedArgs,
+                    resourceType: 'Patient'
+                })
+            ).rejects.toThrow('History not found'); // _explain was cleared, so the not-found path fires
+            expect(mockCursor.explainAsync).not.toHaveBeenCalled();
+        });
+
+        test('admin caller: _explain is preserved, cursor.explainAsync() is called', async () => {
+            mockScopesValidator.isAdminScope.mockReturnValue(true);
+            mockParsedArgs._explain = true;
+            mockCursor.hasNext.mockResolvedValue(false);
+
             await expect(
                 historyOp.fetchHistoryAsync({
                     requestInfo: makeRequestInfo(),

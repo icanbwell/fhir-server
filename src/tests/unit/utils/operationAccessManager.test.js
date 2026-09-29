@@ -253,4 +253,80 @@ describe('OperationAccessManager', () => {
             expect(call2Args.requestInfo).toBe(requestInfo);
         });
     });
+
+    describe('verifyGraphQLReadAccess (DCON-4846)', () => {
+        test('overrides method to GET before delegating, without mutating the original requestInfo', () => {
+            manager = new OperationAccessManager({
+                accessProviders: [mockProvider1]
+            });
+
+            const requestInfo = { scope: 'access/tenant_a.*', user: 'test-user', method: 'POST' };
+
+            manager.verifyGraphQLReadAccess({
+                requestInfo,
+                resourceType: 'Patient',
+                operation: 'search'
+            });
+
+            expect(mockProvider1.verifyAccess).toHaveBeenCalledTimes(1);
+            const passedRequestInfo = mockProvider1.verifyAccess.mock.calls[0][0].requestInfo;
+            expect(passedRequestInfo.method).toBe('GET');
+            expect(passedRequestInfo).not.toBe(requestInfo);
+            expect(requestInfo.method).toBe('POST');
+        });
+
+        test('preserves every other requestInfo property', () => {
+            manager = new OperationAccessManager({
+                accessProviders: [mockProvider1]
+            });
+
+            const requestInfo = {
+                scope: 'access/tenant_a.*', user: 'test-user', method: 'POST', userType: 'cmsPartnerUser'
+            };
+
+            manager.verifyGraphQLReadAccess({
+                requestInfo,
+                resourceType: 'Patient',
+                operation: 'search'
+            });
+
+            const passedRequestInfo = mockProvider1.verifyAccess.mock.calls[0][0].requestInfo;
+            expect(passedRequestInfo.scope).toBe('access/tenant_a.*');
+            expect(passedRequestInfo.user).toBe('test-user');
+            expect(passedRequestInfo.userType).toBe('cmsPartnerUser');
+        });
+
+        test('passes resourceType and operation through unchanged', () => {
+            manager = new OperationAccessManager({
+                accessProviders: [mockProvider1]
+            });
+
+            manager.verifyGraphQLReadAccess({
+                requestInfo: { method: 'POST' },
+                resourceType: 'Observation',
+                operation: 'search'
+            });
+
+            expect(mockProvider1.verifyAccess).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Observation', operation: 'search' })
+            );
+        });
+
+        test('propagates a denial from a provider', () => {
+            const forbiddenError = new Error('CMS partner user does not have access to Observation search');
+            mockProvider1.verifyAccess.mockImplementation(() => { throw forbiddenError; });
+
+            manager = new OperationAccessManager({
+                accessProviders: [mockProvider1]
+            });
+
+            expect(() => {
+                manager.verifyGraphQLReadAccess({
+                    requestInfo: { method: 'POST' },
+                    resourceType: 'Observation',
+                    operation: 'search'
+                });
+            }).toThrow('CMS partner user does not have access to Observation search');
+        });
+    });
 });

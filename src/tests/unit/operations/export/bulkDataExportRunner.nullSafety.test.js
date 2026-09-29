@@ -22,9 +22,12 @@ const { EnrichmentManager } = require('../../../../enrich/enrich');
 const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
 const { R4ArgsParser } = require('../../../../operations/query/r4ArgsParser');
 const { SearchManager } = require('../../../../operations/search/searchManager');
+const { ScopesManager } = require('../../../../operations/security/scopesManager');
+const { ConfigManager } = require('../../../../utils/configManager');
 const { S3Client } = require('../../../../utils/s3Client');
 const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../../utils/bulkExportEventProducer');
+const { StorageProviderFactory } = require('../../../../dataLayer/providers/storageProviderFactory');
 const { S3MultiPartContext } = require('../../../../operations/export/script/s3MultiPartContext');
 
 function createMockInstance(ClassType) {
@@ -48,9 +51,14 @@ describe('BulkDataExportRunner - null safety bugs', () => {
             resourceLocatorFactory: createMockInstance(ResourceLocatorFactory),
             r4ArgsParser: createMockInstance(R4ArgsParser),
             searchManager: createMockInstance(SearchManager),
+            scopesManager: new ScopesManager({
+                configManager: createMockInstance(ConfigManager),
+                patientFilterManager: createMockInstance(PatientFilterManager)
+            }),
             s3Client: createMockInstance(S3Client),
             postSaveProcessor: createMockInstance(PostSaveProcessor),
             bulkExportEventProducer: createMockInstance(BulkExportEventProducer),
+            storageProviderFactory: createMockInstance(StorageProviderFactory),
             exportStatusId: 'export-123',
             patientReferenceBatchSize: 100,
             fetchResourceBatchSize: 50,
@@ -114,7 +122,7 @@ describe('BulkDataExportRunner - null safety bugs', () => {
             mocks.resourceLocatorFactory.createResourceLocator = jest.fn().mockReturnValue(mockResourceLocator);
 
             mocks.enrichmentManager.enrichAsync = jest.fn().mockResolvedValue(undefined);
-            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockResolvedValue(undefined);
+            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockImplementation((doc) => doc);
             mocks.base64DataManager.transformAsync = jest.fn().mockImplementation((doc) => doc);
 
             // Math.floor(uploadPartSize / 0) would be Infinity, and `new Array(Infinity)`
@@ -164,7 +172,7 @@ describe('BulkDataExportRunner - null safety bugs', () => {
             mocks.resourceLocatorFactory.createResourceLocator = jest.fn().mockReturnValue(mockResourceLocator);
 
             mocks.enrichmentManager.enrichAsync = jest.fn().mockResolvedValue(undefined);
-            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockResolvedValue(undefined);
+            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockImplementation((doc) => doc);
             mocks.base64DataManager.transformAsync = jest.fn().mockImplementation((doc) => doc);
 
             // Set up multipartContext with existing previousBuffer
@@ -284,7 +292,7 @@ describe('BulkDataExportRunner - null safety bugs', () => {
             // Make enrichmentManager throw after multipart upload is started
             mocks.enrichmentManager.enrichAsync = jest.fn().mockRejectedValue(new Error('Enrichment failed'));
 
-            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockResolvedValue(undefined);
+            mocks.databaseAttachmentManager.transformAttachments = jest.fn().mockImplementation((doc) => doc);
             mocks.base64DataManager.transformAsync = jest.fn().mockImplementation((doc) => doc);
 
             // handlePatientExportAsync must abort the in-progress multipart upload when an

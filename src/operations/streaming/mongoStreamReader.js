@@ -150,8 +150,15 @@ class MongoReadableStream extends Readable {
                     return;
                 }
             } catch (e) {
-                // Handles operation timeout error in mongodb
-                if (e.code === 50 && !hasRetried && this.lastUUID) {
+                // Handles operation timeout error in mongodb. Retry only when this.params is a
+                // full FHIR-search-shaped object (resourceType, parsedArgs, columns, etc.) --
+                // getCursorForQueryAsync's contract below. A caller with a minimal ad-hoc params
+                // object (e.g. GroupMember's live-roster query, which only ever sets {query})
+                // doesn't fit that shape, so retrying would throw a confusing TypeError instead
+                // of the timeout itself; fall through to the generic non-retryable error handling
+                // below instead.
+                const canRetry = Boolean(this.params.resourceType);
+                if (e.code === 50 && !hasRetried && this.lastUUID && canRetry) {
                     logInfo(
                         'MongoReadableStream readAsync: Retrying with new cursor due to mongo query timeout',
                         { e }

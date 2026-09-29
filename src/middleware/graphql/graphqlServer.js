@@ -2,6 +2,7 @@
  * This middleware handles graphql requests
  */
 const { ApolloServer } = require('@apollo/server');
+const { unwrapResolverError } = require('@apollo/server/errors');
 const { buildSubgraphSchema } = require('@apollo/subgraph');
 const { expressMiddleware } = require('@as-integrations/express5');
 const {
@@ -25,6 +26,7 @@ const { getAddRequestIdToResponseHeadersPlugin } = require('./plugins/graphqlAdd
 const { getBundleMetaApolloServerPlugin } = require('./plugins/graphqlBundleMetaPlugin');
 const { getValidateMissingVariableValuesPlugin } = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
 const { removeNullFromArray } = require('../../utils/nullRemover');
+const { getSafeErrorMessage } = require('./graphqlErrorFormatter');
 const resolvers = require('../../graphql/resolvers');
 
 /**
@@ -108,7 +110,7 @@ const graphql = async (fnGetContainer) => {
             introspection: configManagerInstance.enableGraphQLPlayground,
             cache: 'bounded',
             plugins,
-            formatError: (formattedError, _error) => {
+            formatError: (formattedError, error) => {
                 // Formatting the error message returned from GraphQL when GraphQL Playground(Currently case of production environment) is disabled.
                 if (formattedError.message.startsWith('This operation has been blocked as a potential Cross-Site Request Forgery (CSRF)')) {
                     return new OperationOutcome({
@@ -127,6 +129,22 @@ const graphql = async (fnGetContainer) => {
                     delete formattedError.extensions.stacktrace;
                     delete formattedError.extensions.exception;
                 }
+
+                // Redact internal error details for errors thrown inside resolvers/data
+                // sources (as opposed to GraphQL parse/validation errors, which don't
+                // originate from application code and are already safe to show verbatim).
+                // Apollo's expressMiddleware handles these errors itself and responds with
+                // HTTP 200 + an `errors` array -- it never calls `next(err)`, so
+                // graphqlErrorFormatter (the Express error-handling middleware registered
+                // after this middleware in src/app.js) never runs for this path. Mirror the
+                // same 4xx-vs-5xx classification used there so implementation details
+                // (hostnames, connection strings, stack-derived strings, etc.) can't leak
+                // to callers via a resolver/data-source throw either.
+                const originalError = unwrapResolverError(error);
+                if (originalError !== error) {
+                    formattedError.message = getSafeErrorMessage(originalError);
+                }
+
                 return formattedError;
             },
             stringifyResult: (value) => {

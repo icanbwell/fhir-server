@@ -11,13 +11,12 @@ describe('ResourceProccessedTracker', () => {
     describe('constructor', () => {
         test('initializes with empty sets', () => {
             expect(tracker.uuidSet.size).toBe(0);
-            expect(tracker.sourceIdSet.size).toBe(0);
             expect(tracker.sourceIdSourceAssigningAuthoritySet.size).toBe(0);
         });
     });
 
     describe('add', () => {
-        test('adds resource identifier to all three sets', () => {
+        test('adds resource identifier to both sets', () => {
             const identifier = {
                 resourceType: 'Patient',
                 _uuid: 'uuid-123',
@@ -26,7 +25,6 @@ describe('ResourceProccessedTracker', () => {
             };
             tracker.add(identifier);
             expect(tracker.uuidSet.has('Patient/uuid-123')).toBe(true);
-            expect(tracker.sourceIdSet.has('Patient/source-456')).toBe(true);
             expect(tracker.sourceIdSourceAssigningAuthoritySet.has('Patient/source-456|auth-789')).toBe(true);
         });
 
@@ -44,7 +42,6 @@ describe('ResourceProccessedTracker', () => {
                 _sourceAssigningAuthority: 'auth-2'
             });
             expect(tracker.uuidSet.size).toBe(2);
-            expect(tracker.sourceIdSet.size).toBe(2);
             expect(tracker.sourceIdSourceAssigningAuthoritySet.size).toBe(2);
         });
 
@@ -58,7 +55,6 @@ describe('ResourceProccessedTracker', () => {
             tracker.add(identifier);
             tracker.add(identifier);
             expect(tracker.uuidSet.size).toBe(1);
-            expect(tracker.sourceIdSet.size).toBe(1);
             expect(tracker.sourceIdSourceAssigningAuthoritySet.size).toBe(1);
         });
 
@@ -70,7 +66,6 @@ describe('ResourceProccessedTracker', () => {
                 _sourceAssigningAuthority: 'enc-auth'
             });
             expect(tracker.uuidSet.has('Encounter/enc-uuid')).toBe(true);
-            expect(tracker.sourceIdSet.has('Encounter/enc-src')).toBe(true);
             expect(tracker.sourceIdSourceAssigningAuthoritySet.has('Encounter/enc-src|enc-auth')).toBe(true);
         });
     });

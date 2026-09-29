@@ -336,7 +336,23 @@ describe('WellKnownConfigurationManager', () => {
             expect(result).toEqual([]);
         });
 
-        test('returns empty array when all URLs fail', async () => {
+        test('returns empty array when zero well-known URLs are configured', async () => {
+            manager = new WellKnownConfigurationManager({
+                configManager: { externalAuthWellKnownUrls: [] },
+                cacheOptions: { max: 10, ttl: 1000 }
+            });
+
+            const result = await manager.getJwksUrlsAsync();
+            expect(result).toEqual([]);
+            expect(superagent.get).not.toHaveBeenCalled();
+        });
+
+        test('throws a transient/503 error when every configured URL fails (INC-322)', async () => {
+            // A total outage across every configured well-known URL must NOT look the
+            // same as "no well-known URLs configured" (previously both returned []),
+            // otherwise AuthService.getExternalJwksAsync falls through to its unguarded
+            // `return []` and the caller never learns this was a transient failure --
+            // reintroducing the exact bug INC-322 was about, via the well-known fallback.
             manager = new WellKnownConfigurationManager({
                 configManager: {
                     externalAuthWellKnownUrls: ['https://fail.example.com/.well-known']
@@ -348,8 +364,33 @@ describe('WellKnownConfigurationManager', () => {
                 set: jestObj.fn().mockRejectedValue(new Error('Network error'))
             });
 
+            await expect(manager.getJwksUrlsAsync()).rejects.toMatchObject({
+                isTransient: true,
+                statusCode: 503
+            });
+        });
+
+        test('returns partial results when only some configured URLs fail', async () => {
+            manager = new WellKnownConfigurationManager({
+                configManager: {
+                    externalAuthWellKnownUrls: [
+                        'https://fail.example.com/.well-known',
+                        'https://success.example.com/.well-known'
+                    ]
+                },
+                cacheOptions: { max: 10, ttl: 1000 }
+            });
+
+            const config = { ...sampleConfig, jwks_uri: 'https://success.example.com/jwks' };
+            superagent.get.mockImplementation((url) => {
+                if (url.includes('fail')) {
+                    return { set: jestObj.fn().mockRejectedValue(new Error('Network error')) };
+                }
+                return { set: jestObj.fn().mockResolvedValue({ text: JSON.stringify(config) }) };
+            });
+
             const result = await manager.getJwksUrlsAsync();
-            expect(result).toEqual([]);
+            expect(result).toEqual(['https://success.example.com/jwks']);
         });
     });
 });

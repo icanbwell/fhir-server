@@ -54,10 +54,11 @@ const createRequestPromises = (entries, req, baseVersion) => {
     // This is a same-process loopback call: the batch/transaction handler re-dispatches each
     // bundle entry back through this server's own single-resource endpoints. The destination
     // must never be derived from anything caller-controlled - not even req.hostname, which
-    // resolves to an attacker-suppliable value here (this app enables "trust proxy"
-    // unconditionally in src/app.js, so req.hostname/req.host prefer X-Forwarded-Host from any
-    // client, not only from a verified upstream proxy). Always target our own configured
-    // listening port on loopback instead, over plain HTTP (this app never terminates TLS itself).
+    // resolves to an attacker-suppliable value here (src/app.js sets a non-zero "trust proxy"
+    // hop count by default, and any non-zero value makes req.hostname/req.host prefer
+    // X-Forwarded-Host from any client, not only from a verified upstream proxy). Always target
+    // our own configured listening port on loopback instead, over plain HTTP (this app never
+    // terminates TLS itself).
     const serverHost = `127.0.0.1:${fhirServerConfig.server.port}`;
     const requestPromises = [];
     const results = [];

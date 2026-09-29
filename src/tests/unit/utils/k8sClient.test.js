@@ -6,7 +6,9 @@ const { describe, test, expect, beforeEach, afterEach, jest: jestObj } = require
 // Mock @kubernetes/client-node
 const mockKubeConfig = {
     loadFromCluster: jestObj.fn(),
-    makeApiClient: jestObj.fn()
+    makeApiClient: jestObj.fn(),
+    getCurrentContext: jestObj.fn().mockReturnValue('inClusterContext'),
+    getContextObject: jestObj.fn().mockReturnValue({ namespace: 'fhir-server' })
 };
 
 const mockBatchV1Api = {
@@ -96,7 +98,8 @@ describe('K8sClient', () => {
 
         mockConfigManager = {
             environmentValue: 'dev',
-            hostnameValue: 'fhir-server-pod-0'
+            hostnameValue: 'fhir-server-pod-0',
+            useEnvironmentValueForK8sNamespace: true
         };
 
         k8sClient = new K8sClient({ configManager: mockConfigManager });
@@ -131,6 +134,19 @@ describe('K8sClient', () => {
             });
             const client = new K8sClient({ configManager: mockConfigManager });
             expect(logError).toHaveBeenCalledWith('Error while initializing k8 client:', expect.any(Error));
+        });
+
+        test('derives namespace from environmentValue by default (useEnvironmentValueForK8sNamespace defaults to true)', () => {
+            expect(mockKubeConfig.getContextObject).not.toHaveBeenCalled();
+            expect(k8sClient.namespace).toBe('fhir-server-dev');
+        });
+
+        test('reads namespace from the kube config context when useEnvironmentValueForK8sNamespace is false', () => {
+            mockConfigManager.useEnvironmentValueForK8sNamespace = false;
+            mockKubeConfig.getContextObject.mockReturnValueOnce({ namespace: 'fhir-server' });
+            const client = new K8sClient({ configManager: mockConfigManager });
+            expect(mockKubeConfig.getContextObject).toHaveBeenCalledWith('inClusterContext');
+            expect(client.namespace).toBe('fhir-server');
         });
     });
 
@@ -288,15 +304,17 @@ describe('K8sClient', () => {
             await expect(k8sClient.createJob({ scriptCommand, context })).rejects.toThrow('Permission denied');
         });
 
-        test('uses correct namespace derived from environmentValue', async () => {
+        test('uses the live kube config namespace instead of environmentValue when useEnvironmentValueForK8sNamespace is false', async () => {
             mockBatchV1Api.createNamespacedJob.mockResolvedValue({ body: { metadata: { name: 'test-job' } } });
             mockConfigManager.environmentValue = 'production';
+            mockConfigManager.useEnvironmentValueForK8sNamespace = false;
+            mockKubeConfig.getContextObject.mockReturnValueOnce({ namespace: 'fhir-server' });
             k8sClient = new K8sClient({ configManager: mockConfigManager });
 
             await k8sClient.createJob({ scriptCommand, context });
             expect(mockBatchV1Api.createNamespacedJob).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    namespace: 'fhir-server-production'
+                    namespace: 'fhir-server'
                 })
             );
         });

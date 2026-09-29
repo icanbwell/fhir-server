@@ -129,6 +129,44 @@
       }
     },
     {
+      "id": "b8c4d2e3-f5a6-4789-9bcd-ef0123456790",
+      "username": "${MY_DELEGATED_ORG_ACCESS_USER_NAME}",
+      "firstName": "Tester",
+      "lastName": "WithOrgActor",
+      "email": "tester-with-org-actor@tester.com",
+      "emailVerified": true,
+      "createdTimestamp": 1718982320512,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "b1c2d3e4-f5a6-7890-bcde-f01234567891",
+          "type": "password",
+          "createdDate": 1718987296927,
+          "value": "${MY_DELEGATED_ORG_ACCESS_USER_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "notBefore": 0,
+      "realmRoles": [
+      ],
+      "attributes": {
+        "custom:scope": "${MY_DELEGATED_ORG_ACCESS_USER_SCOPE}",
+        "clientFhirPersonId": "${MY_DELEGATED_ORG_ACCESS_USER_CLIENT_PERSON_ID}",
+        "clientFhirPatientId": "${MY_DELEGATED_ORG_ACCESS_USER_CLIENT_PATIENT_ID}",
+        "bwellFhirPersonId": "${MY_DELEGATED_ORG_ACCESS_USER_MASTER_PERSON_ID}",
+        "bwellFhirPatientId": "${MY_DELEGATED_ORG_ACCESS_USER_MASTER_PATIENT_ID}",
+        "token_use": "access",
+        "username": "${MY_DELEGATED_ORG_ACCESS_USER_TOKEN_USERNAME}",
+        "act.reference": "${DELEGATED_ORG_ACT_REFERENCE}",
+        "act.sub": "${DELEGATED_ORG_ACT_SUB}",
+        "managingOrganization": "${DELEGATED_ORG_MANAGING_ORGANIZATION}",
+        "entitlements": "${DELEGATED_ORG_ACCESS_USER_ENTITLEMENT}"
+      }
+    },
+    {
       "id": "1ecaa0de-a3e9-532c-8a3b-7c0018cb3428",
       "username": "${CMS_USER_NAME}",
       "firstName": "CMS",

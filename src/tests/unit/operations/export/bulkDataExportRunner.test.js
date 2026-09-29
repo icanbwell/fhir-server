@@ -22,9 +22,12 @@ const { EnrichmentManager } = require('../../../../enrich/enrich');
 const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
 const { R4ArgsParser } = require('../../../../operations/query/r4ArgsParser');
 const { SearchManager } = require('../../../../operations/search/searchManager');
+const { ScopesManager } = require('../../../../operations/security/scopesManager');
+const { ConfigManager } = require('../../../../utils/configManager');
 const { S3Client } = require('../../../../utils/s3Client');
 const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../../utils/bulkExportEventProducer');
+const { StorageProviderFactory } = require('../../../../dataLayer/providers/storageProviderFactory');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -47,9 +50,16 @@ describe('BulkDataExportRunner', () => {
             resourceLocatorFactory: createMockInstance(ResourceLocatorFactory),
             r4ArgsParser: createMockInstance(R4ArgsParser),
             searchManager: createMockInstance(SearchManager),
+            // Real ScopesManager (it is a pure parser) so getResourceTypeScopes() is genuinely
+            // exercised rather than stubbed.
+            scopesManager: new ScopesManager({
+                configManager: createMockInstance(ConfigManager),
+                patientFilterManager: createMockInstance(PatientFilterManager)
+            }),
             s3Client: createMockInstance(S3Client),
             postSaveProcessor: createMockInstance(PostSaveProcessor),
             bulkExportEventProducer: createMockInstance(BulkExportEventProducer),
+            storageProviderFactory: createMockInstance(StorageProviderFactory),
             exportStatusId: 'export-123',
             patientReferenceBatchSize: 100,
             fetchResourceBatchSize: 50,
@@ -58,6 +68,7 @@ describe('BulkDataExportRunner', () => {
         };
 
         // Setup mocks
+        mocks.databaseAttachmentManager.configManager = { enabledGridFsResources: [] };
         mocks.databaseExportManager.getExportStatusResourceWithId = jest.fn();
         mocks.databaseExportManager.updateExportStatusAsync = jest.fn().mockResolvedValue(undefined);
         mocks.postSaveProcessor.afterSaveAsync = jest.fn().mockResolvedValue(undefined);
@@ -162,6 +173,41 @@ describe('BulkDataExportRunner', () => {
                 allowedResources: ['Patient', 'Observation']
             });
             expect(result).toEqual([]);
+        });
+
+        // system/ twins of the user/ cases above (SMART on FHIR v2 backend-services scope).
+        test.each(['user', 'system'])('filters resources by scope with %s/* wildcard', async (ns) => {
+            const result = await runner.getRequestedResourceAsync({
+                scope: `${ns}/*.*`,
+                searchParams: new URLSearchParams(),
+                allowedResources: ['Patient', 'Observation', 'AuditEvent']
+            });
+            expect(result).not.toContain('AuditEvent');
+            expect(result).toContain('Patient');
+            expect(result).toContain('Observation');
+        });
+
+        test.each(['user', 'system'])('filters to only allowed resources by %s/ scope', async (ns) => {
+            const result = await runner.getRequestedResourceAsync({
+                scope: `${ns}/Patient.read`,
+                searchParams: new URLSearchParams(),
+                allowedResources: ['Patient', 'Observation']
+            });
+            expect(result).toEqual(['Patient']);
+        });
+
+        // Regression: a system/-only caller must not get a silently EMPTY resource list. Before
+        // the fix, only user/-prefixed scopes populated allowedResourcesByScopes, which starts
+        // as a truthy [], so a system/*.read caller was filtered to nothing rather than getting
+        // its full allowed set. See
+        // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §4.2.
+        test('a system/-only caller does not get a silently EMPTY resource list', async () => {
+            const result = await runner.getRequestedResourceAsync({
+                scope: 'system/*.read',
+                searchParams: new URLSearchParams(),
+                allowedResources: ['Patient', 'Observation']
+            });
+            expect(result).toEqual(expect.arrayContaining(['Patient', 'Observation']));
         });
     });
 
@@ -277,6 +323,128 @@ describe('BulkDataExportRunner', () => {
                 searchParams
             });
             expect(mocks.r4SearchQueryCreator.appendAndSimplifyQuery).toHaveBeenCalled();
+        });
+    });
+
+    // ========== multipart batch sizing (_elements projection) ==========
+    // PR #2459 review: minUploadBatchSize/averageDocumentSize was derived from the
+    // full collection's avgObjSize, which is far larger than the tiny docs an
+    // _elements=id-style projection actually serializes. A doc-count target sized
+    // for full documents under-fills each part well below S3's 5MB non-final-part
+    // minimum. These tests assert the fix: batching is byte-accounted against the
+    // actual serialized size of each doc, so small projected docs still fill parts
+    // to the configured uploadPartSize regardless of how much smaller they are than
+    // a full hydrated resource would be.
+    describe('multipart batch sizing (_elements projection)', () => {
+        function makeCursor(totalDocs) {
+            let i = 0;
+            return {
+                hasNext: jest.fn(() => Promise.resolve(i < totalDocs)),
+                next: jest.fn(() => Promise.resolve({
+                    resourceType: 'Patient',
+                    id: `p${i++}`,
+                    meta: { source: 'test', security: [] }
+                }))
+            };
+        }
+
+        test('processResourceAsync fills each non-final part to uploadPartSize bytes, not doc count', async () => {
+            const totalDocs = 200;
+            const cursor = makeCursor(totalDocs);
+            const mockCollection = { find: jest.fn().mockReturnValue(cursor) };
+            const mockDb = { collection: jest.fn().mockReturnValue(mockCollection) };
+            mocks.resourceLocatorFactory.createResourceLocator = jest.fn().mockReturnValue({
+                getDatabaseConnectionAsync: jest.fn().mockResolvedValue(mockDb)
+            });
+
+            runner.exportStatusResource = { output: [], meta: { security: [] } };
+            runner.baseS3Folder = 'exports/test';
+            // Tiny on purpose: each serialized doc is well under 100 bytes, so a
+            // 1000-byte target forces several docs per part and multiple parts —
+            // exactly the shape that exposed the doc-count bug.
+            runner.uploadPartSize = 1000;
+
+            const uploadedParts = [];
+            mocks.s3Client.uploadPartAsync = jest.fn((args) => {
+                uploadedParts.push(args.data);
+                return Promise.resolve({ ETag: `etag${uploadedParts.length}` });
+            });
+
+            // buildElementsProjection() is what actually derives isProjected=true here
+            // (processResourceAsync computes elementsProjection from searchParams, unlike
+            // exportPatientDataAsync which takes it directly) - wire the two calls it
+            // makes through r4ArgsParser/searchManager so it returns a truthy projection.
+            mocks.r4ArgsParser.parseArgs = jest.fn(({ args } = {}) => ({
+                headers: {},
+                _elements: args?._elements
+            }));
+            mocks.searchManager.handleElementsQuery = jest.fn(() => ({
+                options: { projection: { id: 1 } }
+            }));
+            const searchParams = new URLSearchParams();
+            searchParams.set('_elements', 'id');
+
+            await runner.processResourceAsync({ resourceType: 'Patient', query: {}, searchParams });
+
+            expect(uploadedParts.length).toBeGreaterThan(1);
+
+            const totalDocsUploaded = uploadedParts.reduce(
+                (sum, part) => sum + part.split('\n').length, 0
+            );
+            expect(totalDocsUploaded).toBe(totalDocs);
+
+            // Every part except the last (S3 allows only the final part to be
+            // undersized) must meet the configured target.
+            for (const part of uploadedParts.slice(0, -1)) {
+                expect(Buffer.byteLength(part, 'utf8')).toBeGreaterThanOrEqual(runner.uploadPartSize);
+            }
+        });
+
+        test('exportPatientDataAsync fills each non-final part to uploadPartSize bytes via the carry-over buffer', async () => {
+            const totalDocs = 200;
+            const cursor = makeCursor(totalDocs);
+            const mockCollection = { find: jest.fn().mockReturnValue(cursor) };
+            mocks.resourceLocatorFactory.createResourceLocator = jest.fn().mockReturnValue({
+                getDatabaseConnectionAsync: jest.fn().mockResolvedValue({
+                    collection: jest.fn().mockReturnValue(mockCollection)
+                })
+            });
+
+            runner.uploadPartSize = 1000;
+
+            const uploadedParts = [];
+            mocks.s3Client.uploadPartAsync = jest.fn((args) => {
+                uploadedParts.push(args.data);
+                return Promise.resolve({ ETag: `etag${uploadedParts.length}` });
+            });
+
+            const { S3MultiPartContext } = require('../../../../operations/export/script/s3MultiPartContext');
+            const multipartContext = new S3MultiPartContext({
+                resourceFilePath: 'exports/test/Patient.ndjson'
+            });
+
+            await runner.exportPatientDataAsync({
+                resourceType: 'Patient',
+                query: {},
+                patientReferences: ['Patient/1'],
+                multipartContext,
+                // Truthy projection -> isProjected=true -> serializeExportDoc skips
+                // enrichment only, matching the actual _elements path this fix targets.
+                elementsProjection: { resourceType: 1, id: 1 }
+            });
+
+            // The trailing under-target remainder is intentionally left in
+            // previousBuffer for the caller's final flush (see the method's
+            // carry-over contract) - assert on the parts actually uploaded here.
+            for (const part of uploadedParts) {
+                expect(Buffer.byteLength(part, 'utf8')).toBeGreaterThanOrEqual(runner.uploadPartSize);
+            }
+
+            const uploadedDocCount = uploadedParts.reduce(
+                (sum, part) => sum + part.split('\n').length, 0
+            );
+            const carriedOverDocCount = multipartContext.previousBuffer?.length || 0;
+            expect(uploadedDocCount + carriedOverDocCount).toBe(totalDocs);
         });
     });
 });

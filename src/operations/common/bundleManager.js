@@ -422,6 +422,12 @@ class BundleManager {
                     display: `${cursorBatchSize}`
                 });
             }
+            if (parsedArgs.chainDebugDisplay) {
+                // append to the existing query tag rather than introducing a new tag system,
+                // mirroring how this same tag already pipe-joins multiple collections' queries
+                // for $everything (mongoQueryAndOptionsStringify above)
+                tag[0].display += ` | ${parsedArgs.chainDebugDisplay}`;
+            }
             bundle.meta = {
                 tag
             };
@@ -629,6 +635,12 @@ class BundleManager {
                     system: 'https://www.icanbwell.com/queryCursorBatchSize',
                     display: `${cursorBatchSize}`
                 });
+            }
+            if (parsedArgs.chainDebugDisplay) {
+                // append to the existing query tag rather than introducing a new tag system,
+                // mirroring how this same tag already pipe-joins multiple collections' queries
+                // for $everything (mongoQueryAndOptionsStringify above)
+                tag[0].display += ` | ${parsedArgs.chainDebugDisplay}`;
             }
             bundle.meta = {
                 tag

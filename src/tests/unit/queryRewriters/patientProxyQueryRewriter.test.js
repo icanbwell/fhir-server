@@ -8,6 +8,8 @@ jestGlobal.mock('../../../utils/assertType', () => ({
 
 const { PatientProxyQueryRewriter } = require('../../../queryRewriters/rewriters/patientProxyQueryRewriter');
 const { QueryParameterValue } = require('../../../operations/query/queryParameterValue');
+const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
+const { DATA_SHARING_PATIENT_TO_PERSON_DATA } = require('../../../constants');
 
 /**
  * Creates a mock PersonToPatientIdsExpander with configurable return values.
@@ -23,10 +25,14 @@ function createMockExpander(patientProxyMap = {}) {
 /**
  * Creates a mock ConfigManager.
  * @param {boolean} rewritePatientReference
+ * @param {boolean} enableConsentedProaDataAccess
  * @returns {Object}
  */
-function createMockConfigManager(rewritePatientReference = false) {
-    return { rewritePatientReference };
+function createMockConfigManager(
+    rewritePatientReference = false,
+    enableConsentedProaDataAccess = false
+) {
+    return { rewritePatientReference, enableConsentedProaDataAccess };
 }
 
 /**
@@ -108,7 +114,8 @@ describe('PatientProxyQueryRewriter', () => {
                 base_version: '4_0_0',
                 ids: ['person.abc123'],
                 includePatientPrefix: true,
-                toMap: true
+                toMap: true,
+                captureOwnerVerifiedLinks: false
             });
         });
 
@@ -284,6 +291,8 @@ describe('PatientProxyQueryRewriter', () => {
             // written), but PersonToPatientIdsExpander only applies it to filter cross-tenant
             // IDs on the $everything GET path -- general search (exercised by this test) still
             // gets no tenant/security filtering. See the next test for the resulting leak.
+            // `captureOwnerVerifiedLinks` is also now always forwarded (a plain boolean routing
+            // flag, not a tenant/security filter) -- see the "PROA-safe cache" describe block.
             // If Person A in tenant Alpha has links to patients in tenant Beta,
             // those cross-tenant patient IDs will be included in the query.
             const parsedArgs = {
@@ -306,11 +315,13 @@ describe('PatientProxyQueryRewriter', () => {
             expect(callArgs).not.toHaveProperty('securityTag');
             expect(callArgs).not.toHaveProperty('tenant');
             expect(callArgs).not.toHaveProperty('accessScope');
-            // Only these five properties are passed:
+            // Only these six properties are passed:
             expect(Object.keys(callArgs)).toEqual(
-                expect.arrayContaining(['base_version', 'ids', 'includePatientPrefix', 'toMap', 'requestInfo'])
+                expect.arrayContaining([
+                    'base_version', 'ids', 'includePatientPrefix', 'toMap', 'requestInfo', 'captureOwnerVerifiedLinks'
+                ])
             );
-            expect(Object.keys(callArgs)).toHaveLength(5);
+            expect(Object.keys(callArgs)).toHaveLength(6);
         });
 
         test('cross-tenant patient IDs are included without filtering', async () => {
@@ -464,6 +475,113 @@ describe('PatientProxyQueryRewriter', () => {
             });
 
             expect(result.parsedArgItems[0].patientToPersonMap).toBeUndefined();
+        });
+    });
+
+    describe('PROA-safe cache', () => {
+        let requestSpecificCache;
+
+        beforeEach(() => {
+            requestSpecificCache = new RequestSpecificCache();
+        });
+
+        test('writes proaSafePatientToPersonData to RequestSpecificCache when enableConsentedProaDataAccess is on and request is $everything GET', async () => {
+            const mockExpanderWithOwnerData = {
+                getPatientProxyIdsAsync: jestGlobal.fn().mockResolvedValue({
+                    plainMap: { 'person-uuid-1': ['patient-1-uuid', 'person.person-uuid-1'] },
+                    ownerVerifiedPersonToLinkedPatients: new Map([
+                        ['person-uuid-1', new Set(['Patient/patient-1-uuid'])]
+                    ])
+                })
+            };
+            const configManager = createMockConfigManager(true, true);
+            const rewriterWithCache = new PatientProxyQueryRewriter({
+                personToPatientIdsExpander: mockExpanderWithOwnerData,
+                configManager,
+                requestSpecificCache
+            });
+            const parsedArg = createParsedArg('patient', ['person.person-uuid-1']);
+            const requestInfo = {
+                requestId: 'req-1',
+                originalUrl: '/4_0_0/Person/person-uuid-1/$everything',
+                method: 'GET'
+            };
+
+            await rewriterWithCache.rewriteQueryParametersAsync({
+                parsedArg,
+                base_version: '4_0_0',
+                includePatientPrefix: true,
+                cachePatientToPersonMap: true,
+                requestInfo
+            });
+
+            const cache = requestSpecificCache.getMap({ requestId: 'req-1', name: DATA_SHARING_PATIENT_TO_PERSON_DATA});
+            expect(cache.get('personToLinkedPatientsMap').get('person-uuid-1')).toEqual(['Patient/patient-1-uuid']);
+            expect(cache.get('patientReferenceToPersonUuid')['patient-1-uuid']).toEqual(['person-uuid-1']);
+        });
+
+        test('does not write to the cache when enableConsentedProaDataAccess is off', async () => {
+            const mockExpanderWithoutOwnerData = createMockExpander({
+                'person-uuid-1': ['patient-1-uuid', 'person.person-uuid-1']
+            });
+            const configManager = createMockConfigManager(true, false);
+            const rewriterWithCache = new PatientProxyQueryRewriter({
+                personToPatientIdsExpander: mockExpanderWithoutOwnerData,
+                configManager,
+                requestSpecificCache
+            });
+            const parsedArg = createParsedArg('patient', ['person.person-uuid-1']);
+            const requestInfo = {
+                requestId: 'req-2',
+                originalUrl: '/4_0_0/Person/person-uuid-1/$everything',
+                method: 'GET'
+            };
+
+            await rewriterWithCache.rewriteQueryParametersAsync({
+                parsedArg, base_version: '4_0_0', includePatientPrefix: true, cachePatientToPersonMap: true, requestInfo
+            });
+
+            const cache = requestSpecificCache.getMap({ requestId: 'req-2', name: DATA_SHARING_PATIENT_TO_PERSON_DATA});
+            expect(cache.size).toBe(0);
+            expect(mockExpanderWithoutOwnerData.getPatientProxyIdsAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ captureOwnerVerifiedLinks: false })
+            );
+        });
+
+        test('does not write to the cache for a patient-scoped caller, even on an $everything GET with PROA on', async () => {
+            // PersonToPatientIdsExpander computes the scope-derived securityTags its owner-tag
+            // verification needs only on its non-patient-scoped branch; a patient-scoped caller
+            // is filtered by its own Person _uuid instead, so ownerVerifiedPersonToLinkedPatients
+            // comes back empty. Writing a "successfully populated but empty" cache here would
+            // make dataSharingManager.js silently treat every patient as not-PROA-eligible.
+            // Instead the cache must simply not be written, so dataSharingManager.js's "cache
+            // entirely absent" throw fires loudly instead.
+            const mockExpanderWithoutOwnerData = createMockExpander({
+                'person-uuid-1': ['patient-1-uuid', 'person.person-uuid-1']
+            });
+            const configManager = createMockConfigManager(true, true);
+            const rewriterWithCache = new PatientProxyQueryRewriter({
+                personToPatientIdsExpander: mockExpanderWithoutOwnerData,
+                configManager,
+                requestSpecificCache
+            });
+            const parsedArg = createParsedArg('patient', ['person.person-uuid-1']);
+            const requestInfo = {
+                requestId: 'req-3',
+                originalUrl: '/4_0_0/Person/person-uuid-1/$everything',
+                method: 'GET',
+                isUser: true
+            };
+
+            await rewriterWithCache.rewriteQueryParametersAsync({
+                parsedArg, base_version: '4_0_0', includePatientPrefix: true, cachePatientToPersonMap: true, requestInfo
+            });
+
+            const cache = requestSpecificCache.getMap({ requestId: 'req-3', name: DATA_SHARING_PATIENT_TO_PERSON_DATA});
+            expect(cache.size).toBe(0);
+            expect(mockExpanderWithoutOwnerData.getPatientProxyIdsAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ captureOwnerVerifiedLinks: false })
+            );
         });
     });
 });

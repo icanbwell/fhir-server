@@ -18,6 +18,7 @@ class ReferenceQueryRewriter extends QueryRewriter {
     async rewriteArgsAsync ({ parsedArgs }) {
         parsedArgs.parsedArgItems = parsedArgs.parsedArgItems.map((parsedArg) => {
             if (
+                !parsedArg.chain &&
                 (
                     parsedArg?.propertyObj?.type === fhirFilterTypes.reference ||
                     parsedArg.queryParameter === '_id' ||

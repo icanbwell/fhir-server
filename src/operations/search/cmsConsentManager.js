@@ -7,6 +7,7 @@ const {
     CONSENT_CATEGORY,
     PERSON_PROXY_PREFIX
 } = require('../../constants');
+const { dateQueryBuilder } = require('../../utils/querybuilder.util');
 
 class CmsConsentManager {
     /**
@@ -31,6 +32,7 @@ class CmsConsentManager {
      * @returns Consent resource list
      */
     async getConsentResources(proxyPatientRefs, ownerTags) {
+        const currDate = new Date().toISOString();
         const query = {
             $and: [
                 { status: 'active' },
@@ -43,7 +45,31 @@ class CmsConsentManager {
                         }
                     }
                 },
-                { 'provision.type': 'permit' }
+                { 'provision.type': 'permit' },
+                // Period start must not be in the future OR not exist
+                {
+                    $or: [
+                        { 'provision.period.start': { $exists: false } },
+                        {
+                            'provision.period.start': dateQueryBuilder({
+                                date: `le${currDate}`,
+                                type: 'dateTime'
+                            })
+                        }
+                    ]
+                },
+                // Period end must be in the future OR not exist
+                {
+                    $or: [
+                        { 'provision.period.end': { $exists: false } },
+                        {
+                            'provision.period.end': dateQueryBuilder({
+                                date: `ge${currDate}`,
+                                type: 'dateTime'
+                            })
+                        }
+                    ]
+                }
             ]
         };
 

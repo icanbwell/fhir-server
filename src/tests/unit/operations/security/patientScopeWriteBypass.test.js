@@ -1,33 +1,13 @@
 /**
- * Tests for PatientScopeManager.canWriteResourceAsync authorization bypass.
+ * Tests for PatientScopeManager.canWriteResourceAsync — non-patient-filterable resource types.
  *
- * VULNERABILITY: canWriteResourceAsync at line 286-290 of patientScopeManager.js:
- *
- *   if (!this.scopesManager.isAccessAllowedByPatientScopes({
- *       scope, resourceType: resource.resourceType
- *   })) {
- *       return true;  // <-- BUG: unconditional allow for non-patient-filterable types
- *   }
- *
- * When a resource type is NOT in the patientFilterMapping (e.g., Organization,
- * Practitioner, Location, ValueSet, CodeSystem, etc.), the method returns true
- * immediately, meaning ANY patient-scoped user can write ANY non-patient-filterable
- * resource regardless of tenant ownership.
- *
- * This is catastrophic because:
- * - Reference data (Practitioner, Organization, Location) is shared across patients
- * - Terminology resources (ValueSet, CodeSystem) affect clinical decision support
- * - StructureDefinition controls validation rules
- *
- * Exploitation scenario:
- * 1. Attacker obtains any patient-scoped token (even expired consent is enough for scope)
- * 2. Attacker sends PUT/POST to Organization, Practitioner, Location, etc.
- * 3. canWriteResourceAsync returns true because resourceType is not patient-filterable
- * 4. The access scope check in isAccessToResourceAllowedByAccessScopes may or may not
- *    block this (depends on whether user scopes also contain access/ scopes that match)
- * 5. If attacker's token has access/* (wildcard), they can write to ALL shared resources
- *
- * Severity: HIGH — allows modification of shared reference data affecting all patients
+ * DCON-4806: canWriteResourceAsync previously returned `true` unconditionally whenever
+ * `isAccessAllowedByPatientScopes` was false, which conflated two different cases: (a) the
+ * caller holds no patient scope at all (safe to defer to the access-scope check elsewhere),
+ * and (b) the caller holds a patient scope but the resource type isn't patient-filterable
+ * (e.g. Organization, Practitioner, ValueSet). Case (b) must deny, not allow — a patient
+ * scope should never authorize writes to shared/administrative resource types. Fixed by
+ * checking `hasPatientScope` first to distinguish the two cases.
  */
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 
@@ -49,6 +29,9 @@ describe('PatientScopeManager.canWriteResourceAsync — Non-Patient-Filterable B
         patientFilterManager = new PatientFilterManager();
 
         mockScopesManager = {
+            hasPatientScope: jestGlobal.fn().mockImplementation(
+                ({ scope }) => scope.includes('patient/')
+            ),
             isAccessAllowedByPatientScopes: jestGlobal.fn().mockImplementation(
                 ({ scope, resourceType }) => {
                     // Use real PatientFilterManager logic
@@ -100,14 +83,6 @@ describe('PatientScopeManager.canWriteResourceAsync — Non-Patient-Filterable B
                 }
             };
 
-            // CURRENT BUG: Returns true because isAccessAllowedByPatientScopes returns false
-            // for non-patient-filterable types, triggering the immediate `return true` at line 290.
-            //
-            // CORRECT BEHAVIOR: Should either:
-            // a) Return false (denying the write), or
-            // b) Throw ForbiddenError (as canWriteResourceWithAllowedPatientIdsAsync does)
-            //
-            // Patient scope should NEVER grant write access to shared/admin resources.
             const result = await patientScopeManager.canWriteResourceAsync({
                 base_version: '4_0_0',
                 isUser: true,

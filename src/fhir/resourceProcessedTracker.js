@@ -2,7 +2,6 @@
 class ResourceProccessedTracker {
     constructor() {
         this.uuidSet = new Set()
-        this.sourceIdSet = new Set()
         this.sourceIdSourceAssigningAuthoritySet = new Set()
     }
 
@@ -11,10 +10,8 @@ class ResourceProccessedTracker {
      */
     add(resourceIdentifier) {
         const uuidKey = `${resourceIdentifier.resourceType}/${resourceIdentifier._uuid}`;
-        const sourceIdKey = `${resourceIdentifier.resourceType}/${resourceIdentifier._sourceId}`;
         const sourceIdSourceAssigningAuthorityKey = `${resourceIdentifier.resourceType}/${resourceIdentifier._sourceId}|${resourceIdentifier._sourceAssigningAuthority}`;
         this.uuidSet.add(uuidKey);
-        this.sourceIdSet.add(sourceIdKey);
         this.sourceIdSourceAssigningAuthoritySet.add(sourceIdSourceAssigningAuthorityKey);
     }
 

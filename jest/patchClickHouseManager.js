@@ -22,7 +22,7 @@
 // jestGlobalSetup.js (parent process, which runs the schema-wait probe) so both
 // contexts are covered.
 const { ClickHouseClientManager } = require('../src/utils/clickHouseClientManager');
-const { withNockSuspended } = require('../src/tests/testContainerUtils');
+const { withNockSuspended } = require('../src/tests/integration/testContainerUtils');
 
 const NETWORK_METHODS = ['queryAsync', 'insertAsync', 'pingAsync', 'executeBatchAsync', 'closeAsync'];
 

@@ -135,6 +135,17 @@ class SearchStreamingOperation {
             externalReqUrlPrefix
         } = requestInfo;
 
+        // _explain/_debug/_setIndexHint expose Mongo query plans, collection internals, and
+        // let the caller pick the query's index; only an admin-scoped caller may use them.
+        if (
+            (parsedArgs._explain || parsedArgs._debug || parsedArgs._setIndexHint) &&
+            !this.scopesValidator.isAdminScope({ scope })
+        ) {
+            parsedArgs._explain = undefined;
+            parsedArgs._debug = undefined;
+            parsedArgs._setIndexHint = undefined;
+        }
+
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
@@ -157,6 +168,8 @@ class SearchStreamingOperation {
         let query = {};
         /** @type {Set} **/
         let columns = new Set();
+        /** @type {{must: object[]}|null} **/
+        let atlasSearchCompound = null;
 
         // check if required filters for AuditEvent are passed
         if (resourceType === 'AuditEvent') {
@@ -168,7 +181,8 @@ class SearchStreamingOperation {
                 /** @type {import('mongodb').Document}**/
                 query,
                 /** @type {Set} **/
-                columns
+                columns,
+                atlasSearchCompound
             } = await this.searchManager.constructQueryAsync(
                 {
                     user,
@@ -236,7 +250,8 @@ class SearchStreamingOperation {
                 user,
                 isStreaming,
                 useAccessIndex,
-                extraInfo
+                extraInfo,
+                atlasSearchCompound
             };
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync({

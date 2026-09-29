@@ -136,6 +136,20 @@ class DatabaseBulkLoader {
     }
 
     /**
+     * Whether loadResourcesAsync() has populated the cache for this resourceType in this
+     * request. getResourceFromExistingList() returns null both when a resourceType was loaded
+     * but this uuid wasn't found (confirmed not to exist) and when the resourceType was never
+     * loaded at all -- this lets callers tell those two cases apart.
+     * @param {string} requestId
+     * @param {string} resourceType
+     * @return {boolean}
+     */
+    isResourceTypeLoaded ({ requestId, resourceType }) {
+        const bulkCache = this.getBulkCache({ requestId });
+        return bulkCache.has(resourceType);
+    }
+
+    /**
      * gets resources from list
      * @param {string} requestId
      * @param {string} resourceType

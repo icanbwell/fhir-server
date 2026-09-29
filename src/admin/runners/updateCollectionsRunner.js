@@ -212,7 +212,7 @@ class UpdateCollectionsRunner {
                     let updatedCount = 0; // Keeps track of the total updated documents
                     let skippedCount = 0; // Keeps track of documents that are skipped as they don't match the requirements.
                     let lastProcessedId = null; // For each collect help in keeping track of the last id processed.
-                    const sourceMissingLastUpdated = 0; // Keeps tranch of source document that doesn't have lastUpdated.
+                    let sourceMissingLastUpdated = 0; // Keeps tranch of source document that doesn't have lastUpdated.
                     let targetMissingLastUpdated = 0; // Keeps track of target document that doesn't have last updated.
                     let totalProcessedDoc = 0; // Keep tracks of the total processed id.
                     let targetLastUpdatedGreaterThanUpdatedBefore = 0; // Keeps tracks of the documnet that is skipped and target last update is greater than updated before.
@@ -257,24 +257,28 @@ class UpdateCollectionsRunner {
                             targetMissingLastUpdated += 1;
                             continue;
                         }
+                        // Skip source documents in which lastUpdated is not present, since without it
+                        // we can't determine whether the source is actually fresher than the target
+                        // (moment(undefined) resolves to "now", which would make it look freshest).
+                        if (sourceDocument?.meta?.lastUpdated === undefined) {
+                            sourceMissingLastUpdated += 1;
+                            continue;
+                        }
 
                         // Storing the mast updated for target and source in a variable. and updating it if required
                         let targetLastUpdated = targetDocument.meta.lastUpdated;
                         let sourceLastUpdated = sourceDocument.meta.lastUpdated;
 
-                        if (!(targetLastUpdated instanceof Date)) {
-                            targetLastUpdated =
-                                moment(targetLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
-                        }
-                        if (!(sourceLastUpdated instanceof Date)) {
-                            sourceLastUpdated =
-                                moment(sourceLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
-                        }
+                        // Normalize both values to moment instances so comparisons below are
+                        // always numeric (Date/string vs moment mixed comparisons can silently
+                        // evaluate to false due to JS coercing an unparsed string to NaN).
+                        targetLastUpdated = moment(targetLastUpdated);
+                        sourceLastUpdated = moment(sourceLastUpdated);
 
-                        if (targetLastUpdated > this.updatedBefore) {
+                        if (targetLastUpdated.isAfter(this.updatedBefore)) {
                             targetLastUpdatedGreaterThanUpdatedBefore += 1;
                             continue;
-                        } else if (targetLastUpdated > sourceLastUpdated) {
+                        } else if (targetLastUpdated.isAfter(sourceLastUpdated)) {
                             targetLastUpdatedGreaterThanSource += 1;
                             continue;
                         }
@@ -282,8 +286,8 @@ class UpdateCollectionsRunner {
                         try {
                             if (
                                 targetDocument &&
-                                targetLastUpdated < this.updatedBefore &&
-                                targetLastUpdated < sourceLastUpdated
+                                targetLastUpdated.isBefore(this.updatedBefore) &&
+                                targetLastUpdated.isBefore(sourceLastUpdated)
                             ) {
                                 // Updating the document in targetDatabase.
                                 result = await targetDatabaseCollection.updateOne(

@@ -339,6 +339,64 @@ describe('BaseCacheKeyGenerator', () => {
             // Should not include Param because values are null/undefined
             expect(result).not.toContain(':Param:');
         });
+
+        // A genuine Person $everything request and the equivalent client-issued proxy-patient
+        // $everything request for the same person resolve to the exact same id/isPersonId/scope,
+        // since fhirOperationsManager.js maps both onto Patient/person.<id> before this point --
+        // but only the former may include PROA consented-data-access expansion. isPersonEverything
+        // must be part of the key itself, or a cached genuine-Person response (and vice versa)
+        // could be served to the wrong request.
+        describe('isPersonEverything', () => {
+            test('produces different keys for isPersonEverything true vs false with an otherwise identical request', async () => {
+                const parsedArgs = makeParsedArgs({});
+
+                const personEverythingKey = await generator.generateCacheKey({
+                    id: 'person-1',
+                    isPersonId: true,
+                    parsedArgs,
+                    scope: 'scope1',
+                    isPersonEverything: true
+                });
+                const proxyPatientEverythingKey = await generator.generateCacheKey({
+                    id: 'person-1',
+                    isPersonId: true,
+                    parsedArgs,
+                    scope: 'scope1',
+                    isPersonEverything: false
+                });
+
+                expect(personEverythingKey).toBeDefined();
+                expect(proxyPatientEverythingKey).toBeDefined();
+                expect(personEverythingKey).not.toEqual(proxyPatientEverythingKey);
+            });
+
+            test('includes an explicit AllowProa segment reflecting the boolean value', async () => {
+                const parsedArgs = makeParsedArgs({});
+
+                const trueKey = await generator.generateCacheKey({
+                    id: 'person-1', isPersonId: true, parsedArgs, scope: 'scope1', isPersonEverything: true
+                });
+                const falseKey = await generator.generateCacheKey({
+                    id: 'person-1', isPersonId: true, parsedArgs, scope: 'scope1', isPersonEverything: false
+                });
+
+                expect(trueKey).toContain(':AllowProa:true');
+                expect(falseKey).toContain(':AllowProa:false');
+            });
+
+            test('omits the AllowProa segment when isPersonEverything is not passed (e.g. Summary\'s cache key generator, unaffected by this)', async () => {
+                const parsedArgs = makeParsedArgs({});
+
+                const result = await generator.generateCacheKey({
+                    id: 'patient-1',
+                    isPersonId: false,
+                    parsedArgs,
+                    scope: 'scope1'
+                });
+
+                expect(result).not.toContain(':AllowProa:');
+            });
+        });
     });
 
     describe('generateIdComponent', () => {

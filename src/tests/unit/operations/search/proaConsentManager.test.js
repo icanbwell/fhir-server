@@ -101,8 +101,46 @@ describe('ProaConsentManager', () => {
                             code: { $in: ownerTags }
                         }
                     }
+                },
+                {
+                    $or: [
+                        { 'provision.period.start': { $exists: false } },
+                        { 'provision.period.start': { $lte: expect.any(String) } }
+                    ]
+                },
+                {
+                    $or: [
+                        { 'provision.period.end': { $exists: false } },
+                        { 'provision.period.end': { $gte: expect.any(String) } }
+                    ]
                 }
             ]);
+        });
+
+        test('should filter out consents whose provision.period.end has already passed', async () => {
+            await proaConsentManager.getConsentResources({ ownerTags: ['tag'], patientIds: ['Patient/p1'] });
+
+            const findCall = mockQueryManager.findAsync.mock.calls[0][0];
+            const endClause = findCall.query.$and.find(
+                (clause) => clause.$or && clause.$or.some((c) => 'provision.period.end' in c)
+            );
+            expect(endClause).toBeDefined();
+            expect(endClause.$or).toContainEqual({ 'provision.period.end': { $exists: false } });
+            const gteClause = endClause.$or.find((c) => c['provision.period.end']?.$gte);
+            expect(gteClause).toBeDefined();
+        });
+
+        test('should filter out consents whose provision.period.start is in the future', async () => {
+            await proaConsentManager.getConsentResources({ ownerTags: ['tag'], patientIds: ['Patient/p1'] });
+
+            const findCall = mockQueryManager.findAsync.mock.calls[0][0];
+            const startClause = findCall.query.$and.find(
+                (clause) => clause.$or && clause.$or.some((c) => 'provision.period.start' in c)
+            );
+            expect(startClause).toBeDefined();
+            expect(startClause.$or).toContainEqual({ 'provision.period.start': { $exists: false } });
+            const lteClause = startClause.$or.find((c) => c['provision.period.start']?.$lte);
+            expect(lteClause).toBeDefined();
         });
 
         test('should use CONSENT_OF_LINKED_PERSON_INDEX hint', async () => {
@@ -256,8 +294,10 @@ describe('ProaConsentManager', () => {
             });
 
             // Result should contain the INPUT patient ID, not the linked one
-            expect(result.has('input-patient-1')).toBe(true);
-            expect(result.has('linked-patient-x')).toBe(false);
+            expect(result.allowedPatientIds.has('input-patient-1')).toBe(true);
+            expect(result.allowedPatientIds.has('linked-patient-x')).toBe(false);
+            // The person the consent belongs to is surfaced for proxy-patient references
+            expect(result.consentedPersonUuids.has('person-aaa')).toBe(true);
         });
 
         test('should skip consent resources without patient._uuid or patient._sourceId', async () => {
@@ -283,7 +323,8 @@ describe('ProaConsentManager', () => {
                 personToLinkedPatientsMap
             });
 
-            expect(result.size).toBe(0);
+            expect(result.allowedPatientIds.size).toBe(0);
+            expect(result.consentedPersonUuids.size).toBe(0);
         });
 
         test('should use patient._sourceId when patient._uuid is missing', async () => {
@@ -317,7 +358,7 @@ describe('ProaConsentManager', () => {
                 personToLinkedPatientsMap
             });
 
-            expect(result.has('input-patient-1')).toBe(true);
+            expect(result.allowedPatientIds.has('input-patient-1')).toBe(true);
         });
 
         test('should handle empty patientIdToImmediatePersonUuid', async () => {
@@ -330,7 +371,7 @@ describe('ProaConsentManager', () => {
                 personToLinkedPatientsMap: new Map()
             });
 
-            expect(result.size).toBe(0);
+            expect(result.allowedPatientIds.size).toBe(0);
             expect(getConsentSpy).toHaveBeenCalledWith({
                 ownerTags: ['tag'],
                 patientIds: []
@@ -391,7 +432,7 @@ describe('ProaConsentManager', () => {
                 personToLinkedPatientsMap
             });
 
-            expect(result.has('input-patient-1')).toBe(true);
+            expect(result.allowedPatientIds.has('input-patient-1')).toBe(true);
         });
 
         test('should not include patient when consent is for a patient not linked to any relevant person', async () => {
@@ -428,7 +469,8 @@ describe('ProaConsentManager', () => {
             });
 
             // person-other is in personToLinkedPatientsMap but NOT in immediatePersonToInputPatientId
-            expect(result.size).toBe(0);
+            expect(result.allowedPatientIds.size).toBe(0);
+            expect(result.consentedPersonUuids.size).toBe(0);
         });
 
         test('should correctly use getAllPatientsForPersons to get all linked patients', async () => {

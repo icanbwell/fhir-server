@@ -1,0 +1,26 @@
+{
+    "resourceType": "CareTeam",
+    "id": "aa7862e6-b7ac-470e-bde3-e85cee9d1c11",
+    "meta": {
+        "source": "health-service",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "health-service"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "health-service"
+            },
+            {
+                "system": "https://www.icanbwell.com/connectionType",
+                "code": "proa"
+            }
+        ]
+    },
+    "status": "active",
+    "name": "Care team attached at person level via proxy patient",
+    "subject": {
+        "reference": "Patient/person.33226ded-51e8-590e-8342-1197955a2af7"
+    }
+}

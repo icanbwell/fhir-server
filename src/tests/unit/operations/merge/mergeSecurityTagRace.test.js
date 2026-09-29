@@ -80,7 +80,8 @@ describe('INC-316/317: meta.security tag duplication on concurrent $merge', () =
             insertOneAsync: jest.fn().mockResolvedValue(undefined)
         };
         mockDatabaseBulkLoader = {
-            getResourceFromExistingList: jest.fn().mockReturnValue(null)
+            getResourceFromExistingList: jest.fn().mockReturnValue(null),
+            isResourceTypeLoaded: jest.fn().mockReturnValue(true)
         };
         mockResourceMerger = {
             fastMergeResourceAsync: jest.fn()

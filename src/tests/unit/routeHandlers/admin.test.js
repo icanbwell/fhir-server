@@ -73,8 +73,15 @@ describe('routeHandlers/admin', () => {
         mockContainer = {
             scopesManager: {
                 getScopeFromRequest: jest.fn().mockReturnValue('admin/*.read admin/*.write'),
-                getAdminScopes: jest.fn().mockReturnValue(['admin/*.read']),
-                parseScopes: jest.fn().mockReturnValue(['admin/*.read', 'admin/*.write', 'user/Patient.write'])
+                getAdminScopes: jest.fn().mockReturnValue(['admin/*.read', 'admin/*.write']),
+                parseScopes: jest.fn().mockReturnValue(['admin/*.read', 'admin/*.write', 'user/Patient.write']),
+                hasAdminScopeForAction: jest.fn().mockReturnValue(true)
+            },
+            // Backs assertResourceWriteScopeAsync, which routes deletePatientDataGraph and
+            // deletePersonDataGraph through the real scope-validation gate instead of a raw
+            // scopeChecker call over the unfiltered scope string.
+            scopesValidator: {
+                hasValidScopesAsync: jest.fn().mockResolvedValue(true)
             },
             indexManager: {
                 compareCurrentIndexesWithConfigurationInAllCollectionsAsync: jest.fn().mockResolvedValue([]),
@@ -121,7 +128,7 @@ describe('routeHandlers/admin', () => {
     });
 
     describe('handleAdminGet', () => {
-        test('returns 403 when no admin scopes', async () => {
+        test('returns 403 when no admin scope of any kind', async () => {
             mockContainer.scopesManager.getAdminScopes.mockReturnValue([]);
             mockReq.params.op = 'indexes';
             await handleAdminGet(fnGetContainer, mockReq, mockRes);
@@ -289,7 +296,7 @@ describe('routeHandlers/admin', () => {
     });
 
     describe('handleAdminPost', () => {
-        test('returns 403 when no admin scopes', async () => {
+        test('returns 403 when no admin scope of any kind', async () => {
             mockContainer.scopesManager.getAdminScopes.mockReturnValue([]);
             mockReq.params.op = 'createPersonToPersonLink';
             await handleAdminPost(fnGetContainer, mockReq, mockRes);
@@ -455,8 +462,8 @@ describe('routeHandlers/admin', () => {
     });
 
     describe('handleAdminPut', () => {
-        test('returns 403 when no admin scopes', async () => {
-            mockContainer.scopesManager.getAdminScopes.mockReturnValue([]);
+        test('returns 403 when no admin write scope', async () => {
+            mockContainer.scopesManager.hasAdminScopeForAction.mockReturnValue(false);
             mockReq.params.op = 'ExportStatus';
             await handleAdminPut(fnGetContainer, mockReq, mockRes);
             expect(mockRes.status).toHaveBeenCalledWith(403);
@@ -484,8 +491,8 @@ describe('routeHandlers/admin', () => {
     });
 
     describe('handleAdminDelete', () => {
-        test('returns 403 when no admin scopes', async () => {
-            mockContainer.scopesManager.getAdminScopes.mockReturnValue([]);
+        test('returns 403 when no admin write scope', async () => {
+            mockContainer.scopesManager.hasAdminScopeForAction.mockReturnValue(false);
             mockReq.params.op = 'deletePerson';
             await handleAdminDelete(fnGetContainer, mockReq, mockRes);
             expect(mockRes.status).toHaveBeenCalledWith(403);
@@ -516,6 +523,27 @@ describe('routeHandlers/admin', () => {
             mockReq.query = { id: 'pat-1', sync: 'true' };
             await handleAdminDelete(fnGetContainer, mockReq, mockRes);
             expect(mockContainer.adminPersonPatientDataManager.deletePatientDataGraphAsync).toHaveBeenCalled();
+            expect(mockContainer.scopesValidator.hasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Patient', accessRequested: 'write' })
+            );
+        });
+
+        test('rejects deletePatientDataGraph when the resource-type scope check fails', async () => {
+            mockContainer.scopesValidator.hasValidScopesAsync.mockResolvedValueOnce(false);
+            mockReq.params.op = 'deletePatientDataGraph';
+            mockReq.query = { id: 'pat-1', sync: 'true' };
+            await handleAdminDelete(fnGetContainer, mockReq, mockRes);
+            expect(mockRes.status).toHaveBeenCalledWith(403);
+            expect(mockContainer.adminPersonPatientDataManager.deletePatientDataGraphAsync).not.toHaveBeenCalled();
+        });
+
+        test('rejects deletePersonDataGraph when the resource-type scope check fails', async () => {
+            mockContainer.scopesValidator.hasValidScopesAsync.mockResolvedValueOnce(false);
+            mockReq.params.op = 'deletePersonDataGraph';
+            mockReq.query = { id: 'person-1' };
+            await handleAdminDelete(fnGetContainer, mockReq, mockRes);
+            expect(mockRes.status).toHaveBeenCalledWith(403);
+            expect(mockContainer.adminPersonPatientDataManager.deletePersonDataGraphAsync).not.toHaveBeenCalled();
         });
 
         test('handles deletePatientDataGraph without id', async () => {
@@ -541,6 +569,178 @@ describe('routeHandlers/admin', () => {
             );
             await handleAdminDelete(fnGetContainer, mockReq, mockRes);
             expect(mockRes.status).toHaveBeenCalledWith(500);
+        });
+    });
+
+    describe('admin/*.read vs admin/*.write scope enforcement', () => {
+        function setAdminScopes ({ hasRead, hasWrite }) {
+            const scopes = [];
+            if (hasRead) scopes.push('admin/*.read');
+            if (hasWrite) scopes.push('admin/*.write');
+            mockContainer.scopesManager.getAdminScopes.mockReturnValue(scopes);
+            mockContainer.scopesManager.hasAdminScopeForAction.mockImplementation(({ action }) => {
+                if (action === 'read') return hasRead;
+                if (action === 'write') return hasWrite;
+                return false;
+            });
+        }
+
+        describe('handleAdminGet (read operations + one write operation, synchronizeIndexes)', () => {
+            test('read-only scope (admin/*.read) can perform a read operation', async () => {
+                setAdminScopes({ hasRead: true, hasWrite: false });
+                mockReq.params.op = 'indexes';
+                await handleAdminGet(fnGetContainer, mockReq, mockRes);
+                expect(mockContainer.indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync)
+                    .toHaveBeenCalled();
+                expect(mockRes.status).not.toHaveBeenCalledWith(403);
+            });
+
+            test('read-only scope (admin/*.read) is rejected from the write operation synchronizeIndexes', async () => {
+                setAdminScopes({ hasRead: true, hasWrite: false });
+                mockReq.params.op = 'synchronizeIndexes';
+                await handleAdminGet(fnGetContainer, mockReq, mockRes);
+                expect(mockRes.status).toHaveBeenCalledWith(403);
+                expect(mockContainer.indexManager.synchronizeIndexesWithConfigAsync).not.toHaveBeenCalled();
+            });
+
+            test('write scope (admin/*.write) can perform the write operation synchronizeIndexes', async () => {
+                setAdminScopes({ hasRead: false, hasWrite: true });
+                mockReq.params.op = 'synchronizeIndexes';
+                await handleAdminGet(fnGetContainer, mockReq, mockRes);
+                expect(mockContainer.indexManager.synchronizeIndexesWithConfigAsync).toHaveBeenCalled();
+                expect(mockRes.status).not.toHaveBeenCalledWith(403);
+            });
+
+            test('write-only scope (admin/*.write, no read) is rejected from a read operation (indexes)', async () => {
+                setAdminScopes({ hasRead: false, hasWrite: true });
+                mockReq.params.op = 'indexes';
+                await handleAdminGet(fnGetContainer, mockReq, mockRes);
+                expect(mockRes.status).toHaveBeenCalledWith(403);
+                expect(mockContainer.indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync)
+                    .not.toHaveBeenCalled();
+            });
+
+            test('write-only scope (admin/*.write, no read) is rejected from every other read operation', async () => {
+                setAdminScopes({ hasRead: false, hasWrite: true });
+                const readOperations = [
+                    'searchLogResults', 'showPersonToPersonLink', 'indexProblems',
+                    'runPersonMatch', 'ExportStatus', 'getCacheKeys', 'runPersonOneToNMatch'
+                ];
+                for (const op of readOperations) {
+                    mockRes.status.mockClear();
+                    mockReq.params.op = op;
+                    mockReq.query = {};
+                    await handleAdminGet(fnGetContainer, mockReq, mockRes);
+                    expect(mockRes.status).toHaveBeenCalledWith(403);
+                }
+            });
+
+            test('a caller with no admin scope at all is rejected outright', async () => {
+                setAdminScopes({ hasRead: false, hasWrite: false });
+                mockReq.params.op = 'indexes';
+                await handleAdminGet(fnGetContainer, mockReq, mockRes);
+                expect(mockRes.status).toHaveBeenCalledWith(403);
+            });
+        });
+
+        describe('handleAdminPost (write operations + one read operation, runMatchWithPayload)', () => {
+            test('read-only scope (admin/*.read) can perform the read operation runMatchWithPayload', async () => {
+                setAdminScopes({ hasRead: true, hasWrite: false });
+                mockReq.params.op = 'runMatchWithPayload';
+                mockReq.body = { resourceType: 'Patient', resource: {} };
+                await handleAdminPost(fnGetContainer, mockReq, mockRes);
+                expect(mockContainer.personMatchManager.runMatchWithPayloadAsync).toHaveBeenCalled();
+                expect(mockRes.status).not.toHaveBeenCalledWith(403);
+            });
+
+            test('read-only scope (admin/*.read) is rejected from a write operation (createPersonToPersonLink)', async () => {
+                setAdminScopes({ hasRead: true, hasWrite: false });
+                mockReq.params.op = 'createPersonToPersonLink';
+                mockReq.body = { bwellPersonId: 'b1', externalPersonId: 'e1' };
+                await handleAdminPost(fnGetContainer, mockReq, mockRes);
+                expect(mockRes.status).toHaveBeenCalledWith(403);
+                expect(mockContainer.adminPersonPatientLinkManager.createPersonToPersonLinkAsync).not.toHaveBeenCalled();
+            });
+
+            test('read-only scope (admin/*.read) is rejected from every other write operation', async () => {
+                setAdminScopes({ hasRead: true, hasWrite: false });
+                const writeOperations = [
+                    'removePersonToPersonLink', 'createPersonToPatientLink', 'removePersonToPatientLink',
+                    'updatePatientReference', 'invalidateCache'
+                ];
+                for (const op of writeOperations) {
+                    mockRes.status.mockClear();
+                    mockReq.params.op = op;
+                    mockReq.body = {};
+                    await handleAdminPost(fnGetContainer, mockReq, mockRes);
+                    expect(mockRes.status).toHaveBeenCalledWith(403);
+                }
+            });
+
+            test('write scope (admin/*.write) can perform a write operation (createPersonToPersonLink)', async () => {
+                setAdminScopes({ hasRead: false, hasWrite: true });
+                mockReq.params.op = 'createPersonToPersonLink';
+                mockReq.body = { bwellPersonId: 'b1', externalPersonId: 'e1' };
+                await handleAdminPost(fnGetContainer, mockReq, mockRes);
+                expect(mockContainer.adminPersonPatientLinkManager.createPersonToPersonLinkAsync).toHaveBeenCalled();
+                expect(mockRes.status).not.toHaveBeenCalledWith(403);
+            });
+
+            test('write-only scope (admin/*.write, no read) is rejected from the read operation runMatchWithPayload', async () => {
+                setAdminScopes({ hasRead: false, hasWrite: true });
+                mockReq.params.op = 'runMatchWithPayload';
+                mockReq.body = { resourceType: 'Patient', resource: {} };
+                await handleAdminPost(fnGetContainer, mockReq, mockRes);
+                expect(mockRes.status).toHaveBeenCalledWith(403);
+                expect(mockContainer.personMatchManager.runMatchWithPayloadAsync).not.toHaveBeenCalled();
+            });
+
+            test('a caller with no admin scope at all is rejected outright', async () => {
+                setAdminScopes({ hasRead: false, hasWrite: false });
+                mockReq.params.op = 'createPersonToPersonLink';
+                await handleAdminPost(fnGetContainer, mockReq, mockRes);
+                expect(mockRes.status).toHaveBeenCalledWith(403);
+            });
+        });
+
+        describe('handleAdminPut (ExportStatus update - write only)', () => {
+            test('read-only scope (admin/*.read) is rejected', async () => {
+                setAdminScopes({ hasRead: true, hasWrite: false });
+                mockReq.params.op = 'ExportStatus';
+                mockReq.params.id = 'export-1';
+                await handleAdminPut(fnGetContainer, mockReq, mockRes);
+                expect(mockRes.status).toHaveBeenCalledWith(403);
+                expect(mockContainer.adminExportManager.updateExportStatus).not.toHaveBeenCalled();
+            });
+
+            test('write scope (admin/*.write) is allowed', async () => {
+                setAdminScopes({ hasRead: false, hasWrite: true });
+                mockReq.params.op = 'ExportStatus';
+                mockReq.params.id = 'export-1';
+                await handleAdminPut(fnGetContainer, mockReq, mockRes);
+                expect(mockContainer.adminExportManager.updateExportStatus).toHaveBeenCalled();
+                expect(mockRes.status).not.toHaveBeenCalledWith(403);
+            });
+        });
+
+        describe('handleAdminDelete (deletePerson - write only)', () => {
+            test('read-only scope (admin/*.read) is rejected', async () => {
+                setAdminScopes({ hasRead: true, hasWrite: false });
+                mockReq.params.op = 'deletePerson';
+                mockReq.query = { personId: 'per-1' };
+                await handleAdminDelete(fnGetContainer, mockReq, mockRes);
+                expect(mockRes.status).toHaveBeenCalledWith(403);
+                expect(mockContainer.adminPersonPatientLinkManager.deletePersonAsync).not.toHaveBeenCalled();
+            });
+
+            test('write scope (admin/*.write) is allowed', async () => {
+                setAdminScopes({ hasRead: false, hasWrite: true });
+                mockReq.params.op = 'deletePerson';
+                mockReq.query = { personId: 'per-1' };
+                await handleAdminDelete(fnGetContainer, mockReq, mockRes);
+                expect(mockContainer.adminPersonPatientLinkManager.deletePersonAsync).toHaveBeenCalled();
+                expect(mockRes.status).not.toHaveBeenCalledWith(403);
+            });
         });
     });
 });

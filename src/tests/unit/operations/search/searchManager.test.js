@@ -9,7 +9,8 @@
  * 3. streamResourcesFromCursorAsync (lines 915-1063)
  */
 
-const { describe, beforeEach, afterEach, it, expect, jest } = require('@jest/globals');
+const { describe, beforeEach, afterEach, it, test, expect, jest } = require('@jest/globals');
+const { EventEmitter } = require('events');
 
 const { SearchManager } = require('../../../../operations/search/searchManager');
 const { DatabaseQueryFactory } = require('../../../../dataLayer/databaseQueryFactory');
@@ -26,13 +27,22 @@ const { Base64DataManager } = require('../../../../dataLayer/base64DataManager')
 const { FhirResourceWriterFactory } = require('../../../../operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const { DataSharingManager } = require('../../../../operations/search/dataSharingManager');
 const { SearchQueryBuilder } = require('../../../../operations/search/searchQueryBuilder');
+const { AtlasSearchQueryBuilder } = require('../../../../operations/search/atlasSearchQueryBuilder');
 const { PatientScopeManager } = require('../../../../operations/security/patientScopeManager');
 const { PatientQueryCreator } = require('../../../../operations/common/patientQueryCreator');
+const { SearchParametersManager } = require('../../../../searchParameters/searchParametersManager');
+const { SearchParameterDefinition } = require('../../../../searchParameters/searchParameterTypes');
+const { ClinicalNoteSearchClient } = require('../../../../utils/clinicalNoteSearchClient');
+const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
+const { QueryParameterValue } = require('../../../../operations/query/queryParameterValue');
+const { ExternalTimeoutError } = require('../../../../utils/httpErrors');
 
 jest.mock('../../../../operations/common/logging', () => ({
     logError: jest.fn(),
     logInfo: jest.fn(),
-    logDebug: jest.fn()
+    logDebug: jest.fn(),
+    logWarn: jest.fn()
 }));
 
 jest.mock('../../../../operations/common/systemEventLogging', () => ({
@@ -56,8 +66,11 @@ describe('SearchManager', () => {
     let mockFhirResourceWriterFactory;
     let mockDataSharingManager;
     let mockSearchQueryBuilder;
+    let mockAtlasSearchQueryBuilder;
     let mockPatientScopeManager;
     let mockPatientQueryCreator;
+    let mockSearchParametersManager;
+    let mockClinicalNoteSearchClient;
 
     beforeEach(() => {
         mockDatabaseQueryFactory = Object.create(DatabaseQueryFactory.prototype);
@@ -68,7 +81,6 @@ describe('SearchManager', () => {
         mockR4SearchQueryCreator = Object.create(R4SearchQueryCreator.prototype);
         mockConfigManager = Object.create(ConfigManager.prototype);
         Object.defineProperty(mockConfigManager, 'enableConsentedProaDataAccess', { value: false, writable: true, configurable: true });
-        Object.defineProperty(mockConfigManager, 'enableHIETreatmentRelatedDataAccess', { value: false, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'doNotRequirePersonOrPatientIdForPatientScope', { value: false, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'requiredFiltersForAuditEvent', { value: null, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'auditEventMaxRangePeriod', { value: 30, writable: true, configurable: true });
@@ -76,6 +88,7 @@ describe('SearchManager', () => {
         Object.defineProperty(mockConfigManager, 'useAccessIndex', { value: false, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'mongoTimeout', { value: 30000, writable: true, configurable: true });
         Object.defineProperty(mockConfigManager, 'streamingHighWaterMark', { value: 100, writable: true, configurable: true });
+        Object.defineProperty(mockConfigManager, 'isAtlasSearchNativeSortEnabled', { value: false, writable: true, configurable: true });
         mockQueryRewriterManager = Object.create(QueryRewriterManager.prototype);
         mockScopesManager = Object.create(ScopesManager.prototype);
         mockDatabaseAttachmentManager = Object.create(DatabaseAttachmentManager.prototype);
@@ -83,8 +96,13 @@ describe('SearchManager', () => {
         mockFhirResourceWriterFactory = Object.create(FhirResourceWriterFactory.prototype);
         mockDataSharingManager = Object.create(DataSharingManager.prototype);
         mockSearchQueryBuilder = Object.create(SearchQueryBuilder.prototype);
+        mockAtlasSearchQueryBuilder = Object.create(AtlasSearchQueryBuilder.prototype);
+        mockAtlasSearchQueryBuilder.buildSearchQuery = () => null;
         mockPatientScopeManager = Object.create(PatientScopeManager.prototype);
         mockPatientQueryCreator = Object.create(PatientQueryCreator.prototype);
+        mockSearchParametersManager = Object.create(SearchParametersManager.prototype);
+        mockSearchParametersManager.allowedFieldsByResourceType = new Map();
+        mockClinicalNoteSearchClient = Object.create(ClinicalNoteSearchClient.prototype);
 
         searchManager = new SearchManager({
             databaseQueryFactory: mockDatabaseQueryFactory,
@@ -101,8 +119,11 @@ describe('SearchManager', () => {
             fhirResourceWriterFactory: mockFhirResourceWriterFactory,
             dataSharingManager: mockDataSharingManager,
             searchQueryBuilder: mockSearchQueryBuilder,
+            atlasSearchQueryBuilder: mockAtlasSearchQueryBuilder,
             patientScopeManager: mockPatientScopeManager,
-            patientQueryCreator: mockPatientQueryCreator
+            patientQueryCreator: mockPatientQueryCreator,
+            searchParametersManager: mockSearchParametersManager,
+            clinicalNoteSearchClient: mockClinicalNoteSearchClient
         });
     });
 
@@ -110,11 +131,21 @@ describe('SearchManager', () => {
         jest.clearAllMocks();
     });
 
+    describe('constructor', () => {
+        it('requires an AtlasSearchQueryBuilder', () => {
+            const { AtlasSearchQueryBuilder } = require('../../../../operations/search/atlasSearchQueryBuilder');
+            expect(searchManager.atlasSearchQueryBuilder).toBeInstanceOf(AtlasSearchQueryBuilder);
+        });
+    });
+
     describe('constructQueryAsync', () => {
         let mockParsedArgs;
 
         beforeEach(() => {
-            mockParsedArgs = { base_version: '4_0_0', _elements: null, _sort: null, _count: null, id: null };
+            mockParsedArgs = {
+                base_version: '4_0_0', _elements: null, _sort: null, _count: null, id: null,
+                get: jest.fn().mockReturnValue(undefined)
+            };
             mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(false);
             mockSecurityTagManager.getSecurityTagsFromScope = jest.fn().mockReturnValue(['client-abc']);
             mockSecurityTagManager.getQueryWithSecurityTags = jest.fn().mockReturnValue({ 'meta.security': { $elemMatch: { code: 'client-abc' } } });
@@ -122,7 +153,6 @@ describe('SearchManager', () => {
                 query: { resourceType: 'Observation' }, columns: new Set(['_uuid'])
             });
             mockConfigManager.enableConsentedProaDataAccess = false;
-            mockConfigManager.enableHIETreatmentRelatedDataAccess = false;
             mockQueryRewriterManager.rewriteQueryAsync = jest.fn().mockImplementation(async ({ query, columns }) => ({ query, columns }));
         });
 
@@ -175,6 +205,197 @@ describe('SearchManager', () => {
             });
             expect(mockDataSharingManager.updateQueryForDelegatedAccessSensitiveData).toHaveBeenCalled();
         });
+
+        it('AND-composes the _content candidate-id filter with the security-tag filter -- neither replaces the other', async () => {
+            // Security property under test: candidate ids returned by the vector store (an
+            // external, unauthorized-by-fhir-server data source) must be re-authorized through the
+            // SAME query object that the tenant/access-tag scoping (getQueryWithSecurityTags) also
+            // mutates -- not a separate/bypassable branch. We prove this by asserting the final
+            // query carries BOTH pieces, AND-composed.
+            const contentParsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+            contentParsedArgs.add(new ParsedArgsItem({
+                queryParameter: '_content',
+                queryParameterValue: new QueryParameterValue({ value: 'diabetes', operator: '$and' }),
+                modifiers: []
+            }));
+
+            Object.defineProperty(mockConfigManager, 'fhirNotesFullTextSearchConfigured', {
+                value: true, writable: true, configurable: true
+            });
+            mockClinicalNoteSearchClient.findMatchingResourceIdsAsync = jest.fn().mockResolvedValue(['abc123', 'def456']);
+            mockR4SearchQueryCreator.appendAndQuery = jest.fn().mockImplementation(
+                ({ query, andQuery }) => ({ $and: [query, andQuery] })
+            );
+            // The default beforeEach stub for getQueryWithSecurityTags returns a fixed object
+            // without looking at its `query` argument, which is fine for the other tests in this
+            // block but would hide the very bug this test exists to catch (the security-tag step
+            // silently discarding whatever query it was handed instead of AND-composing with it).
+            // Override it here to actually incorporate the incoming query, the way the real
+            // SecurityTagManager implementation does.
+            mockSecurityTagManager.getQueryWithSecurityTags = jest.fn().mockImplementation(({ query }) => ({
+                $and: [query, { 'meta.security': { $elemMatch: { code: 'client-abc' } } }]
+            }));
+
+            const result = await searchManager.constructQueryAsync({
+                user: 'user-1', scope: 'system/DocumentReference.read', isUser: false, userType: null,
+                resourceType: 'DocumentReference', useAccessIndex: false, personIdFromJwtToken: null,
+                requestId: 'req-1', parsedArgs: contentParsedArgs, useHistoryTable: false, operation: 'READ',
+                accessRequested: 'read'
+            });
+
+            expect(mockClinicalNoteSearchClient.findMatchingResourceIdsAsync).toHaveBeenCalledWith({
+                resourceType: 'DocumentReference', contentQuery: 'diabetes'
+            });
+            expect(mockR4SearchQueryCreator.appendAndQuery).toHaveBeenCalledWith({
+                query: { resourceType: 'Observation' },
+                andQuery: { _sourceId: { $in: ['abc123', 'def456'] } }
+            });
+            // The security-tag step must have received a query that already carries the
+            // _content-derived id filter -- proving both flow through the SAME query object rather
+            // than the id filter living on some separate/bypassable branch.
+            expect(mockSecurityTagManager.getQueryWithSecurityTags).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    query: { $and: [{ resourceType: 'Observation' }, { _sourceId: { $in: ['abc123', 'def456'] } }] }
+                })
+            );
+            // Both the _content-derived id filter and the security-tag filter must be present in
+            // the final query -- AND-composed, not one clobbering the other.
+            // Order is an implementation detail of MongoQuerySimplifier's $and-flattening -- assert
+            // membership, not exact array order.
+            expect(result.query.$and).toEqual(expect.arrayContaining([
+                { _sourceId: { $in: ['abc123', 'def456'] } },
+                { 'meta.security': { $elemMatch: { code: 'client-abc' } } }
+            ]));
+        });
+
+        it('threads the resolved patient-scope id list into the _content candidate lookup as a pre-filter', async () => {
+            // getPatientIdsFromScopeAsync must be resolved once, ahead of
+            // buildContentSearchIdFilterAsync, and the SAME resolved list reused later for the
+            // patient-scope query filter -- not a second, redundant resolution.
+            mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(true);
+            mockPatientScopeManager.getPatientIdsFromScopeAsync = jest.fn().mockResolvedValue(['patient-1', 'patient-2']);
+            mockPatientQueryCreator.getQueryWithPatientFilter = jest.fn().mockReturnValue({ resourceType: 'DocumentReference' });
+            mockConfigManager.doNotRequirePersonOrPatientIdForPatientScope = true;
+
+            const contentParsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+            contentParsedArgs.add(new ParsedArgsItem({
+                queryParameter: '_content',
+                queryParameterValue: new QueryParameterValue({ value: 'diabetes', operator: '$and' }),
+                modifiers: []
+            }));
+            Object.defineProperty(mockConfigManager, 'fhirNotesFullTextSearchConfigured', {
+                value: true, writable: true, configurable: true
+            });
+            mockClinicalNoteSearchClient.findMatchingResourceIdsAsync = jest.fn().mockResolvedValue([]);
+
+            await searchManager.constructQueryAsync({
+                user: 'user-1', scope: 'patient/DocumentReference.read', isUser: true, userType: null,
+                resourceType: 'DocumentReference', useAccessIndex: false, personIdFromJwtToken: 'person-1',
+                requestId: 'req-1', parsedArgs: contentParsedArgs, useHistoryTable: false, operation: 'READ',
+                accessRequested: 'read'
+            });
+
+            expect(mockPatientScopeManager.getPatientIdsFromScopeAsync).toHaveBeenCalledTimes(1);
+            expect(mockClinicalNoteSearchClient.findMatchingResourceIdsAsync).toHaveBeenCalledWith({
+                resourceType: 'DocumentReference', contentQuery: 'diabetes', patientIds: ['patient-1', 'patient-2']
+            });
+            expect(mockPatientQueryCreator.getQueryWithPatientFilter).toHaveBeenCalledWith(
+                expect.objectContaining({ patientIds: ['patient-1', 'patient-2'] })
+            );
+        });
+
+        it('an empty _content candidate list survives MongoQuerySimplifier as __invalid__, never as "no filter, return everything"', async () => {
+            // Regression test for a real bug found in review: MongoQuerySimplifier.simplifyFilter
+            // (a real, unmocked static utility -- constructQueryAsync always runs it on the final
+            // query) deletes {_uuid:{$in:[]}} entirely, along with the now-empty $and clause around
+            // it. If buildContentSearchIdFilterAsync's empty-candidate case ever regressed back to
+            // returning {_uuid:{$in:[]}} instead of the __invalid__ sentinel, this test would catch
+            // it by asserting on constructQueryAsync's actual returned query -- not on
+            // buildContentSearchIdFilterAsync's return value in isolation.
+            const contentParsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+            contentParsedArgs.add(new ParsedArgsItem({
+                queryParameter: '_content',
+                queryParameterValue: new QueryParameterValue({ value: 'zzzznomatch', operator: '$and' }),
+                modifiers: []
+            }));
+
+            Object.defineProperty(mockConfigManager, 'fhirNotesFullTextSearchConfigured', {
+                value: true, writable: true, configurable: true
+            });
+            mockClinicalNoteSearchClient.findMatchingResourceIdsAsync = jest.fn().mockResolvedValue([]);
+            mockR4SearchQueryCreator.appendAndQuery = jest.fn().mockImplementation(
+                ({ query, andQuery }) => ({ $and: [query, andQuery] })
+            );
+            mockSecurityTagManager.getQueryWithSecurityTags = jest.fn().mockImplementation(({ query }) => ({
+                $and: [query, { 'meta.security': { $elemMatch: { code: 'client-abc' } } }]
+            }));
+
+            const result = await searchManager.constructQueryAsync({
+                user: 'user-1', scope: 'system/DocumentReference.read', isUser: false, userType: null,
+                resourceType: 'DocumentReference', useAccessIndex: false, personIdFromJwtToken: null,
+                requestId: 'req-1', parsedArgs: contentParsedArgs, useHistoryTable: false, operation: 'READ',
+                accessRequested: 'read'
+            });
+
+            expect(result.query.$and).toEqual(expect.arrayContaining([{ _uuid: '__invalid__' }]));
+            // Never silently degrade to "only the security-tag filter applies" -- that's exactly
+            // "no filter, so return everything" for the _content search the caller actually asked
+            // for.
+            expect(result.query).not.toEqual({ 'meta.security': { $elemMatch: { code: 'client-abc' } } });
+        });
+
+        it('returns atlasSearchCompound from the builder for an eligible READ request', async () => {
+            mockAtlasSearchQueryBuilder.buildSearchQuery = jest.fn().mockReturnValue({ must: [{ equals: { path: 'gender', value: 'male' } }] });
+            mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({ query: {}, columns: new Set() });
+            mockSecurityTagManager.getSecurityTagsFromScope = jest.fn().mockReturnValue([]);
+            mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(false);
+            mockQueryRewriterManager.rewriteQueryAsync = jest.fn().mockResolvedValue({ query: {}, columns: new Set() });
+
+            const result = await searchManager.constructQueryAsync({
+                user: 'user1', scope: 'scope1', isUser: false, userType: null,
+                resourceType: 'Patient', useAccessIndex: false, personIdFromJwtToken: null,
+                requestId: 'req1', parsedArgs: mockParsedArgs, operation: 'READ'
+            });
+
+            expect(result.atlasSearchCompound).toEqual({ must: [{ equals: { path: 'gender', value: 'male' } }] });
+            expect(mockAtlasSearchQueryBuilder.buildSearchQuery).toHaveBeenCalledWith({
+                resourceType: 'Patient', parsedArgs: mockParsedArgs
+            });
+        });
+
+        it('returns null atlasSearchCompound for a WRITE operation without calling the builder', async () => {
+            mockAtlasSearchQueryBuilder.buildSearchQuery = jest.fn().mockReturnValue({ must: [] });
+            mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({ query: {}, columns: new Set() });
+            mockSecurityTagManager.getSecurityTagsFromScope = jest.fn().mockReturnValue([]);
+            mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(false);
+            mockQueryRewriterManager.rewriteQueryAsync = jest.fn().mockResolvedValue({ query: {}, columns: new Set() });
+
+            const result = await searchManager.constructQueryAsync({
+                user: 'user1', scope: 'scope1', isUser: false, userType: null,
+                resourceType: 'Patient', useAccessIndex: false, personIdFromJwtToken: null,
+                requestId: 'req1', parsedArgs: mockParsedArgs, operation: 'WRITE'
+            });
+
+            expect(result.atlasSearchCompound).toBeNull();
+            expect(mockAtlasSearchQueryBuilder.buildSearchQuery).not.toHaveBeenCalled();
+        });
+
+        it('returns null atlasSearchCompound when useHistoryTable is true', async () => {
+            mockAtlasSearchQueryBuilder.buildSearchQuery = jest.fn().mockReturnValue({ must: [] });
+            mockSearchQueryBuilder.buildSearchQueryBasedOnVersion = jest.fn().mockReturnValue({ query: {}, columns: new Set() });
+            mockSecurityTagManager.getSecurityTagsFromScope = jest.fn().mockReturnValue([]);
+            mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(false);
+            mockQueryRewriterManager.rewriteQueryAsync = jest.fn().mockResolvedValue({ query: {}, columns: new Set() });
+
+            const result = await searchManager.constructQueryAsync({
+                user: 'user1', scope: 'scope1', isUser: false, userType: null,
+                resourceType: 'Patient', useAccessIndex: false, personIdFromJwtToken: null,
+                requestId: 'req1', parsedArgs: mockParsedArgs, operation: 'READ', useHistoryTable: true
+            });
+
+            expect(result.atlasSearchCompound).toBeNull();
+            expect(mockAtlasSearchQueryBuilder.buildSearchQuery).not.toHaveBeenCalled();
+        });
     });
 
     describe('handleCountOption', () => {
@@ -196,24 +417,196 @@ describe('SearchManager', () => {
     });
 
     describe('handleSortQuery', () => {
-        it('adds ascending sort', () => {
-            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['date'] } }), _sort: 'date' };
-            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {} });
-            expect(result.options.sort.date).toBe(1);
+        beforeEach(() => {
+            mockSearchParametersManager.getSearchParametersForResource = jest.fn(({ resourceType }) => {
+                if (resourceType === 'Observation') {
+                    return {
+                        status: new SearchParameterDefinition({ type: 'token', field: 'status' }),
+                        category: new SearchParameterDefinition({ type: 'token', field: 'category' }),
+                        date: new SearchParameterDefinition({
+                            type: 'date',
+                            fields: ['effectiveDateTime', 'effectivePeriod', 'effectiveTiming', 'effectiveInstant']
+                        }),
+                        patient: new SearchParameterDefinition({ type: 'reference', field: 'subject' })
+                    };
+                }
+                if (resourceType === 'MedicationStatement') {
+                    return {
+                        effective: new SearchParameterDefinition({
+                            type: 'date',
+                            fields: ['effectiveDateTime', 'effectivePeriod'],
+                            fieldTypesObj: { effectiveDateTime: 'datetime', effectivePeriod: 'period' }
+                        })
+                    };
+                }
+                if (resourceType === 'Resource') {
+                    return {
+                        _id: new SearchParameterDefinition({ type: 'token', field: 'id' }),
+                        _lastUpdated: new SearchParameterDefinition({ type: 'date', field: 'meta.lastUpdated' })
+                    };
+                }
+                return undefined;
+            });
+            mockSearchParametersManager.getFieldNameForSearchParameter = jest.fn((searchResourceType, searchParameterName) => {
+                const byResourceType = {
+                    Observation: { status: 'status', category: 'category', date: 'effectiveDateTime', patient: 'subject' },
+                    MedicationStatement: { effective: 'effectiveDateTime' },
+                    Resource: { _id: 'id', _lastUpdated: 'meta.lastUpdated' }
+                };
+                return byResourceType[searchResourceType]?.[searchParameterName] ??
+                    byResourceType.Resource[searchParameterName] ??
+                    null;
+            });
         });
 
-        it('adds descending sort with - prefix', () => {
-            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['-date'] } }), _sort: '-date' };
-            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {} });
-            expect(result.options.sort.date).toBe(-1);
-        });
-
-        it('handles multiple sort properties', () => {
-            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['status', '-date', 'category'] } }), _sort: 'status,-date,category' };
-            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {} });
+        it('adds ascending sort for an allowed field', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['status'] } }), _sort: 'status' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
             expect(result.options.sort.status).toBe(1);
-            expect(result.options.sort.date).toBe(-1);
+            expect(result.columns.has('status')).toBe(true);
+        });
+
+        it('adds descending sort with - prefix for an allowed field', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['-category'] } }), _sort: '-category' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort.category).toBe(-1);
+        });
+
+        it('handles multiple allowed sort properties, including a nested dotted path from the generic Resource bucket', () => {
+            const parsedArgs = {
+                get: () => ({ queryParameterValue: { values: ['status', '-meta.lastUpdated', 'category'] } }),
+                _sort: 'status,-meta.lastUpdated,category'
+            };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort.status).toBe(1);
+            expect(result.options.sort['meta.lastUpdated']).toBe(-1);
             expect(result.options.sort.category).toBe(1);
+        });
+
+        it('drops a sort field that is not in the resource allowlist instead of failing the request', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['$$$'] } }), _sort: '$$$' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort).toStrictEqual({});
+            expect(result.columns.has('$$$')).toBe(false);
+        });
+
+        it('drops only the invalid field when mixed with valid ones', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['status', '$$$'] } }), _sort: 'status,$$$' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort).toStrictEqual({ status: 1 });
+        });
+
+        it('always allows the configured default sort tie-breaker field, even though it has no search-parameter definition', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['_uuid'] } }), _sort: '_uuid' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort._uuid).toBe(1);
+        });
+
+        it('resolves a search-parameter code to its underlying field when they differ (_sort=-date on Observation)', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['-date'] } }), _sort: '-date' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort.effectiveDateTime).toBe(-1);
+            expect(result.options.sort.date).toBeUndefined();
+            expect(result.columns.has('effectiveDateTime')).toBe(true);
+        });
+
+        it('resolves the _lastUpdated search-parameter code (Resource bucket) to meta.lastUpdated', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['_lastUpdated'] } }), _sort: '_lastUpdated' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort['meta.lastUpdated']).toBe(1);
+            expect(result.options.sort._lastUpdated).toBeUndefined();
+        });
+
+        it('resolves a reference-type search-parameter code to its field (patient -> subject)', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['patient'] } }), _sort: 'patient' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort.subject).toBe(1);
+            expect(result.options.sort.patient).toBeUndefined();
+        });
+
+        it('resolves effectivePeriod.end via the generic period-type fallback, with no dedicated search parameter declaring that dotted path (matches real client traffic)', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['-effectivePeriod.end'] } }), _sort: '-effectivePeriod.end' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'MedicationStatement' });
+            expect(result.options.sort['effectivePeriod.end']).toBe(-1);
+            expect(result.columns.has('effectivePeriod.end')).toBe(true);
+        });
+
+        it('resolves effectivePeriod.start via the generic period-type fallback the same way', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['effectivePeriod.start'] } }), _sort: 'effectivePeriod.start' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'MedicationStatement' });
+            expect(result.options.sort['effectivePeriod.start']).toBe(1);
+        });
+
+        it('drops a boundary other than start/end on a period-typed field (effectivePeriod.middle is not a real boundary)', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['effectivePeriod.middle'] } }), _sort: 'effectivePeriod.middle' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'MedicationStatement' });
+            expect(result.options.sort).toStrictEqual({});
+        });
+
+        it('drops a .start/.end suffix on a field that is declared but not typed as a period (Observation.effectivePeriod has no fieldTypesObj in this fixture, unlike MedicationStatement)', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['effectivePeriod.end'] } }), _sort: 'effectivePeriod.end' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort).toStrictEqual({});
+        });
+
+        it('drops a dotted value whose base field was never declared by any search parameter', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['bogus.field'] } }), _sort: 'bogus.field' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'MedicationStatement' });
+            expect(result.options.sort).toStrictEqual({});
+        });
+
+        it('drops an injection-shaped value ($-prefixed) since it was never declared as an allowed field', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['effectivePeriod.$where'] } }), _sort: 'effectivePeriod.$where' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'MedicationStatement' });
+            expect(result.options.sort).toStrictEqual({});
+        });
+
+        it('drops the _id search-parameter code since id resolution to sourceId/uuid is not yet decided', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['_id'] } }), _sort: '_id' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort).toStrictEqual({});
+            expect(result.columns.has('id')).toBe(false);
+        });
+
+        it('drops the raw id field too, since it resolves to the same ambiguous field as _id', () => {
+            const parsedArgs = { get: () => ({ queryParameterValue: { values: ['-id'] } }), _sort: '-id' };
+            const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+            expect(result.options.sort).toStrictEqual({});
+        });
+
+        describe('CUSTOM_SORT_FIELDS temporary allowlist', () => {
+            it.each([
+                ['VerificationResult', 'statusDate'],
+                ['Person', 'active'],
+                ['Coverage', 'period.start'],
+                ['Coverage', 'period.end'],
+                ['ExplanationOfBenefit', 'billablePeriod.start'],
+                ['ExplanationOfBenefit', 'billablePeriod.end'],
+                ['CarePlan', 'created'],
+                ['Questionnaire', '_sourceId'],
+                ['AllergyIntolerance', 'onsetDateTime'],
+                ['AllergyIntolerance', 'onsetPeriod.start'],
+                ['AllergyIntolerance', 'onsetPeriod.end'],
+                ['Procedure', 'encounter.period.start'],
+                ['Procedure', 'encounter.period.end']
+            ])('resolves %s\'s %s via the temporary custom-sort-field allowlist, with no search parameter declaring it', (resourceType, sortCode) => {
+                const parsedArgs = { get: () => ({ queryParameterValue: { values: [sortCode] } }), _sort: sortCode };
+                const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType });
+                expect(result.options.sort[sortCode]).toBe(1);
+                expect(result.columns.has(sortCode)).toBe(true);
+            });
+
+            it('honors the - prefix for a custom sort field', () => {
+                const parsedArgs = { get: () => ({ queryParameterValue: { values: ['-statusDate'] } }), _sort: '-statusDate' };
+                const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'VerificationResult' });
+                expect(result.options.sort.statusDate).toBe(-1);
+            });
+
+            it('does not allow a custom sort field for a resourceType it is not allowlisted for', () => {
+                const parsedArgs = { get: () => ({ queryParameterValue: { values: ['statusDate'] } }), _sort: 'statusDate' };
+                const result = searchManager.handleSortQuery({ parsedArgs, columns: new Set(), options: {}, resourceType: 'Observation' });
+                expect(result.options.sort).toStrictEqual({});
+            });
         });
     });
 
@@ -302,5 +695,727 @@ describe('SearchManager', () => {
             await expect(searchManager.handleGetTotalsAsync({ resourceType: 'Observation', base_version: '4_0_0', query: {}, maxMongoTimeMS: 30000, extraInfo: {} }))
                 .rejects.toThrow('Error getting totals');
         });
+
+        it('runs a $count pipeline when atlasSearchCompound is present', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
+                next: jest.fn().mockResolvedValue({ total: 42 })
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                exactDocumentCountAsync: jest.fn()
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const total = await searchManager.handleGetTotalsAsync({
+                resourceType: 'Patient', base_version: '4_0_0', query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, atlasSearchCompound
+            });
+
+            expect(total).toBe(42);
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.query).toEqual([
+                { $search: { index: 'hybrid-full-text-search', compound: atlasSearchCompound } },
+                { $match: { 'meta.security': 'x' } },
+                { $count: 'total' }
+            ]);
+            expect(mockDatabaseQueryManager.exactDocumentCountAsync).not.toHaveBeenCalled();
+        });
+
+        it('returns 0 when the $count pipeline has no results', async () => {
+            const atlasSearchCompound = { must: [] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(false)
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const total = await searchManager.handleGetTotalsAsync({
+                resourceType: 'Patient', base_version: '4_0_0', query: {},
+                maxMongoTimeMS: 30000, atlasSearchCompound
+            });
+
+            expect(total).toBe(0);
+        });
+
+        it('uses exactDocumentCountAsync when atlasSearchCompound is absent (unchanged behavior)', async () => {
+            const mockDatabaseQueryManager = {
+                exactDocumentCountAsync: jest.fn().mockResolvedValue(7),
+                findUsingAggregationAsync: jest.fn()
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const total = await searchManager.handleGetTotalsAsync({
+                resourceType: 'Patient', base_version: '4_0_0', query: {}, maxMongoTimeMS: 30000
+            });
+
+            expect(total).toBe(7);
+            expect(mockDatabaseQueryManager.findUsingAggregationAsync).not.toHaveBeenCalled();
+        });
+
+        it('falls back to exactDocumentCountAsync when the Atlas $count pipeline throws', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockRejectedValue(new Error('index not found')),
+                exactDocumentCountAsync: jest.fn().mockResolvedValue(99)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const total = await searchManager.handleGetTotalsAsync({
+                resourceType: 'Patient', base_version: '4_0_0', query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, extraInfo: {}, atlasSearchCompound
+            });
+
+            expect(total).toBe(99);
+            expect(mockDatabaseQueryManager.exactDocumentCountAsync).toHaveBeenCalledWith({
+                query: { 'meta.security': 'x' },
+                options: { maxTimeMS: 30000 },
+                extraInfo: {}
+            });
+        });
+    });
+
+    describe('getCursorForQueryAsync', () => {
+        it('runs the $search + $match pipeline via findUsingAggregationAsync when atlasSearchCompound is present', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            expect(mockDatabaseQueryManager.findUsingAggregationAsync).toHaveBeenCalledTimes(1);
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.extraInfo.matchQueryProvided).toBe(true);
+            expect(callArgs.query[0]).toEqual({
+                $search: { index: 'hybrid-full-text-search', compound: atlasSearchCompound }
+            });
+            expect(callArgs.query[1]).toEqual({ $match: { 'meta.security': 'x' } });
+            expect(mockCursor.hasNext).toHaveBeenCalledTimes(1);
+            expect(mockDatabaseQueryManager.findAsync).not.toHaveBeenCalled();
+            // Regression guard: maxTimeMS() must be called exactly once on the Atlas cursor.
+            // The mongo driver's maxTimeMS() throws MongoCursorInUseError if called after the
+            // cursor has been initialized (which hasNext() does internally), so a second call
+            // here -- e.g. from a leftover shared trailing maxTimeMS() elsewhere in the method --
+            // would have thrown on every successful Atlas request.
+            expect(mockCursor.maxTimeMS).toHaveBeenCalledTimes(1);
+        });
+
+        it('sorts by score then defaultSortId inside $search, and omits the trailing $sort stage, when native sort is enabled', async () => {
+            Object.defineProperty(mockConfigManager, 'isAtlasSearchNativeSortEnabled', { value: true, writable: true, configurable: true });
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.query[0]).toEqual({
+                $search: {
+                    index: 'hybrid-full-text-search',
+                    compound: atlasSearchCompound,
+                    sort: { score: { $meta: 'searchScore' }, _uuid: 1 }
+                }
+            });
+            expect(callArgs.query[1]).toEqual({ $match: { 'meta.security': 'x' } });
+            // No separate $sort stage -- sorting now happens natively inside $search.
+            expect(callArgs.query.some(stage => '$sort' in stage)).toBe(false);
+        });
+
+        it('keeps the trailing $sort stage and a plain $search (no sort key) when native sort is disabled (default)', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.query[0]).toEqual({
+                $search: { index: 'hybrid-full-text-search', compound: atlasSearchCompound }
+            });
+            expect(callArgs.query.find(stage => '$sort' in stage)).toEqual({ $sort: { _uuid: 1 } });
+        });
+
+        it('falls back to findAsync when findUsingAggregationAsync resolves but the cursor\'s hasNext() rejects on first server round-trip', async () => {
+            // Models the real bug: aggregation cursors execute lazily, so a bad Atlas index/
+            // pipeline (missing index, INITIAL_SYNC, unsupported stage) only surfaces on first
+            // iteration -- not when findUsingAggregationAsync itself resolves.
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockAtlasCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockRejectedValue(new Error('Atlas Search index not found'))
+            };
+            const mockFallbackCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockAtlasCursor),
+                findAsync: jest.fn().mockResolvedValue(mockFallbackCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const result = await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            expect(mockAtlasCursor.hasNext).toHaveBeenCalledTimes(1);
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({
+                query: { 'meta.security': 'x' }, options: expect.any(Object), extraInfo: expect.any(Object)
+            });
+            expect(result.cursor).toBe(mockFallbackCursor);
+            // Each cursor gets maxTimeMS() exactly once: the (doomed) Atlas cursor before its
+            // hasNext() peek, and the fallback cursor once after findAsync resolves.
+            expect(mockAtlasCursor.maxTimeMS).toHaveBeenCalledTimes(1);
+            expect(mockFallbackCursor.maxTimeMS).toHaveBeenCalledTimes(1);
+        });
+
+        it('resets atlasSearchCompound to null after a fallback so a later _total=accurate count uses the standard path, not the Atlas $count pipeline', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockAtlasCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockRejectedValue(new Error('Atlas Search index not found'))
+            };
+            const mockFallbackCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockAtlasCursor),
+                findAsync: jest.fn().mockResolvedValue(mockFallbackCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+            const handleGetTotalsAsyncSpy = jest.spyOn(searchManager, 'handleGetTotalsAsync').mockResolvedValue(42);
+
+            const result = await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: { _total: 'accurate' },
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            expect(handleGetTotalsAsyncSpy).toHaveBeenCalledWith(
+                expect.objectContaining({ atlasSearchCompound: null })
+            );
+            expect(result.total_count).toBe(42);
+        });
+
+        it('falls back to findAsync when the Atlas pipeline throws', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockRejectedValue(new Error('index not found')),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            const result = await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({
+                query: { 'meta.security': 'x' }, options: expect.any(Object), extraInfo: expect.any(Object)
+            });
+            expect(result.cursor).toBe(mockCursor);
+        });
+
+        it('uses findAsync directly when atlasSearchCompound is null (unchanged behavior)', async () => {
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn(),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound: null
+            });
+
+            expect(mockDatabaseQueryManager.findUsingAggregationAsync).not.toHaveBeenCalled();
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledTimes(1);
+            expect(mockCursor.maxTimeMS).toHaveBeenCalledTimes(1);
+        });
+
+        it('omits the $project stage when options.projection is absent, since {$project: {}} is rejected by MongoDB', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.query.some((stage) => Object.prototype.hasOwnProperty.call(stage, '$project'))).toBe(false);
+        });
+
+        it('omits the $limit stage when options.limit is 0, since {$limit: 0} is rejected by MongoDB', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: { _count: '0' },
+                columns: new Set(), options: { limit: 0, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.query.some((stage) => Object.prototype.hasOwnProperty.call(stage, '$limit'))).toBe(false);
+        });
+
+        it('builds the full [$search, $match, $sort, $skip, $limit, $project] pipeline in order when sort, skip and projection are all set', async () => {
+            const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+            const mockCursor = {
+                maxTimeMS: jest.fn().mockReturnThis(),
+                hasNext: jest.fn().mockResolvedValue(true),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+            };
+            const mockDatabaseQueryManager = {
+                findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            };
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+
+            await searchManager.getCursorForQueryAsync({
+                // _count is set so setDefaultLimit's DB_SEARCH_LIMIT default doesn't clobber
+                // the explicit options.limit used to assert the $limit stage below.
+                resourceType: 'Patient', base_version: '4_0_0', parsedArgs: { _count: '10' },
+                columns: new Set(),
+                options: { limit: 10, sort: { _uuid: 1 }, skip: 5, projection: { _uuid: 1 } },
+                query: { 'meta.security': 'x' },
+                maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                atlasSearchCompound
+            });
+
+            const callArgs = mockDatabaseQueryManager.findUsingAggregationAsync.mock.calls[0][0];
+            expect(callArgs.query).toEqual([
+                { $search: { index: 'hybrid-full-text-search', compound: atlasSearchCompound } },
+                { $match: { 'meta.security': 'x' } },
+                { $sort: { _uuid: 1 } },
+                { $skip: 5 },
+                { $limit: 10 },
+                { $project: { _uuid: 1 } }
+            ]);
+        });
+
+        it('does not invoke the index-hint mechanism when atlasSearchCompound is present, even when SET_INDEX_HINTS is set', async () => {
+            const originalEnv = process.env.SET_INDEX_HINTS;
+            process.env.SET_INDEX_HINTS = 'true';
+            try {
+                const atlasSearchCompound = { must: [{ equals: { path: 'gender', value: 'male' } }] };
+                const mockCursor = {
+                    maxTimeMS: jest.fn().mockReturnThis(),
+                    hasNext: jest.fn().mockResolvedValue(true),
+                    getCollection: jest.fn().mockReturnValue('Patient_4_0_0')
+                };
+                const mockDatabaseQueryManager = {
+                    findUsingAggregationAsync: jest.fn().mockResolvedValue(mockCursor),
+                    findAsync: jest.fn().mockResolvedValue(mockCursor)
+                };
+                mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
+                mockIndexHinter.findIndexForFields = jest.fn().mockReturnValue('idx_security');
+
+                await searchManager.getCursorForQueryAsync({
+                    resourceType: 'Patient', base_version: '4_0_0', parsedArgs: {},
+                    columns: new Set(), options: { limit: 10, sort: { _uuid: 1 } }, query: { 'meta.security': 'x' },
+                    maxMongoTimeMS: 30000, user: 'user1', isStreaming: false, useAccessIndex: false,
+                    atlasSearchCompound
+                });
+
+                expect(mockIndexHinter.findIndexForFields).not.toHaveBeenCalled();
+            } finally {
+                process.env.SET_INDEX_HINTS = originalEnv;
+            }
+        });
+    });
+});
+
+function makeParsedArgsWithContent (value) {
+    const parsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+    parsedArgs.add(new ParsedArgsItem({
+        queryParameter: '_content',
+        queryParameterValue: new QueryParameterValue({ value, operator: '$and' }),
+        modifiers: []
+    }));
+    return parsedArgs;
+}
+
+// NOTE: ServerError's constructor (src/middleware/fhir/utils/server.error.js) calls
+// `Object.setPrototypeOf(this, ServerError.prototype)` unconditionally, resetting the prototype
+// chain on every subclass instance (including BadRequestError/ExternalTimeoutError) back to
+// ServerError.prototype. `instanceof`/`toBeInstanceOf` against any httpErrors.js class is
+// therefore always false, for this pre-existing, unrelated reason -- already documented in
+// src/tests/unit/utils/httpErrors.test.js and
+// src/tests/unit/operations/query/filters/composite.test.js. Follow that same established
+// convention here: assert on `statusCode` instead of `instanceof`.
+async function expectRejectionWithStatusCode (promise, statusCode) {
+    let thrownError;
+    try {
+        await promise;
+        throw new Error(`expected promise to reject with statusCode ${statusCode}, but it resolved`);
+    } catch (e) {
+        thrownError = e;
+    }
+    expect(thrownError.statusCode).toBe(statusCode);
+}
+
+// Minimal SearchManager instantiation helper: fill every other constructor dependency with a
+// harmless Object.create(...)-based stub, since buildContentSearchIdFilterAsync only touches
+// configManager and clinicalNoteSearchClient. Every SearchManager constructor dependency is
+// guarded by assertTypeEquals (instanceof check), so plain `{}` stubs (as a literal reading of
+// this file's own test-code template would suggest) don't satisfy the constructor -- each stub
+// must be Object.create(SomeClass.prototype), matching this file's outer describe('SearchManager')
+// beforeEach convention. configManager overrides use Object.defineProperty because ConfigManager
+// exposes its config flags (e.g. fhirNotesFullTextSearchConfigured) as class getters, which a
+// plain property assignment can't shadow.
+function makeSearchManager ({ configManager: configManagerOverrides, clinicalNoteSearchClient: clinicalNoteSearchClientOverrides }) {
+    const configManager = Object.create(ConfigManager.prototype);
+    for (const [key, value] of Object.entries(configManagerOverrides)) {
+        Object.defineProperty(configManager, key, { value, writable: true, configurable: true });
+    }
+    const clinicalNoteSearchClient = Object.assign(
+        Object.create(ClinicalNoteSearchClient.prototype), clinicalNoteSearchClientOverrides
+    );
+    return new SearchManager({
+        databaseQueryFactory: Object.create(DatabaseQueryFactory.prototype),
+        resourceLocatorFactory: Object.create(ResourceLocatorFactory.prototype),
+        securityTagManager: Object.create(SecurityTagManager.prototype),
+        resourcePreparer: Object.create(ResourcePreparer.prototype),
+        indexHinter: Object.create(IndexHinter.prototype),
+        r4SearchQueryCreator: Object.create(R4SearchQueryCreator.prototype),
+        configManager,
+        queryRewriterManager: Object.create(QueryRewriterManager.prototype),
+        scopesManager: Object.create(ScopesManager.prototype),
+        databaseAttachmentManager: Object.create(DatabaseAttachmentManager.prototype),
+        base64DataManager: Object.create(Base64DataManager.prototype),
+        fhirResourceWriterFactory: Object.create(FhirResourceWriterFactory.prototype),
+        dataSharingManager: Object.create(DataSharingManager.prototype),
+        searchQueryBuilder: Object.create(SearchQueryBuilder.prototype),
+        atlasSearchQueryBuilder: Object.create(AtlasSearchQueryBuilder.prototype),
+        patientScopeManager: Object.create(PatientScopeManager.prototype),
+        patientQueryCreator: Object.create(PatientQueryCreator.prototype),
+        searchParametersManager: Object.create(SearchParametersManager.prototype),
+        clinicalNoteSearchClient
+    });
+}
+
+describe('SearchManager.buildContentSearchIdFilterAsync', () => {
+    test('returns null when _content is not present', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient: {}
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: new ParsedArgs({ base_version: '4_0_0' }),
+            operation: 'READ'
+        });
+        expect(result).toBeNull();
+    });
+
+    test('throws BadRequestError for an unsupported resourceType', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient: {}
+        });
+        await expectRejectionWithStatusCode(searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'Condition',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        }), 400);
+    });
+
+    test('ignores _content silently (returns null) when the feature is not configured', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: false },
+            clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        });
+        expect(result).toBeNull();
+    });
+
+    test('ignores _content silently (returns null) when the feature flag is off, even for an unsupported resourceType', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: false },
+            clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'Condition',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        });
+        expect(result).toBeNull();
+    });
+
+    test.each(['WRITE', 'write', 'DELETE', 'delete'])(
+        'ignores _content silently (returns null) for a %s operation, never gating a write/delete by an external index',
+        async (operation) => {
+            const searchManager = makeSearchManager({
+                configManager: { fhirNotesFullTextSearchConfigured: true },
+                clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
+            });
+            const result = await searchManager.buildContentSearchIdFilterAsync({
+                resourceType: 'DocumentReference',
+                parsedArgs: makeParsedArgsWithContent('diabetes'),
+                operation
+            });
+            expect(result).toBeNull();
+        }
+    );
+
+    test('ignores _content silently (returns null) on a history query, since FilterById cannot target the history field mapping', async () => {
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient: { findMatchingResourceIdsAsync: async () => { throw new Error('should not be called'); } }
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ',
+            useHistoryTable: true
+        });
+        expect(result).toBeNull();
+    });
+
+    test('returns an _uuid $in filter built from uuid-shaped candidate ids', async () => {
+        // Candidate ids that are actually uuid-shaped (matching the plan's stated contract) must
+        // route through FilterById to the _uuid field, not _sourceId or $or.
+        const clinicalNoteSearchClient = {
+            findMatchingResourceIdsAsync: async () => [
+                '123e4567-e89b-12d3-a456-426614174000',
+                '223e4567-e89b-12d3-a456-426614174000'
+            ]
+        };
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        });
+        expect(result).toEqual({
+            _uuid: {
+                $in: ['123e4567-e89b-12d3-a456-426614174000', '223e4567-e89b-12d3-a456-426614174000']
+            }
+        });
+    });
+
+    test('returns a _sourceId $in filter for non-uuid-shaped candidate ids (intentional fallback, not a bug)', async () => {
+        // FilterById.getListFilter (via IdParser.parse + isUuid) routes any candidate id that
+        // isn't uuid-shaped to _sourceId instead of _uuid. ClinicalNoteSearchClient now resolves
+        // candidates to _uuid itself in the normal case; this exercises the fallback path in case
+        // a candidate somehow isn't uuid-shaped.
+        const clinicalNoteSearchClient = {
+            findMatchingResourceIdsAsync: async () => ['abc123', 'def456']
+        };
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        });
+        expect(result).toEqual({ _sourceId: { $in: ['abc123', 'def456'] } });
+    });
+
+    test('returns the __invalid__ sentinel (not {_uuid:{$in:[]}}) when candidate list is empty, so MongoQuerySimplifier cannot erase it', async () => {
+        // MongoQuerySimplifier.simplifyFilter deletes empty $in arrays and the now-empty parent
+        // clauses around them, which would turn {_uuid:{$in:[]}} into {} once this filter is AND'd
+        // into the rest of the query in constructQueryAsync -- silently converting a zero-match
+        // _content search into "no filter, so return everything". __invalid__ survives
+        // simplification because it's a literal string value, not an array.
+        const clinicalNoteSearchClient = { findMatchingResourceIdsAsync: async () => [] };
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient
+        });
+        const result = await searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        });
+        expect(result).toEqual({ _uuid: '__invalid__' });
+    });
+
+    test('propagates ExternalTimeoutError from the search client unchanged', async () => {
+        const clinicalNoteSearchClient = {
+            findMatchingResourceIdsAsync: async () => { throw new ExternalTimeoutError('down'); }
+        };
+        const searchManager = makeSearchManager({
+            configManager: { fhirNotesFullTextSearchConfigured: true },
+            clinicalNoteSearchClient
+        });
+        await expectRejectionWithStatusCode(searchManager.buildContentSearchIdFilterAsync({
+            resourceType: 'DocumentReference',
+            parsedArgs: makeParsedArgsWithContent('diabetes'),
+            operation: 'READ'
+        }), 504);
+    });
+});
+
+describe('SearchManager.streamGroupMemberArrayAsync', () => {
+    function makeFakeCursor (docs, query) {
+        const remaining = [...docs];
+        return {
+            hasNext: jest.fn(async () => remaining.length > 0),
+            next: jest.fn(async () => remaining.shift()),
+            getQuery: jest.fn(() => query)
+        };
+    }
+
+    function makeFakeResponse () {
+        const res = new EventEmitter();
+        res.statusCode = 200;
+        res.headersSent = false;
+        res.writableEnded = false;
+        res.writable = true;
+        res.chunks = [];
+        res.setHeader = jest.fn();
+        res.removeHeader = jest.fn();
+        res.setTimeout = jest.fn();
+        res.flushHeaders = jest.fn(() => { res.headersSent = true; });
+        res.write = jest.fn((chunk) => { res.chunks.push(chunk); return true; });
+        res.end = jest.fn(() => { res.writableEnded = true; });
+        return res;
+    }
+
+    function makeStreamingSearchManager () {
+        const sm = makeSearchManager({
+            configManager: { streamingHighWaterMark: 100, logStreamSteps: false, mongoStreamingTimeout: 3600000 },
+            clinicalNoteSearchClient: {}
+        });
+        sm.databaseAttachmentManager.transformAttachments = jest.fn(async (doc) => doc);
+        sm.base64DataManager.transformAsync = jest.fn(async (doc) => doc);
+        return sm;
+    }
+
+    test('streams GroupMember rows into a member array spliced onto the (member-less) Group shell, and ends the response', async () => {
+        const sm = makeStreamingSearchManager();
+        const groupResourceJson = { resourceType: 'Group', id: 'group-1', active: true };
+        const docs = [
+            { member: { entity: { reference: 'Patient/1' }, inactive: false } },
+            { member: { entity: { reference: 'Patient/2' }, inactive: true } }
+        ];
+        const cursor = makeFakeCursor(docs, { groupUuid: 'group-1' });
+        const res = makeFakeResponse();
+
+        await sm.streamGroupMemberArrayAsync({
+            requestId: 'req-1',
+            cursor,
+            groupResourceJson,
+            res
+        });
+
+        expect(res.end).toHaveBeenCalled();
+        const body = res.chunks.join('');
+        const parsed = JSON.parse(body);
+        expect(parsed.resourceType).toBe('Group');
+        expect(parsed.id).toBe('group-1');
+        expect(parsed.member).toHaveLength(2);
+        expect(parsed.member[0].entity.reference).toBe('Patient/1');
+        expect(parsed.member[1].inactive).toBe(true);
+    });
+
+    test('produces a valid Group document with an empty member array when the cursor has no rows', async () => {
+        const sm = makeStreamingSearchManager();
+        const groupResourceJson = { resourceType: 'Group', id: 'group-empty' };
+        const cursor = makeFakeCursor([], { groupUuid: 'group-empty' });
+        const res = makeFakeResponse();
+
+        await sm.streamGroupMemberArrayAsync({ requestId: 'req-2', cursor, groupResourceJson, res });
+
+        expect(res.end).toHaveBeenCalled();
+        const body = res.chunks.join('');
+        const parsed = JSON.parse(body);
+        expect(parsed.resourceType).toBe('Group');
+        expect(parsed.id).toBe('group-empty');
+        expect(parsed.member).toEqual([]);
     });
 });

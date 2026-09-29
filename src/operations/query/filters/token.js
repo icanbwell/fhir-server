@@ -67,7 +67,14 @@ class FilterByToken extends BaseFilter {
                 }
             );
         } else {
-            switch (this.propertyObj.fieldType) {
+            // a multi-field polymorphic component (e.g. value[x] resolved to
+            // ['valueCodeableConcept', 'valueBoolean']) has a different underlying type per
+            // field; fieldTypesObj (populated per-field in r4ArgsParser.js) takes precedence
+            // over the single, firstField-derived fieldType so fields after the first aren't
+            // all queried using the first field's shape
+            const fieldType = (this.propertyObj.fieldTypesObj && this.propertyObj.fieldTypesObj[field]) ||
+                this.propertyObj.fieldType;
+            switch (fieldType) {
                 // https://hl7.org/fhir/search.html#token
                 case 'Coding':
                     return tokenQueryBuilder(

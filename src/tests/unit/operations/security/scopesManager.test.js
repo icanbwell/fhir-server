@@ -93,6 +93,90 @@ describe('ScopesManager', () => {
                 scopesManager.getAccessCodesFromScopes('read', null, 'access/client.*');
             }).toThrow();
         });
+
+        // Tripwire: system/ must never be treated as an access/ tenant grant. Making
+        // system/*.* emit '*' here would cascade into a total tenant-isolation bypass across
+        // several gates (see docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1).
+        test('should NOT extract access codes from system/ scopes', () => {
+            expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'system/*.*')).toEqual([]);
+            expect(scopesManager.getAccessCodesFromScopes('write', 'testUser', 'system/*.*')).toEqual([]);
+        });
+
+        test('drops a malformed access/ suffix without throwing, same as an unrecognized v1 action does today', () => {
+            expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'access/client.bogus')).toEqual([]);
+        });
+
+        // v2 (CRUDS) grammar support is gated behind enableSmartV2CrudsScopes, default off --
+        // see configManager.js. Off by default here since mockConfigManager (a plain
+        // ConfigManager.prototype instance) reads the real getter, which falls back to false
+        // with no ENABLE_SMART_V2_CRUDS_SCOPES env var set.
+        describe('when enableSmartV2CrudsScopes is disabled (default)', () => {
+            test('a v2 access/ suffix is NOT recognized -- matches the original behavior exactly', () => {
+                expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'access/client.rs')).toEqual([]);
+                expect(scopesManager.getAccessCodesFromScopes('write', 'testUser', 'access/client.cud')).toEqual([]);
+                expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'access/client.cruds')).toEqual([]);
+            });
+
+            test('a v1 scope in the same request is unaffected', () => {
+                const result = scopesManager.getAccessCodesFromScopes(
+                    'read', 'testUser', 'access/tenantA.read access/tenantB.rs'
+                );
+                expect(result).toEqual(['tenantA']);
+            });
+        });
+
+        describe('when enableSmartV2CrudsScopes is enabled', () => {
+            beforeEach(() => {
+                Object.defineProperty(mockConfigManager, 'enableSmartV2CrudsScopes', {
+                    value: true, configurable: true
+                });
+            });
+
+            test('extracts access codes from a v2 access/ scope whose letters satisfy the action', () => {
+                expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'access/client.rs')).toEqual(['client']);
+                expect(scopesManager.getAccessCodesFromScopes('write', 'testUser', 'access/client.cud')).toEqual(['client']);
+            });
+
+            test('does NOT extract access codes from a v2 access/ scope whose letters do not satisfy the action', () => {
+                expect(scopesManager.getAccessCodesFromScopes('write', 'testUser', 'access/client.rs')).toEqual([]);
+                expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'access/client.cud')).toEqual([]);
+            });
+
+            test('a v2 access/ scope granting the full cruds set satisfies both read and write, like * does today', () => {
+                expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'access/client.cruds')).toEqual(['client']);
+                expect(scopesManager.getAccessCodesFromScopes('write', 'testUser', 'access/client.cruds')).toEqual(['client']);
+            });
+
+            test('a request mixing v1 and v2 access/ scopes resolves both independently', () => {
+                const result = scopesManager.getAccessCodesFromScopes(
+                    'read', 'testUser', 'access/tenantA.read access/tenantB.rs access/tenantC.write'
+                );
+                expect(result).toEqual(['tenantA', 'tenantB']);
+            });
+
+            // Bare v2 CRUDS letters -- the query-filter path
+            // (securityTagManager, via ScopesManager) can now be handed a single granular letter
+            // instead of the coarse 'read'/'write' literal, matching the same requirement
+            // resolution ScopesValidator's gate already uses (phase 2).
+            test.each(['c', 'r', 'u', 'd', 's'])(
+                'a bare letter %s matches a v2 access/ scope granting exactly that letter', (letter) => {
+                    expect(scopesManager.getAccessCodesFromScopes(letter, 'testUser', `access/client.${letter}`))
+                        .toEqual(['client']);
+                }
+            );
+
+            test('a bare letter does not match a v2 access/ scope missing it', () => {
+                expect(scopesManager.getAccessCodesFromScopes('s', 'testUser', 'access/client.r')).toEqual([]);
+                expect(scopesManager.getAccessCodesFromScopes('r', 'testUser', 'access/client.s')).toEqual([]);
+            });
+        });
+
+        test('a bare letter matches a v1 scope whose normalized cruds includes it', () => {
+            // read -> {r, s}; a bare 's' (search-type) request is satisfied by a v1 'read' scope.
+            expect(scopesManager.getAccessCodesFromScopes('s', 'testUser', 'access/client.read')).toEqual(['client']);
+            // write -> {c, u, d}; a bare 'd' (delete) request is satisfied by a v1 'write' scope.
+            expect(scopesManager.getAccessCodesFromScopes('d', 'testUser', 'access/client.write')).toEqual(['client']);
+        });
     });
 
     describe('doesResourceHaveAnyAccessCodeFromThisList', () => {
@@ -223,42 +307,6 @@ describe('ScopesManager', () => {
                 accessRequested: 'read'
             });
             expect(result).toBe(true);
-        });
-    });
-
-    describe('doesResourceHaveAccessTags', () => {
-        test('should return false for null resource', () => {
-            expect(scopesManager.doesResourceHaveAccessTags(null)).toBeFalsy();
-        });
-
-        test('should return false for resource without meta', () => {
-            expect(scopesManager.doesResourceHaveAccessTags({})).toBeFalsy();
-        });
-
-        test('should return false for resource with meta but no security', () => {
-            expect(scopesManager.doesResourceHaveAccessTags({ meta: {} })).toBeFalsy();
-        });
-
-        test('should return false when no security tags match access system', () => {
-            const resource = {
-                meta: {
-                    security: [
-                        { system: SecurityTagSystem.owner, code: 'client' }
-                    ]
-                }
-            };
-            expect(scopesManager.doesResourceHaveAccessTags(resource)).toBeFalsy();
-        });
-
-        test('should return true when access tag is present', () => {
-            const resource = {
-                meta: {
-                    security: [
-                        { system: SecurityTagSystem.access, code: 'client' }
-                    ]
-                }
-            };
-            expect(scopesManager.doesResourceHaveAccessTags(resource)).toBeTruthy();
         });
     });
 
@@ -413,6 +461,55 @@ describe('ScopesManager', () => {
         });
     });
 
+    describe('hasAdminScopeForAction', () => {
+        test('returns false for undefined scope', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: undefined, action: 'write' })).toBe(false);
+        });
+
+        test('returns false when scope has no admin/ entry at all', () => {
+            expect(scopesManager.hasAdminScopeForAction({
+                scope: 'user/Patient.write access/*.write', action: 'write'
+            })).toBe(false);
+        });
+
+        test('a read-only admin scope (admin/*.read) satisfies a read check but not a write check', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.read', action: 'read' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.read', action: 'write' })).toBe(false);
+        });
+
+        test('a read-only, resource-scoped admin scope (admin/Patient.read) behaves the same way', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.read', action: 'read' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.read', action: 'write' })).toBe(false);
+        });
+
+        test('a write-only admin scope (admin/*.write) satisfies a write check but not a read check', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.write', action: 'write' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.write', action: 'read' })).toBe(false);
+        });
+
+        test('a resource-scoped admin write (admin/Patient.write) satisfies write but not read', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.write', action: 'write' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.write', action: 'read' })).toBe(false);
+        });
+
+        test('the admin wildcard action (admin/*.*) satisfies both read and write checks', () => {
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.*', action: 'read' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.*', action: 'write' })).toBe(true);
+        });
+
+        test('returns true when a write admin scope is mixed in with a read-only one', () => {
+            expect(scopesManager.hasAdminScopeForAction({
+                scope: 'admin/Patient.read admin/AuditEvent.write', action: 'write'
+            })).toBe(true);
+        });
+
+        test('does not confuse a non-admin write scope for an admin write scope', () => {
+            expect(scopesManager.hasAdminScopeForAction({
+                scope: 'admin/Patient.read user/Patient.write', action: 'write'
+            })).toBe(false);
+        });
+    });
+
     describe('getPatientScopes', () => {
         test('should return empty array for undefined scope', () => {
             expect(scopesManager.getPatientScopes({ scope: undefined })).toEqual([]);
@@ -432,6 +529,34 @@ describe('ScopesManager', () => {
         test('should extract user scopes', () => {
             expect(scopesManager.getUserScopes({ scope: 'patient/Patient.read user/Observation.read' }))
                 .toEqual(['user/Observation.read']);
+        });
+    });
+
+    describe('getResourceTypeScopes', () => {
+        test.each([
+            ['undefined scope', undefined, []],
+            ['user only', 'user/Patient.read', ['user/Patient.read']],
+            ['system only', 'system/Patient.read', ['system/Patient.read']],
+            [
+                'union, order preserved',
+                'user/Patient.read system/Observation.write',
+                ['user/Patient.read', 'system/Observation.write']
+            ],
+            ['excludes access/', 'system/*.* access/tenanta.*', ['system/*.*']],
+            ['excludes patient/', 'system/*.* patient/Observation.read', ['system/*.*']],
+            ['excludes admin/', 'system/*.* admin/*.*', ['system/*.*']],
+            [
+                'case-sensitive: System/ ignored',
+                'System/Patient.read user/Patient.read',
+                ['user/Patient.read']
+            ],
+            [
+                'no false prefix match on "systemfoo"',
+                'systemfoo user/Patient.read',
+                ['user/Patient.read']
+            ]
+        ])('%s', (_label, scope, expected) => {
+            expect(scopesManager.getResourceTypeScopes({ scope })).toEqual(expected);
         });
     });
 
@@ -490,6 +615,16 @@ describe('ScopesManager', () => {
             });
             expect(result).toBe(false);
         });
+
+        // Tripwire: system/ must never be treated as a patient scope.
+        test('should return false for system/ scope even if resource is patient-accessible', () => {
+            mockPatientFilterManager.canAccessResourceWithPatientScope.mockReturnValue(true);
+            const result = scopesManager.isAccessAllowedByPatientScopes({
+                scope: 'system/*.*',
+                resourceType: 'Patient'
+            });
+            expect(result).toBe(false);
+        });
     });
 
     describe('hasPatientScope', () => {
@@ -505,6 +640,46 @@ describe('ScopesManager', () => {
 
         test('should return false when no patient/ scope is present', () => {
             expect(scopesManager.hasPatientScope({ scope: 'user/Patient.read' })).toBe(false);
+        });
+
+        // Tripwire: system/ must never be treated as a patient scope, keeping it agreement with
+        // authService.js's isUser derivation (both patient/-only, per scopesManager.js's own
+        // documented invariant that the two must never diverge).
+        test('should return false for system/ scope', () => {
+            expect(scopesManager.hasPatientScope({ scope: 'system/*.*' })).toBe(false);
+        });
+    });
+
+    describe('hasHistoryAccess', () => {
+        test('should throw when resourceType is missing', () => {
+            expect(() => {
+                scopesManager.hasHistoryAccess({ scope: 'access/*.*' });
+            }).toThrow();
+        });
+
+        test('should return true for access/*.*', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.*' })).toBe(true);
+        });
+
+        test('should return true for access/*.read', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.read' })).toBe(true);
+        });
+
+        test('should return false for a tenant-scoped access code, even a wildcard write scope', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/tenanta.*' })).toBe(false);
+        });
+
+        test('should return false for access/*.write (not a read grant)', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.write' })).toBe(false);
+        });
+
+        test('should return false when scope is empty', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: '' })).toBe(false);
+        });
+
+        // Tripwire: history access is access/-only. system/*.* must not grant it (SEC-1580 SAE-1).
+        test('should return false for system/*.* (no access/ code present)', () => {
+            expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'system/*.*' })).toBe(false);
         });
     });
 

@@ -83,11 +83,19 @@ class RemoveHelper {
      * @property {string} resourceType
      * @property {string} base_version
      * @property {Resource} resources
+     * @property {boolean} [preserveLastUpdated] - Skip stamping resource.meta.lastUpdated with the
+     *   current time before writing history, keeping whatever the caller already set it to. Default
+     *   (false) is correct for a real, standalone resource deletion, where "now" is genuinely the
+     *   moment of deletion. Set true only when the caller has its own reason the tombstone's
+     *   lastUpdated must match something else already computed elsewhere in the same request --
+     *   e.g. MongoGroupMemberRepository stamps a GroupMember delete tombstone with the owning
+     *   Group's own lastUpdated (four-way parity: Group/Group_History/GroupMember/
+     *   GroupMember_History must all agree), which "now" would silently overwrite otherwise.
      *
      * @param {DeleteManyAsyncOption}
      * @return {Promise<Number>}
      */
-    async deleteManyAsync({ requestInfo, options = {}, resourceType, resources, base_version }) {
+    async deleteManyAsync({ requestInfo, options = {}, resourceType, resources, base_version, preserveLastUpdated = false }) {
         const { requestId } = requestInfo;
         let uuidList = [];
         let query = {};
@@ -109,16 +117,21 @@ class RemoveHelper {
                 uuidList.push(resourceUuid);
 
                 await this.databaseAttachmentManager.transformAttachments(resource, DELETE);
-                resource.meta.lastUpdated = new Date(
-                    moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
-                );
-                // Snapshot which live-bucket objects this resource still references, for cleanup
-                // AFTER the Mongo delete commits (not here — deleting the live object before the
-                // Mongo write commits would orphan it if that write then failed). Captured BEFORE
+                if (!preserveLastUpdated) {
+                    resource.meta.lastUpdated = new Date(
+                        moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+                    );
+                }
+                // Snapshot the live-bucket cleanup boundary per configured leaf, for cleanup AFTER
+                // the Mongo delete commits (not here — deleting the live object before the Mongo
+                // write commits would orphan it if that write then failed). Captured BEFORE
                 // transformAsync below, not after: a leaf that gets newly externalized at delete
                 // time (never externalized, over threshold) gets a brand-new `_blobMeta` with no
-                // corresponding live object, so capturing first correctly excludes it here.
-                const liveRefs = this.base64DataManager.getLiveObjectRefs(resource);
+                // corresponding live object, so capturing first correctly excludes it here. A leaf
+                // with no `_blobMeta` at all still gets a boundary (`resource.meta.lastUpdated`, set
+                // above) so a stray object from an earlier externalized version whose own supersede
+                // cleanup never ran still gets swept.
+                const liveRefs = this.base64DataManager.getLiveObjectRefsOrResourceLastUpdated(resource);
                 // Ensure this version's base64 data (if any) is durably in the history bucket, and
                 // strip it from `resource` to `_blobMeta`-only, BEFORE it's snapshotted into history
                 // below — a no-op for a resource type with no configured base64 paths.

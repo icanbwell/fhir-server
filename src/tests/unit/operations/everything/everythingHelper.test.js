@@ -300,6 +300,43 @@ describe('EverythingHelper', () => {
                 })
             ).rejects.toThrow('No id was passed');
         });
+
+        test('does not call audit logger for a non-streaming request that fails', async () => {
+            const parsedArgs = {
+                get: jest.fn().mockReturnValue(null),
+                _since: null,
+                _explain: false,
+                _debug: false,
+                _includeHidden: false,
+                headers: { prefer: '' },
+                resourceFilterList: null,
+                clone: jest.fn().mockReturnThis(),
+                getRawArgs: jest.fn().mockReturnValue({})
+            };
+            const { assertTypeEquals } = require('../../../../utils/assertType');
+            assertTypeEquals.mockImplementation(() => {});
+
+            const requestInfo = {
+                user: 'u',
+                requestId: 'r',
+                userRequestId: 'ur',
+                host: 'host',
+                protocol: 'https',
+                isUser: false,
+                skipCachedData: jest.fn().mockReturnValue(false)
+            };
+
+            await expect(
+                everythingHelper.retriveEverythingAsync({
+                    requestInfo,
+                    base_version: '4_0_0',
+                    resourceType: 'Patient',
+                    parsedArgs
+                })
+            ).rejects.toThrow('No id was passed');
+
+            expect(mockPostRequestProcessor.add).not.toHaveBeenCalled();
+        });
     });
 
     describe('getPropertiesForEntity - in EverythingHelper', () => {
@@ -376,6 +413,34 @@ describe('EverythingHelper', () => {
             const propertyValue = { _uuid: 'Patient/uuid-1', reference: 'Patient/id-1' };
             const result = everythingHelper.getReferencesFromPropertyValue({ propertyValue });
             expect(result).toEqual(['Patient/uuid-1']);
+        });
+    });
+
+    describe('getNonClinicalIdChunks', () => {
+        beforeEach(() => {
+            mockConfigManager.mongoInQueryIdBatchSize = 2;
+        });
+
+        // A chunk of [''] becomes `id: ''`, which the args parser drops, so the
+        // follow-up find has no id filter and scans the whole collection.
+        test('yields no chunk when every id is empty', () => {
+            const chunks = Array.from(everythingHelper.getNonClinicalIdChunks({ ids: new Set(['']), explain: false }));
+            expect(chunks).toEqual([]);
+        });
+
+        test('yields no chunk for an explain query when every id is empty', () => {
+            const chunks = Array.from(everythingHelper.getNonClinicalIdChunks({ ids: new Set(['', undefined]), explain: true }));
+            expect(chunks).toEqual([]);
+        });
+
+        test('drops empty ids and chunks the rest by mongoInQueryIdBatchSize', () => {
+            const chunks = Array.from(everythingHelper.getNonClinicalIdChunks({ ids: new Set(['a', '', 'b', 'c']), explain: false }));
+            expect(chunks).toEqual([['a', 'b'], ['c']]);
+        });
+
+        test('returns all non-empty ids as one chunk for an explain query', () => {
+            const chunks = Array.from(everythingHelper.getNonClinicalIdChunks({ ids: new Set(['a', '', 'b', 'c']), explain: true }));
+            expect(chunks).toEqual([['a', 'b', 'c']]);
         });
     });
 

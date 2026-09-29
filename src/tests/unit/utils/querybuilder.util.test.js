@@ -58,6 +58,11 @@ describe('querybuilder.util', () => {
             const result = stringQueryBuilder({ target: 'ABC' });
             expect(result.$regex.flags).toContain('i');
         });
+
+        test('unescapes an escaped comma so a literal comma in the value actually matches', () => {
+            const result = stringQueryBuilder({ target: 'Foo\\, Bar' });
+            expect(result.$regex.test('Foo, Bar')).toBe(true);
+        });
     });
 
     // ========== addressQueryBuilder ==========
@@ -166,6 +171,26 @@ describe('querybuilder.util', () => {
             expect(result.coding.$elemMatch.system).toBe('sys');
             expect(result.coding.$elemMatch.value).toBe('val');
         });
+
+        test('unescapes an escaped pipe within the system portion', () => {
+            const result = tokenQueryBuilder({ target: 'http://x\\|y|actual-code', type: 'code', field: 'coding', resourceType: 'Observation' });
+            expect(result.coding.$elemMatch.system).toBe('http://x|y');
+            expect(result.coding.$elemMatch.code).toBe('actual-code');
+        });
+
+        test('unescapes an escaped comma within the value portion (single value, not split)', () => {
+            const result = tokenQueryBuilder({ target: 'sys|a\\,b', type: 'code', field: 'coding', resourceType: 'Observation' });
+            expect(result.coding.$elemMatch.system).toBe('sys');
+            expect(result.coding.$elemMatch.code).toBe('a,b');
+        });
+
+        test('a value-only target whose only pipe is escaped is not mistaken for system|value', () => {
+            // 'a\|b' means the literal value 'a|b' with no system -- must NOT be split into
+            // system='a|b'/value=undefined just because the raw string contains a '|' character.
+            const result = tokenQueryBuilder({ target: 'a\\|b', type: 'code', field: 'coding', resourceType: 'Observation' });
+            expect(result['coding.code']).toBe('a|b');
+            expect(result['coding.system']).toBeUndefined();
+        });
     });
 
     // ========== tokenQueryContainsBuilder ==========
@@ -186,6 +211,23 @@ describe('querybuilder.util', () => {
             expect(result.identifier.$elemMatch.system).toHaveProperty('$regex');
             expect(result.identifier.$elemMatch.value).toHaveProperty('$regex');
         });
+
+        test('unescapes an escaped pipe within the system portion, not splitting on it', () => {
+            const result = tokenQueryContainsBuilder({ target: 'http://x\\|y|actual', type: 'value', field: 'identifier' });
+            expect(result.identifier.$elemMatch.system.$regex).toBe('http://x\\|y');
+            expect(result.identifier.$elemMatch.value.$regex).toBe('actual');
+        });
+
+        test('does not split an escaped comma within the value portion', () => {
+            const result = tokenQueryContainsBuilder({ target: 'a\\,b', type: 'value', field: 'identifier' });
+            expect(result['identifier.value'].$regex).toBe('a,b');
+        });
+
+        test('a value-only target whose only pipe is escaped is not mistaken for system|value', () => {
+            const result = tokenQueryContainsBuilder({ target: 'a\\|b', type: 'value', field: 'identifier' });
+            expect(result['identifier.value'].$regex).toBe('a\\|b');
+            expect(result['identifier.system']).toBeUndefined();
+        });
     });
 
     // ========== tokenIdentifierOfTypeQueryBuilder ==========
@@ -202,6 +244,13 @@ describe('querybuilder.util', () => {
             expect(result.$and[0].identifier.$elemMatch['type.coding.system']).toBe('sys');
             expect(result.$and[0].identifier.$elemMatch['type.coding.code']).toBe('code');
             expect(result.$and[1]['identifier.value']).toBe('val');
+        });
+
+        test('unescapes an escaped pipe within one of the three parts', () => {
+            const result = tokenIdentifierOfTypeQueryBuilder({ target: 'http://x\\|y|SB|123456', field: 'identifier' });
+            expect(result.$and[0].identifier.$elemMatch['type.coding.system']).toBe('http://x|y');
+            expect(result.$and[0].identifier.$elemMatch['type.coding.code']).toBe('SB');
+            expect(result.$and[1]['identifier.value']).toBe('123456');
         });
     });
 
@@ -230,6 +279,16 @@ describe('querybuilder.util', () => {
         test('boolean target is set directly', () => {
             const result = exactMatchQueryBuilder({ target: true, field: 'active' });
             expect(result).toEqual({ active: true });
+        });
+
+        test('does not split an escaped comma, and unescapes it in the single-value result', () => {
+            const result = exactMatchQueryBuilder({ target: 'Foo\\, Bar', field: 'title' });
+            expect(result).toEqual({ title: 'Foo, Bar' });
+        });
+
+        test('unescapes each value of a real comma-separated $in list', () => {
+            const result = exactMatchQueryBuilder({ target: 'a\\,b,c', field: 'title' });
+            expect(result.title).toEqual({ $in: ['a,b', 'c'] });
         });
     });
 
@@ -335,6 +394,12 @@ describe('querybuilder.util', () => {
             const result = quantityQueryBuilder({ target: 'ne100||', field: 'vQ' });
             expect(result['vQ.value']).toHaveProperty('$exists', true);
             expect(result['vQ.value'].$not).toHaveProperty('$gte');
+        });
+
+        test('unescapes an escaped pipe within the system portion', () => {
+            const result = quantityQueryBuilder({ target: '5.4|http://unitsofmeasure\\|org|mg', field: 'vQ' });
+            expect(result['vQ.system']).toBe('http://unitsofmeasure|org');
+            expect(result['vQ.code']).toBe('mg');
         });
     });
 
@@ -565,6 +630,18 @@ describe('querybuilder.util', () => {
         test('required overrides url', () => {
             const result = extensionQueryBuilder({ target: 'http://x|val', type: 'valueString', field: 'extension', required: 'http://override', resourceType: 'Patient' });
             expect(result.extension.$elemMatch.url).toBe('http://override');
+        });
+
+        test('unescapes an escaped pipe within the url portion', () => {
+            const result = extensionQueryBuilder({ target: 'http://x\\|y|val', type: 'valueString', field: 'extension', resourceType: 'Patient' });
+            expect(result.extension.$elemMatch.url).toBe('http://x|y');
+            expect(result.extension.$elemMatch.valueString).toBe('val');
+        });
+
+        test('a value-only target whose only pipe is escaped is not mistaken for url|value', () => {
+            const result = extensionQueryBuilder({ target: 'a\\|b', type: 'valueString', field: 'extension', resourceType: 'Patient' });
+            expect(result['extension.valueString']).toBe('a|b');
+            expect(result['extension.url']).toBeUndefined();
         });
     });
 });

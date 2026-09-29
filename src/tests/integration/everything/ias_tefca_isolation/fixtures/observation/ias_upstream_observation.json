@@ -1,0 +1,12 @@
+{
+  "resourceType": "Observation",
+  "id": "iasUpstreamObservation001",
+  "meta": { "source": "tc_epic", "security": [
+    { "system": "https://www.icanbwell.com/owner", "code": "tc_epic" },
+    { "system": "https://www.icanbwell.com/access", "code": "tc_epic" },
+    { "system": "https://www.icanbwell.com/connectionType", "code": "ias" }
+  ]},
+  "status": "final",
+  "code": { "coding": [ { "system": "http://loinc.org", "code": "1234-5" } ] },
+  "subject": { "reference": "Patient/iasUpstreamPatient001" }
+}

@@ -3,11 +3,36 @@ const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../../constants');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { hasPlainTextContentType } = require('../../utils/contentTypes');
+const { logWarn } = require('../../operations/common/logging');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+
+/**
+ * Resource types for which `_format=text/plain` derived-text delivery (Task 11) is supported.
+ * @type {Set<string>}
+ */
+const PLAIN_TEXT_SUPPORTED_RESOURCE_TYPES = new Set(['DocumentReference', 'DiagnosticReport', 'Binary']);
 
 /**
  * @classdesc Writes response in FHIR
  */
 class FhirResponseWriter {
+    /**
+     * @param {Object} params
+     * @param {import('../../utils/clinicalNoteTextRetriever').ClinicalNoteTextRetriever} params.clinicalNoteTextRetriever
+     * @param {import('../../utils/configManager').ConfigManager} params.configManager
+     */
+    constructor ({ clinicalNoteTextRetriever, configManager }) {
+        /**
+         * @type {import('../../utils/clinicalNoteTextRetriever').ClinicalNoteTextRetriever}
+         */
+        this.clinicalNoteTextRetriever = clinicalNoteTextRetriever;
+        /**
+         * @type {import('../../utils/configManager').ConfigManager}
+         */
+        this.configManager = configManager;
+    }
+
     /**
      * @function getContentType
      * @description Get the correct application type for the response
@@ -115,12 +140,20 @@ class FhirResponseWriter {
 
     /**
      * @function readOne
-     * @description Used when you are returning a single resource of any type
+     * @description Used when you are returning a single resource of any type. When the request
+     * asks for `_format=text/plain` and the resource is one of PLAIN_TEXT_SUPPORTED_RESOURCE_TYPES
+     * (and the fhir-notes full-text-search feature is configured), returns the resource's
+     * reassembled derived text as a plain-text body instead of the resource's normal FHIR JSON.
+     * This is `async` (and must be `await`ed by callers) so that the response is guaranteed to be
+     * fully written before this returns -- see generic.controller.js's searchById/searchByVersionId,
+     * which run cleanup (postRequestProcessor/requestSpecificCache) in a `finally` block
+     * immediately after calling this.
      * @param {import('http').IncomingMessage} req - Express request object
      * @param {import('express').Response} res - Express response object
      * @param {Resource} resource - resource to send to client
+     * @returns {Promise<void>}
      */
-    readOne ({ req, res, resource }) {
+    async readOne ({ req, res, resource }) {
         const fhirVersion = req.params.base_version;
 
         if (resource && resource.meta) {
@@ -134,11 +167,90 @@ class FhirResponseWriter {
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
         }
-        if (resource) {
-            res.status(200).json(resource);
-        } else {
+
+        if (!resource) {
             res.sendStatus(404);
+            return;
         }
+
+        const format = req.sanitized_args && req.sanitized_args._format;
+        if (hasPlainTextContentType(format) &&
+            PLAIN_TEXT_SUPPORTED_RESOURCE_TYPES.has(resource.resourceType) &&
+            this.configManager.fhirNotesFullTextSearchConfigured &&
+            !req.params.version_id) {
+            // The vector store only stores the latest indexed text per chunk_group_id, with no
+            // version component. `GET .../_history/{version_id}?_format=text/plain` is a vread --
+            // a caller authorized against (and asking for) a specific historical version must not
+            // silently receive current-version text if the resource's content/access has changed
+            // since. Fall through to the resource's normal versioned JSON instead.
+            let text = '';
+            try {
+                text = (await this.resolveDerivedTextAsync({ resource })) || '';
+            } catch (e) {
+                logWarn(`Failed to resolve derived text for ${resource.resourceType}/${resource.id}`, { error: e });
+                text = '';
+            }
+            res.status(200).type('text/plain');
+            res.send(text);
+            return;
+        }
+
+        res.status(200).json(resource);
+    }
+
+    /**
+     * Reassembles the derived text for a DocumentReference/DiagnosticReport/Binary resource, via
+     * Task 7's ClinicalNoteTextRetriever. Never mutates `resource`.
+     *
+     * A vector-store hit is a candidate, never authoritative on its own -- this extracts the
+     * `sourceAssigningAuthority` tenant tag from the resource's own, already-authorized
+     * `meta.security` (mirrors the exact extraction pattern in
+     * `src/operations/searchById/searchById.js`'s multiple-resources-same-id handling) and
+     * threads it through to the retriever, which uses it as a real discriminator in its Mongo
+     * query -- not a later filter step -- so a same-resourceType, cross-tenant raw-id collision
+     * can never cross-serve another tenant's derived text (see task-11-report.md's Finding 4/5).
+     * If the resource has no sourceAssigningAuthority tag, this fails closed: no lookup is
+     * attempted at all, rather than guessing or falling back to an unscoped query.
+     * @param {Object} params
+     * @param {Resource} params.resource
+     * @returns {Promise<string>}
+     */
+    async resolveDerivedTextAsync ({ resource }) {
+        const sourceAssigningAuthorities = (resource.meta && resource.meta.security)
+            ? resource.meta.security
+                .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
+                .map(tag => tag.code)
+            : [];
+        const sourceAssigningAuthority = sourceAssigningAuthorities[0];
+        if (!sourceAssigningAuthority) {
+            logWarn(`Refusing derived-text lookup for ${resource.resourceType}/${resource.id}: no sourceAssigningAuthority security tag to scope the lookup by`);
+            return '';
+        }
+
+        if (resource.resourceType === 'Binary') {
+            return (await this.clinicalNoteTextRetriever.getReassembledTextForBinaryAsync({
+                binaryReference: `Binary/${resource.id}`,
+                sourceAssigningAuthority
+            })) || '';
+        }
+        const attachmentArray = resource.resourceType === 'DocumentReference'
+            ? resource.content
+            : resource.presentedForm;
+        if (!Array.isArray(attachmentArray)) {
+            return '';
+        }
+        const texts = [];
+        for (let index = 0; index < attachmentArray.length; index++) {
+            const text = await this.clinicalNoteTextRetriever.getReassembledTextAsync({
+                chunkGroupId: `${resource.id}-${index}`,
+                resourceType: resource.resourceType,
+                sourceAssigningAuthority
+            });
+            if (text) {
+                texts.push(text);
+            }
+        }
+        return texts.join('\n\n');
     }
 
     /**

@@ -1,0 +1,28 @@
+{
+    "mappings": {
+        "dynamic": false,
+        "fields": {
+            "_uuid": { "type": "token" },
+            "birthDate": { "type": "token" },
+            "gender": { "type": "token" },
+            "identifier": {
+                "fields": { "value": { "type": "token" } },
+                "type": "document"
+            },
+            "name": {
+                "fields": {
+                    "family": [{ "type": "autocomplete" }, { "type": "string" }],
+                    "given": [{ "type": "autocomplete" }, { "type": "string" }]
+                },
+                "type": "document"
+            },
+            "telecom": {
+                "fields": {
+                    "system": { "type": "token" },
+                    "value": [{ "type": "string" }]
+                },
+                "type": "document"
+            }
+        }
+    }
+}

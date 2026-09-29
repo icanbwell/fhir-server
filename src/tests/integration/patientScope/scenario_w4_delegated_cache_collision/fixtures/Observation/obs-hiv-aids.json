@@ -1,0 +1,18 @@
+{
+    "resourceType": "Observation",
+    "id": "obs-hiv-aids",
+    "meta": {
+        "source": "/patients",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/access", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/sensitivity-category", "code": "HIV_AIDS" }
+        ]
+    },
+    "status": "final",
+    "code": {
+        "coding": [{ "system": "http://loinc.org", "code": "44872-1", "display": "HIV test" }]
+    },
+    "subject": { "reference": "Patient/patient1" },
+    "valueString": "Positive"
+}

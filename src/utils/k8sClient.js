@@ -32,6 +32,13 @@ class K8sClient {
             this.kc.loadFromCluster();
 
             /**
+             * Namespace used for reading the current pod and creating jobs.
+             */
+            this.namespace = this.configManager.useEnvironmentValueForK8sNamespace
+                ? `fhir-server-${this.configManager.environmentValue}`
+                : this.kc.getContextObject(this.kc.getCurrentContext())?.namespace;
+
+            /**
              * Create an API client for batch (jobs) operations
              */
             this.k8sBatchV1Api = this.kc.makeApiClient(k8s.BatchV1Api);
@@ -54,7 +61,7 @@ class K8sClient {
      */
     async createJobBody({ scriptCommand, context }) {
         try {
-            const currentNamespace = `fhir-server-${this.configManager.environmentValue}`;
+            const currentNamespace = this.namespace;
 
             // Get the current Pod details
             const readNamespacedPodParam = {
@@ -154,7 +161,7 @@ class K8sClient {
      */
     async createJob({ scriptCommand, context }) {
         try {
-            const namespace = `fhir-server-${this.configManager.environmentValue}`;
+            const namespace = this.namespace;
             const body = await this.createJobBody({ scriptCommand, context });
             const param = {
                 namespace,

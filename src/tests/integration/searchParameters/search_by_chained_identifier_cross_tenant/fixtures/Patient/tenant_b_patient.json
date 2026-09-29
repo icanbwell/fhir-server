@@ -1,0 +1,17 @@
+{
+    "resourceType": "Patient",
+    "id": "chainCrossTenantBPatient001",
+    "meta": {
+        "source": "tenantB",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "tenantB" },
+            { "system": "https://www.icanbwell.com/access", "code": "tenantB" }
+        ]
+    },
+    "identifier": [
+        { "system": "http://example.com/fhir/identifier/mrn", "value": "SHARED-777" }
+    ],
+    "name": [
+        { "use": "official", "family": "TenantB", "given": ["Patient"] }
+    ]
+}

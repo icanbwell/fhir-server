@@ -42,7 +42,7 @@ module.exports = {
         MAX_PAGE_SIZE: 10000,
         MAX_BATCH_SIZE: 50000,
         // Maximum number of JSON Patch operations per PATCH request for Group.member
-        // Based on empirical testing (see src/tests/performance/patch_operations_limit.test.js)
+        // Based on empirical testing (see src/tests/integration/performance/patch_operations_limit.test.js)
         // Kubernetes uses 10K as precedent. Adjust based on actual performance measurements.
         MAX_PATCH_OPERATIONS: 10000
     },

@@ -26,6 +26,7 @@ jest.mock('../../../operations/common/logging', () => {
 const { AuthService } = require('../../../strategies/authService');
 const { ConfigManager } = require('../../../utils/configManager');
 const { WellKnownConfigurationManager } = require('../../../utils/wellKnownConfiguration/wellKnownConfigurationManager');
+const { DelegatedAccessRulesManager } = require('../../../utils/delegatedAccessRulesManager');
 const { logError, logWarn, logInfo } = require('../../../operations/common/logging');
 const superagent = require('superagent');
 
@@ -38,6 +39,7 @@ describe('AuthService', () => {
     let authService;
     let mockConfigManager;
     let mockWellKnownConfigManager;
+    let mockDelegatedAccessRulesManager;
 
     beforeEach(() => {
         // Clear static caches
@@ -56,15 +58,25 @@ describe('AuthService', () => {
         Object.defineProperty(mockConfigManager, 'authRemoveScopePrefixes', { get: () => [], configurable: true });
         Object.defineProperty(mockConfigManager, 'authCidCheckIssuer', { get: () => '', configurable: true });
         Object.defineProperty(mockConfigManager, 'authCidCheckClientIds', { get: () => [], configurable: true });
+        Object.defineProperty(mockConfigManager, 'authAudienceWhitelist', { get: () => [], configurable: true });
+        Object.defineProperty(mockConfigManager, 'authAudienceBlacklist', { get: () => [], configurable: true });
         Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => false, configurable: true });
 
         mockWellKnownConfigManager = createMockInstance(WellKnownConfigurationManager);
         mockWellKnownConfigManager.getJwksUrlsAsync = jest.fn().mockResolvedValue([]);
         mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest.fn().mockResolvedValue(null);
 
+        // Default: pass entitlements through unchanged, matching legacy bare-code behavior.
+        // Tests below override this to exercise Consent-reference resolution.
+        mockDelegatedAccessRulesManager = createMockInstance(DelegatedAccessRulesManager);
+        mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync = jest.fn().mockImplementation(
+            ({ entitlements }) => Promise.resolve(entitlements ?? null)
+        );
+
         authService = new AuthService({
             configManager: mockConfigManager,
-            wellKnownConfigurationManager: mockWellKnownConfigManager
+            wellKnownConfigurationManager: mockWellKnownConfigManager,
+            delegatedAccessRulesManager: mockDelegatedAccessRulesManager
         });
     });
 
@@ -79,7 +91,8 @@ describe('AuthService', () => {
             AuthService.userInfoCache = undefined;
             const svc = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             expect(svc.requestTimeout).toBe(30000);
         });
@@ -96,7 +109,8 @@ describe('AuthService', () => {
         test('initializes caches only once (static)', () => {
             const authService2 = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             expect(AuthService.jwksCache).toBeDefined();
             expect(AuthService.userInfoCache).toBeDefined();
@@ -109,10 +123,35 @@ describe('AuthService', () => {
             AuthService.userInfoCache = undefined;
             const svc = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             expect(svc.cidCheckIssuer).toBe('http://myissuer.com');
             expect(svc.cidCheckClientIds).toEqual(['cid-1', 'cid-2']);
+        });
+
+        test('sets audienceWhitelist from config', () => {
+            Object.defineProperty(mockConfigManager, 'authAudienceWhitelist', { get: () => ['aud-1', 'aud-2'], configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            const svc = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+            expect(svc.audienceWhitelist).toEqual(['aud-1', 'aud-2']);
+        });
+
+        test('sets audienceBlacklist from config', () => {
+            Object.defineProperty(mockConfigManager, 'authAudienceBlacklist', { get: () => ['aud-1', 'aud-2'], configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            const svc = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+            expect(svc.audienceBlacklist).toEqual(['aud-1', 'aud-2']);
         });
     });
 
@@ -137,10 +176,19 @@ describe('AuthService', () => {
             expect(AuthService.jwksCache.has('http://example.com/jwks2')).toBe(false);
         });
 
-        test('returns empty keys array on fetch error', async () => {
+        test('throws a transient error on fetch error instead of returning empty keys (INC-322)', async () => {
             superagent.timeout.mockRejectedValueOnce(new Error('Network error'));
-            const result = await authService.getJwksByUrlAsync('http://error-url.com/jwks');
-            expect(result).toEqual({ keys: [] });
+            // A fetch failure must not be swallowed into {keys: []}: that's
+            // indistinguishable downstream from "this endpoint legitimately has no
+            // keys" (permanent) vs. "we couldn't reach it" (transient). It should
+            // propagate as a transient/503-marked error instead.
+            await expect(
+                authService.getJwksByUrlAsync('http://error-url.com/jwks')
+            ).rejects.toMatchObject({
+                message: 'Network error',
+                isTransient: true,
+                statusCode: 503
+            });
             expect(logError).toHaveBeenCalledWith(
                 expect.stringContaining('Error fetching JWKS'),
                 expect.any(Object)
@@ -160,7 +208,8 @@ describe('AuthService', () => {
             });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = await authService.getExternalJwksAsync();
             expect(result).toEqual([{ kid: 'key1' }]);
@@ -173,7 +222,8 @@ describe('AuthService', () => {
 
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = await authService.getExternalJwksAsync();
             expect(mockWellKnownConfigManager.getJwksUrlsAsync).toHaveBeenCalled();
@@ -187,7 +237,8 @@ describe('AuthService', () => {
 
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = await authService.getExternalJwksAsync();
             expect(result).toEqual([]);
@@ -199,14 +250,15 @@ describe('AuthService', () => {
             });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = await authService.getExternalJwksAsync();
             // Both return {keys: [{kid: 'key1'}]} so we get two keys flattened
             expect(result).toEqual([{ kid: 'key1' }, { kid: 'key1' }]);
         });
 
-        test('returns empty array on error during fetch', async () => {
+        test('propagates a transient error on error during fetch instead of returning empty array (INC-322)', async () => {
             Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', {
                 get: () => ['http://error.com/jwks'], configurable: true
             });
@@ -214,11 +266,97 @@ describe('AuthService', () => {
             superagent.timeout.mockRejectedValueOnce(new Error('network error'));
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
-            // The getJwksByUrlAsync will return {keys: []} on error so flat still works
+            // getJwksByUrlAsync now rejects on infra failure rather than swallowing to
+            // {keys: []}, so getExternalJwksAsync must propagate that failure too,
+            // rather than silently reporting "no external keys" (which would look like
+            // a permanent condition to callers).
+            await expect(
+                authService.getExternalJwksAsync()
+            ).rejects.toMatchObject({
+                message: 'network error',
+                isTransient: true,
+                statusCode: 503
+            });
+        });
+
+        test('partial JWKS provider failure still returns keys from healthy providers (INC-322)', async () => {
+            // Two providers configured; one is down, one is healthy. async.map's
+            // fail-fast behavior used to make the whole call reject even though a
+            // healthy provider's keys were available -- Promise.allSettled must
+            // instead aggregate the successful result and only log the failure.
+            Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', {
+                get: () => ['http://down-provider.com/jwks', 'http://healthy-provider.com/jwks'],
+                configurable: true
+            });
+            superagent.timeout.mockRejectedValueOnce(new Error('ECONNREFUSED'));
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
             const result = await authService.getExternalJwksAsync();
-            expect(result).toEqual([]);
+            expect(result).toEqual([{ kid: 'key1' }]);
+            expect(logError).toHaveBeenCalledWith(
+                expect.stringContaining('Failed to fetch keys from 1 of 2 external jwk url(s)'),
+                expect.any(Object)
+            );
+        });
+
+        test('throws a transient error when every configured JWKS provider fails (INC-322)', async () => {
+            Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', {
+                get: () => ['http://down-provider-1.com/jwks', 'http://down-provider-2.com/jwks'],
+                configurable: true
+            });
+            // mockRejectedValueOnce (not the persistent mockRejectedValue) so this doesn't
+            // leak into later tests in this file that rely on the default resolved mock --
+            // one rejection queued per configured URL, matching the two calls this test makes.
+            superagent.timeout
+                .mockRejectedValueOnce(new Error('ECONNREFUSED'))
+                .mockRejectedValueOnce(new Error('ECONNREFUSED'));
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+            // Only when EVERY configured provider fails (zero usable keys) should this
+            // surface a transient/503 error.
+            await expect(
+                authService.getExternalJwksAsync()
+            ).rejects.toMatchObject({ isTransient: true, statusCode: 503 });
+        });
+
+        test('propagates a transient error when every well-known URL fails to resolve JWKS URLs (INC-322)', async () => {
+            // Before this fix, WellKnownConfigurationManager#getJwksUrlsAsync swallowed
+            // per-URL failures into [] with no transient/503 marker, so a total
+            // well-known outage looked exactly like "no well-known URLs configured" --
+            // extJwksUrls.length === 0, and getExternalJwksAsync silently fell through
+            // to its unguarded `return []`, reintroducing the exact bug INC-322 was
+            // about via the well-known fallback path. Now getJwksUrlsAsync rethrows on
+            // total failure, and getExternalJwksAsync must let that propagate rather
+            // than swallow it.
+            Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', { get: () => [], configurable: true });
+            Object.defineProperty(mockConfigManager, 'externalAuthWellKnownUrls', {
+                get: () => ['http://well-known.com'], configurable: true
+            });
+            const wellKnownOutageError = new Error(
+                'Failed to resolve any JWKS URL from 1 configured well-known endpoint(s): ECONNREFUSED'
+            );
+            wellKnownOutageError.isTransient = true;
+            wellKnownOutageError.statusCode = 503;
+            mockWellKnownConfigManager.getJwksUrlsAsync = jest.fn().mockRejectedValue(wellKnownOutageError);
+
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+
+            await expect(
+                authService.getExternalJwksAsync()
+            ).rejects.toMatchObject({ isTransient: true, statusCode: 503 });
         });
 
         test('trims whitespace from external URLs', async () => {
@@ -227,7 +365,8 @@ describe('AuthService', () => {
             });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = await authService.getExternalJwksAsync();
             expect(result).toEqual([{ kid: 'key1' }]);
@@ -295,7 +434,8 @@ describe('AuthService', () => {
             Object.defineProperty(mockConfigManager, 'authCustomScope', { get: () => ['scp'], configurable: true });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ scp: 'user/*.read patient/Patient.read' });
             expect(result.scope).toContain('user/*.read');
@@ -306,7 +446,8 @@ describe('AuthService', () => {
             Object.defineProperty(mockConfigManager, 'authCustomUserName', { get: () => ['preferred_username'], configurable: true });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ scope: 'user/*.read', preferred_username: 'custom-user' });
             expect(result.username).toBe('custom-user');
@@ -316,7 +457,8 @@ describe('AuthService', () => {
             Object.defineProperty(mockConfigManager, 'authCustomSubject', { get: () => ['sub'], configurable: true });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ scope: 'user/*.read', sub: 'my-sub' });
             expect(result.subject).toBe('my-sub');
@@ -326,7 +468,8 @@ describe('AuthService', () => {
             Object.defineProperty(mockConfigManager, 'authCustomClientId', { get: () => ['cid'], configurable: true });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ scope: 'user/*.read', cid: 'custom-cid' });
             expect(result.clientId).toBe('custom-cid');
@@ -336,7 +479,8 @@ describe('AuthService', () => {
             Object.defineProperty(mockConfigManager, 'authCustomGroup', { get: () => ['groups'], configurable: true });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({
                 scope: 'user/*.read',
@@ -350,7 +494,8 @@ describe('AuthService', () => {
             Object.defineProperty(mockConfigManager, 'authCustomGroup', { get: () => ['groups'], configurable: true });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ groups: 'patient/Patient.read' });
             expect(result.scope).toBe('patient/Patient.read');
@@ -363,7 +508,8 @@ describe('AuthService', () => {
             });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({
                 scope: 'myapp:user/*.read myapp:patient/Patient.read'
@@ -378,7 +524,8 @@ describe('AuthService', () => {
             });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ scope: 'user/*.read' });
             expect(result.scope).toBe('user/*.read');
@@ -396,10 +543,16 @@ describe('AuthService', () => {
             });
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
             const result = authService.getFieldsFromToken({ scope: 'short:user/*.read' });
             expect(result.scope).toBe('user/*.read');
+        });
+
+        test('isUser is true for system/ scope, tripwire', () => {
+            const result = authService.getFieldsFromToken({ scope: 'system/*.* access/tenanta.*' });
+            expect(result.isUser).toBe(false);
         });
     });
 
@@ -604,7 +757,8 @@ describe('AuthService', () => {
             AuthService.userInfoCache = undefined;
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
 
             const done = jest.fn();
@@ -638,13 +792,179 @@ describe('AuthService', () => {
             );
         });
 
+        test('resolves a Consent/<id> entitlement to the Consent purpose codes', async () => {
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync.mockResolvedValue(['TREAT']);
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+
+            const done = jest.fn();
+            await authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    entitlements: ['Consent/consent-uuid-123']
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            });
+
+            expect(mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync).toHaveBeenCalledWith({
+                entitlements: ['Consent/consent-uuid-123']
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.any(Object),
+                expect.objectContaining({
+                    context: expect.objectContaining({
+                        purposeOfUse: ['TREAT'],
+                        actor: expect.objectContaining({
+                            consentPolicy: 'Consent/consent-uuid-123'
+                        })
+                    })
+                })
+            );
+        });
+
+        test('rejects auth (401-style) when a Consent/<id> entitlement cannot be resolved', async () => {
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            // null signals "could not resolve" -- distinct from [] ("resolved to no codes").
+            mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync.mockResolvedValue(null);
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+
+            const done = jest.fn();
+            await authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    entitlements: ['Consent/does-not-exist']
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            });
+
+            expect(done).toHaveBeenCalledWith(null, false, { reason: 'delegated_actor_consent_not_found' });
+        });
+
+        test('propagates (does not swallow into done()) when Consent resolution rejects with a transient error', async () => {
+            // A transient DB/lookup failure must reject processUserInfo's own promise rather
+            // than being treated as "consent not found" -- verify()'s existing .catch() chain
+            // (INC-322 convention) is what turns this into a 503, not a 401 via done(null,
+            // false, ...). If this resolved instead of rejecting, that chain would never fire.
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            const transientError = new Error('mongo timeout');
+            transientError.isTransient = true;
+            transientError.statusCode = 503;
+            mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync.mockRejectedValue(transientError);
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+
+            const done = jest.fn();
+            await expect(authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    entitlements: ['Consent/consent-uuid-123']
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            })).rejects.toMatchObject({ isTransient: true, statusCode: 503 });
+
+            expect(done).not.toHaveBeenCalled();
+        });
+
+        test('does not touch delegatedAccessRulesManager for a bare v3-ActReason entitlement, and stays synchronous', () => {
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+
+            const done = jest.fn();
+            // Deliberately not awaited: a bare-code entitlement must still call done() in the
+            // same tick, without ever touching delegatedAccessRulesManager. This is what lets
+            // every other synchronous test in this file keep passing unmodified now that
+            // processUserInfo is declared `async` -- the await introduced here must
+            // only ever be reached on the Consent-reference branch above.
+            authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    entitlements: ['FAMRQT']
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            });
+
+            expect(mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync).not.toHaveBeenCalled();
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.any(Object),
+                expect.objectContaining({
+                    context: expect.objectContaining({ purposeOfUse: ['FAMRQT'] })
+                })
+            );
+        });
+
         test('rejects when delegated actor processing fails', () => {
             Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
             AuthService.jwksCache = undefined;
             AuthService.userInfoCache = undefined;
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
 
             const done = jest.fn();
@@ -696,6 +1016,86 @@ describe('AuthService', () => {
                         purposeOfUse: ['ent-1', 'ent-2']
                     })
                 })
+            );
+        });
+
+        test('cms-partner user_type takes precedence over a delegated act claim, and logs it', () => {
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+
+            const done = jest.fn();
+            authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    user_type: 'cms-partner',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' }
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.any(Object),
+                expect.objectContaining({
+                    context: expect.objectContaining({
+                        userType: 'cms-partner',
+                        actor: {}
+                    })
+                })
+            );
+            expect(logInfo).toHaveBeenCalledWith(
+                'cms-partner token also carries an act claim; act claim is not used',
+                expect.objectContaining({ reason: 'cms_partner_token_with_act_claim', userType: 'cms-partner' })
+            );
+        });
+
+        test('logs a cms-partner token carrying an act claim even when delegated access detection is disabled', () => {
+            // enableDelegatedAccessDetection defaults to false via the outer beforeEach
+            const done = jest.fn();
+            authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    user_type: 'cms-partner',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' }
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.any(Object),
+                expect.objectContaining({
+                    context: expect.objectContaining({
+                        userType: 'cms-partner',
+                        actor: {}
+                    })
+                })
+            );
+            expect(logInfo).toHaveBeenCalledWith(
+                'cms-partner token also carries an act claim; act claim is not used',
+                expect.objectContaining({ reason: 'cms_partner_token_with_act_claim', userType: 'cms-partner' })
             );
         });
 
@@ -783,7 +1183,8 @@ describe('AuthService', () => {
             AuthService.userInfoCache = undefined;
             authService = new AuthService({
                 configManager: mockConfigManager,
-                wellKnownConfigurationManager: mockWellKnownConfigManager
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
             });
 
             const done = jest.fn();
@@ -897,6 +1298,135 @@ describe('AuthService', () => {
             expect(request.jwtPayload).toEqual({ scope: 'user/*.read', client_id: 'c1' });
         });
 
+        test('rejects when audience is not in whitelist', () => {
+            authService.audienceWhitelist = ['allowed-aud'];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { aud: 'other-aud', scope: 'user/*.read' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(null, false, { reason: 'audience_not_allowed' });
+        });
+
+        test('passes audience check when aud matches whitelist', () => {
+            authService.audienceWhitelist = ['allowed-aud'];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { aud: 'allowed-aud', scope: 'user/*.read', client_id: 'c1' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.objectContaining({ id: 'c1' }),
+                expect.any(Object)
+            );
+        });
+
+        test('passes audience check when aud is an array containing an allowed value', () => {
+            authService.audienceWhitelist = ['allowed-aud'];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { aud: ['other-aud', 'allowed-aud'], scope: 'user/*.read', client_id: 'c1' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.objectContaining({ id: 'c1' }),
+                expect.any(Object)
+            );
+        });
+
+        test('skips audience check when audienceWhitelist is empty', () => {
+            authService.audienceWhitelist = [];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { scope: 'user/*.read', client_id: 'c1' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.objectContaining({ id: 'c1' }),
+                expect.any(Object)
+            );
+        });
+
+        test('rejects when audience is in blacklist', () => {
+            authService.audienceBlacklist = ['denied-aud'];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { aud: 'denied-aud', scope: 'user/*.read' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(null, false, { reason: 'audience_denied' });
+        });
+
+        test('rejects when aud is an array containing a denied value', () => {
+            authService.audienceBlacklist = ['denied-aud'];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { aud: ['other-aud', 'denied-aud'], scope: 'user/*.read' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(null, false, { reason: 'audience_denied' });
+        });
+
+        test('passes audience check when aud does not match blacklist', () => {
+            authService.audienceBlacklist = ['denied-aud'];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { aud: 'other-aud', scope: 'user/*.read', client_id: 'c1' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.objectContaining({ id: 'c1' }),
+                expect.any(Object)
+            );
+        });
+
+        test('skips audience check when audienceBlacklist is empty', () => {
+            authService.audienceBlacklist = [];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { scope: 'user/*.read', client_id: 'c1' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.objectContaining({ id: 'c1' }),
+                expect.any(Object)
+            );
+        });
+
+        test('checks blacklist before whitelist and rejects even when aud would pass whitelist', () => {
+            authService.audienceBlacklist = ['shared-aud'];
+            authService.audienceWhitelist = ['shared-aud'];
+            const done = jest.fn();
+            authService.verify({
+                request: {},
+                jwt_payload: { aud: 'shared-aud', scope: 'user/*.read' },
+                token: 'tok',
+                done
+            });
+            expect(done).toHaveBeenCalledWith(null, false, { reason: 'audience_denied' });
+        });
+
         test('rejects when cid check fails', () => {
             authService.cidCheckIssuer = 'http://issuer';
             authService.cidCheckClientIds = ['allowed-cid'];
@@ -1004,7 +1534,7 @@ describe('AuthService', () => {
             expect(done).toHaveBeenCalled();
         });
 
-        test('handles error from getUserInfoFromUserInfoEndpoint gracefully', async () => {
+        test('passes a transient error to done() when getUserInfoFromUserInfoEndpoint fails (INC-322)', async () => {
             mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest.fn()
                 .mockRejectedValue(new Error('Network failed'));
 
@@ -1018,7 +1548,15 @@ describe('AuthService', () => {
 
             // Wait for async processing
             await new Promise(resolve => setTimeout(resolve, 50));
-            expect(done).toHaveBeenCalledWith(null, false, { reason: 'userinfo_endpoint_error' });
+            // A userinfo-endpoint infra failure is not proof the token is invalid, so it
+            // must be passed as passport's actual-error signature (done(err), not
+            // done(null, false, info)) with a transient/503 marker -- not treated as a
+            // hard auth failure that would map to a 401.
+            expect(done).toHaveBeenCalledTimes(1);
+            const [err, user, info] = done.mock.calls[0];
+            expect(err).toMatchObject({ message: 'Network failed', isTransient: true, statusCode: 503 });
+            expect(user).toBeUndefined();
+            expect(info).toBeUndefined();
         });
     });
 

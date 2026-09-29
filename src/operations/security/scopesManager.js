@@ -3,6 +3,8 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
+const { RESOURCE_TYPE_SCOPE_NAMESPACES } = require('../../constants');
+const { parseScopeToken, getRequiredCrudsForAccessRequested, isCrudsRequirementSatisfied } = require('./smartScopeParser');
 
 class ScopesManager {
     /**
@@ -41,7 +43,7 @@ class ScopesManager {
 
     /**
      * Returns all the access codes present in scopes
-     * @param {string} action
+     * @param {string} action legacy 'read'/'write' or a single v2 CRUDS letter ('c'/'r'/'u'/'d'/'s')
      * @param {string} user
      * @param {string|null} scope
      * @return {string[]} security tags allowed by scopes
@@ -57,20 +59,17 @@ class ScopesManager {
          * @type {string[]}
          */
         const access_codes = [];
-        /**
-         * @type {string}
-         */
+        const requiredCruds = getRequiredCrudsForAccessRequested(action);
         for (const scope1 of scopes) {
-            if (scope1.startsWith('access/')) {
-                // ex: access/client.*
-                /**
-                 * @type {string}
-                 */
-                const inner_scope = scope1.replace('access/', '');
-                const [securityTag, accessType] = inner_scope.split('.');
-                if (accessType === '*' || accessType === action) {
-                    access_codes.push(securityTag);
-                }
+            if (!scope1.startsWith('access/')) {
+                continue;
+            }
+            // ex: access/client.* -- parseScopeToken's generic {prefix, resourceType, cruds}
+            // shape names the segment before the suffix `resourceType`, but for access/ scopes
+            // it is actually the security tag/tenant code, not a FHIR resource type.
+            const parsed = parseScopeToken(scope1, this.configManager.enableSmartV2CrudsScopes);
+            if (parsed && isCrudsRequirementSatisfied(parsed.cruds, requiredCruds)) {
+                access_codes.push(parsed.resourceType);
             }
         }
         return access_codes;
@@ -155,6 +154,14 @@ class ScopesManager {
      * @property {string} resourceType
      * @property {string} user
      * @property {string} scope
+     * @property {boolean} [isCreate] true when there is no existing stored resource (oldAccessCodes
+     *   reflects "doesn't exist yet", not "exists with no tags"). Patient-scoped callers hold no
+     *   access/ scope to compare against by design, so on a create there is no pre-existing tenant's
+     *   visibility to silently grant/revoke - the initial tags are only as trustworthy as the write
+     *   itself, which patientScopeManager.canWriteResourceAsync independently gates on identity-graph
+     *   ownership. That reasoning does NOT extend to a write against an EXISTING resource: changing
+     *   its tags there always either grants or revokes some tenant's visibility of data that already
+     *   existed, so it must still go through the change-comparison below like any other caller.
      * @property {boolean} [ignoreRemovals] set when the calling write path can only ever append access
      *   tags (e.g. a smart-merge, which appends to arrays rather than replacing them), so a code missing
      *   from newAccessCodes reflects it not being repeated in the incoming body rather than an intentional
@@ -169,11 +176,14 @@ class ScopesManager {
         resourceType,
         user,
         scope,
+        isCreate = false,
         ignoreRemovals = false
     }) {
         // a patient scoped caller is authorized via the patient/person the resource belongs to, not via
-        // access codes - it holds no access scopes to compare against, so defer to the patient scope checks
-        if (this.isAccessAllowedByPatientScopes({ scope, resourceType })) {
+        // access codes - it holds no access scopes to compare against, so defer to the patient scope
+        // checks. Only safe on a create (see isCreate doc above) - an existing resource's tags must
+        // still go through the change-comparison below.
+        if (isCreate && this.isAccessAllowedByPatientScopes({ scope, resourceType })) {
             return true;
         }
         /**
@@ -242,7 +252,14 @@ class ScopesManager {
             scope, resourceType: resource.resourceType
         });
         if (accessViaPatientScopes) {
-            return true; // TODO: should double check here that the resources belong to this patient
+            // Patient scope tokens in this system never carry an access/ scope of their
+            // own (that's the separate tenant/service-account mechanism), so requiring a
+            // tenant-tag match here would deny every legitimate patient-scoped write. The
+            // "does this resource actually belong to this patient" check the old TODO asked
+            // for is already enforced independently by patientScopeManager.canWriteResourceAsync
+            // (Person/Patient-id matching), which every write path ANDs with this check via
+            // scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes.
+            return true;
         }
         // add any access codes from scopes
         /**
@@ -276,20 +293,6 @@ class ScopesManager {
             throw new ForbiddenError(errorMessage);
         }
         return this.doesResourceHaveAnyAccessCodeInAccessTag(accessCodes, resource);
-    }
-
-    /**
-     * Returns whether the resource has an access tag
-     * @param {Resource} resource
-     * @return {boolean}
-     */
-    doesResourceHaveAccessTags (resource) {
-        return (
-            resource &&
-            resource.meta &&
-            resource.meta.security &&
-            resource.meta.security.some(s => s.system === SecurityTagSystem.access)
-        );
     }
 
     /**
@@ -376,6 +379,22 @@ class ScopesManager {
     }
 
     /**
+     * Returns whether scope contains an admin/ scope whose action segment is the given action or
+     * the wildcard '*'. getAdminScopes() alone (used to gate admin routes generally) never looks
+     * at the action segment, so an admin/*.read-only caller passes that check identically to one
+     * holding admin/*.write.
+     * @param {string|undefined} scope
+     * @param {'read'|'write'} action
+     * @return {boolean}
+     */
+    hasAdminScopeForAction ({ scope, action }) {
+        return this.getAdminScopes({ scope }).some((adminScope) => {
+            const scopeAction = adminScope.split('.')[1];
+            return scopeAction === '*' || scopeAction === action;
+        });
+    }
+
+    /**
      * Gets patient scopes from the passed in scope string
      * @param {string|undefined} scope
      * @returns {string[]}
@@ -392,7 +411,12 @@ class ScopesManager {
     }
 
     /**
-     * Gets user scopes from the passed in scope string
+     * Gets user scopes from the passed in scope string.
+     *
+     * NOTE: this remains the documented §3 parser for the `user/` namespace (see
+     * docs/resource-authorization.md §3) even though ScopesValidator now calls
+     * getResourceTypeScopes() instead, which additionally honors `system/` scopes. Keep this
+     * method - it has its own doc-anchored regression test.
      * @param {string|undefined} scope
      * @returns {string[]}
      */
@@ -405,6 +429,35 @@ class ScopesManager {
          */
         const scopes = scope.split(' ');
         return scopes.filter(s => s.startsWith('user/'));
+    }
+
+    /**
+     * Returns the scopes belonging to any of the given namespace prefixes.
+     *
+     * Matching is deliberately case-SENSITIVE, unlike hasPatientScope/isUser. Those two only ask
+     * "is a patient scope present at all"; these strings go straight to
+     * @asymmetrik/sof-scope-checker, which compares by exact string. Case-folding here would
+     * produce candidates that can never match while widening what we claim to have parsed.
+     * @param {string|undefined} scope
+     * @param {string[]} namespaces e.g. ['user/', 'system/']
+     * @returns {string[]}
+     */
+    getScopesForNamespaces ({ scope, namespaces }) {
+        return this.parseScopes(scope).filter(s => namespaces.some(ns => s.startsWith(ns)));
+    }
+
+    /**
+     * The scopes the resource-type/action gate evaluates for a non-patient-scoped caller:
+     * `user/` and SMART on FHIR v2 `system/`.
+     *
+     * This does NOT relax any tenant check. A caller authorized here still has to clear
+     * getAccessCodesFromScopes() (>= 1 access/<tag> code) in ScopesValidator, and still has to
+     * clear getSecurityTagsFromScope() before any Mongo query is built.
+     * @param {string|undefined} scope
+     * @returns {string[]}
+     */
+    getResourceTypeScopes ({ scope }) {
+        return this.getScopesForNamespaces({ scope, namespaces: RESOURCE_TYPE_SCOPE_NAMESPACES });
     }
 
     /**
@@ -432,25 +485,56 @@ class ScopesManager {
         if (!this.patientFilterManager.canAccessResourceWithPatientScope({ resourceType })) {
             return false;
         }
+        // Same case-insensitive prefix match as hasPatientScope/authService.js's isUser -- see the
+        // comment on hasPatientScope below for why these must always agree.
         const scopes = this.parseScopes(scope);
-        if (scopes.some(s => s.includes('patient/'))) {
-            return true;
-        }
-        return false;
+        return scopes.some(s => s.toLowerCase().startsWith('patient/'));
     }
 
     /**
      * returns whether the scope has a patient scope
+     *
+     * Uses the same case-insensitive prefix match as authService.js's isUser derivation
+     * (scopes.some(s => s.toLowerCase().startsWith('patient/'))), rather than a case-sensitive
+     * substring check -- the two must agree on what counts as "patient-scoped", since isUser (and
+     * the personIdFromJwtToken claim it gates) and hasPatientScope (used to decide whether
+     * personToPatientIdsExpander applies the patient-scope self-only restriction) need to reach
+     * the same answer for the same scope string. A mismatch here would mean isUser is true (with
+     * personIdFromJwtToken correctly set) while hasPatientScope is false for the same request,
+     * silently skipping the restriction instead of applying it.
      * @param {string} scope
      * @return {boolean}
      */
     hasPatientScope ({ scope }) {
         assertIsValid(scope);
         const scopes = this.parseScopes(scope);
-        if (scopes.some(s => s.includes('patient/'))) {
-            return true;
-        }
-        return false;
+        return scopes.some(s => s.toLowerCase().startsWith('patient/'));
+    }
+
+    /**
+     * Whether the given scope may read a resource's history (_history,
+     * _history/{id}, or a specific _history/{vid}).
+     *
+     * A historical version keeps the access tags it had at write time, so a
+     * tenant-scoped access code can still match a stale, no-longer-current
+     * tag on an old version after the current version's tags have been
+     * narrowed away from that tenant (SEC-1580 SAE-1). Rather than
+     * re-evaluating each version against the resource's current tags,
+     * history access requires a non-tenant-specific access scope
+     * (access/*.read or access/*.*) -- a tenant-scoped access code is never
+     * sufficient, even for that tenant's own record.
+     * @typedef {Object} HasHistoryAccessParams
+     * @property {string} resourceType
+     * @property {string} scope
+     *
+     * @param {HasHistoryAccessParams}
+     * @return {boolean}
+     */
+    hasHistoryAccess ({ resourceType, scope }) {
+        assertIsValid(resourceType, 'resourceType is required');
+
+        const accessCodes = this.getAccessCodesFromScopes('read', '', scope);
+        return accessCodes.includes('*');
     }
 }
 

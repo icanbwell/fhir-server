@@ -71,7 +71,6 @@ services:
       ENABLE_GRAPHQLV2_PLAYGROUND: '1'
       ENABLE_GRAPHQLV2: '1'
       ENABLE_CONSENTED_PROA_DATA_ACCESS: '1'
-      ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS: '1'
       EXTERNAL_SERVICES_WITH_REQ_LIMIT: 'external-service|http://external-service.com'
       # FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
       ENABLE_STATS_ENDPOINT: '1'
@@ -132,15 +131,32 @@ services:
       test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:8.0.15
+    # mongodb/mongodb-atlas-local (not a Docker Official Image -- may flag in the org's
+    # Root-Mirror audit the same way mongodb/atlas did for complaint-parser, CIE-8534;
+    # accepted for this local-dev-only compose file, matching mcp-fhir-agent's precedent)
+    # runs a real Atlas Search (mongot) process alongside mongod, so $search queries --
+    # including this repo's Atlas Search Patient/Person/Practitioner lookup -- actually
+    # work locally. Plain mongo:8.0.15 has no $search support at all.
+    image: mongodb/mongodb-atlas-local:8.2.5
     ports:
       - '27017:27017'
     environment:
-      - ALLOW_EMPTY_PASSWORD=yes
+      # Disable atlas-local internal telemetry to avoid a Go panic ("close of closed
+      # channel" in telemetry.(*Collector).collect) seen in mcp-fhir-agent with this image.
+      DO_NOT_TRACK: "1"
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/test --quiet
+      # A plain `mongosh ping` only proves mongod is up -- mongot (the search process this
+      # image bundles alongside mongod) starts later and isn't covered by it. `runner
+      # healthcheck` is the image's own combined mongod+mongot readiness check (confirmed via
+      # person-matching-service's own testcontainers setup, tests/containers/mongodb.py, which
+      # hit and documented this exact gap).
+      test: ['CMD', 'runner', 'healthcheck']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   keycloak:
     # https://github.com/keycloak/keycloak/releases
@@ -196,6 +212,21 @@ services:
       DELEGATED_ACT_SUB: 46265db4-0da2-4436-b4e8-85bf7e52a426
       DELEGATED_MANAGING_ORGANIZATION: 8a7cbd9c-5b1e-5c3d-9c4f-0b2e5f1a7c6d
       DELEGATED_ACCESS_USER_ENTITLEMENT: FAMRQT
+      # Delegated access user with an Organization actor (an upstream token-exchange grant
+      # for client-initiated access). entitlements carries a Consent/<id> reference here
+      # instead of a bare v3-ActReason code -- see readme/delegatedActorAccess.md "Organization Actors".
+      MY_DELEGATED_ORG_ACCESS_USER_NAME: delegated-org-client
+      MY_DELEGATED_ORG_ACCESS_USER_PASSWORD: password
+      MY_DELEGATED_ORG_ACCESS_USER_SCOPE: patient/*.read user/*.read access/*.read
+      MY_DELEGATED_ORG_ACCESS_USER_TOKEN_USERNAME: delegated-org-client@example.com
+      MY_DELEGATED_ORG_ACCESS_USER_CLIENT_PERSON_ID: 0b2ad38a-20bc-5cf5-9739-13f242b05892
+      MY_DELEGATED_ORG_ACCESS_USER_CLIENT_PATIENT_ID: 22aa18af-af51-5799-bc55-367c22c85407
+      MY_DELEGATED_ORG_ACCESS_USER_MASTER_PERSON_ID: 0eb80391-0f61-5ce6-b221-a5428f2f38a7
+      MY_DELEGATED_ORG_ACCESS_USER_MASTER_PATIENT_ID: 668d0748-1484-4bba-9cbe-0faf0de8965c
+      DELEGATED_ORG_ACT_REFERENCE: Organization/50d67a31-af1f-4f30-8d41-51e90a5054fa
+      DELEGATED_ORG_ACT_SUB: client-abc
+      DELEGATED_ORG_MANAGING_ORGANIZATION: 50d67a31-af1f-4f30-8d41-51e90a5054fa
+      DELEGATED_ORG_ACCESS_USER_ENTITLEMENT: Consent/8e4a1f26-3c9d-4b7e-9a02-6f1d5c8b2e90
       # This is the user and password that will be created in the realm for admin scope token
       MY_ADMIN_USER_NAME: admin
       MY_ADMIN_USER_PASSWORD: password@#$%^&873

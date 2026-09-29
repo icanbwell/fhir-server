@@ -44,4 +44,12 @@ describe('computeContentHashAsync', () => {
         const result = await computeContentHashAsync(data);
         expect(result).toBe(expected);
     });
+
+    test('produces same hash for a payload spanning multiple chunk iterations', async () => {
+        // 3 MB > CHUNK_BYTES (1 MB), so this exercises multiple loop iterations, not just one
+        const data = 'A'.repeat(3 * 1024 * 1024);
+        const expected = crypto.createHash('sha256').update(data).digest('base64url');
+        const result = await computeContentHashAsync(data);
+        expect(result).toBe(expected);
+    });
 });

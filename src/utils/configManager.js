@@ -1,6 +1,7 @@
 const {isTrue, isTrueWithFallback} = require('./isTrue');
 const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
+const { DEFAULT_ASSURANCE_MINIMUM_LEVEL } = require('./personLinkAssuranceLevel');
 
 const env = process.env;
 
@@ -57,21 +58,20 @@ class ConfigManager {
     }
 
     /**
-     * When enabled, the proxy-person to patient expansion applies the caller's
-     * access-scope security tag filter to the requested Person before resolving
-     * its linked patients. Currently only applied to $everything GET requests.
-     * @return {boolean}
-     */
-    get enableProxyPersonScopeCheckForEverything() {
-        return isTrueWithFallback(env.ENABLE_PROXY_PERSON_SCOPE_CHECK_FOR_EVERYTHING, true);
-    }
-
-    /**
      * current environment value
      * @return {string|null}
      */
     get environmentValue() {
         return env.ENVIRONMENT || '';
+    }
+
+    /**
+     * Whether K8sClient derives its namespace from environmentValue instead of
+     * reading it from the kube config context. Defaults to true.
+     * @return {boolean}
+     */
+    get useEnvironmentValueForK8sNamespace() {
+        return isTrueWithFallback(env.USE_ENVIRONMENT_VALUE_FOR_K8S_NAMESPACE, true);
     }
 
     /**
@@ -159,6 +159,41 @@ class ConfigManager {
                 break;
         }
         return indexList;
+    }
+
+    /**
+     * Whether Patient/Person/Practitioner search should route eligible queries through the
+     * MongoDB Atlas Search index (`hybrid-full-text-search`) instead of the regex-based path.
+     * Gated per resource type; default false everywhere. See
+     * docs/adr/0003-atlas-search-for-patient-person-practitioner-lookup.md
+     * @param {string} resourceType
+     * @returns {boolean}
+     */
+    isAtlasSearchEnabled(resourceType) {
+        switch (resourceType) {
+            case 'Patient':
+                return isTrue(env.ATLAS_SEARCH_ENABLED_PATIENT);
+            case 'Person':
+                return isTrue(env.ATLAS_SEARCH_ENABLED_PERSON);
+            case 'Practitioner':
+                return isTrue(env.ATLAS_SEARCH_ENABLED_PRACTITIONER);
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Whether the Atlas Search pipeline should sort natively inside the `$search` stage
+     * (by relevance score, then `defaultSortId` as a tie-break) instead of appending a
+     * separate `$sort` aggregation stage. Requires `defaultSortId` (`_uuid`) to be mapped as a
+     * sortable (`token`-type) field in the `hybrid-full-text-search` index -- independent of,
+     * and default-off separately from, `isAtlasSearchEnabled`, so the index change and this
+     * code path can roll out to each environment on their own schedules. See
+     * docs/adr/0003-atlas-search-for-patient-person-practitioner-lookup.md Decision Log #8.
+     * @returns {boolean}
+     */
+    get isAtlasSearchNativeSortEnabled() {
+        return isTrue(env.ATLAS_SEARCH_NATIVE_SORT_ENABLED);
     }
 
     /**
@@ -428,22 +463,6 @@ class ConfigManager {
     }
 
     /**
-     * Specifies whether to enable HIE/Treatment related data access.
-     * @return {boolean}
-     */
-    get enableHIETreatmentRelatedDataAccess() {
-        return isTrue(env.ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS);
-    }
-
-    /**
-     * Specifies allowed connection types for HIE/Treatment related data.
-     * @return {string[]}
-     */
-    get getHIETreatmentConnectionTypesList() {
-        return env.HIE_TREATMENT_CONNECTION_TYPES_LIST ? env.HIE_TREATMENT_CONNECTION_TYPES_LIST.split(',') : ['hipaa'];
-    }
-
-    /**
      * Specifies "provision.class.code" for the Data sharing Consent
      * @return {string[]}
      */
@@ -500,6 +519,18 @@ class ConfigManager {
     }
 
     /**
+     * number of reverse proxy hops to trust for express's 'trust proxy' setting
+     * @returns {number}
+     */
+    get trustProxyHopCount() {
+        const value = env.TRUST_PROXY_HOP_COUNT?.trim();
+        const hopCount = Number(value);
+        return value && Number.isInteger(hopCount) && hopCount >= 0
+            ? hopCount
+            : 20;
+    }
+
+    /**
      * whether to enable stats endpoint
      * @returns {boolean}
      */
@@ -545,6 +576,17 @@ class ConfigManager {
     }
 
     /**
+     * whether to enable the /mcp (Model Context Protocol) endpoint
+     * @returns {boolean}
+     */
+    get enableMcp() {
+        if (env.ENABLE_MCP === null || env.ENABLE_MCP === undefined) {
+            return false;
+        }
+        return isTrue(env.ENABLE_MCP);
+    }
+
+    /**
      * returns the batch size used in dataloader to fetch resources
      * @returns {number}
      */
@@ -561,6 +603,43 @@ class ConfigManager {
             return false;
         }
         return isTrue(env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ);
+    }
+
+    /**
+     * True only when every field needed to reach the fhir-notes-vector-store cluster and its
+     * Atlas Search index is present, AND the ENABLE_FULL_TEXT_SEARCH flag is explicitly on. The
+     * flag is separate from connection config so an operator can deploy the connection ahead of a
+     * rollout and flip this one flag to enable/disable, or use it as an emergency kill switch
+     * without touching connection env vars (mirrors enableAuditEventArchiveRead's pattern above).
+     * `_content` search and derived-text enrichment/reverse-lookup are all gated on this.
+     *
+     * `../config` is required lazily here (rather than at module scope) so that merely importing
+     * `ConfigManager` doesn't pull in `config.js`'s unconditional `require('@sentry/node')` for
+     * every consumer - that transitive weight surprised at least one existing unit test that
+     * mocks `fs` and broke when Sentry's own `require('node:fs')` picked up the same mock.
+     * @returns {boolean}
+     */
+    get fhirNotesFullTextSearchConfigured() {
+        if (!isTrue(env.ENABLE_FULL_TEXT_SEARCH)) {
+            return false;
+        }
+        const { fhirNotesMongoConfig } = require('../config');
+        return Boolean(
+            fhirNotesMongoConfig.connection &&
+            fhirNotesMongoConfig.db_name &&
+            fhirNotesMongoConfig.collection_name &&
+            fhirNotesMongoConfig.index_name
+        );
+    }
+
+    get fhirNotesMongoCollectionName() {
+        const { fhirNotesMongoConfig } = require('../config');
+        return fhirNotesMongoConfig.collection_name;
+    }
+
+    get fhirNotesTextSearchIndexName() {
+        const { fhirNotesMongoConfig } = require('../config');
+        return fhirNotesMongoConfig.index_name;
     }
 
     /**
@@ -904,6 +983,13 @@ class ConfigManager {
         return env.HISTORY_CRON_JOB_MIGRATION_LIMIT ? parseInt(env.HISTORY_CRON_JOB_MIGRATION_LIMIT) : 100000;
     }
 
+    get enableHistoryToCloudStorageMigration() {
+        if (env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION === null || env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION === undefined) {
+            return true;
+        }
+        return isTrue(env.ENABLE_HISTORY_TO_CLOUD_STORAGE_MIGRATION);
+    }
+
     /**
      * Number of elements in a batch of MongoDB IN query
      * @returns {boolean}
@@ -1017,6 +1103,24 @@ class ConfigManager {
      */
     get authCidCheckClientIds() {
         return env.AUTH_CID_CHECK_CLIENT_IDS ? env.AUTH_CID_CHECK_CLIENT_IDS.split(',') : [];
+    }
+
+    /**
+     * Allowlisted audience (aud) claim values parsed from AUTH_AUDIENCE_WHITELIST env var.
+     * When empty, the audience claim is not checked (backwards-compatible default).
+     * @returns {string[]}
+     */
+    get authAudienceWhitelist() {
+        return this._parseCommaSeparatedList(env.AUTH_AUDIENCE_WHITELIST, []);
+    }
+
+    /**
+     * Denylisted audience (aud) claim values parsed from AUTH_AUDIENCE_BLACKLIST env var.
+     * When empty, no audience is denied (backwards-compatible default).
+     * @returns {string[]}
+     */
+    get authAudienceBlacklist() {
+        return this._parseCommaSeparatedList(env.AUTH_AUDIENCE_BLACKLIST, []);
     }
 
     /**
@@ -1253,6 +1357,20 @@ class ConfigManager {
     }
 
     /**
+     * Enables the MongoDB-native large-Group member storage: the GroupMember_4_0_0 /
+     * GroupMember_4_0_0_History collections and the extended-regime branch of $member-add /
+     * $member-remove. Default: false -- when disabled, $member-add / $member-remove reject any
+     * Group already tagged groupSize|extended rather than silently falling back to the
+     * embedded regime (which would risk writing member[] inline on a Group whose roster already
+     * lives in GroupMember_4_0_0). Independent of enableClickHouse -- a Group is tracked by at
+     * most one of the two external-storage mechanisms, never both.
+     * @returns {boolean}
+     */
+    get enableExtendedGroup() {
+        return isTrue(env.ENABLE_EXTENDED_GROUP);
+    }
+
+    /**
      * ClickHouse request timeout in milliseconds
      * Default: 180000ms (3 minutes) for large batch inserts
      * @returns {number}
@@ -1279,6 +1397,60 @@ class ConfigManager {
 
     get enableDelegatedAccessDetection() {
         return isTrue(env.ENABLE_DELEGATED_ACCESS_DETECTION);
+    }
+
+    /**
+     * Kill switch for SMART v2 fine-grained (`.cruds`) scope suffix grammar. Default off: a
+     * scope token with a v2 suffix (e.g. `user/Patient.rs`, `access/tenantA.c`) parses as
+     * invalid until this is enabled, exactly matching this server's original behavior of
+     * only recognizing the legacy `read`/`write`/`*` suffixes. Recognizing v2 grammar is a
+     * one-way loosening of what scope strings are honored (see docs/superpowers/specs/
+     * 2026-09-13-smart-v2-scope-granularity-design.md, "Open items") -- turn on only once every
+     * phase of that design has shipped and live IdP client scope configurations have been
+     * audited for strings that would newly parse as valid v2 grammar.
+     */
+    get enableSmartV2CrudsScopes() {
+        return isTrue(env.ENABLE_SMART_V2_CRUDS_SCOPES);
+    }
+
+    /**
+     * Minimum FHIR R4 `identity-assuranceLevel` (`level1`-`level4`) a `Person.link` must carry
+     * to be considered trustworthy enough to follow during Person.link traversal
+     * (personToPatientIdsExpander.js). Used by both the dry-run logging
+     * (logPersonLinkAssuranceBelowMinimum) and the enforcement gate
+     * (enforcePersonLinkAssuranceMinimum) below.
+     * @return {string}
+     */
+    get personLinkAssuranceMinimumLevel() {
+        return env.PERSON_LINK_ASSURANCE_MINIMUM_LEVEL || DEFAULT_ASSURANCE_MINIMUM_LEVEL;
+    }
+
+    /**
+     * When true, logs a warning every time a `Person.link` below
+     * personLinkAssuranceMinimumLevel is followed during traversal, without changing traversal
+     * behavior. Meant to be observed in a real environment (to see whether real Person.link data
+     * is populated meaningfully enough) before enforcePersonLinkAssuranceMinimum is ever
+     * considered. Defaults to false.
+     * @return {boolean}
+     */
+    get logPersonLinkAssuranceBelowMinimum() {
+        return isTrue(env.LOG_PERSON_LINK_ASSURANCE_BELOW_MINIMUM);
+    }
+
+    /**
+     * When true, excludes a `Person.link` below personLinkAssuranceMinimumLevel from being
+     * followed during traversal (personToPatientIdsExpander.js), instead of merely logging it.
+     *
+     * Do NOT enable this in any real environment without first running with
+     * logPersonLinkAssuranceBelowMinimum=true there long enough to confirm real Person.link data
+     * actually clears the configured minimum -- enabling this blind risks silently dropping
+     * legitimate links (e.g. the intentional cross-tenant Main-Person-to-Client-Person linking
+     * this data model relies on) if real assurance data turns out to be sparse or absent.
+     * Defaults to false, in code, regardless of environment configuration.
+     * @return {boolean}
+     */
+    get enforcePersonLinkAssuranceMinimum() {
+        return isTrue(env.ENFORCE_PERSON_LINK_ASSURANCE_MINIMUM);
     }
 
     get dataSharingAccessCodes() {
@@ -1389,6 +1561,22 @@ class ConfigManager {
      */
     get bulkImportOrchestratorGroupId() {
         return env.BULK_IMPORT_ORCHESTRATOR_GROUP_ID || 'fhir-bulk-import-orchestrator';
+    }
+
+    get bulkImportRangeProgressGroupId() {
+        return env.BULK_IMPORT_RANGE_PROGRESS_GROUP_ID || 'fhir-bulk-import-range-progress';
+    }
+
+    /**
+     * Kafka topic for worker->orchestrator range-progress reports (ImportRangeStarted/
+     * ImportRangeCompleted/ImportRangeFailed). The orchestrator is the only process that ever
+     * writes to the Task resource once it exists -- workers only emit onto this topic, never
+     * touch the Task themselves -- so a redelivered or reordered report is always resolved by
+     * a single consumer instead of racing another writer.
+     * @return {string}
+     */
+    get kafkaBulkImportRangeProgressTopic() {
+        return env.KAFKA_BULK_IMPORT_RANGE_PROGRESS_TOPIC || 'fhir_server.bulk_import.processing.events';
     }
 
     // ── Kafka v2 (new MSK cluster) ──────────────────────────────────────────

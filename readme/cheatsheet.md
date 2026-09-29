@@ -134,6 +134,7 @@ The FHIR Server supports all the standard FHIR search parameters: https://www.hl
 | By url                    | url={url}                                                                                                                          | http://localhost:3000/4_0_0/ValueSet?url=foo                                                                                                                                                                | ValueSet                                                                          |     |
 | By code                   | code={system}&#124;{value}                                                                                                         | [http://localhost:3000/4_0_0/Observation/?code=http://www.icanbwell.com/cql/library&#124;BMI001](http://localhost:3000/4_0_0/Observation/?code=http://www.icanbwell.com/cql/library\|BMI001)            | Resources in https://www.hl7.org/fhir/R4B/searchparameter-registry.html#clinical-code |     |
 | By date                   | date=lt{date}&date=gt{date}                                                                                                        | http://localhost:3000/4_0_0/Observation?date=gt2021-01-16&date=lt2021-01-17                                                                                                                                 | Resources in https://www.hl7.org/fhir/R4B/searchparameter-registry.html#clinical-date |     |
+| By a composite of related component values (matched on the same element) | {param}={value1}${value2} | http://localhost:3000/4_0_0/Observation?code-value-quantity=55284-4$ge140 | See [1.9 Composite Search Parameters](#19-composite-search-parameters) |     |
 
 FHIR Specification: https://www.hl7.org/fhir/R4B/search.html.
 
@@ -187,6 +188,102 @@ For parameter types of number, date, and quantity
 | le |[base]/RiskAssessment?probability=le5.40e-3 | less than or equal to: the value for the parameter in the resource is less or equal to the provided value |
 
 FHIR specification: https://www.hl7.org/fhir/R4B/search.html#prefix
+
+### 1.9 Composite Search Parameters
+
+A composite search parameter combines two or more related component values into a single query parameter, matched against the *same* element (e.g. the same `Observation.component` entry) rather than as independent filters. This matters when a resource can have multiple repeats of the same array (e.g. multiple `component`s on an `Observation`): filtering on the components separately would match if *any* component satisfied the code and *any* (possibly different) component satisfied the value, while the composite form guarantees both are satisfied by the *same* component.
+
+**Format**: `'$'`-joined value, one part per component, in the component's declared order. Comma-separate multiple `'$'`-joined values to OR them together, same as any other search parameter.
+
+| Resource            | Parameter                     | Example                                                                                                     | Components (in order)                          |
+| ------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
+| Observation          | `code-value-quantity`          | http://localhost:3000/4_0_0/Observation?code-value-quantity=55284-4$ge140                                    | code (token) $ value (quantity, with prefix)    |
+| Observation          | `component-code-value-quantity`| http://localhost:3000/4_0_0/Observation?component-code-value-quantity=8480-6$ge140                           | component.code (token) $ component.value (quantity) |
+| DocumentReference     | `relationship`                 | http://localhost:3000/4_0_0/DocumentReference?relationship=DocumentReference/456$replaces                   | relatesTo.target (reference) $ relatesTo.code (token) |
+| MolecularSequence     | `chromosome-variant-coordinate`| http://localhost:3000/4_0_0/MolecularSequence?chromosome-variant-coordinate=1$lt345$gt123                     | chromosome (token) $ variant start (number) $ variant end (number) |
+| Group                | `characteristic-value`         | http://localhost:3000/4_0_0/Group?characteristic-value=some-code$true                                        | characteristic.code (token) $ characteristic.value (token) |
+
+**Notes:**
+
+- Each part must be non-empty (a trailing or missing `$` part, e.g. `code-value-quantity=55284-4$`, returns a 400).
+- The `missing`, `contains`, `above`, `below`, `text`, `of-type`, and `exact` modifiers are not supported on composite parameters and return a 400 rather than silently producing an incorrect filter.
+- The same composite parameters are also available via [GraphQL](graphql.md) (e.g. `code_value_quantity: { value: "55284-4$ge140" }`) and via MCP tool calls (same `'$'`-joined string), with identical semantics.
+- If a component's own value needs to contain a literal `,`, `|`, or `$`, escape it with a
+  backslash (`\,`, `\|`, `\$`) per the FHIR spec's
+  [escaping rules](https://www.hl7.org/fhir/R4B/search.html#escaping) — e.g.
+  `code-value-quantity=http://example.org/sys\|extra|8480-6$ge140` searches for a token whose
+  system is literally `http://example.org/sys|extra`. This applies to every search parameter
+  type that uses `,`/`|` as a separator (token `system|code`, quantity `num|system|code`,
+  comma-separated OR values), not just composite parameters.
+
+FHIR specification: https://www.hl7.org/fhir/R4B/search.html#composite
+
+### 1.10 Full-Text Content Search
+
+The `_content` search parameter performs full-text search across the text content of resources. This feature delegates to a sibling service's MongoDB Atlas Search index and is supported for three resource types only: `DocumentReference`, `DiagnosticReport`, and `CarePlan`.
+
+#### Configuration Required
+
+For `_content` search to be available, all of the following environment variables must be set:
+
+| Environment Variable | Purpose |
+|---|---|
+| `FHIR_NOTES_MONGO_URL` | Connection string for the clinical notes MongoDB cluster |
+| `FHIR_NOTES_MONGO_DB_NAME` | Database name on that cluster |
+| `FHIR_NOTES_MONGO_COLLECTION_NAME` | Collection name (the `ClinicalNote` collection) |
+| `FHIR_NOTES_TEXT_SEARCH_INDEX_NAME` | Atlas Search index name (e.g., `fhir-notes-text-search`) |
+| `ENABLE_FULL_TEXT_SEARCH` | Feature flag; set to `1` to enable (must be set to `1` in addition to the above) |
+
+All four connection variables **and** the `ENABLE_FULL_TEXT_SEARCH` flag must be configured for the feature to be active. If `ENABLE_FULL_TEXT_SEARCH` is not set to `1`, `_content` is silently ignored (a recognized-but-unresolved search parameter) regardless of resourceType, matching its behavior before this feature existed. With the flag on, `_content` on an unsupported resourceType, or on an environment where the connection variables are missing, returns a `BadRequestError`.
+
+**Optional variables:** You can also set `FHIR_NOTES_MONGO_USERNAME` and `FHIR_NOTES_MONGO_PASSWORD` to embed credentials into the connection string, and `FHIR_NOTES_MIN_POOL_SIZE`, `FHIR_NOTES_MAX_POOL_SIZE`, `FHIR_NOTES_MONGO_CONNECT_TIMEOUT`, and `FHIR_NOTES_MONGO_SERVER_SELECTION_TIMEOUT` to tune connection pooling and timeouts (these have sensible defaults if not specified).
+
+#### Supported Resource Types
+
+`_content` search is available **only** on:
+- `DocumentReference`
+- `DiagnosticReport`
+- `CarePlan`
+
+With the feature flag on, attempting `_content` on any other resource type returns `BadRequestError`.
+
+#### Query Syntax — Lucene `queryString` Format
+
+The `_content` parameter accepts Lucene syntax directly, supporting:
+- Boolean operators: `AND`, `OR`, `NOT`
+- Grouping with parentheses: `(...)`
+- Field-scoped terms and wildcards
+
+**Example:**
+```
+GET /4_0_0/DocumentReference?patient=Patient/123&_content=(bone OR liver) AND metastases
+```
+
+Returns all `DocumentReference` resources for the given patient whose content contains either "bone" or "liver", **and** also contains "metastases". Multiple criteria can be combined with standard Lucene operators.
+
+#### Retrieving Derived Text as Plain Text (`_format=text/plain`)
+
+For a single-resource read of a `DocumentReference`, `DiagnosticReport`, or `Binary` by ID, passing `_format=text/plain` returns the server-extracted plain text of the resource's attachment(s) directly as the HTTP response body — not embedded in the resource's JSON. This requires the same full-text-search configuration described above (`ENABLE_FULL_TEXT_SEARCH=1` and the `FHIR_NOTES_*` connection variables); otherwise the normal FHIR JSON response is returned instead.
+
+```
+GET /4_0_0/DocumentReference/abc-123?_format=text/plain
+```
+
+```
+GET /4_0_0/DiagnosticReport/def-456?_format=text/plain
+```
+
+The response `Content-Type` is `text/plain`, and the body is the reassembled plain text derived from the resource's attachment(s) — no JSON envelope, no extension markers.
+
+`Binary` resources are not indexed for text search directly, but can also be read this way: the server looks up which `DocumentReference` or `DiagnosticReport` attachment references the `Binary`, retrieves that resource's derived text, and returns it as the plain-text body:
+
+```
+GET /4_0_0/Binary/xyz-789?_format=text/plain
+```
+
+**Important:** `_format=text/plain` derived-text retrieval is restricted to single-resource reads by `_id`. It is not supported on search result sets or graph/`$everything` traversals.
+
+FHIR Specification: https://hl7.org/fhir/R4B/search.html#content
 
 ## 2. Requesting a single resource
 

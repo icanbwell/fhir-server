@@ -82,7 +82,10 @@ describe('SearchStreamingOperation', () => {
             logOperationFailureAsync: jest.fn().mockResolvedValue(undefined)
         };
         mockScopesValidator = {
-            verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined)
+            verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined),
+            // Default to admin so pre-existing _explain/_debug tests (unrelated to the
+            // DCON-4808 admin-scope gating) keep exercising their original code path.
+            isAdminScope: jest.fn().mockReturnValue(true)
         };
         mockBundleManager = {
             createBundle: jest.fn().mockReturnValue({ resourceType: 'Bundle', entry: [], toJSON: () => ({}) }),
@@ -517,6 +520,45 @@ describe('SearchStreamingOperation', () => {
             expect(mockCursor.explainAsync).toHaveBeenCalled();
             // _debug does NOT cause setEmpty
             expect(mockCursor.setEmpty).not.toHaveBeenCalled();
+        });
+
+        // DCON-4808: _explain/_debug/_setIndexHint expose Mongo query plans, collection
+        // internals, and let the caller pick the query's index. Only an admin-scoped
+        // caller may use them.
+        test('non-admin caller: _explain is cleared before reaching the cursor', async () => {
+            mockScopesValidator.isAdminScope.mockReturnValue(false);
+            const mockCursor = {
+                explainAsync: jest.fn().mockResolvedValue([{ plan: 'test' }]),
+                setEmpty: jest.fn(),
+                getCollection: jest.fn().mockReturnValue('Patient_4_0_0'),
+                getDatabase: jest.fn().mockReturnValue('fhir')
+            };
+            mockParsedArgs._explain = true;
+            mockParsedArgs._debug = true;
+            mockParsedArgs._setIndexHint = 'someIndex';
+
+            mockSearchManager.getCursorForQueryAsync.mockResolvedValue({
+                columns: new Set(),
+                originalQuery: null,
+                originalOptions: [],
+                resources: [],
+                total_count: 0,
+                indexHint: null,
+                cursorBatchSize: 100,
+                cursor: mockCursor
+            });
+            mockSearchManager.streamResourcesFromCursorAsync.mockResolvedValue([]);
+
+            await searchStreamingOp.searchStreamingAsync({
+                requestInfo: makeRequestInfo(),
+                res: mockRes,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            expect(mockCursor.explainAsync).not.toHaveBeenCalled();
+            const cursorCallArgs = mockSearchManager.getCursorForQueryAsync.mock.calls[0][0];
+            expect(cursorCallArgs.parsedArgs._setIndexHint).toBeUndefined();
         });
     });
 

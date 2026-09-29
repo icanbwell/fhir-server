@@ -1,4 +1,4 @@
-const { describe, test, expect, beforeEach, afterEach } = require('@jest/globals');
+const { describe, test, expect, beforeEach, afterEach, jest } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
 
 describe('ConfigManager', () => {
@@ -116,6 +116,24 @@ describe('ConfigManager', () => {
         });
     });
 
+    // ========== useEnvironmentValueForK8sNamespace ==========
+    describe('useEnvironmentValueForK8sNamespace', () => {
+        test('defaults to true when not set', () => {
+            delete process.env.USE_ENVIRONMENT_VALUE_FOR_K8S_NAMESPACE;
+            expect(new ConfigManager().useEnvironmentValueForK8sNamespace).toBe(true);
+        });
+
+        test('returns false when explicitly disabled', () => {
+            process.env.USE_ENVIRONMENT_VALUE_FOR_K8S_NAMESPACE = 'false';
+            expect(new ConfigManager().useEnvironmentValueForK8sNamespace).toBe(false);
+        });
+
+        test('returns true when explicitly enabled', () => {
+            process.env.USE_ENVIRONMENT_VALUE_FOR_K8S_NAMESPACE = 'true';
+            expect(new ConfigManager().useEnvironmentValueForK8sNamespace).toBe(true);
+        });
+    });
+
     // ========== accessTagsIndexed (large method with switch) ==========
     describe('accessTagsIndexed', () => {
         test('returns empty array when no env vars set', () => {
@@ -206,6 +224,36 @@ describe('ConfigManager', () => {
         test('authCidCheckClientIds splits on comma', () => {
             process.env.AUTH_CID_CHECK_CLIENT_IDS = 'cid1,cid2';
             expect(new ConfigManager().authCidCheckClientIds).toEqual(['cid1', 'cid2']);
+        });
+
+        test('authAudienceWhitelist splits on comma', () => {
+            process.env.AUTH_AUDIENCE_WHITELIST = 'aud1,aud2';
+            expect(new ConfigManager().authAudienceWhitelist).toEqual(['aud1', 'aud2']);
+        });
+
+        test('authAudienceWhitelist returns empty array when not set', () => {
+            delete process.env.AUTH_AUDIENCE_WHITELIST;
+            expect(new ConfigManager().authAudienceWhitelist).toEqual([]);
+        });
+
+        test('authAudienceWhitelist trims whitespace around entries', () => {
+            process.env.AUTH_AUDIENCE_WHITELIST = 'aud1, aud2 ,aud3';
+            expect(new ConfigManager().authAudienceWhitelist).toEqual(['aud1', 'aud2', 'aud3']);
+        });
+
+        test('authAudienceBlacklist splits on comma', () => {
+            process.env.AUTH_AUDIENCE_BLACKLIST = 'aud1,aud2';
+            expect(new ConfigManager().authAudienceBlacklist).toEqual(['aud1', 'aud2']);
+        });
+
+        test('authAudienceBlacklist returns empty array when not set', () => {
+            delete process.env.AUTH_AUDIENCE_BLACKLIST;
+            expect(new ConfigManager().authAudienceBlacklist).toEqual([]);
+        });
+
+        test('authAudienceBlacklist trims whitespace around entries', () => {
+            process.env.AUTH_AUDIENCE_BLACKLIST = 'aud1, aud2 ,aud3';
+            expect(new ConfigManager().authAudienceBlacklist).toEqual(['aud1', 'aud2', 'aud3']);
         });
     });
 
@@ -322,6 +370,106 @@ describe('ConfigManager', () => {
         test('returns configured value', () => {
             process.env.PAYLOAD_LIMIT = '100mb';
             expect(new ConfigManager().payloadLimit).toBe('100mb');
+        });
+    });
+
+    // ========== ConfigManager fhirNotes getters ==========
+    describe('ConfigManager fhirNotes getters', () => {
+        const ORIGINAL_ENV = process.env;
+
+        afterEach(() => {
+            process.env = ORIGINAL_ENV;
+        });
+
+        function loadFreshConfigManager ({ fhirNotesMongoConfig, enableFullTextSearch }) {
+            jest.resetModules();
+            process.env = { ...ORIGINAL_ENV };
+            if (enableFullTextSearch === undefined) {
+                delete process.env.ENABLE_FULL_TEXT_SEARCH;
+            } else {
+                process.env.ENABLE_FULL_TEXT_SEARCH = enableFullTextSearch;
+            }
+            jest.doMock('../../../config', () => ({
+                ...jest.requireActual('../../../config'),
+                fhirNotesMongoConfig
+            }));
+            const { ConfigManager: FreshConfigManager } = require('../../../utils/configManager');
+            return new FreshConfigManager();
+        }
+
+        test('fhirNotesFullTextSearchConfigured is false when config is empty, even if the flag is on', () => {
+            const configManager = loadFreshConfigManager({ fhirNotesMongoConfig: {}, enableFullTextSearch: '1' });
+            expect(configManager.fhirNotesFullTextSearchConfigured).toBe(false);
+        });
+
+        test('fhirNotesFullTextSearchConfigured is false when fully configured but ENABLE_FULL_TEXT_SEARCH is unset', () => {
+            const configManager = loadFreshConfigManager({
+                fhirNotesMongoConfig: {
+                    connection: 'mongodb://host:27017', db_name: 'fhir_notes',
+                    collection_name: 'clinical_notes', index_name: 'fhir-notes-text-search'
+                }
+            });
+            expect(configManager.fhirNotesFullTextSearchConfigured).toBe(false);
+        });
+
+        test('fhirNotesFullTextSearchConfigured is true only when both fully configured and ENABLE_FULL_TEXT_SEARCH=1', () => {
+            const configManager = loadFreshConfigManager({
+                fhirNotesMongoConfig: {
+                    connection: 'mongodb://host:27017', db_name: 'fhir_notes',
+                    collection_name: 'clinical_notes', index_name: 'fhir-notes-text-search'
+                },
+                enableFullTextSearch: '1'
+            });
+            expect(configManager.fhirNotesFullTextSearchConfigured).toBe(true);
+            expect(configManager.fhirNotesMongoCollectionName).toEqual('clinical_notes');
+            expect(configManager.fhirNotesTextSearchIndexName).toEqual('fhir-notes-text-search');
+        });
+
+        test('fhirNotesFullTextSearchConfigured is false when any required connection field is missing, even with the flag on', () => {
+            const configManager = loadFreshConfigManager({
+                fhirNotesMongoConfig: { connection: 'mongodb://host:27017', db_name: 'fhir_notes' },
+                enableFullTextSearch: '1'
+            });
+            expect(configManager.fhirNotesFullTextSearchConfigured).toBe(false);
+        });
+    });
+
+    describe('isAtlasSearchEnabled', () => {
+        test('returns false by default for Patient/Person/Practitioner', () => {
+            expect(configManager.isAtlasSearchEnabled('Patient')).toBe(false);
+            expect(configManager.isAtlasSearchEnabled('Person')).toBe(false);
+            expect(configManager.isAtlasSearchEnabled('Practitioner')).toBe(false);
+        });
+
+        test('returns false for a resource type with no Atlas Search support', () => {
+            setEnv('ATLAS_SEARCH_ENABLED_OBSERVATION', 'true');
+            expect(configManager.isAtlasSearchEnabled('Observation')).toBe(false);
+        });
+
+        test('returns true only for the resource type whose env var is set', () => {
+            setEnv('ATLAS_SEARCH_ENABLED_PATIENT', 'true');
+            expect(configManager.isAtlasSearchEnabled('Patient')).toBe(true);
+            expect(configManager.isAtlasSearchEnabled('Person')).toBe(false);
+            expect(configManager.isAtlasSearchEnabled('Practitioner')).toBe(false);
+        });
+
+        test('supports Person and Practitioner independently', () => {
+            setEnv('ATLAS_SEARCH_ENABLED_PERSON', 'true');
+            setEnv('ATLAS_SEARCH_ENABLED_PRACTITIONER', '1');
+            expect(configManager.isAtlasSearchEnabled('Person')).toBe(true);
+            expect(configManager.isAtlasSearchEnabled('Practitioner')).toBe(true);
+            expect(configManager.isAtlasSearchEnabled('Patient')).toBe(false);
+        });
+    });
+
+    describe('isAtlasSearchNativeSortEnabled', () => {
+        test('returns false by default', () => {
+            expect(configManager.isAtlasSearchNativeSortEnabled).toBe(false);
+        });
+
+        test('returns true when ATLAS_SEARCH_NATIVE_SORT_ENABLED is set', () => {
+            setEnv('ATLAS_SEARCH_NATIVE_SORT_ENABLED', 'true');
+            expect(configManager.isAtlasSearchNativeSortEnabled).toBe(true);
         });
     });
 });

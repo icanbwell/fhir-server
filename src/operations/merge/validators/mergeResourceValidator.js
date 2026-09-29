@@ -114,7 +114,8 @@ class MergeResourceValidator extends BaseValidator {
                 func: async () =>
                     await this.mergeManager.preMergeChecksMultipleAsync({
                         requestInfo,
-                        resourcesToMerge: resourcesIncomingArray
+                        resourcesToMerge: resourcesIncomingArray,
+                        base_version
                     })
             });
 

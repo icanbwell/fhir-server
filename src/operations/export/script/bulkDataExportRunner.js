@@ -13,6 +13,7 @@ const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
 const { PatientQueryCreator } = require('../../common/patientQueryCreator');
 const { ReferenceParser } = require('../../../utils/referenceParser');
 const { RethrownError } = require('../../../utils/rethrownError');
+const { BadRequestError } = require('../../../utils/httpErrors');
 const { R4ArgsParser } = require('../../query/r4ArgsParser');
 const { R4SearchQueryCreator } = require('../../query/r4');
 const { S3Client } = require('../../../utils/s3Client');
@@ -28,6 +29,7 @@ const {
     SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP
 } = require('../../../constants');
 const { SearchManager } = require('../../search/searchManager');
+const { ScopesManager } = require('../../security/scopesManager');
 const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory');
 const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
@@ -35,6 +37,9 @@ const { S3MultiPartContext } = require('./s3MultiPartContext');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
+const { StorageProviderFactory } = require('../../../dataLayer/providers/storageProviderFactory');
+const { hasExternalStorageMemberTag } = require('../../../utils/clickHouseGroupPreSave');
+const { isTrue } = require('../../../utils/isTrue');
 
 // Access-tag security codes are used verbatim as a path segment of the S3 export key
 // (`exports/<tags>/<exportStatusId>/...`). They come from the JWT scope string via
@@ -77,8 +82,10 @@ class BulkDataExportRunner {
      * @property {ResourceLocatorFactory} resourceLocatorFactory
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchManager} searchManager
+     * @property {ScopesManager} scopesManager
      * @property {PostSaveProcessor} postSaveProcessor
      * @property {BulkExportEventProducer} bulkExportEventProducer
+     * @property {StorageProviderFactory} storageProviderFactory
      * @property {string} exportStatusId
      * @property {number} patientReferenceBatchSize
      * @property {number} fetchResourceBatchSize
@@ -100,8 +107,10 @@ class BulkDataExportRunner {
         resourceLocatorFactory,
         r4ArgsParser,
         searchManager,
+        scopesManager,
         postSaveProcessor,
         bulkExportEventProducer,
+        storageProviderFactory,
         exportStatusId,
         patientReferenceBatchSize,
         fetchResourceBatchSize,
@@ -208,6 +217,12 @@ class BulkDataExportRunner {
         assertTypeEquals(searchManager, SearchManager);
 
         /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
          * @type {PostSaveProcessor}
          */
         this.postSaveProcessor = postSaveProcessor;
@@ -218,6 +233,12 @@ class BulkDataExportRunner {
          */
         this.bulkExportEventProducer = bulkExportEventProducer;
         assertTypeEquals(bulkExportEventProducer, BulkExportEventProducer);
+
+        /**
+         * @type {StorageProviderFactory}
+         */
+        this.storageProviderFactory = storageProviderFactory;
+        assertTypeEquals(storageProviderFactory, StorageProviderFactory);
 
         /**
          * @type {string}
@@ -286,7 +307,7 @@ class BulkDataExportRunner {
                 });
 
                 for (const resourceType of requestedResources) {
-                    await this.processResourceAsync({ resourceType, query });
+                    await this.processResourceAsync({ resourceType, query, searchParams });
                 }
             } else {
                 const requestedResources = await this.getRequestedResourceAsync({
@@ -296,7 +317,24 @@ class BulkDataExportRunner {
                         this.patientFilterManager.getAllPatientOrPersonRelatedResources()
                 });
 
-                if (pathname.startsWith('/4_0_0/Patient/$export')) {
+                const groupMatch = pathname.match(/^\/4_0_0\/Group\/([^/]+)\/\$export$/);
+                if (groupMatch) {
+                    // Group-level export: resolve the member Patient references, then
+                    // reuse the patient-compartment export for each requested resource.
+                    const memberPatientReferences = await this.getGroupMemberPatientReferencesAsync({
+                        groupId: decodeURIComponent(groupMatch[1]),
+                        query
+                    });
+                    for (const resourceType of requestedResources) {
+                        await this.handlePatientExportAsync({
+                            searchParams,
+                            query,
+                            resourceType,
+                            memberPatientReferences,
+                            isGroupExport: true
+                        });
+                    }
+                } else if (pathname.startsWith('/4_0_0/Patient/$export')) {
                     for (const resourceType of requestedResources) {
                         await this.handlePatientExportAsync({
                             searchParams,
@@ -417,19 +455,20 @@ class BulkDataExportRunner {
         if (scope) {
             let allowedResourcesByScopes = [];
 
-            // check allowed resource by scope
-            for (const scope1 of scope.split(' ')) {
-                if (scope1.startsWith('user')) {
-                    // ex: user/Patient.*
-                    const inner_scope = scope1.replace('user/', '');
-                    const [resource, accessType] = inner_scope.split('.');
-                    if (accessType === '*' || accessType === 'read') {
-                        if (resource === '*') {
-                            allowedResourcesByScopes = null;
-                            break;
-                        }
-                        allowedResourcesByScopes.push(resource);
+            // check allowed resource by scope. Uses getResourceTypeScopes() rather than a raw
+            // scope1.startsWith('user') so a system/*.read caller (SMART on FHIR v2) is honored
+            // the same way a user/*.read caller is, instead of silently narrowing to an empty
+            // resource list (see docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §4.2).
+            for (const scope1 of this.scopesManager.getResourceTypeScopes({ scope })) {
+                // ex: user/Patient.* or system/Patient.*
+                const [, inner_scope] = scope1.split('/');
+                const [resource, accessType] = inner_scope.split('.');
+                if (accessType === '*' || accessType === 'read') {
+                    if (resource === '*') {
+                        allowedResourcesByScopes = null;
+                        break;
                     }
+                    allowedResourcesByScopes.push(resource);
                 }
             }
 
@@ -488,6 +527,88 @@ class BulkDataExportRunner {
         }
 
         return allowedResources;
+    }
+
+    /**
+     * Builds a Mongo projection for _elements, or null when _elements is absent.
+     * Reuses searchManager.handleElementsQuery (same seam as search) to validate the
+     * requested elements against the resource and build the base projection, then forces
+     * the FHIR-mandatory fields so the emitted doc stays a valid resource: resourceType,
+     * id, meta, plus _uuid. On the projected path we skip enrichment/attachment transforms,
+     * so only what is projected is emitted (no stripped/omitted content is re-expanded).
+     *
+     * @typedef {Object} BuildElementsProjectionParams
+     * @property {string} resourceType
+     * @property {URLSearchParams} searchParams
+     *
+     * @param {BuildElementsProjectionParams}
+     * @returns {import('mongodb').Document|null}
+     */
+    buildElementsProjection({ resourceType, searchParams }) {
+        if (!searchParams.has('_elements')) {
+            return null;
+        }
+        const parsedArgs = this.r4ArgsParser.parseArgs({
+            resourceType,
+            args: { base_version: '4_0_0', _elements: searchParams.get('_elements') }
+        });
+        if (!parsedArgs._elements) {
+            return null;
+        }
+        // handleElementsQuery validates each requested element and mutates options.projection.
+        const { options } = this.searchManager.handleElementsQuery({
+            parsedArgs,
+            columns: new Set(),
+            resourceType,
+            options: {},
+            useAccessIndex: false
+        });
+        const projection = options.projection || {};
+        // Drop any meta sub-paths handleElementsQuery added (e.g. meta.security.system):
+        // Mongo rejects a path collision between `meta` and `meta.<sub>` in one projection.
+        for (const key of Object.keys(projection)) {
+            if (key.startsWith('meta.')) {
+                delete projection[key];
+            }
+        }
+        // Force FHIR-mandatory fields so the emitted doc is a valid resource.
+        projection.resourceType = 1;
+        projection.id = 1;
+        projection.meta = 1;
+        projection._uuid = 1;
+        return projection;
+    }
+
+    /**
+     * Turns a raw Mongo export doc into a serialized NDJSON-ready object.
+     * Full export (no projection) enriches the resource; the projected (_elements) path
+     * skips enrichment only - attachment (GridFS) and base64 (S3) rehydration always run,
+     * since both are no-ops when their sidecar field isn't present on the doc.
+     * The resource serializer then drops Mongo-internal fields (_uuid, _sourceId, ...).
+     *
+     * Raw-elements contract: with enrichment skipped, reference-valued elements are emitted
+     * in their raw stored (uuid) form, not the enrichment-rewritten form a full export gives.
+     * Edge case: a resource whose stored top-level `id` differs from `_sourceId` (data ingested
+     * in global-id form) can yield a different `id` under `_elements=id` than a full export,
+     * since IdEnrichmentProvider rewrites id from _sourceId only on the full path.
+     *
+     * @typedef {Object} SerializeExportDocParams
+     * @property {Object} doc - raw Mongo document
+     * @property {string} resourceType
+     * @property {ParsedArgs} parsedArgs
+     * @property {boolean} isProjected
+     *
+     * @param {SerializeExportDocParams}
+     * @returns {Promise<Object>}
+     */
+    async serializeExportDoc({ doc, resourceType, parsedArgs, isProjected }) {
+        let resource = FhirResourceCreator.createByResourceType(doc, resourceType);
+        if (!isProjected) {
+            await this.enrichmentManager.enrichAsync({ resources: [resource], parsedArgs });
+        }
+        resource = await this.databaseAttachmentManager.transformAttachments(resource, GRIDFS.RETRIEVE);
+        resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
+        return FhirResourceSerializer.serialize(resource.toJSONInternal());
     }
 
     /**
@@ -573,29 +694,187 @@ class BulkDataExportRunner {
     }
 
     /**
+     * Derives the caller tenant scope for the export from the stored scope.
+     * Reuses the same seam the base export query uses (SecurityTagManager /
+     * ScopesManager on the injected searchManager), so roster tenant filtering
+     * matches the MongoDB compartment filtering. `hasFullAccess` is the `*`
+     * access code (never hardcoded); access tags are the concrete codes.
+     *
+     * @returns {{accessTags: string[], ownerTags: string[], hasFullAccess: boolean}}
+     */
+    getExportSecurityContext() {
+        const user = this.exportStatusResource.user;
+        const scope = this.exportStatusResource.scope;
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', user, scope);
+        const hasFullAccess = accessCodes.includes('*');
+        // getSecurityTagsFromScope returns [] for full-access (`*`) scopes and the
+        // concrete access codes otherwise. Owner tags are not encoded in scopes.
+        const accessTags = this.searchManager.securityTagManager.getSecurityTagsFromScope({
+            user, scope, accessRequested: 'read'
+        });
+        return { accessTags, ownerTags: [], hasFullAccess };
+    }
+
+    /**
+     * Loads the Group and resolves its member Patient references for export.
+     * Hybrid Groups (ClickHouse roster) are paged via the storage provider with the
+     * caller tenant scope; normal Groups read inline Group.member[]. Returns [] when
+     * the caller cannot see the Group (no leak).
+     *
+     * @typedef {Object} GetGroupMemberPatientReferencesAsyncParams
+     * @property {string} groupId
+     * @property {Object} query - Tenant-scoped base export query
+     *
+     * @param {GetGroupMemberPatientReferencesAsyncParams}
+     * @returns {Promise<string[]>}
+     */
+    async getGroupMemberPatientReferencesAsync({ groupId, query }) {
+        // The group id arrives from the request URL. Derive the value used in the datastore query
+        // from a validating regex match (a bounded FHIR id/uuid token) rather than the raw input,
+        // so an operator-object can never reach findOne (fail fast on anything else).
+        const groupIdMatch = typeof groupId === 'string' && groupId.match(/^[A-Za-z0-9\-.]{1,64}$/);
+        if (!groupIdMatch) {
+            throw new BadRequestError(new Error('Invalid Group id for $export'));
+        }
+        const safeGroupId = groupIdMatch[0];
+
+        // Load the Group with the export's tenant scope so an unauthorized caller sees nothing.
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
+            resourceType: 'Group',
+            base_version: '4_0_0'
+        });
+        const collection = await resourceLocator.getCollectionAsync({});
+        const groupQuery = this.r4SearchQueryCreator.appendAndSimplifyQuery({
+            query: deepcopy(query),
+            andQuery: { $or: [{ _uuid: safeGroupId }, { _sourceId: safeGroupId }] }
+        });
+        // Reviewed false positive: groupId is a URL path segment (always a string), validated and
+        // derived from a bounded FHIR-id regex match above, so a NoSQL operator-object cannot reach
+        // this query. Aikido's taint engine flags the URL->findOne flow regardless of that. See EA-2331.
+        const groupDoc = await collection.findOne(groupQuery); // nosec
+
+        if (!groupDoc) {
+            logInfo(`Group not found or not authorized for export: ${groupId}`);
+            return [];
+        }
+
+        const hasExternalMembers = hasExternalStorageMemberTag(groupDoc);
+
+        // Check if useExternalStorage header was provided in the original export request
+        const useExternalStorageValue = this.exportStatusResource.extension?.find(
+            ext => ext.id === 'useExternalStorage'
+        )?.valueString;
+        const useExternalStorage = isTrue(useExternalStorageValue);
+
+        const clickHouseGroupsEnabled =
+            this.searchManager.configManager.enableClickHouse &&
+            this.searchManager.configManager.mongoWithClickHouseResources.includes('Group');
+
+        // Roster lives in ClickHouse but ClickHouse is off: the inline member[] was stripped,
+        // so falling through would silently export nothing. Fail loudly instead.
+        if (hasExternalMembers && useExternalStorage && !clickHouseGroupsEnabled) {
+            throw new Error(
+                `Group ${groupId} has externally-stored membership but ClickHouse is disabled; ` +
+                'cannot resolve members for export.'
+            );
+        }
+
+        // If Group has external members but header not provided, return empty array (opt-in security)
+        if (hasExternalMembers && !useExternalStorage) {
+            logInfo(`Group ${groupId} has members in ClickHouse but useExternalStorage header not provided; returning empty roster (opt-in required)`, {
+                groupId,
+                operation: 'export',
+                hasClickHouseMembers: true
+            });
+            return [];
+        }
+
+        if (!hasExternalMembers) {
+            // Normal Group: members are inline in Mongo.
+            return (groupDoc.member || [])
+                .map(m => m?.entity?.reference)
+                .filter(ref => ref && ref.startsWith('Patient/'));
+        }
+
+        // Hybrid Group with header: page the ClickHouse roster with the caller tenant scope.
+        const securityContext = this.getExportSecurityContext();
+        const groupProvider = this.storageProviderFactory.createProvider({
+            resourceType: 'Group',
+            base_version: '4_0_0'
+        });
+
+        const references = [];
+        const pageSize = this.patientReferenceBatchSize || 100;
+        let afterReference = null;
+        // Roster events are keyed on the Group's resource id (see clickHouseGroupHandler).
+        const rosterGroupId = groupDoc.id;
+        // Seek pagination over the roster (members-only page, no per-page count); keep Patient members.
+        for (;;) {
+            const members = await groupProvider.getActiveMembersPageAsync(
+                rosterGroupId,
+                { limit: pageSize, afterReference },
+                securityContext
+            );
+            if (!members || members.length === 0) {
+                break;
+            }
+            for (const member of members) {
+                if (member.entity_type === 'Patient' && member.entity_reference) {
+                    references.push(member.entity_reference);
+                }
+            }
+            if (members.length < pageSize) {
+                break;
+            }
+            afterReference = members[members.length - 1].entity_reference;
+        }
+
+        return references;
+    }
+
+    /**
      * @typedef {Object} HandlePatientExportAsyncParams
      * @property {URLSearchParams} searchParams
      * @property {Object} query
      * @property {string} resourceType
+     * @property {string[]} [memberPatientReferences] - When provided (Group export), scopes
+     *   the export to these Patient references instead of the `patient` search param.
+     * @property {boolean} [isGroupExport] - True for Group-level exports. An empty member
+     *   set then yields an empty output (never a tenant-wide fallback).
      *
      * @param {HandlePatientExportAsyncParams}
      */
-    async handlePatientExportAsync({ searchParams, query, resourceType }) {
+    async handlePatientExportAsync({ searchParams, query, resourceType, memberPatientReferences, isGroupExport = false }) {
         /**
          * @type {S3MultiPartContext|undefined}
          */
         let multipartContext;
         try {
             logInfo(`Starting export for resource: ${resourceType}`);
+
+            // Group export with no resolvable members: write an empty file and stop.
+            // Falling through would drop the patient filter and export the whole tenant.
+            if (isGroupExport && (!memberPatientReferences || memberPatientReferences.length === 0)) {
+                const emptyFilePath = `${this.baseS3Folder}/${resourceType}.ndjson`;
+                await this.s3Client.uploadEmptyFileAsync({ filePath: emptyFilePath });
+                this.exportStatusResource.output.push(
+                    new ExportStatusEntry({
+                        type: resourceType,
+                        url: this.s3Client.getPublicFilePath(emptyFilePath)
+                    })
+                );
+                return;
+            }
+
             // Create patient query and get cursor to process patients batchwise
             const patientQuery = this.addPatientFiltersToQuery({
-                patientReferences: searchParams.get('patient')?.split(','),
+                patientReferences: memberPatientReferences || searchParams.get('patient')?.split(','),
                 query: deepcopy(query),
                 resourceType: 'Patient'
             });
 
             if (resourceType === 'Patient') {
-                await this.processResourceAsync({ resourceType, query: patientQuery });
+                await this.processResourceAsync({ resourceType, query: patientQuery, searchParams });
                 return;
             }
 
@@ -615,6 +894,10 @@ class BulkDataExportRunner {
             multipartContext = new S3MultiPartContext({
                 resourceFilePath: `${this.baseS3Folder}/${resourceType}.ndjson`
             });
+            // _elements projection (if any) applies to the exported resource type, not the
+            // Patient-reference lookup above (which only needs _uuid).
+            const elementsProjection = this.buildElementsProjection({ resourceType, searchParams });
+
             let patientReferences = [];
             for await (const result of patientCursor) {
                 patientReferences.push(`Patient/${result._uuid}`);
@@ -624,7 +907,8 @@ class BulkDataExportRunner {
                         resourceType,
                         query,
                         patientReferences,
-                        multipartContext
+                        multipartContext,
+                        elementsProjection
                     });
                     patientReferences = [];
                 }
@@ -635,7 +919,8 @@ class BulkDataExportRunner {
                     resourceType,
                     query,
                     patientReferences,
-                    multipartContext
+                    multipartContext,
+                    elementsProjection
                 });
             }
 
@@ -706,6 +991,8 @@ class BulkDataExportRunner {
      * @property {Object} query
      * @property {string[]} patientReferences
      * @property {Object} multipartContext
+     * @property {import('mongodb').Document|null} [elementsProjection] - When set (_elements),
+     *   restricts the fetch to these fields and skips enrichment/attachment transforms.
      *
      * @param {ExportPatientDataAsyncParams}
      */
@@ -713,7 +1000,8 @@ class BulkDataExportRunner {
         resourceType,
         query,
         patientReferences,
-        multipartContext
+        multipartContext,
+        elementsProjection = null
     }) {
         const resourceQuery = this.addPatientFiltersToQuery({
             patientReferences,
@@ -739,11 +1027,12 @@ class BulkDataExportRunner {
                 });
                 const db = await resourceLocator.getDatabaseConnectionAsync();
                 multipartContext.collection = db.collection(`${resourceType}_4_0_0`);
-                const stats = await db.command({ collStats: `${resourceType}_4_0_0` });
-                multipartContext.averageDocumentSize = stats.avgObjSize > 0 ? stats.avgObjSize : 2000;
             }
 
             const options = { batchSize: this.fetchResourceBatchSize };
+            if (elementsProjection) {
+                options.projection = elementsProjection;
+            }
             const cursor = multipartContext.collection.find(resourceQuery, options);
 
             // start multipart upload
@@ -753,55 +1042,54 @@ class BulkDataExportRunner {
                 });
                 logInfo(`Starting multipart upload for ${resourceType} with uploadId ${multipartContext.uploadId}`);
             }
-            const minUploadBatchSize = Math.floor(this.uploadPartSize / multipartContext.averageDocumentSize);
             while (await cursor.hasNext()) {
-                let currentBatch = new Array(minUploadBatchSize);
-                let currentBatchSize = 0;
-                while (await cursor.hasNext() && currentBatchSize < minUploadBatchSize) {
-                    let doc = await cursor.next();
-                    doc = FhirResourceCreator.createByResourceType(doc, resourceType);
-                    await this.enrichmentManager.enrichAsync({
-                        resources: [doc],
-                        parsedArgs
+                const currentBatch = [];
+                // Byte-accounted, not count-based: collStats.avgObjSize reflects the full
+                // stored document, but elementsProjection (_elements) makes serializeExportDoc
+                // emit far smaller projected docs. A doc-count target derived from avgObjSize
+                // would then under-fill each part well below S3's 5MB non-final-part minimum
+                // (see PR #2459 review). Accumulating actual serialized bytes keeps parts
+                // correctly sized regardless of how small a projection makes each doc.
+                let currentBatchBytes = 0;
+                while (await cursor.hasNext() && currentBatchBytes < this.uploadPartSize) {
+                    const doc = await this.serializeExportDoc({
+                        doc: await cursor.next(),
+                        resourceType,
+                        parsedArgs,
+                        isProjected: Boolean(elementsProjection)
                     });
-                    await this.databaseAttachmentManager.transformAttachments({
-                        resource: doc,
-                        operation: GRIDFS.RETRIEVE
-                    });
-                    doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.RETRIEVE);
-                    doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
-                    currentBatch[currentBatchSize++] = JSON.stringify(doc);
+                    const serializedDoc = JSON.stringify(doc);
+                    currentBatch.push(serializedDoc);
+                    currentBatchBytes += Buffer.byteLength(serializedDoc, 'utf8');
                 }
 
-                multipartContext.readCount += currentBatchSize;
+                multipartContext.readCount += currentBatch.length;
+                let batchToUpload = currentBatch;
+                let batchBytesToUpload = currentBatchBytes;
                 if (multipartContext.previousBuffer?.length) {
-                    // trim the pre-allocated array down to the entries actually written before
-                    // merging in the buffered records from the previous iteration, otherwise the
-                    // unused (undefined) slots between currentBatchSize and minUploadBatchSize
-                    // would be included in the merged batch
-                    currentBatch = currentBatch.slice(0, currentBatchSize).concat(multipartContext.previousBuffer);
-                    currentBatchSize += multipartContext.previousBatchSize;
+                    batchToUpload = multipartContext.previousBuffer.concat(currentBatch);
+                    batchBytesToUpload += multipartContext.previousBufferBytes;
                 }
-                if (currentBatchSize >= minUploadBatchSize) {
+                if (batchBytesToUpload >= this.uploadPartSize) {
                     logInfo(`${resourceType} resource read: ${multipartContext.readCount}`);
                     logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
 
                     // Upload the file to s3
                     multipartContext.multipartUploadParts.push(
                         await this.s3Client.uploadPartAsync({
-                            data: currentBatch.slice(0, currentBatchSize).join('\n'),
+                            data: batchToUpload.join('\n'),
                             partNumber: multipartContext.multipartUploadParts.length + 1,
                             uploadId: multipartContext.uploadId,
                             filePath: multipartContext.resourceFilePath
                         })
                     );
                     multipartContext.previousBuffer = null;
-                    multipartContext.previousBatchSize = null;
+                    multipartContext.previousBufferBytes = null;
 
                     logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
                 } else {
-                    multipartContext.previousBuffer = currentBatch;
-                    multipartContext.previousBatchSize = currentBatchSize;
+                    multipartContext.previousBuffer = batchToUpload;
+                    multipartContext.previousBufferBytes = batchBytesToUpload;
                 }
             }
         } catch (err) {
@@ -826,10 +1114,11 @@ class BulkDataExportRunner {
      * @property {string} resourceType
      * @property {Object} query
      * @property {number} [batchNumber]
+     * @property {URLSearchParams} [searchParams] - Source of the optional _elements projection.
      *
      * @param {ProcessResourceAsyncParams}
      */
-    async processResourceAsync({ resourceType, query, batchNumber }) {
+    async processResourceAsync({ resourceType, query, batchNumber, searchParams }) {
         const filePath = `${this.baseS3Folder}/${resourceType}${batchNumber ? `_${batchNumber}` : ''}.ndjson`;
         let uploadId;
         try {
@@ -844,6 +1133,11 @@ class BulkDataExportRunner {
             });
             parsedArgs.headers = {};
 
+            // _elements: project to requested + mandatory fields and skip enrichment/attachment.
+            const elementsProjection = searchParams
+                ? this.buildElementsProjection({ resourceType, searchParams })
+                : null;
+
             logInfo(`Exporting resources for ${resourceType} resource`);
 
             /**
@@ -856,6 +1150,9 @@ class BulkDataExportRunner {
 
             const db = await resourceLocator.getDatabaseConnectionAsync();
             const options = { batchSize: this.fetchResourceBatchSize };
+            if (elementsProjection) {
+                options.projection = elementsProjection;
+            }
             const cursor = db.collection(`${resourceType}_4_0_0`).find(query, options);
 
             let readCount = 0;
@@ -867,36 +1164,28 @@ class BulkDataExportRunner {
             }
             const multipartUploadParts = [];
 
-            const stats = await db.command({ collStats: `${resourceType}_4_0_0` });
-            // avgObjSize can be reported as 0 by MongoDB for collections whose stats haven't
-            // caught up yet, which would otherwise make minUploadBatchSize evaluate to Infinity
-            // and crash on `new Array(Infinity)` below. Fall back to the same default used in
-            // exportPatientDataAsync when that happens.
-            const averageDocumentSize = stats.avgObjSize > 0 ? stats.avgObjSize : 2000;
-            const minUploadBatchSize = Math.floor(this.uploadPartSize / averageDocumentSize);
             while (await cursor.hasNext()) {
-                const currentBatch = new Array(minUploadBatchSize);
-                let currentBatchSize = 0;
+                const currentBatch = [];
+                // Byte-accounted, not count-based: see exportPatientDataAsync for why a
+                // doc-count target derived from collection avgObjSize under-fills parts once
+                // elementsProjection (_elements) is in play.
+                let currentBatchBytes = 0;
 
-                while (await cursor.hasNext() && currentBatchSize < minUploadBatchSize) {
-                    let doc = await cursor.next();
-                    doc = FhirResourceCreator.createByResourceType(doc, resourceType);
-                    await this.enrichmentManager.enrichAsync({
-                        resources: [doc],
-                        parsedArgs
+                while (await cursor.hasNext() && currentBatchBytes < this.uploadPartSize) {
+                    const doc = await this.serializeExportDoc({
+                        doc: await cursor.next(),
+                        resourceType,
+                        parsedArgs,
+                        isProjected: Boolean(elementsProjection)
                     });
-                    await this.databaseAttachmentManager.transformAttachments({
-                        resource: doc,
-                        operation: GRIDFS.RETRIEVE
-                    });
-                    doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.RETRIEVE);
-                    doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
-                    currentBatch[currentBatchSize++] = JSON.stringify(doc);
+                    const serializedDoc = JSON.stringify(doc);
+                    currentBatch.push(serializedDoc);
+                    currentBatchBytes += Buffer.byteLength(serializedDoc, 'utf8');
                 }
 
-                const buffer = currentBatch.slice(0, currentBatchSize).join('\n');
+                const buffer = currentBatch.join('\n');
 
-                readCount += currentBatchSize;
+                readCount += currentBatch.length;
                 logInfo(`${resourceType} resource read: ${readCount}`);
                 logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${uploadId}`);
 

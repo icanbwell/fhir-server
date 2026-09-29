@@ -12,8 +12,25 @@ const { ConfigManager } = require('./configManager');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 const { buildBulkWriteRequestContext } = require('../dataLayer/bulkWriteRequestContext');
 const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES, PURPOSE_OF_USE_SYSTEM } = require('../constants');
+const { STATUS_CODES } = require('http');
 
 const mutex = new Mutex();
+
+/**
+ * @param {Object} params
+ * @param {Error} params.error
+ * @param {number} params.statusCode
+ * @return {string}
+ */
+function sanitizeOutcomeDesc({ error, statusCode }) {
+    if (statusCode === 403) {
+        return error.message
+            || error.issue?.[0]?.diagnostics
+            || error.issue?.[0]?.details?.text
+            || 'Forbidden';
+    }
+    return STATUS_CODES[`${statusCode}`] || 'Internal Server Error';
+}
 
 class AuditLogger {
     /**
@@ -111,13 +128,40 @@ class AuditLogger {
     }
 
     /**
-     * Builds the entity[0].detail array, preserving the previous behavior of
-     * blanking the `id` arg and filtering remaining args to strings.
+     * Builds the AuditEvent fields shared by createAuditEntry and createErrorAuditEntry.
      * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @param {Object} args
+     * @returns {Object}
+     */
+    _buildBaseAuditEvent (requestInfo) {
+        const now = new Date();
+        return {
+            resourceType: 'AuditEvent',
+            id: generateUUID(),
+            meta: {
+                versionId: '1',
+                lastUpdated: now,
+                security: [
+                    { system: SecurityTagSystem.owner, code: 'bwell' },
+                    { system: SecurityTagSystem.access, code: 'bwell' }
+                ]
+            },
+            recorded: now,
+            agent: this.buildAgents(requestInfo),
+            source: {
+                observer: {
+                    reference: `Organization/${this.auditEventObserverOrganizationId}`
+                }
+            }
+        };
+    }
+
+    /**
+     * Builds the requestUrl/requestId detail entries shared by _buildEntityDetail and
+     * createErrorAuditEntry.
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
      * @returns {{type: string, valueString: string}[]}
      */
-    _buildEntityDetail (requestInfo, args) {
+    _buildRequestDetail (requestInfo) {
         const detail = [];
         if (requestInfo.originalUrl) {
             detail.push({ type: 'requestUrl', valueString: requestInfo.originalUrl });
@@ -125,6 +169,18 @@ class AuditLogger {
         if (requestInfo.requestId) {
             detail.push({ type: 'requestId', valueString: requestInfo.requestId });
         }
+        return detail;
+    }
+
+    /**
+     * Builds the entity[0].detail array, preserving the previous behavior of
+     * blanking the `id` arg and filtering remaining args to strings.
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {Object} args
+     * @returns {{type: string, valueString: string}[]}
+     */
+    _buildEntityDetail (requestInfo, args) {
+        const detail = this._buildRequestDetail(requestInfo);
         if (args) {
             for (const [key, value] of Object.entries(args)) {
                 if (key === '_id' || key === '_source') continue;
@@ -146,9 +202,11 @@ class AuditLogger {
      * @param {string} params.operation
      * @param {Object} params.args
      * @param {string[]} params.ids
+     * @param {string} [params.outcome]
+     * @param {string} [params.outcomeDesc]
      * @returns {Object}
      */
-    createAuditEntry({ requestInfo, operation, ids, resourceType, args }) {
+    createAuditEntry({ requestInfo, operation, ids, resourceType, args, outcome, outcomeDesc }) {
         const operationCodeMapping = {
             create: 'C',
             read: 'R',
@@ -157,37 +215,18 @@ class AuditLogger {
             execute: 'E'
         };
 
-        const agents = this.buildAgents(requestInfo);
-
         const purposeOfEvent = requestInfo.purposeOfUse?.length
             ? requestInfo.purposeOfUse.map((code) => ({
                   coding: [{ system: PURPOSE_OF_USE_SYSTEM, code }]
               }))
             : undefined;
 
-        const now = new Date();
-        return {
-            resourceType: 'AuditEvent',
-            id: generateUUID(),
-            meta: {
-                versionId: '1',
-                lastUpdated: now,
-                security: [
-                    { system: SecurityTagSystem.owner, code: 'bwell' },
-                    { system: SecurityTagSystem.access, code: 'bwell' }
-                ]
-            },
-            recorded: now,
+        const doc = {
+            ...this._buildBaseAuditEvent(requestInfo),
             type: {
                 system: 'http://dicom.nema.org/resources/ontology/DCM',
                 code: '110112',
                 display: 'Query'
-            },
-            agent: agents,
-            source: {
-                observer: {
-                    reference: `Organization/${this.auditEventObserverOrganizationId}`
-                }
             },
             action: operationCodeMapping[`${operation}`],
             entity: ids.map((resourceId, index) => ({
@@ -196,6 +235,13 @@ class AuditLogger {
             })),
             purposeOfEvent
         };
+        if (outcome !== undefined) {
+            doc.outcome = outcome;
+        }
+        if (outcomeDesc !== undefined) {
+            doc.outcomeDesc = outcomeDesc;
+        }
+        return doc;
     }
 
     /**
@@ -207,9 +253,13 @@ class AuditLogger {
      * @param {string} params.operation
      * @param {Object} params.args
      * @param {string[]} params.ids
+     * @param {string} [params.outcome]
+     * @param {string} [params.outcomeDesc]
      * @return {Promise<void>}
      */
-    async logAuditEntryAsync({ requestInfo, base_version, resourceType, operation, args, ids }) {
+    async logAuditEntryAsync({
+        requestInfo, base_version, resourceType, operation, args, ids, outcome, outcomeDesc
+    }) {
         if (!this.enableAccessAuditEvent || resourceType === 'AuditEvent') {
             return;
         }
@@ -219,14 +269,23 @@ class AuditLogger {
         // otherwise stay alive in the queue until the next cron flush.
         const queueContext = buildBulkWriteRequestContext(requestInfo);
 
+        const idBatches = [];
         for (let i = 0; i < ids.length; i += this.maxIdsPerAuditEvent) {
-            const idChunk = ids.slice(i, i + this.maxIdsPerAuditEvent);
+            idBatches.push(ids.slice(i, i + this.maxIdsPerAuditEvent));
+        }
+        if (idBatches.length === 0 && outcome !== undefined) {
+            idBatches.push([]);
+        }
+
+        for (const idChunk of idBatches) {
             const doc = this.createAuditEntry({
                 requestInfo,
                 operation,
                 ids: idChunk,
                 resourceType,
-                args
+                args,
+                outcome,
+                outcomeDesc
             });
             await this.preSaveManager.preSaveAsync({ resource: doc });
             const serialized = FhirResourceWriteSerializer.serialize({ obj: doc });
@@ -259,43 +318,18 @@ class AuditLogger {
               };
         const outcome = errorCode >= 500 ? '8' : '4';
 
-        const agents = this.buildAgents(requestInfo);
-
-        const detail = [];
-        if (requestInfo.originalUrl) {
-            detail.push({ type: 'requestUrl', valueString: requestInfo.originalUrl });
-        }
-        if (requestInfo.requestId) {
-            detail.push({ type: 'requestId', valueString: requestInfo.requestId });
-        }
+        const detail = this._buildRequestDetail(requestInfo);
         if (extraParams) {
             for (const p of extraParams) detail.push(p);
         }
         const entity = detail.length > 0 ? [{ detail }] : undefined;
 
-        const now = new Date();
         return {
-            resourceType: 'AuditEvent',
-            id: generateUUID(),
-            meta: {
-                versionId: '1',
-                lastUpdated: now,
-                security: [
-                    { system: SecurityTagSystem.owner, code: 'bwell' },
-                    { system: SecurityTagSystem.access, code: 'bwell' }
-                ]
-            },
-            recorded: now,
+            ...this._buildBaseAuditEvent(requestInfo),
             type,
             action: 'E',
             outcome,
             outcomeDesc: errorMessage,
-            agent: agents,
-            source: {
-                observer: {
-                    reference: `Organization/${this.auditEventObserverOrganizationId}`
-                }
-            },
             entity
         };
     }
@@ -397,5 +431,6 @@ class AuditLogger {
 }
 
 module.exports = {
-    AuditLogger
+    AuditLogger,
+    sanitizeOutcomeDesc
 };

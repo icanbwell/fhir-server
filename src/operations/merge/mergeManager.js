@@ -33,6 +33,7 @@ const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_element
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { COLLECTION } = require('../../constants');
+const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
 
 class MergeManager {
     /**
@@ -170,6 +171,17 @@ class MergeManager {
         // found an existing resource
         currentResource = await this.preSaveManager.preSaveAsync({
             resource: currentResource, options: preSaveOptions
+        });
+
+        // Extended Group's member[] doesn't exist on the live document -- a submitted member
+        // must go through PATCH instead (design doc §5.1). Checked before any merge/persist
+        // work, and unconditional on ENABLE_EXTENDED_GROUP (see rejectMemberOnExtendedGroupWrite's
+        // own docstring for why).
+        rejectMemberOnExtendedGroupWrite({
+            currentResource,
+            hasMemberField: resourceToMerge.resourceType === 'Group' &&
+                Array.isArray(resourceToMerge.member) &&
+                resourceToMerge.member.length > 0
         });
 
         /**
@@ -323,6 +335,7 @@ class MergeManager {
              */
             let currentResource;
 
+            let resourceTypeWasLoaded = false;
             if (this.databaseBulkLoader) {
                 currentResource = this.databaseBulkLoader.getResourceFromExistingList(
                     {
@@ -331,8 +344,18 @@ class MergeManager {
                         uuid
                     }
                 );
-            } else {
-                // Query our collection for this id
+                resourceTypeWasLoaded = this.databaseBulkLoader.isResourceTypeLoaded(
+                    { requestId, resourceType: resourceToMerge.resourceType }
+                );
+            }
+            if (!currentResource && !resourceTypeWasLoaded) {
+                // getResourceFromExistingList() returns null both when the resource was
+                // confirmed not to exist (resourceType was loaded, uuid just wasn't in it) and
+                // when there's no bulk loader (or this resourceType was never loaded into it for
+                // this request). Only the latter is ambiguous -- trusting it as confirmed
+                // non-existence would misroute an existing resource to the insert path -- so
+                // only fall back to a direct query in that case. Querying on every miss would
+                // add a redundant DB round-trip for every ordinary create.
                 const databaseQueryManager = this.databaseQueryFactory.createQuery(
                     { resourceType: resourceToMerge.resourceType, base_version }
                 );
@@ -673,7 +696,7 @@ class MergeManager {
             );
         } catch (e) {
             throw new RethrownError({
-                message: `Error updating: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error updating: resource_uuid=${resourceToMerge._uuid}`,
                 error: e
             });
         }
@@ -715,7 +738,7 @@ class MergeManager {
             );
         } catch (e) {
             throw new RethrownError({
-                message: `Error inserting: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error inserting: resource_uuid=${resourceToMerge._uuid}`,
                 error: e
             });
         }
@@ -762,12 +785,14 @@ class MergeManager {
      * @param {Object} resourceToMerge
      * @param {string} resourceType
      * @param {FhirRequestInfo} requestInfo
+     * @param {string} [base_version] the FHIR version of the resource being merged
      * @returns {Promise<MergeResultEntry|null>}
      */
     async preMergeChecksAsync ({
         requestInfo,
         resourceToMerge,
-        resourceType
+        resourceType,
+        base_version
     }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         try {
@@ -801,7 +826,8 @@ class MergeManager {
             const forbiddenError = await this.scopesValidator.isScopesValidAsync({
                 requestInfo,
                 resourceType: resourceToMerge.resourceType,
-                accessRequested: 'write'
+                accessRequested: 'write',
+                base_version
             });
 
             if (forbiddenError) {
@@ -824,7 +850,7 @@ class MergeManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: `Error pre merge checks: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error pre merge checks: resource_uuid=${resourceToMerge._uuid}`,
                 error: e
             });
         }
@@ -834,12 +860,14 @@ class MergeManager {
      * run any pre-checks on multiple resources before merge
      * @param {FhirRequestInfo} requestInfo
      * @param {Object[]} resourcesToMerge
+     * @param {string} [base_version] the FHIR version of the resources being merged
      * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], validResources: Object[]}>}
      */
     async preMergeChecksMultipleAsync (
         {
             requestInfo,
-            resourcesToMerge
+            resourcesToMerge,
+            base_version
         }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         assertIsValid(Array.isArray(resourcesToMerge), 'resourcesToMerge should be an array');
@@ -860,7 +888,8 @@ class MergeManager {
                     {
                         requestInfo,
                         resourceToMerge: r,
-                        resourceType: r.resourceType
+                        resourceType: r.resourceType,
+                        base_version
                     }
                 );
                 if (mergeResult) {

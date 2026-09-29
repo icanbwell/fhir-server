@@ -1095,7 +1095,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
         if (this.startFromId) {
             const startId = isValidMongoObjectId(this.startFromId) ? new ObjectId(this.startFromId) : this.startFromId;
-            if (Object.keys(query) > 0) {
+            if (Object.keys(query).length > 0) {
                 // noinspection JSValidateTypes
                 query = {
                     $and: [

@@ -89,8 +89,11 @@ class CustomOperationsController {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({ requestId });
-                await this.requestSpecificCache.clearAsync({ requestId });
+                try {
+                    await this.postRequestProcessor.executeAsync({ requestId });
+                } finally {
+                    await this.requestSpecificCache.clearAsync({ requestId });
+                }
             }
         };
     }
@@ -128,8 +131,11 @@ class CustomOperationsController {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({ requestId });
-                await this.requestSpecificCache.clearAsync({ requestId });
+                try {
+                    await this.postRequestProcessor.executeAsync({ requestId });
+                } finally {
+                    await this.requestSpecificCache.clearAsync({ requestId });
+                }
             }
         };
     }
@@ -158,6 +164,8 @@ class CustomOperationsController {
                     this.fhirResponseWriter.everything({ req, res, result });
                 } else if (name === 'exportById') {
                     this.fhirResponseWriter.exportById({req, res, result});
+                } else if (name === 'export') {
+                    this.fhirResponseWriter.export({req, res, result});
                 } else if (name === 'summary') {
                     this.fhirResponseWriter.summary({req, res, result});
                 } else {
@@ -167,8 +175,11 @@ class CustomOperationsController {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({ requestId });
-                await this.requestSpecificCache.clearAsync({ requestId });
+                try {
+                    await this.postRequestProcessor.executeAsync({ requestId });
+                } finally {
+                    await this.requestSpecificCache.clearAsync({ requestId });
+                }
             }
         };
     }

@@ -9,7 +9,8 @@ const {
     hasCsvContentType,
     hasTabDelimitedContentType,
     hasPipeDelimitedContentType,
-    hasExcelContentType
+    hasExcelContentType,
+    hasPlainTextContentType
 } = require('../../../utils/contentTypes');
 
 describe('contentTypes', () => {
@@ -254,6 +255,35 @@ describe('contentTypes', () => {
         test('hasJsonContentType does not decode URL-encoded input', () => {
             const encoded = encodeURIComponent('application/fhir+json');
             expect(hasJsonContentType(encoded)).toBe(false);
+        });
+    });
+
+    describe('hasPlainTextContentType', () => {
+        test('matches the plainText content type exactly', () => {
+            expect(hasPlainTextContentType(fhirContentTypes.plainText)).toBe(true);
+            expect(hasPlainTextContentType('text/plain')).toBe(true);
+        });
+
+        test('does not match other content types', () => {
+            expect(hasPlainTextContentType('application/fhir+json')).toBe(false);
+            expect(hasPlainTextContentType('text/csv')).toBe(false);
+        });
+
+        test('returns false for empty/undefined input', () => {
+            expect(hasPlainTextContentType('')).toBe(false);
+            expect(hasPlainTextContentType(undefined)).toBe(false);
+        });
+
+        test('matches within an array (multi-valued _format)', () => {
+            expect(hasPlainTextContentType(['application/fhir+json', 'text/plain'])).toBe(true);
+        });
+
+        test('does not throw on a malformed percent-escape and returns false', () => {
+            // A malformed _format (e.g. `_format=abc%zz`) must not 500 a normal resource read --
+            // this runs unconditionally for every single-resource read via
+            // FhirResponseWriter.readOne, not just ones targeting this feature.
+            expect(() => hasPlainTextContentType('abc%zz')).not.toThrow();
+            expect(hasPlainTextContentType('abc%zz')).toBe(false);
         });
     });
 });

@@ -267,7 +267,10 @@ describe('AccessColumnHandler', () => {
             expect(result._access).toEqual({ tenantA: 1 });
         });
 
-        test('does not clear _access when meta.security is empty array', async () => {
+        // These two previously asserted that _access survives when meta.security IS present but
+        // carries no access tags. That is the opposite of what the security model requires, so they
+        // now assert the required behavior instead.
+        test('clears _access when meta.security is an empty array', async () => {
             const resource = {
                 resourceType: 'Patient',
                 meta: { security: [] },
@@ -276,10 +279,12 @@ describe('AccessColumnHandler', () => {
 
             const result = await handler.preSaveAsync({ resource });
 
-            expect(result._access).toEqual({ tenantA: 1, tenantB: 1 });
+            // §3: _access MUST be exactly synchronized with meta.security access tags; stale codes
+            // MUST be deleted. §67: a resource with no access tag is visible to nobody (fail closed).
+            expect(result._access).toEqual({});
         });
 
-        test('does not clear _access when security has tags but none are access system', async () => {
+        test('clears _access when security has tags but none are access system', async () => {
             const resource = {
                 resourceType: 'Patient',
                 meta: {
@@ -292,7 +297,9 @@ describe('AccessColumnHandler', () => {
 
             const result = await handler.preSaveAsync({ resource });
 
-            expect(result._access).toEqual({ tenantA: 1 });
+            // §3: an owner tag is not an access tag - it grants no _access entry, and the stale
+            // tenantA entry must not survive.
+            expect(result._access).toEqual({});
         });
     });
 

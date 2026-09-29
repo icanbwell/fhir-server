@@ -249,9 +249,7 @@ class DatabaseQueryManager {
             });
         } catch (e) {
             throw new RethrownError({
-                message:
-                    'Error in findResourcesInDatabaseAsync(): ' +
-                    `resources: ${JSON.stringify(resources, getCircularReplacer())}`,
+                message: 'Error in findResourcesInDatabaseAsync()',
                 error: e,
                 args: { resources }
             });

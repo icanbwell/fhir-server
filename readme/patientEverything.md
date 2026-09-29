@@ -67,13 +67,27 @@ Sample $everything result for patient
 ## Person $everything
 Person $everything operation is mapped to Patient $everything under the hood as proxy Patient $everything
 
-`<base_url>/4_0_0/Person/\<person1>/$everything` is same as `<base_url>/4_0_0/Patient/person.\<person1>/$everything`
+`<base_url>/4_0_0/Person/\<person1>/$everything` resolves the same underlying patient graph as `<base_url>/4_0_0/Patient/person.\<person1>/$everything`
+
+The two are not fully interchangeable, though — `Subscription`, `SubscriptionStatus` and `SubscriptionTopic` are returned only for a request against the `Person` resource type. See below.
 
 ### Patient $everything includes all linked persons
 
 A patient can be linked to more than one Person resource. Patient $everything has no notion of "which person the caller asked about", so it returns **every** Person resource linked to the resolved patient(s).
 
 This is different from calling Person $everything directly, which scopes the result down to only the Person id(s) that were explicitly requested. See [Person $everything](personEverything.md) for details and an example.
+
+### Patient $everything does not return Subscription resources
+
+`Subscription`, `SubscriptionStatus` and `SubscriptionTopic` identify the person they belong to via a `client_person_id` extension/identifier, not via a patient reference. Patient $everything has no notion of "which person the caller asked about", so it never returns these three resource types. This applies to:
+
+-   `<base_url>/4_0_0/Patient/\<patient1>/$everything` and `<base_url>/4_0_0/Patient/$everything?id=\<patient1>`
+-   the proxy patient id form, `<base_url>/4_0_0/Patient/person.\<person1>/$everything`
+-   requests whose token carries `Subscription`/`SubscriptionStatus`/`SubscriptionTopic` scopes, and requests that name them explicitly in `_type`
+
+To retrieve them, call Person $everything against the `Person` resource type instead — see [Person $everything](personEverything.md).
+
+This applies to GET only. Person and Patient DELETE $everything both still delete these resource types; see [everything.md](everything.md).
 
 ## Notes
 - If loading the result of each resource for $everything to node.js takes more than the specified time in MONGO_TIMEOUT (default 2 mins), a error is returned.
@@ -88,6 +102,16 @@ This is different from calling Person $everything directly, which scopes the res
 It can be used if data related to more than one patient resources provided needs to be fetched. If `id` search query parameter is passed, then the path parameter is ignored.
 
 For example: <base_url>/4_0_0/Patient/$everything?id=patient1,patient2
+
+:warning: Plain patient ids and [proxy patient](proxyPatient.md) ids (`person.\<person_id>`) cannot be mixed in the same request. Such a request is rejected with a `400` and an `OperationOutcome` of:
+
+```
+Cannot mix proxy patient ids (person.<id>) with regular patient ids in the same $everything request
+```
+
+The two forms cannot be combined because the person scoping described in [Person $everything](personEverything.md) is derived from the `person.` prefixed entries and is then applied to the request as a whole, which would also wrongly restrict the Person resources linked to the plain patient ids. Send the two forms as separate requests instead.
+
+For example, this returns `400`: <base_url>/4_0_0/Patient/$everything?id=person.\<person1>,\<patient2>
 
 ### \_type
 

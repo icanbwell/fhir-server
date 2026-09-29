@@ -1,0 +1,60 @@
+{
+  "resourceType": "Encounter",
+  "id": "encounter-2026",
+  "meta": {
+    "source": "mps",
+    "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client"
+      }
+    ]
+  },
+  "status": "finished",
+  "class": {
+    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+    "code": "AMB"
+  },
+  "type": [
+    {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "162673000",
+          "display": "General examination of patient (procedure)"
+        }
+      ],
+      "text": "General examination of patient (procedure)"
+    }
+  ],
+  "subject": {
+    "reference": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df727",
+    "display": "Mr. Max124 Larry532 Gibson10"
+  },
+  "period": {
+    "start": "2026-06-19T01:15:45+00:00",
+    "end": "2026-06-19T01:30:45+00:00"
+  },
+  "location": [
+    {
+      "id": "-1000003632",
+      "location": {
+        "reference": "Location/-1000003632",
+        "display": "PCP193904"
+      }
+    }
+  ],
+  "serviceProvider": {
+    "reference": "Organization/00ab3fbd-6157-3f4a-a58c-178d16b9e3f1",
+    "display": "PCP193904"
+  }
+}

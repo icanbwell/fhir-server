@@ -261,6 +261,12 @@ describe('AuditEventTransformer', () => {
             expect(result.resource).toBe(baseDoc);
         });
 
+        test('throws when recorded is missing (toClickHouseDateTime cannot format)', () => {
+            const doc = { ...baseDoc };
+            delete doc.recorded;
+            expect(() => transformer.transformDocument(doc)).toThrow();
+        });
+
         test('handles missing optional fields gracefully', () => {
             const doc = {
                 _uuid: 'AuditEvent/uuid-2',
@@ -326,6 +332,12 @@ describe('AuditEventTransformer', () => {
     });
 
     describe('transformBatch', () => {
+        test('propagates the underlying error when a doc is missing recorded', () => {
+            const valid = { _uuid: 'AuditEvent/uuid-1', recorded: '2024-01-01T00:00:00.000Z' };
+            const invalid = { _uuid: 'AuditEvent/uuid-2' };
+            expect(() => transformer.transformBatch([valid, invalid])).toThrow();
+        });
+
         test('transforms all documents in the batch', () => {
             const docs = [
                 { _uuid: 'AuditEvent/uuid-1', recorded: '2024-01-01T00:00:00.000Z', action: 'C' },

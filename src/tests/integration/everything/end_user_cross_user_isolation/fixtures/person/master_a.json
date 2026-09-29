@@ -1,0 +1,4 @@
+{ "resourceType":"Person","id":"euMasterA",
+  "meta":{"source":"bwell","security":[{"system":"https://www.icanbwell.com/owner","code":"bwell"}]},
+  "name":[{"use":"official","family":"Kent","given":["Bob"]}],"gender":"male","birthDate":"1991-03-14",
+  "link":[{"target":{"reference":"Person/euClientA|bwell_demo","type":"Person"},"assurance":"level4"}] }

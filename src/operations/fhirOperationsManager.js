@@ -34,6 +34,7 @@ const {ExportByIdOperation} = require('./export/exportById');
 const {ImportOperation} = require('./import/import');
 const {FhirResponseNdJsonStreamer} = require('../utils/fhirResponseNdJsonStreamer');
 const {READ, WRITE} = require('../constants').OPERATIONS;
+const {DB_SEARCH_LIMIT_FOR_IDS} = require('../constants');
 const {vulcanIgSearchQueries} = require('./query/customQueries');
 const {getNestedValueByPath} = require('../utils/object');
 const {ConfigManager} = require('../utils/configManager');
@@ -326,13 +327,66 @@ class FhirOperationsManager {
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
-                base_version, parsedArgs, resourceType, operation, requestInfo
+                base_version, parsedArgs, resourceType, operation, requestInfo,
+                // call-time, not constructor-injected: avoids a DI cycle with searchManager/
+                // fhirOperationsManager, both of which depend on queryRewriterManager
+                searchResourceAsync: (chainArgs) => this.searchResourceForChainAsync({ ...chainArgs, base_version })
             }
         );
         if (headers) {
             parsedArgs.headers = headers;
         }
         return parsedArgs;
+    }
+
+    // Used by ChainedSearchQueryRewriter to resolve a chain's target ids through the same
+    // authorized search path a top-level search uses (review.md §E). Paginates until a
+    // partial/empty page proves there's nothing left -- a full page must never be mistaken for
+    // "that's all of them", since searchManager caps a single non-streaming page at
+    // DB_SEARCH_LIMIT_FOR_IDS regardless of _count.
+    async searchResourceForChainAsync ({ resourceType, args, requestInfo, base_version, pageSize = DB_SEARCH_LIMIT_FOR_IDS, debugTags }) {
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'search' });
+
+        const resolvedUuids = [];
+        // keyset/cursor pagination (id:above the last-seen _uuid, relying on the default
+        // ascending _uuid sort) instead of _getpagesoffset -- offset pagination makes Mongo
+        // skip() + re-scan all N*pageSize preceding docs on every page.
+        let lastUuid;
+        while (true) {
+            const parsedArgs = await this.getParsedArgsAsync({
+                args: {
+                    ...args,
+                    base_version,
+                    _elements: '_uuid',
+                    _count: pageSize,
+                    ...(lastUuid ? { 'id:above': lastUuid } : {})
+                },
+                resourceType,
+                operation: READ,
+                requestInfo
+            });
+            const bundle = await this.searchBundleOperation.searchBundleAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType,
+                useAggregationPipeline: false
+            });
+            const entries = bundle.entry || [];
+            for (const entry of entries) {
+                if (entry.resource?._uuid) {
+                    resolvedUuids.push(entry.resource._uuid);
+                    lastUuid = entry.resource._uuid;
+                }
+            }
+            const queryTag = bundle.meta?.tag?.find((t) => t.system === 'https://www.icanbwell.com/query');
+            if (queryTag && debugTags) {
+                debugTags.push(queryTag);
+            }
+            if (entries.length < pageSize) {
+                break;
+            }
+        }
+        return resolvedUuids;
     }
 
     /**
@@ -531,7 +585,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<Resource | null | undefined>}
      */
-    async searchById(args, { req }, resourceType) {
+    async searchById(args, { req, res }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
         this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'searchById' });
         /**
@@ -544,14 +598,15 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.searchByIdOperation.searchByIdAsync(
             {
                 requestInfo: requestInfo,
                 parsedArgs,
-                resourceType
+                resourceType,
+                res
             }
         );
     }
@@ -580,7 +635,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         });
 
         return await this.createOperation.createAsync(
@@ -613,7 +668,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         }
         );
         return await this.updateOperation.updateAsync(
@@ -650,7 +705,8 @@ class FhirOperationsManager {
                         args: combined_args,
                         resourceType,
                         headers: req.headers,
-                        operation: WRITE
+                        operation: WRITE,
+                        requestInfo
                     })
                 });
                 return { requestInfo, parsedArgs };
@@ -704,23 +760,53 @@ class FhirOperationsManager {
             delete combined_args._id;
         }
 
+        // repeated query keys (?id=a&id=b) are parsed into an array by express, so normalize to
+        // a list before anything splits on it
+        const idsList = combined_args.id
+            ? (Array.isArray(combined_args.id) ? combined_args.id : combined_args.id.split(','))
+            : [];
+
         this.cmsManager.verifyNotProxyPatientId({
             requestInfo,
-            patientId: combined_args.id || combined_args._id
+            patientId: idsList.length > 0 ? idsList.join(',') : combined_args._id
         });
-
 
         let scopedPersonIds;
         // person ids to retrict result to
-        if (resourceType === "Person" && combined_args.id) {
-            scopedPersonIds = combined_args.id.split(',');
+        // True only for a genuine /Person/{id}/$everything request, captured here before the
+        // Person->Patient remap below erases the distinction. scopedPersonIds alone can't be used
+        // for this (SEC-1580 F10 below populates it identically for a client-issued proxy-patient
+        // request), but PROA consented-data-access expansion must apply to a real Person
+        // $everything request only, not to a Patient-endpoint request using a proxy id.
+        let isPersonEverything = false;
+        if (resourceType === "Person" && idsList) {
+            scopedPersonIds = idsList;
+            isPersonEverything = true;
+        } else if (resourceType === 'Patient' && idsList) {
+            // the equivalent of Person $everything can also be requested directly against the
+            // Patient endpoint using the proxy patient id form (Patient/person.<id>/$everything);
+            // apply the same sibling-record scoping in that case too (SEC-1580 F10)
+            const proxyPersonIds = idsList
+                .filter((id) => id.startsWith(PERSON_PROXY_PREFIX))
+                .map((id) => id.replace(PERSON_PROXY_PREFIX, ''));
+            if (proxyPersonIds.length > 0) {
+                if (proxyPersonIds.length !== idsList.length) {
+                    // scopedPersonIds is applied as a single filter across the whole combined
+                    // Person query for this request, so mixing proxy and non-proxy ids would
+                    // also wrongly restrict the non-proxy id's own unrelated Person siblings
+                    throw new BadRequestError(new Error(
+                        'Cannot mix proxy patient ids (person.<id>) with regular patient ids in the same $everything request'
+                    ));
+                }
+                scopedPersonIds = proxyPersonIds;
+            }
         }
 
         // map Person GET $everything to Patient GET $everything
         if (resourceType === 'Person' && req.method === 'GET') {
             resourceType = 'Patient';
-            if (combined_args.id) {
-                const ids = combined_args.id.split(',').map(id => `${PERSON_PROXY_PREFIX}${id}`);
+            if (idsList) {
+                const ids = idsList.map(id => `${PERSON_PROXY_PREFIX}${id}`);
                 combined_args.id = ids.join(',');
             }
         }
@@ -767,7 +853,8 @@ class FhirOperationsManager {
                         parsedArgs,
                         resourceType,
                         responseStreamer,
-                        scopedPersonIds
+                        scopedPersonIds,
+                        isPersonEverything
                     });
                 await responseStreamer.endAsync();
                 return undefined;
@@ -798,7 +885,8 @@ class FhirOperationsManager {
                     res,
                     parsedArgs,
                     resourceType,
-                    scopedPersonIds
+                    scopedPersonIds,
+                    isPersonEverything
                 });
             return result;
         }
@@ -836,7 +924,8 @@ class FhirOperationsManager {
             resourceType,
             headers: req.headers,
             operation: READ,
-            allowMultipleIds: false
+            allowMultipleIds: false,
+            requestInfo
         });
         /**
          * response streamer to use
@@ -887,7 +976,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         }
         );
         return await this.removeOperation.removeAsync(
@@ -919,7 +1008,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         }
         );
         return await this.removeOperation.removeAsync(
@@ -952,7 +1041,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.searchByVersionIdOperation.searchByVersionIdAsync(
@@ -985,7 +1074,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
 
@@ -1019,7 +1108,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.historyByIdOperation.historyByIdAsync(
@@ -1051,7 +1140,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE, requestInfo
         }
         );
         return await this.patchOperation.patchAsync(
@@ -1083,7 +1172,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.validateOperation.validateAsync(
@@ -1119,7 +1208,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
 

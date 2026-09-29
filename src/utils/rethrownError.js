@@ -50,7 +50,7 @@ class RethrownError extends Error {
         Error.captureStackTrace(this, this.constructor);
         const oldStackDescriptor = Object.getOwnPropertyDescriptor(this, 'stack');
         const stackDescriptor = this.buildStackDescriptor(oldStackDescriptor, error);
-        this.stack = typeof stackDescriptor === 'function' ? stackDescriptor.get() : stackDescriptor.value;
+        Object.defineProperty(this, 'stack', stackDescriptor);
     }
 
     /**
@@ -95,12 +95,18 @@ class RethrownError extends Error {
                 get: function () {
                     const stack = oldStackDescriptor.get.call(this);
                     return self.buildCombinedStacks(stack, this.nested);
-                }
+                },
+                set: oldStackDescriptor.set,
+                enumerable: false,
+                configurable: true
             };
         } else {
             const stack = oldStackDescriptor.value;
             return {
-                value: this.buildCombinedStacks(stack, nested)
+                value: this.buildCombinedStacks(stack, nested),
+                writable: true,
+                enumerable: false,
+                configurable: true
             };
         }
     }

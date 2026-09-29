@@ -36,6 +36,7 @@ const {SearchByVersionIdOperation} = require('./operations/searchByVersionId/sea
 const {HistoryByIdOperation} = require('./operations/historyById/historyById');
 const {HistoryOperation} = require('./operations/history/history');
 const {PatchOperation} = require('./operations/patch/patch');
+const {MongoGroupMemberRepository} = require('./dataLayer/repositories/mongoGroupMemberRepository');
 const {ValidateOperation} = require('./operations/validate/validate');
 const {GraphOperation} = require('./operations/graph/graph');
 const {ExpandOperation} = require('./operations/expand/expand');
@@ -83,6 +84,7 @@ const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {PersonMatchManager} = require('./admin/personMatchManager');
 const {OAuthClientCredentialsHelper} = require('./utils/oauthClientCredentialsHelper');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
+const {McpToolHandler} = require('./mcp/mcpToolHandler');
 const {K8sClient} = require('./utils/k8sClient');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
@@ -97,6 +99,7 @@ const {OperationAccessManager} = require('./utils/operationAccessManager');
 const {ResourceOperationAccessProvider} = require('./utils/resourceOperationAccessProvider');
 const {DataSharingManager} = require('./operations/search/dataSharingManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
+const {AtlasSearchQueryBuilder} = require('./operations/search/atlasSearchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
 const {ParametersResourceValidator} = require('./operations/merge/validators/parameterResourceValidator');
 const {BundleResourceValidator} = require('./operations/merge/validators/bundleResourceValidator');
@@ -104,12 +107,16 @@ const {MergeResourceValidator} = require('./operations/merge/validators/mergeRes
 const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
 const {PostSaveProcessor} = require('./dataLayer/postSaveProcessor');
 const {PostSaveHandlerFactory} = require('./dataLayer/postSaveHandlers/postSaveHandlerFactory');
+const {ConsentCacheInvalidationHandler} = require('./dataLayer/postSaveHandlers/handlers/consentCacheInvalidationHandler');
 const {ProfileUrlMapper} = require('./utils/profileMapper');
 const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
+const {ChainedSearchQueryRewriter} = require('./queryRewriters/rewriters/chainedSearchQueryRewriter');
 const {PatientScopeManager} = require('./operations/security/patientScopeManager');
 const {WriteAllowedByScopesValidator} = require('./operations/merge/validators/writeAllowedByScopesValidator');
 const {PatientQueryCreator} = require('./operations/common/patientQueryCreator');
 const {SearchParametersManager} = require('./searchParameters/searchParametersManager');
+const {ClinicalNoteSearchClient} = require('./utils/clinicalNoteSearchClient');
+const {ClinicalNoteTextRetriever} = require('./utils/clinicalNoteTextRetriever');
 const {DatabaseExportManager} = require('./dataLayer/databaseExportManager');
 const {ExportOperation} = require('./operations/export/export');
 const {ExportManager} = require('./operations/export/exportManager');
@@ -117,16 +124,18 @@ const {ExportByIdOperation} = require('./operations/export/exportById');
 const {AdminExportManager} = require('./admin/adminExportManager');
 const {BulkExportEventProducer} = require('./utils/bulkExportEventProducer');
 const {ImportOperation} = require('./operations/import/import');
-const {BulkImportEventProducer} = require('./operations/import/bulkImportEventProducer');
-const {BulkImportConsumerRunner} = require('./operations/import/bulkImportConsumerRunner');
-const {BulkImportOrchestratorRunner} = require('./operations/import/bulkImportOrchestratorRunner');
-const {S3NdjsonReader} = require('./operations/import/s3NdjsonReader');
+const {BulkImportEventProducer} = require('./operations/asyncJobs/bulkImport/bulkImportEventProducer');
+const {BulkImportHandler} = require('./operations/asyncJobs/bulkImport/handler');
+const {BulkImportTaskStateMachine} = require('./operations/asyncJobs/bulkImport/bulkImportTaskStateMachine');
+const {KafkaEventDispatcher} = require('./operations/common/kafkaEventDispatcher');
+const {S3NdjsonReader} = require('./operations/asyncJobs/bulkImport/s3NdjsonReader');
 const {KafkaClientV2} = require('./utils/kafkaClientV2');
 const {DummyKafkaClientV2} = require('./utils/dummyKafkaClientV2');
 const {S3Client} = require('./utils/s3Client');
 const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
 const {GroupMemberEnrichmentProvider} = require('./enrich/providers/groupMemberEnrichmentProvider');
+const {GroupExtendedTagEnrichmentProvider} = require('./enrich/providers/groupExtendedTagEnrichmentProvider');
 const {CompositionSectionFilterEnrichmentProvider} = require('./enrich/providers/compositionSectionFilterEnrichmentProvider');
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
@@ -159,6 +168,7 @@ const { GenericClickHouseQueryBuilder } = require('./dataLayer/builders/genericC
 const { GenericClickHouseRepository } = require('./dataLayer/repositories/genericClickHouseRepository');
 const { AccessHistoryClickHouseRepository } = require('./dataLayer/repositories/accessHistoryClickHouseRepository');
 const { AccessHistoryOperation } = require('./operations/accessHistory/accessHistory');
+const { BaseSerializer } = require('./fhir/writeSerializers/4_0_0/customSerializers');
 const deepcopy = require('deepcopy');
 
 /**
@@ -169,7 +179,23 @@ const createContainer = function () {
     // Note: the order of registration does NOT matter since everything is lazy evaluated
     const container = new SimpleContainer();
 
-    container.register('configManager', () => new ConfigManager());
+    container.register('configManager', () => {
+        const configManager = new ConfigManager();
+        // Every serializer in src/fhir/writeSerializers/4_0_0/ reads BaseSerializer.configManager
+        // (a static field, not something SimpleContainer wires per-instance), most notably
+        // CodingSerializer.writeSerialize. Wiring it here -- as a side effect of this factory,
+        // triggered lazily whenever anything first touches container.configManager, rather than
+        // an eager read right after registration -- means every createContainer() consumer gets
+        // it automatically without its own BaseSerializer.setConfigManager(...) call. Deliberately
+        // NOT read eagerly here: SimpleContainer.register() memoizes on first access, so eagerly
+        // reading container.configManager would permanently lock in this instance and silently
+        // defeat src/tests/integration/createTestContainer.js's fnUpdateContainer pattern, which re-registers
+        // this exact factory with a test-specific ConfigManager subclass (used by 40+ test files)
+        // -- src/tests/integration/common.js's own explicit setConfigManager call after that override runs is
+        // what covers the mocked case.
+        BaseSerializer.setConfigManager(configManager);
+        return configManager;
+    });
 
     container.register('kafkaClient', (c) => c.configManager.kafkaEnableEvents
         ? new KafkaClient({configManager: c.configManager})
@@ -199,13 +225,18 @@ const createContainer = function () {
             new GroupMemberEnrichmentProvider({
                 clickHouseClientManager: c.clickHouseClientManager,
                 configManager: c.configManager
-            })
+            }),
+            new GroupExtendedTagEnrichmentProvider()
         ]
     }));
     container.register('identifierEnrichmentProvider', (c) => new IdentifierEnrichmentProvider({
         fhirTypesManager: c.fhirTypesManager
     }));
     container.register('compositionSectionFilterEnrichmentProvider', (c) => new CompositionSectionFilterEnrichmentProvider({
+        configManager: c.configManager
+    }));
+    container.register('clinicalNoteTextRetriever', (c) => new ClinicalNoteTextRetriever({
+        mongoDatabaseManager: c.mongoDatabaseManager,
         configManager: c.configManager
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
@@ -319,6 +350,9 @@ const createContainer = function () {
 
     container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
         r4SearchQueryCreator: c.r4SearchQueryCreator
+    }));
+    container.register('atlasSearchQueryBuilder', (c) => new AtlasSearchQueryBuilder({
+        configManager: c.configManager
     }));
     container.register('proaConsentManager', (c) => new ProaConsentManager({
         databaseQueryFactory: c.databaseQueryFactory,
@@ -458,13 +492,15 @@ const createContainer = function () {
 
     container.register('queryRewriterManager', (c) => new QueryRewriterManager({
         queryRewriters: [
-            new ReferenceQueryRewriter()
+            new ReferenceQueryRewriter(),
+            new ChainedSearchQueryRewriter()
         ],
         operationSpecificQueryRewriters: {
             [READ]: [
                 new PatientProxyQueryRewriter({
                     personToPatientIdsExpander: c.personToPatientIdsExpander,
-                    configManager: c.configManager
+                    configManager: c.configManager,
+                    requestSpecificCache: c.requestSpecificCache
                 })
             ]
         }
@@ -478,6 +514,11 @@ const createContainer = function () {
             patientFilterManager: c.patientFilterManager
         }
     ));
+
+    container.register('clinicalNoteSearchClient', (c) => new ClinicalNoteSearchClient({
+        mongoDatabaseManager: c.mongoDatabaseManager,
+        configManager: c.configManager
+    }));
 
     container.register('searchManager', (c) => new SearchManager(
             {
@@ -495,8 +536,11 @@ const createContainer = function () {
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
                 dataSharingManager: c.dataSharingManager,
                 searchQueryBuilder: c.searchQueryBuilder,
+                atlasSearchQueryBuilder: c.atlasSearchQueryBuilder,
                 patientScopeManager: c.patientScopeManager,
-                patientQueryCreator: c.patientQueryCreator
+                patientQueryCreator: c.patientQueryCreator,
+                searchParametersManager: c.searchParametersManager,
+                clinicalNoteSearchClient: c.clinicalNoteSearchClient
             }
         )
     );
@@ -528,6 +572,11 @@ const createContainer = function () {
         )
     );
 
+    container.register('writeAllowedByScopesValidator', (c) => new WriteAllowedByScopesValidator({
+        scopesValidator: c.scopesValidator,
+        databaseBulkLoader: c.databaseBulkLoader
+    }));
+
     container.register('mergeValidator', (c) => new MergeValidator(
         {
             validators: [
@@ -542,10 +591,7 @@ const createContainer = function () {
                     uuidColumnHandler: c.uuidColumnHandler,
                     customTracer: c.customTracer
                 }),
-                new WriteAllowedByScopesValidator({
-                    scopesValidator: c.scopesValidator,
-                    databaseBulkLoader: c.databaseBulkLoader
-                })
+                c.writeAllowedByScopesValidator
             ],
             configManager: c.configManager,
             customTracer: c.customTracer
@@ -740,7 +786,8 @@ const createContainer = function () {
         patientDataViewControlManager: c.patientDataViewControlManager,
         auditLogger: c.auditLogger,
         postRequestProcessor: c.postRequestProcessor,
-        redisStreamManager: c.redisStreamManager
+        redisStreamManager: c.redisStreamManager,
+        redisManager: c.redisManager
     }));
 
     container.register('everythingRelatedResourceMapper', (c) => new EverythingRelatedResourcesMapper());
@@ -788,7 +835,8 @@ const createContainer = function () {
             configManager: c.configManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
             base64DataManager: c.base64DataManager,
-            postRequestProcessor: c.postRequestProcessor
+            postRequestProcessor: c.postRequestProcessor,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('createOperation', (c) => new CreateOperation(
@@ -923,6 +971,13 @@ const createContainer = function () {
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
         }
     ));
+    container.register('mongoGroupMemberRepository', (c) => new MongoGroupMemberRepository(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
+            removeHelper: c.removeHelper
+        }
+    ));
     container.register('patchOperation', (c) => new PatchOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
@@ -938,7 +993,8 @@ const createContainer = function () {
             resourceMerger: c.resourceMerger,
             resourceValidator: c.resourceValidator,
             postSaveHandlerFactory: c.postSaveHandlerFactory,
-            identifierEnrichmentProvider: c.identifierEnrichmentProvider
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
@@ -1042,7 +1098,10 @@ const createContainer = function () {
             }
         )
     );
-    container.register('fhirResponseWriter', () => new FhirResponseWriter());
+    container.register('fhirResponseWriter', (c) => new FhirResponseWriter({
+        clinicalNoteTextRetriever: c.clinicalNoteTextRetriever,
+        configManager: c.configManager
+    }));
     container.register('genericController', (c) => new GenericController(
             {
                 postRequestProcessor: c.postRequestProcessor,
@@ -1153,6 +1212,14 @@ const createContainer = function () {
         searchParametersManager: c.searchParametersManager
     }));
 
+    container.register('mcpToolHandler', (c) => new McpToolHandler({
+        searchBundleOperation: c.searchBundleOperation,
+        r4ArgsParser: c.r4ArgsParser,
+        patientDataViewControlManager: c.patientDataViewControlManager,
+        patientScopeManager: c.patientScopeManager,
+        queryRewriterManager: c.queryRewriterManager
+    }));
+
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
         {
             configManager: c.configManager
@@ -1167,7 +1234,12 @@ const createContainer = function () {
     container.register('postSaveProcessor', (c) => {
         const handlers = [
             c.changeEventProducer,
-            c.patientPersonDataChangeEventProducer
+            c.patientPersonDataChangeEventProducer,
+            new ConsentCacheInvalidationHandler({
+                redisManager: c.redisManager,
+                bwellPersonFinder: c.bwellPersonFinder,
+                configManager: c.configManager
+            })
         ];
 
         // Add ClickHouse handler for Group resources if enabled
@@ -1232,22 +1304,59 @@ const createContainer = function () {
         configManager: c.configManager
     }));
 
-    container.register('bulkImportConsumerRunner', (c) => new BulkImportConsumerRunner({
-        configManager: c.configManager,
+    container.register('bulkImportTaskStateMachine', (c) => new BulkImportTaskStateMachine({
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory,
         fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
-        s3NdjsonReader: c.s3NdjsonReader,
-        postRequestProcessor: c.postRequestProcessor,
-        requestSpecificCache: c.requestSpecificCache
+        mergeManager: c.mergeManager
     }));
 
-    container.register('bulkImportOrchestratorRunner', (c) => new BulkImportOrchestratorRunner({
+    // Handles every message type for the bulk-import async job (TaskCreated on the
+    // orchestrator side, ImportRangeRequested on the worker side) — see
+    // src/operations/asyncJobs/bulkImport/handler.js.
+    container.register('bulkImportHandler', (c) => new BulkImportHandler({
         configManager: c.configManager,
         kafkaClientV2: c.kafkaClientV2,
         bulkImportEventProducer: c.bulkImportEventProducer,
+        bulkImportTaskStateMachine: c.bulkImportTaskStateMachine,
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory
+        fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
+        s3NdjsonReader: c.s3NdjsonReader,
+        postRequestProcessor: c.postRequestProcessor,
+        requestSpecificCache: c.requestSpecificCache,
+        auditLogger: c.auditLogger,
+        r4ArgsParser: c.r4ArgsParser,
+        searchQueryBuilder: c.searchQueryBuilder,
+        mergeManager: c.mergeManager,
+        databaseBulkLoader: c.databaseBulkLoader,
+        sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+        uuidColumnHandler: c.uuidColumnHandler,
+        writeAllowedByScopesValidator: c.writeAllowedByScopesValidator
+    }));
+
+    // Routes messages on kafkaBulkImportTaskCreatedTopic and kafkaBulkImportRangeProgressTopic
+    // to their handler by CloudEvent "type" -- the same dispatcher is registered as the job
+    // for both topics in orchestrator.js's getJobs, since both are consumed by the
+    // orchestrator and route to the same handler. ImportRangeStarted/ImportRangeCompleted/
+    // ImportRangeFailed are the only place a Task resource is ever written once it exists
+    // (see BulkImportHandler's class docstring); new event types are added here as another
+    // entry rather than a new topic+entrypoint+handler.
+    container.register('bulkImportOrchestratorDispatcher', (c) => new KafkaEventDispatcher({
+        handlersByEventType: {
+            TaskCreated: c.bulkImportHandler,
+            ImportRangeStarted: c.bulkImportHandler,
+            ImportRangeCompleted: c.bulkImportHandler,
+            ImportRangeFailed: c.bulkImportHandler
+        }
+    }));
+
+    // Routes messages on kafkaBulkImportEventTopic to their handler by CloudEvent "type".
+    // ImportRangeRequested is the only registered handler today; new event types on this
+    // topic (e.g. a future patient-level bulk export event) are added here as another
+    // entry rather than a new topic+entrypoint+handler.
+    container.register('bulkImportWorkerDispatcher', (c) => new KafkaEventDispatcher({
+        handlersByEventType: {
+            ImportRangeRequested: c.bulkImportHandler
+        }
     }));
 
     container.register('importOperation', (c) => new ImportOperation({
@@ -1347,7 +1456,8 @@ const createContainer = function () {
         return new AuthService
         ({
             configManager: c.configManager,
-            wellKnownConfigurationManager: c.wellKnownConfigurationManager
+            wellKnownConfigurationManager: c.wellKnownConfigurationManager,
+            delegatedAccessRulesManager: c.delegatedAccessRulesManager
         });
     });
 

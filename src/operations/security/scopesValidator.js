@@ -1,4 +1,3 @@
-const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {ForbiddenError} = require('../../utils/httpErrors');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('./scopesManager');
@@ -9,6 +8,13 @@ const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {PreSaveOptions} = require('../../preSaveHandlers/preSaveOptions');
 const {RESOURCE_RESTRICTION_TAG, AUTH_USER_TYPES} = require('../../constants');
 const {DelegatedAccessScopeManager} = require('./delegatedAccessScopeManager');
+const {
+    parseScopeToken,
+    getRequiredCrudsForAccessRequested,
+    isCrudsRequirementSatisfied,
+    isReadOnlyAccessRequested,
+    getInteractionCrudsLetter
+} = require('./smartScopeParser');
 
 class ScopesValidator {
     /**
@@ -61,19 +67,57 @@ class ScopesValidator {
     }
 
     /**
+     * Whether any of the given (already prefix-filtered) scope strings authorizes resourceType
+     * for the given accessRequested. Replaces @asymmetrik/sof-scope-checker: same "does any
+     * single scope authorize this resourceType+action" semantics, understanding both v1
+     * (read/write/*) and v2 (CRUDS-letter) scope suffix grammar.
+     * @typedef {Object} EvaluateResourceTypeScopeMatchParams
+     * @property {string[]} scopes
+     * @property {string} resourceType
+     * @property {string} accessRequested legacy 'read'/'write' or a single v2 CRUDS letter
+     *
+     * @param {EvaluateResourceTypeScopeMatchParams}
+     * @return {{success: boolean, error: Error|null}}
+     */
+    evaluateResourceTypeScopeMatch({scopes, resourceType, accessRequested}) {
+        const requiredCruds = getRequiredCrudsForAccessRequested(accessRequested);
+        if (!requiredCruds) {
+            return {success: false, error: new Error(`Invalid accessRequested: ${accessRequested}`)};
+        }
+        const success = (scopes || []).some((scopeToken) => {
+            const parsed = parseScopeToken(scopeToken, this.configManager.enableSmartV2CrudsScopes);
+            return !!parsed &&
+                (parsed.resourceType === '*' || parsed.resourceType === resourceType) &&
+                isCrudsRequirementSatisfied(parsed.cruds, requiredCruds);
+        });
+        return {
+            success,
+            error: success ? null : new Error('None of the provided scopes matched an allowed scope.')
+        };
+    }
+
+    /**
      * Central scope validation — checks delegated actor consent + standard scopes.
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {("read"|"write")} accessRequested
+     * @param {string} [action] the FHIR interaction being performed (e.g. 'create', 'searchById').
+     *  When it names a single-letter CRUDS requirement (see smartScopeParser's
+     *  INTERACTION_TO_CRUDS_LETTER), that granular requirement is used for the resourceType scope
+     *  match instead of the coarser accessRequested; accessRequested is always used, unchanged,
+     *  for the access/ tenant-code check below (deferred to a later phase - see design doc).
+     * @param {string} [base_version] the FHIR version of the resource being requested,
+     *  used to scope the delegated-actor consent check to the correct version
      * @returns {Promise<ForbiddenError|undefined>}
      */
-    async isScopesValidAsync({requestInfo, resourceType, accessRequested}) {
+    async isScopesValidAsync({requestInfo, resourceType, accessRequested, action, base_version}) {
         // eslint-disable-next-line no-useless-catch
         try {
             if (this.configManager.enableDelegatedAccessDetection && requestInfo.userType === AUTH_USER_TYPES.delegatedUser) {
                 const isAllowed = await this.delegatedAccessScopeManager.isAccessAllowedAsync({
                     actor: requestInfo.actor,
-                    personIdFromJwtToken: requestInfo.personIdFromJwtToken
+                    personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                    base_version
                 });
                 if (!isAllowed) {
                     return new ForbiddenError(
@@ -84,6 +128,11 @@ class ScopesValidator {
 
             const {user, scope} = requestInfo;
             let errorMessage, forbiddenError;
+
+            // The granular per-interaction requirement, when known, gates the resourceType scope
+            // match; accessRequested itself is untouched and still flows to the access/ tenant
+            // check below.
+            const resourceTypeAccessRequested = getInteractionCrudsLetter(action) || accessRequested;
 
             // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
             if (scope) {
@@ -98,12 +147,25 @@ class ScopesValidator {
                 let error, success;
                 if (accessViaPatientScopes) {
                     scopes = this.scopesManager.getPatientScopes({scope});
-                    ({error, success} = scopeChecker(resourceType, accessRequested, scopes));
+                    ({error, success} = this.evaluateResourceTypeScopeMatch({
+                        scopes, resourceType, accessRequested: resourceTypeAccessRequested
+                    }));
                 } else {
-                    scopes = this.scopesManager.getUserScopes({scope});
-                    // if patient scopes are present then only read is allowed to non patient resources
-                    if (!this.scopesManager.hasPatientScope({scope}) || accessRequested === 'read') {
-                        ({error, success} = scopeChecker(resourceType, accessRequested, scopes));
+                    // `user/` and SMART on FHIR v2 `system/` are evaluated TOGETHER here,
+                    // deliberately in the same branch rather than as a sibling
+                    // `else if (hasSystemScope)`. The patient-scope write restriction below and
+                    // the access/ tenant gate that follows must apply identically to both,
+                    // otherwise a `patient/*.* system/*.*` token would be a write path that the
+                    // equivalent `patient/*.* user/*.*` token is not. See review.md §2 and
+                    // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1.
+                    scopes = this.scopesManager.getResourceTypeScopes({scope});
+                    // if patient scopes are present then only a read-type interaction is allowed
+                    // against non-patient resources -- 'read-type' now covers granular read/search
+                    // letters (r, s), not just the legacy 'read' literal.
+                    if (!this.scopesManager.hasPatientScope({scope}) || isReadOnlyAccessRequested(resourceTypeAccessRequested)) {
+                        ({error, success} = this.evaluateResourceTypeScopeMatch({
+                            scopes, resourceType, accessRequested: resourceTypeAccessRequested
+                        }));
                     } else {
                         error = 'Write not allowed using user scopes if patient scope is present';
                     }
@@ -158,7 +220,9 @@ class ScopesValidator {
         // eslint-disable-next-line no-useless-catch
         try {
             // Verify if scopes are valid
-            const forbiddenError = await this.isScopesValidAsync({requestInfo, resourceType, accessRequested});
+            const forbiddenError = await this.isScopesValidAsync({
+                requestInfo, resourceType, accessRequested, action, base_version: parsedArgs?.base_version
+            });
 
             if (forbiddenError) {
                 await this.fhirLoggingManager.logOperationFailureAsync({
@@ -196,7 +260,9 @@ class ScopesValidator {
             accessRequested
         }
     ) {
-        const forbiddenError = await this.isScopesValidAsync({requestInfo, resourceType, accessRequested});
+        const forbiddenError = await this.isScopesValidAsync({
+            requestInfo, resourceType, accessRequested, action, base_version: parsedArgs?.base_version
+        });
         return !forbiddenError;
     }
 
@@ -255,6 +321,7 @@ class ScopesValidator {
                 resourceType: updatedResource.resourceType,
                 user,
                 scope,
+                isCreate: !currentResource,
                 ignoreRemovals
             })
         ) {
@@ -349,6 +416,25 @@ class ScopesValidator {
         } catch (e) {
             throw e;
         }
+    }
+
+    /**
+     * Returns whether the given scope string carries an admin scope broad enough to unlock
+     * _explain/_debug/_setIndexHint.
+     *
+     * Deliberately stricter than admin.js's own "any admin/ scope" check (a separate,
+     * pre-existing pattern this does not touch): _explain/_debug/_setIndexHint are a
+     * cross-cutting, not-resource-scoped capability (query-plan disclosure and index
+     * selection apply to every resource type), so a caller holding a narrow admin grant for
+     * one specific capability (e.g. admin/AuditEvent.write) should not thereby unlock it. The
+     * scope's resource segment must be a wildcard, e.g. admin/*.read or admin/*.*.
+     * @param {string|null} scope
+     * @return {boolean}
+     */
+    isAdminScope({scope}) {
+        return this.scopesManager.getAdminScopes({scope}).some(
+            (adminScope) => adminScope.split('/')[1]?.split('.')[0] === '*'
+        );
     }
 }
 

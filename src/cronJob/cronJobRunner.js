@@ -96,6 +96,12 @@ class CronJobRunner {
     }
 
     async triggerHistoryMigrationJob() {
+        if (!this.configManager.enableHistoryToCloudStorageMigration) {
+            logInfo(
+                'History to Cloud Storage migration cron is disabled via enableHistoryToCloudStorageMigration, skipping job creation.'
+            );
+            return;
+        }
         for (const collection of this.configManager.cloudStorageHistoryResources) {
             let scriptCommand =
             'node /srv/src/src/operations/history/script/migrateToCloudStorage.js ' +

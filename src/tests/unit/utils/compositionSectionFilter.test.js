@@ -99,6 +99,42 @@ describe('filterCompositionSensitiveSections', () => {
             expect(resource.section[0].id).toBe('no-code-section');
         });
 
+        test('keeps section when coding has empty system string', () => {
+            const resource = {
+                resourceType: 'Composition',
+                _uuid: 'comp-1',
+                section: [
+                    {
+                        id: 'empty-system-section',
+                        code: { coding: [{ system: '', code: 'restricted' }] }
+                    }
+                ]
+            };
+
+            filterCompositionSensitiveSections(resource, new Set(['restricted']));
+
+            expect(resource.section).toHaveLength(1);
+            expect(resource.section[0].id).toBe('empty-system-section');
+        });
+
+        test('keeps section when coding entries have no system property', () => {
+            const resource = {
+                resourceType: 'Composition',
+                _uuid: 'comp-1',
+                section: [
+                    {
+                        id: 'no-system-prop-section',
+                        code: { coding: [{ code: 'restricted' }] }
+                    }
+                ]
+            };
+
+            filterCompositionSensitiveSections(resource, new Set(['restricted']));
+
+            expect(resource.section).toHaveLength(1);
+            expect(resource.section[0].id).toBe('no-system-prop-section');
+        });
+
         test('keeps sections where code.coding is not an array', () => {
             const resource = {
                 resourceType: 'Composition',
@@ -316,6 +352,90 @@ describe('filterCompositionSensitiveSections', () => {
             filterCompositionSensitiveSections(resource, new Set());
 
             expect(resource.section).toHaveLength(2);
+        });
+    });
+
+    describe('hardcoded unclassified category (DCON-4892)', () => {
+        // filterCompositionSensitiveSections/shouldRemoveSection is a pure denylist-membership
+        // check -- it has no built-in knowledge of the hardcoded unclassified code. Folding
+        // 'unclassified' into the denylist unconditionally (so it's always stripped regardless of
+        // what the grantor's Consent denies) is the CALLER's responsibility -- see
+        // CompositionSectionFilterEnrichmentProvider.getDeniedSensitiveCategorySet, which mirrors
+        // DataSharingManager.updateQueryForDelegatedAccessSensitiveData's query-level exclusion.
+        // These tests confirm this layer correctly removes an unclassified-tagged section when
+        // the caller's set includes it (the provider's contract), without special-casing it here.
+        test('removes a section tagged with the hardcoded unclassified code when the caller includes it in the denied set', () => {
+            const resource = {
+                resourceType: 'Composition',
+                _uuid: 'comp-1',
+                section: [
+                    {
+                        id: 'section-unclassified',
+                        code: { coding: [{ system: SYSTEM, code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE }] }
+                    },
+                    {
+                        id: 'section-visible',
+                        code: { coding: [{ system: SYSTEM, code: 'not-denied' }] }
+                    }
+                ]
+            };
+
+            filterCompositionSensitiveSections(
+                resource,
+                new Set(['restricted', SENSITIVE_CATEGORY.UNCLASSIFIED_CODE])
+            );
+
+            expect(resource.section).toHaveLength(1);
+            expect(resource.section[0].id).toBe('section-visible');
+        });
+
+        test('keeps a section tagged with the hardcoded unclassified code when the caller-supplied set does not include it (this layer has no special case)', () => {
+            const resource = {
+                resourceType: 'Composition',
+                _uuid: 'comp-1',
+                section: [
+                    {
+                        id: 'section-unclassified',
+                        code: { coding: [{ system: SYSTEM, code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE }] }
+                    }
+                ]
+            };
+
+            // Deliberately omits SENSITIVE_CATEGORY.UNCLASSIFIED_CODE -- proves this function no
+            // longer hardcodes the special case itself; that's the provider's job now.
+            filterCompositionSensitiveSections(resource, new Set(['restricted']));
+
+            expect(resource.section).toHaveLength(1);
+            expect(resource.section[0].id).toBe('section-unclassified');
+        });
+
+        test('removes a Consent-denied category alongside the hardcoded unclassified code in the same Composition', () => {
+            const resource = {
+                resourceType: 'Composition',
+                _uuid: 'comp-1',
+                section: [
+                    {
+                        id: 'section-unclassified',
+                        code: { coding: [{ system: SYSTEM, code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE }] }
+                    },
+                    {
+                        id: 'section-restricted',
+                        code: { coding: [{ system: SYSTEM, code: 'restricted' }] }
+                    },
+                    {
+                        id: 'section-visible',
+                        code: { coding: [{ system: SYSTEM, code: 'not-denied' }] }
+                    }
+                ]
+            };
+
+            filterCompositionSensitiveSections(
+                resource,
+                new Set(['restricted', SENSITIVE_CATEGORY.UNCLASSIFIED_CODE])
+            );
+
+            expect(resource.section).toHaveLength(1);
+            expect(resource.section[0].id).toBe('section-visible');
         });
     });
 });

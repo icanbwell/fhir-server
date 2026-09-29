@@ -1,4 +1,3 @@
-const async = require('async');
 const superagent = require('superagent');
 const {LRUCache} = require('lru-cache');
 const {
@@ -6,12 +5,15 @@ const {
     DEFAULT_CACHE_EXPIRY_TIME,
     DEFAULT_CACHE_MAX_COUNT,
     USER_INFO_CACHE_EXPIRY_TIME,
-    AUTH_USER_TYPES
+    AUTH_USER_TYPES,
+    DELEGATED_ACCESS
 } = require('../constants');
 const {logDebug, logError, logInfo, logWarn} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
+const {DelegatedAccessRulesManager} = require('../utils/delegatedAccessRulesManager');
+const {ReferenceParser} = require('../utils/referenceParser');
 
 /**
  * @typedef {Object} UserInfo
@@ -48,10 +50,12 @@ class AuthService {
      * Constructor for the AuthService
      * @param {ConfigManager} configManager
      * @param {WellKnownConfigurationManager} wellKnownConfigurationManager
+     * @param {DelegatedAccessRulesManager} delegatedAccessRulesManager
      */
     constructor({
                     configManager,
-                    wellKnownConfigurationManager
+                    wellKnownConfigurationManager,
+                    delegatedAccessRulesManager
                 }) {
         /**
          * @type {ConfigManager}
@@ -64,6 +68,12 @@ class AuthService {
          */
         this.wellKnownConfigurationManager = wellKnownConfigurationManager;
         assertTypeEquals(wellKnownConfigurationManager, WellKnownConfigurationManager);
+
+        /**
+         * @type {DelegatedAccessRulesManager}
+         */
+        this.delegatedAccessRulesManager = delegatedAccessRulesManager;
+        assertTypeEquals(delegatedAccessRulesManager, DelegatedAccessRulesManager);
 
         this.requestTimeout = (this.configManager.externalRequestTimeoutSec || 30) * 1000;
         this.requiredJWTFields = {
@@ -94,6 +104,16 @@ class AuthService {
          * @type {string[]}
          */
         this.cidCheckClientIds = this.configManager.authCidCheckClientIds;
+
+        /**
+         * @type {string[]}
+         */
+        this.audienceWhitelist = this.configManager.authAudienceWhitelist;
+
+        /**
+         * @type {string[]}
+         */
+        this.audienceBlacklist = this.configManager.authAudienceBlacklist;
 
         if (AuthService.jwksCache === undefined) {
             AuthService.jwksCache = new LRUCache(this.cacheOptions);
@@ -149,7 +169,17 @@ class AuthService {
                     error: error,
                     args: {jwksUrl}
                 });
-                return {keys: []};
+                // Do NOT return {keys: []} here: an empty keyset is indistinguishable
+                // downstream from "this JWKS endpoint legitimately has no keys" (a
+                // permanent condition), when the truth is "we couldn't reach it right
+                // now" (transient infrastructure failure, e.g. Redis eviction/outage).
+                // Mark the error as transient/retriable and rethrow so callers (and
+                // ultimately the auth middleware) surface a 503, not a 401 (INC-322).
+                error.isTransient = true;
+                if (!error.statusCode) {
+                    error.statusCode = 503;
+                }
+                throw error;
             } finally {
                 AuthService.jwksFetchInFlight.delete(jwksUrl);
             }
@@ -160,6 +190,13 @@ class AuthService {
 
     /**
      * Fetches external JWKS URLs and retrieves the keys from them.
+     *
+     * Uses Promise.allSettled (not a fail-fast aggregator like async.map) so that one
+     * dead JWKS provider among several configured ones doesn't take down auth for
+     * tokens signed by a different, healthy provider. Keys are collected from every
+     * URL that succeeded; a transient/503 error is only thrown when EVERY URL failed,
+     * i.e. there are truly zero usable external keys (INC-322: an infrastructure
+     * outage must not look like "no external keys configured").
      * @returns {Promise<Object[]>}
      */
     async getExternalJwksAsync() {
@@ -168,22 +205,54 @@ class AuthService {
         }
         let extJwksUrls = this.configManager.externalAuthJwksUrls;
         if (extJwksUrls.length === 0 && this.configManager.externalAuthWellKnownUrls.length > 0) {
+            // getJwksUrlsAsync() throws a transient/503-marked error if EVERY configured
+            // well-known URL failed to resolve (INC-322) -- let that propagate below
+            // rather than treating a total well-known outage the same as "no well-known
+            // URLs configured at all" (which legitimately resolves to []).
             extJwksUrls = await this.wellKnownConfigurationManager.getJwksUrlsAsync();
         }
         if (extJwksUrls.length > 0) {
-            try {
-                const keysArray = await async.map(
-                    extJwksUrls,
+            const results = await Promise.allSettled(
+                extJwksUrls.map(
                     async (extJwksUrl) => (await this.getJwksByUrlAsync(extJwksUrl.trim())).keys
+                )
+            );
+            const keysArray = [];
+            const failures = [];
+            results.forEach((result, index) => {
+                if (result.status === 'fulfilled') {
+                    keysArray.push(result.value);
+                } else {
+                    failures.push({url: extJwksUrls[index], error: result.reason});
+                }
+            });
+            if (failures.length > 0) {
+                logError(
+                    `Failed to fetch keys from ${failures.length} of ${extJwksUrls.length} external jwk url(s)`,
+                    {
+                        args: {
+                            failures: failures.map((f) => ({
+                                url: f.url,
+                                error: f.error && f.error.message
+                            }))
+                        }
+                    }
                 );
-                return keysArray.flat(2);
-            } catch (error) {
-                logError(`Error while fetching keys from external jwk urls: ${error.message}`, {
-                    error: error,
-                    args: {extJwksUrls: extJwksUrls}
-                });
-                return [];
             }
+            // Only treat this as a total outage (and surface 503) when every configured
+            // URL failed. If at least one provider is healthy, use the keys it returned --
+            // that redundancy is the whole point of allowing multiple configured providers.
+            if (failures.length === extJwksUrls.length) {
+                const error = failures[0].error instanceof Error
+                    ? failures[0].error
+                    : new Error('Failed to fetch keys from any external jwk url');
+                error.isTransient = true;
+                if (!error.statusCode) {
+                    error.statusCode = 503;
+                }
+                throw error;
+            }
+            return keysArray.flat(2);
         }
         return [];
     }
@@ -213,9 +282,22 @@ class AuthService {
      * @param {import("passport-jwt").VerifiedCallback} done
      * @param {string} client_id
      * @param {string} scope
-     * @return {void}
+     * @return {Promise<void>}
      */
-    processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+    async processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+        // A token that resolves to a completely empty scope (nothing on the JWT itself,
+        // no groups, and userinfo enrichment -- if attempted -- found nothing either) is
+        // authenticated but carries zero permissions; treat it as an auth failure (401),
+        // not a successful login with an empty grant. Without this, such a token would
+        // reach FHIR resource authorization normally and get a 403 there instead --
+        // this codebase's convention (see create_without_access/remove_without_access
+        // integration tests) is that a total absence of scope is 401, while a present
+        // but insufficient/mismatched scope is 403.
+        if (!scope) {
+            logWarn('Auth rejected', {reason: 'no_scope', username, subject});
+            done(null, false, {reason: 'no_scope'});
+            return;
+        }
         const context = {};
         if (username) {
             context.username = username;
@@ -244,7 +326,22 @@ class AuthService {
 
             context.subject = jwt_payload['sub'];
             context.username = context.personIdFromJwtToken;
-            if (this.configManager.enableDelegatedAccessDetection && jwt_payload.act) {
+            const isAllowedUserType = this.allowedJWTUserTypes.includes(jwt_payload.user_type);
+            if (isAllowedUserType) {
+                context.userType = jwt_payload.user_type;
+                // Initialized empty object to attach the consent policy
+                context.actor = {};
+                if (Array.isArray(jwt_payload.entitlements)) {
+                    context.purposeOfUse = jwt_payload.entitlements;
+                }
+                if (jwt_payload.act) {
+                    logInfo('cms-partner token also carries an act claim; act claim is not used', {
+                        reason: 'cms_partner_token_with_act_claim',
+                        userType: jwt_payload.user_type
+                    });
+                }
+            }
+            if (this.configManager.enableDelegatedAccessDetection && jwt_payload.act && !context.userType) {
                 const result = this.processForDelegatedActor({ jwt_payload });
                 if (result.failure) {
                     done(null, false, { reason: 'delegated_actor_failure' });
@@ -255,17 +352,31 @@ class AuthService {
 
                     if (Array.isArray(jwt_payload.entitlements)) {
                         context.purposeOfUse = jwt_payload.entitlements;
+                        // Only take the async Consent-dereference path when entitlements
+                        // actually names one -- bare codes stay fully synchronous.
+                        const consentReferences = jwt_payload.entitlements.filter(
+                            (entitlement) => ReferenceParser.parseReference(entitlement).resourceType === 'Consent'
+                        );
+                        if (consentReferences.length > 0) {
+                            const resolvedPurposeOfUse = await this.delegatedAccessRulesManager.resolvePurposeOfEventCodesAsync({
+                                entitlements: jwt_payload.entitlements
+                            });
+                            // null = Consent genuinely unresolvable -> fail closed (401). A
+                            // transient lookup error rejects instead (503 via verify()'s catch).
+                            if (resolvedPurposeOfUse === null) {
+                                logWarn('Auth rejected', {
+                                    reason: 'delegated_actor_consent_not_found',
+                                    username,
+                                    subject
+                                });
+                                done(null, false, { reason: 'delegated_actor_consent_not_found' });
+                                return;
+                            }
+                            context.purposeOfUse = resolvedPurposeOfUse;
+                            // Surfaced as agent.policy on the AuditEvent -- see AuditLogger.buildAgents.
+                            context.actor.consentPolicy = consentReferences[0];
+                        }
                     }
-                }
-            }
-            // if userType is not already set through delegated access detection,
-            // accept user_type claim only when it is one of the allowed values
-            if (!context.userType && this.allowedJWTUserTypes.includes(jwt_payload.user_type)) {
-                context.userType = jwt_payload.user_type;
-                // Initialized empty object to attach the consent policy
-                context.actor = {};
-                if (Array.isArray(jwt_payload.entitlements)) {
-                    context.purposeOfUse = jwt_payload.entitlements;
                 }
             }
         }
@@ -384,6 +495,8 @@ class AuthService {
             scope = scopes.join(' ');
         }
 
+        const isUser = scopes.some((s) => s.toLowerCase().startsWith('patient/'));
+
         const username = jwt_payload.username
             ? jwt_payload.username
             : this.getFirstPropertyFromPayload({
@@ -404,8 +517,6 @@ class AuthService {
                 jwt_payload,
                 propertyNames: this.configManager.authCustomClientId
             });
-
-        const isUser = scopes.some((s) => s.toLowerCase().startsWith('patient/'));
 
         return {scope, isUser, username, subject, clientId};
     }
@@ -464,8 +575,11 @@ class AuthService {
         }
 
         let isValidInput = true;
-        // validate reference
-        isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' && act[this.requiredActorFields.reference].startsWith('RelatedPerson/');
+        // validate reference: human delegate (RelatedPerson) or client (Organization)
+        isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' &&
+            DELEGATED_ACCESS.ALLOWED_ACTOR_RESOURCE_TYPES.includes(
+                ReferenceParser.parseReference(act[this.requiredActorFields.reference]).resourceType
+            );
         // validate sub
         isValidInput &&= typeof act[this.requiredActorFields.sub] === 'string';
 
@@ -499,6 +613,26 @@ class AuthService {
     verify({request, jwt_payload, token, done}) {
         if (jwt_payload) {
             request.jwtPayload = jwt_payload;
+            if (this.audienceBlacklist.length > 0) {
+                const tokenAudiences = Array.isArray(jwt_payload.aud) ? jwt_payload.aud : [jwt_payload.aud];
+                if (tokenAudiences.some((aud) => this.audienceBlacklist.includes(aud))) {
+                    logInfo(`Audience ${jwt_payload.aud} is denied`, {
+                        reason: 'audience_denied',
+                        userClaim: jwt_payload.sub
+                    });
+                    return done(null, false, { reason: 'audience_denied' });
+                }
+            }
+            if (this.audienceWhitelist.length > 0) {
+                const tokenAudiences = Array.isArray(jwt_payload.aud) ? jwt_payload.aud : [jwt_payload.aud];
+                if (!tokenAudiences.some((aud) => this.audienceWhitelist.includes(aud))) {
+                    logInfo(`Audience ${jwt_payload.aud} is not allowed`, {
+                        reason: 'audience_not_allowed',
+                        userClaim: jwt_payload.sub
+                    });
+                    return done(null, false, { reason: 'audience_not_allowed' });
+                }
+            }
             if (this.cidCheckIssuer && jwt_payload.iss === this.cidCheckIssuer) {
                 if (!this.cidCheckClientIds.includes(jwt_payload.cid)) {
                     logInfo(`Client ID ${jwt_payload.cid} is not allowed from issuer ${jwt_payload.iss}`, {
@@ -524,7 +658,7 @@ class AuthService {
                             subject: subject1,
                             clientId: clientId1
                         } = userInfo;
-                        this.processUserInfo({
+                        return this.processUserInfo({
                             username: username1 || username,
                             subject: subject1 || subject,
                             isUser: isUser1 || isUser,
@@ -534,7 +668,7 @@ class AuthService {
                             scope: scope1 || scope
                         });
                     } else {
-                        this.processUserInfo({
+                        return this.processUserInfo({
                             username: username,
                             subject: subject,
                             isUser,
@@ -550,7 +684,15 @@ class AuthService {
                         reason: 'userinfo_endpoint_error',
                         error: error
                     });
-                    done(null, false, { reason: 'userinfo_endpoint_error' });
+                    // A failure to reach the userinfo endpoint is an infrastructure
+                    // problem, not proof the token is invalid. Pass it through passport's
+                    // done(err) signature (-> self.error() -> real error, not a fail())
+                    // so it surfaces as a 503, not a 401 (INC-322).
+                    error.isTransient = true;
+                    if (!error.statusCode) {
+                        error.statusCode = 503;
+                    }
+                    done(error);
                 });
             } else {
                 logDebug(`JWT result`, {
@@ -574,6 +716,14 @@ class AuthService {
                     done,
                     client_id: clientId,
                     scope
+                }).catch((error) => {
+                    // processUserInfo is async now (may await a Consent lookup) -- catch here
+                    // too, so a rejection doesn't become an unhandled rejection.
+                    logError(`Error while processing user info: ${error.message}`, {
+                        reason: 'process_user_info_error',
+                        error
+                    });
+                    done(error);
                 });
             }
         } else {

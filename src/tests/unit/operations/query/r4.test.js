@@ -75,6 +75,25 @@ function createParsedArgsItem({ queryParameter, value, type, field, fields, targ
     });
 }
 
+function createCompositeParsedArgsItem({ queryParameter, value, scopes, modifiers = [] }) {
+    const propertyObj = new SearchParameterDefinition({
+        type: 'composite',
+        scopes
+    });
+
+    const queryParameterValue = new QueryParameterValue({
+        value,
+        operator: '$and'
+    });
+
+    return new ParsedArgsItem({
+        queryParameter,
+        queryParameterValue,
+        propertyObj,
+        modifiers
+    });
+}
+
 describe('R4SearchQueryCreator', () => {
     let creator;
     let mockConfigManager;
@@ -308,6 +327,92 @@ describe('R4SearchQueryCreator', () => {
             expect(query.$and).toBeDefined();
         });
 
+        test('builds composite filter for composite type param instead of throwing Unknown type', () => {
+            const item = createCompositeParsedArgsItem({
+                queryParameter: 'code-value-quantity',
+                value: '8480-6$ge140',
+                scopes: [{
+                    components: [
+                        new SearchParameterDefinition({ type: 'token', field: 'code' }),
+                        new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity' })
+                    ]
+                }]
+            });
+            const parsedArgs = createParsedArgs([item]);
+
+            const { query } = creator.buildR4SearchQuery({
+                resourceType: 'Observation',
+                parsedArgs,
+                operation: 'read',
+                isUser: false
+            });
+
+            expect(query.$and).toBeDefined();
+            expect(query.$and.length).toBeGreaterThan(0);
+        });
+
+        test('rejects a disallowed modifier on a composite param with a BadRequestError before reaching the modifier-specific filter classes', () => {
+            const item = createCompositeParsedArgsItem({
+                queryParameter: 'code-value-quantity',
+                value: '8480-6$ge140',
+                scopes: [{
+                    components: [
+                        new SearchParameterDefinition({ type: 'token', field: 'code' }),
+                        new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity' })
+                    ]
+                }],
+                modifiers: ['contains']
+            });
+            const parsedArgs = createParsedArgs([item]);
+
+            expect(() => creator.buildR4SearchQuery({
+                resourceType: 'Observation',
+                parsedArgs,
+                operation: 'read',
+                isUser: false
+            })).toThrow(/not supported on composite search parameters/);
+        });
+
+        test('sets includesQuantityType for a composite param with a quantity component, so the simplifier does not touch its filter segment', () => {
+            const codeComponent = new SearchParameterDefinition({ type: 'token', field: 'code' });
+            const quantityComponent = new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity' });
+            const scopes = [{ components: [codeComponent, quantityComponent] }];
+            const item = createCompositeParsedArgsItem({
+                queryParameter: 'code-value-quantity',
+                value: '8480-6$ge140',
+                scopes
+            });
+            const parsedArgs = createParsedArgs([item]);
+
+            const { query } = creator.buildR4SearchQuery({
+                resourceType: 'Observation',
+                parsedArgs,
+                operation: 'read',
+                isUser: false
+            });
+
+            // Independently compute what FilterByComposite alone produces for this item. If
+            // includesQuantityType were not set, MongoQuerySimplifier.simplifyFilter would run
+            // over the final query and could restructure/dedupe this segment (it explicitly
+            // targets $or/$and shapes like the one FilterByComposite emits) -- so finding it
+            // byte-identical in the final query proves the simplifier left it alone.
+            const { FilterByComposite } = require('../../../../operations/query/filters/composite');
+            const { FilterParameters } = require('../../../../operations/query/filters/filterParameters');
+            const { FieldMapper } = require('../../../../operations/query/filters/fieldMapper');
+            const expectedSegments = new FilterByComposite(new FilterParameters({
+                parsedArg: item,
+                propertyObj: item.propertyObj,
+                fnUseAccessIndex: () => false,
+                fieldMapper: new FieldMapper({ useHistoryTable: false }),
+                resourceType: 'Observation'
+            })).filter();
+
+            const compositeSegment = query.$and.find(
+                seg => JSON.stringify(seg) === JSON.stringify(expectedSegments[0])
+            );
+            expect(compositeSegment).toBeDefined();
+        });
+
         test('returns columns set', () => {
             const parsedArgs = createParsedArgs([]);
             const { columns } = creator.buildR4SearchQuery({
@@ -415,6 +520,39 @@ describe('R4SearchQueryCreator', () => {
 
             expect(andSegments).toBeDefined();
             expect(Array.isArray(andSegments)).toBe(true);
+        });
+
+        test('routes composite type to FilterByComposite instead of throwing Unknown type', () => {
+            const item = createCompositeParsedArgsItem({
+                queryParameter: 'code-value-quantity',
+                value: '8480-6$ge140',
+                scopes: [{
+                    components: [
+                        new SearchParameterDefinition({ type: 'token', field: 'code' }),
+                        new SearchParameterDefinition({ type: 'quantity', field: 'valueQuantity' })
+                    ]
+                }]
+            });
+
+            const { FilterParameters } = require('../../../../operations/query/filters/filterParameters');
+            const { FieldMapper } = require('../../../../operations/query/filters/fieldMapper');
+
+            const fieldMapper = new FieldMapper({ useHistoryTable: false });
+            const filterParameters = new FilterParameters({
+                parsedArg: item,
+                propertyObj: item.propertyObj,
+                fnUseAccessIndex: () => false,
+                fieldMapper,
+                resourceType: 'Observation'
+            });
+
+            const { andSegments } = creator.getColumnsAndSegmentsForParameterType({
+                parsedArg: item,
+                filterParameters
+            });
+
+            expect(Array.isArray(andSegments)).toBe(true);
+            expect(andSegments.length).toBeGreaterThan(0);
         });
 
         test('throws for unknown property type', () => {

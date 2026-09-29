@@ -46,6 +46,14 @@ create_all_collections:
 	docker exec -t fhir-dev-fhir-1 sh -c "cd /srv/src && node src/admin/scripts/createCollections.js"
 	echo "\nAll collections and indexes created successfully."
 
+# Requires create_all_collections to have already run (createSearchIndex fails on a
+# collection that doesn't exist yet) and requires the mongo service to actually be
+# mongodb-atlas-local (docker-compose.yml's default) -- plain mongod has no $search support.
+.PHONY: create_atlas_search_indexes
+create_atlas_search_indexes:
+	docker exec -t fhir-dev-fhir-1 sh -c "cd /srv/src && node src/admin/scripts/createAtlasSearchIndexes.js"
+	echo "\nAtlas Search indexes created successfully."
+
 .PHONY:up-offline
 up-offline:
 	docker compose -p fhir-dev -f docker-compose.yml up --detach && \
@@ -160,6 +168,7 @@ fix-lint:
 generate:
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/generate_services.py" && \
 	yarn eslint --fix "src/profiles.js"
+	$(MAKE) mcp
 
 .PHONY:shell
 shell: ## Brings up the bash shell in dev docker
@@ -213,6 +222,11 @@ searchParameters:
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/searchParameters/generate_search_parameters.py" && \
 	yarn eslint --fix "src/middleware/fhir/resources/**/*.js" && \
 	yarn eslint --fix "src/searchParameters/*.js"
+
+.PHONY:mcp
+mcp:
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/mcp/generate_mcp_tools.py" && \
+	yarn eslint --fix "src/mcp/tools/*.js"
 
 .PHONY:fastSerializers
 fastSerializers:

@@ -23,6 +23,8 @@ const { validateResource } = require('../../utils/validator.util');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
+const { ReferenceParser } = require('../../utils/referenceParser');
+const { generateUUIDv5 } = require('../../utils/uid.util');
 
 class ResourceValidator {
     /**
@@ -82,16 +84,220 @@ class ResourceValidator {
     }
 
     /**
+     * DCON-4844: for a non-user (access-scoped) caller adding to Person.link, verifies every newly
+     * added link target resolves to a resource the caller has access to. Existing link targets and
+     * removals are left alone -- only additions can expand the identity graph into another tenant.
+     *
+     * Per-reference resolution (redesigned per reviewer request on PR #2436, replacing the earlier
+     * fetch-then-check-afterward approach that let not-found and cross-tenant-denied be
+     * distinguished by an access-scoped caller -- see PR discussion):
+     *   1. If the reference already carries a UUID, or an explicit `|sourceAssigningAuthority`
+     *      suffix, resolve it deterministically by `_uuid` -- this targets exactly one resource by
+     *      construction. Otherwise resolve by the bare source id, which can legitimately return
+     *      multiple candidates across tenants sharing the same source id.
+     *   2. No match at all -> reject (400, issue type `not-found`): the caller referenced something
+     *      that doesn't exist; allowing it through unverified is exactly how an unauthorized link
+     *      could be smuggled in.
+     *   3. Matches exist but none are accessible to the caller -> reject (403, issue type
+     *      `forbidden`).
+     *   4. Multiple matches ARE accessible -> reject (400, issue type `multiple-matches`): this can
+     *      only happen for a bare-id lookup that resolved ambiguously; the caller must disambiguate
+     *      with the target's `_uuid` or an explicit `sourceAssigningAuthority`.
+     *   5. Exactly one accessible match -> allow, and (bare-id references only) rewrite the
+     *      reference to carry the resolved resource's real `sourceAssigningAuthority` so the correct
+     *      `_uuid` is generated at persist time -- see the rewrite block below.
+     *
+     * Step-5 rewrite scope (partial, fail-safe): without the correction, when the accepted match's
+     * real `sourceAssigningAuthority` differs from the referencing Person's own authority and the
+     * reference was a bare id, `referenceGlobalIdHandler`'s pre-save enrichment defaults the
+     * generated `_uuid` to the *referencing* resource's authority (see `updateReferenceAsync`),
+     * which is wrong for a genuinely cross-tenant-but-accessible match (e.g. a consent-bridged PROA
+     * patient, as in the DCON-4847 W-chain tests). We now correct this on `resourceObj` -- the
+     * resource instance the caller persists, which `create.js` passes directly. The
+     * update/merge/patch/graph paths validate a separate copy, so they do not yet receive the
+     * rewrite; making it universal requires `validateResourceAsync` to return the corrected body and
+     * every caller to apply it, a larger separate change. Until then those paths keep their
+     * pre-existing behavior (no rewrite) -- never a newly-wrong `_uuid`.
+     *
+     * @typedef {Object} ValidateNewPersonLinkTargetsParams
+     * @property {string[]|undefined} currentValue
+     * @property {string[]|undefined} newValue
+     * @property {string} user
+     * @property {string} scope
+     * @property {string} base_version
+     *
+     * @param {ValidateNewPersonLinkTargetsParams}
+     * @returns {Promise<OperationOutcome|null>}
+     */
+    async validateNewPersonLinkTargetsBelongToCallersTenant ({ currentValue, newValue, user, scope, base_version, resourceObj = null }) {
+        const addedReferences = (newValue || []).filter(ref => !(currentValue || []).includes(ref));
+        if (addedReferences.length === 0) {
+            return null;
+        }
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes('write', user, scope);
+        if (accessCodes.includes('*')) {
+            return null;
+        }
+        for (const reference of addedReferences) {
+            const { resourceType, id, sourceAssigningAuthority } = ReferenceParser.parseReference(reference);
+            if (!resourceType || !id) {
+                // DCON-4844 follow-up: a link target we can't parse into resourceType + id
+                // (e.g. an absolute-URL reference) can't be resolved to a tenant, so we cannot
+                // verify the caller is allowed to link it. Silently skipping it -- the previous
+                // behavior -- is a bypass of this whole check, so fail closed and reject instead.
+                return new OperationOutcome({
+                    issue: new OperationOutcomeIssue({
+                        code: 'invalid',
+                        severity: 'error',
+                        details: new CodeableConcept({
+                            text: `Person.link target ${reference} could not be resolved to a resource. Specify it as ResourceType/id with a _uuid or sourceAssigningAuthority.`
+                        })
+                    })
+                });
+            }
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
+
+            // A reference that names its target explicitly (UUID, or bare id + explicit authority)
+            // resolves to exactly one resource by construction -- look it up by _uuid directly.
+            // Only a bare id with no authority is genuinely ambiguous across tenants.
+            let query;
+            if (ReferenceParser.isUuidReference(reference)) {
+                query = { _uuid: id };
+            } else if (sourceAssigningAuthority) {
+                query = { _uuid: generateUUIDv5(`${id}|${sourceAssigningAuthority}`) };
+            } else {
+                query = { id };
+            }
+            const targetResources = await (
+                await databaseQueryManager.findAsync({ query })
+            ).toObjectArrayAsync();
+
+            if (targetResources.length === 0) {
+                return new OperationOutcome({
+                    issue: new OperationOutcomeIssue({
+                        code: 'not-found',
+                        severity: 'error',
+                        details: new CodeableConcept({
+                            text: `Person.link target ${reference} was not found.`
+                        })
+                    })
+                });
+            }
+
+            const accessibleTargetResources = targetResources.filter(
+                targetResource => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, targetResource)
+            );
+
+            if (accessibleTargetResources.length === 0) {
+                return new OperationOutcome({
+                    issue: new OperationOutcomeIssue({
+                        code: 'forbidden',
+                        severity: 'error',
+                        details: new CodeableConcept({
+                            text: `Person.link target ${reference} belongs to a tenant the caller does not have access to.`
+                        })
+                    })
+                });
+            }
+
+            if (accessibleTargetResources.length > 1) {
+                return new OperationOutcome({
+                    issue: new OperationOutcomeIssue({
+                        code: 'multiple-matches',
+                        severity: 'error',
+                        details: new CodeableConcept({
+                            text: `Person.link target ${reference} is ambiguous: multiple accessible resources share this id. Specify the target's _uuid or sourceAssigningAuthority.`
+                        })
+                    })
+                });
+            }
+
+            // Reviewer step 5 (DCON-4844): exactly one accessible match. When the caller referenced
+            // it by a bare id (no _uuid, no explicit authority) we rewrite the reference to carry the
+            // resolved resource's real sourceAssigningAuthority, so the correct _uuid is generated at
+            // persist time. This matters when the accessible match lives in a different authority than
+            // the referencing Person (e.g. a consent-bridged PROA patient): referenceGlobalIdHandler
+            // would otherwise default the generated _uuid to the referencing resource's authority and
+            // link the wrong (or a non-existent) target.
+            //
+            // Fail-safe scope: we only rewrite on resourceObj -- the resource instance the caller
+            // actually persists (create.js passes it directly). The update/merge/patch/graph paths
+            // validate a separate copy, so resourceObj there is not the persisted object; rather than
+            // thread a correction blindly through those divergent write paths, we leave the reference
+            // unchanged for them -- worst case the pre-existing behavior, never a wrong _uuid. Full
+            // threading through every caller is the larger follow-up noted in the method doc above.
+            const [match] = accessibleTargetResources;
+            if (
+                resourceObj &&
+                !ReferenceParser.isUuidReference(reference) &&
+                !sourceAssigningAuthority &&
+                match?._sourceAssigningAuthority
+            ) {
+                const correctedReference = ReferenceParser.createReference({
+                    resourceType, id, sourceAssigningAuthority: match._sourceAssigningAuthority
+                });
+                if (correctedReference !== reference) {
+                    this.rewritePersonLinkReference({
+                        resourceObj, originalReference: reference, correctedReference
+                    });
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * DCON-4844: rewrite a matching Person.link target reference in place on the resource instance
+     * that will be persisted, so a corrected sourceAssigningAuthority flows into _uuid generation.
+     * No-op if the resource has no matching link (fail-safe).
+     * @param {Resource} resourceObj
+     * @param {string} originalReference
+     * @param {string} correctedReference
+     * @returns {void}
+     */
+    rewritePersonLinkReference ({ resourceObj, originalReference, correctedReference }) {
+        for (const link of (resourceObj.link || [])) {
+            if (link?.target?.reference === originalReference) {
+                link.target.reference = correctedReference;
+            }
+        }
+    }
+
+    /**
      * Patient reference should be same in current and new resource
      * @typedef {Object} ValidatePatientReferenceParams
      * @property {Resource} currentResource
      * @property {Object} resourceToValidateJson
      * @property {Boolean} isUser
+     * @property {string} user
+     * @property {string} scope
+     * @property {string} base_version
      *
      * @param {ValidatePatientReferenceParams}
-     * @returns {OperationOutcome | null}
+     * @returns {Promise<OperationOutcome | null>}
      */
-    validatePatientReference ({ currentResource, resourceToValidateJson, isUser }) {
+    async validatePatientReference ({ currentResource, resourceToValidateJson, isUser, user, scope, base_version, resourceObj = null }) {
+        if (!currentResource) {
+            // DCON-4844: mergeInsertAsync/create.js never pass a currentResource (there's nothing
+            // to diff a brand-new resource against), so this is the only place a non-user caller
+            // creating a new Person with the cross-tenant link already inlined would otherwise
+            // skip the check entirely. Every link on a newly-inserted resource counts as added.
+            if (isUser || resourceToValidateJson?.resourceType !== 'Person') {
+                return null;
+            }
+            const newLinkValue = this.patientFilterManager.getPatientPropertyForPersonScopedResource({
+                resourceType: resourceToValidateJson.resourceType
+            });
+            if (!newLinkValue) {
+                return null;
+            }
+            const newValue = NestedPropertyReader.getNestedProperty({
+                obj: resourceToValidateJson, path: newLinkValue
+            });
+            return await this.validateNewPersonLinkTargetsBelongToCallersTenant({
+                currentValue: undefined, newValue, user, scope, base_version, resourceObj
+            });
+        }
         // For Patient resource, check for id field is ignored as id field cannot be updated and is ignored later
         if (currentResource.resourceType === "Patient"){
             return null;
@@ -121,6 +327,16 @@ class ResourceValidator {
             if (Array.isArray(currentValue) || Array.isArray(newValue)) {
                 // If this is an array field, then allow update for non patient scopes
                 if (!isUser) {
+                    // DCON-4844: that trust must not extend to linking a Person into another
+                    // tenant's Person/Patient -- see validateNewPersonLinkTargetsBelongToCallersTenant
+                    if (currentResource.resourceType === 'Person') {
+                        const crossTenantLinkOutcome = await this.validateNewPersonLinkTargetsBelongToCallersTenant({
+                            currentValue, newValue, user, scope, base_version, resourceObj
+                        });
+                        if (crossTenantLinkOutcome) {
+                            return crossTenantLinkOutcome;
+                        }
+                    }
                     return null;
                 }
                 if (Array.isArray(currentValue) && Array.isArray(newValue)) {
@@ -230,13 +446,17 @@ class ResourceValidator {
         // patient-reference outcomes get different validation_stage labels.
         let validationStage = validationOperationOutcome ? VALIDATION_STAGE.SCHEMA : null;
 
-        const { isUser } = requestInfo;
+        const { isUser, user, scope } = requestInfo;
 
-        if (!validationOperationOutcome && currentResource) {
-            validationOperationOutcome = this.validatePatientReference({
+        if (!validationOperationOutcome && (currentResource || resourceType === 'Person')) {
+            validationOperationOutcome = await this.validatePatientReference({
                 currentResource,
                 resourceToValidateJson,
-                isUser
+                isUser,
+                user,
+                scope,
+                base_version,
+                resourceObj
             });
             if (validationOperationOutcome) {
                 validationStage = VALIDATION_STAGE.REFERENCE;

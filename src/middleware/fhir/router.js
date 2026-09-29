@@ -116,7 +116,7 @@ class FhirRouter {
 
             const controller = this.controllerUtils.getController(fhirVersion, lowercaseKey); // Invoke the correct interaction on our controller
 
-            if (!controller[interaction]) {
+            if (!controller || !controller[interaction]) {
                 return next(new NotFoundError('Route not found'));
             }
             if (controller[interaction]) {
