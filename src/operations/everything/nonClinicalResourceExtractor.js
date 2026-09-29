@@ -103,7 +103,9 @@ class NonClinicalReferencesExtractor {
                 for (const reference of references) {
                     const { id: referenceId, resourceType: referenceResourceType } =
                         ReferenceParser.parseReference(reference);
+                    // An empty id becomes `id: ''` downstream, which drops the id filter entirely.
                     if (
+                        referenceId &&
                         !this.resourcesTypeToExclude.has(referenceResourceType) &&
                         (!this.resourcePool || this.resourcePool.has(referenceResourceType)) &&
                         nonClinicaResourcesSet.has(referenceResourceType)

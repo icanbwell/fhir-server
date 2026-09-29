@@ -1,0 +1,17 @@
+{
+    "resourceType": "Patient",
+    "id": "chainedPatient001",
+    "meta": {
+        "source": "test",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "client" },
+            { "system": "https://www.icanbwell.com/access", "code": "client" }
+        ]
+    },
+    "identifier": [
+        { "system": "http://example.com/fhir/identifier/mrn", "value": "123456" }
+    ],
+    "name": [
+        { "use": "official", "family": "ChainTarget", "given": ["One"] }
+    ]
+}

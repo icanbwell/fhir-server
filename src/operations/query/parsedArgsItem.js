@@ -18,6 +18,8 @@ class ParsedArgsItem {
      * @param {string[]|undefined} modifiers
      * @param {ParsedReferenceItem[]|undefined} [references]
      * @param {Object} patientToPersonMap
+     * @param {{targetType: string, targetParam: string}|undefined} [chain] set for a chained
+     *   reference search parameter, e.g. `patient.identifier`
      */
     constructor (
         {
@@ -26,7 +28,8 @@ class ParsedArgsItem {
             propertyObj,
             modifiers,
             references,
-            patientToPersonMap
+            patientToPersonMap,
+            chain
         }
     ) {
         /** '
@@ -73,6 +76,11 @@ class ParsedArgsItem {
          * @type {{[key: string]: string}|undefined}
          */
          this.patientToPersonMap = patientToPersonMap;
+
+        /**
+         * @type {{targetType: string, targetParam: string}|undefined}
+         */
+        this.chain = chain;
     }
 
     /**
@@ -206,7 +214,8 @@ class ParsedArgsItem {
                 propertyObj: this.propertyObj ? this.propertyObj.clone() : undefined,
                 modifiers: this.modifiers,
                 references: this.references ? this.references.map(r => r.clone()) : undefined,
-                patientToPersonMap: this.patientToPersonMap ? { ...this.patientToPersonMap } : undefined
+                patientToPersonMap: this.patientToPersonMap ? { ...this.patientToPersonMap } : undefined,
+                chain: this.chain ? { ...this.chain } : undefined
             }
         );
     }
@@ -222,7 +231,8 @@ class ParsedArgsItem {
             propertyObj: this.propertyObj ? this.propertyObj.toJSON() : undefined,
             modifiers: this.modifiers,
             references: this.references ? this.references.map(r => r.toJSON()) : undefined,
-            patientToPersonMap: this.patientToPersonMap
+            patientToPersonMap: this.patientToPersonMap,
+            chain: this.chain
         });
     }
 }
