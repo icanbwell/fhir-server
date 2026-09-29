@@ -16,7 +16,7 @@ describe('getExtendedGroupMemberWriteError', () => {
         expect(error.issue).toHaveLength(1);
         expect(error.issue[0].code).toBe('too-costly');
         expect(error.issue[0].diagnostics).toContain('PATCH');
-        expect(error.issue[0].diagnostics).toContain('/4_0_0/Group/group-1');
+        expect(error.issue[0].diagnostics).toContain('Use PATCH with JSON Patch to add members incrementally on /4_0_0/Group/group-1');
     });
 
     test('returns undefined for a metadata-only write to an extended Group', () => {

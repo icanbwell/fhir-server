@@ -93,7 +93,7 @@ describe('Extended Group PUT/$merge rejection (DCON-5527)', () => {
             expect(putResp.status).toBe(400);
             expect(putResp.body.resourceType).toBe('OperationOutcome');
             expect(putResp.body.issue[0].code).toBe('too-costly');
-            expect(putResp.body.issue[0].diagnostics).toContain(`PATCH on /4_0_0/Group/${created.id}`);
+            expect(putResp.body.issue[0].diagnostics).toContain(`Use PATCH with JSON Patch to add members incrementally on /4_0_0/Group/${created.id}`);
 
             // Nothing was persisted -- the Group's version/name are untouched.
             const groupCollection = await getCollection(GROUP_COLLECTION_NAME);
@@ -175,7 +175,7 @@ describe('Extended Group PUT/$merge rejection (DCON-5527)', () => {
             expect(mergeResp.status).toBe(200);
             expect(mergeResp.body).toEqual(expect.objectContaining({ created: false, updated: false }));
             expect(mergeResp.body.issue.code).toBe('too-costly');
-            expect(mergeResp.body.issue.diagnostics).toContain(`PATCH on /4_0_0/Group/${created.id}`);
+            expect(mergeResp.body.issue.diagnostics).toContain(`Use PATCH with JSON Patch to add members incrementally on /4_0_0/Group/${created.id}`);
 
             const groupCollection = await getCollection(GROUP_COLLECTION_NAME);
             const groupDoc = await groupCollection.findOne({ id: created.id });

@@ -1337,8 +1337,8 @@ class ConfigManager {
     }
 
     /**
-     * Maximum number of members a POST, PUT or $merge (merged result) may leave in an embedded
-     * Group's member[]; over it the write is rejected with too-costly, pointing to PATCH.
+     * Maximum number of members allowed in Group.member for a PUT. Not used by the extended Group
+     * checks, which use groupMemberPromotionLimit for both promotion and rejection.
      * @returns {number}
      */
     get groupMemberLimit() {
@@ -1346,11 +1346,11 @@ class ConfigManager {
     }
 
     /**
-     * Member-count threshold above which a PATCH promotes a Group from embedded member[] to
-     * MongoDB-native extended member storage -- see isGroupOverLimit/promoteExistingGroupIfNeeded
-     * in src/utils/groupPromotion.js. Default: 50000. A separate env var from
-     * MAX_GROUP_MEMBERS_PER_PUT/groupMemberLimit (which rejects an over-limit POST/PUT/$merge):
-     * promotion and rejection are different tradeoffs an operator may want to tune independently.
+     * Maximum number of members an embedded Group's member[] may hold when ENABLE_EXTENDED_GROUP
+     * is on. Above it, a PATCH promotes the Group to MongoDB-native extended member storage
+     * (promoteExistingGroupIfNeeded), and a POST, PUT or $merge is rejected with too-costly,
+     * pointing to PATCH (getGroupMemberLimitError) -- see src/utils/groupPromotion.js.
+     * Default: 50000.
      * @returns {number}
      */
     get groupMemberPromotionLimit() {
@@ -1371,9 +1371,9 @@ class ConfigManager {
      * Enables the MongoDB-native large-Group member storage: the GroupMember_4_0_0 /
      * GroupMember_4_0_0_History collections, the `_extended` branch of
      * GroupMemberPatchStrategy.determineGroupMemberType, and the checks in
-     * src/utils/groupPromotion.js: getGroupMemberLimitError rejects an over-limit POST/PUT/$merge,
-     * and promoteExistingGroupIfNeeded promotes an embedded Group to this storage once a PATCH
-     * pushes its member[] over groupMemberPromotionLimit.
+     * src/utils/groupPromotion.js: once member[] is over groupMemberPromotionLimit,
+     * getGroupMemberLimitError rejects a POST/PUT/$merge and promoteExistingGroupIfNeeded promotes
+     * the Group to this storage on a PATCH.
      * Default: false -- when disabled, a Group already marked
      * `_extended: true` still has its member changes rejected on PUT/$merge (see
      * getExtendedGroupMemberWriteError) rather than silently falling back to the embedded regime

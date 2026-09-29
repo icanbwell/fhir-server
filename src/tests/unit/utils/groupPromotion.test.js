@@ -87,9 +87,9 @@ describe('isGroupOverLimit', () => {
 });
 
 describe('getGroupMemberLimitError', () => {
-    const configManager = { ...buildConfigManager(), groupMemberLimit: 3, groupMemberPromotionLimit: 100 };
+    const configManager = { ...buildConfigManager(), groupMemberPromotionLimit: 3, groupMemberLimit: 100 };
 
-    test('returns a too-costly error when member[] exceeds groupMemberLimit, regardless of groupMemberPromotionLimit', () => {
+    test('returns a too-costly error when member[] exceeds groupMemberPromotionLimit, regardless of groupMemberLimit', () => {
         const error = getGroupMemberLimitError({ doc: buildGroupDoc({ memberCount: 4 }), configManager });
 
         expect(error.statusCode).toBe(400);
@@ -98,8 +98,13 @@ describe('getGroupMemberLimitError', () => {
         expect(error.issue[0].diagnostics).toContain('PATCH');
     });
 
-    test('returns undefined at exactly groupMemberLimit', () => {
+    test('returns undefined at exactly groupMemberPromotionLimit', () => {
         expect(getGroupMemberLimitError({ doc: buildGroupDoc({ memberCount: 3 }), configManager })).toBeUndefined();
+    });
+
+    test('returns undefined when ENABLE_EXTENDED_GROUP is off', () => {
+        const disabledConfigManager = { ...configManager, enableExtendedGroup: false };
+        expect(getGroupMemberLimitError({ doc: buildGroupDoc({ memberCount: 4 }), configManager: disabledConfigManager })).toBeUndefined();
     });
 
     test('returns undefined for an extended Group (its member changes are rejected separately)', () => {
@@ -115,7 +120,7 @@ describe('getGroupMemberLimitError', () => {
 });
 
 describe('rejectGroupOverMemberLimit', () => {
-    const configManager = { ...buildConfigManager(), groupMemberLimit: 3 };
+    const configManager = { ...buildConfigManager(), groupMemberPromotionLimit: 3 };
 
     test('throws the too-costly error when over the limit', () => {
         expect(() => rejectGroupOverMemberLimit({ doc: buildGroupDoc({ memberCount: 4 }), configManager }))

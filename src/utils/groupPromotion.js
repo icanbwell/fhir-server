@@ -13,10 +13,10 @@ const { hasExternalStorageMemberTag } = require('./clickHouseGroupPreSave');
 
 /**
  * True when doc is a Group, still in embedded member storage, whose member[] has crossed `limit`.
- * Which limit is the caller's choice: promoteExistingGroupIfNeeded (PATCH) passes
- * configManager.groupMemberPromotionLimit and promotes the Group to MongoDB-native extended member
- * storage (GroupMember_4_0_0); getGroupMemberLimitError (POST, PUT, $merge) passes
- * configManager.groupMemberLimit and rejects the write with too-costly, pointing to PATCH.
+ * Both callers pass configManager.groupMemberPromotionLimit: promoteExistingGroupIfNeeded (PATCH)
+ * promotes the Group to MongoDB-native extended member storage (GroupMember_4_0_0), and
+ * getGroupMemberLimitError (POST, PUT, $merge) rejects the write with too-costly, pointing to
+ * PATCH. So an embedded Group never holds more than groupMemberPromotionLimit members.
  *
  * @param {Object} params
  * @param {Resource} params.doc
@@ -230,10 +230,10 @@ async function cleanupExtendedGroupOrphansIfNeeded ({ doc, requestInfo, base_ver
 
 /**
  * too-costly error for a POST, PUT or $merge whose Group member[] exceeds
- * configManager.groupMemberLimit, or undefined when the write is allowed. Large rosters go
- * through PATCH, which promotes the Group to extended member storage once it crosses
- * groupMemberPromotionLimit, so these writes never touch GroupMember_4_0_0. For $merge, doc is
- * the merged result, so the count includes the members the Group already has.
+ * configManager.groupMemberPromotionLimit, or undefined when the write is allowed. Only PATCH
+ * promotes a Group past that limit to extended member storage, so these writes never touch
+ * GroupMember_4_0_0. For $merge, doc is the merged result, so the count includes the members the
+ * Group already has. A no-op when ENABLE_EXTENDED_GROUP is off (see isGroupOverLimit).
  *
  * @param {Object} params
  * @param {Resource} params.doc
@@ -243,12 +243,12 @@ async function cleanupExtendedGroupOrphansIfNeeded ({ doc, requestInfo, base_ver
  * @returns {BadRequestError|undefined}
  */
 function getGroupMemberLimitError ({ doc, configManager, requestInfo }) {
-    if (!isGroupOverLimit({ doc, configManager, limit: configManager.groupMemberLimit, requestInfo })) {
+    if (!isGroupOverLimit({ doc, configManager, limit: configManager.groupMemberPromotionLimit, requestInfo })) {
         return undefined;
     }
     const { message, options } = createTooCostlyError({
         actual: doc.member.length,
-        limit: configManager.groupMemberLimit,
+        limit: configManager.groupMemberPromotionLimit,
         operation: 'PUT'
     });
     return new BadRequestError({ message }, options);
@@ -262,7 +262,7 @@ function getGroupMemberLimitError ({ doc, configManager, requestInfo }) {
  * @param {import('./configManager').ConfigManager} params.configManager
  * @param {import('./fhirRequestInfo').FhirRequestInfo} [params.requestInfo]
  * @returns {void}
- * @throws {BadRequestError} when doc.member[] exceeds configManager.groupMemberLimit
+ * @throws {BadRequestError} when doc.member[] exceeds configManager.groupMemberPromotionLimit
  */
 function rejectGroupOverMemberLimit ({ doc, configManager, requestInfo }) {
     const error = getGroupMemberLimitError({ doc, configManager, requestInfo });

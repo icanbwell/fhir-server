@@ -10,7 +10,8 @@
  * and the SAME meta.versionId bump, rather than a second, separately-versioned write.
  *
  * POST, PUT and $merge never promote: when the Group's member[] (for $merge, the merged result)
- * exceeds configManager.groupMemberLimit, the write is rejected with too-costly, pointing to PATCH.
+ * exceeds that same configManager.groupMemberPromotionLimit, the write is rejected with too-costly,
+ * pointing to PATCH. So an embedded Group never holds more than the promotion limit.
  * $merge reports that as the Group's own failed entry; the rest of the batch is unaffected.
  *
  * ENABLE_EXTENDED_GROUP is set to '1' globally in jest/setEnvVars.js.
@@ -65,7 +66,8 @@ describe('Group promotion to extended member storage', () => {
     beforeEach(() => {
         savedLimit = process.env.MAX_GROUP_MEMBERS_PER_PUT;
         savedPromotionLimit = process.env.GROUP_MEMBER_PROMOTION_LIMIT;
-        process.env.MAX_GROUP_MEMBERS_PER_PUT = '3';
+        // Deliberately high: POST, PUT and $merge reject on GROUP_MEMBER_PROMOTION_LIMIT, not this.
+        process.env.MAX_GROUP_MEMBERS_PER_PUT = '1000';
         process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
     });
 
@@ -203,12 +205,27 @@ describe('Group promotion to extended member storage', () => {
         return state;
     }
 
-    describe('POST, PUT and $merge over MAX_GROUP_MEMBERS_PER_PUT are rejected with too-costly', () => {
+    describe('POST, PUT and $merge over GROUP_MEMBER_PROMOTION_LIMIT are rejected with too-costly', () => {
         test('POST: rejected, nothing is written', async () => {
             const createResp = await createGroup({ member: buildMembers(4, 'post-over-limit') });
 
             assertTooCostlyOperationOutcome(createResp, 4, 3);
             expect(await getMemberRowsByReferencePrefix('post-over-limit')).toHaveLength(0);
+        });
+
+        test('POST: not rejected when ENABLE_EXTENDED_GROUP is off -- member[] is stored inline', async () => {
+            const savedEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+            delete process.env.ENABLE_EXTENDED_GROUP;
+            try {
+                const createResp = await createGroup({ member: buildMembers(4, 'post-flag-off') });
+
+                expect(createResp.status).toBe(201);
+                const groupDoc = await getGroupDoc(createResp.body.id);
+                expect(groupDoc[MONGO_GROUP_EXTENDED_FIELD]).not.toBe(true);
+                expect(groupDoc.member).toHaveLength(4);
+            } finally {
+                process.env.ENABLE_EXTENDED_GROUP = savedEnableExtendedGroup;
+            }
         });
 
         test('PUT-insert (new id): rejected, nothing is written', async () => {
@@ -305,13 +322,13 @@ describe('Group promotion to extended member storage', () => {
             await expectPromoted(created.body.id, 4);
         });
 
-        test('uses GROUP_MEMBER_PROMOTION_LIMIT, not MAX_GROUP_MEMBERS_PER_PUT', async () => {
+        test('keeps the Group embedded until the PATCH goes over GROUP_MEMBER_PROMOTION_LIMIT', async () => {
             process.env.GROUP_MEMBER_PROMOTION_LIMIT = '5';
             const created = await createGroup({ member: buildMembers(3, 'patch-own-limit') });
             expect(created.status).toBe(201);
             const groupId = created.body.id;
 
-            // 4 members: over MAX_GROUP_MEMBERS_PER_PUT (3) but within the promotion limit (5).
+            // 4 members: within the promotion limit (5).
             const firstPatch = await patchGroup(groupId, addMemberOps(['Patient/patch-own-limit-3']));
             expect(firstPatch.status).toBe(200);
             await expectNotPromoted(groupId, 4);
@@ -619,7 +636,6 @@ describe('Group promotion to extended member storage', () => {
 
     describe('versionId/lastUpdated parity across Group, GroupMember, and their history', () => {
         test('Group at version 4 with 4 inline members, promoted by a PATCH adding 50 more (54 total): every GroupMember row and both history collections land at version 5 with the Group\'s own lastUpdated', async () => {
-            process.env.MAX_GROUP_MEMBERS_PER_PUT = '50';
             process.env.GROUP_MEMBER_PROMOTION_LIMIT = '50';
 
             // v1: create with 4 inline members -- well under the 50-member limit.
