@@ -89,7 +89,7 @@ describe('Condition Tests', () => {
             expect(resp).toHaveStatusCode(403);
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].details.text).toStrictEqual('Write not allowed using user scopes if patient scope is present: user clientFhirPerson with scopes [user/Condition.write] failed access check to [Condition.write]');
+            expect(body.issue[0].details.text).toStrictEqual('Write not allowed using user scopes if patient scope is present: user clientFhirPerson does not have access to [Condition]');
 
             // check version id
             resp = await request
@@ -148,7 +148,7 @@ describe('Condition Tests', () => {
             expect(resp).toHaveStatusCode(403);
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].details.text).toStrictEqual('Write not allowed using user scopes if patient scope is present: user clientFhirPerson with scopes [] failed access check to [Condition.write]');
+            expect(body.issue[0].details.text).toStrictEqual('Write not allowed using user scopes if patient scope is present: user clientFhirPerson does not have access to [Condition]');
 
             // check version id
             resp = await request

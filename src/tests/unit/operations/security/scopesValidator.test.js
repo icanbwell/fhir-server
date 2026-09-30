@@ -141,7 +141,7 @@ describe('ScopesValidator', () => {
 
             expect(result).toBeInstanceOf(ServerError);
             expect(result.statusCode).toBe(403);
-            expect(result.message).toContain('no scopes');
+            expect(result.message).toContain('does not have access');
         });
 
         test('should return ForbiddenError when scope is empty string', async () => {
@@ -158,7 +158,7 @@ describe('ScopesValidator', () => {
 
             expect(result).toBeInstanceOf(ServerError);
             expect(result.statusCode).toBe(403);
-            expect(result.message).toContain('no scopes');
+            expect(result.message).toContain('does not have access');
         });
 
         test('should return undefined when patient scopes grant access', async () => {
@@ -420,7 +420,7 @@ describe('ScopesValidator', () => {
                 startTime: Date.now(),
                 action: 'read',
                 accessRequested: 'read'
-            })).rejects.toThrow('no scopes');
+            })).rejects.toThrow('does not have access');
 
             expect(mockFhirLoggingManager.logOperationFailureAsync).toHaveBeenCalled();
         });
@@ -454,7 +454,7 @@ describe('ScopesValidator', () => {
                 startTime: Date.now(),
                 action: 'read',
                 accessRequested: 'read'
-            })).rejects.toThrow('no scopes');
+            })).rejects.toThrow('does not have access');
         });
     });
 
@@ -518,7 +518,7 @@ describe('ScopesValidator', () => {
                     resource: { resourceType: 'Patient', id: '123' },
                     accessRequested: 'write'
                 });
-            }).toThrow('has no write access');
+            }).toThrow('has no access');
         });
 
         test('should use write as default accessRequested', () => {
@@ -559,7 +559,7 @@ describe('ScopesValidator', () => {
                     resource,
                     accessRequested: 'write'
                 });
-            }).toThrow('has no write access');
+            }).toThrow('has no access');
         });
 
         test('should NOT throw when isUser is false even if resource has restriction tag', () => {
@@ -669,7 +669,7 @@ describe('ScopesValidator', () => {
                 resource,
                 base_version: '4_0_0',
                 accessRequested: 'write'
-            })).rejects.toThrow('has no write access');
+            })).rejects.toThrow('has no access');
         });
 
         test('should throw when patient scope check fails', async () => {
@@ -710,7 +710,7 @@ describe('ScopesValidator', () => {
                 resource,
                 base_version: '4_0_0',
                 accessRequested: 'write'
-            })).rejects.toThrow('has no write access');
+            })).rejects.toThrow('has no access');
         });
     });
 

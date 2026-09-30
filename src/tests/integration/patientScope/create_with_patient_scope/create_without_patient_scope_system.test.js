@@ -69,7 +69,7 @@ describe('Condition Tests', () => {
             expect(resp).toHaveStatusCode(403);
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].details.text).toStrictEqual('Write not allowed using user scopes if patient scope is present: user clientFhirPerson with scopes [system/*.*] failed access check to [Condition.write]');
+            expect(body.issue[0].details.text).toStrictEqual('Write not allowed using user scopes if patient scope is present: user clientFhirPerson does not have access to [Condition]');
         });
     });
 });

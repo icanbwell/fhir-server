@@ -299,7 +299,7 @@ describe('Owner tags (doc §2)', () => {
                 }
                 expect(thrown).toBeDefined();
                 expect(thrown.statusCode).toBe(403);
-                expect(thrown.message).toMatch(/can only add or remove access tags it has write access to/);
+                expect(thrown.message).toMatch(/can only add or remove access tags it has access to/);
             });
 
             test('does not throw when the tenant caller holds write access for every tag it is changing', () => {

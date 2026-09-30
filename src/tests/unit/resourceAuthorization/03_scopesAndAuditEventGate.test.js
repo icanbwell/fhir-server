@@ -238,7 +238,7 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                 startTime: Date.now(),
                 action: 'search',
                 accessRequested: 'read'
-            })).rejects.toThrow(/failed access check to \[Observation\.read\]/);
+            })).rejects.toThrow(/does not have access to \[Observation\]/);
 
             // The gate must fire before any query-building logging/telemetry treats this as a
             // legitimate request.
@@ -258,7 +258,7 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                 startTime: Date.now(),
                 action: 'update',
                 accessRequested: 'write'
-            })).rejects.toThrow(/failed access check to \[Observation\.write\]/);
+            })).rejects.toThrow(/does not have access to \[Observation\]/);
         });
 
         test('allows the request through when the user scope + an access code cover the resource type/action', async () => {
@@ -294,7 +294,7 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                 startTime: Date.now(),
                 action: 'search',
                 accessRequested: 'read'
-            })).rejects.toThrow(/has no access scopes/);
+            })).rejects.toThrow(/does not have access/);
         });
 
         test('rejects with ForbiddenError when no scope is present at all', async () => {
@@ -307,7 +307,7 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                 startTime: Date.now(),
                 action: 'search',
                 accessRequested: 'read'
-            })).rejects.toThrow(/no scopes/);
+            })).rejects.toThrow(/does not have access/);
         });
 
         describe('SMART on FHIR v2 system/ scopes', () => {
@@ -324,7 +324,7 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                     startTime: Date.now(),
                     action: 'search',
                     accessRequested: 'read'
-                })).rejects.toThrow(/failed access check to \[Observation\.read\]/);
+                })).rejects.toThrow(/does not have access to \[Observation\]/);
             });
 
             test('rejects with ForbiddenError when the system scope covers the type but not the requested action', async () => {
@@ -340,7 +340,7 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                     startTime: Date.now(),
                     action: 'update',
                     accessRequested: 'write'
-                })).rejects.toThrow(/failed access check to \[Observation\.write\]/);
+                })).rejects.toThrow(/does not have access to \[Observation\]/);
             });
 
             test('allows the request through when the system scope + an access code cover the resource type/action', async () => {
@@ -374,7 +374,7 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                     startTime: Date.now(),
                     action: 'search',
                     accessRequested: 'read'
-                })).rejects.toThrow(/has no access scopes/);
+                })).rejects.toThrow(/does not have access/);
             });
 
             test('a wildcard system/ scope alone (no access/ code) is still rejected', async () => {
@@ -387,7 +387,7 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
                     startTime: Date.now(),
                     action: 'search',
                     accessRequested: 'read'
-                })).rejects.toThrow(/has no access scopes/);
+                })).rejects.toThrow(/does not have access/);
             });
 
             // Named so a future refactor that turns system/ into a sibling branch (rather than

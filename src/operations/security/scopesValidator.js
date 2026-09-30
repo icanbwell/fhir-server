@@ -8,6 +8,7 @@ const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {PreSaveOptions} = require('../../preSaveHandlers/preSaveOptions');
 const {RESOURCE_RESTRICTION_TAG, AUTH_USER_TYPES} = require('../../constants');
 const {DelegatedAccessScopeManager} = require('./delegatedAccessScopeManager');
+const {logInfo} = require('../common/logging');
 const {
     parseScopeToken,
     getRequiredCrudsForAccessRequested,
@@ -181,14 +182,17 @@ class ScopesValidator {
                 }
 
                 if (!success) {
-                    errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                    logInfo('Scope check failed', {user, scope: scopes, resourceType, accessRequested, action, error: error.message || error});
+                    errorMessage = 'user ' + user + ' does not have access to [' + resourceType + ']';
                     forbiddenError = new ForbiddenError((error.message || error) + ': ' + errorMessage);
                 } else {
-                    const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+                    logInfo('No access scopes present', {user, scope, resourceType, accessRequested, action});
+                    const errorMessage = 'user ' + user + ' does not have access to [' + resourceType + ']';
                     forbiddenError = new ForbiddenError(errorMessage);
                 }
             } else {
-                errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
+                logInfo('No scopes present', {user, resourceType, accessRequested, action});
+                errorMessage = 'user ' + user + ' does not have access to [' + resourceType + ']';
                 forbiddenError = new ForbiddenError(errorMessage);
             }
 
@@ -288,9 +292,11 @@ class ScopesValidator {
                     accessRequested
                 })
             ) {
+                logInfo('Access scope check failed', {
+                    user, scope, accessRequested, resourceType: resource.resourceType, resourceId: resource.id
+                });
                 throw new ForbiddenError(
-                    `user ${user} with scopes [${scope}] has no ${accessRequested} access ` +
-                    `to resource ${resource.resourceType} with id ${resource.id}`
+                    `user ${user} has no access to resource ${resource.resourceType} with id ${resource.id}`
                 );
             }
         } catch (e) {
@@ -325,8 +331,11 @@ class ScopesValidator {
                 ignoreRemovals
             })
         ) {
+            logInfo('Access tag change check failed', {
+                user, scope, resourceType: updatedResource.resourceType, resourceId: updatedResource.id
+            });
             throw new ForbiddenError(
-                `user ${user} with scopes [${scope}] can only add or remove access tags it has write access to, ` +
+                `user ${user} can only add or remove access tags it has access to, ` +
                 `for resource ${updatedResource.resourceType} with id ${updatedResource.id}`
             );
         }
@@ -379,9 +388,11 @@ class ScopesValidator {
                     s.code === RESOURCE_RESTRICTION_TAG.CODE
             )
         ) {
+            logInfo('Resource restricted for patient scope', {
+                user, scope, accessRequested, resourceType: resource.resourceType, resourceId: resource.id
+            });
             throw new ForbiddenError(
-                `user ${user} with scopes [${scope}] has no ${accessRequested} access ` +
-                `to resource ${resource.resourceType} with id ${resource.id}`
+                `user ${user} has no access to resource ${resource.resourceType} with id ${resource.id}`
             );
         }
     }

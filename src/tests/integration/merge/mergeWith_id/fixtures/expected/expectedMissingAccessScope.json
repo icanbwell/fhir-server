@@ -3,9 +3,9 @@
     {
       "code": "forbidden",
       "details": {
-        "text": "user imran with scopes [user/*.read user/*.write] has no access scopes"
+        "text": "user imran does not have access to [Person]"
       },
-      "diagnostics": "user imran with scopes [user/*.read user/*.write] has no access scopes",
+      "diagnostics": "user imran does not have access to [Person]",
       "severity": "error"
     }
   ],
