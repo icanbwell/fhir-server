@@ -105,7 +105,8 @@ class ScopesValidator {
      * @param {string} [action] the FHIR interaction being performed (e.g. 'create', 'searchById').
      *  When it names a single-letter CRUDS requirement (see smartScopeParser's
      *  INTERACTION_TO_CRUDS_LETTER), that granular requirement is used for the resourceType scope
-     *  match and the access/ tenant-code check, instead of the coarser accessRequested.
+     *  match instead of the coarser accessRequested; accessRequested is always used, unchanged,
+     *  for the access/ tenant-code check below (deferred to a later phase - see design doc).
      * @param {string} [base_version] the FHIR version of the resource being requested,
      *  used to scope the delegated-actor consent check to the correct version
      * @returns {Promise<ForbiddenError|undefined>}
