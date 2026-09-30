@@ -51,10 +51,10 @@ describe('Patient Tests', () => {
                     {
                         code: 'forbidden',
                         details: {
-                            text: 'user imran with scopes [access/owner.* user/*.*] has no write access to resource Patient with id 1'
+                            text: 'user imran has no access to resource Patient with id 1'
                         },
                         diagnostics:
-                            'user imran with scopes [access/owner.* user/*.*] has no write access to resource Patient with id 1',
+                            'user imran has no access to resource Patient with id 1',
                         severity: 'error'
                     }
                 ],
@@ -76,10 +76,10 @@ describe('Patient Tests', () => {
                     {
                         code: 'forbidden',
                         details: {
-                            text: 'user imran with scopes [access/access.* user/*.*] has no write access to resource Patient with id 1'
+                            text: 'user imran has no access to resource Patient with id 1'
                         },
                         diagnostics:
-                            'user imran with scopes [access/access.* user/*.*] has no write access to resource Patient with id 1',
+                            'user imran has no access to resource Patient with id 1',
                         severity: 'error'
                     }
                 ],
@@ -129,10 +129,10 @@ describe('Patient Tests', () => {
                     {
                         code: 'forbidden',
                         details: {
-                            text: 'user imran with scopes [access/owner.* user/*.*] has no write access to resource Patient with id 1'
+                            text: 'user imran has no access to resource Patient with id 1'
                         },
                         diagnostics:
-                            'user imran with scopes [access/owner.* user/*.*] has no write access to resource Patient with id 1',
+                            'user imran has no access to resource Patient with id 1',
                         severity: 'error'
                     }
                 ],
@@ -162,10 +162,10 @@ describe('Patient Tests', () => {
                     {
                         code: 'forbidden',
                         details: {
-                            text: 'user imran with scopes [access/access.* user/*.*] has no write access to resource Patient with id 1'
+                            text: 'user imran has no access to resource Patient with id 1'
                         },
                         diagnostics:
-                            'user imran with scopes [access/access.* user/*.*] has no write access to resource Patient with id 1',
+                            'user imran has no access to resource Patient with id 1',
                         severity: 'error'
                     }
                 ],
@@ -193,10 +193,10 @@ describe('Patient Tests', () => {
                     {
                         code: 'forbidden',
                         details: {
-                            text: 'user imran with scopes [access/access.* user/*.*] has no write access to resource Observation with id 1'
+                            text: 'user imran has no access to resource Observation with id 1'
                         },
                         diagnostics:
-                            'user imran with scopes [access/access.* user/*.*] has no write access to resource Observation with id 1',
+                            'user imran has no access to resource Observation with id 1',
                         severity: 'error'
                     }
                 ],

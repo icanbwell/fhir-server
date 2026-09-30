@@ -156,7 +156,7 @@ describe('Observation Tests', () => {
 
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].details.text).toStrictEqual('None of the provided scopes matched an allowed scope.: user clientFhirPerson with scopes [patient/Condition.write] failed access check to [Observation.read]');
+            expect(body.issue[0].details.text).toStrictEqual('None of the provided scopes matched an allowed scope.: user clientFhirPerson does not have access to [Observation]');
         });
         test('using id + security filter', async () => {
             const request = await createTestRequest((c) => {

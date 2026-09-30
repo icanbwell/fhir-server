@@ -5,6 +5,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { RESOURCE_TYPE_SCOPE_NAMESPACES } = require('../../constants');
 const { parseScopeToken, getRequiredCrudsForAccessRequested, isCrudsRequirementSatisfied } = require('./smartScopeParser');
+const { logInfo } = require('../common/logging');
 
 class ScopesManager {
     /**
@@ -267,7 +268,8 @@ class ScopesManager {
          */
         const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
         if (!accessCodes || accessCodes.length === 0) {
-            const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+            logInfo('No access codes for scope', { user, scope, accessRequested, resourceType: resource.resourceType });
+            const errorMessage = 'user ' + user + ' has no access scopes';
             throw new ForbiddenError(errorMessage);
         }
         return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, resource);
@@ -289,7 +291,8 @@ class ScopesManager {
          */
         const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
         if (!accessCodes || accessCodes.length === 0) {
-            const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+            logInfo('No access codes for scope', { user, scope, accessRequested, resourceType: resource.resourceType });
+            const errorMessage = 'user ' + user + ' has no access scopes';
             throw new ForbiddenError(errorMessage);
         }
         return this.doesResourceHaveAnyAccessCodeInAccessTag(accessCodes, resource);
