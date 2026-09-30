@@ -88,6 +88,8 @@ const { Base64DataManager } = require('../../../../dataLayer/base64DataManager')
 const { SearchManager } = require('../../../../operations/search/searchManager');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
+const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
+const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 const { QueryRewriterManager } = require('../../../../queryRewriters/queryRewriterManager');
 const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
@@ -154,7 +156,9 @@ describe('Conditional Update — Cross-Tenant Security', () => {
             postSaveHandlerFactory: createMockInstance(
                 require('../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory
             ),
-            identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider)
+            identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
+            groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
+            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
         };
 
         // Basic mocks
@@ -169,6 +173,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         mocks.auditLogger.logAuditEntryAsync = jestGlobal.fn().mockResolvedValue(undefined);
         mocks.postSaveHandlerFactory.getHandlers = jestGlobal.fn().mockReturnValue([]);
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jestGlobal.fn();
+        mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jestGlobal.fn(({ resources }) => Promise.resolve(resources));
         mocks.databaseBulkInserter.insertOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
         mocks.databaseBulkInserter.replaceOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
         mocks.databaseBulkInserter.executeAsync = jestGlobal.fn().mockResolvedValue([{

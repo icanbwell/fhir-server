@@ -7,6 +7,7 @@ const { generateUUIDv5 } = require('../../utils/uid.util');
 const { GROUP_MEMBER_RESOURCE_TYPE } = require('../../constants');
 const { resolveMemberWrite } = require('../../operations/common/resolveMemberWrite');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { logError } = require('../../operations/common/logging');
 
 /**
  * Repository for the MongoDB-native, large-Group ("extended") member storage, written from
@@ -21,8 +22,8 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
  * members, deciding what each requested write actually needs to do) and then, unless every one
  * of them resolved to a no-op, pass that same result into applyResolvedMemberWritesAsync() to
  * write it -- one DB read+resolve per PATCH request, not two. applyResolvedMemberWritesAsync()
- * flushes its own buffered create/update writes before returning, so callers don't need their
- * own reference to this same FastDatabaseBulkInserter instance just to commit it.
+ * flushes its create/update ops before returning, ahead of the Group's own write, and throws if
+ * any of them fails.
  *
  * A PATCH remove hard-deletes the GroupMember document instead of a soft inactive:true flag, via
  * RemoveHelper.deleteManyAsync() (history-then-delete), wired to the databaseBulkInserter
@@ -142,6 +143,8 @@ class MongoGroupMemberRepository {
      * @param {Map<string, {writeRequest: Object, writeType: 'create'|'update'|'delete'|'none', member: Object|undefined}>} params.resolvedMemberWrites
      *   the result of a prior resolveMemberWritesAsync call against these same requested writes.
      * @returns {Promise<Array<{reference:string, operation:'create'|'update'|'delete'|'none'}>>}
+     * @throws {Error} if any create/update fails to write, so the caller never goes on to write
+     *   the Group itself against a roster that isn't there.
      */
     async applyResolvedMemberWritesAsync({ requestInfo, base_version, groupUuid, groupVersionId, groupLastUpdated, sourceAssigningAuthority, securityTags, resolvedMemberWrites }) {
         if (!resolvedMemberWrites || resolvedMemberWrites.size === 0) {
@@ -200,7 +203,18 @@ class MongoGroupMemberRepository {
         }
 
         if (hasBufferedWrite) {
-            await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+            const results = await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+            const failedResults = results.filter((result) => result.issue);
+            if (failedResults.length > 0) {
+                logError('Error writing Group members', {
+                    args: {
+                        requestId: requestInfo.requestId,
+                        groupUuid,
+                        issues: failedResults.map((result) => result.issue)
+                    }
+                });
+                throw new Error('Error writing Group members');
+            }
         }
 
         if (docsToDelete.length > 0) {
@@ -231,6 +245,63 @@ class MongoGroupMemberRepository {
         return await databaseQueryManager.findAsync({
             query: { groupUuid }
         });
+    }
+
+    /**
+     * Deletes every GroupMember_4_0_0 row for groupUuid, optionally scoped to an exact
+     * meta.versionId. Exact match only, never a $gte/$lt range -- meta.versionId is stored as a
+     * FHIR `id` string (see every other query against it in this codebase, e.g.
+     * databaseBulkInserter.js's optimistic-concurrency checks), and a range comparison against a
+     * string field sorts lexicographically, not numerically ("10" sorts before "9"), silently
+     * matching or missing the wrong rows.
+     *
+     * Two callers, two different reasons an exact match (or no filter at all) is enough:
+     *  - groupPromotion.js's promoteGroup calls this with no versionId, right before writing a
+     *    fresh snapshot: a Group that has never successfully extended has no legitimate rows
+     *    here at all, so whatever's found can only be leftover from an incomplete earlier
+     *    attempt -- no comparison needed, just delete all of it.
+     *  - groupPromotion.js's cleanupExtendedGroupOrphansIfNeeded calls this on every write to an
+     *    already-extended Group, with versionId set to exactly the version that write is about
+     *    to claim: only a row from an attempt that tried (and failed) to reach that exact
+     *    version could ever be stamped with it, since the Group's own optimistic-concurrency
+     *    check guarantees no two attempts ever both successfully commit the same version
+     *    number -- and because this runs on every single write, a dangling row is always caught
+     *    on the very next one, before a later write could move the floor past it.
+     *
+     * @param {Object} params
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {string} params.groupUuid
+     * @param {number} [params.versionId] - omit to delete every row for groupUuid.
+     * @returns {Promise<number>} how many rows were removed
+     */
+    async removeMembersAsync({ requestInfo, base_version, groupUuid, versionId }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        const query = versionId === undefined
+            ? { groupUuid }
+            : { groupUuid, 'meta.versionId': `${versionId}` };
+        const cursor = await databaseQueryManager.findAsync({ query });
+        // Raw documents, not toObjectArrayAsync(): deleteManyAsync only needs the plain field values.
+        const existingMembers = await cursor.toArrayAsync();
+        if (existingMembers.length === 0) {
+            return 0;
+        }
+
+        // Cloned FhirRequestInfo overrides method to 'DELETE' for the tombstone, same as
+        // applyResolvedMemberWritesAsync's own delete branch. No preserveLastUpdated here: unlike
+        // that branch, these rows aren't being deleted as part of the same write that just
+        // stamped a fresh groupLastUpdated on them -- they're stale leftovers being garbage
+        // collected, so the tombstone should carry the real time of deletion.
+        await this.removeHelper.deleteManyAsync({
+            requestInfo: new FhirRequestInfo({ ...requestInfo, method: 'DELETE' }),
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            resources: existingMembers,
+            base_version
+        });
+        return existingMembers.length;
     }
 }
 
