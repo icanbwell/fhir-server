@@ -435,8 +435,8 @@ class ScopesManager {
      * Returns the scopes belonging to any of the given namespace prefixes.
      *
      * Matching is deliberately case-SENSITIVE, unlike hasPatientScope/isUser. Those two only ask
-     * "is a patient scope present at all"; these strings go straight to
-     * @asymmetrik/sof-scope-checker, which compares by exact string. Case-folding here would
+     * "is a patient scope present at all"; these strings are compared
+     * by exact string downstream. Case-folding here would
      * produce candidates that can never match while widening what we claim to have parsed.
      * @param {string|undefined} scope
      * @param {string[]} namespaces e.g. ['user/', 'system/']

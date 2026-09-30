@@ -32,7 +32,6 @@ class MyFHIRServer {
      */
     constructor (fnGetContainer, config = {}, app = null) {
         this.config = config;
-        // validate(this.config); // TODO: REMOVE: logger in future versions, emit notices for now
         /**
          * @type {import('express').Express}
          */
@@ -54,11 +53,6 @@ class MyFHIRServer {
          */
         this.configManager = this.container.configManager;
         assertTypeEquals(this.configManager, ConfigManager);
-
-        const { server = {} } = this.config;
-        this.env = {
-            USE_HTTPS: server.ssl && server.ssl.key && server.ssl.cert ? server.ssl : undefined
-        };
 
         // return self for chaining
         return this;
@@ -165,10 +159,9 @@ class MyFHIRServer {
 
     /**
      * Configures Helmet for security
-     * @param [helmetConfig]
      * @return {MyFHIRServer}
      */
-    configureHelmet (helmetConfig) {
+    configureHelmet () {
         /**
          * The following headers are turned on by default:
          * - dnsPrefetchControl (Control browser DNS prefetching). https://helmetjs.github.io/docs/dns-prefetch-control
@@ -179,44 +172,11 @@ class MyFHIRServer {
          * - noSniff (prevent clients from sniffing MIME type). https://helmetjs.github.io/docs/dont-sniff-mimetype
          * - xssFilter (adds small XSS protections). https://helmetjs.github.io/docs/xss-filter/
          */
-        this.app.use(
-            helmet(
-                helmetConfig || {
-                    // Needs https running first
-                    hsts: this.env.USE_HTTPS
-                    // crossOriginResourcePolicy: false,
-                }
-            )
-        );
+        this.app.use(helmet());
 
         // return self for chaining
         return this;
-    } // Configure session
-
-    /**
-     * Configures with the session
-     * @param {Object|undefined} [session]
-     * @return {MyFHIRServer}
-     */
-    configureSession (session) {
-        // Session config can come from the core config as well, let's handle both cases
-        const { server = {} } = this.config; // If a session was passed in the config, let's use it
-
-        if (session || server.sessionStore) {
-            this.app.use(session || server.sessionStore);
-        } // return self for chaining
-
-        return this;
     }
-
-    // configureAuthorization() {
-    //     // return self for chaining
-    //     return this;
-    // }
-
-    // configurePassport() {
-    //     return super.configurePassport();
-    // }
 
     configurePassport () {
         if (this.config.auth) {
@@ -225,28 +185,6 @@ class MyFHIRServer {
 
         return this;
     }
-
-    /**
-     * Set up a public directory for static assets
-     * @param {string} publicDirectory
-     * @return {MyFHIRServer}
-     */
-    setPublicDirectory (publicDirectory = '') {
-        // Public config can come from the core config as well, let's handle both cases
-        const { server = {} } = this.config;
-
-        if (publicDirectory || server.publicDirectory) {
-            this.app.use(express.static(publicDirectory || server.publicDirectory));
-        } // return self for chaining
-
-        return this;
-    }
-
-    // configureLoggers(fun) {
-    //     fun(loggers.container, loggers.transports); // return self for chaining
-    //
-    //     return this;
-    // }
 
     /**
      * Sets up routes to catch and show errors

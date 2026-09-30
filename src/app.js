@@ -53,10 +53,8 @@ const {FhirRequestInfoBuilder} = require('./utils/fhirRequestInfoBuilder');
 function createFhirApp(fnGetContainer, app1) {
     return new MyFHIRServer(fnGetContainer, fhirServerConfig, app1)
         .configureMiddleware()
-        .configureSession()
         .configureHelmet()
         .configurePassport()
-        .setPublicDirectory()
         .setProfileRoutes()
         .setErrorRoutes();
 }

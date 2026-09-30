@@ -19,7 +19,6 @@ services:
       MONGO_URL: 'mongodb://mongo:27017?appName=fhir-server'
       AUDIT_EVENT_MONGO_DB_NAME: audit-events
       AUDIT_EVENT_MONGO_URL: mongodb://mongo:27017
-      RESOURCE_SERVER: http://localhost:3000/
       AUTH_SERVER_URI: http://myauthzserver.com
       AUTH_CONFIGURATION_URI: http://keycloak:8080/realms/master/.well-known/openid-configuration
       AUTH_JWKS_URL: http://keycloak:8080/realms/master/protocol/openid-connect/certs

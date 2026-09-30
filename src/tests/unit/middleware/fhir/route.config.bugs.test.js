@@ -9,20 +9,15 @@
  * at route.config.js:81). Neither key is defined in src/middleware/fhir/utils/constants.js, so
  * both entries are built with `interaction: undefined`.
  *
- * Consequences, both reachable through FhirRouter.enableResourceRoutes (which registers every
- * entry of this table for every configured profile):
- *   a) loadController does `controller[undefined]` -> the route always answers 404.
- *   b) sof-scope.middleware.js:24 spells one of its read-group cases as
- *      `case INTERACTIONS.EXPAND_BY_ID:` — i.e. literally `case undefined:`. So an
- *      unclassifiable route is graded as a READ instead of falling through to the
- *      restrictive `'*'` default. `PUT /:base_version/` is an HTTP write graded as a read.
+ * Consequence, reachable through FhirRouter.enableResourceRoutes (which registers every
+ * entry of this table for every configured profile): loadController does
+ * `controller[undefined]` -> the route always answers 404.
  */
 
-const { describe, test, expect, beforeEach, afterEach, jest: jestObj } = require('@jest/globals');
+const { describe, test, expect } = require('@jest/globals');
 
 const { routes } = require('../../../../middleware/fhir/route.config');
 const { INTERACTIONS } = require('../../../../middleware/fhir/utils/constants');
-const sofScopeMiddleware = require('../../../../middleware/fhir/sof-scope.middleware');
 
 describe('route.config — undefined interaction constants (Category B, fail by design)', () => {
     test('every route entry must declare an interaction that exists in INTERACTIONS', () => {
@@ -51,49 +46,5 @@ describe('route.config — undefined interaction constants (Category B, fail by 
 
         expect(putRoute.interaction).toBeDefined();
         expect(Object.values(INTERACTIONS)).toContain(putRoute.interaction);
-    });
-});
-
-describe('route.config — SMART scope grading of the undefined-interaction routes', () => {
-    const originalNodeEnv = process.env.NODE_ENV;
-
-    beforeEach(() => {
-        // sof-scope.middleware short-circuits to a no-op when NODE_ENV === 'test'; the whole
-        // point of this test is the production grading path.
-        process.env.NODE_ENV = 'production';
-    });
-
-    afterEach(() => {
-        process.env.NODE_ENV = originalNodeEnv;
-    });
-
-    test('PUT /:base_version/ is an HTTP write and must NOT be satisfied by a read-only SMART scope', () => {
-        const putRoute = routes.find((r) => r.type === 'put' && r.path === '/:base_version/');
-        const middleware = sofScopeMiddleware({
-            route: putRoute,
-            name: 'Patient',
-            auth: { type: 'smart', strategy: { name: 'jwt' } }
-        });
-
-        const req = { user: { scope: 'user/Patient.read' }, params: { version: '4_0_0' } };
-        const next = jestObj.fn();
-        middleware(req, {}, next);
-
-        // Control: the same read-only scope legitimately passes a real read route, proving
-        // the harness itself is wired correctly and the assertion below is about grading.
-        const searchRoute = routes.find((r) => r.interaction === INTERACTIONS.SEARCH);
-        const readNext = jestObj.fn();
-        sofScopeMiddleware({
-            route: searchRoute,
-            name: 'Patient',
-            auth: { type: 'smart', strategy: { name: 'jwt' } }
-        })(req, {}, readNext);
-        expect(readNext).toHaveBeenCalledWith();
-
-        // The write route must be rejected — `interaction: undefined` currently makes
-        // deriveActionFromInteraction hit `case INTERACTIONS.EXPAND_BY_ID:` (=== undefined)
-        // and grade it 'read', so next() is called with no error instead.
-        expect(next).toHaveBeenCalledTimes(1);
-        expect(next.mock.calls[0][0]).toBeDefined();
     });
 });

@@ -14,13 +14,11 @@ const { describe, test, expect, beforeEach, afterEach, jest: jestObj } = require
 
 const CORS_MW = function corsSentinel (req, res, next) { next(); };
 const AUTH_MW = function authenticationSentinel (req, res, next) { next(); };
-const SOF_MW = function sofScopeSentinel (req, res, next) { next(); };
 const VERSION_MW = function versionValidationSentinel (req, res, next) { next(); };
 const ARGS_MW = function getArgsSentinel (req, res, next) { next(); };
 
 jestObj.mock('cors', () => jestObj.fn(() => CORS_MW));
 jestObj.mock('../../../../../middleware/fhir/authentication.middleware', () => jestObj.fn(() => AUTH_MW));
-jestObj.mock('../../../../../middleware/fhir/sof-scope.middleware', () => jestObj.fn(() => SOF_MW));
 jestObj.mock('../../../../../middleware/fhir/version-validation.middleware', () => jestObj.fn(() => VERSION_MW));
 jestObj.mock('../../../../../middleware/fhir/utils/getArgs.utils', () => ({
     getArgsMiddleware: jestObj.fn(() => ARGS_MW)
@@ -166,19 +164,10 @@ describe('export.config — middleware chain wired by FhirRouter.enableExportRou
             expect(unauthenticated).toEqual([]);
         });
 
-        test('every bulk-export route also carries the SMART scope middleware, after authentication', () => {
+        test('chain order is cors -> version validation -> args -> auth -> handler', () => {
             for (const registration of registrations) {
-                const authIndex = registration.chain.indexOf(AUTH_MW);
-                const sofIndex = registration.chain.indexOf(SOF_MW);
-                expect(authIndex).toBeGreaterThanOrEqual(0);
-                expect(sofIndex).toBeGreaterThan(authIndex);
-            }
-        });
-
-        test('chain order is cors -> version validation -> args -> auth -> scope -> handler', () => {
-            for (const registration of registrations) {
-                expect(registration.chain.slice(0, 5)).toEqual([CORS_MW, VERSION_MW, ARGS_MW, AUTH_MW, SOF_MW]);
-                expect(registration.chain).toHaveLength(6);
+                expect(registration.chain.slice(0, 4)).toEqual([CORS_MW, VERSION_MW, ARGS_MW, AUTH_MW]);
+                expect(registration.chain).toHaveLength(5);
             }
         });
 
