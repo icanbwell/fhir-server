@@ -39,6 +39,18 @@ describe('smartScopeParser', () => {
             expect(isV2Suffix('rx')).toBe(false);
         });
 
+        test.each(['sr', 'duc', 'usc', 'sducr', 'dc', 'su'])(
+            '%s is not v2 -- right letters, wrong order', (suffix) => {
+                expect(isV2Suffix(suffix)).toBe(false);
+            }
+        );
+
+        test.each(['us', 'crs', 'cruds'])(
+            '%s is v2 -- letters in cruds order, gaps allowed', (suffix) => {
+                expect(isV2Suffix(suffix)).toBe(true);
+            }
+        );
+
         test.each(['read', 'write', '*'])('v1 suffix %s is not also v2', (suffix) => {
             expect(isV2Suffix(suffix)).toBe(false);
         });
@@ -249,8 +261,11 @@ describe('smartScopeParser', () => {
 
         test('an interaction not in the table returns null (caller falls back to accessRequested)', () => {
             expect(getInteractionCrudsLetter('graph')).toBeNull();
-            expect(getInteractionCrudsLetter('merge')).toBeNull();
             expect(getInteractionCrudsLetter(undefined)).toBeNull();
+        });
+
+        test('merge maps to u, not c', () => {
+            expect(getInteractionCrudsLetter('merge')).toBe('u');
         });
     });
 });

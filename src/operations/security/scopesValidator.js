@@ -105,8 +105,7 @@ class ScopesValidator {
      * @param {string} [action] the FHIR interaction being performed (e.g. 'create', 'searchById').
      *  When it names a single-letter CRUDS requirement (see smartScopeParser's
      *  INTERACTION_TO_CRUDS_LETTER), that granular requirement is used for the resourceType scope
-     *  match instead of the coarser accessRequested; accessRequested is always used, unchanged,
-     *  for the access/ tenant-code check below (deferred to a later phase - see design doc).
+     *  match and the access/ tenant-code check, instead of the coarser accessRequested.
      * @param {string} [base_version] the FHIR version of the resource being requested,
      *  used to scope the delegated-actor consent check to the correct version
      * @returns {Promise<ForbiddenError|undefined>}
@@ -315,10 +314,11 @@ class ScopesValidator {
      * @property {Resource|null} currentResource resource as currently stored, null/undefined when being created
      * @property {Resource} updatedResource resource as it will be stored
      * @property {boolean} [ignoreRemovals] set when the calling write path can only append access tags
+     * @property {string} [accessRequested] legacy 'read'/'write' or a single v2 CRUDS letter, default 'write'
      *
      * @param {IsAccessTagChangeAllowedByAccessScopesParams}
      */
-    isAccessTagChangeAllowedByAccessScopes ({ requestInfo, currentResource, updatedResource, ignoreRemovals = false }) {
+    isAccessTagChangeAllowedByAccessScopes ({ requestInfo, currentResource, updatedResource, ignoreRemovals = false, accessRequested = 'write' }) {
         const { user, scope } = requestInfo;
         if (
             !this.scopesManager.isAccessTagChangeAllowedByScopes({
@@ -328,11 +328,12 @@ class ScopesValidator {
                 user,
                 scope,
                 isCreate: !currentResource,
-                ignoreRemovals
+                ignoreRemovals,
+                accessRequested
             })
         ) {
             logInfo('Access tag change check failed', {
-                user, scope, resourceType: updatedResource.resourceType, resourceId: updatedResource.id
+                user, scope, accessRequested, resourceType: updatedResource.resourceType, resourceId: updatedResource.id
             });
             throw new ForbiddenError(
                 `user ${user} can only add or remove access tags it has write access to, ` +

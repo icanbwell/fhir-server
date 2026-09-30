@@ -265,6 +265,74 @@ describe('ScopesManager', () => {
         });
     });
 
+    describe('isAccessTagChangeAllowedByScopes', () => {
+        test('defaults accessRequested to write when not passed', () => {
+            const result = scopesManager.isAccessTagChangeAllowedByScopes({
+                oldAccessCodes: [],
+                newAccessCodes: ['client'],
+                resourceType: 'Patient',
+                user: 'testUser',
+                scope: 'access/client.write'
+            });
+            expect(result).toBe(true);
+        });
+
+        test('denies with the default write requirement when scope only grants read', () => {
+            const result = scopesManager.isAccessTagChangeAllowedByScopes({
+                oldAccessCodes: [],
+                newAccessCodes: ['client'],
+                resourceType: 'Patient',
+                user: 'testUser',
+                scope: 'access/client.read'
+            });
+            expect(result).toBe(false);
+        });
+
+        describe('with an explicit accessRequested', () => {
+            beforeEach(() => {
+                Object.defineProperty(mockConfigManager, 'enableSmartV2CrudsScopes', {
+                    value: true, configurable: true
+                });
+            });
+
+            test('allows a narrower granted access tag when accessRequested matches it', () => {
+                const result = scopesManager.isAccessTagChangeAllowedByScopes({
+                    oldAccessCodes: [],
+                    newAccessCodes: ['client'],
+                    resourceType: 'Patient',
+                    user: 'testUser',
+                    scope: 'access/client.u',
+                    accessRequested: 'u'
+                });
+                expect(result).toBe(true);
+            });
+
+            test('denies when the granted access tag does not satisfy accessRequested', () => {
+                const result = scopesManager.isAccessTagChangeAllowedByScopes({
+                    oldAccessCodes: [],
+                    newAccessCodes: ['client'],
+                    resourceType: 'Patient',
+                    user: 'testUser',
+                    scope: 'access/client.r',
+                    accessRequested: 'u'
+                });
+                expect(result).toBe(false);
+            });
+
+            test('a coarse v1 write access tag still satisfies a granular accessRequested', () => {
+                const result = scopesManager.isAccessTagChangeAllowedByScopes({
+                    oldAccessCodes: [],
+                    newAccessCodes: ['client'],
+                    resourceType: 'Patient',
+                    user: 'testUser',
+                    scope: 'access/client.write',
+                    accessRequested: 'u'
+                });
+                expect(result).toBe(true);
+            });
+        });
+    });
+
     describe('isAccessToResourceAllowedBySecurityTags', () => {
         test('should return true when patient scopes allow access', () => {
             mockPatientFilterManager.canAccessResourceWithPatientScope.mockReturnValue(true);

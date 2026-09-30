@@ -826,7 +826,8 @@ class MergeManager {
             const forbiddenError = await this.scopesValidator.isScopesValidAsync({
                 requestInfo,
                 resourceType: resourceToMerge.resourceType,
-                accessRequested: 'write',
+                accessRequested: 'u',
+                action: 'merge',
                 base_version
             });
 
