@@ -12,13 +12,11 @@ const { describe, test, expect, beforeEach, jest: jestObj } = require('@jest/glo
 
 const CORS_MW = function corsSentinel (req, res, next) { next(); };
 const AUTH_MW = function authenticationSentinel (req, res, next) { next(); };
-const SOF_MW = function sofScopeSentinel (req, res, next) { next(); };
 const VERSION_MW = function versionValidationSentinel (req, res, next) { next(); };
 const ARGS_MW = function getArgsSentinel (req, res, next) { next(); };
 
 jestObj.mock('cors', () => jestObj.fn(() => CORS_MW));
 jestObj.mock('../../../../../middleware/fhir/authentication.middleware', () => jestObj.fn(() => AUTH_MW));
-jestObj.mock('../../../../../middleware/fhir/sof-scope.middleware', () => jestObj.fn(() => SOF_MW));
 jestObj.mock('../../../../../middleware/fhir/version-validation.middleware', () => jestObj.fn(() => VERSION_MW));
 jestObj.mock('../../../../../middleware/fhir/utils/getArgs.utils', () => ({
     getArgsMiddleware: jestObj.fn(() => ARGS_MW)

@@ -33,7 +33,7 @@ const MONGO_KEYS = [
     'RESOURCE_HISTORY_MONGO_URL', 'RESOURCE_HISTORY_MONGO_USERNAME',
     'RESOURCE_HISTORY_MONGO_PASSWORD', 'RESOURCE_HISTORY_MONGO_DB_NAME',
     'RESOURCE_HISTORY_MIN_POOL_SIZE', 'RESOURCE_HISTORY_MAX_POOL_SIZE',
-    'WHITELIST', 'PORT', 'SERVER_PORT', 'LOGLEVEL', 'RESOURCE_SERVER', 'AUTH_SERVER_URI'
+    'WHITELIST', 'PORT', 'SERVER_PORT', 'LOGLEVEL', 'AUTH_SERVER_URI'
 ];
 
 describe('config.js', () => {
@@ -344,16 +344,10 @@ describe('config.js', () => {
             expect(fhirServerConfig.server.port).toBe('3000');
         });
 
-        test('auth block always ends up as the jwt bearer strategy with the configured resourceServer', () => {
-            const { fhirServerConfig } = loadConfig({
-                MONGO_URL: 'mongodb://p:1', MONGO_DB_NAME: 'fhir',
-                RESOURCE_SERVER: 'https://fhir.example.com'
-            });
-            expect(fhirServerConfig.auth.resourceServer).toBe('https://fhir.example.com');
-            expect(fhirServerConfig.auth.strategy).toEqual({
-                name: 'jwt',
-                useSession: false,
-                service: './src/strategies/jwt.bearer.strategy.js'
+        test('auth block is the jwt bearer strategy', () => {
+            const { fhirServerConfig } = loadConfig({ MONGO_URL: 'mongodb://p:1', MONGO_DB_NAME: 'fhir' });
+            expect(fhirServerConfig.auth).toEqual({
+                strategy: { name: 'jwt', useSession: false }
             });
         });
 
@@ -368,11 +362,8 @@ describe('config.js', () => {
             ]);
         });
 
-        test('logging level comes from LOGLEVEL and profiles are attached', () => {
-            const { fhirServerConfig } = loadConfig({
-                MONGO_URL: 'mongodb://p:1', MONGO_DB_NAME: 'fhir', LOGLEVEL: 'DEBUG'
-            });
-            expect(fhirServerConfig.logging.level).toBe('DEBUG');
+        test('profiles are attached', () => {
+            const { fhirServerConfig } = loadConfig({ MONGO_URL: 'mongodb://p:1', MONGO_DB_NAME: 'fhir' });
             expect(typeof fhirServerConfig.profiles).toBe('object');
             expect(Object.keys(fhirServerConfig.profiles).length).toBeGreaterThan(0);
         });

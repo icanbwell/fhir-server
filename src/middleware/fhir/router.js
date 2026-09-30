@@ -2,8 +2,6 @@ const versionValidationMiddleware = require('./version-validation.middleware');
 
 const authenticationMiddleware = require('./authentication.middleware');
 
-const sofScopeMiddleware = require('./sof-scope.middleware');
-
 const {
     route: metadataConfig
 } = require('./metadata/metadata.config');
@@ -87,18 +85,6 @@ class FhirRouter {
         return Array.from(providedVersions).filter(version => supportedVersions.indexOf(version) !== -1);
     }
 
-    // /**
-    //  * @function hasValidService
-    //  * @description Does this profile have a service with a function whose name
-    //  * matches what the route expects to call when invoked
-    //  * @param {object} route - route configuration for this specific route
-    //  * @param {object} profile - profile configuration for this particular profile
-    //  * @return {boolean}
-    //  */
-    // hasValidService(route = {}, profile = {}) {
-    //     return Boolean(profile.serviceModule && profile.serviceModule[route.interaction]);
-    // }
-
     /**
      * @function loadController
      * @param {string} lowercaseKey - Profile key
@@ -140,10 +126,8 @@ class FhirRouter {
 
         for (const op of profile.operation) {
             const functionName = hyphenToCamelcase(op.name || '');
-            // let hasController = profile.serviceModule ? true : false; // Check for required configurations, must have name, route, method, and
-            // a matching controller
 
-            if (!op.name || !op.route || !op.method /* || !hasController */) {
+            if (!op.name || !op.route || !op.method) {
                 throw new Error(errorMessage);
             }
 
@@ -205,11 +189,6 @@ class FhirRouter {
                     operationsRoute, cors(corsOptions), versionValidationMiddleware(profile),
                     getArgsMiddleware(),
                     authenticationMiddleware(config),
-                    sofScopeMiddleware({
-                        route,
-                        auth: config.auth,
-                        name: key
-                    }),
                     operationsControllerRouteHandler
                 );
             }
@@ -225,11 +204,6 @@ class FhirRouter {
                 versionValidationMiddleware(profile),
                 getArgsMiddleware(),
                 authenticationMiddleware(config),
-                sofScopeMiddleware({
-                    route,
-                    auth: config.auth,
-                    name: key
-                }),
                 operationsControllerRouteHandler
             );
         }
@@ -326,11 +300,6 @@ class FhirRouter {
                 versionValidationMiddleware(profile),
                 getArgsMiddleware(),
                 authenticationMiddleware(config),
-                sofScopeMiddleware({
-                    route: profile,
-                    auth: config.auth,
-                    name: operationName
-                }),
                 operationsControllerRouteHandler
             );
         }
@@ -364,11 +333,6 @@ class FhirRouter {
                 versionValidationMiddleware(profile),
                 getArgsMiddleware(),
                 authenticationMiddleware(config),
-                sofScopeMiddleware({
-                    route: profile.path,
-                    auth: config.auth,
-                    name: operationName
-                }),
                 operationsControllerRouteHandler
             );
         }
@@ -418,11 +382,6 @@ class FhirRouter {
             this.enableProfileRoutes(app, config, profile, profileName, corsDefaults);
 
             for (const route of routes) {
-                // If we do not have a matching service function for this route, skip it
-                // if (!this.hasValidService(route, profile)) {
-                //     continue;
-                // }
-
                 // Calculate the cors setting we want for this route
                 const corsOptions = Object.assign({}, corsDefaults, profile.corsOptions, {
                     methods: [route.type.toUpperCase()]
@@ -460,11 +419,7 @@ class FhirRouter {
 
                     app.options(profileRoute, cors(corsOptions)); // Enable this operation route
 
-                    app[route.type](profileRoute, cors(corsOptions), getArgsMiddleware(), authenticationMiddleware(config), sofScopeMiddleware({
-                        route,
-                        auth: config.auth,
-                        name: profileName
-                    }), this.loadController(lowercaseKey, route.interaction, profile.serviceModule, resourceType));
+                    app[route.type](profileRoute, cors(corsOptions), getArgsMiddleware(), authenticationMiddleware(config), this.loadController(lowercaseKey, route.interaction, profile.serviceModule, resourceType));
                 } else {
                     const profileRoute = route.path.replace(':resource', profileName); // Enable cors with preflight
 
@@ -476,11 +431,6 @@ class FhirRouter {
                         versionValidationMiddleware(profile),
                         getArgsMiddleware(),
                         authenticationMiddleware(config),
-                        sofScopeMiddleware({
-                            route,
-                            auth: config.auth,
-                            name: profileName
-                        }),
                         this.loadController(lowercaseKey, route.interaction, profile.serviceModule, resourceType)
                     );
                 }
@@ -507,11 +457,6 @@ class FhirRouter {
                 versionValidationMiddleware(versionValidationConfiguration),
                 getArgsMiddleware(),
                 authenticationMiddleware(config),
-                // sofScopeMiddleware({
-                //     route: currentRoute,
-                //     auth: config.auth,
-                //     // name: profileName
-                // }),
                 currentRoute.controller(
                     {
                         config

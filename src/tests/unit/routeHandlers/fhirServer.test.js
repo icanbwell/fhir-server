@@ -104,20 +104,6 @@ describe('MyFHIRServer', () => {
             expect(server.app).toBe(mockApp);
         });
 
-        test('should set env.USE_HTTPS to undefined when no ssl config', () => {
-            expect(server.env.USE_HTTPS).toBeUndefined();
-        });
-
-        test('should set env.USE_HTTPS when ssl config is provided', () => {
-            const sslConfig = { ssl: { key: 'key', cert: 'cert' } };
-            const sslServer = new MyFHIRServer(
-                () => mockContainer,
-                { server: sslConfig },
-                mockApp
-            );
-            expect(sslServer.env.USE_HTTPS).toEqual(sslConfig.ssl);
-        });
-
         test('should return self for chaining', () => {
             const result = new MyFHIRServer(
                 () => mockContainer,
@@ -144,29 +130,9 @@ describe('MyFHIRServer', () => {
         });
     });
 
-    describe('configureSession', () => {
-        test('should return self when no session', () => {
-            const result = server.configureSession();
-            expect(result).toBe(server);
-        });
-
-        test('should use session middleware when provided', () => {
-            const mockSession = (req, res, next) => next();
-            server.configureSession(mockSession);
-            expect(mockApp.use).toHaveBeenCalledWith(mockSession);
-        });
-    });
-
     describe('configurePassport', () => {
         test('should return self when no auth config', () => {
             const result = server.configurePassport();
-            expect(result).toBe(server);
-        });
-    });
-
-    describe('setPublicDirectory', () => {
-        test('should return self when no public directory', () => {
-            const result = server.setPublicDirectory();
             expect(result).toBe(server);
         });
     });

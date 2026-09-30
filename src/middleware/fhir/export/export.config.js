@@ -1,5 +1,5 @@
 const { routeArgs } = require('../route.config.js');
-const { VERSIONS, INTERACTIONS } = require('../utils/constants.js');
+const { VERSIONS } = require('../utils/constants.js');
 
 const routes = [
     {
@@ -10,8 +10,7 @@ const routes = [
         },
         args: [routeArgs.BASE, routeArgs.ID],
         versions: [VERSIONS['4_0_0']],
-        operation: 'exportById',
-        interaction: INTERACTIONS.OPERATIONS_GET
+        operation: 'exportById'
     },
     {
         path: '/:base_version/$export',
@@ -21,8 +20,7 @@ const routes = [
         },
         args: [routeArgs.BASE],
         versions: [VERSIONS['4_0_0']],
-        operation: 'export',
-        interaction: INTERACTIONS.OPERATIONS_POST
+        operation: 'export'
     },
     {
         path: '/:base_version/Patient/$export',
@@ -32,8 +30,7 @@ const routes = [
         },
         args: [routeArgs.BASE],
         versions: [VERSIONS['4_0_0']],
-        operation: 'export',
-        interaction: INTERACTIONS.OPERATIONS_POST
+        operation: 'export'
     },
     {
         path: '/:base_version/Group/:id/$export',
@@ -43,8 +40,7 @@ const routes = [
         },
         args: [routeArgs.BASE, routeArgs.ID],
         versions: [VERSIONS['4_0_0']],
-        operation: 'export',
-        interaction: INTERACTIONS.OPERATIONS_GET
+        operation: 'export'
     }
 ];
 

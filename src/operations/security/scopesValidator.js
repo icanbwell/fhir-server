@@ -69,8 +69,8 @@ class ScopesValidator {
 
     /**
      * Whether any of the given (already prefix-filtered) scope strings authorizes resourceType
-     * for the given accessRequested. Replaces @asymmetrik/sof-scope-checker: same "does any
-     * single scope authorize this resourceType+action" semantics, understanding both v1
+     * for the given accessRequested, with "does any single scope authorize this
+     * resourceType+action" semantics, understanding both v1
      * (read/write/*) and v2 (CRUDS-letter) scope suffix grammar.
      * @typedef {Object} EvaluateResourceTypeScopeMatchParams
      * @property {string[]} scopes

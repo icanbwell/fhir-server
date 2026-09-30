@@ -278,16 +278,10 @@ const whitelist = whitelist_env && whitelist_env.length === 1 ? whitelist_env[0]
  */
 const fhirServerConfig = {
     auth: {
-        // This servers URI
-        resourceServer: env.RESOURCE_SERVER
-        //
-        // if you use this strategy, you need to add the corresponding env vars to docker-compose
-        //
-        // strategy: {
-        //     name: 'bearer',
-        //     useSession: false,
-        //     service: './src/strategies/bearer.strategy.js'
-        // },
+        strategy: {
+            name: 'jwt',
+            useSession: false
+        }
     },
     server: {
         // support various ENV that uses PORT vs SERVER_PORT
@@ -298,16 +292,9 @@ const fhirServerConfig = {
             origin: whitelist
         }
     },
-    logging: {
-        level: env.LOGLEVEL
-    },
     errorTracking: {
         errorHandler: Sentry.setupExpressErrorHandler
     },
-    //
-    // If you want to set up conformance statement with security enabled
-    // Uncomment the following block
-    //
     security: [
         {
             url: 'authorize',
@@ -317,7 +304,6 @@ const fhirServerConfig = {
             url: 'token',
             valueUri: `${env.AUTH_SERVER_URI}/token`
         }
-        // optional - registration
     ],
     //
     // Add any profiles you want to support.  Each profile can support multiple versions
@@ -330,19 +316,6 @@ const fhirServerConfig = {
     // },
     //
     profiles
-};
-
-fhirServerConfig.auth = {
-    // This servers URI
-    resourceServer: env.RESOURCE_SERVER,
-    //
-    // if you use this strategy, you need to add the corresponding env vars to docker-compose
-    //
-    strategy: {
-        name: 'jwt',
-        useSession: false,
-        service: './src/strategies/jwt.bearer.strategy.js'
-    }
 };
 
 module.exports = {

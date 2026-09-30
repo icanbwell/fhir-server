@@ -19,13 +19,11 @@ const { describe, test, expect, beforeEach, jest: jestObj } = require('@jest/glo
 // --- sentinel middlewares so each chain member is identifiable by reference ------------
 const CORS_MW = function corsSentinel (req, res, next) { next(); };
 const AUTH_MW = function authenticationSentinel (req, res, next) { next(); };
-const SOF_MW = function sofScopeSentinel (req, res, next) { next(); };
 const VERSION_MW = function versionValidationSentinel (req, res, next) { next(); };
 const ARGS_MW = function getArgsSentinel (req, res, next) { next(); };
 
 jestObj.mock('cors', () => jestObj.fn(() => CORS_MW));
 jestObj.mock('../../../../middleware/fhir/authentication.middleware', () => jestObj.fn(() => AUTH_MW));
-jestObj.mock('../../../../middleware/fhir/sof-scope.middleware', () => jestObj.fn(() => SOF_MW));
 jestObj.mock('../../../../middleware/fhir/version-validation.middleware', () => jestObj.fn(() => VERSION_MW));
 jestObj.mock('../../../../middleware/fhir/utils/getArgs.utils', () => ({
     getArgsMiddleware: jestObj.fn(() => ARGS_MW)
@@ -233,21 +231,12 @@ describe('route.config — middleware chain wired by FhirRouter', () => {
         expect(unauthenticated).toEqual([]);
     });
 
-    test('every resource route is registered with the SMART scope middleware in its chain', () => {
-        const unscoped = registrations
-            .filter((r) => !r.chain.includes(SOF_MW))
-            .map((r) => `${r.method.toUpperCase()} ${r.path}`);
-        expect(unscoped).toEqual([]);
-    });
-
-    test('authentication runs BEFORE the scope check and before the controller on every route', () => {
+    test('authentication runs before the controller on every route', () => {
         for (const registration of registrations) {
             const authIndex = registration.chain.indexOf(AUTH_MW);
-            const sofIndex = registration.chain.indexOf(SOF_MW);
             expect(authIndex).toBeGreaterThanOrEqual(0);
-            expect(authIndex).toBeLessThan(sofIndex);
             // the controller is always the final element of the chain
-            expect(sofIndex).toBeLessThan(registration.chain.length - 1);
+            expect(authIndex).toBeLessThan(registration.chain.length - 1);
         }
     });
 
