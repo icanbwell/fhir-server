@@ -53,7 +53,7 @@ class WriteAllowedByScopesValidator extends BaseValidator {
 
                 if (foundResource) {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                        resource: foundResource, requestInfo, base_version
+                        resource: foundResource, requestInfo, base_version, accessRequested: 'u'
                     });
                     // SEC-1580 F2: the check above ran against the resource as stored, so the access tags
                     // on the incoming body still need to be validated before they're merged in. A smart
@@ -63,16 +63,17 @@ class WriteAllowedByScopesValidator extends BaseValidator {
                         requestInfo,
                         currentResource: foundResource,
                         updatedResource: resource,
-                        ignoreRemovals: effectiveSmartMerge
+                        ignoreRemovals: effectiveSmartMerge,
+                        accessRequested: 'u'
                     });
                 } else {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                        resource, requestInfo, base_version
+                        resource, requestInfo, base_version, accessRequested: 'u'
                     });
                     // SEC-1580 F3: this is a create, so the "old" access tag set is empty and every
                     // access tag on the incoming resource counts as an addition
                     this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
-                        requestInfo, currentResource: null, updatedResource: resource
+                        requestInfo, currentResource: null, updatedResource: resource, accessRequested: 'u'
                     });
                 }
                 validIncomingResources.push(resource);

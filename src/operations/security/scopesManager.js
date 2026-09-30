@@ -167,6 +167,7 @@ class ScopesManager {
      *   tags (e.g. a smart-merge, which appends to arrays rather than replacing them), so a code missing
      *   from newAccessCodes reflects it not being repeated in the incoming body rather than an intentional
      *   removal
+     * @property {string} [accessRequested] legacy 'read'/'write' or a single v2 CRUDS letter, default 'write'
      *
      * @param {IsAccessTagChangeAllowedByScopesParams}
      * @return {boolean}
@@ -178,7 +179,8 @@ class ScopesManager {
         user,
         scope,
         isCreate = false,
-        ignoreRemovals = false
+        ignoreRemovals = false,
+        accessRequested = 'write'
     }) {
         // a patient scoped caller is authorized via the patient/person the resource belongs to, not via
         // access codes - it holds no access scopes to compare against, so defer to the patient scope
@@ -190,7 +192,7 @@ class ScopesManager {
         /**
          * @type {string[]}
          */
-        const accessCodes = this.getAccessCodesFromScopes('write', user, scope);
+        const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
         if (accessCodes.includes('*')) {
             // no security check since user has full write access to everything
             return true;

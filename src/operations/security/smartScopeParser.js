@@ -37,8 +37,8 @@ function isV1Suffix (suffix) {
 }
 
 /**
- * A suffix is valid v2 grammar iff it is a non-empty combination of unique letters drawn from
- * {c, r, u, d, s}.
+ * A suffix is valid v2 grammar iff it is a non-empty, in-order subsequence of the literal string
+ * `cruds` -- letters drawn from {c, r, u, d, s}, no duplicates, in that relative order.
  * @param {string} suffix
  * @return {boolean}
  */
@@ -46,11 +46,15 @@ function isV2Suffix (suffix) {
     if (!suffix) {
         return false;
     }
-    const letters = suffix.split('');
-    if (new Set(letters).size !== letters.length) {
-        return false;
+    let lastIndex = -1;
+    for (const letter of suffix) {
+        const index = CRUDS_LETTERS.indexOf(letter);
+        if (index === -1 || index <= lastIndex) {
+            return false;
+        }
+        lastIndex = index;
     }
-    return letters.every(letter => CRUDS_LETTERS.includes(letter));
+    return true;
 }
 
 /**
@@ -188,8 +192,9 @@ function isReadOnlyAccessRequested (accessRequested) {
  * requires. Spec-fixed per the design doc's Architecture table; deliberately does NOT include
  * `graph` (its action name is reused for both a search-type read and a delete-driven write, so it
  * cannot be reduced to one fixed letter) nor any interaction not analyzed by the design doc
- * (merge, import, export, exportById, validate, $access-history) -- those keep using the legacy
- * `accessRequested` ('read'/'write') a call site passes explicitly.
+ * (import, export, exportById, validate, $access-history) -- those keep using the legacy
+ * `accessRequested` ('read'/'write') a call site passes explicitly. `merge` maps to `u` (see the
+ * design doc's update-as-create section), not `{c, u}`.
  */
 const INTERACTION_TO_CRUDS_LETTER = {
     create: 'c',
@@ -204,7 +209,8 @@ const INTERACTION_TO_CRUDS_LETTER = {
     searchStreaming: 's',
     everything: 's',
     summary: 's',
-    expand: 's'
+    expand: 's',
+    merge: 'u'
 };
 
 /**
