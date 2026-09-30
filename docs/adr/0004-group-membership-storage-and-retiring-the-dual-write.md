@@ -36,11 +36,13 @@ which is a better outcome than solving it.
 **MongoDB owns current membership and serves the entire FHIR surface** for it: read, search,
 `$export` seeding, `$graph`, `$everything`.
 
-**ClickHouse keeps the membership event log and nothing else.** `Group_4_0_0_MemberCurrent` and
-`Group_4_0_0_MemberCurrentByEntity`, and their materialized views, are dropped.
+**Both ClickHouse current-state views are dropped.** `Group_4_0_0_MemberCurrent` and
+`Group_4_0_0_MemberCurrentByEntity`, and their materialized views, go away.
 
-**The event log is fed one way, never dual-written.** ClickHouse is downstream of Mongo, not a
-co-authority. Transport is a separate decision, costed in EA-2677.
+**Whether ClickHouse retains a membership event log at all is deferred**, pending a verified consumer.
+See "The analytical plane is deliberately unresolved" below. Nothing in this ADR depends on that
+answer, and no dual write survives either way: if an event log is kept it is fed one way, downstream
+of Mongo, never as a co-authority.
 
 ## Evidence
 
@@ -77,17 +79,50 @@ at 5M members), because `AggregateFunction(argMax, T, Tuple(DateTime64, UUID))` 
 tuple per column across roughly 17 columns. They are simultaneously the storage cost and the latency
 cost, which is why dropping them is not a compromise.
 
-## What ClickHouse is for here
+## The analytical plane is deliberately unresolved
 
-The event log answers questions Mongo cannot express today, and they are not marginal:
+An earlier version of this decision kept a ClickHouse membership event log and justified it on two
+consumers. Both were checked against the code and neither holds.
 
-- **Continuous enrollment for DQM.** "Was this person in the cohort for the whole measurement
-  period." Needs `event_type` and `event_time` as queryable columns.
-- **Cohort set operations for Health Match.** Eligible for one trial and not already enrolled in
-  another, cohort overlap, denominators across millions of members. Mongo serves one roster fast and
-  cannot intersect two multi-million-member cohorts without materialising both.
+**DQM does not read Group membership, and evaluates per person.**
+`PopulationResolutionService` in `clinical-reasoning-orchestrator-service` resolves a population by
+keyset-paginating a **Person** search (`_elements=id,identifier,link`, `_sort=_uuid`, `_id:above`
+cursor) and creating one work unit per person. The population is defined by a caller-supplied Person
+query; `Group` appears nowhere in that path. The planned enhancement accepts a Group but keeps
+per-person evaluation, which makes the Group's role a single roster enumeration per run. Enumeration
+and per-person reads are both Mongo's shape, and ClickHouse is actively worse at both: a page of 100
+costs 1,190ms at 5M members against Mongo's 6ms. Even continuous enrollment favours Mongo when it is
+asked per person, because that is an indexed lookup on one member's rows. ClickHouse would only win
+if the question were asked as a set, which is not how the engine works.
 
-A roster page is neither of those, which is the whole point of the split.
+**Health Match cohort discovery was already settled on OpenSearch.** *Optimized Real-Time Cohort
+Matching Architecture* (Confluence PRG 5341872218) keeps Group canonical and mirrors membership into
+OpenSearch with `cohort_ids[]` denormalised onto the patient document, making intersection and
+trial-criteria matching a terms filter rather than a join. Cohort building is predominantly a query
+over clinical data, and the prerequisite for doing that in ClickHouse would be clinical data in
+ClickHouse, which does not exist.
+
+So **no verified consumer currently requires set-based temporal membership**, which is the only thing
+a ClickHouse event log would uniquely provide. Rather than assert one, this ADR drops the views and
+leaves the event log open.
+
+Two things to weigh when it is picked up:
+
+- **Most Group analytics are batch, which is Databricks rather than ClickHouse.** Population-scale
+  measure computation, cohort churn, risk adjustment, ML features and regulatory reporting are all
+  batch with lineage requirements. Databricks is approved (`approved-tech.yaml:148-151`) and Sigma
+  already reads Delta in production. ClickHouse's niche is the narrow band of analytical *and*
+  interactive.
+- **Delta time travel may remove the need for a bespoke event log entirely.** A membership table
+  queryable as-of-timestamp gives point-in-time and interval logic without an append-only log, a
+  deduplication story, or a causal tie tuple.
+
+ClickHouse's own profile, evidenced by AuditEvent and AccessLog working well there, is append-only
+data that never mutates and is read interactively. Group membership fails the first two tests for
+current state. On that same profile the strongest untried FHIR candidates are **resource version
+history** (today shipped to object storage by a cron that strips the document to four allowlisted
+fields, making it unqueryable) and **MeasureReport**. Both need their own Tech Design Review, per the
+registry note at `approved-tech.yaml:146`.
 
 ## What this retires
 
@@ -110,15 +145,26 @@ A roster page is neither of those, which is the whole point of the split.
   `request.method`, which is `PATCH` for both a create and an update. The distinction is derivable
   from full history snapshots, and that derivation breaks under concurrent writes (DCON-5800) and
   dies entirely when history migrates to cloud storage, which strips `request.method` first. This is
-  the gate on everything else.
-- **A deterministic event id.** `groupMemberEventBuilder.js:101` uses `uuidv4()`, so no retry is
-  idempotent under any transport. It should derive from the causal tuple, which is what EA-2326
-  defines.
+  needed for DCON-5530's own point-in-time reconstruction, independently of anything analytical.
 - **Group writes stop blocking on ClickHouse.** `clickHouseGroupHandler.js:79-82` blocks with the
   comment *"ClickHouse is the authoritative source for member data"*, a premise this ADR removes.
-- **A transport decision.** EA-2677 costs direct write against Kafka/ClickPipes.
+- **Indexes on `GroupMember_4_0_0_History`.** DCON-5527 specified two and neither shipped;
+  `customIndexes.js` imports `GROUP_MEMBER_COLLECTION_NAME` only. Without them, per-member history
+  scans are collection scans. Note also that two of the three indexes that *did* ship on the live
+  collection serve a reverse lookup not yet implemented, so the set is currently inverted against
+  usage.
 - **A bulk ingest path.** Mongo's 10x slower writes put a 20M-member cohort rebuild in hours rather
-  than minutes. That argues for a bulk writer, not for ClickHouse serving reads.
+  than minutes. That argues for a bulk writer into Mongo, not for ClickHouse serving reads.
+
+Only if an event log is kept:
+
+- **A deterministic event id.** `groupMemberEventBuilder.js:101` uses `uuidv4()`, so no retry is
+  idempotent under any transport. It should derive from the causal tuple, which is what EA-2326
+  defines. Note that the emit path already has everything else it needs: `afterSaveAsync` receives
+  `eventType` (`'C'`/`'U'` at `mongoBulkWriteExecutor.js:574`, `'D'` at `removeHelper.js:195-196`)
+  plus the full document and `requestId`, and nothing consumes it for `GroupMember` only because
+  `clickHouseGroupHandler.getHandledResourceTypes()` returns `['Group']`.
+- **A transport decision.** EA-2677.
 
 ## What this does not touch
 
@@ -144,8 +190,8 @@ read-after-write. Validated against R4, that does not hold:
   current at the instant the operation is executed."
 
 The objection does not need to be answered here anyway: membership served from Mongo is strongly
-consistent, so no FHIR-visible read lags at all. The eventual consistency lands on the analytical
-event log, where nothing in the FHIR contract depends on it.
+consistent, so no FHIR-visible read lags at all. Any eventual consistency lands on an analytical
+replica, where nothing in the FHIR contract depends on it.
 
 Cohort enumeration remains `Group/[id]/$export` rather than an inline `member[]` read or a custom
 `$members` operation, consistent with Bulk Data server-side expansion and with the DQM external
@@ -155,9 +201,11 @@ contract's commitment to standard DEQM `$evaluate`.
 
 - One authority for membership, so no reconciliation story is needed.
 - ClickHouse storage for Groups drops by roughly 89%, and the O(group size) read cost disappears.
-- The analytical plane becomes contingent on DCON-5530. If the event type is never recorded, the
-  event log replicates snapshots with no lifecycle signal and cannot answer the questions it exists
-  for. Indexes can be added to a populated collection; an event never written cannot be backfilled.
+- The analytical plane is left open rather than decided, which is a deliberate cost: anyone wanting
+  set-based temporal membership has to establish the consumer first. The upside is that no second
+  store is committed to on an unverified requirement.
+- DCON-5530's own point-in-time reconstruction still depends on the lifecycle event being recorded.
+  Indexes can be added to a populated collection; an event never written cannot be backfilled.
 - Mongo absorbs the write-throughput cost, and the bulk path becomes real work rather than a
   nice-to-have.
 - Mongo history is **not** a CDC source in the usual sense: there are no change streams anywhere in
@@ -167,12 +215,20 @@ contract's commitment to standard DEQM `$evaluate`.
 
 ## Open questions
 
-1. **Transport.** EA-2677.
-2. **Who may read the event log, and with what freshness guarantee.** Needs stating as a contract
-   rather than assumed, since the lag window is acceptable only while nothing expects read-after-write.
-3. **Provenance.** EA-2678. The event log declares `actor`, `reason`, `source` and `correlation_id`
-   and has never populated any of them.
+1. **Is there a consumer that needs set-based temporal membership?** EA-2677. If not, no second store
+   is needed for Groups at all. If so, ClickHouse and Databricks are not interchangeable: interactive
+   argues for one, batch with lineage for the other.
+2. **Where Health Match cohort discovery lands.** The prior conclusion is OpenSearch, per *Optimized
+   Real-Time Cohort Matching Architecture* (PRG 5341872218). Worth confirming against current query
+   patterns, and noting OpenSearch is not itself in `approved-tech.yaml` (Elasticsearch is).
+3. **Provenance.** EA-2678. The ClickHouse event log declares `actor`, `reason`, `source` and
+   `correlation_id` and has never populated any of them, while `readme/clickhouse.md:18` claims
+   "Every membership change preserved with provenance."
 4. **Whether `MONGO_WITH_CLICKHOUSE` retains a consumer** after Group leaves it.
+5. **The registry and reference architecture need revising.** `approved-tech.yaml:143-146` scopes
+   ClickHouse's FHIR track to "resources that exceed MongoDB's 16MB BSON limit (e.g. Group at 1M+
+   members)", and `reference-architectures/fhir-server-group-scaling.md` documents the approach this
+   ADR changes.
 
 ## References
 
