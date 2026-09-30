@@ -55,6 +55,11 @@ const { isFalseWithFallback } = require('../../utils/isFalse');
 const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 const { CustomTracer } = require('../../utils/customTracer');
+const {
+    isEligibleForCompositionLatestVersionDedup,
+    compositionGroupKey,
+    isNewerComposition
+} = require('../common/compositionLatestVersionDedup');
 const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
@@ -571,6 +576,12 @@ class EverythingHelper {
                 enrichmentManager: this.enrichmentManager,
                 parsedArgs
             }) : undefined;
+            // Buffered across the whole request, drained (newest per group) after all id chunks
+            // are processed. Skipped when writing through the redis response cache, which would
+            // otherwise diverge from what dedup emits.
+            const compositionDedupBuffer = (this.configManager.enableCompositionLatestVersionDedup && !cachedStreamer)
+                ? new Map()
+                : null;
             const readFromCache = (
                 this.configManager.readFromCacheForEverythingOperation &&
                 responseStreamer &&
@@ -639,7 +650,8 @@ class EverythingHelper {
                             everythingChunkIndex: everythingChunkIndex++,
                             scopedPersonIds,
                             isPersonEverything,
-                            streamedResources
+                            streamedResources,
+                            compositionDedupBuffer
                         }
                     );
 
@@ -647,6 +659,28 @@ class EverythingHelper {
                     queryItems = queryItems.concat(queryItems1);
                     options = options.concat(options1);
                     explanations = explanations.concat(explanations1);
+                }
+            }
+
+            if (compositionDedupBuffer && compositionDedupBuffer.size > 0) {
+                const dedupedWinners = Array.from(compositionDedupBuffer.values());
+                const enrichmentContext = { userType: requestInfo.userType, actor: requestInfo.actor };
+                if (responseStreamer) {
+                    for (const winnerEntity of dedupedWinners) {
+                        const [enrichedEntity] = await this.enrichmentManager.enrichBundleEntriesAsync({
+                            entries: [winnerEntity], parsedArgs, enrichmentContext
+                        });
+                        await responseStreamer.writeBundleEntryAsync({ bundleEntry: enrichedEntity });
+                        streamedResources.push({
+                            _uuid: enrichedEntity.resource._uuid,
+                            resourceType: enrichedEntity.resource.resourceType
+                        });
+                    }
+                } else {
+                    const enrichedWinners = await this.enrichmentManager.enrichBundleEntriesAsync({
+                        entries: dedupedWinners, parsedArgs, enrichmentContext
+                    });
+                    entries = entries.concat(enrichedWinners);
                 }
             }
             /**
@@ -780,7 +814,8 @@ class EverythingHelper {
         everythingChunkIndex,
         scopedPersonIds,
         isPersonEverything,
-        streamedResources = []
+        streamedResources = [],
+        compositionDedupBuffer = null
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -906,7 +941,8 @@ class EverythingHelper {
                     everythingChunkIndex,
                     scopedPersonIds,
                     isPersonEverything,
-                    streamedResources
+                    streamedResources,
+                    compositionDedupBuffer
                 });
 
                 optionsForQueries = baseResult.options;
@@ -1000,7 +1036,8 @@ class EverythingHelper {
                     personResourceIdentifierMap,
                     scopedPersonIds,
                     isPersonEverything,
-                    streamedResources
+                    streamedResources,
+                    compositionDedupBuffer
                 });
 
                 if (!responseStreamer) {
@@ -1056,7 +1093,8 @@ class EverythingHelper {
                     personResourceIdentifiers,
                     scopedPersonIds,
                     isPersonEverything,
-                    streamedResources
+                    streamedResources,
+                    compositionDedupBuffer
                 });
 
                 if (!responseStreamer) {
@@ -1143,7 +1181,8 @@ class EverythingHelper {
                                 everythingChunkIndex,
                                 scopedPersonIds,
                                 isPersonEverything,
-                                streamedResources
+                                streamedResources,
+                                compositionDedupBuffer
                             });
 
                             depthParallelProcess.push(result);
@@ -1272,7 +1311,8 @@ class EverythingHelper {
         everythingChunkIndex,
         scopedPersonIds,
         isPersonEverything,
-        streamedResources = []
+        streamedResources = [],
+        compositionDedupBuffer = null
     }) {
 
         /**
@@ -1396,7 +1436,8 @@ class EverythingHelper {
                 useUuidProjection,
                 resourceMapper,
                 cachedStreamer,
-                streamedResources
+                streamedResources,
+                compositionDedupBuffer
             });
 
             pushAll(entries, bundleEntries);
@@ -1469,7 +1510,8 @@ class EverythingHelper {
         personResourceIdentifiers = [],
         scopedPersonIds,
         isPersonEverything,
-        streamedResources = []
+        streamedResources = [],
+        compositionDedupBuffer = null
     }
     ) {
 
@@ -1768,7 +1810,8 @@ class EverythingHelper {
                 cachedStreamer,
                 personResourceIdentifierMap,
                 personResourceIdentifiers,
-                streamedResources
+                streamedResources,
+                compositionDedupBuffer
             })
 
             parallelProcess.push(promiseResult)
@@ -1837,7 +1880,8 @@ class EverythingHelper {
         cachedStreamer = null,
         personResourceIdentifierMap = null,
         personResourceIdentifiers = [],
-        streamedResources = []
+        streamedResources = [],
+        compositionDedupBuffer = null
     }) {
         /**
          * @type {BundleEntry[]}
@@ -2000,6 +2044,22 @@ class EverythingHelper {
 
                             // Apply resource mapper transformation
                             current_entity.resource = resourceMapper.map(current_entity.resource);
+
+                            // Two independent generators can each write a Composition for the same
+                            // (subject, type); buffer those and let the caller emit only the newest
+                            // once the whole $everything request is done, instead of here.
+                            const dedupGroupKey = compositionDedupBuffer &&
+                                isEligibleForCompositionLatestVersionDedup(current_entity.resource, this.configManager)
+                                ? compositionGroupKey(current_entity.resource)
+                                : null;
+                            if (dedupGroupKey) {
+                                const existing = compositionDedupBuffer.get(dedupGroupKey);
+                                if (!existing || isNewerComposition(current_entity.resource, existing.resource)) {
+                                    compositionDedupBuffer.set(dedupGroupKey, current_entity);
+                                }
+                                bundleEntryIdsProcessedTracker.add(resourceIdentifier);
+                                continue;
+                            }
 
                             // if response streamer is present then write the entry to the response streamer
                             if (responseStreamer) {
