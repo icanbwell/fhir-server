@@ -327,7 +327,7 @@ class FhirRouter {
                 getArgsMiddleware(),
                 authenticationMiddleware(config),
                 sofScopeMiddleware({
-                    route: profile.path,
+                    route: profile,
                     auth: config.auth,
                     name: operationName
                 }),

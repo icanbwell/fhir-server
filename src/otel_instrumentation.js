@@ -3,7 +3,7 @@
 let ignoreUrls = ['/health', '/live', '/ready'];
 if (process.env.OPENTELEMETRY_IGNORE_URLS) {
     ignoreUrls = ignoreUrls.concat(
-        process.env.OPENTELEMETRY_IGNORE_URLS?.split(',')
+        process.env.OPENTELEMETRY_IGNORE_URLS?.split(',').map((x) => x.trim())
     );
 }
 
