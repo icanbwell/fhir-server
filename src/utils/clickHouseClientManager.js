@@ -213,7 +213,11 @@ class ClickHouseClientManager {
                     query_params,
                     format,
                     clickhouse_settings: {
-                        date_time_output_format: 'iso'
+                        date_time_output_format: 'iso',
+                        // Stream the aggregation in sorting-key order so LIMIT can terminate early.
+                        // Without this ClickHouse reads the whole group before applying LIMIT, which
+                        // is what makes a current-state roster page cost O(members in group).
+                        optimize_aggregation_in_order: 1
                     }
                 });
 
