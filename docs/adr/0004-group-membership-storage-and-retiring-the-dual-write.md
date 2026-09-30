@@ -2,12 +2,7 @@
 
 ## Status
 
-**Proposed** — EA-2329. Supersedes the earlier draft of this ADR, which proposed making the
-MongoDB/ClickHouse dual-write reliable via a transactional outbox. This ADR reaches the opposite
-conclusion: the dual-write should be removed rather than made reliable.
-
-Renumbered from 0005 to 0004 because `main` took 0003 for Atlas Search. The causal-ordering ADR on
-the EA-2326 branch should take 0005.
+**Proposed** — EA-2329.
 
 **Scope:** which store owns Group membership, and what each store is for. It does not change the
 FHIR contract.
@@ -26,14 +21,15 @@ answers to that now exist in the codebase:
    collection, one document per membership, written through the shared resource-write pipeline.
    Routed by an internal per-document `_extended` marker. Merged 2026-09-25, flag off.
 
-The earlier draft of this ADR considered regime 3 as "Option 5" and rejected it, on the reasoning
-that *"the storage choice is not the gap; the write-coordination is."*
+Regime 2 makes a single Group write a dual-write across two stores with no shared transaction: the
+Mongo document commits with `member[]` stripped, then the ClickHouse events are written. That is the
+source of the reliability work tracked under EA-2322 (compensating delete on failure) and EA-2326
+(causal ordering), and the reason a transactional outbox looks necessary.
 
-**That reasoning was wrong, and identifying why is the substance of this ADR.** It assumed ClickHouse
-would remain authoritative for membership reads, in which case moving the roster to a second Mongo
-collection really would leave a dual-write needing an outbox. But if Mongo serves the membership
-reads, ClickHouse stops being authoritative for anything a FHIR read touches, and there is no
-dual-write left to coordinate. The reliability problem dissolves rather than needing to be solved.
+**It only looks necessary while ClickHouse is authoritative for membership reads.** If Mongo serves
+those reads, ClickHouse is no longer authoritative for anything a FHIR read touches, and there is no
+dual-write left to coordinate. The reliability problem dissolves rather than needing to be solved,
+which is a better outcome than solving it.
 
 ## Decision
 
@@ -97,8 +93,8 @@ A roster page is neither of those, which is the whole point of the split.
 
 - **EA-2322's compensating delete.** There is no split brain to compensate once Mongo is the only
   authority for membership.
-- **The transactional outbox** the earlier draft of this ADR recommended. It existed to make a
-  dual-write safe; there is no dual-write.
+- **The need for a transactional outbox** on this path. An outbox makes a dual-write safe; there is
+  no dual-write.
 - **EA-2326's destructive re-key migration** and the `group_uuid` re-key of the materialized views.
   Dropping the views removes the identity defect outright. No environment currently runs
   `ENABLE_CLICKHOUSE` with `MONGO_WITH_CLICKHOUSE_RESOURCES=Group`, so this is a schema change with
@@ -138,8 +134,8 @@ is the right abstraction for a future array-offload case and costs nothing idle.
 
 ## FHIR conformance
 
-Carried forward from the earlier draft, because it still holds and now applies to the event log
-rather than to membership itself.
+A standing objection to moving membership off the synchronous ClickHouse write is that it breaks FHIR
+read-after-write. Validated against R4, that does not hold:
 
 - **Read-after-write is a SHOULD, not a SHALL.** `http.html`: a server "SHOULD ... return the same
   content when it is subsequently read. However systems might not be able to do this." The only hard
@@ -147,9 +143,9 @@ rather than to membership itself.
 - **Search is explicitly eventually consistent.** `search.html`: results "are only guaranteed to be
   current at the instant the operation is executed."
 
-Under this ADR the membership a FHIR read returns comes from Mongo and is strongly consistent, which
-is *stronger* than the earlier design offered. The eventual consistency moves to the analytical event
-log, where nothing in the FHIR contract depends on it. That is a better place for it.
+The objection does not need to be answered here anyway: membership served from Mongo is strongly
+consistent, so no FHIR-visible read lags at all. The eventual consistency lands on the analytical
+event log, where nothing in the FHIR contract depends on it.
 
 Cohort enumeration remains `Group/[id]/$export` rather than an inline `member[]` read or a custom
 `$members` operation, consistent with Bulk Data server-side expansion and with the DQM external
