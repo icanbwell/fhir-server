@@ -335,7 +335,7 @@ class ScopesValidator {
                 user, scope, resourceType: updatedResource.resourceType, resourceId: updatedResource.id
             });
             throw new ForbiddenError(
-                `user ${user} can only add or remove access tags it has access to, ` +
+                `user ${user} can only add or remove access tags it has write access to, ` +
                 `for resource ${updatedResource.resourceType} with id ${updatedResource.id}`
             );
         }
