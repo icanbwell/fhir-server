@@ -34,7 +34,10 @@ which is a better outcome than solving it.
 ## Decision
 
 **MongoDB owns current membership and serves the entire FHIR surface** for it: read, search,
-`$export` seeding, `$graph`, `$everything`.
+`$export` seeding, `$graph`, `$everything`. The grounds are that the Group resource already lives
+there, that one authority removes compensation, causal ordering and reconciliation entirely, and that
+a roster page is 6ms against ClickHouse's 324ms even after the query fix below. Not that ClickHouse
+cannot do the work.
 
 **Both ClickHouse current-state views are dropped.** `Group_4_0_0_MemberCurrent` and
 `Group_4_0_0_MemberCurrentByEntity`, and their materialized views, go away.
@@ -54,20 +57,38 @@ driven to 10,000,000 members through the real PATCH path.
 Group in the table. ClickHouse Cloud separates compute from storage and has more cores, so absolute
 numbers will move, likely by a lot. The shape is what carries the decision.**
 
-Forward page of 100 members:
+Forward page of 100 members. The ClickHouse column is given twice because the first set of numbers
+turned out to be an artefact:
 
-| members | Mongo | ClickHouse |
-|---|---|---|
-| 100K | 3ms | 26-38ms |
-| 1M | 3-8ms | 64-167ms |
-| 5M | 6ms | 1,190ms |
-| 10M | 6ms | 5,941ms |
+| members | Mongo | ClickHouse, as shipped | ClickHouse, one setting added |
+|---|---|---|---|
+| 100K | 3ms | 26-38ms | 80ms |
+| 1M | 3-8ms | 64-167ms | 213ms |
+| 2M | 3-5ms | 148-288ms | 214ms |
+| 5M | 6ms | 1,190ms | 249ms |
+| 10M | 6ms | 5,941ms | **324ms** |
 
-Mongo is flat because `groupUuid` makes a page O(page size). ClickHouse grows with group size
-because `argMaxMerge` plus `GROUP BY` must merge every part for the `group_id` before `LIMIT`
-applies, so a page costs O(members in group). More cores make that faster, not flat. This is also
-the mechanical cause of the socket instability EA-2320 addresses: the resets were O(group size)
-reads timing out.
+Mongo is flat because `groupUuid` makes a page O(page size).
+
+**ClickHouse is not inherently O(members in group), and an earlier version of this ADR said it was.**
+`Group_4_0_0_MemberCurrent` is `ORDER BY (group_id, entity_reference)` and the production query's
+`GROUP BY` is exactly that key, so ClickHouse can stream the aggregation in sorting-key order and
+stop once `LIMIT` is satisfied. It does not do that by default, and `optimize_aggregation_in_order`
+appeared nowhere in the repo, so every roster page read the entire group. Adding it to the existing
+`clickhouse_settings` object is an 18x improvement at 10M and changes the shape: 100x more data costs
+4x more time rather than 228x. Verified on ClickHouse 25.12.1, the version `docker-compose.yml:273`
+pins, where `read_rows` for the same query drops from the full table to a bounded prefix.
+
+A further order of magnitude is available from the engine. Re-keying current state as
+`ReplacingMergeTree ORDER BY (group_uuid, entity_reference)` and paging with `FINAL` measured 28ms at
+10M against a fixed-size read independent of group size, and is 4.6x cheaper on disk than the
+`AggregatingMergeTree` views (1.04 GiB against 4.81 GiB for the same 10M members). The argMax tie
+tuple costs 24 bytes per column across 17 columns, about 408 bytes per row; `ReplacingMergeTree`
+needs 8 bytes once.
+
+So the honest gap at 10M is 54x with the setting and roughly 5x with the right engine, not the 990x
+originally recorded. This also means EA-2320's socket resets were downstream of the missing setting
+rather than an independent client defect: the resets were whole-group reads timing out.
 
 ClickHouse wins where its shape fits. Writes ran 24,000-27,000/s against Mongo's 2,400-2,600/s
 across the whole range, neither degrading. The event log costs a consistent 62 bytes per event,
@@ -84,16 +105,34 @@ cost, which is why dropping them is not a compromise.
 An earlier version of this decision kept a ClickHouse membership event log and justified it on two
 consumers. Both were checked against the code and neither holds.
 
-**DQM does not read Group membership, and evaluates per person.**
+**DQM cannot express a Group-scoped population at all today.**
 `PopulationResolutionService` in `clinical-reasoning-orchestrator-service` resolves a population by
 keyset-paginating a **Person** search (`_elements=id,identifier,link`, `_sort=_uuid`, `_id:above`
-cursor) and creating one work unit per person. The population is defined by a caller-supplied Person
-query; `Group` appears nowhere in that path. The planned enhancement accepts a Group but keeps
-per-person evaluation, which makes the Group's role a single roster enumeration per run. Enumeration
-and per-person reads are both Mongo's shape, and ClickHouse is actively worse at both: a page of 100
-costs 1,190ms at 5M members against Mongo's 6ms. Even continuous enrollment favours Mongo when it is
-asked per person, because that is an indexed lookup on one member's rows. ClickHouse would only win
-if the question were asked as a set, which is not how the engine works.
+cursor). The population is a caller-supplied Person query, and
+`PersonQueryParameterValidator.java:16` restricts it to
+`Set.of("_id", "_security", "_elements", "name", "birthdate")`, throwing on anything else, with
+`_security` required and single-valued. So the population is a security-tag sweep and a Group-scoped
+query is rejected by design. `Group` appears nowhere in that path.
+
+Two corrections to what an earlier version of this ADR claimed about that path, because they cut
+against the conclusion rather than for it. Work units are created per **batch** of persons, not per
+person (`createAndDispatchWorkUnit(executionId, batch, personIds, ...)` takes a list; capacity
+defaults to 1000 and may run far higher), and the consolidation phase already emits multi-patient
+NDJSON. So the access pattern is more set-wise than "per person" suggested. And the nearest artefact
+for a future Group-scoped subject, `PatientRangeSubject` in `asyncApi.yaml` with `groupId` plus
+`startIndex`/`endIndex`, is unimplemented but set-wise in shape.
+
+**There is a real interactive consumer, and it is already on Databricks.** RA-4385, the dQM Reporting
+Dashboard (Dev Started, epic INE-438), has an aggregate level, a person scorecard and an over-time
+trend, with a member-level care-gap roster. Its data model is a Databricks notebook (RA-4454) surfaced
+through Sigma, and its grain is member x measure x month. That is temporal *measure status*, not
+temporal *membership*, and it is served today without ClickHouse.
+
+**Health Match cohort discovery was already settled on OpenSearch.** *Optimized Real-Time Cohort
+Matching Architecture* (Confluence PRG 5341872218) keeps Group canonical and mirrors membership into
+OpenSearch with `cohort_ids[]` denormalised onto the patient document, making intersection and
+trial-criteria matching a terms filter rather than a join. That design has its own problems, separately
+reviewed, but the store choice for interactive discovery is not in dispute here.
 
 **Health Match cohort discovery was already settled on OpenSearch.** *Optimized Real-Time Cohort
 Matching Architecture* (Confluence PRG 5341872218) keeps Group canonical and mirrors membership into
@@ -130,10 +169,13 @@ registry note at `approved-tech.yaml:146`.
   authority for membership.
 - **The need for a transactional outbox** on this path. An outbox makes a dual-write safe; there is
   no dual-write.
-- **EA-2326's destructive re-key migration** and the `group_uuid` re-key of the materialized views.
-  Dropping the views removes the identity defect outright. No environment currently runs
-  `ENABLE_CLICKHOUSE` with `MONGO_WITH_CLICKHOUSE_RESOURCES=Group`, so this is a schema change with
-  no data to migrate.
+- **EA-2326's destructive migration**, since no environment runs `ENABLE_CLICKHOUSE` with
+  `MONGO_WITH_CLICKHOUSE_RESOURCES=Group` and there is therefore no data to migrate.
+  **Not the re-key itself.** Measurement since showed `ReplacingMergeTree ORDER BY (group_uuid,
+  entity_reference)` is both faster per page and 4.6x cheaper on disk than the `AggregatingMergeTree`
+  views, and it carries the causal tie tuple natively in 8 bytes rather than 408 bytes per row. So if
+  ClickHouse ever holds Group current state again, that is the shape, and EA-2326's key choice was
+  right. Keep the ticket's reasoning rather than closing it as worthless.
 - **The `useExternalStorage` header as a routing mechanism.** A permanent per-Group marker is
   strictly better than a per-request header for what is a permanent per-Group property, and EA-2317's
   objection to the header is answered by construction rather than by re-scoping.
