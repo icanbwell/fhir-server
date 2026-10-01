@@ -65,8 +65,21 @@ function rejectMemberOnExtendedGroupWrite({ currentResource, hasMemberField }) {
     }
 }
 
+/**
+ * The single regime check for a Group document: true when its roster lives in GroupMember_4_0_0.
+ * Reads only the persisted marker; whether configManager.enableExtendedGroup is on is each
+ * caller's own decision (serve, fall back, or fail).
+ *
+ * @param {Object|null|undefined} doc - Group resource or raw Group document
+ * @returns {boolean}
+ */
+function isExtendedGroup(doc) {
+    return doc?.[MONGO_GROUP_EXTENDED_FIELD] === true;
+}
+
 module.exports = {
     getExtendedGroupMemberWriteError,
     rejectMemberOnExtendedGroupWrite,
+    isExtendedGroup,
     MONGO_GROUP_EXTENDED_FIELD
 };
