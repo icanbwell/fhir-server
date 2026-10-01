@@ -39,6 +39,8 @@ const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProdu
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 const { StorageProviderFactory } = require('../../../dataLayer/providers/storageProviderFactory');
 const { hasExternalStorageMemberTag } = require('../../../utils/clickHouseGroupPreSave');
+const { MongoGroupMemberRepository } = require('../../../dataLayer/repositories/mongoGroupMemberRepository');
+const { isExtendedGroup } = require('../../../utils/mongoGroupExtendedTag');
 const { isTrue } = require('../../../utils/isTrue');
 
 // Access-tag security codes are used verbatim as a path segment of the S3 export key
@@ -86,6 +88,7 @@ class BulkDataExportRunner {
      * @property {PostSaveProcessor} postSaveProcessor
      * @property {BulkExportEventProducer} bulkExportEventProducer
      * @property {StorageProviderFactory} storageProviderFactory
+     * @property {MongoGroupMemberRepository} mongoGroupMemberRepository
      * @property {string} exportStatusId
      * @property {number} patientReferenceBatchSize
      * @property {number} fetchResourceBatchSize
@@ -111,6 +114,7 @@ class BulkDataExportRunner {
         postSaveProcessor,
         bulkExportEventProducer,
         storageProviderFactory,
+        mongoGroupMemberRepository,
         exportStatusId,
         patientReferenceBatchSize,
         fetchResourceBatchSize,
@@ -239,6 +243,12 @@ class BulkDataExportRunner {
          */
         this.storageProviderFactory = storageProviderFactory;
         assertTypeEquals(storageProviderFactory, StorageProviderFactory);
+
+        /**
+         * @type {MongoGroupMemberRepository}
+         */
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
 
         /**
          * @type {string}
@@ -717,9 +727,9 @@ class BulkDataExportRunner {
 
     /**
      * Loads the Group and resolves its member Patient references for export.
-     * Hybrid Groups (ClickHouse roster) are paged via the storage provider with the
-     * caller tenant scope; normal Groups read inline Group.member[]. Returns [] when
-     * the caller cannot see the Group (no leak).
+     * Extended Groups (GroupMember_4_0_0) and hybrid Groups (ClickHouse roster) are seek-paged;
+     * embedded Groups read inline Group.member[]. Returns [] when the caller cannot see the
+     * Group (no leak); throws when the Group's roster storage is disabled.
      *
      * @typedef {Object} GetGroupMemberPatientReferencesAsyncParams
      * @property {string} groupId
@@ -756,6 +766,19 @@ class BulkDataExportRunner {
         if (!groupDoc) {
             logInfo(`Group not found or not authorized for export: ${groupId}`);
             return [];
+        }
+
+        // Extended Group: roster lives in GroupMember_4_0_0, member[] is stripped from the Group.
+        // With the feature off, an inline read would silently export nothing -- fail loudly
+        // instead, same as the ClickHouse-disabled guard below.
+        if (isExtendedGroup(groupDoc)) {
+            if (!this.searchManager.configManager.enableExtendedGroup) {
+                throw new Error(
+                    `Group ${groupId} has extended membership but extended member storage is disabled; ` +
+                    'cannot resolve members for export.'
+                );
+            }
+            return await this.getExtendedGroupPatientReferencesAsync({ groupUuid: groupDoc._uuid });
         }
 
         const hasExternalMembers = hasExternalStorageMemberTag(groupDoc);
@@ -829,6 +852,41 @@ class BulkDataExportRunner {
             afterReference = members[members.length - 1].entity_reference;
         }
 
+        return references;
+    }
+
+    /**
+     * Seek-pages an extended Group's GroupMember_4_0_0 rows by _uuid and collects their Patient
+     * references. Called only after the parent Group passed the export's tenant query.
+     *
+     * @param {Object} params
+     * @param {string} params.groupUuid - the Group's _uuid (GroupMember rows are keyed on it)
+     * @returns {Promise<string[]>}
+     */
+    async getExtendedGroupPatientReferencesAsync({ groupUuid }) {
+        const references = [];
+        // BULK_BUFFER_SIZE arrives as a string; the driver ignores a non-numeric limit
+        const pageSize = Number(this.patientReferenceBatchSize) || 100;
+        let afterUuid = null;
+        for (;;) {
+            const rows = await this.mongoGroupMemberRepository.getPatientMemberReferencesPageAsync({
+                base_version: '4_0_0',
+                groupUuid,
+                afterUuid,
+                limit: pageSize
+            });
+            for (const row of rows) {
+                references.push(row.member.entity.reference);
+            }
+            if (rows.length < pageSize) {
+                break;
+            }
+            afterUuid = rows[rows.length - 1]._uuid;
+        }
+        logInfo(`Resolved ${references.length} Patient seed references from extended Group`, {
+            groupUuid,
+            operation: 'export'
+        });
         return references;
     }
 
