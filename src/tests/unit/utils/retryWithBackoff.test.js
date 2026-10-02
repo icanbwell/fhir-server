@@ -1,7 +1,7 @@
 'use strict';
 
 const { describe, test, expect, jest: jestObj } = require('@jest/globals');
-const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
+const { retryWithBackoff, computeBackoffWithJitter } = require('../../../utils/retryWithBackoff');
 
 describe('retryWithBackoff', () => {
     test('returns result on first successful call', async () => {
@@ -34,10 +34,12 @@ describe('retryWithBackoff', () => {
             .mockRejectedValueOnce(error)
             .mockRejectedValueOnce(error)
             .mockResolvedValue('ok');
-        await retryWithBackoff({ fn, maxRetries: 3, initialDelayMs: 10, onRetry });
+        // rng fixed at 0.5 so the jittered delay is deterministic: floor(0.5 * cap),
+        // where cap is initialDelayMs * 2^(attempt-1).
+        await retryWithBackoff({ fn, maxRetries: 3, initialDelayMs: 10, onRetry, rng: () => 0.5 });
         expect(onRetry).toHaveBeenCalledTimes(2);
-        expect(onRetry).toHaveBeenCalledWith({ attempt: 1, maxRetries: 3, delay: 10, error });
-        expect(onRetry).toHaveBeenCalledWith({ attempt: 2, maxRetries: 3, delay: 20, error });
+        expect(onRetry).toHaveBeenCalledWith({ attempt: 1, maxRetries: 3, delay: 5, error });
+        expect(onRetry).toHaveBeenCalledWith({ attempt: 2, maxRetries: 3, delay: 10, error });
     });
 
     test('does not call onRetry on first attempt', async () => {
@@ -47,16 +49,65 @@ describe('retryWithBackoff', () => {
         expect(onRetry).not.toHaveBeenCalled();
     });
 
-    test('doubles delay between retries (exponential backoff)', async () => {
+    test('doubles the jitter cap between retries (exponential backoff)', async () => {
         const onRetry = jestObj.fn();
         const fn = jestObj.fn()
             .mockRejectedValueOnce(new Error('e1'))
             .mockRejectedValueOnce(new Error('e2'))
             .mockRejectedValueOnce(new Error('e3'))
             .mockResolvedValue('done');
-        await retryWithBackoff({ fn, maxRetries: 4, initialDelayMs: 100, onRetry });
-        const delays = onRetry.mock.calls.map(c => c[0].delay);
-        expect(delays).toEqual([100, 200, 400]);
+        await retryWithBackoff({ fn, maxRetries: 4, initialDelayMs: 100, onRetry, rng: () => 0.5 });
+        const delays = onRetry.mock.calls.map((c) => c[0].delay);
+        // Caps double (100, 200, 400); the delay is the jittered half of each.
+        expect(delays).toEqual([50, 100, 200]);
+    });
+
+    test('every delay stays within [0, cap) under the real random source', async () => {
+        const onRetry = jestObj.fn();
+        const fn = jestObj.fn()
+            .mockRejectedValueOnce(new Error('e1'))
+            .mockRejectedValueOnce(new Error('e2'))
+            .mockRejectedValueOnce(new Error('e3'))
+            .mockResolvedValue('done');
+        const initialDelayMs = 64;
+        await retryWithBackoff({ fn, maxRetries: 4, initialDelayMs, onRetry });
+        const delays = onRetry.mock.calls.map((c) => c[0].delay);
+        expect(delays).toHaveLength(3);
+        delays.forEach((delay, i) => {
+            const cap = initialDelayMs * Math.pow(2, i);
+            expect(delay).toBeGreaterThanOrEqual(0);
+            expect(delay).toBeLessThan(cap);
+        });
+    });
+
+    test('maxDelayMs caps the exponential term', async () => {
+        const onRetry = jestObj.fn();
+        const fn = jestObj.fn()
+            .mockRejectedValueOnce(new Error('e1'))
+            .mockRejectedValueOnce(new Error('e2'))
+            .mockRejectedValueOnce(new Error('e3'))
+            .mockResolvedValue('done');
+        // Caps would be 100, 200, 400 but maxDelayMs clamps them to 100, 150, 150.
+        await retryWithBackoff({
+            fn, maxRetries: 4, initialDelayMs: 100, maxDelayMs: 150, onRetry, rng: () => 0.5
+        });
+        expect(onRetry.mock.calls.map((c) => c[0].delay)).toEqual([50, 75, 75]);
+    });
+
+    describe('computeBackoffWithJitter', () => {
+        test('grows the cap exponentially from the base delay', () => {
+            expect(computeBackoffWithJitter(1, 100, 10000, () => 0.999)).toBe(99);
+            expect(computeBackoffWithJitter(2, 100, 10000, () => 0.999)).toBe(199);
+            expect(computeBackoffWithJitter(3, 100, 10000, () => 0.999)).toBe(399);
+        });
+
+        test('never exceeds maxDelayMs', () => {
+            expect(computeBackoffWithJitter(20, 100, 500, () => 0.999)).toBeLessThan(500);
+        });
+
+        test('returns 0 at the bottom of the jitter range', () => {
+            expect(computeBackoffWithJitter(5, 100, 10000, () => 0)).toBe(0);
+        });
     });
 
     test('uses default maxRetries=3 when not specified', async () => {
