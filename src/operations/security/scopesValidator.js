@@ -14,6 +14,7 @@ const {
     getRequiredCrudsForAccessRequested,
     isCrudsRequirementSatisfied,
     isReadOnlyAccessRequested,
+    isV2Suffix,
     getInteractionCrudsLetter
 } = require('./smartScopeParser');
 
@@ -81,6 +82,12 @@ class ScopesValidator {
      * @return {{success: boolean, error: Error|null}}
      */
     evaluateResourceTypeScopeMatch({scopes, resourceType, accessRequested}) {
+        if (isV2Suffix(accessRequested) && accessRequested.length > 1) {
+            const failure = accessRequested.split('').map(
+                letter => this.evaluateResourceTypeScopeMatch({scopes, resourceType, accessRequested: letter})
+            ).find(result => !result.success);
+            return failure || {success: true, error: null};
+        }
         const requiredCruds = getRequiredCrudsForAccessRequested(accessRequested);
         if (!requiredCruds) {
             return {success: false, error: new Error(`Invalid accessRequested: ${accessRequested}`)};
@@ -133,7 +140,9 @@ class ScopesValidator {
             // The granular per-interaction requirement, when known, gates the resourceType scope
             // match; accessRequested itself is untouched and still flows to the access/ tenant
             // check below.
-            const resourceTypeAccessRequested = getInteractionCrudsLetter(action) || accessRequested;
+            const resourceTypeAccessRequested = isV2Suffix(accessRequested)
+                ? accessRequested
+                : getInteractionCrudsLetter(action) || accessRequested;
 
             // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
             if (scope) {

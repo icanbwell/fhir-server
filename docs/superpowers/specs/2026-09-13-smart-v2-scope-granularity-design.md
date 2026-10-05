@@ -102,13 +102,13 @@ its required CRUDS letter(s), extended here with the operations analyzed since t
 |------------------------------------------------|------------------|-------|
 | `create`                                       | `c`              | type-level create, POST, server-assigned id |
 | `update`, `patch`                              | `u`              | see "`u` covers update-as-create" below |
-| `remove`                                       | `d`              | |
+| `remove`                                       | `d` for a delete addressed only by `id`/`_id`; `d` **and** `s` when any other search parameter is present | see "DELETE behavior" below |
 | `searchById` (instance read), vread            | `r`              | |
 | instance-level `_history`                      | `r`              | |
 | type/system-level `history`                    | `s`              | |
 | `searchBundle`, `searchStreaming`, `everything`, `summary`, `expand` | `s` | |
-| `graph` — each resolution step, including the root | `r` if the step resolves one instance by reference/id, `s` if it searches a type (forward reference vs. reverse/child search) | not a single fixed letter; evaluated per step, same rule for the root call as for every child link |
-| `graph` (DELETE)                               | `d`              | on the root resource type **and** on every child resource type touched, since graph-delete never creates or updates |
+| `graph` — each resolution step, including the root | `r` if the step resolves one instance by reference/id, `s` if it searches a type (forward reference vs. reverse/child search) | not a single fixed letter; evaluated per step, same rule for the root call as for every child link. For DELETE see the next row |
+| `graph` (DELETE)                               | `d` on the root and on every resource deleted; forward-reference steps are satisfied by `d` (in place of `r`); reverse/child search steps still require `s` | see "DELETE behavior" below |
 | `$merge`                                       | `u`              | see "`u` covers update-as-create" below |
 | `$import`                                      | `c` on `Task`    | the request-time gate only covers creating the `Task`; per-resource authorization for what the import actually writes happens downstream, in the import processors, and is not enforced by this request-time gate |
 | `$export`                                      | `c` on `Task` directly, plus `s` on every resource type actually requested via `_type` | the check targets `Task`, not `ExportStatus` — replaces the export runner's current silent-drop-on-unauthorized-type behavior with a 403 |
@@ -141,6 +141,73 @@ This also means the "create" column in any per-operation verification table refe
 type-level POST create (`c`); instance creation via PUT or `$merge` is a `u` grant, not a `c` grant.
 This is worth stating explicitly wherever such a table appears, since the column header alone is
 easy to misread as "any way a new resource comes into existence."
+
+### DELETE behavior — `remove` and `$graph` DELETE
+
+A delete is authorized by `d` alone wherever the target is identified rather than searched for.
+Only a step that has to *search* for resources requires `s`. Both the resource gate
+(`user/…`) and the access gate (`access/<tag>…`) apply the same letters, and the per-resource tag
+check and the Mongo query filter use the same letter as the gates.
+
+**`DELETE [base]/[type]/[id]` and `DELETE [base]/[type]?_id=…`** — `d`.
+
+**`DELETE [base]/[type]?<any other search parameter>`** — `d` **and** `s`. A type-level conditional
+delete enumerates resources by search, so it needs the search interaction in addition to the delete.
+
+`remove` passes the whole requirement as one value (`d` or `ds`) to the resource gate, access gate,
+query filter and per-resource check. A multi-letter requirement is evaluated per letter: each
+letter may be granted by a different scope token (so `user/*.read user/*.write` satisfies `ds`),
+and for the access gate a tenant code qualifies only if every letter is granted for it, directly
+or through the `*` code.
+
+**`DELETE [base]/[type]/[id]/$graph`**
+
+| Step | Required |
+|------|----------|
+| root resource, fetched by id | `d` |
+| forward-reference link (follows a reference held by a parent) | `d` (replaces `r`) |
+| reverse / child link (searches a type for resources referencing a parent) | `s` |
+| each resource actually deleted | `d` (resource type and tenant tags) |
+
+A link whose gate fails is skipped silently, as before; a resource the caller lacks `d` on is
+skipped silently, as before. `GET`/`POST` `$graph` is unchanged: `r` for forward links, `s` for
+reverse links.
+
+**What was allowed before, and what is allowed now**
+
+Previously the `remove` access gate, query filter and per-resource check all required the coarse
+`write` set (`c`, `u` and `d`), and `$graph` DELETE required `write` at the root and for each
+deleted resource, with every link gate still requiring `read` (`r`). A v2 token carrying only
+`d` was therefore rejected outright by both operations.
+
+`$graph` DELETE:
+
+| Grant (resource gate and access gate) | Before | Now |
+|---|---|---|
+| v1 `read` + `write`, or v1 `*` | whole graph | whole graph |
+| v1 `write` only (`cud`) | root only; link gates need `r`, children skipped silently | root and forward-reference children; reverse children need `s` and are skipped |
+| v2 `rds` | rejected (lacks `c`, `u`) | whole graph |
+| v2 `ds` | rejected | whole graph |
+| v2 `d` only | rejected | root and forward-reference children; reverse children skipped |
+| v2 `rs` / read-only | rejected | rejected, nothing deleted |
+| `d` on only one of the two gates | rejected | rejected |
+
+`remove`:
+
+| Grant | Request | Before | Now |
+|---|---|---|---|
+| v1 `write` (`cud`) | by id | allowed | allowed |
+| v1 `write` (`cud`) | with search parameters | allowed | **rejected** — `write` carries no `s` |
+| v1 `*` or v1 `read` + `write` | either | allowed | allowed |
+| v2 `d` only | by id | rejected (needs `c`, `u`) | allowed |
+| v2 `d` only | with search parameters | rejected | rejected (needs `s`) |
+| v2 `ds` | either | rejected | allowed |
+| v2 `rs` / read-only | either | rejected | rejected |
+
+Two of these changes reach v1 clients, because v1
+`write` normalizes to a fixed CRUDS set regardless of `ENABLE_SMART_V2_CRUDS_SCOPES`: a v1
+`write`-only client that issues a conditional (search-based) delete is now rejected, and a v1
+`write`-only client's `$graph` DELETE now also deletes forward-reference children.
 
 ## Components & data flow
 

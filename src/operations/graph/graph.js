@@ -111,7 +111,7 @@ class GraphOperation {
         // Guard defensively rather than calling method.toLowerCase() unconditionally: an
         // undefined/malformed method should surface at the dispatch check below (inside the
         // try block, where it's caught and logged), not crash this pre-flight scope check.
-        const accessRequested = (method && method.toLowerCase() === 'delete') ? 'write' : 'read';
+        const accessRequested = (method && method.toLowerCase() === 'delete') ? 'd' : 'r';
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             parsedArgs,

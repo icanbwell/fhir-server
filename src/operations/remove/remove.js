@@ -141,13 +141,18 @@ class RemoveOperation {
             parsedArgs.remove('_id');
         }
 
+        const isSearchBasedDelete = parsedArgs.parsedArgItems.some(
+            a => !['base_version', 'id', '_id'].includes(a.queryParameter)
+        );
+        const accessRequested = isSearchBasedDelete ? 'ds' : 'd';
+
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
-            accessRequested: 'write'
+            accessRequested
         });
 
         try {
@@ -165,7 +170,7 @@ class RemoveOperation {
                     personIdFromJwtToken,
                     parsedArgs,
                     operation: DELETE,
-                    accessRequested: 'write'
+                    accessRequested
                 }
             );
 
@@ -191,7 +196,7 @@ class RemoveOperation {
                 // isAccessToResourceAllowedByAccessAndPatientScopes will throw forbidden error so wrap this under try catch
                 try {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                        requestInfo, resource, base_version
+                        requestInfo, resource, base_version, accessRequested
                     });
 
                     resourceIdsToDelete.push(resource._uuid);
