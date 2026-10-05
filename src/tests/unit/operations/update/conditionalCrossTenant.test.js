@@ -617,6 +617,7 @@ describe('Conditional Delete — Cross-Tenant Security', () => {
         });
         mockParsedArgs.get = jestGlobal.fn().mockReturnValue(null);
         mockParsedArgs.remove = jestGlobal.fn();
+        mockParsedArgs.parsedArgItems = [{queryParameter: 'identifier'}];
 
         const result = await removeOp.removeAsync({
             requestInfo,
@@ -680,6 +681,7 @@ describe('Conditional Delete — Cross-Tenant Security', () => {
         });
         mockParsedArgs.get = jestGlobal.fn().mockReturnValue(null);
         mockParsedArgs.remove = jestGlobal.fn();
+        mockParsedArgs.parsedArgItems = [{queryParameter: 'identifier'}];
 
         await removeOp.removeAsync({
             requestInfo,
@@ -688,7 +690,7 @@ describe('Conditional Delete — Cross-Tenant Security', () => {
         });
 
         expect(capturedConstructArgs).not.toBeNull();
-        expect(capturedConstructArgs.accessRequested).toBe('write');
+        expect(capturedConstructArgs.accessRequested).toBe('ds');
         expect(capturedConstructArgs.scope).toBe('patient/Patient.write access/tenant_b.*');
         expect(capturedConstructArgs.personIdFromJwtToken).toBe('person-tenant-b');
         expect(capturedConstructArgs.isUser).toBe(true);
