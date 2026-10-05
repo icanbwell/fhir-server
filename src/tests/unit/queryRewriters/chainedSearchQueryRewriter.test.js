@@ -184,6 +184,45 @@ describe('ChainedSearchQueryRewriter', () => {
         expect(result.parsedArgItems[0].queryParameterValue.value).toBe('__invalid__');
     });
 
+    test('drops the :not modifier for a degenerate negated chain so it fails closed (excludes everything) instead of open', async () => {
+        // "system|" is spec-legal and would have matched many real resources had the
+        // sub-search actually run, so under :not the safe resolution is to exclude
+        // everything. Keeping 'not' here would turn "value == __invalid__" into
+        // "value != __invalid__" -- true for every real document -- which applies no
+        // filtering at all and lets everything through.
+        const parsedArgs = buildParsedArgs({
+            queryParameter: 'patient',
+            chain: { targetType: 'Patient', targetParam: 'identifier' },
+            value: 'http://example.com/mrn|',
+            modifiers: ['not']
+        });
+        const searchResourceAsync = jest.fn();
+
+        const result = await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
+
+        expect(searchResourceAsync).not.toHaveBeenCalled();
+        expect(result.parsedArgItems[0].queryParameterValue.value).toBe('__invalid__');
+        expect(result.parsedArgItems[0].modifiers).toEqual([]);
+    });
+
+    test('drops only the degenerate value from an OR\'d list and still sub-searches the legitimate sibling', async () => {
+        // "sys2|" alone would be unmatchable (see above), but it must not drag down "sys1|code1"
+        // in the same comma-separated OR group -- only the degenerate entry is dropped.
+        const parsedArgs = buildParsedArgs({
+            queryParameter: 'patient',
+            chain: { targetType: 'Patient', targetParam: 'identifier' },
+            value: 'sys1|code1,sys2|'
+        });
+        const searchResourceAsync = jest.fn().mockResolvedValue(['uuid-1']);
+
+        const result = await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
+
+        expect(searchResourceAsync).toHaveBeenCalledWith(expect.objectContaining({
+            args: { identifier: 'sys1|code1' }
+        }));
+        expect(result.parsedArgItems[0].queryParameterValue.value).toBe('Patient/uuid-1');
+    });
+
     test('rewrites to an unmatchable reference without running the sub-search when the chain value is completely empty', async () => {
         const parsedArgs = buildParsedArgs({
             queryParameter: 'patient',

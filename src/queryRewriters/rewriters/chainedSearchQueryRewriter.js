@@ -31,12 +31,19 @@ class ChainedSearchQueryRewriter extends QueryRewriter {
             const values = parsedArg.queryParameterValue.values || [];
             const hadNotModifier = (parsedArg.modifiers || []).includes('not');
 
+            // Drop only the degenerate entries (e.g. "sys|" with nothing after the pipe) so a
+            // legitimate sibling value in the same OR'd list (e.g. "sys1|code1,sys2|") still
+            // gets sub-searched, instead of collapsing the whole group to UNMATCHABLE_ID.
+            const realValues = values.filter((value) => !hasNoRealTokenValue(value));
+
+            const isDegenerate = realValues.length === 0;
+
             let newValue;
-            if (values.length === 0 || values.some(hasNoRealTokenValue)) {
+            if (isDegenerate) {
                 // No real code/value to match on -- never run an unconstrained sub-search.
                 newValue = UNMATCHABLE_ID;
             } else {
-                const targetValue = values.join(',');
+                const targetValue = realValues.join(',');
                 const debugTags = debugRequested ? [] : undefined;
 
                 // Any modifier left on this item belongs to the chain's target parameter (e.g.
@@ -78,7 +85,10 @@ class ChainedSearchQueryRewriter extends QueryRewriter {
             // would make r4.js's outer filter dispatch (which checks modifiers generically for
             // any param) misapply e.g. FilterByMissing/FilterByContains against the resolved
             // reference field instead of a normal equality match.
-            parsedArg.modifiers = hadNotModifier ? ['not'] : [];
+            //
+            // Degenerate + :not must drop 'not' too, or "!= UNMATCHABLE_ID" matches every
+            // document and the negation fails open instead of excluding everything.
+            parsedArg.modifiers = (hadNotModifier && !isDegenerate) ? ['not'] : [];
         }));
 
         const filledChainDisplays = chainDisplays?.filter(Boolean);
