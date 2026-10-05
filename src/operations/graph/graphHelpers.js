@@ -2002,6 +2002,21 @@ class GraphHelper {
              * @type {BundleEntry[]}
              */
             const deleteOperationBundleEntries = [];
+            const resourceTypesToDelete = new Set(
+                (bundle.entry || [])
+                    .map(entry => entry.resource.resourceType)
+                    .filter(resourceType => resourceType !== 'AuditEvent')
+            );
+            for (const resourceTypeToDelete of resourceTypesToDelete) {
+                await this.scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo,
+                    parsedArgs,
+                    resourceType: resourceTypeToDelete,
+                    action: 'graph',
+                    accessRequested: 'd',
+                    startTime
+                });
+            }
             for (const entry of (bundle.entry || [])) {
                 /**
                  * Raw Resource
@@ -2023,15 +2038,6 @@ class GraphHelper {
                     });
                     continue;
                 }
-
-                await this.scopesValidator.verifyHasValidScopesAsync({
-                    requestInfo,
-                    parsedArgs,
-                    resourceType: resultResourceType,
-                    action: 'graph',
-                    accessRequested: 'd',
-                    startTime
-                });
 
                 try {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({

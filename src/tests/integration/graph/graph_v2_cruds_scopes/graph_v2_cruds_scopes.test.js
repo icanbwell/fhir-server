@@ -8,6 +8,7 @@ const expectedResponses = {
     expected_delete_rs_denied: require('./fixtures/expected/expected_delete_rs_denied.json'),
     expected_delete_resource_gate_denied: require('./fixtures/expected/expected_delete_resource_gate_denied.json'),
     expected_delete_access_gate_denied: require('./fixtures/expected/expected_delete_access_gate_denied.json'),
+    expected_delete_reverse_type_without_d_denied: require('./fixtures/expected/expected_delete_reverse_type_without_d_denied.json'),
     expected_delete_d_only: require('./fixtures/expected/expected_delete_d_only.json'),
     expected_delete_ds: require('./fixtures/expected/expected_delete_ds.json'),
     expected_delete_rds: require('./fixtures/expected/expected_delete_rds.json')
@@ -78,6 +79,7 @@ describe('$graph v2 CRUDS scope granularity Tests', () => {
         ['DELETE with rs grant is denied and deletes nothing', 'delete', 'user/*.rs access/client-p1.rs', 'expected_delete_rs_denied', 3],
         ['DELETE with d on the access gate only is denied and deletes nothing', 'delete', 'user/*.rs access/client-p1.d', 'expected_delete_resource_gate_denied', 3],
         ['DELETE with d on the resource gate only is denied and deletes nothing', 'delete', 'user/*.d access/client-p1.rs', 'expected_delete_access_gate_denied', 3],
+        ['DELETE with s but not d on a reverse-linked type is denied before anything is deleted', 'delete', 'user/Person.d user/Patient.d user/Observation.s access/client-p1.ds', 'expected_delete_reverse_type_without_d_denied', 3],
         ['DELETE with d-only grant deletes the root and forward-linked children but not reverse-linked children', 'delete', 'user/*.d access/client-p1.d', 'expected_delete_d_only', 1],
         ['DELETE with d and s grant deletes the whole graph', 'delete', 'user/*.ds access/client-p1.ds', 'expected_delete_ds', 0],
         ['DELETE with rds grant on both gates deletes the whole graph', 'delete', 'user/*.rds access/client-p1.rds', 'expected_delete_rds', 0]

@@ -36,6 +36,7 @@ describe('Remove v2 CRUDS scope granularity Tests', () => {
 
     const cases = [
         ['delete by id with d-only grant succeeds', '/4_0_0/Patient/1', 'user/*.d access/access.d access/owner.d', 204, undefined, 404],
+        ['delete by id with a non-search query parameter and d-only grant succeeds', '/4_0_0/Patient/1?_format=json&_pretty=true', 'user/*.d access/access.d access/owner.d', 204, undefined, 404],
         ['delete by id with rs grant is denied', '/4_0_0/Patient/1', 'user/*.rs access/access.rs access/owner.rs', 403, 'expected_denied_by_id', 200],
         ['delete by search with d-only grant is denied', '/4_0_0/Patient?gender=male', 'user/*.d access/access.d access/owner.d', 403, 'expected_denied_search', 200],
         ['delete by search with s missing on the access gate is denied', '/4_0_0/Patient?gender=male', 'user/*.ds access/access.d access/owner.d', 403, 'expected_denied_search_access_gate', 200],

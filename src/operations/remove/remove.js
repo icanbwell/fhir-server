@@ -10,7 +10,7 @@ const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManage
 const {ParsedArgs} = require('../query/parsedArgs');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {SearchManager} = require('../search/searchManager');
-const {OPERATIONS: {DELETE}} = require('../../constants');
+const {OPERATIONS: {DELETE}, NON_SEARCH_QUERY_PARAMS} = require('../../constants');
 const {logInfo, logWarn} = require('../common/logging');
 const { RemoveHelper } = require('./removeHelper');
 
@@ -142,7 +142,7 @@ class RemoveOperation {
         }
 
         const isSearchBasedDelete = parsedArgs.parsedArgItems.some(
-            a => !['base_version', 'id', '_id'].includes(a.queryParameter)
+            a => !NON_SEARCH_QUERY_PARAMS.includes(a.queryParameter)
         );
         const accessRequested = isSearchBasedDelete ? 'ds' : 'd';
 
