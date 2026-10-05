@@ -74,7 +74,30 @@ function unescapeSearchValue (value) {
     return result;
 }
 
+/**
+ * True when a token-shaped search value has no real code/value to match on -- either
+ * completely empty, or "system|" with nothing after the (unescaped) pipe. Per
+ * hl7.org/fhir/R4/search.html#token, "system|" alone is spec-legal as a *direct* token search
+ * (matches any value in that system) -- but as a chained-search criterion it would make the
+ * resolving sub-search match every resource of the target type in that system, which is the
+ * same "no restriction" collapse that review.md §D forbids on an outer chain filter, just
+ * reached through an unconstrained sub-search instead of a dropped parameter.
+ * @param {*} value
+ * @return {boolean}
+ */
+function hasNoRealTokenValue (value) {
+    if (!value) {
+        return true;
+    }
+    if (typeof value !== 'string') {
+        return false;
+    }
+    const parts = splitUnescaped(value, '|');
+    return parts.length > 1 && parts[parts.length - 1] === '';
+}
+
 module.exports = {
     splitUnescaped,
-    unescapeSearchValue
+    unescapeSearchValue,
+    hasNoRealTokenValue
 };

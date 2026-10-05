@@ -1,6 +1,7 @@
 const { QueryRewriter } = require('./queryRewriter');
 const { QueryParameterValue } = require('../../operations/query/queryParameterValue');
 const { BadRequestError } = require('../../utils/httpErrors');
+const { hasNoRealTokenValue } = require('../../utils/searchValueEscaping');
 
 // Never a real resource id; used so a zero-match chain filters out everything instead of nothing
 // (review.md §D). Same sentinel already used elsewhere in this codebase (e.g.
@@ -27,48 +28,56 @@ class ChainedSearchQueryRewriter extends QueryRewriter {
 
         await Promise.all(chainedItems.map(async (parsedArg, index) => {
             const { targetType, targetParam } = parsedArg.chain;
-            const targetValue = parsedArg.queryParameterValue.values.join(',');
-            const debugTags = debugRequested ? [] : undefined;
-
-            // Any modifier left on this item belongs to the chain's target parameter (e.g.
-            // `subject:Patient.name:exact=Smith` means an exact match on Patient.name) and must
-            // be forwarded into the sub-search so it's applied there -- except :not, which
-            // negates the *outer* reference filter after resolution (applied later by the
-            // normal filter pipeline on this same parsedArg), not the sub-search itself.
+            const values = parsedArg.queryParameterValue.values || [];
             const hadNotModifier = (parsedArg.modifiers || []).includes('not');
-            const targetModifiers = (parsedArg.modifiers || []).filter((m) => m !== 'not');
-            const targetKey = targetModifiers.length > 0
-                ? `${targetParam}:${targetModifiers.join(':')}`
-                : targetParam;
 
-            const resolvedUuids = await searchResourceAsync({
-                resourceType: targetType,
-                args: {
-                    [targetKey]: targetValue,
-                    ...(debugRequested ? { _debug: parsedArgs._debug, _explain: parsedArgs._explain } : {})
-                },
-                requestInfo,
-                ...(debugRequested ? { debugTags } : {})
-            });
+            let newValue;
+            if (values.length === 0 || values.some(hasNoRealTokenValue)) {
+                // No real code/value to match on -- never run an unconstrained sub-search.
+                newValue = UNMATCHABLE_ID;
+            } else {
+                const targetValue = values.join(',');
+                const debugTags = debugRequested ? [] : undefined;
 
-            if (debugTags && debugTags.length > 0) {
-                chainDisplays[index] = `${parsedArg.queryParameter}.${targetParam} -> ${targetType}?${targetKey}=${targetValue}: ` +
-                    debugTags.map((t) => t.display).join(' | ');
+                // Any modifier left on this item belongs to the chain's target parameter (e.g.
+                // `subject:Patient.name:exact=Smith` means an exact match on Patient.name) and
+                // must be forwarded into the sub-search so it's applied there -- except :not,
+                // which negates the *outer* reference filter after resolution (applied later by
+                // the normal filter pipeline on this same parsedArg), not the sub-search itself.
+                const targetModifiers = (parsedArg.modifiers || []).filter((m) => m !== 'not');
+                const targetKey = targetModifiers.length > 0
+                    ? `${targetParam}:${targetModifiers.join(':')}`
+                    : targetParam;
+
+                const resolvedUuids = await searchResourceAsync({
+                    resourceType: targetType,
+                    args: {
+                        [targetKey]: targetValue,
+                        ...(debugRequested ? { _debug: parsedArgs._debug, _explain: parsedArgs._explain } : {})
+                    },
+                    requestInfo,
+                    ...(debugRequested ? { debugTags } : {})
+                });
+
+                if (debugTags && debugTags.length > 0) {
+                    chainDisplays[index] = `${parsedArg.queryParameter}.${targetParam} -> ${targetType}?${targetKey}=${targetValue}: ` +
+                        debugTags.map((t) => t.display).join(' | ');
+                }
+
+                newValue = resolvedUuids && resolvedUuids.length > 0
+                    ? resolvedUuids.map((uuid) => `${targetType}/${uuid}`).join(',')
+                    : UNMATCHABLE_ID;
             }
-
-            const newValue = resolvedUuids && resolvedUuids.length > 0
-                ? resolvedUuids.map((uuid) => `${targetType}/${uuid}`).join(',')
-                : UNMATCHABLE_ID;
 
             parsedArg.queryParameterValue = new QueryParameterValue({
                 value: newValue,
                 operator: parsedArg.queryParameterValue.operator
             });
-            // Every modifier except :not was just consumed by the sub-search above; leaving
-            // any of them on this same parsedArg would make r4.js's outer filter dispatch
-            // (which checks modifiers generically for any param) misapply e.g.
-            // FilterByMissing/FilterByContains against the resolved reference field instead of
-            // a normal equality match.
+            // Every modifier except :not was just consumed by the sub-search above (or made
+            // moot by the unmatchable short-circuit); leaving any of them on this same parsedArg
+            // would make r4.js's outer filter dispatch (which checks modifiers generically for
+            // any param) misapply e.g. FilterByMissing/FilterByContains against the resolved
+            // reference field instead of a normal equality match.
             parsedArg.modifiers = hadNotModifier ? ['not'] : [];
         }));
 

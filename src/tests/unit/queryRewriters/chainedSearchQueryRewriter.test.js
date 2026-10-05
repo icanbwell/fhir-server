@@ -164,6 +164,40 @@ describe('ChainedSearchQueryRewriter', () => {
         expect(result.parsedArgItems[0].queryParameterValue.value).toBe('__invalid__');
     });
 
+    test('rewrites to an unmatchable reference without running the sub-search when the chain value has no actual code/value (system| with nothing after the pipe)', async () => {
+        // "system|" is spec-legal as a *direct* token search (hl7.org/fhir/R4/search.html#token:
+        // matches any identifier in that system, any value) -- but as a CHAIN criterion it would
+        // make the sub-search match every resource of the target type with that system, which is
+        // the same "no restriction" collapse review.md §D forbids, just reached via an
+        // unconstrained sub-search instead of a dropped parameter. Must resolve to zero matches
+        // without ever running the sub-search.
+        const parsedArgs = buildParsedArgs({
+            queryParameter: 'patient',
+            chain: { targetType: 'Patient', targetParam: 'identifier' },
+            value: 'http://example.com/mrn|'
+        });
+        const searchResourceAsync = jest.fn();
+
+        const result = await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
+
+        expect(searchResourceAsync).not.toHaveBeenCalled();
+        expect(result.parsedArgItems[0].queryParameterValue.value).toBe('__invalid__');
+    });
+
+    test('rewrites to an unmatchable reference without running the sub-search when the chain value is completely empty', async () => {
+        const parsedArgs = buildParsedArgs({
+            queryParameter: 'patient',
+            chain: { targetType: 'Patient', targetParam: 'identifier' },
+            value: ''
+        });
+        const searchResourceAsync = jest.fn();
+
+        const result = await rewriter.rewriteArgsAsync({ parsedArgs, searchResourceAsync });
+
+        expect(searchResourceAsync).not.toHaveBeenCalled();
+        expect(result.parsedArgItems[0].queryParameterValue.value).toBe('__invalid__');
+    });
+
     test('batches multiple comma-separated values on one chain into a single sub-search call', async () => {
         const parsedArgs = buildParsedArgs({
             queryParameter: 'patient',
