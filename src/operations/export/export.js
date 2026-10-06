@@ -7,6 +7,7 @@ const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { ScopesManager } = require('../security/scopesManager');
+const { ScopesValidator } = require('../security/scopesValidator');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { logInfo } = require('../common/logging');
 const { BulkExportEventProducer } = require('../../utils/bulkExportEventProducer');
@@ -15,6 +16,7 @@ class ExportOperation {
     /**
      * @typedef {Object} ConstructorParams
      * @property {ScopesManager} scopesManager
+     * @property {ScopesValidator} scopesValidator
      * @property {FhirLoggingManager} fhirLoggingManager
      * @property {PreSaveManager} preSaveManager
      * @property {ResourceValidator} resourceValidator
@@ -28,6 +30,7 @@ class ExportOperation {
      */
     constructor({
         scopesManager,
+        scopesValidator,
         fhirLoggingManager,
         preSaveManager,
         resourceValidator,
@@ -42,6 +45,12 @@ class ExportOperation {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
 
         /**
          * @type {FhirLoggingManager}
@@ -121,6 +130,16 @@ class ExportOperation {
 
         if (this.scopesManager.hasPatientScope({ scope })) {
             throw new ForbiddenError(`Bulk export cannot be triggered with patient scopes`);
+        }
+
+        // Check is added on Task resource as custom ExportStatus resource will be moved to Task in future
+        const { success: canCreateTask } = this.scopesValidator.evaluateResourceTypeScopeMatch({
+            scopes: this.scopesManager.getResourceTypeScopes({ scope }),
+            resourceType: 'Task',
+            accessRequested: 'c'
+        });
+        if (!canCreateTask) {
+            throw new ForbiddenError(`user ${requestInfo.user} does not have access to [Task]`);
         }
 
         try {

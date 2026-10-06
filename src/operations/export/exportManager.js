@@ -117,7 +117,7 @@ class ExportManager {
         const accessCodesFromScopes = this.securityTagManager.getSecurityTagsFromScope({
             user,
             scope,
-            accessRequested: 'read'
+            accessRequested: 's'
         });
 
         accessCodesFromScopes.forEach((code) => {

@@ -453,24 +453,13 @@ class BulkDataExportRunner {
      */
     async getRequestedResourceAsync({ scope, searchParams, allowedResources }) {
         if (scope) {
-            let allowedResourcesByScopes = [];
-
-            // check allowed resource by scope. Uses getResourceTypeScopes() rather than a raw
-            // scope1.startsWith('user') so a system/*.read caller (SMART on FHIR v2) is honored
-            // the same way a user/*.read caller is, instead of silently narrowing to an empty
-            // resource list (see docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §4.2).
-            for (const scope1 of this.scopesManager.getResourceTypeScopes({ scope })) {
-                // ex: user/Patient.* or system/Patient.*
-                const [, inner_scope] = scope1.split('/');
-                const [resource, accessType] = inner_scope.split('.');
-                if (accessType === '*' || accessType === 'read') {
-                    if (resource === '*') {
-                        allowedResourcesByScopes = null;
-                        break;
-                    }
-                    allowedResourcesByScopes.push(resource);
-                }
-            }
+            const resourceTypesBySearchScope = this.scopesManager.getResourceTypesWithAccess({
+                scope,
+                accessRequested: 's'
+            });
+            const allowedResourcesByScopes = resourceTypesBySearchScope.includes('*')
+                ? null
+                : resourceTypesBySearchScope;
 
             if (allowedResourcesByScopes) {
                 allowedResources = allowedResources.filter((resource) =>
@@ -705,12 +694,12 @@ class BulkDataExportRunner {
     getExportSecurityContext() {
         const user = this.exportStatusResource.user;
         const scope = this.exportStatusResource.scope;
-        const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', user, scope);
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes('s', user, scope);
         const hasFullAccess = accessCodes.includes('*');
         // getSecurityTagsFromScope returns [] for full-access (`*`) scopes and the
         // concrete access codes otherwise. Owner tags are not encoded in scopes.
         const accessTags = this.searchManager.securityTagManager.getSecurityTagsFromScope({
-            user, scope, accessRequested: 'read'
+            user, scope, accessRequested: 's'
         });
         return { accessTags, ownerTags: [], hasFullAccess };
     }

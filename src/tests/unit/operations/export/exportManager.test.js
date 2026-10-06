@@ -208,7 +208,7 @@ describe('ExportManager', () => {
             expect(mocks.securityTagManager.getSecurityTagsFromScope).toHaveBeenCalledWith({
                 user: 'admin',
                 scope: 'system/*.read',
-                accessRequested: 'read'
+                accessRequested: 's'
             });
         });
 
