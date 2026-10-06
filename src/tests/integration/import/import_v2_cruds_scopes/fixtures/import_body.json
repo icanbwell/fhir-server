@@ -1,0 +1,10 @@
+{
+    "resourceType": "Parameters",
+    "id": "import-job-001",
+    "parameter": [
+        {
+            "name": "input",
+            "valueUri": "s3://allowed-bucket/run-001/Patient.ndjson"
+        }
+    ]
+}

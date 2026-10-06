@@ -1371,6 +1371,7 @@ const createContainer = function () {
 
     container.register('importOperation', (c) => new ImportOperation({
         scopesManager: c.scopesManager,
+        scopesValidator: c.scopesValidator,
         fhirLoggingManager: c.fhirLoggingManager,
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,
