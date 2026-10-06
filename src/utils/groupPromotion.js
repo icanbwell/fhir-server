@@ -27,9 +27,11 @@ const { hasExternalStorageMemberTag } = require('./clickHouseGroupPreSave');
  *   the per-request `useexternalstorage` header (see below); safe to omit for callers that can
  *   never reach a ClickHouse-tracked Group (none currently do, but this keeps the parameter
  *   optional rather than forcing every caller to thread it through).
+ * @param {Resource} [params.currentResource] - the stored Group, for an unmerged PUT/$merge body.
+ *   The storage markers below are carried onto doc only by the merge, so they are read from both.
  * @returns {boolean}
  */
-function isGroupOverLimit ({ doc, configManager, limit, requestInfo }) {
+function isGroupOverLimit ({ doc, configManager, limit, requestInfo, currentResource }) {
     // isGroupOverLimit is called for every resource write, not just Group ones (unlike
     // GroupMemberPatchStrategy.determineGroupMemberType, whose caller already filters to Group
     // before it's ever invoked) -- so resourceType is checked first, to bail out before touching
@@ -37,7 +39,7 @@ function isGroupOverLimit ({ doc, configManager, limit, requestInfo }) {
     if (doc.resourceType !== 'Group' || !configManager.enableExtendedGroup) {
         return false;
     }
-    if (doc[MONGO_GROUP_EXTENDED_FIELD] === true) {
+    if (doc[MONGO_GROUP_EXTENDED_FIELD] === true || currentResource?.[MONGO_GROUP_EXTENDED_FIELD] === true) {
         return false;
     }
     // Mutually exclusive with ClickHouse tracking by design (see configManager's
@@ -59,7 +61,11 @@ function isGroupOverLimit ({ doc, configManager, limit, requestInfo }) {
     if (
         configManager.enableClickHouse &&
         configManager.mongoWithClickHouseResources.includes('Group') &&
-        (isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER]) || hasExternalStorageMemberTag(doc))
+        (
+            isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER]) ||
+            hasExternalStorageMemberTag(doc) ||
+            (currentResource && hasExternalStorageMemberTag(currentResource))
+        )
     ) {
         return false;
     }
@@ -84,8 +90,8 @@ function isGroupOverLimit ({ doc, configManager, limit, requestInfo }) {
  *   the resolvedMemberWrites this call wrote. They are not rolled back if the caller's own write
  *   of doc then fails -- the Group's own version is never bumped on that failure, so the Group is
  *   left exactly as if promotion had crashed mid-flight: still over-limit, not yet marked
- *   extended. The next PATCH that crosses the limit re-enters promotion, which wipes these rows
- *   first.
+ *   extended. The next PATCH that crosses the limit re-enters promotion, which deletes rows
+ *   stamped with any other version and reuses the ones stamped with this version.
  * @throws if the roster write fails; doc is left unmodified, so the caller must not write it.
  */
 async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberRepository }) {
@@ -122,18 +128,23 @@ async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberR
 
         // A Group reaching this point has never successfully extended (isGroupOverLimit already
         // confirmed MONGO_GROUP_EXTENDED_FIELD isn't set), so there is no legitimate row for it
-        // in GroupMember_4_0_0 yet -- anything found can only be leftover from an earlier
-        // promotion attempt that wrote the roster but never reached its own commit (a crash, or
-        // losing doc's own optimistic-concurrency race to an unrelated write). Unlike the
-        // already-extended steady-state case, there's no existing content here worth preserving
-        // or merging against, so wipe it unconditionally rather than trying to tell stale rows
-        // apart from fresh ones by version. See MongoGroupMemberRepository.removeMembersAsync's
-        // own docstring for why that's also true for the already-extended case, just handled
-        // differently (see cleanupExtendedGroupOrphansIfNeeded below).
-        await mongoGroupMemberRepository.removeMembersAsync({ requestInfo, base_version, groupUuid });
+        // in GroupMember_4_0_0 yet -- anything found is leftover from an earlier promotion
+        // attempt that wrote its roster but never committed the Group (or from an earlier life of
+        // a deleted and recreated Group). doc.meta.versionId is already the version this
+        // promotion claims (v+1), so rows stamped with any other version are deleted. Rows
+        // stamped v+1 are kept: they belong to this attempt or to a concurrent promotion of the
+        // same Group, which writes the same version, so two promotions never delete each other's
+        // roster.
+        await mongoGroupMemberRepository.removeMembersNotAtVersionAsync({
+            requestInfo,
+            base_version,
+            groupUuid,
+            versionId: parseInt(doc.meta.versionId, 10)
+        });
 
-        // Every member below is therefore a fresh create -- resolveMemberWritesAsync's own DB
-        // read (against the now-empty roster) will find nothing to resolve against.
+        // resolveMemberWritesAsync reads the rows that remain: a member already stamped v+1
+        // (an earlier attempt for this same version, or a concurrent promotion) resolves to
+        // 'none'/'update', every other member to 'create'.
         const resolvedMemberWrites = await mongoGroupMemberRepository.resolveMemberWritesAsync({
             base_version,
             groupUuid,
@@ -200,50 +211,29 @@ async function promoteExistingGroupIfNeeded ({ doc, requestInfo, base_version, c
 }
 
 /**
- * Deletes any GroupMember_4_0_0 row left behind by a failed write to an already-extended Group,
- * before this write's own commit proceeds. Needed because, once a Group is extended, nothing
- * else re-examines the roster on every write the way isGroupOverLimit's "still over the limit"
- * check does for a not-yet-extended Group (see promoteGroup's own wipe-before-promote for that
- * case) -- so without this, a plain metadata-only write could advance the Group's version right
- * past a dangling row and make it indistinguishable from a real member.
- *
- * @param {Object} params
- * @param {Resource} params.doc - the resource about to be written, with meta.versionId already
- *   bumped in-memory to the version this write is about to claim.
- * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
- * @param {string} params.base_version
- * @param {import('./configManager').ConfigManager} params.configManager
- * @param {import('../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} params.mongoGroupMemberRepository
- * @returns {Promise<void>}
- */
-async function cleanupExtendedGroupOrphansIfNeeded ({ doc, requestInfo, base_version, configManager, mongoGroupMemberRepository }) {
-    if (doc.resourceType !== 'Group' || !configManager.enableExtendedGroup || doc[MONGO_GROUP_EXTENDED_FIELD] !== true) {
-        return;
-    }
-    await mongoGroupMemberRepository.removeMembersAsync({
-        requestInfo,
-        base_version,
-        groupUuid: doc._uuid,
-        versionId: parseInt(doc.meta.versionId, 10)
-    });
-}
-
-/**
  * too-costly error for a POST, PUT or $merge whose Group member[] exceeds
  * configManager.groupMemberPromotionLimit, or undefined when the write is allowed. Only PATCH
  * promotes a Group past that limit to extended member storage, so these writes never touch
  * GroupMember_4_0_0. For $merge, doc is the merged result, so the count includes the members the
- * Group already has. A no-op when ENABLE_EXTENDED_GROUP is off (see isGroupOverLimit).
+ * Group already has. A no-op when ENABLE_EXTENDED_GROUP is off (see isGroupOverLimit). Called by
+ * ResourceValidator.validateResourceAsync, so every write that validates its body gets it. PATCH is
+ * exempt (requestInfo.method) because it promotes the Group instead.
  *
  * @param {Object} params
  * @param {Resource} params.doc
  * @param {import('./configManager').ConfigManager} params.configManager
  * @param {import('./fhirRequestInfo').FhirRequestInfo} [params.requestInfo] - see
  *   isGroupOverLimit's own docstring for why this matters.
+ * @param {Resource} [params.currentResource] - see isGroupOverLimit.
  * @returns {BadRequestError|undefined}
  */
-function getGroupMemberLimitError ({ doc, configManager, requestInfo }) {
-    if (!isGroupOverLimit({ doc, configManager, limit: configManager.groupMemberPromotionLimit, requestInfo })) {
+function getGroupMemberLimitError ({ doc, configManager, requestInfo, currentResource }) {
+    if (requestInfo?.method === 'PATCH') {
+        return undefined;
+    }
+    if (!isGroupOverLimit({
+        doc, configManager, limit: configManager.groupMemberPromotionLimit, requestInfo, currentResource
+    })) {
         return undefined;
     }
     const { message, options } = createTooCostlyError({
@@ -254,27 +244,8 @@ function getGroupMemberLimitError ({ doc, configManager, requestInfo }) {
     return new BadRequestError({ message }, options);
 }
 
-/**
- * Throwing form of getGroupMemberLimitError, for POST and PUT.
- *
- * @param {Object} params
- * @param {Resource} params.doc
- * @param {import('./configManager').ConfigManager} params.configManager
- * @param {import('./fhirRequestInfo').FhirRequestInfo} [params.requestInfo]
- * @returns {void}
- * @throws {BadRequestError} when doc.member[] exceeds configManager.groupMemberPromotionLimit
- */
-function rejectGroupOverMemberLimit ({ doc, configManager, requestInfo }) {
-    const error = getGroupMemberLimitError({ doc, configManager, requestInfo });
-    if (error) {
-        throw error;
-    }
-}
-
 module.exports = {
     isGroupOverLimit,
     promoteExistingGroupIfNeeded,
-    getGroupMemberLimitError,
-    rejectGroupOverMemberLimit,
-    cleanupExtendedGroupOrphansIfNeeded
+    getGroupMemberLimitError
 };

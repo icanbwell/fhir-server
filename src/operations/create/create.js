@@ -21,7 +21,6 @@ const { buildContextDataForHybridStorage } = require('../../utils/contextDataBui
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
-const { rejectGroupOverMemberLimit } = require('../../utils/groupPromotion');
 
 class CreateOperation {
     /**
@@ -248,8 +247,6 @@ class CreateOperation {
             // the _id parameter in the original document
             // noinspection JSValidateTypes
             logDebug('Inserting', { user, args: { doc } });
-
-            rejectGroupOverMemberLimit({ doc, configManager: this.configManager, requestInfo });
 
             // Insert our resource record
             const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);

@@ -568,8 +568,7 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                postRequestProcessor: c.postRequestProcessor,
-                mongoGroupMemberRepository: c.mongoGroupMemberRepository
+                postRequestProcessor: c.postRequestProcessor
             }
         )
     );
@@ -874,8 +873,7 @@ const createContainer = function () {
                 searchManager: c.searchManager,
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-                groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
-                mongoGroupMemberRepository: c.mongoGroupMemberRepository
+                groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
             }
         )
     );

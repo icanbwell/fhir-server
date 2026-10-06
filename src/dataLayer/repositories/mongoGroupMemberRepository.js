@@ -248,42 +248,31 @@ class MongoGroupMemberRepository {
     }
 
     /**
-     * Deletes every GroupMember_4_0_0 row for groupUuid, optionally scoped to an exact
-     * meta.versionId. Exact match only, never a $gte/$lt range -- meta.versionId is stored as a
-     * FHIR `id` string (see every other query against it in this codebase, e.g.
-     * databaseBulkInserter.js's optimistic-concurrency checks), and a range comparison against a
-     * string field sorts lexicographically, not numerically ("10" sorts before "9"), silently
-     * matching or missing the wrong rows.
+     * Deletes every GroupMember_4_0_0 row of groupUuid that was not written for the given Group
+     * version.
      *
-     * Two callers, two different reasons an exact match (or no filter at all) is enough:
-     *  - groupPromotion.js's promoteGroup calls this with no versionId, right before writing a
-     *    fresh snapshot: a Group that has never successfully extended has no legitimate rows
-     *    here at all, so whatever's found can only be leftover from an incomplete earlier
-     *    attempt -- no comparison needed, just delete all of it.
-     *  - groupPromotion.js's cleanupExtendedGroupOrphansIfNeeded calls this on every write to an
-     *    already-extended Group, with versionId set to exactly the version that write is about
-     *    to claim: only a row from an attempt that tried (and failed) to reach that exact
-     *    version could ever be stamped with it, since the Group's own optimistic-concurrency
-     *    check guarantees no two attempts ever both successfully commit the same version
-     *    number -- and because this runs on every single write, a dangling row is always caught
-     *    on the very next one, before a later write could move the floor past it.
+     * Its one caller is groupPromotion.js's promoteGroup, which passes the version the promotion
+     * claims (v+1). A Group that has never extended has no legitimate rows, so any row stamped
+     * with another version is left over from an earlier promotion attempt (or from an earlier life
+     * of a deleted and recreated Group, whose versions restarted). Rows stamped v+1 are kept: they
+     * belong to this promotion or to a concurrent one writing the same version, so two promotions
+     * never delete each other's roster.
      *
      * @param {Object} params
      * @param {FhirRequestInfo} params.requestInfo
      * @param {string} params.base_version
      * @param {string} params.groupUuid
-     * @param {number} [params.versionId] - omit to delete every row for groupUuid.
+     * @param {number} params.versionId - rows stamped with any other version are deleted.
      * @returns {Promise<number>} how many rows were removed
      */
-    async removeMembersAsync({ requestInfo, base_version, groupUuid, versionId }) {
+    async removeMembersNotAtVersionAsync({ requestInfo, base_version, groupUuid, versionId }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: GROUP_MEMBER_RESOURCE_TYPE,
             base_version
         });
-        const query = versionId === undefined
-            ? { groupUuid }
-            : { groupUuid, 'meta.versionId': `${versionId}` };
-        const cursor = await databaseQueryManager.findAsync({ query });
+        const cursor = await databaseQueryManager.findAsync({
+            query: { groupUuid, 'meta.versionId': { $ne: `${versionId}` } }
+        });
         // Raw documents, not toObjectArrayAsync(): deleteManyAsync only needs the plain field values.
         const existingMembers = await cursor.toArrayAsync();
         if (existingMembers.length === 0) {

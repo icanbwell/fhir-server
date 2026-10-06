@@ -392,24 +392,24 @@ describe('Group promotion to extended member storage', () => {
                 Collection.prototype.bulkWrite.mockRestore();
             }
 
-            // Retrying re-enters promotion; promoteGroup wipes the 4 rows the abandoned attempt
-            // wrote (this Group was never successfully extended, so none were legitimate) and
-            // writes 4 fresh ones, and this time the Group's own commit succeeds.
+            // Retrying re-enters promotion. The 4 rows the abandoned attempt wrote are stamped with
+            // the same target version, so they are kept and reused (nothing to rewrite), and this
+            // time the Group's own commit succeeds.
             const retryResp = await patchGroup(groupId, newMemberOps);
             expect(retryResp.status).toBe(200);
             await expectPromoted(groupId, 4);
         });
 
-        test('a retry with a different member set does not resurrect the abandoned attempt\'s rows', async () => {
-            const created = await createGroup({ member: buildMembers(2, 'wipe-retry-base') });
+        test('a retry for the same target version keeps the abandoned attempt\'s rows (partial writes are accepted)', async () => {
+            const created = await createGroup({ member: buildMembers(2, 'same-target-base') });
             expect(created.status).toBe(201);
             const groupId = created.body.id;
 
             const state = failNextGroupWrite();
             try {
                 const patchResp = await patchGroup(groupId, addMemberOps([
-                    'Patient/wipe-retry-first-attempt-0',
-                    'Patient/wipe-retry-first-attempt-1'
+                    'Patient/same-target-first-0',
+                    'Patient/same-target-first-1'
                 ]));
                 expect(patchResp.status).toBeGreaterThanOrEqual(500);
                 expect(state.thrown).toBe(true);
@@ -418,23 +418,105 @@ describe('Group promotion to extended member storage', () => {
                 Collection.prototype.bulkWrite.mockRestore();
             }
 
-            // Both attempts target the same next version number (the Group never advanced past
-            // its pre-crash version), so without promoteGroup's wipe the abandoned attempt's rows
-            // would still be sitting at that number and look like real members.
+            // Both attempts target the same next version number, so promotion only deletes rows
+            // stamped below it: the abandoned attempt's rows stay and join the roster.
             const retryResp = await patchGroup(groupId, addMemberOps([
-                'Patient/wipe-retry-second-attempt-0',
-                'Patient/wipe-retry-second-attempt-1'
+                'Patient/same-target-second-0',
+                'Patient/same-target-second-1'
+            ]));
+            expect(retryResp.status).toBe(200);
+
+            await expectPromoted(groupId, 6);
+            const groupDoc = await getGroupDoc(groupId);
+            const references = (await getMemberRows(groupDoc._uuid)).map((r) => r.member.entity.reference).sort();
+            expect(references).toEqual([
+                'Patient/same-target-base-0',
+                'Patient/same-target-base-1',
+                'Patient/same-target-first-0',
+                'Patient/same-target-first-1',
+                'Patient/same-target-second-0',
+                'Patient/same-target-second-1'
+            ]);
+        });
+
+        test('promotion deletes rows stamped with an earlier version', async () => {
+            const created = await createGroup({ member: buildMembers(2, 'below-version-base') });
+            expect(created.status).toBe(201);
+            const groupId = created.body.id;
+            const groupCollection = await getCollection(GROUP_COLLECTION_NAME);
+            await groupCollection.updateOne({ id: groupId }, { $set: { 'meta.versionId': '8' } });
+
+            // A failed promotion targeting version 9 leaves its roster stamped '9'.
+            const state = failNextGroupWrite();
+            try {
+                const patchResp = await patchGroup(groupId, addMemberOps([
+                    'Patient/below-version-abandoned-0',
+                    'Patient/below-version-abandoned-1'
+                ]));
+                expect(patchResp.status).toBeGreaterThanOrEqual(500);
+                expect(state.thrown).toBe(true);
+            } finally {
+                Collection.prototype.bulkWrite.mockRestore();
+            }
+            const groupUuid = (await getGroupDoc(groupId))._uuid;
+            const abandonedRows = await getMemberRows(groupUuid);
+            expect(abandonedRows).toHaveLength(4);
+            expect(abandonedRows.every((r) => r.meta.versionId === '9')).toBe(true);
+
+            // The Group then moves on to version 9 (some other write); the next promotion targets 10.
+            await groupCollection.updateOne({ id: groupId }, { $set: { 'meta.versionId': '9' } });
+            const retryResp = await patchGroup(groupId, addMemberOps([
+                'Patient/below-version-second-0',
+                'Patient/below-version-second-1'
             ]));
             expect(retryResp.status).toBe(200);
 
             await expectPromoted(groupId, 4);
-            const groupDoc = await getGroupDoc(groupId);
-            const references = (await getMemberRows(groupDoc._uuid)).map((r) => r.member.entity.reference).sort();
-            expect(references).toEqual([
-                'Patient/wipe-retry-base-0',
-                'Patient/wipe-retry-base-1',
-                'Patient/wipe-retry-second-attempt-0',
-                'Patient/wipe-retry-second-attempt-1'
+            const rows = await getMemberRows(groupUuid);
+            expect(rows.every((r) => r.meta.versionId === '10')).toBe(true);
+            expect(rows.map((r) => r.member.entity.reference).sort()).toEqual([
+                'Patient/below-version-base-0',
+                'Patient/below-version-base-1',
+                'Patient/below-version-second-0',
+                'Patient/below-version-second-1'
+            ]);
+        });
+    });
+
+    describe('rows from an earlier life of the Group', () => {
+        test('promotion deletes rows stamped with a later version than it claims (the Group\'s versions restarted)', async () => {
+            const created = await createGroup({ member: buildMembers(2, 'restarted-base') });
+            expect(created.status).toBe(201);
+            const groupId = created.body.id;
+            const groupCollection = await getCollection(GROUP_COLLECTION_NAME);
+            await groupCollection.updateOne({ id: groupId }, { $set: { 'meta.versionId': '8' } });
+
+            // A failed promotion leaves its roster stamped '9'.
+            const state = failNextGroupWrite();
+            try {
+                const patchResp = await patchGroup(groupId, addMemberOps(['Patient/restarted-old-0', 'Patient/restarted-old-1']));
+                expect(patchResp.status).toBeGreaterThanOrEqual(500);
+                expect(state.thrown).toBe(true);
+            } finally {
+                Collection.prototype.bulkWrite.mockRestore();
+            }
+            const groupUuid = (await getGroupDoc(groupId))._uuid;
+            expect((await getMemberRows(groupUuid)).every((r) => r.meta.versionId === '9')).toBe(true);
+
+            // The Group is deleted and recreated, so its versions start over: the next promotion
+            // claims version 2, below the leftover rows' stamp.
+            await groupCollection.updateOne({ id: groupId }, { $set: { 'meta.versionId': '1' } });
+            const retryResp = await patchGroup(groupId, addMemberOps(['Patient/restarted-new-0', 'Patient/restarted-new-1']));
+            expect(retryResp.status).toBe(200);
+
+            await expectPromoted(groupId, 4);
+            const rows = await getMemberRows(groupUuid);
+            expect(rows.every((r) => r.meta.versionId === '2')).toBe(true);
+            expect(rows.map((r) => r.member.entity.reference).sort()).toEqual([
+                'Patient/restarted-base-0',
+                'Patient/restarted-base-1',
+                'Patient/restarted-new-0',
+                'Patient/restarted-new-1'
             ]);
         });
     });
@@ -493,38 +575,30 @@ describe('Group promotion to extended member storage', () => {
         });
     });
 
-    describe('already-extended: a failed member PATCH leaves a forward-dangling orphan, cleaned up by the next write', () => {
-        test('a later metadata-only PATCH removes the dangling row from the failed member add before committing its own change', async () => {
-            const groupId = await createPromotedGroup('orphan-cleanup');
+    describe('already-extended: rows from a failed member PATCH are not cleaned up by later writes', () => {
+        test('a later metadata-only PATCH leaves the failed member add\'s row in place', async () => {
+            const groupId = await createPromotedGroup('partial-write');
             const groupDocAfterPromotion = await getGroupDoc(groupId);
             const groupUuid = groupDocAfterPromotion._uuid;
             const versionAfterPromotion = parseInt(groupDocAfterPromotion.meta.versionId, 10);
 
-            // Fail only the Group's own commit. commitPendingMemberWrites (the roster's own write)
-            // runs BEFORE it, so this leaves a forward-dangling orphan.
+            // Fail only the Group's own commit. The member rows are written before it, so the
+            // failed request leaves a row stamped one version ahead of the Group.
             const state = failNextGroupWrite();
             try {
-                const failedPatchResp = await patchGroup(groupId, addMemberOps(['Patient/orphan-cleanup-dangling']));
+                const failedPatchResp = await patchGroup(groupId, addMemberOps(['Patient/partial-write-dangling']));
                 expect(failedPatchResp.status).toBeGreaterThanOrEqual(500);
                 expect(state.thrown).toBe(true);
             } finally {
                 Collection.prototype.bulkWrite.mockRestore();
             }
 
-            // The Group's own commit never landed -- still at its pre-patch version -- but the
-            // roster write that ran before it did, leaving a row stamped one version ahead.
             const groupDocAfterFailedPatch = await getGroupDoc(groupId);
             expect(parseInt(groupDocAfterFailedPatch.meta.versionId, 10)).toBe(versionAfterPromotion);
-            const rowsAfterFailedPatch = await getMemberRows(groupUuid);
-            expect(rowsAfterFailedPatch).toHaveLength(5);
-            const danglingRow = rowsAfterFailedPatch.find(
-                (r) => r.member.entity.reference === 'Patient/orphan-cleanup-dangling'
-            );
-            expect(danglingRow).toBeDefined();
-            expect(parseInt(danglingRow.meta.versionId, 10)).toBe(versionAfterPromotion + 1);
+            expect(await getMemberRows(groupUuid)).toHaveLength(5);
 
-            // A metadata-only PATCH -- no member ops at all -- still removes the dangling row
-            // before committing its own change, via cleanupExtendedGroupOrphansIfNeeded.
+            // Partial member writes are accepted: nothing but a promotion deletes rows, so a
+            // metadata-only PATCH commits its own change and leaves the row alone.
             const metadataPatchResp = await patchGroup(groupId, [
                 { op: 'add', path: '/active', value: true }
             ]);
@@ -533,11 +607,10 @@ describe('Group promotion to extended member storage', () => {
             const groupDocAfterMetadataPatch = await getGroupDoc(groupId);
             expect(parseInt(groupDocAfterMetadataPatch.meta.versionId, 10)).toBe(versionAfterPromotion + 1);
             expect(groupDocAfterMetadataPatch[MONGO_GROUP_EXTENDED_FIELD]).toBe(true);
-            expect(groupDocAfterMetadataPatch.member).toBeUndefined();
 
-            const rowsAfterCleanup = await getMemberRows(groupUuid);
-            expect(rowsAfterCleanup).toHaveLength(4);
-            expect(rowsAfterCleanup.some((r) => r.member.entity.reference === 'Patient/orphan-cleanup-dangling')).toBe(false);
+            const rowsAfterMetadataPatch = await getMemberRows(groupUuid);
+            expect(rowsAfterMetadataPatch).toHaveLength(5);
+            expect(rowsAfterMetadataPatch.some((r) => r.member.entity.reference === 'Patient/partial-write-dangling')).toBe(true);
         });
     });
 

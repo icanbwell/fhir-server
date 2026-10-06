@@ -34,7 +34,7 @@ const { buildContextDataForHybridStorage } = require('../../utils/contextDataBui
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { validatePatchDoesNotTargetInternalFields } = require('./validators/patchInternalFieldsValidator');
-const { promoteExistingGroupIfNeeded, cleanupExtendedGroupOrphansIfNeeded } = require('../../utils/groupPromotion');
+const { promoteExistingGroupIfNeeded } = require('../../utils/groupPromotion');
 const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
 
 class PatchOperation {
@@ -539,23 +539,6 @@ class PatchOperation {
                 resource = await this.databaseAttachmentManager.transformAttachments(resource);
                 // TODO: remove alwaysCreateNew when this operation is updated to be version aware
                 resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.INSERT, requestInfo, { alwaysCreateNew: true });
-
-                // A no-op unless resource is already extended, per its own guard -- reading that
-                // flag here, before promoteExistingGroupIfNeeded below has a chance to run, is
-                // what makes this safe: a not-yet-extended Group's flag is still false/undefined
-                // at this point, so this can't mistake the fresh rows promoteGroup is about to
-                // write for a forward-dangling orphan and delete them (running this the other way
-                // round did exactly that -- see cleanupExtendedGroupOrphansIfNeeded's own
-                // docstring). This patch may be metadata-only (no member ops in the request at
-                // all), so this must still run unconditionally, not only alongside
-                // groupMemberPatchStrategy's member handling.
-                await cleanupExtendedGroupOrphansIfNeeded({
-                    doc: resource,
-                    requestInfo,
-                    base_version,
-                    configManager: this.configManager,
-                    mongoGroupMemberRepository: this.mongoGroupMemberRepository
-                });
 
                 // An embedded Group whose member[] crosses groupMemberPromotionLimit via a standard
                 // JSON-Patch add on /member is promoted here, before it's staged for its own

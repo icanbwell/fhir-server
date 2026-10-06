@@ -52,7 +52,6 @@ const { SearchManager } = require('../../../../operations/search/searchManager')
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
-const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -81,8 +80,7 @@ describe('UpdateOperation', () => {
                 require('../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory
             ),
             identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
-            groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
-            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
+            groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider)
         };
 
         // Setup mocks

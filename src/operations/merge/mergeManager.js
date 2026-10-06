@@ -34,8 +34,6 @@ const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeable
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { COLLECTION } = require('../../constants');
 const { getExtendedGroupMemberWriteError } = require('../../utils/mongoGroupExtendedTag');
-const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
-const { getGroupMemberLimitError, cleanupExtendedGroupOrphansIfNeeded } = require('../../utils/groupPromotion');
 
 class MergeManager {
     /**
@@ -53,7 +51,6 @@ class MergeManager {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {PostRequestProcessor} postRequestProcessor
-     * @param {MongoGroupMemberRepository} mongoGroupMemberRepository
      */
     constructor (
         {
@@ -69,8 +66,7 @@ class MergeManager {
             configManager,
             databaseAttachmentManager,
             base64DataManager,
-            postRequestProcessor,
-            mongoGroupMemberRepository
+            postRequestProcessor
         }
     ) {
         /**
@@ -145,12 +141,6 @@ class MergeManager {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
-
-        /**
-         * @type {MongoGroupMemberRepository}
-         */
-        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
-        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
     }
 
     /**
@@ -214,17 +204,6 @@ class MergeManager {
             base64DataManager: this.base64DataManager
         });
         if (patched_resource_incoming) {
-            // Checked on the merged result: with smartMerge the incoming member[] is added to
-            // the Group's existing members, so the incoming array alone can be under the limit.
-            const groupMemberLimitError = getGroupMemberLimitError({
-                doc: patched_resource_incoming,
-                configManager: this.configManager,
-                requestInfo
-            });
-            if (groupMemberLimitError) {
-                return new OperationOutcome({ resourceType: 'OperationOutcome', issue: groupMemberLimitError.issue });
-            }
-
             /**
              * @type {OperationOutcome|null}
              */
@@ -288,15 +267,6 @@ class MergeManager {
         if (resourceToMerge.meta) {
             resourceToMerge.meta.versionId = '1';
             resourceToMerge.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-        }
-
-        const groupMemberLimitError = getGroupMemberLimitError({
-            doc: resourceToMerge,
-            configManager: this.configManager,
-            requestInfo
-        });
-        if (groupMemberLimitError) {
-            return new OperationOutcome({ resourceType: 'OperationOutcome', issue: groupMemberLimitError.issue });
         }
 
         const resourceToValidate = deepcopy(resourceToMerge);
@@ -716,17 +686,6 @@ class MergeManager {
                     return true;
                 });
             }
-
-            // A no-op unless resourceToMerge is already extended, per its own guard. This $merge
-            // may be metadata-only (no member[] submitted, per getExtendedGroupMemberWriteError in
-            // mergeExistingAsync), so this must still run regardless of hasMemberField.
-            await cleanupExtendedGroupOrphansIfNeeded({
-                doc: resourceToMerge,
-                requestInfo,
-                base_version,
-                configManager: this.configManager,
-                mongoGroupMemberRepository: this.mongoGroupMemberRepository
-            });
 
             await this.databaseBulkInserter.mergeOneAsync(
                 {

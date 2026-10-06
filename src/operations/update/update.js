@@ -28,8 +28,6 @@ const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identif
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
-const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
-const { rejectGroupOverMemberLimit, cleanupExtendedGroupOrphansIfNeeded } = require('../../utils/groupPromotion');
 const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
 
 /**
@@ -53,7 +51,6 @@ class UpdateOperation {
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
-     * @param {MongoGroupMemberRepository} mongoGroupMemberRepository
      */
     constructor (
         {
@@ -71,8 +68,7 @@ class UpdateOperation {
             searchManager,
             postSaveHandlerFactory,
             identifierEnrichmentProvider,
-            groupExtendedTagEnrichmentProvider,
-            mongoGroupMemberRepository
+            groupExtendedTagEnrichmentProvider
         }
     ) {
         /**
@@ -158,12 +154,6 @@ class UpdateOperation {
          */
         this.groupExtendedTagEnrichmentProvider = groupExtendedTagEnrichmentProvider;
         assertTypeEquals(groupExtendedTagEnrichmentProvider, GroupExtendedTagEnrichmentProvider);
-
-        /**
-         * @type {MongoGroupMemberRepository}
-         */
-        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
-        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
     }
 
     /**
@@ -457,20 +447,6 @@ class UpdateOperation {
                         requestInfo, currentResource: foundResource, updatedResource: doc
                     });
 
-                    rejectGroupOverMemberLimit({ doc, configManager: this.configManager, requestInfo });
-
-                    // A no-op unless doc is already extended, per its own guard. This PUT may be
-                    // metadata-only (no member[] submitted, per rejectMemberOnExtendedGroupWrite
-                    // above), so this must still run unconditionally rather than only when
-                    // member[] changed.
-                    await cleanupExtendedGroupOrphansIfNeeded({
-                        doc,
-                        requestInfo,
-                        base_version,
-                        configManager: this.configManager,
-                        mongoGroupMemberRepository: this.mongoGroupMemberRepository
-                    });
-
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 
                     await this.databaseBulkInserter.replaceOneAsync(
@@ -496,8 +472,6 @@ class UpdateOperation {
                     this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
                         requestInfo, currentResource: null, updatedResource: doc
                     });
-
-                    rejectGroupOverMemberLimit({ doc, configManager: this.configManager, requestInfo });
 
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 

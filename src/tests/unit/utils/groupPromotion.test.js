@@ -1,7 +1,11 @@
 'use strict';
 
-const { describe, test, expect } = require('@jest/globals');
-const { isGroupOverLimit, getGroupMemberLimitError, rejectGroupOverMemberLimit } = require('../../../utils/groupPromotion');
+const { describe, test, expect, jest } = require('@jest/globals');
+const {
+    isGroupOverLimit,
+    getGroupMemberLimitError,
+    promoteExistingGroupIfNeeded
+} = require('../../../utils/groupPromotion');
 const { EXTERNAL_STORAGE_TAG_SYSTEM, EXTERNAL_STORAGE_TAG_CODE } = require('../../../utils/clickHouseGroupPreSave');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
 
@@ -98,6 +102,11 @@ describe('getGroupMemberLimitError', () => {
         expect(error.issue[0].diagnostics).toContain('PATCH');
     });
 
+    test('returns undefined for PATCH, which promotes the Group instead', () => {
+        const doc = buildGroupDoc({ memberCount: 4 });
+        expect(getGroupMemberLimitError({ doc, configManager, requestInfo: { method: 'PATCH' } })).toBeUndefined();
+    });
+
     test('returns undefined at exactly groupMemberPromotionLimit', () => {
         expect(getGroupMemberLimitError({ doc: buildGroupDoc({ memberCount: 3 }), configManager })).toBeUndefined();
     });
@@ -117,17 +126,93 @@ describe('getGroupMemberLimitError', () => {
         const clickHouseConfigManager = { ...configManager, enableClickHouse: true, mongoWithClickHouseResources: ['Group'] };
         expect(getGroupMemberLimitError({ doc, configManager: clickHouseConfigManager })).toBeUndefined();
     });
-});
 
-describe('rejectGroupOverMemberLimit', () => {
-    const configManager = { ...buildConfigManager(), groupMemberPromotionLimit: 3 };
-
-    test('throws the too-costly error when over the limit', () => {
-        expect(() => rejectGroupOverMemberLimit({ doc: buildGroupDoc({ memberCount: 4 }), configManager }))
-            .toThrow('Group members count exceeds maximum (4 > 3)');
+    // PUT and $merge bodies reach the validator before the merge carries the stored Group's
+    // storage markers onto them, so the markers are also read from the stored Group.
+    test('returns undefined when the stored Group is extended, even if the incoming body is not marked', () => {
+        const incoming = buildGroupDoc({ memberCount: 4 });
+        const currentResource = buildGroupDoc({ memberCount: 0, extended: true });
+        expect(getGroupMemberLimitError({ doc: incoming, configManager, currentResource })).toBeUndefined();
     });
 
-    test('does not throw when within the limit', () => {
-        expect(() => rejectGroupOverMemberLimit({ doc: buildGroupDoc({ memberCount: 3 }), configManager })).not.toThrow();
+    test('returns undefined when the stored Group is ClickHouse-tracked, even if the incoming body is not tagged', () => {
+        const incoming = buildGroupDoc({ memberCount: 4 });
+        const currentResource = buildGroupDoc({ memberCount: 0, clickHouseTagged: true });
+        const clickHouseConfigManager = { ...configManager, enableClickHouse: true, mongoWithClickHouseResources: ['Group'] };
+        expect(getGroupMemberLimitError({ doc: incoming, configManager: clickHouseConfigManager, currentResource })).toBeUndefined();
+    });
+
+    test('still returns the error when the stored Group is an ordinary embedded one', () => {
+        const incoming = buildGroupDoc({ memberCount: 4 });
+        const currentResource = buildGroupDoc({ memberCount: 2 });
+        expect(getGroupMemberLimitError({ doc: incoming, configManager, currentResource }).issue[0].code).toBe('too-costly');
+    });
+});
+
+describe('promoteExistingGroupIfNeeded', () => {
+    const requestInfo = { headers: {} };
+
+    function buildPromotableDoc (versionId) {
+        const doc = buildGroupDoc({ memberCount: 4 });
+        return Object.assign(doc, {
+            id: 'group-1',
+            _uuid: 'group-uuid-1',
+            _sourceAssigningAuthority: 'test-authority',
+            meta: { versionId, lastUpdated: new Date(), security: [], tag: [] }
+        });
+    }
+
+    function buildRepository () {
+        return {
+            removeMembersNotAtVersionAsync: jest.fn().mockResolvedValue(0),
+            resolveMemberWritesAsync: jest.fn().mockResolvedValue(new Map()),
+            applyResolvedMemberWritesAsync: jest.fn().mockResolvedValue([])
+        };
+    }
+
+    test('deletes the rows stamped with any other version than the one it claims before writing the roster', async () => {
+        const doc = buildPromotableDoc('7');
+        const mongoGroupMemberRepository = buildRepository();
+        const configManager = { ...buildConfigManager(), groupMemberPromotionLimit: 3 };
+
+        await promoteExistingGroupIfNeeded({
+            doc, requestInfo, base_version: '4_0_0', configManager, mongoGroupMemberRepository
+        });
+
+        expect(mongoGroupMemberRepository.removeMembersNotAtVersionAsync).toHaveBeenCalledWith({
+            requestInfo, base_version: '4_0_0', groupUuid: 'group-uuid-1', versionId: 7
+        });
+        const deleteOrder = mongoGroupMemberRepository.removeMembersNotAtVersionAsync.mock.invocationCallOrder[0];
+        const resolveOrder = mongoGroupMemberRepository.resolveMemberWritesAsync.mock.invocationCallOrder[0];
+        const writeOrder = mongoGroupMemberRepository.applyResolvedMemberWritesAsync.mock.invocationCallOrder[0];
+        expect(deleteOrder).toBeLessThan(resolveOrder);
+        expect(resolveOrder).toBeLessThan(writeOrder);
+        expect(doc._extended).toBe(true);
+        expect(doc.member).toBeUndefined();
+    });
+
+    test('does nothing, and deletes nothing, when the Group is not over the limit', async () => {
+        const doc = buildGroupDoc({ memberCount: 3 });
+        const mongoGroupMemberRepository = buildRepository();
+        const configManager = { ...buildConfigManager(), groupMemberPromotionLimit: 3 };
+
+        const result = await promoteExistingGroupIfNeeded({
+            doc, requestInfo, base_version: '4_0_0', configManager, mongoGroupMemberRepository
+        });
+
+        expect(result).toBeUndefined();
+        expect(mongoGroupMemberRepository.removeMembersNotAtVersionAsync).not.toHaveBeenCalled();
+    });
+
+    test('does nothing for an already-extended Group', async () => {
+        const doc = buildGroupDoc({ memberCount: 4, extended: true });
+        const mongoGroupMemberRepository = buildRepository();
+        const configManager = { ...buildConfigManager(), groupMemberPromotionLimit: 3 };
+
+        await promoteExistingGroupIfNeeded({
+            doc, requestInfo, base_version: '4_0_0', configManager, mongoGroupMemberRepository
+        });
+
+        expect(mongoGroupMemberRepository.removeMembersNotAtVersionAsync).not.toHaveBeenCalled();
     });
 });
