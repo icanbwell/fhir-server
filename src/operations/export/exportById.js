@@ -81,7 +81,7 @@ class ExportByIdOperation {
                 resource: exportStatusResource,
                 user,
                 scope,
-                accessRequested: 's'
+                accessRequested: 'r'
             })) {
                 throw new NotFoundError(`ExportStatus resoure with id ${id} doesn't exists`);
             }
