@@ -218,14 +218,16 @@ Two of these changes reach v1 clients, because v1
 | `access/<tag>` only, no `user/` scope | `$import` | accepted | **rejected** — `u` on `Task` is now required at the resource gate |
 | v2 `user/Task.u` + `access/<tag>.u` | `$import` | rejected (needs `c`, `u`, `d`) | accepted |
 | v2 `user/Task.c` + `access/<tag>.c` | `$import` | rejected | rejected (needs `u`) |
+| a scope without `u` on an imported resource's type (e.g. `user/Patient.c`, or `user/Observation.rs` in a mixed file) | `$import` worker | **resource imported** — only its access tags were checked | resource rejected and recorded as a failed entry; the rest of the import continues |
 
 The `$import` request-time gate requires `u`, on `Task` and on the tenant codes, so a caller who
 could not write any imported resource is rejected up front instead of getting a Task that imports
 nothing. Each imported resource is then checked in the import worker with the caller's own scope,
-through the same gates `$merge` applies: the resource gate checks `u` on the resource's type, and
-`WriteAllowedByScopesValidator` checks `u` on the resource's access tags (and that the caller may
-add any access tag the resource carries). A resource that fails either check is recorded as a
-failed entry and skipped; the rest of the import continues.
+through the same two gates `$merge` applies: the resource gate checks `u` on the resource's type
+(via `MergeManager.preMergeChecksMultipleAsync`), and `WriteAllowedByScopesValidator` checks `u` on
+the resource's access tags (and that the caller may add any access tag the resource carries). A
+resource that fails either gate is recorded as a failed entry in the error output and skipped; the
+rest of the import continues. Before this change the worker checked only the access gate.
 
 ## Components & data flow
 

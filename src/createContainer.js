@@ -1340,7 +1340,8 @@ const createContainer = function () {
         databaseBulkLoader: c.databaseBulkLoader,
         sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
         uuidColumnHandler: c.uuidColumnHandler,
-        writeAllowedByScopesValidator: c.writeAllowedByScopesValidator
+        writeAllowedByScopesValidator: c.writeAllowedByScopesValidator,
+        resourceValidator: c.resourceValidator
     }));
 
     // Routes messages on kafkaBulkImportTaskCreatedTopic and kafkaBulkImportRangeProgressTopic
