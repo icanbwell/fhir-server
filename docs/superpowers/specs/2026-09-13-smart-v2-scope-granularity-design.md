@@ -111,7 +111,7 @@ its required CRUDS letter(s), extended here with the operations analyzed since t
 | `graph` (DELETE)                               | `d` on the root and on every resource deleted; forward-reference steps are satisfied by `d` (in place of `r`); reverse/child search steps still require `s` | see "DELETE behavior" below |
 | `$merge`                                       | `u`              | see "`u` covers update-as-create" below |
 | `$import`                                      | `u` on `Task` at the resource gate and `u` on the `access/` tenant codes | request-time gate; `u`, not `c`, because every imported resource is written as a merge (`u`), and the tenant codes copied onto the Task are those granting `u`. Each imported resource is then checked separately in the import worker, as `$merge` does: `u` on its resource type and `u` on its access tags |
-| `$export`                                      | `c` on `Task` directly, plus `s` on every resource type actually requested via `_type` | the check targets `Task`, not `ExportStatus` — replaces the export runner's current silent-drop-on-unauthorized-type behavior with a 403 |
+| `$export`                                      | `c` on `Task` at the resource gate, plus `s` on the `access/` tenant codes | the `Task` check is resource-gate only, so a caller needs no `c` on any tenant code; the tenant codes stamped on the ExportStatus, the runner's tenant filter and status polling (`$export/<id>`) all use `s`, and the runner includes a resource type only if a `user/`/`system/` scope grants `s` on it — types without it are dropped silently, as before |
 | `$access-history`                              | unchanged for now (still the coarse `read` check, twice) | deferred — not part of this pass; tracked as a TODO to assign granular letters later |
 
 `$access-history`'s existing hardcoded `'*'`-access-code requirement (a pre-existing regression
@@ -228,6 +228,21 @@ through the same two gates `$merge` applies: the resource gate checks `u` on the
 the resource's access tags (and that the caller may add any access tag the resource carries). A
 resource that fails either gate is recorded as a failed entry in the error output and skipped; the
 rest of the import continues. Before this change the worker checked only the access gate.
+
+### `$export` behavior
+
+| Grant | Operation | Before | Now |
+|---|---|---|---|
+| v1 `user/*.read` + `user/*.write`, or v1 `*` | `$export` | accepted | accepted |
+| v1 read-only (`user/*.read` / `user/Patient.read`), no `user/` scope covering `Task` | `$export` | accepted | **rejected** — `c` on `Task` is now required |
+| v2 `user/*.rs user/Task.c` + `access/<tag>.s` | `$export` and polling the status | rejected | accepted |
+| v2 `user/*.rs` + `access/<tag>.s`, no `c` on `Task` | `$export` | rejected | rejected |
+| v2 `access/<tag>.r` only | `$export` | rejected | rejected (needs `s`) |
+| v1 `write` / v2 `cud` only | `$export` | rejected | rejected (tenant codes need `s`) |
+| v2 `user/Patient.rs` | `$export` runner | zero rows, HTTP 200 (literal suffix comparison) | Patient exported |
+
+`$export` requires `c` on `Task` at the resource gate at request time; the runner then narrows
+silently to the types the caller's scopes grant `s` on.
 
 ## Components & data flow
 
@@ -354,7 +369,9 @@ subsequence rule above before the flag is enabled; see Open items.
   full coarse `{c,u,d}` composite regardless of what the resource gate just decided. Under this
   revision's combined-phase policy, once `create` is migrated, both sides ask for `c` and this
   succeeds.
-- **`bulkDataExportRunner.getRequestedResourceAsync`** decides which resource types a bulk export
+- **`bulkDataExportRunner.getRequestedResourceAsync`** (fixed: it now resolves types through
+  `ScopesManager.getResourceTypesWithAccess` and requires `s`; the note below describes the
+  behavior before the fix) decided which resource types a bulk export
   may include by splitting the scope string and comparing the suffix literally
   (`accessType === '*' || accessType === 'read'`) instead of calling `parseScopeToken`. Found
   during the 2026-09-25 documentation review; not yet folded into a fix plan, and deliberately kept

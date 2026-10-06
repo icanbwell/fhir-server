@@ -197,7 +197,7 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/$export?_type=Patient')
-                .set(getHeaders('user/Patient.* access/client.* access/client1.*'))
+                .set(getHeaders('user/Patient.* user/Task.write access/client.* access/client1.*'))
                 .expect(202);
 
             expect(resp.headers['content-location']).toBeDefined();
@@ -402,7 +402,7 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/$export?_type=Patient')
-                .set(getHeaders('access/*.* user/Person.*'))
+                .set(getHeaders('access/*.* user/Person.* user/Task.write'))
                 .expect(202);
 
             expect(resp.headers['content-location']).toBeDefined();
