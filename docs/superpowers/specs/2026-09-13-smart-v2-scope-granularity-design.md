@@ -110,7 +110,7 @@ its required CRUDS letter(s), extended here with the operations analyzed since t
 | `graph` — each resolution step, including the root | `r` if the step resolves one instance by reference/id, `s` if it searches a type (forward reference vs. reverse/child search) | not a single fixed letter; evaluated per step, same rule for the root call as for every child link. For DELETE see the next row |
 | `graph` (DELETE)                               | `d` on the root and on every resource deleted; forward-reference steps are satisfied by `d` (in place of `r`); reverse/child search steps still require `s` | see "DELETE behavior" below |
 | `$merge`                                       | `u`              | see "`u` covers update-as-create" below |
-| `$import`                                      | `c` on `Task`    | the request-time gate only covers creating the `Task`; per-resource authorization for what the import actually writes happens downstream, in the import processors, and is not enforced by this request-time gate |
+| `$import`                                      | `u` on `Task` at the resource gate and `u` on the `access/` tenant codes | request-time gate; `u`, not `c`, because every imported resource is written as a merge (`u`), and the tenant codes copied onto the Task are those granting `u`. Each imported resource is then checked separately in the import worker, as `$merge` does: `u` on its resource type and `u` on its access tags |
 | `$export`                                      | `c` on `Task` at the resource gate, plus at least one `access/` tenant code granting `c` and at least one granting `s` | creating the export job is gated like any other create; the tenant codes stamped on the ExportStatus are those granting `c`, and a caller with no tenant code granting `c`, or none granting `s`, is rejected. The runner's tenant filter for the exported data uses every tenant code granting `s`, including ones not stamped on the ExportStatus (see "`$export` behavior"); status polling (`$export/<id>`) is an instance read and uses `r` on the ExportStatus access tag; the runner includes a resource type only if a `user/`/`system/` scope grants `s` on it — types without it are dropped silently, as before |
 | `$access-history`                              | unchanged for now (still the coarse `read` check, twice) | deferred — not part of this pass; tracked as a TODO to assign granular letters later |
 
@@ -209,10 +209,15 @@ Two of these changes reach v1 clients, because v1
 `write`-only client that issues a conditional (search-based) delete is now rejected, and a v1
 `write`-only client's `$graph` DELETE now also deletes forward-reference children.
 
-### `$export` behavior
+### `$import` and `$export` behavior
 
 | Grant | Operation | Before | Now |
 |---|---|---|---|
+| v1 `write` with `access/` codes | `$import` | accepted | accepted (needs a `user/` scope covering `Task`) |
+| v1 `read` only | `$import` | rejected at the tenant check (no write codes) | rejected |
+| `access/<tag>` only, no `user/` scope | `$import` | accepted | **rejected** — `u` on `Task` is now required at the resource gate |
+| v2 `user/Task.u` + `access/<tag>.u` | `$import` | rejected (needs `c`, `u`, `d`) | accepted |
+| v2 `user/Task.c` + `access/<tag>.c` | `$import` | rejected | rejected (needs `u`) |
 | v1 `user/*.read` + `user/*.write` with `access/<tag>.*`, or v1 `*` | `$export` | accepted | accepted |
 | v1 read-only (`user/*.read` / `user/Patient.read`), no `user/` scope covering `Task` | `$export` | accepted | **rejected** — `c` on `Task` is now required |
 | v2 `user/*.rs user/Task.c` + `access/<tag>.cs` | `$export` | rejected | accepted |
@@ -228,6 +233,14 @@ Two of these changes reach v1 clients, because v1
 | v2 `access/<tag>.r` only | `$export` | rejected | rejected (needs `s`) |
 | v1 `write` / v2 `cud` only | `$export` | rejected | rejected (tenant codes need `s`) |
 | v2 `user/Patient.rs` | `$export` runner | zero rows, HTTP 200 (literal suffix comparison) | Patient exported |
+
+The `$import` request-time gate requires `u`, on `Task` and on the tenant codes, so a caller who
+could not write any imported resource is rejected up front instead of getting a Task that imports
+nothing. Each imported resource is then checked in the import worker with the caller's own scope,
+through the same gates `$merge` applies: the resource gate checks `u` on the resource's type, and
+`WriteAllowedByScopesValidator` checks `u` on the resource's access tags (and that the caller may
+add any access tag the resource carries). A resource that fails either check is recorded as a
+failed entry and skipped; the rest of the import continues.
 
 `$export` requires `c` on `Task` at the resource gate, at least one tenant code granting `c`, and
 at least one tenant code granting `s` at request time; only the codes granting `c` are stamped on
