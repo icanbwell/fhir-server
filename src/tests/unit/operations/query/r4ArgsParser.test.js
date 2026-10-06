@@ -383,6 +383,61 @@ describe('R4ArgsParser', () => {
             expect(item.chain).toEqual({ targetType: 'Patient', targetParam: 'identifier' });
         });
 
+        test('keeps the parsedArgItem (with chain set) for a chain whose value is completely empty, instead of dropping the parameter entirely', () => {
+            // Regression: the generic "empty value means the parameter wasn't given" convention
+            // (correct for ordinary params) must NOT apply to chains -- dropping the item here
+            // means no filter at all gets applied to `patient`, so the search runs unfiltered
+            // instead of matching zero resources. The item must survive so
+            // ChainedSearchQueryRewriter gets a chance to resolve it to the unmatchable sentinel.
+            mockChainLookups({ baseTarget: ['Patient'] });
+            const args = {
+                'patient.identifier': '',
+                base_version: '4_0_0'
+            };
+
+            const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
+
+            const item = result.parsedArgItems.find(i => i.queryParameter === 'patient');
+            expect(item).toBeDefined();
+            expect(item.chain).toEqual({ targetType: 'Patient', targetParam: 'identifier' });
+        });
+
+        test('throws BadRequestError for a chain with a completely empty value (strict handling)', () => {
+            mockChainLookups({ baseTarget: ['Patient'] });
+            const args = {
+                'patient.identifier': '',
+                base_version: '4_0_0',
+                handling: 'strict'
+            };
+
+            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).toThrow();
+        });
+
+        test('keeps the parsedArgItem (with chain set) for a chain whose value is "system|" (no code/value after the pipe), instead of letting it resolve against every resource with that system', () => {
+            mockChainLookups({ baseTarget: ['Patient'] });
+            const args = {
+                'patient.identifier': 'http://example.com/mrn|',
+                base_version: '4_0_0'
+            };
+
+            const result = r4ArgsParser.parseArgs({ resourceType: 'Observation', args });
+
+            const item = result.parsedArgItems.find(i => i.queryParameter === 'patient');
+            expect(item).toBeDefined();
+            expect(item.chain).toEqual({ targetType: 'Patient', targetParam: 'identifier' });
+        });
+
+        test('throws BadRequestError for a chain with "system|" and no code/value after the pipe (strict handling)', () => {
+            mockChainLookups({ baseTarget: ['Patient'] });
+            const args = {
+                'patient.identifier': 'http://example.com/mrn|',
+                base_version: '4_0_0',
+                handling: 'strict'
+            };
+
+            expect(() => r4ArgsParser.parseArgs({ resourceType: 'Observation', args })).toThrow();
+        });
+
         test('resolves a typed chain (subject:Patient.identifier)', () => {
             mockChainLookups({ baseTarget: ['Patient', 'Group'] });
             const args = {

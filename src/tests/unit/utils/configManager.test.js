@@ -352,6 +352,19 @@ describe('ConfigManager', () => {
         });
     });
 
+    // ========== chainedSearchMaxResolvedIds ==========
+    describe('chainedSearchMaxResolvedIds', () => {
+        test('defaults to 10000', () => {
+            delete process.env.CHAINED_SEARCH_MAX_RESOLVED_IDS;
+            expect(new ConfigManager().chainedSearchMaxResolvedIds).toBe(10000);
+        });
+
+        test('returns configured value', () => {
+            process.env.CHAINED_SEARCH_MAX_RESOLVED_IDS = '500';
+            expect(new ConfigManager().chainedSearchMaxResolvedIds).toBe(500);
+        });
+    });
+
     // ========== graphBatchSize ==========
     describe('graphBatchSize', () => {
         test('defaults to 10', () => {
