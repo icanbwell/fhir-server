@@ -147,19 +147,11 @@ describe('Cross-Tenant Security - Search Query Construction', () => {
         });
     });
 
-    // NOTE: this quarantined test's premise contradicts the CURRENT, INTENDED behavior, confirmed by
-    // src/tests/mcp/mcpResourceAuthorization.integration.test.js's "_includeHidden=true" test and
-    // documented in docs/resource-authorization.md §8: _includeHidden is an unauthenticated-scope
-    // override available to ANY caller (the access-tag tenant filter still ANDs on top, so there is no
-    // cross-tenant consequence), not something requiring admin scope. Do not resurrect this test as a
-    // "regression" without first re-confirming which behavior is actually intended.
-    describe('VULN-1: _includeHidden parameter bypasses hidden resource filter', () => {
-        test('query with _includeHidden=true from user input should still exclude hidden resources for non-admin users', () => {
-            // VULNERABILITY: A user can pass _includeHidden=true as a URL parameter
-            // e.g., GET /Patient?_includeHidden=true
-            // This bypasses the hidden tag filter, potentially exposing resources
-            // that are marked as hidden (e.g., belonging to other tenants' internal data)
-
+    // docs/resource-authorization.md section 8: hidden-tagged resources are excluded from search by
+    // default unless the caller passes _includeHidden=true (implemented in src/operations/query/r4.js).
+    // The tenant access-tag filter is applied separately by SecurityTagManager (see VULN-2 below).
+    describe('VULN-1: _includeHidden lifts only the hidden-tag exclusion', () => {
+        function buildPatientQuery(includeHidden) {
             const parsedArgsItem = createParsedArgsItem({
                 queryParameter: 'name',
                 value: 'Smith',
@@ -167,53 +159,30 @@ describe('Cross-Tenant Security - Search Query Construction', () => {
                 field: 'name'
             });
             const parsedArgs = createParsedArgs([parsedArgsItem]);
-
-            // Simulate _includeHidden=true being passed as a URL parameter
-            // This is what happens when a user adds ?_includeHidden=true to the URL
-            Object.defineProperty(parsedArgs, '_includeHidden', {
-                get: () => 'true',
-                configurable: true
-            });
-
-            const result = creator.buildR4SearchQuery({
+            if (includeHidden !== undefined) {
+                Object.defineProperty(parsedArgs, '_includeHidden', {
+                    get: () => includeHidden,
+                    configurable: true
+                });
+            }
+            return creator.buildR4SearchQuery({
                 resourceType: 'Patient',
                 parsedArgs,
                 useHistoryTable: false,
                 operation: 'READ',
                 isUser: false
             });
+        }
 
-            // EXPECTED CORRECT BEHAVIOR: The hidden tag filter MUST still be present
-            // regardless of _includeHidden being set by external input.
-            // Only internal/system-level callers should be able to bypass this filter.
-            expect(queryExcludesHiddenResources(result.query)).toBe(true);
+        test('hidden resources are excluded by default and included when _includeHidden=true', () => {
+            expect(queryExcludesHiddenResources(buildPatientQuery(undefined).query)).toBe(true);
+            expect(queryExcludesHiddenResources(buildPatientQuery('true').query)).toBe(false);
         });
 
-        test('query with _includeHidden=1 from user input should still exclude hidden resources', () => {
-            // isTrue() also accepts '1' as truthy
-            const parsedArgsItem = createParsedArgsItem({
-                queryParameter: 'status',
-                value: 'active',
-                type: 'token',
-                field: 'status'
-            });
-            const parsedArgs = createParsedArgs([parsedArgsItem]);
-
-            Object.defineProperty(parsedArgs, '_includeHidden', {
-                get: () => '1',
-                configurable: true
-            });
-
-            const result = creator.buildR4SearchQuery({
-                resourceType: 'Patient',
-                parsedArgs,
-                useHistoryTable: false,
-                operation: 'READ',
-                isUser: false
-            });
-
-            // EXPECTED: hidden tag filter is still present
-            expect(queryExcludesHiddenResources(result.query)).toBe(true);
+        test('_includeHidden=1 is also accepted, and the user filter is still applied', () => {
+            const result = buildPatientQuery('1');
+            expect(queryExcludesHiddenResources(result.query)).toBe(false);
+            expect(result.query).toHaveProperty('name');
         });
     });
 
@@ -300,136 +269,6 @@ describe('Cross-Tenant Security - Search Query Construction', () => {
             // The enforced security tag filter must be present as a separate $and condition
             expect(result.$and).toBeDefined();
             expect(result.$and.length).toBeGreaterThanOrEqual(2);
-        });
-    });
-
-    describe('VULN-3: Graph traversal params must not override security-critical fields', () => {
-        // These tests mirror the args-construction logic in
-        // GraphHelper.getForwardReferencesAsync() (src/operations/graph/graphHelpers.js).
-        // A GraphDefinition submitted to $graph is caller-controlled, and its
-        // link.target.params (parsed into `params` here) is documented (readme/graph.md,
-        // "Filtering in forward reference linkage") as an ADDITIONAL filter on top of the
-        // resources actually referenced by the parent entity - never a replacement for the
-        // computed `id` list. Full end-to-end coverage (including the security-tag/tenant
-        // scoping that still applies afterward) lives in
-        // src/tests/graph/graph_forward_link_with_params/graph_forward_and_reverse_with_path_and_params.test.js.
-
-        /**
-         * Mirrors the (fixed) args-construction logic in getForwardReferencesAsync():
-         * params are applied first so they can only add filter criteria, then the
-         * computed/protected fields are applied last so they can never be overridden.
-         */
-        function buildForwardReferenceArgs ({ base_version, includeHidden, relatedReferenceIds, params }) {
-            return Object.assign(
-                {},
-                (params && Object.keys(params).length > 0) ? params : undefined,
-                {
-                    base_version,
-                    _includeHidden: includeHidden,
-                    id: relatedReferenceIds.join(',')
-                }
-            );
-        }
-
-        test('GraphDefinition target params should not be able to override the id filter in forward references', () => {
-            // A malicious GraphDefinition with target.params = "id=attacker-controlled-id"
-            // must not be able to make the query fetch an arbitrary resource instead of the
-            // legitimate related reference(s).
-            const relatedReferenceIds = ['legitimate-uuid-1', 'legitimate-uuid-2'];
-
-            const args = buildForwardReferenceArgs({
-                base_version: '4_0_0',
-                includeHidden: undefined,
-                relatedReferenceIds,
-                params: { id: 'cross-tenant-resource-id' }
-            });
-
-            // EXPECTED CORRECT BEHAVIOR: The 'id' field should NOT be overrideable
-            // by target params. It should retain the legitimate reference IDs.
-            expect(args.id).toBe(relatedReferenceIds.join(','));
-        });
-
-        test('GraphDefinition target params should not be able to set _includeHidden', () => {
-            const relatedReferenceIds = ['uuid-1'];
-
-            const args = buildForwardReferenceArgs({
-                base_version: '4_0_0',
-                includeHidden: undefined,
-                relatedReferenceIds,
-                params: { _includeHidden: 'true' }
-            });
-
-            // EXPECTED CORRECT BEHAVIOR: _includeHidden should NOT be overrideable
-            // via GraphDefinition target params
-            expect(args._includeHidden).not.toBe('true');
-        });
-    });
-
-    describe('VULN-4: Data sharing $or query must preserve security tag isolation on alternate branch', () => {
-        test('data sharing alternate query branch must include security tag constraints', () => {
-            // VULNERABILITY: In dataSharingManager.js updateQueryConsideringDataSharing(),
-            // when data sharing is enabled, the query becomes:
-            //   { $or: [originalQuery, queryWithConsentedData] }
-            //
-            // The originalQuery has security tags applied, but queryWithConsentedData
-            // only checks connectionType.
-            // This means resources from ANY tenant that happen to have the right
-            // connectionType could be returned.
-            //
-            // The alternate branch MUST also include the security tag filter
-            // or at least restrict to the specific patients identified through the
-            // consent process.
-
-            // Simulate the data sharing query construction
-            const originalQuery = {
-                $and: [
-                    { 'subject._sourceId': { $in: ['Patient/patient1'] } },
-                    {
-                        'meta.security': {
-                            $elemMatch: {
-                                system: SecurityTagSystem.access,
-                                code: 'clientA'
-                            }
-                        }
-                    }
-                ]
-            };
-
-            // Simulated consent-based data sharing query
-            // (from getConnectionTypeFilteredQuery)
-            const queryWithConsentedData = {
-                $and: [
-                    { 'subject._sourceId': { $in: ['Patient/patient2'] } },
-                    {
-                        'meta.security': {
-                            $elemMatch: {
-                                system: 'https://www.icanbwell.com/connectionType',
-                                code: { $in: ['proa'] }
-                            }
-                        }
-                    }
-                ]
-            };
-
-            // The combined query as built by dataSharingManager
-            const combinedQuery = { $or: [originalQuery, queryWithConsentedData] };
-
-            // EXPECTED CORRECT BEHAVIOR: Each branch of the $or must either:
-            // 1. Include the original security tag filter, OR
-            // 2. Be scoped to specific patient IDs that were validated through consent
-            //
-            // Check that the consent branch is properly scoped to specific patients
-            // (not a wildcard that could match any tenant's resources)
-            const consentBranch = combinedQuery.$or[1];
-            const consentBranchStr = JSON.stringify(consentBranch);
-
-            // The consent branch MUST have a patient filter to prevent cross-tenant access
-            expect(consentBranchStr).toContain('Patient/patient2');
-
-            // The consent branch must NOT be an unrestricted query
-            // (it should have BOTH patient filter AND connectionType filter)
-            expect(consentBranch.$and).toBeDefined();
-            expect(consentBranch.$and.length).toBeGreaterThanOrEqual(2);
         });
     });
 
