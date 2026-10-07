@@ -197,7 +197,7 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/$export?_type=Patient')
-                .set(getHeaders('user/Patient.* access/client.* access/client1.*'))
+                .set(getHeaders('user/Patient.* user/Task.write access/client.* access/client1.*'))
                 .expect(202);
 
             expect(resp.headers['content-location']).toBeDefined();
@@ -402,7 +402,7 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/$export?_type=Patient')
-                .set(getHeaders('access/*.* user/Person.*'))
+                .set(getHeaders('access/*.* user/Person.* user/Task.write'))
                 .expect(202);
 
             expect(resp.headers['content-location']).toBeDefined();
@@ -730,7 +730,7 @@ describe('Export Tests', () => {
             expect(resp.body.errors).toHaveLength(0);
         });
 
-        test('Export triggering for Patient takes only read access scopes from JWT', async () => {
+        test('Export triggering for Patient takes only access scopes granting create from JWT', async () => {
             const request = await createTestRequest((c) => {
                 c.register(
                     'k8sClient',
@@ -771,7 +771,7 @@ describe('Export Tests', () => {
             expect(exportStatusResource[0].meta.security).toEqual([
                 { code: 'bwell', id: "70ae40c6-f2bd-54a0-aa66-656be4cce72b", system: 'https://www.icanbwell.com/owner' },
                 { code: 'client', id: "21b6850a-a1fb-5de3-8f69-7962d5394390", system: 'https://www.icanbwell.com/access' },
-                { code: 'client2', id: "18393a00-dc69-5300-85d1-e62573be197c", system: 'https://www.icanbwell.com/access' },
+                { code: 'client1', id: "d5ff7087-77ef-546b-8b12-05c74cec6b87", system: 'https://www.icanbwell.com/access' },
                 { code: 'bwell', id: "33ced3c5-0807-582a-b03a-df7d6e95a41c", system: 'https://www.icanbwell.com/sourceAssigningAuthority' }
             ]);
 

@@ -49,6 +49,31 @@ describe('ScopesManager', () => {
         });
     });
 
+    describe('getResourceTypesWithAccess', () => {
+        test('returns the resource types whose v1 scopes satisfy the requirement', () => {
+            expect(scopesManager.getResourceTypesWithAccess({
+                scope: 'user/Patient.read user/Observation.write system/Condition.*', accessRequested: 's'
+            })).toEqual(['Patient', 'Condition']);
+        });
+
+        describe('when enableSmartV2CrudsScopes is enabled', () => {
+            beforeEach(() => {
+                Object.defineProperty(mockConfigManager, 'enableSmartV2CrudsScopes', {
+                    value: true, configurable: true
+                });
+            });
+
+            test('honors v2 letters and the * resource type', () => {
+                expect(scopesManager.getResourceTypesWithAccess({
+                    scope: 'user/Patient.rs user/Observation.r user/*.d', accessRequested: 's'
+                })).toEqual(['Patient']);
+                expect(scopesManager.getResourceTypesWithAccess({
+                    scope: 'user/*.s', accessRequested: 's'
+                })).toEqual(['*']);
+            });
+        });
+    });
+
     describe('getAccessCodesFromScopes', () => {
         test('should return empty array when scope is null', () => {
             const result = scopesManager.getAccessCodesFromScopes('read', 'testUser', null);

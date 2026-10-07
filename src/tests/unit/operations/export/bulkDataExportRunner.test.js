@@ -143,6 +143,24 @@ describe('BulkDataExportRunner', () => {
             expect(result).toEqual(['Patient']);
         });
 
+        test.each([
+            ['user/Patient.rs', ['Patient']],
+            ['user/Patient.s', ['Patient']],
+            ['user/Patient.r', []],
+            ['user/Patient.cud', []],
+            ['user/*.rs', ['Patient', 'Observation']]
+        ])('with v2 scopes enabled, scope %s yields %j', async (scope, expected) => {
+            Object.defineProperty(mocks.scopesManager.configManager, 'enableSmartV2CrudsScopes', {
+                value: true, configurable: true
+            });
+            const result = await runner.getRequestedResourceAsync({
+                scope,
+                searchParams: new URLSearchParams(),
+                allowedResources: ['Patient', 'Observation']
+            });
+            expect(result).toEqual(expected);
+        });
+
         test('excludes AuditEvent always', async () => {
             const result = await runner.getRequestedResourceAsync({
                 scope: null,

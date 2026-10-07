@@ -32,6 +32,7 @@ jest.mock('../../../../dataLayer/databaseExportManager', () => ({
 
 const { ExportOperation } = require('../../../../operations/export/export');
 const { ScopesManager } = require('../../../../operations/security/scopesManager');
+const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
 const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggingManager');
 const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
 const { ResourceValidator } = require('../../../../operations/common/resourceValidator');
@@ -54,6 +55,7 @@ describe('ExportOperation', () => {
 
         mocks = {
             scopesManager: createMockInstance(ScopesManager),
+            scopesValidator: createMockInstance(ScopesValidator),
             fhirLoggingManager: createMockInstance(FhirLoggingManager),
             preSaveManager: createMockInstance(PreSaveManager),
             resourceValidator: createMockInstance(ResourceValidator),
@@ -66,6 +68,9 @@ describe('ExportOperation', () => {
 
         // Setup default mock implementations
         mocks.scopesManager.hasPatientScope = jest.fn().mockReturnValue(false);
+        mocks.scopesManager.getResourceTypeScopes = jest.fn().mockReturnValue(['user/*.*']);
+        mocks.scopesManager.getAccessCodesFromScopes = jest.fn().mockReturnValue(['*']);
+        mocks.scopesValidator.evaluateResourceTypeScopeMatch = jest.fn().mockReturnValue({ success: true, error: null });
         mocks.fhirLoggingManager.logOperationSuccessAsync = jest.fn().mockResolvedValue(undefined);
         mocks.fhirLoggingManager.logOperationFailureAsync = jest.fn().mockResolvedValue(undefined);
         mocks.exportManager.generateExportStatusResourceAsync = jest.fn().mockResolvedValue({
