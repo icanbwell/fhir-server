@@ -739,6 +739,70 @@ describe('ResourceValidator', () => {
         });
     });
 
+    describe('validateResourceAsync - Group member limit', () => {
+        const groupWithMembers = (count) => ({
+            resourceType: 'Group',
+            id: 'g1',
+            member: Array.from({ length: count }, (_, i) => ({ entity: { reference: `Patient/${i}` } }))
+        });
+        const validate = (overrides) => resourceValidator.validateResourceAsync({
+            base_version: '4_0_0',
+            requestInfo: { isUser: false, headers: {} },
+            id: 'g1',
+            resourceType: 'Group',
+            resourceToValidate: { resourceType: 'Group', id: 'g1', type: 'person', actual: true },
+            path: '/4_0_0/Group',
+            ...overrides
+        });
+
+        beforeEach(() => {
+            for (const [name, value] of Object.entries({
+                enableExtendedGroup: true,
+                groupMemberPromotionLimit: 3,
+                enableClickHouse: false,
+                mongoWithClickHouseResources: []
+            })) {
+                Object.defineProperty(mockConfigManager, name, { value, writable: true, configurable: true });
+            }
+        });
+
+        it('rejects a Group over the limit with too-costly', async () => {
+            const result = await validate({ resourceObj: groupWithMembers(4) });
+
+            expect(result.resourceType).toBe('OperationOutcome');
+            expect(result.issue[0].code).toBe('too-costly');
+        });
+
+        it('allows a Group at the limit', async () => {
+            expect(await validate({ resourceObj: groupWithMembers(3) })).toBeNull();
+        });
+
+        it('allows an over-limit Group on PATCH, which promotes it', async () => {
+            const requestInfo = { isUser: false, headers: {}, method: 'PATCH' };
+
+            expect(await validate({ resourceObj: groupWithMembers(4), requestInfo })).toBeNull();
+        });
+
+        it('allows an over-limit Group when ENABLE_EXTENDED_GROUP is off', async () => {
+            Object.defineProperty(mockConfigManager, 'enableExtendedGroup', { value: false, writable: true, configurable: true });
+
+            expect(await validate({ resourceObj: groupWithMembers(4) })).toBeNull();
+        });
+
+        it('does not reject an over-limit body for a stored extended Group', async () => {
+            const currentResource = { resourceType: 'Group', id: 'g1', _extended: true };
+            // currentResource also routes through the patient-reference check; Group has no patient field
+            mockPatientFilterManager.getPatientPropertyForResource = jest.fn().mockReturnValue(null);
+            mockPatientFilterManager.getPatientPropertyForPersonScopedResource = jest.fn().mockReturnValue(null);
+
+            expect(await validate({ resourceObj: groupWithMembers(4), currentResource })).toBeNull();
+        });
+
+        it('ignores callers that pass no resourceObj', async () => {
+            expect(await validate({})).toBeNull();
+        });
+    });
+
     describe('createProfileResourceFromJson', () => {
         it('creates StructureDefinition with owner security tag using publisher', () => {
             const profileJson = {

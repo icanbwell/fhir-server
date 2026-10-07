@@ -63,6 +63,7 @@ const { ResourceMerger } = require('../../../../operations/common/resourceMerger
 const { ResourceValidator } = require('../../../../operations/common/resourceValidator');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
+const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const { fhirContentTypes } = require('../../../../utils/contentTypes');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 
@@ -93,6 +94,7 @@ describe('PatchOperation', () => {
                 require('../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory
             ),
             identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
+            groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
             mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
         };
 
@@ -142,6 +144,7 @@ describe('PatchOperation', () => {
         mocks.postRequestProcessor.add = jest.fn();
         mocks.postSaveHandlerFactory.getHandlers = jest.fn().mockReturnValue([]);
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jest.fn();
+        mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jest.fn(({ resources }) => Promise.resolve(resources));
 
         Object.defineProperty(mocks.configManager, 'useAccessIndex', { get: () => false });
 

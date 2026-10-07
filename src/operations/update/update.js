@@ -28,6 +28,7 @@ const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identif
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
+const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
 
 /**
  * Update Operation
@@ -49,6 +50,7 @@ class UpdateOperation {
      * @param {SearchManager} searchManager
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
      */
     constructor (
         {
@@ -65,7 +67,8 @@ class UpdateOperation {
             base64DataManager,
             searchManager,
             postSaveHandlerFactory,
-            identifierEnrichmentProvider
+            identifierEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider
         }
     ) {
         /**
@@ -145,6 +148,12 @@ class UpdateOperation {
          */
         this.identifierEnrichmentProvider = identifierEnrichmentProvider;
         assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
+
+        /**
+         * @type {GroupExtendedTagEnrichmentProvider}
+         */
+        this.groupExtendedTagEnrichmentProvider = groupExtendedTagEnrichmentProvider;
+        assertTypeEquals(groupExtendedTagEnrichmentProvider, GroupExtendedTagEnrichmentProvider);
     }
 
     /**
@@ -538,6 +547,7 @@ class UpdateOperation {
 
                 // enrich resource
                 this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
+                [result.resource] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({ resources: [result.resource] });
                 result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
 
                 return result;
@@ -574,6 +584,7 @@ class UpdateOperation {
 
                 // enrich resource
                 this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
+                [result.resource] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({ resources: [result.resource] });
                 result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
 
                 return result;
