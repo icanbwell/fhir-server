@@ -607,6 +607,32 @@ describe('MergeManager', () => {
             // Result depends on COLLECTION check - could be error or null
             expect(result).toBeDefined();
         });
+
+        test('calls isScopesValidAsync with the granular merge action and u accessRequested', async () => {
+            const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
+            const { assertTypeEquals } = require('../../../../utils/assertType');
+            assertTypeEquals.mockImplementation(() => {});
+
+            const requestInfo = Object.create(FhirRequestInfo.prototype);
+            requestInfo.requestId = 'req-1';
+
+            mockScopesManager.doesResourceHaveSourceAssigningAuthority.mockReturnValue(true);
+
+            await mergeManager.preMergeChecksAsync({
+                requestInfo,
+                resourceToMerge: { id: 'p1', _uuid: 'uuid-p1', resourceType: 'Patient' },
+                resourceType: 'Patient',
+                base_version: '4_0_0'
+            });
+
+            expect(mockScopesValidator.isScopesValidAsync).toHaveBeenCalledWith({
+                requestInfo,
+                resourceType: 'Patient',
+                accessRequested: 'u',
+                action: 'merge',
+                base_version: '4_0_0'
+            });
+        });
     });
 
     describe('logAuditEntriesForMergeResults', () => {

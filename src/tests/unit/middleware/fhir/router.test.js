@@ -5,7 +5,6 @@ jest.mock('express-http-context', () => ({ get: jest.fn(), set: jest.fn() }));
 jest.mock('cors', () => jest.fn(() => (req, res, next) => next()));
 jest.mock('../../../../middleware/fhir/version-validation.middleware', () => jest.fn(() => (req, res, next) => next()));
 jest.mock('../../../../middleware/fhir/authentication.middleware', () => jest.fn(() => (req, res, next) => next()));
-jest.mock('../../../../middleware/fhir/sof-scope.middleware', () => jest.fn(() => (req, res, next) => next()));
 jest.mock('../../../../middleware/fhir/metadata/metadata.config', () => ({
     route: { path: '/:base_version/metadata', controller: jest.fn(() => (req, res, next) => next()) }
 }));

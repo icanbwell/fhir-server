@@ -5,6 +5,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { RESOURCE_TYPE_SCOPE_NAMESPACES } = require('../../constants');
 const { parseScopeToken, getRequiredCrudsForAccessRequested, isCrudsRequirementSatisfied } = require('./smartScopeParser');
+const { logInfo } = require('../common/logging');
 
 class ScopesManager {
     /**
@@ -166,6 +167,7 @@ class ScopesManager {
      *   tags (e.g. a smart-merge, which appends to arrays rather than replacing them), so a code missing
      *   from newAccessCodes reflects it not being repeated in the incoming body rather than an intentional
      *   removal
+     * @property {string} [accessRequested] legacy 'read'/'write' or a single v2 CRUDS letter, default 'write'
      *
      * @param {IsAccessTagChangeAllowedByScopesParams}
      * @return {boolean}
@@ -177,7 +179,8 @@ class ScopesManager {
         user,
         scope,
         isCreate = false,
-        ignoreRemovals = false
+        ignoreRemovals = false,
+        accessRequested = 'write'
     }) {
         // a patient scoped caller is authorized via the patient/person the resource belongs to, not via
         // access codes - it holds no access scopes to compare against, so defer to the patient scope
@@ -189,7 +192,7 @@ class ScopesManager {
         /**
          * @type {string[]}
          */
-        const accessCodes = this.getAccessCodesFromScopes('write', user, scope);
+        const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
         if (accessCodes.includes('*')) {
             // no security check since user has full write access to everything
             return true;
@@ -267,7 +270,8 @@ class ScopesManager {
          */
         const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
         if (!accessCodes || accessCodes.length === 0) {
-            const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+            logInfo('No access codes for scope', { user, scope, accessRequested, resourceType: resource.resourceType });
+            const errorMessage = 'user ' + user + ' has no access scopes';
             throw new ForbiddenError(errorMessage);
         }
         return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, resource);
@@ -289,7 +293,8 @@ class ScopesManager {
          */
         const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
         if (!accessCodes || accessCodes.length === 0) {
-            const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+            logInfo('No access codes for scope', { user, scope, accessRequested, resourceType: resource.resourceType });
+            const errorMessage = 'user ' + user + ' has no access scopes';
             throw new ForbiddenError(errorMessage);
         }
         return this.doesResourceHaveAnyAccessCodeInAccessTag(accessCodes, resource);
@@ -435,8 +440,8 @@ class ScopesManager {
      * Returns the scopes belonging to any of the given namespace prefixes.
      *
      * Matching is deliberately case-SENSITIVE, unlike hasPatientScope/isUser. Those two only ask
-     * "is a patient scope present at all"; these strings go straight to
-     * @asymmetrik/sof-scope-checker, which compares by exact string. Case-folding here would
+     * "is a patient scope present at all"; these strings are compared
+     * by exact string downstream. Case-folding here would
      * produce candidates that can never match while widening what we claim to have parsed.
      * @param {string|undefined} scope
      * @param {string[]} namespaces e.g. ['user/', 'system/']

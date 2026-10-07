@@ -159,11 +159,65 @@ class ApplyClickHouseDDLRunner extends BaseScriptRunner {
      * @private
      */
     _parseStatements(sqlText) {
-        return sqlText
-            .replace(/--.*$/gm, '')
+        return this._stripLineComments(sqlText)
             .split(';')
             .map((s) => s.trim())
             .filter((s) => s.length > 0);
+    }
+
+    /**
+     * Strips `-- ...` line comments while being aware of single-quoted string
+     * literals, so a `--` occurring inside a quoted value (e.g. a URL default)
+     * is not mistaken for a comment marker.
+     * @param {string} sqlText
+     * @returns {string}
+     * @private
+     */
+    _stripLineComments(sqlText) {
+        let result = '';
+        let inString = false;
+        for (let i = 0; i < sqlText.length; i++) {
+            const char = sqlText[i];
+            const next = sqlText[i + 1];
+
+            if (inString && char === '\\') {
+                // a backslash-escaped character (e.g. \' or \\) never terminates the string,
+                // regardless of what it escapes
+                result += char;
+                if (next !== undefined) {
+                    result += next;
+                    i++;
+                }
+                continue;
+            }
+            if (char === "'" && !inString) {
+                inString = true;
+                result += char;
+                continue;
+            }
+            if (char === "'" && inString) {
+                // handle escaped quote '' inside a string literal
+                if (next === "'") {
+                    result += "''";
+                    i++;
+                    continue;
+                }
+                inString = false;
+                result += char;
+                continue;
+            }
+            if (!inString && char === '-' && next === '-') {
+                // skip to end of line
+                const newlineIndex = sqlText.indexOf('\n', i);
+                if (newlineIndex === -1) {
+                    break;
+                }
+                i = newlineIndex - 1;
+                continue;
+            }
+            result += char;
+        }
+        return result;
     }
 }
 

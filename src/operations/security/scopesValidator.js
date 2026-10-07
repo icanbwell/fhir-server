@@ -8,6 +8,7 @@ const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {PreSaveOptions} = require('../../preSaveHandlers/preSaveOptions');
 const {RESOURCE_RESTRICTION_TAG, AUTH_USER_TYPES} = require('../../constants');
 const {DelegatedAccessScopeManager} = require('./delegatedAccessScopeManager');
+const {logInfo} = require('../common/logging');
 const {
     parseScopeToken,
     getRequiredCrudsForAccessRequested,
@@ -68,8 +69,8 @@ class ScopesValidator {
 
     /**
      * Whether any of the given (already prefix-filtered) scope strings authorizes resourceType
-     * for the given accessRequested. Replaces @asymmetrik/sof-scope-checker: same "does any
-     * single scope authorize this resourceType+action" semantics, understanding both v1
+     * for the given accessRequested, with "does any single scope authorize this
+     * resourceType+action" semantics, understanding both v1
      * (read/write/*) and v2 (CRUDS-letter) scope suffix grammar.
      * @typedef {Object} EvaluateResourceTypeScopeMatchParams
      * @property {string[]} scopes
@@ -181,14 +182,17 @@ class ScopesValidator {
                 }
 
                 if (!success) {
-                    errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                    logInfo('Scope check failed', {user, scope: scopes, resourceType, accessRequested, action, error: error.message || error});
+                    errorMessage = 'user ' + user + ' does not have access to [' + resourceType + ']';
                     forbiddenError = new ForbiddenError((error.message || error) + ': ' + errorMessage);
                 } else {
-                    const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+                    logInfo('No access scopes present', {user, scope, resourceType, accessRequested, action});
+                    const errorMessage = 'user ' + user + ' does not have access to [' + resourceType + ']';
                     forbiddenError = new ForbiddenError(errorMessage);
                 }
             } else {
-                errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
+                logInfo('No scopes present', {user, resourceType, accessRequested, action});
+                errorMessage = 'user ' + user + ' does not have access to [' + resourceType + ']';
                 forbiddenError = new ForbiddenError(errorMessage);
             }
 
@@ -288,9 +292,11 @@ class ScopesValidator {
                     accessRequested
                 })
             ) {
+                logInfo('Access scope check failed', {
+                    user, scope, accessRequested, resourceType: resource.resourceType, resourceId: resource.id
+                });
                 throw new ForbiddenError(
-                    `user ${user} with scopes [${scope}] has no ${accessRequested} access ` +
-                    `to resource ${resource.resourceType} with id ${resource.id}`
+                    `user ${user} has no access to resource ${resource.resourceType} with id ${resource.id}`
                 );
             }
         } catch (e) {
@@ -309,10 +315,11 @@ class ScopesValidator {
      * @property {Resource|null} currentResource resource as currently stored, null/undefined when being created
      * @property {Resource} updatedResource resource as it will be stored
      * @property {boolean} [ignoreRemovals] set when the calling write path can only append access tags
+     * @property {string} [accessRequested] legacy 'read'/'write' or a single v2 CRUDS letter, default 'write'
      *
      * @param {IsAccessTagChangeAllowedByAccessScopesParams}
      */
-    isAccessTagChangeAllowedByAccessScopes ({ requestInfo, currentResource, updatedResource, ignoreRemovals = false }) {
+    isAccessTagChangeAllowedByAccessScopes ({ requestInfo, currentResource, updatedResource, ignoreRemovals = false, accessRequested = 'write' }) {
         const { user, scope } = requestInfo;
         if (
             !this.scopesManager.isAccessTagChangeAllowedByScopes({
@@ -322,11 +329,15 @@ class ScopesValidator {
                 user,
                 scope,
                 isCreate: !currentResource,
-                ignoreRemovals
+                ignoreRemovals,
+                accessRequested
             })
         ) {
+            logInfo('Access tag change check failed', {
+                user, scope, accessRequested, resourceType: updatedResource.resourceType, resourceId: updatedResource.id
+            });
             throw new ForbiddenError(
-                `user ${user} with scopes [${scope}] can only add or remove access tags it has write access to, ` +
+                `user ${user} can only add or remove access tags it has write access to, ` +
                 `for resource ${updatedResource.resourceType} with id ${updatedResource.id}`
             );
         }
@@ -379,9 +390,11 @@ class ScopesValidator {
                     s.code === RESOURCE_RESTRICTION_TAG.CODE
             )
         ) {
+            logInfo('Resource restricted for patient scope', {
+                user, scope, accessRequested, resourceType: resource.resourceType, resourceId: resource.id
+            });
             throw new ForbiddenError(
-                `user ${user} with scopes [${scope}] has no ${accessRequested} access ` +
-                `to resource ${resource.resourceType} with id ${resource.id}`
+                `user ${user} has no access to resource ${resource.resourceType} with id ${resource.id}`
             );
         }
     }

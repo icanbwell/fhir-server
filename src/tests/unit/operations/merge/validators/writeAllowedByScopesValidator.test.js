@@ -161,7 +161,8 @@ describe('WriteAllowedByScopesValidator', () => {
             expect(scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes).toHaveBeenCalledWith({
                 resource,
                 requestInfo,
-                base_version: '4_0_0'
+                base_version: '4_0_0',
+                accessRequested: 'u'
             });
         });
 
@@ -186,7 +187,8 @@ describe('WriteAllowedByScopesValidator', () => {
             expect(scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes).toHaveBeenCalledWith({
                 resource: existingResource,
                 requestInfo,
-                base_version: '4_0_0'
+                base_version: '4_0_0',
+                accessRequested: 'u'
             });
         });
 
@@ -209,6 +211,83 @@ describe('WriteAllowedByScopesValidator', () => {
                 resourceType: 'Observation',
                 uuid: 'uuid-obs'
             });
+        });
+    });
+
+    describe('granular CRUDS access check', () => {
+        test('passes accessRequested: u to isAccessToResourceAllowedByAccessAndPatientScopes for an existing resource', async () => {
+            const incomingResource = createResource({ id: 'r1', uuid: 'u1' });
+            const existingResource = createResource({ id: 'r1', uuid: 'u1' });
+            databaseBulkLoader.getResourceFromExistingList.mockReturnValue(existingResource);
+
+            await validator.validate({
+                requestInfo,
+                incomingResources: [incomingResource],
+                base_version: '4_0_0',
+                effectiveSmartMerge: false
+            });
+
+            expect(scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: 'u' })
+            );
+        });
+
+        test('passes accessRequested: u to isAccessToResourceAllowedByAccessAndPatientScopes for a new resource', async () => {
+            const resource = createResource({ id: 'r1', uuid: 'u1' });
+            databaseBulkLoader.getResourceFromExistingList.mockReturnValue(null);
+
+            await validator.validate({
+                requestInfo,
+                incomingResources: [resource],
+                base_version: '4_0_0',
+                effectiveSmartMerge: false
+            });
+
+            expect(scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: 'u' })
+            );
+        });
+
+        test('passes accessRequested: u to isAccessTagChangeAllowedByAccessScopes for an existing resource', async () => {
+            const incomingResource = createResource({ id: 'r1', uuid: 'u1' });
+            const existingResource = createResource({ id: 'r1', uuid: 'u1' });
+            databaseBulkLoader.getResourceFromExistingList.mockReturnValue(existingResource);
+
+            await validator.validate({
+                requestInfo,
+                incomingResources: [incomingResource],
+                base_version: '4_0_0',
+                effectiveSmartMerge: true
+            });
+
+            expect(scopesValidator.isAccessTagChangeAllowedByAccessScopes).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    accessRequested: 'u',
+                    currentResource: existingResource,
+                    updatedResource: incomingResource,
+                    ignoreRemovals: true
+                })
+            );
+        });
+
+        test('passes accessRequested: u to isAccessTagChangeAllowedByAccessScopes for a new resource', async () => {
+            const resource = createResource({ id: 'r1', uuid: 'u1' });
+            databaseBulkLoader.getResourceFromExistingList.mockReturnValue(null);
+
+            await validator.validate({
+                requestInfo,
+                incomingResources: [resource],
+                base_version: '4_0_0',
+                effectiveSmartMerge: false
+            });
+
+            expect(scopesValidator.isAccessTagChangeAllowedByAccessScopes).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    accessRequested: 'u',
+                    currentResource: null,
+                    updatedResource: resource
+                })
+            );
         });
     });
 
@@ -564,7 +643,8 @@ describe('WriteAllowedByScopesValidator', () => {
                 .toHaveBeenCalledWith({
                     resource: incomingResource,
                     requestInfo,
-                    base_version: '4_0_0'
+                    base_version: '4_0_0',
+                    accessRequested: 'u'
                 });
         });
     });

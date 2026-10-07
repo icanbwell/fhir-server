@@ -779,6 +779,20 @@ class ConfigManager {
     }
 
     /**
+     * Safety cap on the total number of ids a chained search parameter (e.g.
+     * patient.identifier=X) may accumulate across all pages of its sub-search before being
+     * OR'd into the outer query's $in. Without this, a criterion that's too broad (matches a
+     * large share of a resource type) would build an unbounded $in -- a performance/DoS risk,
+     * and functionally close to "no restriction" even when it isn't literally unfiltered.
+     * Default of 10000 is 10x the per-page cap (DB_SEARCH_LIMIT_FOR_IDS) -- generous for
+     * legitimate chains while still bounding pathological ones.
+     * @return {number}
+     */
+    get chainedSearchMaxResolvedIds() {
+        return env.CHAINED_SEARCH_MAX_RESOLVED_IDS ? parseInt(env.CHAINED_SEARCH_MAX_RESOLVED_IDS) : 10000;
+    }
+
+    /**
      * the size limit for request body in access log
      * @return {number}
      */

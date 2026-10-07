@@ -68,7 +68,7 @@ async function main () {
     const promiseConcurrency = parameters.promiseConcurrency || 10;
 
     const oidToStandardSystemUrlMap = parameters.oidToStandardUrlMap
-        ? { ...JSON.parse(parameters.oidToStandardUrlMap), ...oidToStandardUrlMapDefault }
+        ? { ...oidToStandardUrlMapDefault, ...JSON.parse(parameters.oidToStandardUrlMap) }
         : oidToStandardUrlMapDefault;
 
     /**

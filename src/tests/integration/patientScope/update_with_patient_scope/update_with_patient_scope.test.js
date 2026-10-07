@@ -157,7 +157,7 @@ describe('Condition Tests', () => {
             expect(resp).toHaveStatusCode(403);
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].details.text).toStrictEqual('None of the provided scopes matched an allowed scope.: user clientFhirPerson with scopes [patient/Observation.*] failed access check to [Condition.write]');
+            expect(body.issue[0].details.text).toStrictEqual('None of the provided scopes matched an allowed scope.: user clientFhirPerson does not have access to [Condition]');
 
             // check version id
             resp = await request

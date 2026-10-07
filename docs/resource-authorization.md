@@ -164,8 +164,8 @@ Five scope namespaces, all validated before any query is built:
   `getAccessCodesFromScopes`, `getUserScopes`, `getResourceTypeScopes` (the union of `user/` and
   `system/` — used by `ScopesValidator` instead of `getUserScopes`), `getPatientScopes`,
   `getAdminScopes`, `hasPatientScope`.
-- `ScopesValidator.verifyHasValidScopesAsync` (`src/operations/security/scopesValidator.js`), using
-  `@asymmetrik/sof-scope-checker`, is called at the top of every read operation
+- `ScopesValidator.verifyHasValidScopesAsync` (`src/operations/security/scopesValidator.js`) is
+  called at the top of every read operation
   (`searchBundle.js`, `searchStreaming.js`, `searchById.js`, `history.js`, `everything.js`,
   `graph.js`, `summary.js`) before query construction — a request with an insufficient
   `user`/`system` scope for the resource type never reaches the query-building stage at all.

@@ -178,7 +178,7 @@ describe('Resource Authorization §9 — Sensitivity classification', () => {
             }
             expect(thrown).toBeDefined();
             expect(thrown.statusCode).toBe(403);
-            expect(thrown.message).toMatch(/has no read access to resource Observation with id obs-1/);
+            expect(thrown.message).toMatch(/has no access to resource Observation with id obs-1/);
         });
 
         test('does NOT throw for a patient-scoped caller against a resource without the restriction tag', () => {

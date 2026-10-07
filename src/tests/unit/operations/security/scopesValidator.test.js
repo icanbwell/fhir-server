@@ -141,7 +141,7 @@ describe('ScopesValidator', () => {
 
             expect(result).toBeInstanceOf(ServerError);
             expect(result.statusCode).toBe(403);
-            expect(result.message).toContain('no scopes');
+            expect(result.message).toContain('does not have access');
         });
 
         test('should return ForbiddenError when scope is empty string', async () => {
@@ -158,7 +158,7 @@ describe('ScopesValidator', () => {
 
             expect(result).toBeInstanceOf(ServerError);
             expect(result.statusCode).toBe(403);
-            expect(result.message).toContain('no scopes');
+            expect(result.message).toContain('does not have access');
         });
 
         test('should return undefined when patient scopes grant access', async () => {
@@ -314,6 +314,79 @@ describe('ScopesValidator', () => {
             }
         });
 
+        test('merge requires u: an update-only grant passes, a create-only grant fails', async () => {
+            mockScopesManager.getResourceTypeScopes.mockReturnValue(['user/Patient.u']);
+            const requestInfo = {user: 'testUser', scope: 'user/Patient.u access/client.*'};
+
+            const result = await scopesValidator.isScopesValidAsync({
+                requestInfo, resourceType: 'Patient', accessRequested: 'u', action: 'merge'
+            });
+            expect(result).toBeUndefined();
+        });
+
+        test('merge action denies a create-only (c) grant', async () => {
+            mockScopesManager.getResourceTypeScopes.mockReturnValue(['user/Patient.c']);
+            const requestInfo = {user: 'testUser', scope: 'user/Patient.c access/client.*'};
+
+            const result = await scopesValidator.isScopesValidAsync({
+                requestInfo, resourceType: 'Patient', accessRequested: 'u', action: 'merge'
+            });
+            expect(result).toBeInstanceOf(ServerError);
+        });
+
+        test('merge denial error text is generic and does not leak the scope or the granular letter', async () => {
+            mockScopesManager.getResourceTypeScopes.mockReturnValue(['user/Patient.c']);
+            const requestInfo = {user: 'testUser', scope: 'user/Patient.c access/client.*'};
+
+            const result = await scopesValidator.isScopesValidAsync({
+                requestInfo, resourceType: 'Patient', accessRequested: 'u', action: 'merge'
+            });
+            expect(result.message).toContain('[Patient]');
+            expect(result.message).not.toContain('.write');
+            expect(result.message).not.toContain('.u]');
+            expect(result.message).not.toContain(requestInfo.scope);
+        });
+
+        test('merge denies when the access/ tenant scope does not satisfy u', async () => {
+            mockScopesManager.getResourceTypeScopes.mockReturnValue(['user/Patient.u']);
+            mockScopesManager.getAccessCodesFromScopes.mockImplementation((accessRequested) =>
+                accessRequested === 'u' ? [] : ['client']
+            );
+            const requestInfo = {user: 'testUser', scope: 'user/Patient.u access/client.c'};
+
+            const result = await scopesValidator.isScopesValidAsync({
+                requestInfo, resourceType: 'Patient', accessRequested: 'u', action: 'merge'
+            });
+            expect(result).toBeInstanceOf(ServerError);
+            expect(mockScopesManager.getAccessCodesFromScopes).toHaveBeenCalledWith('u', 'testUser', requestInfo.scope);
+        });
+
+        test('merge with a v1 write scope is unaffected by enableSmartV2CrudsScopes', async () => {
+            Object.defineProperty(mockConfigManager, 'enableSmartV2CrudsScopes', {
+                value: false, configurable: true
+            });
+            mockScopesManager.getResourceTypeScopes.mockReturnValue(['user/Patient.write']);
+            const requestInfo = {user: 'testUser', scope: 'user/Patient.write access/client.write'};
+
+            const result = await scopesValidator.isScopesValidAsync({
+                requestInfo, resourceType: 'Patient', accessRequested: 'u', action: 'merge'
+            });
+            expect(result).toBeUndefined();
+        });
+
+        test('merge with only a v2 grant is denied when enableSmartV2CrudsScopes is off', async () => {
+            Object.defineProperty(mockConfigManager, 'enableSmartV2CrudsScopes', {
+                value: false, configurable: true
+            });
+            mockScopesManager.getResourceTypeScopes.mockReturnValue(['user/Patient.u']);
+            const requestInfo = {user: 'testUser', scope: 'user/Patient.u access/client.u'};
+
+            const result = await scopesValidator.isScopesValidAsync({
+                requestInfo, resourceType: 'Patient', accessRequested: 'u', action: 'merge'
+            });
+            expect(result).toBeInstanceOf(ServerError);
+        });
+
         // An action not in the granular lookup table (e.g. 'graph', whose action name is reused
         // for both a search-type read and a delete-driven write) falls back to accessRequested
         // exactly as before -- v1 read/write scopes still work for it.
@@ -420,7 +493,7 @@ describe('ScopesValidator', () => {
                 startTime: Date.now(),
                 action: 'read',
                 accessRequested: 'read'
-            })).rejects.toThrow('no scopes');
+            })).rejects.toThrow('does not have access');
 
             expect(mockFhirLoggingManager.logOperationFailureAsync).toHaveBeenCalled();
         });
@@ -454,7 +527,7 @@ describe('ScopesValidator', () => {
                 startTime: Date.now(),
                 action: 'read',
                 accessRequested: 'read'
-            })).rejects.toThrow('no scopes');
+            })).rejects.toThrow('does not have access');
         });
     });
 
@@ -518,7 +591,7 @@ describe('ScopesValidator', () => {
                     resource: { resourceType: 'Patient', id: '123' },
                     accessRequested: 'write'
                 });
-            }).toThrow('has no write access');
+            }).toThrow('has no access');
         });
 
         test('should use write as default accessRequested', () => {
@@ -535,6 +608,53 @@ describe('ScopesValidator', () => {
                 scope: 'access/client.*',
                 accessRequested: 'write'
             });
+        });
+    });
+
+    describe('isAccessTagChangeAllowedByAccessScopes', () => {
+        test('defaults accessRequested to write when not passed', () => {
+            mockScopesManager.isAccessTagChangeAllowedByScopes = jest.fn().mockReturnValue(true);
+            mockScopesManager.getAccessTagCodes = jest.fn().mockReturnValue([]);
+
+            scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                requestInfo: { user: 'testUser', scope: 'access/client.write' },
+                currentResource: null,
+                updatedResource: { resourceType: 'Patient', id: '123' }
+            });
+
+            expect(mockScopesManager.isAccessTagChangeAllowedByScopes).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: 'write' })
+            );
+        });
+
+        test('threads a custom accessRequested through to scopesManager', () => {
+            mockScopesManager.isAccessTagChangeAllowedByScopes = jest.fn().mockReturnValue(true);
+            mockScopesManager.getAccessTagCodes = jest.fn().mockReturnValue([]);
+
+            scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                requestInfo: { user: 'testUser', scope: 'access/client.u' },
+                currentResource: null,
+                updatedResource: { resourceType: 'Patient', id: '123' },
+                accessRequested: 'u'
+            });
+
+            expect(mockScopesManager.isAccessTagChangeAllowedByScopes).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: 'u' })
+            );
+        });
+
+        test('throws when scopesManager denies the tag change', () => {
+            mockScopesManager.isAccessTagChangeAllowedByScopes = jest.fn().mockReturnValue(false);
+            mockScopesManager.getAccessTagCodes = jest.fn().mockReturnValue([]);
+
+            expect(() => {
+                scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                    requestInfo: { user: 'testUser', scope: 'access/client.r' },
+                    currentResource: null,
+                    updatedResource: { resourceType: 'Patient', id: '123' },
+                    accessRequested: 'u'
+                });
+            }).toThrow('can only add or remove access tags');
         });
     });
 
@@ -559,7 +679,7 @@ describe('ScopesValidator', () => {
                     resource,
                     accessRequested: 'write'
                 });
-            }).toThrow('has no write access');
+            }).toThrow('has no access');
         });
 
         test('should NOT throw when isUser is false even if resource has restriction tag', () => {
@@ -669,7 +789,7 @@ describe('ScopesValidator', () => {
                 resource,
                 base_version: '4_0_0',
                 accessRequested: 'write'
-            })).rejects.toThrow('has no write access');
+            })).rejects.toThrow('has no access');
         });
 
         test('should throw when patient scope check fails', async () => {
@@ -710,7 +830,7 @@ describe('ScopesValidator', () => {
                 resource,
                 base_version: '4_0_0',
                 accessRequested: 'write'
-            })).rejects.toThrow('has no write access');
+            })).rejects.toThrow('has no access');
         });
     });
 

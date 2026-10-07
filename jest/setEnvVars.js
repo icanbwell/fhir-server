@@ -31,7 +31,6 @@ process.env.KAFKA_MAX_RETRY = '3';
 process.env.ENABLE_CONSENTED_PROA_DATA_ACCESS = '1';
 process.env.EXTERNAL_REQUEST_TIMEOUT_SEC = '5';
 process.env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES = "Resource";
-process.env.RESOURCE_SERVER = "http://localhost:3000";
 process.env.SERVER_PORT = 3000;
 process.env.ENABLE_CLICKHOUSE = '0';
 process.env.ENABLE_EXTENDED_GROUP = '1';

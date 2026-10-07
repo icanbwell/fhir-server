@@ -44,10 +44,6 @@ jest.mock('../../../utils/fhirRequestInfoBuilder', () => ({
     }
 }));
 
-jest.mock('@asymmetrik/sof-scope-checker', () => {
-    return jest.fn().mockReturnValue({ success: true });
-});
-
 const { handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut } = require('../../../routeHandlers/admin');
 
 describe('routeHandlers/admin', () => {

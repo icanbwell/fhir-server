@@ -237,13 +237,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@asymmetrik/sof-scope-checker@npm:^1.0.7":
-  version: 1.0.7
-  resolution: "@asymmetrik/sof-scope-checker@npm:1.0.7"
-  checksum: 10c0/a1e9cbf0e65adb262a869c88d50435a3b979b0c62ac3a15e5aa54be583ac1b98a130d3c76f931573b9b321cc8c75cc0646fed431f996731b696d2b2e6b75e5e4
-  languageName: node
-  linkType: hard
-
 "@aws-crypto/sha256-js@npm:^4.0.0":
   version: 4.0.0
   resolution: "@aws-crypto/sha256-js@npm:4.0.0"
@@ -5072,7 +5065,6 @@ __metadata:
     "@apollo/server": "npm:5.5.1"
     "@apollo/subgraph": "npm:^2.14.0"
     "@as-integrations/express5": "npm:^1.1.2"
-    "@asymmetrik/sof-scope-checker": "npm:^1.0.7"
     "@aws-sdk/client-s3": "npm:^3.1053.0"
     "@aws-sdk/lib-storage": "npm:^3.1053.0"
     "@babel/plugin-transform-modules-commonjs": "npm:^7.29.7"
