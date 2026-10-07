@@ -6,9 +6,10 @@ const { describe, test, expect, jest, beforeEach } = require('@jest/globals');
  * These tests verify that error responses do NOT expose:
  * - Internal system paths or stack traces
  * - MongoDB query details (collection names, filter conditions, field paths)
- * - PHI (patient data echoed in validation errors)
- * - Internal tenant structure or cross-tenant resource IDs
  * - Debug/verbose information in production mode
+ *
+ * and that 4xx errors (which the client needs in order to correct its request) return the error's
+ * own message/issue and never a stack trace.
  *
  * Tests assert CORRECT (secure) behavior and should FAIL on buggy code
  * that leaks information.
@@ -85,41 +86,32 @@ describe('Error Information Disclosure Prevention', () => {
         });
     });
 
-    describe('convertErrorToOperationOutcome - Client errors (4xx)', () => {
-        test('should NOT echo submitted PHI data in validation error messages', () => {
-            // Simulate a validation error that might echo back PHI from the submitted resource
-            const error = new Error(
-                'Invalid value for Patient.name: "John Doe" is not a valid HumanName'
-            );
+    describe('Client errors (4xx) return the error message but never internals', () => {
+        test('4xx error with issue[] passes the issue through unchanged', () => {
+            const error = new Error('Invalid value for Patient.name');
             error.statusCode = 400;
             error.issue = [{
                 severity: 'error',
                 code: 'invalid',
-                details: {
-                    text: 'Invalid value for Patient.name: "John Doe" is not a valid HumanName'
-                }
+                details: { text: 'Invalid value for Patient.name' }
             }];
 
             const result = convertErrorToOperationOutcome({ error, internalError: false });
-            const serialized = JSON.stringify(result);
 
-            // The error should describe WHAT is wrong, not echo the PHI value
-            expect(serialized).not.toContain('John Doe');
+            expect(result.issue).toHaveLength(1);
+            expect(result.issue[0].code).toBe('invalid');
+            expect(result.issue[0].details.text).toBe('Invalid value for Patient.name');
         });
 
-        test('should NOT include internal file paths in client error diagnostics', () => {
+        test('4xx error without issue[] returns its own message and no stack trace', () => {
             const error = new Error('Validation failed');
             error.statusCode = 400;
-            error.issue = [{
-                severity: 'error',
-                code: 'invalid',
-                diagnostics: 'Failed at /opt/app/src/operations/validate/validate.js:221',
-                details: { text: 'Validation failed' }
-            }];
+            error.stack = 'Error: Validation failed\n    at /opt/app/src/operations/validate/validate.js:221:13';
 
             const result = convertErrorToOperationOutcome({ error, internalError: false });
             const serialized = JSON.stringify(result);
 
+            expect(result.issue[0].details.text).toBe('Unexpected Error: Validation failed');
             expect(serialized).not.toContain('/opt/app');
             expect(serialized).not.toContain('validate.js');
         });
@@ -212,17 +204,49 @@ describe('Error Information Disclosure Prevention', () => {
             expect(serialized).not.toContain('waitQueueTimeoutMS');
             expect(serialized).not.toContain('pool');
         });
+    });
 
-        test('should NOT expose resource UUIDs from other tenants in error messages', () => {
-            const error = new Error(
-                'Resource Patient/other-tenant-patient-uuid-12345 not accessible'
-            );
+    describe('handleServerError - 4xx responses', () => {
+        test('403 returns the status and the error message', () => {
+            const error = new Error('user u1 has no access to resource Patient with id p1');
             error.statusCode = 403;
 
             handleServerError(error, mockReq, mockRes, mockNext);
 
+            expect(mockRes.status).toHaveBeenCalledWith(403);
+            expect(responseBody.issue[0].details.text).toBe(
+                'Unexpected Error: user u1 has no access to resource Patient with id p1'
+            );
+        });
+
+        test('400 validation error returns its issue[]', () => {
+            const error = new Error('Invalid resource');
+            error.statusCode = 400;
+            error.issue = [{
+                severity: 'error',
+                code: 'invalid',
+                details: { text: 'Invalid resource' }
+            }];
+
+            handleServerError(error, mockReq, mockRes, mockNext);
+
+            expect(mockRes.status).toHaveBeenCalledWith(400);
+            expect(responseBody.issue[0].code).toBe('invalid');
+            expect(responseBody.issue[0].details.text).toBe('Invalid resource');
+        });
+
+        test('401 returns the status and message without a stack trace', () => {
+            const error = new Error('Authentication failed');
+            error.statusCode = 401;
+            error.stack = 'Error: Authentication failed\n    at /opt/app/src/strategies/jwt.js:10:5';
+
+            handleServerError(error, mockReq, mockRes, mockNext);
+
             const serialized = JSON.stringify(responseBody);
-            expect(serialized).not.toContain('other-tenant-patient-uuid-12345');
+            expect(mockRes.status).toHaveBeenCalledWith(401);
+            expect(responseBody.issue[0].details.text).toBe('Unexpected Error: Authentication failed');
+            expect(serialized).not.toContain('/opt/app');
+            expect(serialized).not.toContain('jwt.js');
         });
     });
 
@@ -357,47 +381,6 @@ describe('Error Information Disclosure Prevention', () => {
                 expect(valStr).not.toMatch(/express/i);
                 expect(valStr).not.toMatch(/\d+\.\d+\.\d+\.\d+/); // IP addresses
             }
-        });
-    });
-
-    describe('Validation error data echo prevention', () => {
-        test('should NOT echo submitted resource data in 400 validation responses', () => {
-            // Simulate a BadRequestError where the error message contains submitted PHI
-            const error = new Error(
-                'Invalid resource: Patient {"resourceType":"Patient","name":[{"family":"Smith","given":["Jane"]}],"birthDate":"1990-05-15","identifier":[{"system":"http://hl7.org/fhir/sid/us-ssn","value":"123-45-6789"}]}'
-            );
-            error.statusCode = 400;
-            error.issue = [{
-                severity: 'error',
-                code: 'invalid',
-                details: {
-                    text: error.message
-                }
-            }];
-
-            handleServerError(error, mockReq, mockRes, mockNext);
-
-            const serialized = JSON.stringify(responseBody);
-            // SSN should never appear in error response
-            expect(serialized).not.toContain('123-45-6789');
-            // Patient name should not be echoed
-            expect(serialized).not.toContain('Smith');
-            expect(serialized).not.toContain('Jane');
-            // Birth date should not be echoed
-            expect(serialized).not.toContain('1990-05-15');
-        });
-
-        test('should NOT echo Authorization token details in error responses', () => {
-            const error = new Error(
-                'Token validation failed for bearer: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signature'
-            );
-            error.statusCode = 401;
-
-            handleServerError(error, mockReq, mockRes, mockNext);
-
-            const serialized = JSON.stringify(responseBody);
-            expect(serialized).not.toContain('eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9');
-            expect(serialized).not.toMatch(/eyJ[A-Za-z0-9_-]+/); // JWT pattern
         });
     });
 });

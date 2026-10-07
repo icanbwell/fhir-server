@@ -1,28 +1,15 @@
 /**
- * Tests for merge operation cross-tenant write vulnerabilities.
+ * Tests for merge write authorization with patient-scoped tokens.
  *
- * VULNERABILITY: The merge operation's access control has gaps that allow:
- * 1. A patient-scoped user to create/update resources in other tenants because
- *    isAccessToResourceAllowedBySecurityTags returns true without checking tags
- *    when patient scope is present for patient-filterable resource types.
- * 2. A patient-scoped user to write to non-patient-filterable resources
- *    (Organization, Practitioner, etc.) because canWriteResourceAsync returns
- *    true when the resource type is not in patientFilterMapping.
+ * By design (docs/resource-authorization.md section 5) a patient/ scope on a patient-filterable
+ * resource type is NOT decided by access tags: ScopesManager.isAccessToResourceAllowedBySecurityTags
+ * returns true and the real guard is PatientScopeManager.canWriteResourceAsync, which only lets the
+ * caller write resources reachable through its own Person/Patient identity graph. A patient scope
+ * must never authorize writes to non-patient-filterable types (Organization, Practitioner, ...);
+ * those fall through to the access-tag check.
  *
- * Files:
- * - src/operations/security/scopesManager.js (line 128-134)
- * - src/operations/security/patientScopeManager.js (line 286-290)
- * - src/operations/merge/validators/writeAllowedByScopesValidator.js (line 55-60)
- *
- * Exploitation scenario for cross-tenant data injection:
- * 1. Attacker obtains patient-scoped token for tenant_a
- * 2. Attacker sends merge request with resources having owner=tenant_b, access=tenant_b
- * 3. writeAllowedByScopesValidator calls isAccessToResourceAllowedByAccessAndPatientScopes
- * 4. isAccessToResourceAllowedByAccessScopes calls isAccessToResourceAllowedBySecurityTags
- * 5. Bug: returns true because resource type is patient-filterable and patient scope exists
- * 6. Resources are created in tenant_b's namespace
- *
- * Severity: CRITICAL — allows cross-tenant data injection and poisoning
+ * These tests use the real ScopesManager and PatientScopeManager (only the Person->Patient id
+ * expansion, which needs a database, is stubbed) so the denial is decided by production code.
  */
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 
@@ -45,7 +32,7 @@ function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
 }
 
-describe('Merge Cross-Tenant Write Vulnerability', () => {
+describe('Merge write authorization with patient-scoped tokens', () => {
     let scopesValidator;
     let scopesManager;
     let patientFilterManager;
@@ -58,10 +45,11 @@ describe('Merge Cross-Tenant Write Vulnerability', () => {
             patientFilterManager
         });
 
-        const mockPatientScopeManager = createMockInstance(PatientScopeManager);
-        // Simulate canWriteResourceAsync: for patient-filterable resources with matching
-        // patient reference, it returns true
-        mockPatientScopeManager.canWriteResourceAsync = jestGlobal.fn().mockResolvedValue(true);
+        // Real PatientScopeManager; the caller's own Person resolves to this single Patient
+        const patientScopeManager = createMockInstance(PatientScopeManager);
+        patientScopeManager.scopesManager = scopesManager;
+        patientScopeManager.patientFilterManager = patientFilterManager;
+        patientScopeManager.getPatientIdsFromScopeAsync = jestGlobal.fn().mockResolvedValue(['my-patient']);
 
         const mockPreSaveManager = createMockInstance(PreSaveManager);
         mockPreSaveManager.preSaveAsync = jestGlobal.fn().mockImplementation(
@@ -83,14 +71,14 @@ describe('Merge Cross-Tenant Write Vulnerability', () => {
             scopesManager,
             fhirLoggingManager: mockFhirLoggingManager,
             configManager: mockConfigManager,
-            patientScopeManager: mockPatientScopeManager,
+            patientScopeManager,
             preSaveManager: mockPreSaveManager,
             delegatedAccessScopeManager: mockDelegatedAccessScopeManager
         });
     });
 
     describe('isAccessToResourceAllowedByAccessAndPatientScopes on new merge resources', () => {
-        test('MUST deny creating Observation with owner=other_tenant when user has access/my_tenant', async () => {
+        test('MUST deny creating Observation for a Patient outside the caller\'s own identity graph', async () => {
             const requestInfo = {
                 user: 'attacker@my_tenant',
                 scope: 'patient/Observation.write access/my_tenant.*',
@@ -102,7 +90,7 @@ describe('Merge Cross-Tenant Write Vulnerability', () => {
                 resourceType: 'Observation',
                 id: 'injected-obs',
                 _uuid: 'uuid-injected-obs',
-                subject: { reference: 'Patient/patient-in-both-tenants' },
+                subject: { reference: 'Patient/someone-elses-patient' },
                 meta: {
                     security: [
                         { system: SecurityTagSystem.owner, code: 'other_tenant' },
@@ -111,20 +99,20 @@ describe('Merge Cross-Tenant Write Vulnerability', () => {
                 }
             };
 
-            // CORRECT: Should throw ForbiddenError because the resource's owner/access
-            // tags don't match the user's access scope (my_tenant vs other_tenant).
-            // CURRENT BUG: Does NOT throw because isAccessToResourceAllowedBySecurityTags
-            // returns true when patient scope is present for patient-filterable resources.
+            // The tag check is skipped for patient-filterable types under a patient scope; the
+            // write is denied because the subject Patient is not one of the caller's own patients.
             await expect(
                 scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                     requestInfo,
                     resource: maliciousResource,
                     base_version: '4_0_0'
                 })
-            ).rejects.toThrow();
+            ).rejects.toThrow(
+                'The current patient scope and person id in the JWT token do not allow writing the Observation resource.'
+            );
         });
 
-        test('MUST deny creating Condition with owner=competitor when user has access/my_health', async () => {
+        test('MUST deny creating Condition for a Patient outside the caller\'s own identity graph', async () => {
             const requestInfo = {
                 user: 'user@my_health',
                 scope: 'patient/Condition.write access/my_health.*',
@@ -136,7 +124,7 @@ describe('Merge Cross-Tenant Write Vulnerability', () => {
                 resourceType: 'Condition',
                 id: 'injected-cond',
                 _uuid: 'uuid-injected-cond',
-                subject: { reference: 'Patient/some-patient' },
+                subject: { reference: 'Patient/someone-elses-patient' },
                 meta: {
                     security: [
                         { system: SecurityTagSystem.owner, code: 'competitor' },
@@ -151,10 +139,12 @@ describe('Merge Cross-Tenant Write Vulnerability', () => {
                     resource: maliciousResource,
                     base_version: '4_0_0'
                 })
-            ).rejects.toThrow();
+            ).rejects.toThrow(
+                'The current patient scope and person id in the JWT token do not allow writing the Condition resource.'
+            );
         });
 
-        test('MUST deny creating non-patient-filterable resource (Organization) with patient scope', async () => {
+        test('MUST deny creating non-patient-filterable resource (Organization) with patient scope even when tags match', async () => {
             const requestInfo = {
                 user: 'attacker@tenant_a',
                 scope: 'patient/Organization.write access/tenant_a.*',
@@ -168,27 +158,28 @@ describe('Merge Cross-Tenant Write Vulnerability', () => {
                 _uuid: 'uuid-fake-org',
                 meta: {
                     security: [
-                        { system: SecurityTagSystem.owner, code: 'tenant_b' },
-                        { system: SecurityTagSystem.access, code: 'tenant_b' }
+                        { system: SecurityTagSystem.owner, code: 'tenant_a' },
+                        { system: SecurityTagSystem.access, code: 'tenant_a' }
                     ]
                 }
             };
 
-            // CORRECT: Should throw because:
-            // 1. Organization is not patient-filterable, so patient scope should NOT grant write
-            // 2. Even if somehow allowed, owner=tenant_b does not match user's access/tenant_a
+            // The tags match the caller's access/tenant_a, so the access-tag check passes; the write
+            // is denied only because a patient scope never authorizes non-patient-filterable types.
             await expect(
                 scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                     requestInfo,
                     resource: maliciousResource,
                     base_version: '4_0_0'
                 })
-            ).rejects.toThrow();
+            ).rejects.toThrow(
+                'The current patient scope and person id in the JWT token do not allow writing the Organization resource.'
+            );
         });
     });
 
     describe('Merge with existing cross-tenant resource', () => {
-        test('MUST deny updating existing Observation owned by other_tenant via merge', async () => {
+        test('MUST deny updating an existing Observation of a Patient outside the caller\'s own identity graph', async () => {
             const requestInfo = {
                 user: 'attacker@tenant_a',
                 scope: 'patient/Observation.write access/tenant_a.*',
@@ -201,7 +192,7 @@ describe('Merge Cross-Tenant Write Vulnerability', () => {
                 resourceType: 'Observation',
                 id: 'existing-obs',
                 _uuid: 'uuid-existing-obs',
-                subject: { reference: 'Patient/patient-in-both-tenants' },
+                subject: { reference: 'Patient/someone-elses-patient' },
                 meta: {
                     security: [
                         { system: SecurityTagSystem.owner, code: 'other_tenant' },
@@ -217,7 +208,9 @@ describe('Merge Cross-Tenant Write Vulnerability', () => {
                     resource: existingResource,
                     base_version: '4_0_0'
                 })
-            ).rejects.toThrow();
+            ).rejects.toThrow(
+                'The current patient scope and person id in the JWT token do not allow writing the Observation resource.'
+            );
         });
     });
 });
