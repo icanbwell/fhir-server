@@ -111,7 +111,7 @@ its required CRUDS letter(s), extended here with the operations analyzed since t
 | `graph` (DELETE)                               | `d` on the root and on every resource deleted; forward-reference steps are satisfied by `d` (in place of `r`); reverse/child search steps still require `s` | see "DELETE behavior" below |
 | `$merge`                                       | `u`              | see "`u` covers update-as-create" below |
 | `$import`                                      | `c` on `Task`    | the request-time gate only covers creating the `Task`; per-resource authorization for what the import actually writes happens downstream, in the import processors, and is not enforced by this request-time gate |
-| `$export`                                      | `c` on `Task` at the resource gate, plus `c` and `s` on the `access/` tenant codes | creating the export job is gated like any other create; the tenant codes stamped on the ExportStatus are those granting both `c` and `s` (each letter may come from a different scope), and a caller with none is rejected. The runner's tenant filter for the exported data uses every tenant code granting `s`, including ones not stamped on the ExportStatus (see "`$export` behavior"); status polling (`$export/<id>`) is an instance read and uses `r` on the ExportStatus access tag; the runner includes a resource type only if a `user/`/`system/` scope grants `s` on it — types without it are dropped silently, as before |
+| `$export`                                      | `c` on `Task` at the resource gate, plus at least one `access/` tenant code granting `c` and at least one granting `s` | creating the export job is gated like any other create; the tenant codes stamped on the ExportStatus are those granting `c`, and a caller with no tenant code granting `c`, or none granting `s`, is rejected. The runner's tenant filter for the exported data uses every tenant code granting `s`, including ones not stamped on the ExportStatus (see "`$export` behavior"); status polling (`$export/<id>`) is an instance read and uses `r` on the ExportStatus access tag; the runner includes a resource type only if a `user/`/`system/` scope grants `s` on it — types without it are dropped silently, as before |
 | `$access-history`                              | unchanged for now (still the coarse `read` check, twice) | deferred — not part of this pass; tracked as a TODO to assign granular letters later |
 
 `$access-history`'s existing hardcoded `'*'`-access-code requirement (a pre-existing regression
@@ -216,8 +216,12 @@ Two of these changes reach v1 clients, because v1
 | v1 `user/*.read` + `user/*.write` with `access/<tag>.*`, or v1 `*` | `$export` | accepted | accepted |
 | v1 read-only (`user/*.read` / `user/Patient.read`), no `user/` scope covering `Task` | `$export` | accepted | **rejected** — `c` on `Task` is now required |
 | v2 `user/*.rs user/Task.c` + `access/<tag>.cs` | `$export` | rejected | accepted |
-| v2 `user/*.rs user/Task.c` + `access/<tag>.s` | `$export` | rejected | rejected (tenant codes need `c`) |
-| v1 `access/<tag>.read` (or `.write`) only | `$export` | accepted, tag stamped on the ExportStatus | **rejected** if no tenant code grants both `c` and `s`; a v1 `read`-only or `write`-only tenant code is no longer stamped on the ExportStatus |
+| v2 `user/*.rs user/Task.c` + `access/<tag>.s` | `$export` | rejected | rejected (no tenant code grants `c`) |
+| v2 `user/*.rs user/Task.c` + `access/<tag>.c` | `$export` | rejected | rejected (no tenant code grants `s`) |
+| v2 `user/*.rs user/Task.c` + `access/tenantA.c access/tenantB.s` | `$export` | rejected | accepted; only tenantA is stamped on the ExportStatus |
+| v1 `access/<tag>.read` only | `$export` | accepted, tag stamped on the ExportStatus | **rejected** (no tenant code grants `c`) |
+| v1 `access/<tag>.write` only | `$export` | rejected | rejected (no tenant code grants `s`) |
+| v1 `access/<tag>.read access/<tag>.write` | `$export` | accepted, tag stamped | accepted, tag stamped |
 | v2 `access/<tag>.cs` (no `r`) | polling the status (`$export/<id>`) | rejected | rejected, 403 (needs `r`) |
 | v2 `access/<tag>.rs` | polling the status (`$export/<id>`) | rejected | accepted |
 | v2 `user/*.rs` + `access/<tag>.s`, no `c` on `Task` | `$export` | rejected | rejected |
@@ -225,16 +229,18 @@ Two of these changes reach v1 clients, because v1
 | v1 `write` / v2 `cud` only | `$export` | rejected | rejected (tenant codes need `s`) |
 | v2 `user/Patient.rs` | `$export` runner | zero rows, HTTP 200 (literal suffix comparison) | Patient exported |
 
-`$export` requires `c` on `Task` at the resource gate and at least one tenant code granting both
-`c` and `s` at request time; only those codes are stamped on the ExportStatus. The runner then
+`$export` requires `c` on `Task` at the resource gate, at least one tenant code granting `c`, and
+at least one tenant code granting `s` at request time; only the codes granting `c` are stamped on
+the ExportStatus. The runner then
 narrows silently to the types the caller's scopes grant `s` on.
 
-The two tenant checks are deliberately different. `c` + `s` decides only whether the caller may
-start an export and which tenant codes are stamped on the ExportStatus. The data the runner
-exports is filtered by every tenant code granting `s`, not just the stamped ones. So a caller
-holding `access/tenantA.cs access/tenantB.s` can start the export (tenantA qualifies), the
-ExportStatus is tagged with tenantA only, and the exported data includes both tenantA's and
-tenantB's resources. A caller holding only `access/tenantB.s` cannot start an export at all.
+The two tenant checks are deliberately different. `c` decides which tenant codes are stamped on
+the ExportStatus, since stamping a code on the job record is a create in that tenant. `s` decides
+which tenants' data the runner exports: every tenant code granting `s`, not just the stamped ones.
+The request-time `s` check only rejects a job that could never export any data. So a caller
+holding `access/tenantA.c access/tenantB.s` can start the export, the ExportStatus is tagged with
+tenantA only, and the exported data is tenantB's. A caller holding only `access/tenantB.s`, or only
+`access/tenantA.c`, cannot start an export at all.
 
 ## Components & data flow
 

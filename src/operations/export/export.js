@@ -142,6 +142,14 @@ class ExportOperation {
             throw new ForbiddenError(`user ${requestInfo.user} does not have access to [Task]`);
         }
 
+        // The export runner only exports data from tenant codes granting s, so reject up front
+        // rather than accepting a job that can never return any data
+        if (this.scopesManager.getAccessCodesFromScopes('s', requestInfo.user, scope).length === 0) {
+            throw new ForbiddenError(
+                `user ${requestInfo.user} with scopes [${scope}] has no access scopes`
+            );
+        }
+
         try {
             // Create ExportStatus resource
             const exportStatusResource = await this.exportManager.generateExportStatusResourceAsync({

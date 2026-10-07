@@ -69,6 +69,7 @@ describe('ExportOperation', () => {
         // Setup default mock implementations
         mocks.scopesManager.hasPatientScope = jest.fn().mockReturnValue(false);
         mocks.scopesManager.getResourceTypeScopes = jest.fn().mockReturnValue(['user/*.*']);
+        mocks.scopesManager.getAccessCodesFromScopes = jest.fn().mockReturnValue(['*']);
         mocks.scopesValidator.evaluateResourceTypeScopeMatch = jest.fn().mockReturnValue({ success: true, error: null });
         mocks.fhirLoggingManager.logOperationSuccessAsync = jest.fn().mockResolvedValue(undefined);
         mocks.fhirLoggingManager.logOperationFailureAsync = jest.fn().mockResolvedValue(undefined);
