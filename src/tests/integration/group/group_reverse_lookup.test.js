@@ -320,6 +320,33 @@ describe('Group member reverse lookup', () => {
         expect(ids).toContain(other.id);
     });
 
+    test('member=X with member:not=Y excludes an extended Group holding both, keeps one holding only X', async () => {
+        const holdingBoth = await createGroup();
+        await markGroupExtended(holdingBoth.id);
+        await addExtendedMember(holdingBoth.id, 'Patient/combo-x');
+        await addExtendedMember(holdingBoth.id, 'Patient/combo-y');
+        const holdingOnlyX = await createGroup();
+        await markGroupExtended(holdingOnlyX.id);
+        await addExtendedMember(holdingOnlyX.id, 'Patient/combo-x');
+        const embeddedBoth = await createGroup({
+            member: [
+                { entity: { reference: 'Patient/combo-x' } },
+                { entity: { reference: 'Patient/combo-y' } }
+            ]
+        });
+
+        const searchResp = await request
+            .get(`/4_0_0/Group?member=${encodeURIComponent('Patient/combo-x')}` +
+                `&member:not=${encodeURIComponent('Patient/combo-y')}`)
+            .set(getHeaders());
+
+        expect(searchResp.status).toBe(200);
+        const ids = idsOf(searchResp.body);
+        expect(ids).toContain(holdingOnlyX.id);
+        expect(ids).not.toContain(holdingBoth.id);
+        expect(ids).not.toContain(embeddedBoth.id);
+    });
+
     test('patient scope parity: an extended Group containing the caller\'s patient is visible, others are not', async () => {
         const meta = { source: 'http://test-system.com/Patient', security: defaultMeta().security };
         const patientResp = await request.put('/4_0_0/Patient/scope-patient')
@@ -368,21 +395,21 @@ describe('Group member reverse lookup', () => {
     });
 
     describe.each([
-        ['GraphQL', '/$graphql'],
-        ['GraphQL v2', '/4_0_0/$graphqlv2']
-    ])('%s groups(member:)', (_name, endpoint) => {
+        ['GraphQL', '/$graphql', 'group'],
+        ['GraphQL v2', '/4_0_0/$graphqlv2', 'groups']
+    ])('%s groups(member:)', (_name, endpoint, queryField) => {
         async function graphqlSearchByMember(reference) {
             const response = await request
                 .post(endpoint)
                 .send({
                     operationName: null,
                     variables: { reference },
-                    query: 'query ($reference: String) { groups(member: { value: $reference }) { entry { resource { id } } } }'
+                    query: `query ($reference: String) { ${queryField}(member: { value: $reference }) { entry { resource { id } } } }`
                 })
                 .set(getGraphQLHeaders());
             expect(response.status).toBe(200);
             expect(response.body.errors).toBeUndefined();
-            return (response.body.data.groups.entry || []).map((e) => e.resource.id);
+            return (response.body.data[queryField].entry || []).map((e) => e.resource.id);
         }
 
         test('returns both the embedded and the extended Group for the same member', async () => {
