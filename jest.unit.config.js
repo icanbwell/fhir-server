@@ -40,21 +40,11 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/patch/strategies/groupMemberPatchStrategy.bugs.test.js',
         '<rootDir>/src/tests/unit/operations/remove/removeHelper.test.js',
         '<rootDir>/src/tests/unit/operations/searchByVersionId/searchByVersionId.test.js',
-        '<rootDir>/src/tests/unit/enrich/enrichmentManager.test.js',
-        '<rootDir>/src/tests/unit/enrich/proxyPatientReferenceEnrichmentProvider.test.js',
         '<rootDir>/src/tests/unit/graphql/resolvers/graphqlResolver.crossTenant.test.js',
         '<rootDir>/src/tests/unit/graphqlv2/crossTenantPhiLeakage.test.js',
-        '<rootDir>/src/tests/unit/middleware/errorInformationDisclosure.test.js',
         '<rootDir>/src/tests/unit/operations/export/bulkDataExportRunner.crossTenant.test.js',
-        '<rootDir>/src/tests/unit/operations/history/historyCrossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/merge/merge.crossTenant.test.js',
-        '<rootDir>/src/tests/unit/operations/merge/mergeCrossTenantWrite.test.js',
-        '<rootDir>/src/tests/unit/operations/query/searchQuery.crossTenant.test.js',
         '<rootDir>/src/tests/unit/operations/subscription/subscription.crossTenant.test.js',
-        '<rootDir>/src/tests/unit/operations/subscription/webhookPhiLeakage.test.js',
-        // personToPatientIdsExpander.pureScopeCrossTenant.bugs.test.js entry removed here:
-        // the underlying gap (Person.link assurance enforcement) is closed and the test now
-        // passes against current main -- see the file's updated top-of-file comment.
     ],
     transformIgnorePatterns: ['node_modules/(?!(uuid|jose|@kubernetes/client-node|luxon|openid-client|oauth4webapi)/)'],
     setupFiles: ['<rootDir>/jest/setEnvVars.js'],
