@@ -120,11 +120,14 @@ describe('BulkImportHandler - per-resource scope enforcement in the worker', () 
         return resp.status;
     };
 
-    const expectRejected = (errorWrite, id) => {
+    const expectRejected = (errorWrite, id, byteOffset = 0) => {
         expect(errorWrite).toBeDefined();
         const entry = errorWrite.data.trim().split('\n').map((line) => JSON.parse(line)).find((e) => e.id === id);
         expect(entry).toBeDefined();
         expect(entry.operationOutcome.issue[0].code).toBe('forbidden');
+        expect(entry.operationOutcome.issue[0].extension).toEqual([
+            { url: 'https://www.icanbwell.com/source-byte-offset', valueInteger: byteOffset }
+        ]);
     };
 
     test.each([
@@ -170,11 +173,25 @@ describe('BulkImportHandler - per-resource scope enforcement in the worker', () 
 
         expect(await statusOfAsync(request, 'Patient/import-scope-patient')).toBe(200);
         expect(await statusOfAsync(request, 'Observation/import-scope-observation')).toBe(404);
-        expectRejected(errorWrite, 'import-scope-observation');
+        expectRejected(errorWrite, 'import-scope-observation', 100);
         expect(fakeSpan.setAttributes).toHaveBeenCalledWith({
             'fhir_import.resources_created': 1,
             'fhir_import.resources_updated': 0,
             'fhir_import.resources_failed': 1
         });
+    });
+
+    test('a resource whose access tag the caller lacks u on is rejected at its own byte offset', async () => {
+        const otherTenantTags = securityTags.map((t) => ({ ...t, code: 'client-b' }));
+        const { request, errorWrite } = await runImportAsync({
+            taskId: 'import-scope-access-gate-offset',
+            scope: 'user/Patient.u access/client-a.u',
+            lines: [patient('import-scope-patient'), { ...patient('import-scope-other-tenant'), meta: { source: 'test', security: otherTenantTags } }],
+            enableV2: true
+        });
+
+        expect(await statusOfAsync(request, 'Patient/import-scope-patient')).toBe(200);
+        expect(await statusOfAsync(request, 'Patient/import-scope-other-tenant')).toBe(404);
+        expectRejected(errorWrite, 'import-scope-other-tenant', 100);
     });
 });

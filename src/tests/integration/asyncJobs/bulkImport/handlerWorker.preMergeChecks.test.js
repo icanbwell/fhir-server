@@ -120,11 +120,15 @@ describe('BulkImportHandler - $merge pre-merge checks in the worker', () => {
     ])('a resource with %s is rejected and not written', async (name, resource, resourceType, expectedText) => {
         const { request, errorWrite } = await runImportAsync({
             taskId: 'import-check-rejected',
-            lines: [resource, patient({ id: 'import-check-survivor' })]
+            lines: [patient({ id: 'import-check-survivor' }), resource]
         });
 
         expect(errorWrite).toBeDefined();
         expect(errorWrite.data).toContain(expectedText);
+        const errorEntry = JSON.parse(errorWrite.data.trim().split('\n')[0]);
+        expect(errorEntry.operationOutcome.issue[0].extension).toEqual([
+            { url: 'https://www.icanbwell.com/source-byte-offset', valueInteger: 100 }
+        ]);
         const resp = await request.get(`/4_0_0/${resourceType}/${resource.id}`).set(getHeaders());
         expect(resp.status).not.toBe(200);
         await request.get('/4_0_0/Patient/import-check-survivor').set(getHeaders()).expect(200);
@@ -133,5 +137,21 @@ describe('BulkImportHandler - $merge pre-merge checks in the worker', () => {
             'fhir_import.resources_updated': 0,
             'fhir_import.resources_failed': 1
         });
+    });
+
+    test('a new resource that carries only an access tag is imported with its owner backfilled', async () => {
+        const id = '7b4f5c2e-3a1d-4e8b-9c6f-2d5a8e1b4c70';
+        const { request, errorWrite } = await runImportAsync({
+            taskId: 'import-check-access-only',
+            lines: [patient({
+                id,
+                meta: { source: 'test', security: [{ system: 'https://www.icanbwell.com/access', code: 'client-a' }] }
+            })]
+        });
+
+        expect(errorWrite).toBeUndefined();
+        const resp = await request.get(`/4_0_0/Patient/${id}`).set(getHeaders()).expect(200);
+        const owner = resp.body.meta.security.find((t) => t.system === 'https://www.icanbwell.com/owner');
+        expect(owner.code).toBe('client-a');
     });
 });

@@ -18,6 +18,7 @@ const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandl
 const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
 const { WriteAllowedByScopesValidator } = require('../../merge/validators/writeAllowedByScopesValidator');
 const { ResourceValidator } = require('../../common/resourceValidator');
+const { OwnerColumnHandler } = require('../../../preSaveHandlers/handlers/ownerColumnHandler');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { removeUnderscoreFieldsRecursive } = require('../../../utils/removeUnderscoreFields');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING } = require('../../../constants');
@@ -101,6 +102,7 @@ class BulkImportHandler {
      * @property {UuidColumnHandler} uuidColumnHandler
      * @property {WriteAllowedByScopesValidator} writeAllowedByScopesValidator
      * @property {ResourceValidator} resourceValidator
+     * @property {OwnerColumnHandler} ownerColumnHandler
      *
      * @param {ConstructorParams}
      */
@@ -122,7 +124,8 @@ class BulkImportHandler {
         sourceAssigningAuthorityColumnHandler,
         uuidColumnHandler,
         writeAllowedByScopesValidator,
-        resourceValidator
+        resourceValidator,
+        ownerColumnHandler
     }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -177,6 +180,9 @@ class BulkImportHandler {
 
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+
+        this.ownerColumnHandler = ownerColumnHandler;
+        assertTypeEquals(ownerColumnHandler, OwnerColumnHandler);
     }
 
     /**
@@ -926,6 +932,12 @@ class BulkImportHandler {
             });
 
             try {
+                // Import accepts a line that carries only an access tag: the owner tag is backfilled
+                // from the first access tag, as OwnerColumnHandler does during preSave. Run that
+                // backfill before the checks below, which require an owner tag on a new resource, so
+                // such a line keeps importing as it did before these checks were added.
+                await this.ownerColumnHandler.preSaveAsync({ resource: fhirResource });
+
                 // Same pre-merge checks as $merge (see getPreMergeErrorsAsync). A failure is
                 // recorded for this line only; the rest of the range carries on.
                 const preMergeErrors = await this.getPreMergeErrorsAsync({
@@ -933,7 +945,7 @@ class BulkImportHandler {
                 });
                 if (preMergeErrors.length > 0) {
                     failed++;
-                    mergeResultEntries.push(...preMergeErrors);
+                    mergeResultEntries.push(...preMergeErrors.map((e) => e.withSourceByteOffset(byteOffset)));
                     if (ifNoneExistKey) {
                         claimedIfNoneExistKeys.delete(ifNoneExistKey);
                     }
@@ -953,7 +965,7 @@ class BulkImportHandler {
                 });
                 if (scopeErrors.length > 0) {
                     failed++;
-                    mergeResultEntries.push(...scopeErrors);
+                    mergeResultEntries.push(...scopeErrors.map((e) => e.withSourceByteOffset(byteOffset)));
                     if (ifNoneExistKey) {
                         claimedIfNoneExistKeys.delete(ifNoneExistKey);
                     }
@@ -969,7 +981,7 @@ class BulkImportHandler {
 
                 if (validationFailure) {
                     failed++;
-                    mergeResultEntries.push(validationFailure);
+                    mergeResultEntries.push(validationFailure.withSourceByteOffset(byteOffset));
                     if (ifNoneExistKey) {
                         claimedIfNoneExistKeys.delete(ifNoneExistKey);
                     }
