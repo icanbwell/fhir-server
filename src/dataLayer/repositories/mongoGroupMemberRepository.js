@@ -7,6 +7,7 @@ const { generateUUIDv5 } = require('../../utils/uid.util');
 const { GROUP_MEMBER_RESOURCE_TYPE } = require('../../constants');
 const { resolveMemberWrite } = require('../../operations/common/resolveMemberWrite');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { logError } = require('../../operations/common/logging');
 
 /**
  * Repository for the MongoDB-native, large-Group ("extended") member storage, written from
@@ -21,8 +22,8 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
  * members, deciding what each requested write actually needs to do) and then, unless every one
  * of them resolved to a no-op, pass that same result into applyResolvedMemberWritesAsync() to
  * write it -- one DB read+resolve per PATCH request, not two. applyResolvedMemberWritesAsync()
- * flushes its own buffered create/update writes before returning, so callers don't need their
- * own reference to this same FastDatabaseBulkInserter instance just to commit it.
+ * flushes its create/update ops before returning, ahead of the Group's own write, and throws if
+ * any of them fails.
  *
  * A PATCH remove hard-deletes the GroupMember document instead of a soft inactive:true flag, via
  * RemoveHelper.deleteManyAsync() (history-then-delete), wired to the databaseBulkInserter
@@ -142,6 +143,8 @@ class MongoGroupMemberRepository {
      * @param {Map<string, {writeRequest: Object, writeType: 'create'|'update'|'delete'|'none', member: Object|undefined}>} params.resolvedMemberWrites
      *   the result of a prior resolveMemberWritesAsync call against these same requested writes.
      * @returns {Promise<Array<{reference:string, operation:'create'|'update'|'delete'|'none'}>>}
+     * @throws {Error} if any create/update fails to write, so the caller never goes on to write
+     *   the Group itself against a roster that isn't there.
      */
     async applyResolvedMemberWritesAsync({ requestInfo, base_version, groupUuid, groupVersionId, groupLastUpdated, sourceAssigningAuthority, securityTags, resolvedMemberWrites }) {
         if (!resolvedMemberWrites || resolvedMemberWrites.size === 0) {
@@ -200,7 +203,18 @@ class MongoGroupMemberRepository {
         }
 
         if (hasBufferedWrite) {
-            await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+            const results = await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+            const failedResults = results.filter((result) => result.issue);
+            if (failedResults.length > 0) {
+                logError('Error writing Group members', {
+                    args: {
+                        requestId: requestInfo.requestId,
+                        groupUuid,
+                        issues: failedResults.map((result) => result.issue)
+                    }
+                });
+                throw new Error('Error writing Group members');
+            }
         }
 
         if (docsToDelete.length > 0) {
@@ -231,6 +245,52 @@ class MongoGroupMemberRepository {
         return await databaseQueryManager.findAsync({
             query: { groupUuid }
         });
+    }
+
+    /**
+     * Deletes every GroupMember_4_0_0 row of groupUuid that was not written for the given Group
+     * version.
+     *
+     * Its one caller is groupPromotion.js's promoteGroup, which passes the version the promotion
+     * claims (v+1). A Group that has never extended has no legitimate rows, so any row stamped
+     * with another version is left over from an earlier promotion attempt (or from an earlier life
+     * of a deleted and recreated Group, whose versions restarted). Rows stamped v+1 are kept: they
+     * belong to this promotion or to a concurrent one writing the same version, so two promotions
+     * never delete each other's roster.
+     *
+     * @param {Object} params
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {string} params.groupUuid
+     * @param {number} params.versionId - rows stamped with any other version are deleted.
+     * @returns {Promise<number>} how many rows were removed
+     */
+    async removeMembersNotAtVersionAsync({ requestInfo, base_version, groupUuid, versionId }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        const cursor = await databaseQueryManager.findAsync({
+            query: { groupUuid, 'meta.versionId': { $ne: `${versionId}` } }
+        });
+        // Raw documents, not toObjectArrayAsync(): deleteManyAsync only needs the plain field values.
+        const existingMembers = await cursor.toArrayAsync();
+        if (existingMembers.length === 0) {
+            return 0;
+        }
+
+        // Cloned FhirRequestInfo overrides method to 'DELETE' for the tombstone, same as
+        // applyResolvedMemberWritesAsync's own delete branch. No preserveLastUpdated here: unlike
+        // that branch, these rows aren't being deleted as part of the same write that just
+        // stamped a fresh groupLastUpdated on them -- they're stale leftovers being garbage
+        // collected, so the tombstone should carry the real time of deletion.
+        await this.removeHelper.deleteManyAsync({
+            requestInfo: new FhirRequestInfo({ ...requestInfo, method: 'DELETE' }),
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            resources: existingMembers,
+            base_version
+        });
+        return existingMembers.length;
     }
 }
 

@@ -1,4 +1,5 @@
 const { BadRequestError } = require('./httpErrors');
+const { createExtendedGroupMemberWriteError } = require('./fhirErrorFactory');
 
 // Internal, non-FHIR marker field on the Group resource (design doc §3.1) -- the actual source
 // of truth for routing. A recognized property on the generated Group resource class, the same
@@ -13,13 +14,14 @@ const { BadRequestError } = require('./httpErrors');
 const MONGO_GROUP_EXTENDED_FIELD = '_extended';
 
 /**
- * Rejects a PUT/$merge write against an already-extended Group whose submitted body carries a
- * `member` field (design doc §5.1). An extended Group's real roster lives entirely in
- * GroupMember_4_0_0 -- member[] doesn't exist on the live document at all -- so silently
- * accepting a client-submitted member[] here would be indistinguishable from a no-op (the caller
- * would see no error and no effect) while either dropping their intended change or, worse,
- * reintroducing a stale/bogus member[] alongside the real roster. Rejecting outright makes the
- * wrong call visible immediately and tells the caller to use PATCH instead.
+ * too-costly error for a PUT/$merge write against an already-extended Group whose submitted body
+ * carries a `member` field (design doc §5.1), or undefined when the write is allowed. An extended
+ * Group's real roster lives entirely in GroupMember_4_0_0 -- member[] doesn't exist on the live
+ * document at all -- so silently accepting a client-submitted member[] here would be
+ * indistinguishable from a no-op (the caller would see no error and no effect) while either
+ * dropping their intended change or, worse, reintroducing a stale/bogus member[] alongside the
+ * real roster. Rejecting outright makes the wrong call visible immediately and tells the caller
+ * to use PATCH instead.
  *
  * Deliberately unconditional on configManager.enableExtendedGroup: this is a data-integrity
  * guardrail, not a feature-availability gate -- an already-extended Group's member[] genuinely
@@ -33,21 +35,38 @@ const MONGO_GROUP_EXTENDED_FIELD = '_extended';
  * @param {Resource} params.currentResource - the already-loaded, existing Group
  * @param {boolean} params.hasMemberField - whether the client-submitted body includes a
  *   non-empty `member` array (an explicit `member: []` does not count -- see call sites)
+ * @returns {BadRequestError|undefined}
  */
-function rejectMemberOnExtendedGroupWrite({ currentResource, hasMemberField }) {
+function getExtendedGroupMemberWriteError({ currentResource, hasMemberField }) {
     if (currentResource?.resourceType === 'Group' &&
         currentResource[MONGO_GROUP_EXTENDED_FIELD] === true &&
         hasMemberField
     ) {
-        throw new BadRequestError(new Error(
-            `Group ${currentResource.id || currentResource._uuid} does not accept member changes via ` +
-            'PUT or $merge; use PATCH /4_0_0/Group/{id} with a JSON Patch operation on /member instead. ' +
-            'See: https://www.hl7.org/fhir/http.html#patch'
-        ));
+        const { message, options } = createExtendedGroupMemberWriteError({
+            groupId: currentResource.id || currentResource._uuid
+        });
+        return new BadRequestError({ message }, options);
+    }
+    return undefined;
+}
+
+/**
+ * Throwing form of getExtendedGroupMemberWriteError, for PUT.
+ *
+ * @param {Object} params
+ * @param {Resource} params.currentResource
+ * @param {boolean} params.hasMemberField
+ * @throws {BadRequestError} too-costly, pointing the caller to PATCH
+ */
+function rejectMemberOnExtendedGroupWrite({ currentResource, hasMemberField }) {
+    const error = getExtendedGroupMemberWriteError({ currentResource, hasMemberField });
+    if (error) {
+        throw error;
     }
 }
 
 module.exports = {
+    getExtendedGroupMemberWriteError,
     rejectMemberOnExtendedGroupWrite,
     MONGO_GROUP_EXTENDED_FIELD
 };

@@ -14,6 +14,14 @@ describe('buildContextDataForHybridStorage', () => {
         expect(result.useExternalStorage).toBe(true);
     });
 
+    test('returns useExternalStorage=false for an extended Group even when header is present', () => {
+        const requestInfo = {
+            headers: { [USE_EXTERNAL_STORAGE_HEADER]: 'true' }
+        };
+        const result = buildContextDataForHybridStorage('Group', { id: 'g1', _extended: true }, requestInfo);
+        expect(result.useExternalStorage).toBe(false);
+    });
+
     test('returns useExternalStorage=false when header is absent', () => {
         const requestInfo = { headers: {} };
         const result = buildContextDataForHybridStorage('Group', { id: 'g1', member: [] }, requestInfo);
