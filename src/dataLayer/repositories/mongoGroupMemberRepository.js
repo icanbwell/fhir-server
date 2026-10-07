@@ -90,7 +90,10 @@ class MongoGroupMemberRepository {
             resourceType: GROUP_MEMBER_RESOURCE_TYPE,
             base_version
         });
-        const cursor = await databaseQueryManager.findAsync({ query });
+        const cursor = await databaseQueryManager.findAsync({
+            query,
+            options: { projection: { groupUuid: 1, _id: 0 } }
+        });
         const rows = await cursor.toArrayAsync();
         return [...new Set(rows.map((row) => row.groupUuid))];
     }

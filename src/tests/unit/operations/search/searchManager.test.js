@@ -33,7 +33,6 @@ const { PatientQueryCreator } = require('../../../../operations/common/patientQu
 const { SearchParametersManager } = require('../../../../searchParameters/searchParametersManager');
 const { SearchParameterDefinition } = require('../../../../searchParameters/searchParameterTypes');
 const { ClinicalNoteSearchClient } = require('../../../../utils/clinicalNoteSearchClient');
-const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../../../../operations/query/queryParameterValue');
@@ -72,7 +71,6 @@ describe('SearchManager', () => {
     let mockPatientQueryCreator;
     let mockSearchParametersManager;
     let mockClinicalNoteSearchClient;
-    let mockMongoGroupMemberRepository;
 
     beforeEach(() => {
         mockDatabaseQueryFactory = Object.create(DatabaseQueryFactory.prototype);
@@ -105,7 +103,6 @@ describe('SearchManager', () => {
         mockSearchParametersManager = Object.create(SearchParametersManager.prototype);
         mockSearchParametersManager.allowedFieldsByResourceType = new Map();
         mockClinicalNoteSearchClient = Object.create(ClinicalNoteSearchClient.prototype);
-        mockMongoGroupMemberRepository = Object.create(MongoGroupMemberRepository.prototype);
 
         searchManager = new SearchManager({
             databaseQueryFactory: mockDatabaseQueryFactory,
@@ -126,8 +123,7 @@ describe('SearchManager', () => {
             patientScopeManager: mockPatientScopeManager,
             patientQueryCreator: mockPatientQueryCreator,
             searchParametersManager: mockSearchParametersManager,
-            clinicalNoteSearchClient: mockClinicalNoteSearchClient,
-            mongoGroupMemberRepository: mockMongoGroupMemberRepository
+            clinicalNoteSearchClient: mockClinicalNoteSearchClient
         });
     });
 
@@ -1178,8 +1174,7 @@ function makeSearchManager ({ configManager: configManagerOverrides, clinicalNot
         patientScopeManager: Object.create(PatientScopeManager.prototype),
         patientQueryCreator: Object.create(PatientQueryCreator.prototype),
         searchParametersManager: Object.create(SearchParametersManager.prototype),
-        clinicalNoteSearchClient,
-        mongoGroupMemberRepository: Object.create(MongoGroupMemberRepository.prototype)
+        clinicalNoteSearchClient
     });
 }
 

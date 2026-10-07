@@ -72,4 +72,30 @@ describe('MongoGroupMemberRepository', () => {
             ).rejects.toThrow('mongo exploded');
         });
     });
+
+    describe('findGroupUuidsByMemberQueryAsync', () => {
+        test('runs the member predicate on GroupMember, projects only groupUuid, and de-dupes', async () => {
+            const findAsyncMock = jest.fn().mockResolvedValue({
+                toArrayAsync: jest.fn().mockResolvedValue([
+                    { groupUuid: 'group-1' },
+                    { groupUuid: 'group-2' },
+                    { groupUuid: 'group-1' }
+                ])
+            });
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({ findAsync: findAsyncMock });
+            const query = { 'member.entity._uuid': { $in: ['Patient/u1'] } };
+
+            const result = await repository.findGroupUuidsByMemberQueryAsync({ base_version: '4_0_0', query });
+
+            expect(mockDatabaseQueryFactory.createQuery).toHaveBeenCalledWith({
+                resourceType: 'GroupMember',
+                base_version: '4_0_0'
+            });
+            expect(findAsyncMock).toHaveBeenCalledWith({
+                query,
+                options: { projection: { groupUuid: 1, _id: 0 } }
+            });
+            expect(result).toEqual(['group-1', 'group-2']);
+        });
+    });
 });

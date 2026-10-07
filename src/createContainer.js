@@ -111,6 +111,7 @@ const {ConsentCacheInvalidationHandler} = require('./dataLayer/postSaveHandlers/
 const {ProfileUrlMapper} = require('./utils/profileMapper');
 const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const {ChainedSearchQueryRewriter} = require('./queryRewriters/rewriters/chainedSearchQueryRewriter');
+const {GroupMemberQueryRewriter} = require('./queryRewriters/rewriters/groupMemberQueryRewriter');
 const {PatientScopeManager} = require('./operations/security/patientScopeManager');
 const {WriteAllowedByScopesValidator} = require('./operations/merge/validators/writeAllowedByScopesValidator');
 const {PatientQueryCreator} = require('./operations/common/patientQueryCreator');
@@ -501,6 +502,10 @@ const createContainer = function () {
                     personToPatientIdsExpander: c.personToPatientIdsExpander,
                     configManager: c.configManager,
                     requestSpecificCache: c.requestSpecificCache
+                }),
+                new GroupMemberQueryRewriter({
+                    configManager: c.configManager,
+                    mongoGroupMemberRepository: c.mongoGroupMemberRepository
                 })
             ]
         }
@@ -540,8 +545,7 @@ const createContainer = function () {
                 patientScopeManager: c.patientScopeManager,
                 patientQueryCreator: c.patientQueryCreator,
                 searchParametersManager: c.searchParametersManager,
-                clinicalNoteSearchClient: c.clinicalNoteSearchClient,
-                mongoGroupMemberRepository: c.mongoGroupMemberRepository
+                clinicalNoteSearchClient: c.clinicalNoteSearchClient
             }
         )
     );

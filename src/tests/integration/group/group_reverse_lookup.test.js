@@ -3,14 +3,25 @@
  *
  * FHIR's standard `member` search parameter on Group only ever matched the inline `member[]`
  * array. Once a Group is "extended" its roster lives entirely in GroupMember_4_0_0 -- there is
- * no inline array left to search -- so without this feature's SearchManager.constructQueryAsync
- * hook, the search silently returns nothing for such a Group.
+ * no inline array left to search -- so GroupMemberQueryRewriter widens every member condition
+ * with `OR _uuid in <extended Groups whose GroupMember rows match it>`.
  *
  * ENABLE_EXTENDED_GROUP is set to '1' globally in jest/setEnvVars.js.
  */
 const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getHeaders, getHeadersJsonPatch } = require('../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    createTestRequest,
+    getTestContainer,
+    getHeaders,
+    getHeadersJsonPatch,
+    getGraphQLHeaders,
+    getHeadersWithCustomPayload
+} = require('../common');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../utils/mongoGroupExtendedTag');
+const { GroupMemberQueryRewriter } = require('../../../queryRewriters/rewriters/groupMemberQueryRewriter');
+const { OPERATIONS: { READ } } = require('../../../constants');
 
 const GROUP_COLLECTION_NAME = 'Group_4_0_0';
 
@@ -95,6 +106,13 @@ describe('Group member reverse lookup', () => {
         const resources = Array.isArray(body) ? body : (body.entry || []).map((e) => e.resource);
         return resources.map((r) => r.id);
     }
+
+    test('GroupMemberQueryRewriter is registered as a READ query rewriter', () => {
+        const { queryRewriterManager } = getTestContainer();
+
+        expect(queryRewriterManager.operationSpecificQueryRewriters[`${READ}`]
+            .some((rewriter) => rewriter instanceof GroupMemberQueryRewriter)).toBe(true);
+    });
 
     test('embedded Group: search still matches the inline member[] array (regression check)', async () => {
         const created = await createGroup({
@@ -231,5 +249,169 @@ describe('Group member reverse lookup', () => {
 
         expect(searchResp.status).toBe(200);
         expect(idsOf(searchResp.body)).toEqual([created.id]);
+    });
+
+    test('other search params still apply to the extended Group branch', async () => {
+        const created = await createGroup();
+        await markGroupExtended(created.id);
+        await addExtendedMember(created.id, 'Patient/extended-with-type');
+
+        const matchingType = await request
+            .get(`/4_0_0/Group?member=${encodeURIComponent('Patient/extended-with-type')}&type=person`)
+            .set(getHeaders());
+        expect(matchingType.status).toBe(200);
+        expect(idsOf(matchingType.body)).toEqual([created.id]);
+
+        const otherType = await request
+            .get(`/4_0_0/Group?member=${encodeURIComponent('Patient/extended-with-type')}&type=animal`)
+            .set(getHeaders());
+        expect(otherType.status).toBe(200);
+        expect(idsOf(otherType.body)).toEqual([]);
+    });
+
+    test('chained member:Patient.identifier finds both an embedded and an extended Group', async () => {
+        const identifierSystem = 'http://test-system.com/patient-id';
+        const identifierValue = 'CHAINED-REVERSE-LOOKUP-001';
+        const patientResponse = await request
+            .put('/4_0_0/Patient/chained-reverse-lookup-patient')
+            .send({
+                resourceType: 'Patient',
+                id: 'chained-reverse-lookup-patient',
+                identifier: [{ system: identifierSystem, value: identifierValue }],
+                meta: {
+                    source: 'http://test-system.com/Patient',
+                    security: defaultMeta().security
+                }
+            })
+            .set(getHeaders());
+        expect([200, 201]).toContain(patientResponse.status);
+
+        const reference = 'Patient/chained-reverse-lookup-patient';
+        const embedded = await createGroup({ member: [{ entity: { reference } }] });
+        const extended = await createGroup();
+        await markGroupExtended(extended.id);
+        await addExtendedMember(extended.id, reference);
+
+        const searchResp = await request
+            .get(`/4_0_0/Group?member:Patient.identifier=${encodeURIComponent(`${identifierSystem}|${identifierValue}`)}`)
+            .set(getHeaders());
+
+        expect(searchResp.status).toBe(200);
+        const ids = idsOf(searchResp.body);
+        expect(new Set(ids)).toEqual(new Set([embedded.id, extended.id]));
+        expect(ids).toHaveLength(2);
+    });
+
+    test('member:not excludes an extended Group holding the member, keeps one that does not', async () => {
+        const holding = await createGroup();
+        await markGroupExtended(holding.id);
+        await addExtendedMember(holding.id, 'Patient/not-target');
+        const other = await createGroup();
+        await markGroupExtended(other.id);
+        await addExtendedMember(other.id, 'Patient/not-someone-else');
+
+        const searchResp = await request
+            .get(`/4_0_0/Group?member:not=${encodeURIComponent('Patient/not-target')}`)
+            .set(getHeaders());
+
+        expect(searchResp.status).toBe(200);
+        const ids = idsOf(searchResp.body);
+        expect(ids).not.toContain(holding.id);
+        expect(ids).toContain(other.id);
+    });
+
+    test('patient scope parity: an extended Group containing the caller\'s patient is visible, others are not', async () => {
+        const meta = { source: 'http://test-system.com/Patient', security: defaultMeta().security };
+        const patientResp = await request.put('/4_0_0/Patient/scope-patient')
+            .send({ resourceType: 'Patient', id: 'scope-patient', meta })
+            .set(getHeaders());
+        expect(patientResp.status).toBeLessThan(300);
+        const personResp = await request.put('/4_0_0/Person/scope-person')
+            .send({
+                resourceType: 'Person',
+                id: 'scope-person',
+                meta: { ...meta, source: 'http://test-system.com/Person' },
+                link: [{ target: { reference: 'Patient/scope-patient' } }]
+            })
+            .set(getHeaders());
+        expect(personResp.status).toBeLessThan(300);
+
+        const clientDb = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
+        const personUuid = (await clientDb.collection('Person_4_0_0').findOne({ id: 'scope-person' }))._uuid;
+        const patientUuid = (await clientDb.collection('Patient_4_0_0').findOne({ id: 'scope-patient' }))._uuid;
+
+        const embedded = await createGroup({ member: [{ entity: { reference: 'Patient/scope-patient' } }] });
+        const extendedOwn = await createGroup();
+        await markGroupExtended(extendedOwn.id);
+        await addExtendedMember(extendedOwn.id, 'Patient/scope-patient');
+        const extendedOther = await createGroup();
+        await markGroupExtended(extendedOther.id);
+        await addExtendedMember(extendedOther.id, 'Patient/scope-other-patient');
+
+        const searchResp = await request
+            .get('/4_0_0/Group')
+            .set(getHeadersWithCustomPayload({
+                scope: 'patient/*.read user/*.read access/*.*',
+                username: 'patient-scope-user',
+                client_id: 'client',
+                clientFhirPersonId: personUuid,
+                clientFhirPatientId: patientUuid,
+                bwellFhirPersonId: personUuid,
+                bwellFhirPatientId: patientUuid,
+                token_use: 'access'
+            }));
+
+        expect(searchResp.status).toBe(200);
+        const ids = idsOf(searchResp.body);
+        expect(new Set(ids)).toEqual(new Set([embedded.id, extendedOwn.id]));
+        expect(ids).not.toContain(extendedOther.id);
+    });
+
+    describe.each([
+        ['GraphQL', '/$graphql'],
+        ['GraphQL v2', '/4_0_0/$graphqlv2']
+    ])('%s groups(member:)', (_name, endpoint) => {
+        async function graphqlSearchByMember(reference) {
+            const response = await request
+                .post(endpoint)
+                .send({
+                    operationName: null,
+                    variables: { reference },
+                    query: 'query ($reference: String) { groups(member: { value: $reference }) { entry { resource { id } } } }'
+                })
+                .set(getGraphQLHeaders());
+            expect(response.status).toBe(200);
+            expect(response.body.errors).toBeUndefined();
+            return (response.body.data.groups.entry || []).map((e) => e.resource.id);
+        }
+
+        test('returns both the embedded and the extended Group for the same member', async () => {
+            const reference = `Patient/graphql-member-${endpoint.endsWith('v2') ? 'v2' : 'v1'}`;
+            const embedded = await createGroup({ member: [{ entity: { reference } }] });
+            const extended = await createGroup();
+            await markGroupExtended(extended.id);
+            await addExtendedMember(extended.id, reference);
+
+            const ids = await graphqlSearchByMember(reference);
+
+            expect(new Set(ids)).toEqual(new Set([embedded.id, extended.id]));
+            expect(ids).toHaveLength(2);
+        });
+
+        test('does not return the extended Group when the feature flag is off', async () => {
+            const reference = `Patient/graphql-flag-off-${endpoint.endsWith('v2') ? 'v2' : 'v1'}`;
+            const embedded = await createGroup({ member: [{ entity: { reference } }] });
+            const extended = await createGroup();
+            await markGroupExtended(extended.id);
+            await addExtendedMember(extended.id, reference);
+
+            const saved = process.env.ENABLE_EXTENDED_GROUP;
+            delete process.env.ENABLE_EXTENDED_GROUP;
+            try {
+                expect(await graphqlSearchByMember(reference)).toEqual([embedded.id]);
+            } finally {
+                process.env.ENABLE_EXTENDED_GROUP = saved;
+            }
+        });
     });
 });
