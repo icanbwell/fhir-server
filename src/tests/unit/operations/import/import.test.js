@@ -11,6 +11,7 @@ jest.mock('../../../../operations/common/logging', () => {
 
 const { ImportOperation } = require('../../../../operations/import/import');
 const { ScopesManager } = require('../../../../operations/security/scopesManager');
+const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
 const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggingManager');
 const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
 const { AuditLogger } = require('../../../../utils/auditLogger');
@@ -32,6 +33,7 @@ describe('ImportOperation - null safety and error handling', () => {
     beforeEach(() => {
         mocks = {
             scopesManager: createMockInstance(ScopesManager),
+            scopesValidator: createMockInstance(ScopesValidator),
             fhirLoggingManager: createMockInstance(FhirLoggingManager),
             postRequestProcessor: createMockInstance(PostRequestProcessor),
             auditLogger: createMockInstance(AuditLogger),
@@ -62,6 +64,7 @@ describe('ImportOperation - null safety and error handling', () => {
         });
 
         mocks.scopesManager.hasPatientScope = jest.fn().mockReturnValue(false);
+        mocks.scopesValidator.isScopesValidAsync = jest.fn().mockResolvedValue(undefined);
         mocks.fhirLoggingManager.logOperationSuccessAsync = jest.fn().mockResolvedValue(undefined);
         mocks.fhirLoggingManager.logOperationFailureAsync = jest.fn().mockResolvedValue(undefined);
         mocks.postRequestProcessor.add = jest.fn();
