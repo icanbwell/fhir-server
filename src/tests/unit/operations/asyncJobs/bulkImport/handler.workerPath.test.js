@@ -192,6 +192,9 @@ describe('BulkImportHandler — worker path', () => {
             },
             resourceValidator: {
                 validateResourceMetaSync: jestGlobal.fn(() => null)
+            },
+            ownerColumnHandler: {
+                preSaveAsync: jestGlobal.fn(async ({ resource }) => resource)
             }
         };
 

@@ -272,6 +272,7 @@ const createContainer = function () {
         ]
     }));
     container.register('sourceAssigningAuthorityColumnHandler', (c) => new SourceAssigningAuthorityColumnHandler({ configManager: c.configManager }));
+    container.register('ownerColumnHandler', (c) => new OwnerColumnHandler({ configManager: c.configManager }));
     container.register('uuidColumnHandler', (_c) => new UuidColumnHandler());
     container.register('resourceMerger', (c) => new ResourceMerger({
         preSaveManager: c.preSaveManager
@@ -1332,7 +1333,8 @@ const createContainer = function () {
         sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
         uuidColumnHandler: c.uuidColumnHandler,
         writeAllowedByScopesValidator: c.writeAllowedByScopesValidator,
-        resourceValidator: c.resourceValidator
+        resourceValidator: c.resourceValidator,
+        ownerColumnHandler: c.ownerColumnHandler
     }));
 
     // Routes messages on kafkaBulkImportTaskCreatedTopic and kafkaBulkImportRangeProgressTopic

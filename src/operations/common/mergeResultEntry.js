@@ -92,6 +92,32 @@ class MergeResultEntry {
     }
 
     /**
+     * Records which line of a bulk import source file this entry belongs to: sets sourceByteOffset
+     * (used to keep the output in source order) and adds the source-byte-offset extension to the
+     * issue, so a caller can match the entry to its line the same way as for entries built by
+     * createFromError
+     * @param {number|undefined} sourceByteOffset absolute byte offset of the source NDJSON line
+     * @return {MergeResultEntry}
+     */
+    withSourceByteOffset (sourceByteOffset) {
+        if (sourceByteOffset === undefined || sourceByteOffset === null) {
+            return this;
+        }
+        this.sourceByteOffset = sourceByteOffset;
+        const issues = new Set([this.issue, this.operationOutcome?.issue?.[0]].filter(Boolean));
+        for (const issue of issues) {
+            const extensions = Array.isArray(issue.extension) ? issue.extension : [];
+            if (!extensions.some((e) => e.url === SOURCE_BYTE_OFFSET_EXTENSION_URL)) {
+                issue.extension = [
+                    ...extensions,
+                    new Extension({ url: SOURCE_BYTE_OFFSET_EXTENSION_URL, valueInteger: sourceByteOffset })
+                ];
+            }
+        }
+        return this;
+    }
+
+    /**
      * Creates a MergeResultEntry from an error
      * @param {Error} error
      * @param {Resource} resource
