@@ -25,6 +25,7 @@ const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { generateUUIDv5 } = require('../../utils/uid.util');
+const { getGroupMemberLimitError } = require('../../utils/groupPromotion');
 
 class ResourceValidator {
     /**
@@ -413,6 +414,20 @@ class ResourceValidator {
             validationContext
         }
     ) {
+        // Count members before schema validation, which is slow on a large member[]. resourceObj is
+        // the body to be written; for $merge it is the merged result, so existing members are counted too.
+        if (resourceObj) {
+            const groupMemberLimitError = getGroupMemberLimitError({
+                doc: resourceObj,
+                configManager: this.configManager,
+                requestInfo,
+                currentResource
+            });
+            if (groupMemberLimitError) {
+                return new OperationOutcome({ issue: groupMemberLimitError.issue });
+            }
+        }
+
         const dateColumnHandler = new DateColumnHandler();
         dateColumnHandler.setFlag(true);
         resourceToValidate = await dateColumnHandler.preSaveAsync({ resource: resourceToValidate });

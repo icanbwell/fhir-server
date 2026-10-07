@@ -122,4 +122,126 @@ describe('MongoGroupMemberRepository', () => {
             ).rejects.toThrow('mongo exploded');
         });
     });
+
+    describe('removeMembersNotAtVersionAsync', () => {
+        const requestInfo = { requestId: 'req-1', method: 'PATCH', headers: {} };
+
+        function mockFind (rows) {
+            const findAsyncMock = jest.fn().mockResolvedValue({ toArrayAsync: jest.fn().mockResolvedValue(rows) });
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({ findAsync: findAsyncMock });
+            mockRemoveHelper.deleteManyAsync = jest.fn().mockResolvedValue(undefined);
+            return findAsyncMock;
+        }
+
+        test('queries the group\'s rows whose versionId is not the given version, as an exact string', async () => {
+            const findAsyncMock = mockFind([]);
+
+            await repository.removeMembersNotAtVersionAsync({
+                requestInfo, base_version: '4_0_0', groupUuid: 'group-1', versionId: 10
+            });
+
+            expect(mockDatabaseQueryFactory.createQuery).toHaveBeenCalledWith({
+                resourceType: 'GroupMember',
+                base_version: '4_0_0'
+            });
+            expect(findAsyncMock).toHaveBeenCalledWith({
+                query: { groupUuid: 'group-1', 'meta.versionId': { $ne: '10' } }
+            });
+        });
+
+        test('deletes the rows it found as DELETE tombstones and returns how many', async () => {
+            const rows = [{ _uuid: 'row-1' }, { _uuid: 'row-2' }];
+            mockFind(rows);
+
+            const removed = await repository.removeMembersNotAtVersionAsync({
+                requestInfo, base_version: '4_0_0', groupUuid: 'group-1', versionId: 3
+            });
+
+            expect(removed).toBe(2);
+            expect(mockRemoveHelper.deleteManyAsync).toHaveBeenCalledTimes(1);
+            const deleteArgs = mockRemoveHelper.deleteManyAsync.mock.calls[0][0];
+            expect(deleteArgs.resources).toBe(rows);
+            expect(deleteArgs.resourceType).toBe('GroupMember');
+            expect(deleteArgs.requestInfo.method).toBe('DELETE');
+        });
+
+        test('does not call the remove helper when every row is at the version', async () => {
+            mockFind([]);
+
+            const removed = await repository.removeMembersNotAtVersionAsync({
+                requestInfo, base_version: '4_0_0', groupUuid: 'group-1', versionId: 3
+            });
+
+            expect(removed).toBe(0);
+            expect(mockRemoveHelper.deleteManyAsync).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('applyResolvedMemberWritesAsync', () => {
+        const requestInfo = { requestId: 'req-1' };
+
+        function buildParams (resolvedMemberWrites) {
+            return {
+                requestInfo,
+                base_version: '4_0_0',
+                groupUuid: 'group-a',
+                groupVersionId: 2,
+                groupLastUpdated: new Date('2026-09-29T00:00:00.000Z'),
+                sourceAssigningAuthority: 'bwell',
+                securityTags: [],
+                resolvedMemberWrites
+            };
+        }
+
+        function resolvedWrite (reference, writeType) {
+            return {
+                writeRequest: { entity: { reference } },
+                writeType,
+                member: { entity: { reference } }
+            };
+        }
+
+        beforeEach(() => {
+            mockDatabaseBulkInserter.insertOneAsync = jest.fn().mockResolvedValue(undefined);
+            mockDatabaseBulkInserter.replaceOneAsync = jest.fn().mockResolvedValue(undefined);
+            mockDatabaseBulkInserter.executeAsync = jest.fn().mockResolvedValue([]);
+        });
+
+        test('stages creates/updates and flushes them before returning', async () => {
+            const outcomes = await repository.applyResolvedMemberWritesAsync(buildParams(new Map([
+                ['member-a-1', resolvedWrite('Patient/1', 'create')],
+                ['member-a-2', resolvedWrite('Patient/2', 'update')]
+            ])));
+
+            expect(mockDatabaseBulkInserter.insertOneAsync).toHaveBeenCalledTimes(1);
+            expect(mockDatabaseBulkInserter.replaceOneAsync).toHaveBeenCalledTimes(1);
+            expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledWith({ requestInfo, base_version: '4_0_0' });
+            expect(outcomes).toEqual([
+                { reference: 'Patient/1', operation: 'create' },
+                { reference: 'Patient/2', operation: 'update' }
+            ]);
+        });
+
+        test('throws when any member write comes back with an issue', async () => {
+            mockDatabaseBulkInserter.executeAsync.mockResolvedValue([
+                { _uuid: 'member-a-1', resourceType: 'GroupMember', created: true },
+                { _uuid: 'member-a-2', resourceType: 'GroupMember', created: false, issue: { severity: 'error', code: 'exception' } }
+            ]);
+
+            await expect(
+                repository.applyResolvedMemberWritesAsync(buildParams(new Map([
+                    ['member-a-1', resolvedWrite('Patient/1', 'create')],
+                    ['member-a-2', resolvedWrite('Patient/2', 'create')]
+                ])))
+            ).rejects.toThrow('Error writing Group members');
+        });
+
+        test('does not flush when every write resolved to none', async () => {
+            await repository.applyResolvedMemberWritesAsync(buildParams(new Map([
+                ['member-a-1', resolvedWrite('Patient/1', 'none')]
+            ])));
+
+            expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
+        });
+    });
 });
