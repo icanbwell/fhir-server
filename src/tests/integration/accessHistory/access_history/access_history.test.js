@@ -37,6 +37,7 @@ const {
 const { AccessHistoryClickHouseRepository } = require('../../../../dataLayer/repositories/accessHistoryClickHouseRepository');
 const { ConfigManager } = require('../../../../utils/configManager');
 const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
+const { DelegatedAccessRulesManager } = require('../../../../utils/delegatedAccessRulesManager');
 
 class TestAccessHistoryConfigManager extends ConfigManager {
     get enableAccessAuditEvent() {
@@ -437,6 +438,62 @@ describe('Person $access-history Tests', () => {
             getAccessors(resp.body)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
         syncGeneratedAt(expected, resp.body);
         expect(resp).toHaveResponse(expected);
+    });
+
+    test('$access-history rejects a delegated user before any consent lookup', async () => {
+        const request = sharedRequest;
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const personUuid = resp.body.uuid;
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const patientUuid = resp.body.uuid;
+
+        const delegatedActorRef = 'RelatedPerson/delegated-actor-consent-once';
+        const consent = deepcopy(activeConsentResource);
+        consent.patient.reference = `Patient/person.${personUuid}`;
+        consent.provision.actor[0].reference.reference = delegatedActorRef;
+        resp = await request
+            .post('/4_0_0/Consent/1/$merge?validate=true')
+            .send(consent)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        const fetchConsentSpy = jest.spyOn(DelegatedAccessRulesManager.prototype, 'fetchConsentResourcesAsync');
+        try {
+            resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(
+                    getHeadersWithCustomPayload({
+                        scope: 'patient/*.read user/*.read access/*.*',
+                        username: 'delegated-user',
+                        client_id: 'client',
+                        clientFhirPersonId: personUuid,
+                        clientFhirPatientId: patientUuid,
+                        bwellFhirPersonId: personUuid,
+                        bwellFhirPatientId: patientUuid,
+                        token_use: 'access',
+                        act: {
+                            reference: delegatedActorRef,
+                            sub: 'delegated-sub-consent-once'
+                        }
+                    })
+                );
+
+            expect(resp.status).toBe(403);
+            expect(resp.body.issue[0].details.text).toBe('User does not have access to ACCESSHISTORY method');
+            expect(fetchConsentSpy).not.toHaveBeenCalled();
+        } finally {
+            fetchConsentSpy.mockRestore();
+        }
     });
 
     test('$access-history returns resource type breakdown for multiple entity types', async () => {
