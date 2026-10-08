@@ -15,6 +15,8 @@ const { GRIDFS: { RETRIEVE }, BLOB_OP, OPERATIONS: { READ }, RESOURCE_CLOUD_STOR
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
+const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 
 class SearchByVersionIdOperation {
     /**
@@ -29,6 +31,7 @@ class SearchByVersionIdOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {CloudStorageClient | null} historyResourceCloudStorageClient
+     * @param {MongoGroupMemberRepository} mongoGroupMemberRepository
      */
     constructor (
         {
@@ -41,7 +44,8 @@ class SearchByVersionIdOperation {
             scopesManager,
             databaseAttachmentManager,
             base64DataManager,
-            historyResourceCloudStorageClient
+            historyResourceCloudStorageClient,
+            mongoGroupMemberRepository
         }
     ) {
         /**
@@ -99,6 +103,12 @@ class SearchByVersionIdOperation {
         if (historyResourceCloudStorageClient) {
             assertTypeEquals(historyResourceCloudStorageClient, CloudStorageClient);
         }
+
+        /**
+         * @type {MongoGroupMemberRepository}
+         */
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
     }
 
     /**
@@ -107,8 +117,9 @@ class SearchByVersionIdOperation {
      * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
      * @param {ParsedArgs} params.parsedArgs
      * @param {string} params.resourceType
+     * @param {import('http').ServerResponse} [params.res]
      */
-    async searchByVersionIdAsync ({ requestInfo, parsedArgs, resourceType }) {
+    async searchByVersionIdAsync ({ requestInfo, parsedArgs, resourceType, res }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -266,6 +277,15 @@ class SearchByVersionIdOperation {
 
                 historyResource = FhirResourceCreator.create(historyResource.resource || historyResource);
 
+                // Captured now, not re-read off historyResource after serialize below -- serialize
+                // strips server-internal fields like _uuid from the wire representation (see
+                // searchById.js's identical pattern with resourceUuid).
+                const groupUuid = historyResource._uuid;
+                const targetLastUpdated = historyResource.meta.lastUpdated;
+                const isExtendedGroup = resourceType === 'Group' &&
+                    historyResource[MONGO_GROUP_EXTENDED_FIELD] === true &&
+                    this.configManager.enableExtendedGroup;
+
                 // run any enrichment
                 historyResource = (await this.enrichmentManager.enrichAsync({
                             resources: [historyResource],
@@ -289,6 +309,34 @@ class SearchByVersionIdOperation {
 
                 // serialize the resource
                 FhirResourceSerializer.serialize(historyResource);
+
+                if (isExtendedGroup && res) {
+                    const memberCursor = await this.mongoGroupMemberRepository.getMemberCursorAtAsync({
+                        base_version,
+                        groupUuid,
+                        targetLastUpdated
+                    });
+                    await this.searchManager.streamGroupMemberArrayAsync({
+                        requestId: requestInfo.requestId,
+                        cursor: memberCursor,
+                        groupResourceJson: historyResource,
+                        res,
+                        // memberCursor is an aggregation pipeline, not a plain find() query --
+                        // MongoReadableStream can't resume it via its default
+                        // getCursorForQueryAsync path (no cursor.getQuery()), so resume it
+                        // ourselves past the last row streamed. See getMemberCursorAtAsync's
+                        // afterUuid param.
+                        rebuildCursorAsync: async ({ lastUUID, maxMongoTimeMS }) =>
+                            await this.mongoGroupMemberRepository.getMemberCursorAtAsync({
+                                base_version,
+                                groupUuid,
+                                targetLastUpdated,
+                                afterUuid: lastUUID,
+                                maxTimeMS: maxMongoTimeMS
+                            })
+                    });
+                    return null;
+                }
 
                 return historyResource;
             } else {
