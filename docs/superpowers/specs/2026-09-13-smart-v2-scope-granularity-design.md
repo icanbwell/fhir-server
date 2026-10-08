@@ -112,10 +112,7 @@ its required CRUDS letter(s), extended here with the operations analyzed since t
 | `$merge`                                       | `u`              | see "`u` covers update-as-create" below |
 | `$import`                                      | `c` on `Task`    | the request-time gate only covers creating the `Task`; per-resource authorization for what the import actually writes happens downstream, in the import processors, and is not enforced by this request-time gate |
 | `$export`                                      | `c` on `Task` directly, plus `s` on every resource type actually requested via `_type` | the check targets `Task`, not `ExportStatus` — replaces the export runner's current silent-drop-on-unauthorized-type behavior with a 403 |
-| `$access-history`                              | unchanged for now (still the coarse `read` check, twice) | deferred — not part of this pass; tracked as a TODO to assign granular letters later |
-
-`$access-history`'s existing hardcoded `'*'`-access-code requirement (a pre-existing regression
-guard) is **not** touched by this table — see Error Handling below.
+| `$access-history`                              | `r` on the target type, `s` on `AuditEvent`, `r` on `Patient`, `s` on every patient-linked type, `r` on every accessor type | every resource type the operation reads is checked, and any missing letter is a 403 — see "`$access-history`" below |
 
 ### `u` covers update-as-create — resolves the `$merge` / PUT inconsistency
 
@@ -209,6 +206,80 @@ Two of these changes reach v1 clients, because v1
 `write`-only client that issues a conditional (search-based) delete is now rejected, and a v1
 `write`-only client's `$graph` DELETE now also deletes forward-reference children.
 
+### `$access-history` — every resource type it reads, 403 instead of partial data
+
+`GET [base]/Person/[id]/$access-history` resolves one Person, follows its `Person.link` entries to
+Patients, collects every patient-linked resource that references those Patients, aggregates the
+`AuditEvent` rows for all of them, and resolves each accessor's display name. Previously only the
+first two of those reads were gated (`read` on the target type and on `AuditEvent`); the
+patient-linked resources and the accessor lookups were read with no scope check at all. Every
+resource type the operation reads is now checked:
+
+| Step | Resource type | Required | When checked |
+|------|---------------|----------|--------------|
+| resolve the target | target type (`Person`) | `r` | before any query |
+| aggregate audit records | `AuditEvent` | `s` | before any query |
+| Patients reached through `Person.link` | `Patient` | `r` | before any query |
+| resources referencing those Patients | every patient-linked type that has a patient reference field | `s` | before any query |
+| accessor display names | every accessor type present in the audit rows | `r` | after the audit query, before any accessor lookup |
+| proxy-patient accessors | `Person` | `r` | same point, when a `Patient/person.<id>` accessor is present |
+| managing organization of a proxy-patient accessor | `Organization` | `r` | before the organization lookup |
+
+The letters follow the same rule as `$graph`: a step that resolves an instance by id or by
+reference needs `r`, a step that searches a type needs `s`. The Person and the linked Patients are
+resolved by id/reference; the patient-linked resources are found by searching on the patient
+reference; the audit rows are a search over `AuditEvent`. Each check applies the same letter to
+the resource gate and the access gate.
+
+**Any failed check rejects the whole request with a 403.** This deliberately differs from
+`$everything` and `$graph`, which skip a type the caller cannot read. A count-based report that
+silently omits a type reads as "nobody accessed it", so partial data is worse than a denial here.
+All checks for a step are evaluated first and only the first failure is logged and thrown, so a
+narrow token produces one failure entry, not one per type. The accessor checks can only run once
+the audit rows are known, so the same token can receive a 200 and later a 403 once a new accessor
+type appears in its history.
+
+`hasHistoryAccess` (the wildcard `access/*` requirement for `_history` and vread) has never applied
+to `$access-history` and still does not: the operation reads current resources and audit rows, not
+historical versions, and tenant-scoped `access/<tag>` codes keep working as before.
+
+A patient-scoped caller is evaluated per type exactly as in a normal search. For a patient-filterable
+type the `patient/` scopes decide and the access gate is bypassed; for a type that is not
+patient-filterable (`Practitioner`, `Organization`) only `user/`/`system/` scopes count and an
+`access/` code is required. Every letter requested here is read-type, so the patient-scope write
+restriction never applies.
+
+The patient-linked (clinical) resource scan is filtered by the caller's `access/` tags, the same
+way `searchManager` builds a search query: on the non-patient branch each type's query gets the
+`getQueryWithSecurityTags` filter for the codes granting `s`, so a tenant-scoped caller only counts
+resources tagged for its own tenants; an `access/*` code adds no filter. On the patient branch (a
+`patient/` token and a patient-filterable type) no access-tag filter is added, matching search,
+since the scan is already limited to the caller's own Patients. This uses the granular letter
+directly in `getSecurityTagsFromScope`, the same letter as the gate.
+
+Still not filtered by tenant: the Patients reached through `Person.link` (their ids are taken from
+the link, never fetched), the accessor display-name lookups, and the `AuditEvent` aggregation in
+ClickHouse. The Person resolution is tag-filtered, as before.
+
+**What was allowed before, and what is allowed now**
+
+| Grant | Before | Now |
+|---|---|---|
+| v1 `user/*.read` (or `user/*.*`) with an `access/` read code | allowed | allowed |
+| v1 `patient/*.read user/*.read access/*.*` | allowed | allowed |
+| v1 `user/*.read access/<tenant>.read` | allowed, counting linked clinical resources from every tenant | allowed, counting only linked clinical resources tagged `<tenant>` |
+| v1 `user/Person.read user/AuditEvent.read` with an `access/` read code | allowed | **rejected** — no `read` on `Patient` or the patient-linked types |
+| v1 `read` on most types but not on an accessor type present in the history | allowed | **rejected** once that accessor appears |
+| v1 `patient/*.read` alone | allowed | allowed while every accessor is patient-filterable; **rejected** once a `Practitioner` or `Organization` accessor appears |
+| v2 `user/*.s user/Person.r user/Patient.r user/Practitioner.r access/*.rs` | rejected (unparsed) | allowed, for a history whose accessors are all Practitioners |
+| v2 with `s` instead of `r` on `Person`, or `r` instead of `s` on `AuditEvent` | rejected | rejected |
+| v2 with `r` but not `s` on the patient-linked types | rejected | rejected |
+| v2 `access/*.r` or `access/*.s` alone on the access side | rejected | rejected — the checks need a code granting `r` and one granting `s` |
+
+The rejected v1 rows are an exception to the "v1 tokens behave identically" rule: v1 `read`
+satisfies every letter required here, but the operation now requires it on many more resource types
+than before.
+
 ## Components & data flow
 
 - **`scopesManager.js`** — `getAccessCodesFromScopes`, `getPatientScopes`, `getUserScopes` call
@@ -258,9 +329,10 @@ subsequence rule above before the flag is enabled; see Open items.
 - A malformed v2 suffix causes that single scope string to be dropped from the granted-scope set;
   it is not fatal to the rest of the token's other (valid) scopes.
 - `hasHistoryAccess`'s literal requirement that the resolved access-code list contain `'*'` is
-  preserved exactly as-is — CRUDS granularity must not change this function's behavior. A
-  regression test pins that e.g. `access/tenantA.rs` does **not** satisfy `hasHistoryAccess` merely
-  because `r`/`s` are present; only the wildcard access code does.
+  preserved exactly as-is — CRUDS granularity must not change this function's behavior. Regression
+  tests pin that e.g. `access/tenantA.rs` does **not** satisfy `hasHistoryAccess` merely because
+  `r`/`s` are present, while `access/*.rs` does; only the wildcard access code counts. This guard
+  covers `_history` and vread only; it never applied to `$access-history`.
 - An empty resulting CRUDS set after all filtering produces the same `ForbiddenError` behavior as
   today's empty-access-code case.
 
@@ -346,8 +418,6 @@ subsequence rule above before the flag is enabled; see Open items.
   export silently returns **zero rows with HTTP 200** instead of the expected data or a 403 — a
   silent data-loss failure, not a denial, and the only place in the whole design where this failure
   mode occurs.
-- Decide `$access-history`'s eventual granular letters (likely `s` on both the target type and
-  `AuditEvent`, since both are bulk queries rather than single-instance reads — not decided) and
-  whether `admin/` ever gains CRUDS or stays v1-only (`hasAdminScopeForAction` compares the suffix
-  literally today, so it fails closed on a v2 suffix either way). Both deferred out of the current
+- Decide whether `admin/` ever gains CRUDS or stays v1-only (`hasAdminScopeForAction` compares the
+  suffix literally today, so it fails closed on a v2 suffix either way). Deferred out of the current
   per-operation target table into a later pass.
