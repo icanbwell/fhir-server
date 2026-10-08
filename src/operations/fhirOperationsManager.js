@@ -1036,7 +1036,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<any | undefined>}
      */
-    async searchByVersionId(args, { req }, resourceType) {
+    async searchByVersionId(args, { req, res }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
         this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'searchByVersionId' });
         /**
@@ -1057,7 +1057,8 @@ class FhirOperationsManager {
             {
                 requestInfo: requestInfo,
                 parsedArgs,
-                resourceType
+                resourceType,
+                res
             }
         );
     }
