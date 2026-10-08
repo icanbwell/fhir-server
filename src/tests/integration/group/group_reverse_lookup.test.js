@@ -9,6 +9,7 @@
  * ENABLE_EXTENDED_GROUP is set to '1' globally in jest/setEnvVars.js.
  */
 const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals');
+const deepcopy = require('deepcopy');
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -17,11 +18,23 @@ const {
     getHeaders,
     getHeadersJsonPatch,
     getGraphQLHeaders,
-    getHeadersWithCustomPayload
+    getHeadersWithCustomPayload,
+    getHeadersWithAdmin
 } = require('../common');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../utils/mongoGroupExtendedTag');
 const { GroupMemberQueryRewriter } = require('../../../queryRewriters/rewriters/groupMemberQueryRewriter');
 const { OPERATIONS: { READ } } = require('../../../constants');
+const { ConfigManager } = require('../../../utils/configManager');
+
+const debugExtendedGroup = require('./fixtures/reverse_lookup_debug/Group/extendedGroup.json');
+const debugAddMemberPatch = require('./fixtures/reverse_lookup_debug/patch/addMember.json');
+const expectedSearchByMember = require('./fixtures/reverse_lookup_debug/expected/searchByMember.json');
+
+class NonStreamingConfigManager extends ConfigManager {
+    get streamResponse () {
+        return false;
+    }
+}
 
 const GROUP_COLLECTION_NAME = 'Group_4_0_0';
 
@@ -439,6 +452,80 @@ describe('Group member reverse lookup', () => {
             } finally {
                 process.env.ENABLE_EXTENDED_GROUP = saved;
             }
+        });
+    });
+
+    /**
+     * `_debug` / `_explain` metadata. GroupMemberQueryRewriter runs a GroupMember_4_0_0 lookup of
+     * its own; like the queries of $everything it is listed in every debug tag of the bundle
+     * (query, queryCollection, queryOptions, queryFields, queryDatabase, queryExplain,
+     * queryExplainSimple), pipe-joined after the Group query. Inputs and expected bundles are JSON
+     * fixtures, see fixtures/reverse_lookup_debug.
+     */
+    describe('_debug / _explain metadata', () => {
+        const MEMBER_REFERENCE = 'Patient/dcon5532-member-1';
+        const searchUrl = (flag) => `/4_0_0/Group?member=${encodeURIComponent(MEMBER_REFERENCE)}&_bundle=1&${flag}`;
+        const debugHeaders = () => ({ ...getHeadersWithAdmin(), prefer: 'global_id=false' });
+
+        beforeAll(async () => {
+            // PUT keeps the fixture id, so the Group _uuid (and the queries built from it) are deterministic
+            const putResp = await request
+                .put(`/4_0_0/Group/${debugExtendedGroup.id}`)
+                .send(deepcopy(debugExtendedGroup))
+                .set(getHeaders());
+            expect(putResp.status).toBeLessThan(300);
+            await markGroupExtended(debugExtendedGroup.id);
+            const patchResp = await request
+                .patch(`/4_0_0/Group/${debugExtendedGroup.id}`)
+                .send(deepcopy(debugAddMemberPatch))
+                .set(getHeadersJsonPatch());
+            expect(patchResp.status).toBe(200);
+        });
+
+        test('_debug on a streaming search lists the GroupMember lookup in the debug tags', async () => {
+            const resp = await request.get(searchUrl('_debug=1')).set(debugHeaders());
+
+            const expected = deepcopy(expectedSearchByMember);
+            // query first: it strips the query display from both sides, then the rest of the bundle is compared
+            expect(resp).toHaveMongoQuery(expected);
+            expect(resp).toHaveResponse(expected);
+        });
+
+        test('_debug on a non-streaming search lists the GroupMember lookup in the debug tags', async () => {
+            const nonStreamingRequest = await createTestRequest((c) => {
+                c.register('configManager', () => new NonStreamingConfigManager());
+                return c;
+            });
+
+            const resp = await nonStreamingRequest.get(searchUrl('_debug=1')).set(debugHeaders());
+
+            const expected = deepcopy(expectedSearchByMember);
+            expect(resp).toHaveMongoQuery(expected);
+            expect(resp).toHaveResponse(expected);
+        });
+
+        test('_explain lists the GroupMember lookup in the debug tags and explains it in the same pass', async () => {
+            const resp = await request.get(searchUrl('_explain=1')).set(debugHeaders());
+
+            // read the plans first: toHaveResponse strips the (dynamic) explain display from the response
+            const explainTag = resp.body.meta.tag.find((t) => t.system === 'https://www.icanbwell.com/queryExplain');
+            expect(JSON.parse(explainTag.display)).toHaveLength(2);
+
+            // _explain returns the same tags as _debug but runs no search, so no entries
+            const expected = deepcopy(expectedSearchByMember);
+            expected.entry = [];
+            expect(resp).toHaveMongoQuery(expected);
+            expect(resp).toHaveResponse(expected);
+        });
+
+        test('without _debug or _explain the bundle carries no query tags', async () => {
+            const resp = await request
+                .get(`/4_0_0/Group?member=${encodeURIComponent(MEMBER_REFERENCE)}&_bundle=1`)
+                .set(debugHeaders());
+
+            expect(resp.status).toBe(200);
+            const tags = (resp.body.meta && resp.body.meta.tag) || [];
+            expect(tags.filter((t) => t.system.startsWith('https://www.icanbwell.com/query'))).toEqual([]);
         });
     });
 });

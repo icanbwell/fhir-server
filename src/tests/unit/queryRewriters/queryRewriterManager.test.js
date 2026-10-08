@@ -49,6 +49,36 @@ describe('QueryRewriterManager', () => {
             });
         });
 
+        describe('additionalRewriteQueries', () => {
+            const extra = (name) => ({ queryItem: { query: { name } }, options: {}, explanations: [], columns: new Set() });
+
+            test('returns the additional queries of every rewriter, in rewriter order', async () => {
+                const first = { rewriteQueryAsync: async ({ query, columns }) => ({ query, columns, additionalRewriteQueries: [extra('a'), extra('b')] }) };
+                const withoutAny = { rewriteQueryAsync: async ({ query, columns }) => ({ query, columns }) };
+                const last = { rewriteQueryAsync: async ({ query, columns }) => ({ query, columns, additionalRewriteQueries: [extra('c')] }) };
+                manager = new QueryRewriterManager({
+                    queryRewriters: [first, withoutAny],
+                    operationSpecificQueryRewriters: { READ: [last] }
+                });
+
+                const result = await manager.rewriteQueryAsync({
+                    base_version: '4_0_0', query: {}, columns: new Set(), resourceType: 'Group', operation: 'READ'
+                });
+
+                expect(result.additionalRewriteQueries.map(q => q.queryItem.query.name)).toEqual(['a', 'b', 'c']);
+            });
+
+            test('returns an empty list when no rewriter ran a query of its own', async () => {
+                manager = new QueryRewriterManager({ queryRewriters: [], operationSpecificQueryRewriters: {} });
+
+                const result = await manager.rewriteQueryAsync({
+                    base_version: '4_0_0', query: {}, columns: new Set(), resourceType: 'Group', operation: 'READ'
+                });
+
+                expect(result.additionalRewriteQueries).toEqual([]);
+            });
+        });
+
         describe('sequential chaining (ordering)', () => {
             test('passes modified query from rewriter 1 as input to rewriter 2', async () => {
                 const rewriter1 = {

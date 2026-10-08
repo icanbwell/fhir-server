@@ -196,16 +196,25 @@ describe('MongoGroupMemberRepository', () => {
     });
 
     describe('findGroupUuidsByMemberQueryAsync', () => {
-        test('runs the member predicate on GroupMember, projects only groupUuid, and de-dupes', async () => {
-            const findAsyncMock = jest.fn().mockResolvedValue({
+        const query = { 'member.entity._uuid': { $in: ['Patient/u1'] } };
+
+        function mockCursor () {
+            const cursor = {
                 toArrayAsync: jest.fn().mockResolvedValue([
                     { groupUuid: 'group-1' },
                     { groupUuid: 'group-2' },
                     { groupUuid: 'group-1' }
-                ])
-            });
+                ]),
+                explainAsync: jest.fn().mockResolvedValue([{ queryPlanner: { namespace: 'fhir.GroupMember_4_0_0' } }]),
+                getCollection: jest.fn().mockReturnValue('GroupMember_4_0_0')
+            };
+            const findAsyncMock = jest.fn().mockResolvedValue(cursor);
             mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({ findAsync: findAsyncMock });
-            const query = { 'member.entity._uuid': { $in: ['Patient/u1'] } };
+            return { cursor, findAsyncMock };
+        }
+
+        test('runs the member predicate on GroupMember, projects only groupUuid, and de-dupes', async () => {
+            const { findAsyncMock } = mockCursor();
 
             const result = await repository.findGroupUuidsByMemberQueryAsync({ base_version: '4_0_0', query });
 
@@ -213,11 +222,42 @@ describe('MongoGroupMemberRepository', () => {
                 resourceType: 'GroupMember',
                 base_version: '4_0_0'
             });
+            expect(findAsyncMock).toHaveBeenCalledTimes(1);
             expect(findAsyncMock).toHaveBeenCalledWith({
                 query,
                 options: { projection: { groupUuid: 1, _id: 0 } }
             });
-            expect(result).toEqual(['group-1', 'group-2']);
+            expect(result.groupUuids).toEqual(['group-1', 'group-2']);
+        });
+
+        test('does not explain unless asked to', async () => {
+            const { cursor } = mockCursor();
+
+            const result = await repository.findGroupUuidsByMemberQueryAsync({ base_version: '4_0_0', query });
+
+            expect(cursor.explainAsync).not.toHaveBeenCalled();
+            expect(result.explainedQuery).toBeUndefined();
+        });
+
+        test('explains and reads rows from the same single cursor when explain is set', async () => {
+            const { cursor, findAsyncMock } = mockCursor();
+
+            const result = await repository.findGroupUuidsByMemberQueryAsync({ base_version: '4_0_0', query, explain: true });
+
+            expect(findAsyncMock).toHaveBeenCalledTimes(1);
+            expect(cursor.explainAsync).toHaveBeenCalledTimes(1);
+            expect(cursor.toArrayAsync).toHaveBeenCalledTimes(1);
+            expect(cursor.explainAsync.mock.invocationCallOrder[0])
+                .toBeLessThan(cursor.toArrayAsync.mock.invocationCallOrder[0]);
+            expect(result.groupUuids).toEqual(['group-1', 'group-2']);
+            expect(result.explainedQuery.queryItem).toMatchObject({
+                query,
+                resourceType: 'GroupMember',
+                collectionName: 'GroupMember_4_0_0'
+            });
+            expect(result.explainedQuery.options).toEqual({ projection: { groupUuid: 1, _id: 0 } });
+            expect(result.explainedQuery.explanations).toEqual([{ queryPlanner: { namespace: 'fhir.GroupMember_4_0_0' } }]);
+            expect(result.explainedQuery.columns).toEqual(new Set(['member.entity._uuid']));
         });
     });
 });

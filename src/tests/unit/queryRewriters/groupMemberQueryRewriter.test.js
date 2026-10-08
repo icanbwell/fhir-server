@@ -21,7 +21,10 @@ function makeRewriter ({ enableExtendedGroup = true, lookup = async () => ['grou
     const configManager = Object.create(ConfigManager.prototype);
     Object.defineProperty(configManager, 'enableExtendedGroup', { value: enableExtendedGroup, configurable: true });
     const mongoGroupMemberRepository = Object.create(MongoGroupMemberRepository.prototype);
-    mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync = jest.fn(async ({ query }) => lookup(query));
+    mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync = jest.fn(async ({ query, explain }) => ({
+        groupUuids: await lookup(query),
+        explainedQuery: explain ? { queryItem: { query }, explanations: [{ plan: 'explained' }] } : undefined
+    }));
     return new GroupMemberQueryRewriter({ configManager, mongoGroupMemberRepository });
 }
 
@@ -39,7 +42,7 @@ describe('GroupMemberQueryRewriter', () => {
 
         expect(query).toEqual({ $and: [{ $or: [{ $or: [extended(UUID_LEAF)] }] }, HIDDEN_TAG] });
         expect(rewriter.mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync)
-            .toHaveBeenCalledWith({ base_version: '4_0_0', query: UUID_LEAF });
+            .toHaveBeenCalledWith({ base_version: '4_0_0', query: UUID_LEAF, explain: false });
         expect(columns.has('_uuid')).toBe(true);
     });
 
@@ -111,6 +114,80 @@ describe('GroupMemberQueryRewriter', () => {
 
         expect(query).toBe(input);
         expect(rewriter.mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync).not.toHaveBeenCalled();
+    });
+
+    describe('_debug / _explain: additionalRewriteQueries', () => {
+        const lookupQuery = { 'member.entity._uuid': { $in: ['Patient/u1'] } };
+
+        const debugArgs = (flags) => Object.assign(new ParsedArgs({ base_version: '4_0_0' }), flags);
+
+        function rewriteWith (rewriter, parsedArgs, query = { $and: [UUID_MEMBER, HIDDEN_TAG] }, resourceType = 'Group') {
+            return rewriter.rewriteQueryAsync({ base_version: '4_0_0', query, columns: new Set(), resourceType, parsedArgs });
+        }
+
+        test.each([['_debug'], ['_explain']])('returns the explained GroupMember lookup the repository built when %s is requested', async (arg) => {
+            const rewriter = makeRewriter();
+
+            const { additionalRewriteQueries } = await rewriteWith(rewriter, debugArgs({ [arg]: true }));
+
+            expect(rewriter.mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync)
+                .toHaveBeenCalledTimes(1);
+            expect(rewriter.mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync)
+                .toHaveBeenCalledWith({ base_version: '4_0_0', query: lookupQuery, explain: true });
+            expect(additionalRewriteQueries).toEqual([
+                { queryItem: { query: lookupQuery }, explanations: [{ plan: 'explained' }] }
+            ]);
+        });
+
+        test('returns one entry per distinct lookup and runs each lookup once', async () => {
+            const leafB = { 'member.entity._uuid': { $in: ['Patient/u2'] } };
+            const rewriter = makeRewriter();
+            const query = { $and: [UUID_LEAF, leafB, { $nor: [{ ...UUID_LEAF }] }] };
+
+            const { additionalRewriteQueries } = await rewriteWith(rewriter, debugArgs({ _debug: true }), query);
+
+            expect(additionalRewriteQueries.map(q => q.queryItem.query)).toEqual([UUID_LEAF, leafB]);
+            expect(rewriter.mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync).toHaveBeenCalledTimes(2);
+        });
+
+        test('returns a lookup that matched no Group', async () => {
+            const rewriter = makeRewriter({ lookup: async () => [] });
+
+            const { additionalRewriteQueries } = await rewriteWith(rewriter, debugArgs({ _debug: true }));
+
+            expect(additionalRewriteQueries).toHaveLength(1);
+        });
+
+        test('does not ask for an explain plan unless _debug or _explain is requested', async () => {
+            const rewriter = makeRewriter();
+
+            const { additionalRewriteQueries } = await rewriteWith(rewriter, debugArgs({}));
+
+            expect(additionalRewriteQueries).toEqual([]);
+            expect(rewriter.mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync)
+                .toHaveBeenCalledWith({ base_version: '4_0_0', query: lookupQuery, explain: false });
+        });
+
+        test.each([
+            ['the flag is off', { _debug: true }, 'Group', false],
+            ['the resource is not a Group', { _debug: true }, 'Patient', true]
+        ])('returns no additional queries and runs no lookup when %s', async (_name, flags, resourceType, enableExtendedGroup) => {
+            const rewriter = makeRewriter({ enableExtendedGroup });
+
+            const { additionalRewriteQueries } = await rewriteWith(rewriter, debugArgs(flags), undefined, resourceType);
+
+            expect(additionalRewriteQueries).toEqual([]);
+            expect(rewriter.mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync).not.toHaveBeenCalled();
+        });
+
+        test('works without parsedArgs', async () => {
+            const rewriter = makeRewriter();
+
+            const { query, additionalRewriteQueries } = await rewriteWith(rewriter, undefined);
+
+            expect(query).not.toEqual({ $and: [UUID_MEMBER, HIDDEN_TAG] });
+            expect(additionalRewriteQueries).toEqual([]);
+        });
     });
 
     test('returns the original query and columns when no GroupMember row matches', async () => {

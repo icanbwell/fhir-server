@@ -170,6 +170,8 @@ class SearchStreamingOperation {
         let columns = new Set();
         /** @type {{must: object[]}|null} **/
         let atlasSearchCompound = null;
+        /** @type {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]} **/
+        let additionalRewriteQueries = [];
 
         // check if required filters for AuditEvent are passed
         if (resourceType === 'AuditEvent') {
@@ -182,7 +184,8 @@ class SearchStreamingOperation {
                 query,
                 /** @type {Set} **/
                 columns,
-                atlasSearchCompound
+                atlasSearchCompound,
+                additionalRewriteQueries
             } = await this.searchManager.constructQueryAsync(
                 {
                     user,
@@ -362,6 +365,7 @@ class SearchStreamingOperation {
                         user,
                         explanations,
                         allCollectionsToSearch,
+                        additionalRewriteQueries,
                         parsedArgs,
                         externalReqUrlPrefix
                     }
@@ -439,6 +443,7 @@ class SearchStreamingOperation {
                                 user,
                                 explanations,
                                 allCollectionsToSearch,
+                                additionalRewriteQueries,
                                 parsedArgs
                             }
                         );

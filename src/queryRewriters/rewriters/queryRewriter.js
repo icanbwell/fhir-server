@@ -1,4 +1,12 @@
 /**
+ * @typedef {Object} AdditionalRewriteQuery a query a rewriter ran on its own, to be listed in the `_debug` / `_explain` metadata
+ * @property {import('../../operations/graph/queryItem').QueryItem} queryItem
+ * @property {Object} options
+ * @property {import('mongodb').Document[]} explanations
+ * @property {Set} columns
+ */
+
+/**
  * Abstract base class for an enrichment provider.  Inherit from this to create a new enrichment provider
  */
 class QueryRewriter {
@@ -9,11 +17,14 @@ class QueryRewriter {
      * @param {Set} columns
      * @param {string} resourceType
      * @param {'READ'|'WRITE'} operation
-     * @return {Promise<{query:import('mongodb').Document,columns:Set}>}
+     * @param {ParsedArgs} [parsedArgs] read-only: lets a rewriter see `_debug` / `_explain`
+     * @return {Promise<{query:import('mongodb').Document,columns:Set,additionalRewriteQueries:AdditionalRewriteQuery[]}>}
+     *   `additionalRewriteQueries` are the queries the rewriter ran on its own (empty when none), so
+     *   the `_debug` / `_explain` bundle tags list them
      */
 
-    async rewriteQueryAsync ({ base_version, query, columns, resourceType, operation }) {
-        return { query, columns };
+    async rewriteQueryAsync ({ base_version, query, columns, resourceType, operation, parsedArgs }) {
+        return { query, columns, additionalRewriteQueries: [] };
     }
 
     /**

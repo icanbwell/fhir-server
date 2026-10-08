@@ -9,6 +9,10 @@ const EQUALITY_OPERATORS = ['$in', '$eq'];
 const LOGICAL_OPERATORS = ['$and', '$or', '$nor'];
 
 /**
+ * @typedef {{groupUuids: string[], explainedQuery: import('./queryRewriter').AdditionalRewriteQuery|undefined}} GroupMemberLookup
+ */
+
+/**
  * `member.<path>: <scalar | {$in} | {$eq}>` -- the equality shapes FilterByReference and the
  * patient-scope filter produce, and that mean the same thing on a GroupMember_4_0_0 row.
  * @param {string} key
@@ -66,23 +70,32 @@ class GroupMemberQueryRewriter extends QueryRewriter {
      * @param {import('mongodb').Document} query
      * @param {Set} columns
      * @param {string} resourceType
-     * @return {Promise<{query:import('mongodb').Document,columns:Set}>}
+     * @param {import('../../operations/query/parsedArgs').ParsedArgs} [parsedArgs] only read, for `_debug` / `_explain`
+     * @return {Promise<{query:import('mongodb').Document,columns:Set,additionalRewriteQueries:import('./queryRewriter').AdditionalRewriteQuery[]}>}
      */
-    async rewriteQueryAsync ({ base_version, query, columns, resourceType }) {
+    async rewriteQueryAsync ({ base_version, query, columns, resourceType, parsedArgs }) {
         if (resourceType !== 'Group' || !this.configManager.enableExtendedGroup || !MongoQuerySimplifier.isFilter(query)) {
-            return { query, columns };
+            return { query, columns, additionalRewriteQueries: [] };
         }
+        const explain = Boolean(parsedArgs?._debug || parsedArgs?._explain);
+        const lookupsByCondition = new Map();
         const rewrittenQuery = await this.rewriteNodeAsync({
             base_version,
             node: query,
-            groupUuidsByCondition: new Map()
+            lookupsByCondition,
+            explain
         });
+        // each distinct lookup is listed once, already explained in the pass that ran it
+        const additionalRewriteQueries = [...lookupsByCondition.values()]
+            .map((lookup) => lookup.explainedQuery)
+            .filter(Boolean);
         if (rewrittenQuery === query) {
-            return { query, columns };
+            return { query, columns, additionalRewriteQueries };
         }
         return {
             query: rewrittenQuery,
-            columns: MongoQuerySimplifier.findColumnsInFilter({ filter: rewrittenQuery })
+            columns: MongoQuerySimplifier.findColumnsInFilter({ filter: rewrittenQuery }),
+            additionalRewriteQueries
         };
     }
 
@@ -90,10 +103,11 @@ class GroupMemberQueryRewriter extends QueryRewriter {
      * @param {Object} params
      * @param {string} params.base_version
      * @param {*} params.node
-     * @param {Map<string, string[]>} params.groupUuidsByCondition
+     * @param {Map<string, GroupMemberLookup>} params.lookupsByCondition lookup query (JSON) -> its result
+     * @param {boolean} params.explain also explain each lookup
      * @returns {Promise<*>} the same node when nothing under it changed
      */
-    async rewriteNodeAsync ({ base_version, node, groupUuidsByCondition }) {
+    async rewriteNodeAsync ({ base_version, node, lookupsByCondition, explain }) {
         if (!MongoQuerySimplifier.isFilter(node)) {
             return node;
         }
@@ -104,7 +118,7 @@ class GroupMemberQueryRewriter extends QueryRewriter {
         for (const [key, value] of Object.entries(node)) {
             if (isMemberCondition(key, value)) {
                 const condition = { [`${key}`]: value };
-                const widened = await this.widenMemberConditionAsync({ base_version, condition, groupUuidsByCondition });
+                const widened = await this.widenMemberConditionAsync({ base_version, condition, lookupsByCondition, explain });
                 if (widened === condition) {
                     rest[`${key}`] = value;
                 } else {
@@ -113,7 +127,7 @@ class GroupMemberQueryRewriter extends QueryRewriter {
             } else if (LOGICAL_OPERATORS.includes(key) && Array.isArray(value)) {
                 const children = [];
                 for (const child of value) {
-                    const rewrittenChild = await this.rewriteNodeAsync({ base_version, node: child, groupUuidsByCondition });
+                    const rewrittenChild = await this.rewriteNodeAsync({ base_version, node: child, lookupsByCondition, explain });
                     changed = changed || rewrittenChild !== child;
                     children.push(rewrittenChild);
                 }
@@ -137,23 +151,25 @@ class GroupMemberQueryRewriter extends QueryRewriter {
      * @param {Object} params
      * @param {string} params.base_version
      * @param {import('mongodb').Document} params.condition single `member.*` condition
-     * @param {Map<string, string[]>} params.groupUuidsByCondition
+     * @param {Map<string, GroupMemberLookup>} params.lookupsByCondition
+     * @param {boolean} params.explain
      * @returns {Promise<import('mongodb').Document>} the same condition when no extended Group matches
      */
-    async widenMemberConditionAsync ({ base_version, condition, groupUuidsByCondition }) {
+    async widenMemberConditionAsync ({ base_version, condition, lookupsByCondition, explain }) {
         const cacheKey = JSON.stringify(condition);
-        let groupUuids = groupUuidsByCondition.get(cacheKey);
-        if (!groupUuids) {
-            groupUuids = await this.mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync({
+        let lookup = lookupsByCondition.get(cacheKey);
+        if (!lookup) {
+            lookup = await this.mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync({
                 base_version,
-                query: condition
+                query: condition,
+                explain
             });
-            groupUuidsByCondition.set(cacheKey, groupUuids);
+            lookupsByCondition.set(cacheKey, lookup);
         }
-        if (groupUuids.length === 0) {
+        if (lookup.groupUuids.length === 0) {
             return condition;
         }
-        return { $or: [condition, { _uuid: { $in: groupUuids } }] };
+        return { $or: [condition, { _uuid: { $in: lookup.groupUuids } }] };
     }
 }
 

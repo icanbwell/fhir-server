@@ -8,6 +8,8 @@ const { GROUP_MEMBER_RESOURCE_TYPE } = require('../../constants');
 const { resolveMemberWrite } = require('../../operations/common/resolveMemberWrite');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { logError } = require('../../operations/common/logging');
+const { QueryItem } = require('../../operations/graph/queryItem');
+const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 
 /**
  * Repository for the MongoDB-native, large-Group ("extended") member storage, written from
@@ -81,22 +83,41 @@ class MongoGroupMemberRepository {
      * The caller is responsible for joining the returned groupUuids back against Group_4_0_0
      * and applying the caller's own tenant filter there.
      *
+     * The lookup runs once. When `explain` is set (`_debug` / `_explain`) the explain plan is taken
+     * from the same cursor before its rows are read, as search and $everything do, so the plan
+     * and the result cannot drift apart, and the lookup is returned as `explainedQuery`.
+     *
      * @param {Object} params
      * @param {string} params.base_version
      * @param {import('mongodb').Document} params.query
-     * @returns {Promise<string[]>}
+     * @param {boolean} [params.explain] also explain the lookup and return it as `explainedQuery`
+     * @returns {Promise<{groupUuids: string[], explainedQuery: {queryItem: QueryItem, options: Object, explanations: import('mongodb').Document[], columns: Set}|undefined}>}
      */
-    async findGroupUuidsByMemberQueryAsync ({ base_version, query }) {
+    async findGroupUuidsByMemberQueryAsync ({ base_version, query, explain = false }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: GROUP_MEMBER_RESOURCE_TYPE,
             base_version
         });
-        const cursor = await databaseQueryManager.findAsync({
-            query,
-            options: { projection: { groupUuid: 1, _id: 0 } }
-        });
+        // only the group uuid of each matching GroupMember row is needed to find the extended Groups
+        const options = { projection: { groupUuid: 1, _id: 0 } };
+        const cursor = await databaseQueryManager.findAsync({ query, options });
+        const explanations = explain ? await cursor.explainAsync() : [];
         const rows = await cursor.toArrayAsync();
-        return [...new Set(rows.map((row) => row.groupUuid))];
+        return {
+            groupUuids: [...new Set(rows.map((row) => row.groupUuid))],
+            explainedQuery: explain
+                ? {
+                    queryItem: new QueryItem({
+                        query,
+                        resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+                        collectionName: cursor.getCollection()
+                    }),
+                    options,
+                    explanations,
+                    columns: MongoQuerySimplifier.findColumnsInFilter({ filter: query })
+                }
+                : undefined
+        };
     }
 
     /**
