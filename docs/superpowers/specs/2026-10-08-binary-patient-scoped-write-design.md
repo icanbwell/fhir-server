@@ -5,6 +5,18 @@ Status: **Proposed — for review and approval. No implementation is included in
 Direction decided in the originating Slack thread (Imran Qureshi, Guillermo Granados), pending review
 of this document: "Option 1" below.
 
+## 0. Decisions recorded from review (2026-10-08)
+
+| Topic | Decision | Where it lands |
+|---|---|---|
+| Tag hardening (was OQ-1) | **Parity with other patient-scoped creates: no extra restriction.** Verified that fhir-server does not constrain `access`/`owner` tags on any patient-scoped create today (§4.3.1). The gap is general, not Binary-specific, so it is tracked as a separate follow-up | §4.3.1, §9 T3 |
+| Upload limits (was OQ-3) | **Whatever fhir-server does today: no Binary-specific limits.** The server-wide `PAYLOAD_LIMIT` (default 50 MB) applies. Verified findings on limits and on token-before-body ordering are in §4.6 | §4.6, §14 |
+| Logging the person id (was OQ-4) | **Same as existing code: log it as-is** (existing code already logs person ids in plain text) | §8 |
+| Tag system URI (was OQ-6) | **Approved**, and the stamped value is the same id the read path uses for a person (`clientFhirPersonId`, i.e. `personIdFromJwtToken`) | §4.1, §4.2 |
+| Member read scope (was OQ-5) | **Yes: `patient/Binary.read` alone lets a member read their own tagged `Binary`**, like other resource reads | §4.4.1 (new) |
+| Mismatched tag on create | **Reject with a reason** (403 with an explanatory OperationOutcome) | §4.3 |
+| Rollout order | **Read filter first, then the create carve-out** | §7 |
+
 ## 1. Problem
 
 A member (patient-scoped) token cannot create a `Binary` in fhir-server. The token is rejected with
@@ -74,6 +86,8 @@ Goals
 - G3. Zero behavior change for existing (untagged) `Binary` resources and for system/user/admin
   tokens that carry no patient scope.
 - G4. Ship behind a feature flag, default off.
+- G5. A member holding only `patient/Binary.read` (no user/system scope, no access code) can read their own
+  tagged `Binary`, consistent with how other patient-scoped resource reads work (§4.4.1).
 
 Non-goals (explicit)
 
@@ -185,15 +199,22 @@ in memory, using a claim already resolved at authentication. No I/O, no await on
 no reason to defer it; deferring (e.g. post-response) would be incorrect because the tag must be durable
 with the first write. The audit entry is the part that is correctly asynchronous (§8).
 
-Owner/access tags on the new `Binary` (cross-tenant write risk, see §9 T3): `validateResourceMetaSync`
-requires exactly one `owner` tag and the client supplies owner/access tags today for every
-patient-scoped create (e.g. `Condition`; tests post fixtures with tags). For `Binary` this lets a member
-choose an `access` tag naming another tenant, injecting content into that tenant's view. **Recommendation
-(requires approval, OQ-1):** for patient-scoped `Binary` create, require each supplied `access` and the
-`owner` tag to be one of the tags on the caller's own `Person` resource. The Person is already loaded for
-the self-lookup in `personToPatientIdsExpander.js`, so this should add no extra query when the lookup is
-shared; otherwise it is one indexed `_uuid` read (estimate: a single-document read by `_uuid` index; not
-measured).
+The mismatch rejection (row 3 of the table above) returns `403` with an OperationOutcome whose
+diagnostic names the problem ("the clientPersonId security tag does not match the authenticated person")
+without echoing the other person's id, and the server logs the supplied code at `warn` (§8).
+
+#### 4.3.1 Owner/access tags on the new `Binary`: parity with other creates (decision)
+
+Verified in code: `validateResourceMetaSync` requires exactly one `owner` tag and the client supplies
+owner/access tags on every create. For a patient-scoped create, `ScopesManager.isAccessTagChangeAllowedByScopes`
+returns `true` immediately when `isCreate` and the type is patient-accessible (`scopesManager.js` ~line
+189: "a patient scoped caller is authorized via the patient/person the resource belongs to, not via
+access codes"), and `canWriteResourceAsync` checks only the patient/person linkage, not the tags. So
+**today no patient-scoped create of any resource type has its `access`/`owner` tags constrained**, and a
+member could already tag, for example, a `Condition` with another tenant's access code. For `Binary`
+we keep exactly that behavior (decision: parity), and add no tag restriction here. This is a pre-existing,
+resource-type-independent gap; it is recorded as follow-up F-1 (§12) so it can be fixed once for all
+patient-scoped creates rather than only for `Binary`.
 
 Mixed-scope tokens are patient-scoped (§5.4). `$merge`, `PUT`, `PATCH`, `DELETE` of `Binary` are untouched
 and keep returning the existing `Write not allowed using user scopes if patient scope is present`.
@@ -207,13 +228,16 @@ Single choke point: add one predicate in `SearchManager.constructQueryAsync`
 
 ```js
 // pseudo-code
-if (personId) {
+const own = { [f('meta.security')]: { $elemMatch: { system: clientPersonId, code: personId } } };
+if (!personId) {
+  query = { _uuid: '__invalid__' }; // fail closed: never "no filter" (review.md §3.D)
+} else if (hasAccessTags) {         // mixed token: keep today's behavior for untagged Binary
   query = AND(query, { $or: [
      { [f('meta.security')]: { $not: { $elemMatch: { system: clientPersonId } } } },   // untagged: unchanged
-     { [f('meta.security')]: { $elemMatch: { system: clientPersonId, code: personId } } }
+     own
   ]});
-} else {
-  query = { _uuid: '__invalid__' }; // fail closed: never "no filter" (review.md §3.D)
+} else {                            // pure patient token (§4.4.1): own tagged only
+  query = AND(query, own);
 }
 ```
 
@@ -234,6 +258,30 @@ Because every read operation calls `constructQueryAsync` (verified list, `grep c
 | GraphQL v1/v2 `DocumentReference → Binary` | `graphqlv2/resolvers/custom/documentReference.js` → `dataSource.findLinkedNonClinicalResource` → DataLoader → `getResourcesInBatch` → `searchBundleAsync` | yes (resolver returns `null` when filtered) |
 | bulk export | `export/script/bulkDataExportRunner.js:404` | yes (patient tokens do not run export; predicate is inert for system tokens) |
 | `update/patch/remove/validate` target lookup | `update.js:261`, `patch.js:311`, `remove.js:158`, `validate.js:136` | applies if reached, but all are rejected earlier for patient tokens |
+
+#### 4.4.1 Member read with `patient/Binary.read` alone (decision)
+
+Today a token with only patient scopes cannot read `Binary` at all (§1.2): the scope gate treats `Binary`
+as not patient-accessible, so it falls to the `user/`+`system/` branch and then needs an `access/` code.
+Decision: members can read with `patient/Binary.read`, like other patient-scoped reads.
+
+Gate change (flag on, `isPersonSecurityTagResource`, `hasPatientScope`, action `read`/`search`): in
+`ScopesValidator.isScopesValidAsync`, evaluate the patient scopes (`getPatientScopes`) for `Binary`, as for
+creates in §4.3, instead of requiring a `user/`/`system/` scope + access code **when the token has no
+`user/`/`system/` scope**. A token that also carries `user/`/`system/` scopes keeps today's evaluation (and
+therefore today's behavior for untagged Binary).
+
+The read predicate then has **two modes**, chosen by whether the caller has tenant access tags:
+
+| Caller | Predicate on `Binary` | Reads |
+|---|---|---|
+| Patient-scoped **with** access tags (mixed token: `patient/*` + `user/*` + `access/<c>`; the clinical viewers) | access-tag filter AND (untagged OR tag = my person id) | own tagged + untagged in tenant (today's behavior preserved) |
+| Patient-scoped **without** access tags (pure patient token) | tag = my person id, strictly | own tagged only; **untagged Binary are never returned** |
+
+The strict mode matters: a pure patient token carries no access code, so `constructQueryAsync` builds no
+tenant filter (the `else if (securityTags ...)` branch is skipped). If the "untagged OR own" form were
+used there, every untagged `Binary` of every tenant would become readable. Strict mode closes that by
+construction, and T39 pins it.
 
 Two reads do **not** go through `constructQueryAsync` and must be verified at implementation time
 (OQ-2, marked unverified): any Redis/request-cache short-circuit of resources by id inside
@@ -259,43 +307,41 @@ patient-scoped `DocumentReference` create/update references a `Binary` id, for l
 do not block. Revisit if untagged `Binary` by-id access (§12.1) is closed, since that would remove the
 remaining way to read a foreign untagged `Binary`.
 
-### 4.6 Size, content type, cloud storage
+### 4.6 Size, content type, cloud storage: no Binary-specific limits (decision)
 
-Verified facts (from config/code, not measurements):
+Decision: do whatever fhir-server does today for other calls. Verified facts (from code and
+configuration, not measurements):
 
-- JSON body limit `PAYLOAD_LIMIT` default `50mb` (`configManager.js:509`). Base64 inflates 4/3, so the
-  ceiling for raw bytes in a base64 `Binary.data` is about 37.5 MB (arithmetic estimate).
-- MongoDB BSON document limit is 16 MB; without offload a base64 payload above ~12 MB raw (16 MB / 1.333,
-  estimate) cannot be stored inline.
+- **There is no per-resource-type size or content-type limit** on writes. The only limit is the
+  server-wide JSON body limit `PAYLOAD_LIMIT` (default `50mb`, `configManager.js:509`), applied by
+  `express.json({ limit })` (`src/routeHandlers/fhirServer.js:82-95`), and `validateResourceSizeSync`
+  caps only `AuditEvent` (`create.js` raises `PayloadTooLargeError`, 413, for it). This design adds none.
+- **The token is not verified before the body is read.** The JSON body parser (`parseFhirJsonBody`) is
+  registered at app level in `configureMiddleware`, and authentication runs later, per route, in
+  `FhirRouter` (`authenticationMiddleware(config)` in `src/middleware/fhir/router.js`). So an
+  unauthenticated or unauthorized caller can make the server read and parse up to `PAYLOAD_LIMIT` before
+  it is rejected. This is existing behavior for every endpoint, not something this change introduces, but
+  opening member uploads makes it more visible; it is recorded as follow-up F-2 (§12) (authenticate before
+  parsing, or a lower pre-auth limit) and is not part of this change.
+- Base64 inflates 4/3, so the largest raw payload that fits the 50 MB body limit is about 37.5 MB
+  (arithmetic estimate). MongoDB's 16 MB BSON document limit means an inline base64 `Binary` above
+  roughly 12 MB raw (estimate) needs cloud-storage offload.
 - When `BASE64_FIELD_CLOUD_STORAGE_ENABLED` is on, `Binary.data` over `BASE64_FIELD_DATA_THRESHOLD_KB`
   (default 64 KB, `configManager.js:~960`) is offloaded to the resource bucket by `Base64DataManager`
   (called in `create.js` before insert, ~line 223); history for `Binary` goes to cloud storage because
   `CLOUD_STORAGE_HISTORY_RESOURCES` defaults to `['Binary']` (`configManager.js:865`).
-- `validateResourceSizeSync` currently enforces a size cap only for `AuditEvent`.
 
-Because this opens an upload surface to end users, add patient-scoped-only limits (system tokens
-unchanged), as a proposal for approval (OQ-3), all configurable:
-
-| Setting (new env var) | Proposed default | Rationale |
-|---|---|---|
-| `PATIENT_BINARY_MAX_BYTES` (decoded size) | 10 MB | well under the 12 MB inline ceiling and the 50 MB body limit; typical phone photos/PDF scans are single-digit MB (a planning figure, not measured from our traffic) |
-| `PATIENT_BINARY_ALLOWED_CONTENT_TYPES` | `application/pdf,image/jpeg,image/png,image/heic,text/plain` | allowlist, not blocklist; reject others with `415`-equivalent OperationOutcome |
-| rate limiting | out of scope for this repo | enforce at the gateway; recorded as a dependency |
-
-Oversize returns `PayloadTooLargeError` (413), the existing error type used by `create.js` for
-`AuditEvent`. Content-type is checked from `Binary.contentType` (and the base64 magic bytes are **not**
-inspected in v1; malware scanning is out of scope and recommended at the gateway/storage tier).
-
-Sync vs async: the size/type check is synchronous and pre-persist (cheap, rejects before any write or S3
-call). Cloud-storage offload remains whatever `Base64DataManager` already does for `Binary`; no new async
-work is introduced by this design.
+Rate limiting and malware scanning remain gateway/storage-tier concerns (dependencies, not in this repo).
+If product later wants a per-member cap or a content-type allowlist, it is a self-contained addition at the
+stamping step (§4.3) and is deferred (F-3, §12).
 
 ## 5. Behavior by token shape
 
 | Token | Create `Binary` | Read `Binary` (REST/GraphQL/`$everything`/`$graph`) |
 |---|---|---|
-| `patient/Binary.write` (+ person claims) | allowed; tag stamped | scope gate unchanged (needs user/system + access today); tag filter applied |
-| `patient/*.read` only | 403 (no create grant) | unchanged (403 at scope gate) |
+| `patient/Binary.write` (+ person claims) | allowed; tag stamped | needs a read grant (`patient/Binary.read`, §4.4.1, or user/system + access as today) |
+| `patient/Binary.read` only (no user/system scope, no access code) | 403 (no create grant) | **new (§4.4.1):** own tagged `Binary` only; untagged never returned |
+| `patient/*.read` only (no `Binary` grant) | 403 (no create grant) | 403 at scope gate |
 | `system/*.*` or `user/*.*` + `access/<c>` (no patient scope) | unchanged; **no auto-stamp** | unchanged (no tag filter; sees tagged and untagged within tenant) |
 | `access/*` + `admin/*`, no patient scope | unchanged | unchanged |
 | any token with **any** patient scope plus `user/`/`system/`/`access/` (mixed) | treated as patient-scoped: requires patient create grant, always stamped, tag filter applied; user/system/access privileges do **not** bypass | tag filter applied (so a mixed token reads own tagged + untagged only) |
@@ -327,9 +373,11 @@ backend can write a tag for any person — this is intentional (backends are tru
   gates both the create carve-out and the read predicate.
 - The read predicate is a strict no-op for untagged data, so enabling the flag changes nothing for the
   existing corpus; only new patient-scoped writes carry the tag.
-- Rollout: (1) deploy flag-off (code dormant), (2) enable in a lower environment and run the integration
-  matrix plus a manual DocumentReference→Binary GraphQL walkthrough, (3) enable per environment, (4)
-  backend clients that want per-member isolation start stamping tags for their writes. Rollback = flag
+- Rollout: (1) deploy flag-off (code dormant), (2) **the read filter, including the `patient/Binary.read`
+  gate change, lands before the create carve-out** (decision): it is a no-op for untagged data and no
+  tagged `Binary` can exist until the create path ships, (3) enable in a lower environment and run the
+  integration matrix plus a manual DocumentReference→Binary GraphQL walkthrough, (4) enable per
+  environment, (5) backend clients that want per-member isolation start stamping tags for their writes. Rollback = flag
   off; tagged `Binary` already written remain readable by tenant tokens (no patient filter) and become
   unreadable to member tokens only in the sense that the flag-off server no longer applies the filter
   (i.e. they would be readable by any in-tenant caller, as all `Binary` are today). Call this out to
@@ -342,13 +390,14 @@ backend can write a tag for any person — this is intentional (backends are tru
 - Audit: `Create.createAsync` already queues `auditLogger.logAuditEntryAsync` through
   `postRequestProcessor` (asynchronously, after the response; correct because the audit entry is not on
   the durability path of the write). It records resource type, operation and uuid; the design adds the
-  stamped person id (hashed or truncated per PHI policy, OQ-4) to the audit/log context.
+  stamped person id to the audit/log context as-is (decision: same as existing code, which already logs
+  person ids in plain text, e.g. `personToPatientIdsExpander.js`).
 - Logs (`logInfo`/`logWarn`, `src/operations/common/logging.js`): `binary_person_tag_stamped`,
-  `binary_person_tag_mismatch_rejected` (warn, include caller `user`, supplied code, token code),
-  `binary_create_rejected_size|content_type`, and `documentreference_references_binary` (§4.5).
+  `binary_person_tag_mismatch_rejected` (warn, include caller `user`, supplied code, token code), and
+  `documentreference_references_binary` (§4.5).
 - Metrics: follow ADR 0002 (custom OpenTelemetry meters via DI). Proposed counters:
-  `fhir.binary.patient_create.total{outcome=created|forbidden|mismatch|too_large|bad_type}`,
-  `fhir.binary.person_filter.applied.total`, and a histogram of decoded size for patient-scoped creates.
+  `fhir.binary.patient_create.total{outcome=created|forbidden|mismatch}`,
+  `fhir.binary.person_filter.applied.total{mode=mixed|strict}`.
   Alert on a non-zero `mismatch` rate (tag-forgery signal).
 
 ## 9. Security and threat considerations
@@ -359,14 +408,15 @@ Walked against `review.md` §3 A, B, C, D, E.
 |---|---|---|---|
 | T1 | Tag forgery: member supplies another person's tag | server rejects any supplied tag that is not the token's person id; never trusts body | none for create |
 | T2 | Cross-member read of tagged `Binary` by id/search/history/`$everything`/`$graph`/GraphQL | single predicate in `constructQueryAsync` (§4.4) fail-closed on empty person id | by-id read of **untagged** `Binary` still allowed (§12.1); OQ-2 paths to verify |
-| T3 | Cross-tenant injection via member-chosen `access`/`owner` tags | recommended: tags must be a subset of the caller's Person tags (OQ-1) | if rejected, parity with other patient-scoped creates |
+| T3 | Cross-tenant injection via member-chosen `access`/`owner` tags | none added (decision: parity with every other patient-scoped create, §4.3.1) | pre-existing, type-independent gap; follow-up F-1 |
 | T4 | Enumeration of ids | filtered resource is indistinguishable from a missing one (empty result / 404, same as a failed access-tag filter) | timing difference negligible; not measured |
 | T5 | Mixed-scope bypass (`patient/* system/*`) | branch keyed on `hasPatientScope`; user/system privileges do not bypass | none |
 | T6 | Tag removal by a later update | updates by patient tokens forbidden; system tokens may edit tags by design | trusted backends |
 | T7 | Empty/undefined person id making the filter match everything | filter builds `_uuid: '__invalid__'` instead (review.md §3.D) | none |
 | T8 | Two tenants sharing the same real person (review.md §3.E) | tag holds the **client** person id and the existing access-tag filter is still ANDed (not replaced); mixed tokens keep both | none |
-| T9 | Abuse of upload surface (size, type, volume) | §4.6 limits; gateway rate limit | malware scanning out of scope |
+| T9 | Abuse of upload surface (size, type, volume) | server-wide `PAYLOAD_LIMIT` only (§4.6); gateway rate limit | body is parsed before the token is verified (existing, F-2); malware scanning out of scope |
 | T10 | Retrieval via DocumentReference of another member pointing at a foreign Binary | read filter (§4.5) | untagged case |
+| T11 | Pure patient token reads untagged `Binary` of any tenant (no access tag filter exists for it) | strict mode: `tag = my person id` only (§4.4.1) | none |
 
 Important: the person predicate is **ANDed on top of** the access-tag filter, never an `else` branch of
 it (the exact bug shape `docs/resource-authorization.md` / `review.md` §2 warn about).
@@ -443,15 +493,19 @@ to "tag required for patient-scoped callers".
 
 Open questions for reviewers:
 
-- OQ-1. Approve restricting `access`/`owner` tags on patient-scoped `Binary` create to the caller's Person
-  tags (§4.3)?
-- OQ-2. Confirm during implementation that cache/text-format paths (§4.4) run after the filter.
-- OQ-3. Approve default size/content-type limits (§4.6) or supply product numbers.
-- OQ-4. PHI policy for logging the person id (full, hashed, truncated).
-- OQ-5. Should members also be able to **read** their tagged `Binary` with only `patient/Binary.read`
-  (today the scope gate still requires a user/system scope + access code)? This design leaves it
-  unchanged; enabling it is a small follow-on once the tag filter exists (tagged-only, never untagged).
-- OQ-6. Confirm the tag system URI name `https://www.icanbwell.com/clientPersonId`.
+Follow-ups (not part of this change; each applies beyond `Binary`):
+
+- F-1. Constrain `access`/`owner` tags on **all** patient-scoped creates (today unconstrained, §4.3.1).
+- F-2. Authenticate before reading/parsing the request body, or apply a lower pre-auth body limit (§4.6).
+- F-3. Optional per-member upload cap and content-type allowlist for patient-scoped `Binary` create.
+
+Resolved in review (see §0): former OQ-1 (tag hardening: parity), OQ-3 (limits: none beyond today's),
+OQ-4 (logging: as-is), OQ-5 (member read: yes via `patient/Binary.read`, §4.4.1), OQ-6 (tag URI: approved).
+
+Still open:
+
+- OQ-2. Confirm during implementation that cache/text-format paths (§4.4) run after the filter. Not a
+  decision; verified when the read filter is implemented (tests T25, T26).
 
 ## 13. Quantitative notes (estimates vs measured)
 
@@ -466,11 +520,13 @@ Nothing below was measured; no benchmark was run for this document.
 - Index: no new index required. The existing `{meta.security.code: 1, _uuid: 1}` index
   (`meta_security_code.uuid`) supports an equality probe on the person code if a "list my Binaries" query
   is ever needed. **Plan to measure:** run `explain('executionStats')` for the three query shapes
-  (by id, by `DocumentReference` batch of `graphQLFetchResourceBatchSize` ids, unconstrained search) on a
+  (by id, by `DocumentReference` batch of `graphQLFetchResourceBatchSize` ids, unconstrained search; in
+  both mixed and strict modes) on a
   seeded `Binary_4_0_0` with tagged and untagged documents before enabling in production.
-- Write cost: stamping is an in-memory array push (sub-millisecond, estimate); size/type check is a
-  length comparison on the decoded size; no added I/O. If OQ-1 is approved: +0 or +1 indexed read.
+- Write cost: stamping is an in-memory array push (sub-millisecond, estimate); no added I/O.
 - Payload sizes: see §4.6 (arithmetic from configuration defaults).
+- Strict-mode read (§4.4.1) is an equality probe on `meta.security` with the person code and can use the
+  `meta_security_code.uuid` index; not measured (same `explain` plan as above).
 
 ## 14. Test plan
 
@@ -483,14 +539,14 @@ this design is approved. Style follows
 
 Notation: **P** = `patient/Binary.write` with person claims for person A; **P-B** = same for person B;
 **Pr** = patient read-capable mixed token `access/*.* patient/*.* user/*.* admin/*.read` (as in the GraphQL
-test); **S** = `system/*.*` + `access/<client>` no patient scope; **S-other** = different tenant access
+test); **P-read** = pure patient token with `patient/Binary.read` and no user/system scope or access code; **S** = `system/*.*` + `access/<client>` no patient scope; **S-other** = different tenant access
 code; **M** = `patient/*.* system/*.*` (mixed); **flag** = `ENABLE_PATIENT_SCOPED_BINARY_CREATE`.
 
 | ID | Use case | Token | Expected |
 |---|---|---|---|
 | T1 | Member creates Binary, no tag supplied | P, flag on | 201; `meta.security` contains `clientPersonId|A` |
 | T2 | Member supplies matching tag | P | 201; exactly one tag |
-| T3 | Member supplies other person's tag | P | 403; nothing persisted |
+| T3 | Member supplies other person's tag | P | 403 with reason (see T42); nothing persisted |
 | T3b | Two `clientPersonId` tags | P | 400 |
 | T4 | Patient scope but no/empty person id | P w/o `clientFhirPersonId` | 401 at auth (and unit test: op-layer 403) |
 | T5 | PUT/update Binary | P | 403 |
@@ -511,20 +567,22 @@ code; **M** = `patient/*.* system/*.*` (mixed); **flag** = `ENABLE_PATIENT_SCOPE
 | T20 | System token reads tagged Binary | S | 200 (no person filter without patient scope) |
 | T21 | Cross-tenant: S-other reads/creates | S-other | access-tag filter still denies |
 | T22 | Mixed-scope create | M | treated as patient-scoped: requires patient create grant, stamped; `system/*` alone does not bypass; `patient/Condition.write system/*.*` → 403 |
-| T23 | Patient token lacking create grant (`patient/Binary.read`) | P-read | 403 |
+| T23 | Patient token lacking create grant (`patient/Binary.read` only) | P-read | 403 on create |
 | T24 | Patient token with only `access/*` + `user/*` (no patient) | S-like | unchanged |
 | T25 | `Binary` read with `format=text/plain` path (`fhirResponseWriter`) as B | Pr(B) | not returned (OQ-2) |
 | T26 | Cache short-circuit paths in `$everything`/`$graph` | Pr(B) | not returned (OQ-2) |
-| T27 | Size: decoded size > `PATIENT_BINARY_MAX_BYTES` | P | 413; at the limit 201 |
-| T28 | Content type outside allowlist | P | 4xx OperationOutcome |
-| T29 | System token large Binary above patient cap | S | unchanged (201) |
 | T30 | Cloud-storage offload on (`BASE64_FIELD_CLOUD_STORAGE_ENABLED`) with member Binary > threshold | P | 201; tag present on stored doc and in history entry |
 | T31 | Flag off | P | 403 with today's message `Write not allowed using user scopes if patient scope is present` |
 | T32 | Flag off, tagged Binary exists | Pr(B) | no person filter (today's behavior), documents rollback note in §7 |
 | T33 | Person id claim empty on read | Pr | filter fails closed (`_uuid: '__invalid__'`) — unit test of query construction |
 | T34 | Query shape | Pr | `toHaveMongoQuery` shows `$or` clause ANDed with access-tag filter, using `resource.meta.security` for history |
-| T35 | Owner/access tag hardening (if OQ-1 approved) | P | tag not in caller's Person tags → 403 |
 | T36 | Audit entry written; stamping logged | P | audit logger invoked once with resource uuid |
+| T37 | Pure patient token reads own tagged Binary by id | P-read(A) | 200 |
+| T38 | Pure patient token reads another member's tagged Binary by id and by search | P-read(B) | 404 / empty bundle |
+| T39 | Pure patient token reads an untagged Binary (any tenant) | P-read | 404 / not returned (strict mode, §4.4.1) |
+| T40 | Pure patient token without a `Binary` read grant | `patient/Condition.read` only | 403 |
+| T41 | Mixed token reads untagged Binary | Pr | readable as today (clinical viewers unchanged) |
+| T42 | Mismatched tag rejected with reason | P | 403; OperationOutcome names the mismatch and does not echo the other person id |
 
 Unit tests (new, `src/tests/unit/...`): `ScopesManager.isPatientScopedPersonTagCreate` truth table
 (flag × action × scope shapes, including upper-case `PATIENT/`), stamping function table in §4.3,
@@ -535,6 +593,7 @@ Unit tests (new, `src/tests/unit/...`): `ScopesManager.isPatientScopedPersonTagC
 1. `SecurityTagSystem.clientPersonId`; `ConfigManager` flag and limits.
 2. `PatientFilterManager.personSecurityTagResources` + helpers.
 3. `ScopesManager.isPatientScopedPersonTagCreate` and the three gate changes (§4.3).
-4. `PatientScopeManager`/`Create`: stamping, validation, limits.
-5. `SecurityTagManager.getQueryWithPersonSecurityTag` and its call in `constructQueryAsync`.
+4. `PatientScopeManager`/`Create`: stamping and mismatch rejection (no size/type limits, no tag hardening).
+5. `SecurityTagManager.getQueryWithPersonSecurityTag` (mixed and strict modes) and its call in
+   `constructQueryAsync`; read-scope gate change for `patient/Binary.read` (§4.4.1). Ships before 4.
 6. Tests per §14, docs: add §5/§12 notes to `docs/resource-authorization.md`.
