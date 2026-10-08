@@ -161,21 +161,13 @@ class AccessHistoryOperation {
     }
 
     async _verifyAccessToResourceTypesAsync({ requestInfo, parsedArgs, startTime, checks }) {
-        const results = await Promise.all(checks.map((check) => this.scopesValidator.hasValidScopesAsync({
-            requestInfo,
-            parsedArgs,
-            startTime,
-            action: '$access-history',
-            ...check
-        })));
-        const failedCheck = checks.find((_, index) => !results[index]);
-        if (failedCheck) {
+        for (const check of checks) {
             await this.scopesValidator.verifyHasValidScopesAsync({
                 requestInfo,
                 parsedArgs,
                 startTime,
                 action: '$access-history',
-                ...failedCheck
+                ...check
             });
         }
     }

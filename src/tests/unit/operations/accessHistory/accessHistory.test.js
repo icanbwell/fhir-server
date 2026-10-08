@@ -65,7 +65,6 @@ describe('AccessHistoryOperation', () => {
 
         mockScopesValidator = Object.create(ScopesValidator.prototype);
         mockScopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(true);
-        mockScopesValidator.hasValidScopesAsync = jest.fn().mockResolvedValue(true);
 
         mockScopesManager = Object.create(ScopesManager.prototype);
         mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(false);
@@ -87,6 +86,14 @@ describe('AccessHistoryOperation', () => {
             securityTagManager: mockSecurityTagManager
         });
     });
+
+    const denyResourceType = (deniedType) => {
+        mockScopesValidator.verifyHasValidScopesAsync.mockImplementation(async ({ resourceType }) => {
+            if (resourceType === deniedType) {
+                throw new ForbiddenError(`user does not have access to [${deniedType}]`);
+            }
+        });
+    };
 
     describe('accessHistoryAsync', () => {
         const baseRequestInfo = {
@@ -198,7 +205,7 @@ describe('AccessHistoryOperation', () => {
                 parsedArgs: baseParsedArgs,
                 resourceType: 'Person'
             });
-            const checks = mockScopesValidator.hasValidScopesAsync.mock.calls.map(
+            const checks = mockScopesValidator.verifyHasValidScopesAsync.mock.calls.map(
                 ([args]) => [args.resourceType, args.accessRequested, args.action]
             );
             expect(checks).toEqual([
@@ -208,16 +215,30 @@ describe('AccessHistoryOperation', () => {
                 ['Observation', 's', '$access-history'],
                 ['Condition', 's', '$access-history']
             ]);
-            expect(mockScopesValidator.verifyHasValidScopesAsync).not.toHaveBeenCalled();
+        });
+
+        test('runs the scope checks one at a time so a delegated consent lookup is shared', async () => {
+            let inFlight = 0;
+            let maxInFlight = 0;
+            mockScopesValidator.verifyHasValidScopesAsync.mockImplementation(async () => {
+                inFlight++;
+                maxInFlight = Math.max(maxInFlight, inFlight);
+                await new Promise((resolve) => setImmediate(resolve));
+                inFlight--;
+            });
+
+            await operation.accessHistoryAsync({
+                requestInfo: baseRequestInfo,
+                parsedArgs: baseParsedArgs,
+                resourceType: 'Person'
+            });
+
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledTimes(5);
+            expect(maxInFlight).toBe(1);
         });
 
         test('throws before any query when a patient-linked type is missing s', async () => {
-            mockScopesValidator.hasValidScopesAsync.mockImplementation(
-                async ({ resourceType }) => resourceType !== 'Condition'
-            );
-            mockScopesValidator.verifyHasValidScopesAsync.mockRejectedValue(
-                new ForbiddenError('user does not have access to [Condition]')
-            );
+            denyResourceType('Condition');
 
             await expect(operation.accessHistoryAsync({
                 requestInfo: baseRequestInfo,
@@ -225,30 +246,24 @@ describe('AccessHistoryOperation', () => {
                 resourceType: 'Person'
             })).rejects.toThrow('does not have access to [Condition]');
 
-            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledTimes(1);
-            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenLastCalledWith(
                 expect.objectContaining({ resourceType: 'Condition', accessRequested: 's' })
             );
             expect(mockPersonToPatientIdsExpander.getPatientProxyIdsAsync).not.toHaveBeenCalled();
             expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
         });
 
-        test('throws when Patient is missing r', async () => {
-            mockScopesValidator.hasValidScopesAsync.mockImplementation(
-                async ({ resourceType }) => resourceType !== 'Patient'
-            );
-            mockScopesValidator.verifyHasValidScopesAsync.mockRejectedValue(
-                new ForbiddenError('user does not have access to [Patient]')
-            );
+        test('stops at the first failed check when Patient is missing r', async () => {
+            denyResourceType('Patient');
 
             await expect(operation.accessHistoryAsync({
                 requestInfo: baseRequestInfo,
                 parsedArgs: baseParsedArgs,
                 resourceType: 'Person'
             })).rejects.toThrow('does not have access to [Patient]');
-            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
-                expect.objectContaining({ resourceType: 'Patient', accessRequested: 'r' })
-            );
+
+            const checkedTypes = mockScopesValidator.verifyHasValidScopesAsync.mock.calls.map(([args]) => args.resourceType);
+            expect(checkedTypes).toEqual(['Person', 'AuditEvent', 'Patient']);
         });
 
         test('batches entity refs per configManager.accessHistoryBatchSize', async () => {
@@ -499,15 +514,6 @@ describe('AccessHistoryOperation', () => {
         const requestInfo = { isUser: false };
         const parsedArgs = { base_version: '4_0_0' };
 
-        const denyResourceType = (deniedType) => {
-            mockScopesValidator.hasValidScopesAsync.mockImplementation(
-                async ({ resourceType }) => resourceType !== deniedType
-            );
-            mockScopesValidator.verifyHasValidScopesAsync.mockRejectedValue(
-                new ForbiddenError(`user does not have access to [${deniedType}]`)
-            );
-        };
-
         test('checks r on every accessor type before resolving any of them', async () => {
             denyResourceType('Device');
             await expect(operation._resolveAccessorDetails({
@@ -516,7 +522,7 @@ describe('AccessHistoryOperation', () => {
                 accessorRefs: ['Practitioner/pract-1', 'Device/device-1'],
                 base_version: '4_0_0'
             })).rejects.toThrow('does not have access to [Device]');
-            expect(mockScopesValidator.hasValidScopesAsync).toHaveBeenCalledWith(
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
                 expect.objectContaining({ resourceType: 'Practitioner', accessRequested: 'r' })
             );
             expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
@@ -572,7 +578,9 @@ describe('AccessHistoryOperation', () => {
             });
 
             expect(result).toEqual({ 'Practitioner/pract-1': { display: 'Greg House', organizations: [] } });
-            expect(mockScopesValidator.verifyHasValidScopesAsync).not.toHaveBeenCalled();
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Practitioner', accessRequested: 'r' })
+            );
         });
     });
 

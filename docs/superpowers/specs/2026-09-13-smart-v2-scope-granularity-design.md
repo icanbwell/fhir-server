@@ -234,8 +234,11 @@ the resource gate and the access gate.
 **Any failed check rejects the whole request with a 403.** This deliberately differs from
 `$everything` and `$graph`, which skip a type the caller cannot read. A count-based report that
 silently omits a type reads as "nobody accessed it", so partial data is worse than a denial here.
-All checks for a step are evaluated first and only the first failure is logged and thrown, so a
-narrow token produces one failure entry, not one per type. The accessor checks can only run once
+The checks run one at a time and stop at the first failure, which is the only one logged and
+thrown, so a narrow token produces one failure entry, not one per type. Running them sequentially
+also lets a delegated actor's consent lookup, cached on the actor after the first check, be reused
+by every later check instead of each concurrent check issuing its own query (delegated users are
+not currently allowed to call `$access-history`, so this only matters if that changes). The accessor checks can only run once
 the audit rows are known, so the same token can receive a 200 and later a 403 once a new accessor
 type appears in its history.
 
