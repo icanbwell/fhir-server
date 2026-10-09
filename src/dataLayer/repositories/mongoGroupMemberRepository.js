@@ -371,6 +371,40 @@ class MongoGroupMemberRepository {
             }
         ], ...(maxTimeMS ? [{ maxTimeMS }] : []));
     }
+
+    /**
+     * One seek page of a Group's Patient member rows, for $export seed resolution. Ordered and
+     * seeked on _uuid via groupUuid_1__uuid_1; the Patient-prefix filter runs in the query so
+     * `limit` counts only Patient rows. Active and inactive rows alike. No tenant filter -- the
+     * caller has already fetched the parent Group under the export's tenant scope (§7).
+     *
+     * @param {Object} params
+     * @param {string} params.base_version
+     * @param {string} params.groupUuid
+     * @param {string|null} params.afterUuid - _uuid of the last row of the previous page; null for the first page
+     * @param {number} params.limit
+     * @returns {Promise<Array<{_uuid: string, member: {entity: {reference: string}}}>>}
+     */
+    async getPatientMemberReferencesPageAsync({ base_version, groupUuid, afterUuid, limit }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        const query = { groupUuid, 'member.entity.reference': { $regex: /^Patient\// } };
+        if (afterUuid) {
+            query._uuid = { $gt: afterUuid };
+        }
+        const cursor = await databaseQueryManager.findAsync({
+            query,
+            options: {
+                projection: { _id: 0, _uuid: 1, 'member.entity.reference': 1 },
+                sort: { _uuid: 1 },
+                limit
+            }
+        });
+        return await cursor.toArrayAsync();
+    }
+
 }
 
 module.exports = { MongoGroupMemberRepository };
