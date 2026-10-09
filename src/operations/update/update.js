@@ -13,6 +13,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ResourceMerger } = require('../common/resourceMerger');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { logInfo } = require('../common/logging');
+const { parseIfMatchVersionIds, normalizeETag } = require('../../utils/ifMatchHelper');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
@@ -346,6 +347,11 @@ class UpdateOperation {
             let patches;
 
             const ifMatch = requestInfo.headers && requestInfo.headers['if-match'];
+            const versionIds = parseIfMatchVersionIds(ifMatch);
+            // Per FHIR's "Managing Resource Contention" (http.html#concurrency), a server may
+            // support only the wildcard form of If-None-Match -- that's the only variant with a
+            // real write-side use case: "create this, but only if nothing exists here yet."
+            const ifNoneMatch = requestInfo.headers && requestInfo.headers['if-none-match'];
             let precondition_failed_error;
 
             // check if resource was found in database or not
@@ -361,11 +367,14 @@ class UpdateOperation {
                 // ENABLE_EXTENDED_GROUP (see rejectMemberOnExtendedGroupWrite's own docstring for
                 // why), but only reached once the caller is already confirmed authorized above.
                 rejectMemberOnExtendedGroupWrite({ currentResource: foundResource, hasMemberField });
+                if (ifNoneMatch === '*') {
+                    precondition_failed_error = new PreconditionFailedError(`Version conflict: If-None-Match: * was provided but resource already exists.`);
+                    logInfo(precondition_failed_error.message);
+                    throw precondition_failed_error;
+                }
                 // If-Match/version check logic (optimistic locking)
                 if (ifMatch) {
                     if (data.meta.versionId) {
-                        const normalizeETag = (etag) => (etag || '').replace(/^W\//, '').replace(/"/g, '');
-                        const versionIds = ifMatch.split(',').map(v => normalizeETag(v.trim()));
                         const currentVersionId = normalizeETag(String(data.meta.versionId));
                         if (!versionIds.includes(currentVersionId) && !versionIds.includes('*')) {
                             precondition_failed_error = new PreconditionFailedError(`Version conflict: If-Match does not match current resource version. Older version: ${currentVersionId}, If-Match: ${ifMatch}`);

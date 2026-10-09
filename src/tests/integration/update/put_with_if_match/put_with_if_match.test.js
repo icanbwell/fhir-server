@@ -108,4 +108,42 @@ describe('PUT with If-Match (optimistic locking)', () => {
         expect(resp).toHaveStatusCode(412);
         expect(resp.body.issue[0].code).toBe('precondition-failed');
     });
+
+    it('should create resource when If-None-Match is "*" and resource does not exist', async () => {
+        const newId = 'test-if-none-match-create';
+        const newResource = { ...resource, id: newId, name: [{ given: ['Noah'], family: 'Doe' }] };
+        const resp = await request
+            .put(`/4_0_0/Patient/${newId}`)
+            .send(newResource)
+            .set({ ...getHeaders(), 'If-None-Match': '*' });
+        expect(resp).toHaveStatusCode(201);
+        expect(resp.body.name[0].given[0]).toBe('Noah');
+        expect(resp.body.meta.versionId).toBe('1');
+    });
+
+    it('should fail with 412 Precondition Failed when If-None-Match is "*" but resource already exists', async () => {
+        const updatedResource = { ...resource, name: [{ given: ['Nora'], family: 'Doe' }] };
+        const resp = await request
+            .put(`/4_0_0/Patient/${resourceId}`)
+            .send(updatedResource)
+            .set({ ...getHeaders(), 'If-None-Match': '*' });
+        expect(resp).toHaveStatusCode(412);
+        expect(resp.body.issue[0].code).toBe('precondition-failed');
+    });
+
+    it('should reject the losing concurrent create when both race with If-None-Match: *', async () => {
+        const newId = 'test-if-none-match-race';
+        const resourceA = { ...resource, id: newId, name: [{ given: ['RaceA'], family: 'Doe' }] };
+        const resourceB = { ...resource, id: newId, name: [{ given: ['RaceB'], family: 'Doe' }] };
+
+        const [respA, respB] = await Promise.all([
+            request.put(`/4_0_0/Patient/${newId}`).send(resourceA)
+                .set({ ...getHeaders(), 'If-None-Match': '*' }),
+            request.put(`/4_0_0/Patient/${newId}`).send(resourceB)
+                .set({ ...getHeaders(), 'If-None-Match': '*' })
+        ]);
+
+        const statuses = [respA.statusCode, respB.statusCode].sort();
+        expect(statuses).toEqual([201, 412]);
+    });
 });

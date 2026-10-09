@@ -28,6 +28,7 @@ const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
+const { parseIfMatchVersionIds } = require('../utils/ifMatchHelper');
 const { handleClickHouseGroupPreSave } = require('../utils/clickHouseGroupPreSave');
 
 /**
@@ -571,7 +572,14 @@ class DatabaseBulkInserter extends EventEmitter {
                     previousInsert.resource = doc;
                     previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
                 } else { // no previuous insert or update found
-                    const filter = { _uuid: uuid };
+                    // Enforce the client's If-Match precondition atomically in the write filter
+                    // itself, so a concurrent writer landing between our read and this write can't
+                    // both pass the If-Match check (see update.js) yet still both succeed here.
+                    const ifMatch = requestInfo.headers && requestInfo.headers['if-match'];
+                    const ifMatchVersionIds = parseIfMatchVersionIds(ifMatch);
+                    const filter = (ifMatchVersionIds.length > 0 && !ifMatchVersionIds.includes('*'))
+                        ? { $and: [{ _uuid: uuid }, { 'meta.versionId': { $in: ifMatchVersionIds } }] }
+                        : { _uuid: uuid };
                     // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
                     this.addOperationForResourceType({
                             requestId,

@@ -18,6 +18,8 @@ const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const { logInfo } = require('../operations/common/logging');
+const { PreconditionFailedError } = require('../utils/httpErrors');
+const { parseIfMatchVersionIds, normalizeETag } = require('../utils/ifMatchHelper');
 
 class DatabaseUpdateManager {
     /**
@@ -176,6 +178,21 @@ class DatabaseUpdateManager {
                     base_version: '4_0_0'
                 }
             );
+            // This fallback only runs after the primary bulkWrite's atomic If-Match filter
+            // (databaseBulkInserter.js) already failed to match, meaning a real concurrent write
+            // happened -- so unlike the retry-merge logic below, a mismatch here must fail the
+            // request rather than be silently rebased.
+            const ifMatch = requestInfo.headers && requestInfo.headers['if-match'];
+            const ifMatchVersionIds = parseIfMatchVersionIds(ifMatch);
+            const assertIfMatchSatisfied = (currentResourceInDb) => {
+                if (ifMatchVersionIds.length === 0 || ifMatchVersionIds.includes('*')) {
+                    return;
+                }
+                const currentVersionId = normalizeETag(String(currentResourceInDb.meta.versionId));
+                if (!ifMatchVersionIds.includes(currentVersionId)) {
+                    throw new PreconditionFailedError(`Version conflict: If-Match does not match current resource version. Older version: ${currentVersionId}, If-Match: ${ifMatch}`);
+                }
+            };
             /**
              * @type {Resource|null}
              */
@@ -203,6 +220,7 @@ class DatabaseUpdateManager {
             if (!resourceInDatabase) {
                 return { savedResource: await this.insertOneAsync({ doc, requestInfo }), patches: null };
             }
+            assertIfMatchSatisfied(resourceInDatabase);
             /**
              * @type {Resource|null}
              */
@@ -274,6 +292,7 @@ class DatabaseUpdateManager {
                     if (resourceInDatabase === null) {
                         throw new Error(`Unable to read resource ${doc.resourceType}/${doc._uuid} from database`);
                     } else {
+                        assertIfMatchSatisfied(resourceInDatabase);
                         // merge with our resource
                         ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync(
                                 {
