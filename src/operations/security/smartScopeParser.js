@@ -152,15 +152,15 @@ function isCrudsRequirementSatisfied (cruds, requiredCruds) {
 /**
  * Normalizes an `accessRequested` value -- either a legacy 'read'/'write' literal or a single v2
  * CRUDS letter -- into the set of letters that satisfy it.
- * @param {string} accessRequested 'read'|'write'|'c'|'r'|'u'|'d'|'s'
+ * @param {string} accessRequested 'read'|'write'|a single CRUDS letter|an in-order CRUDS letter combination such as 'ds'
  * @return {Set<string>|null} null when accessRequested is neither
  */
 function getRequiredCrudsForAccessRequested (accessRequested) {
     if (V1_ACTION_TO_REQUIRED_CRUDS[accessRequested]) {
         return V1_ACTION_TO_REQUIRED_CRUDS[accessRequested];
     }
-    if (CRUDS_LETTERS.includes(accessRequested)) {
-        return new Set([accessRequested]);
+    if (isV2Suffix(accessRequested)) {
+        return new Set(accessRequested.split(''));
     }
     return null;
 }
