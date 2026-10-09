@@ -5,6 +5,7 @@ const { DatabaseQueryFactory } = require('../../../../dataLayer/databaseQueryFac
 const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
 const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
 const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
+const { ConfigManager } = require('../../../../utils/configManager');
 
 function createMockInstance (ClassRef, methods = {}) {
     const instance = Object.create(ClassRef.prototype);
@@ -19,6 +20,7 @@ describe('MongoGroupMemberRepository', () => {
     let mockRemoveHelper;
     let mockResourceLocatorFactory;
     let mockResourceLocator;
+    let mockConfigManager;
 
     beforeEach(() => {
         mockDatabaseQueryFactory = createMockInstance(DatabaseQueryFactory);
@@ -29,11 +31,15 @@ describe('MongoGroupMemberRepository', () => {
             createResourceLocator: jest.fn().mockReturnValue(mockResourceLocator)
         });
 
+        mockConfigManager = createMockInstance(ConfigManager);
+        Object.defineProperty(mockConfigManager, 'groupMemberCascadeDeleteBatchSize', { get: () => 2 });
+
         repository = new MongoGroupMemberRepository({
             databaseQueryFactory: mockDatabaseQueryFactory,
             fastDatabaseBulkInserter: mockDatabaseBulkInserter,
             removeHelper: mockRemoveHelper,
-            resourceLocatorFactory: mockResourceLocatorFactory
+            resourceLocatorFactory: mockResourceLocatorFactory,
+            configManager: mockConfigManager
         });
     });
 
@@ -317,6 +323,133 @@ describe('MongoGroupMemberRepository', () => {
             });
 
             expect(aggregateMock.mock.calls[0]).toHaveLength(1);
+        });
+    });
+
+    describe('cascadeDeleteForGroupAsync', () => {
+        const requestInfo = { requestId: 'req-1', method: 'DELETE', user: 'u' };
+        const makeRow = (n) => ({
+            resourceType: 'GroupMember',
+            id: `m-${n}`,
+            _uuid: `m-${n}`,
+            groupUuid: 'group-1',
+            meta: { versionId: '2', lastUpdated: new Date('2026-01-01T00:00:00.000Z') },
+            member: { entity: { _uuid: `p-${n}` } }
+        });
+
+        let findAsyncMock;
+
+        /**
+         * @param {Array<Array<Object>>} rounds - rows returned by successive find calls; an empty
+         *   array is appended automatically so the loop terminates
+         */
+        function mockRounds(rounds) {
+            findAsyncMock = jest.fn();
+            for (const rows of [...rounds, []]) {
+                findAsyncMock.mockResolvedValueOnce({ toArrayAsync: jest.fn().mockResolvedValue(rows) });
+            }
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({ findAsync: findAsyncMock });
+            mockRemoveHelper.deleteManyAsync = jest.fn().mockImplementation(async ({ resources }) => resources.length);
+        }
+
+        test('re-queries until the roster is empty, deleting one batchSize batch at a time', async () => {
+            mockRounds([[makeRow(1), makeRow(2)], [makeRow(3), makeRow(4)], [makeRow(5)]]);
+
+            const deleted = await repository.cascadeDeleteForGroupAsync({
+                requestInfo, base_version: '4_0_0', groupUuid: 'group-1'
+            });
+
+            expect(deleted).toBe(5);
+            expect(findAsyncMock).toHaveBeenCalledTimes(4);
+            for (const call of findAsyncMock.mock.calls) {
+                expect(call[0]).toEqual({
+                    query: { groupUuid: 'group-1' },
+                    options: { limit: 2, projection: { _id: 0 } }
+                });
+            }
+            const batchSizes = mockRemoveHelper.deleteManyAsync.mock.calls.map(c => c[0].resources.length);
+            expect(batchSizes).toEqual([2, 2, 1]);
+        });
+
+        test('returns 0 and deletes nothing when the Group has no member rows', async () => {
+            mockRounds([]);
+
+            const deleted = await repository.cascadeDeleteForGroupAsync({
+                requestInfo, base_version: '4_0_0', groupUuid: 'group-1'
+            });
+
+            expect(deleted).toBe(0);
+            expect(mockRemoveHelper.deleteManyAsync).not.toHaveBeenCalled();
+        });
+
+        test('hands the live rows to RemoveHelper unchanged, so each tombstone is the row\'s own last-known state', async () => {
+            const row = makeRow(1);
+            const snapshot = JSON.parse(JSON.stringify(row));
+            mockRounds([[row]]);
+
+            await repository.cascadeDeleteForGroupAsync({ requestInfo, base_version: '4_0_0', groupUuid: 'group-1' });
+
+            const [{ resources }] = mockRemoveHelper.deleteManyAsync.mock.calls[0];
+            expect(resources).toEqual([row]);
+            expect(resources[0]).toBe(row);
+            expect(JSON.parse(JSON.stringify(row))).toEqual(snapshot);
+        });
+
+        test('calls RemoveHelper as a batch delete with the DELETE method and without preserveLastUpdated', async () => {
+            mockRounds([[makeRow(1)]]);
+
+            await repository.cascadeDeleteForGroupAsync({
+                requestInfo: { ...requestInfo, method: 'PATCH' }, base_version: '4_0_0', groupUuid: 'group-1'
+            });
+
+            const [args] = mockRemoveHelper.deleteManyAsync.mock.calls[0];
+            expect(args.requestInfo.method).toBe('DELETE');
+            expect(args.requestInfo.requestId).toBe('req-1');
+            expect(args.resourceType).toBe('GroupMember');
+            expect(args.base_version).toBe('4_0_0');
+            expect(args.skipRequestScopedBuffering).toBe(true);
+            expect(args).not.toHaveProperty('preserveLastUpdated');
+        });
+
+        test('deletes the batches sequentially: the next batch is not queried until the previous is deleted', async () => {
+            mockRounds([[makeRow(1), makeRow(2)], [makeRow(3)]]);
+            const events = [];
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({
+                findAsync: jest.fn().mockImplementation(async (args) => {
+                    events.push('find');
+                    return await findAsyncMock(args);
+                })
+            });
+            mockRemoveHelper.deleteManyAsync = jest.fn().mockImplementation(async ({ resources }) => {
+                events.push('delete');
+                return resources.length;
+            });
+
+            await repository.cascadeDeleteForGroupAsync({ requestInfo, base_version: '4_0_0', groupUuid: 'group-1' });
+
+            expect(events).toEqual(['find', 'delete', 'find', 'delete', 'find']);
+        });
+
+        test('throws instead of looping forever when rows are found but none are deleted', async () => {
+            mockRounds([[makeRow(1), makeRow(2)], [makeRow(1), makeRow(2)]]);
+            mockRemoveHelper.deleteManyAsync = jest.fn().mockResolvedValue(0);
+
+            await expect(
+                repository.cascadeDeleteForGroupAsync({ requestInfo, base_version: '4_0_0', groupUuid: 'group-1' })
+            ).rejects.toThrow(/no progress/);
+            expect(findAsyncMock).toHaveBeenCalledTimes(1);
+        });
+
+        test('propagates a failed batch and stops without querying further batches', async () => {
+            mockRounds([[makeRow(1), makeRow(2)], [makeRow(3)]]);
+            mockRemoveHelper.deleteManyAsync = jest.fn()
+                .mockResolvedValueOnce(2)
+                .mockRejectedValueOnce(new Error('mongo down'));
+
+            await expect(
+                repository.cascadeDeleteForGroupAsync({ requestInfo, base_version: '4_0_0', groupUuid: 'group-1' })
+            ).rejects.toThrow('mongo down');
+            expect(findAsyncMock).toHaveBeenCalledTimes(2);
         });
     });
 });

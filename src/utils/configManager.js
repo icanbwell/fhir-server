@@ -1402,6 +1402,17 @@ class ConfigManager {
     }
 
     /**
+     * Number of GroupMember rows tombstoned and hard-deleted per RemoveHelper.deleteManyAsync call
+     * when an extended Group is deleted. Bounds per-call memory and the size of the $in list;
+     * batches run one after another.
+     * Default: 10000
+     * @returns {number}
+     */
+    get groupMemberCascadeDeleteBatchSize() {
+        return parseInt(env.GROUP_MEMBER_CASCADE_DELETE_BATCH_SIZE || '10000', 10);
+    }
+
+    /**
      * ClickHouse request timeout in milliseconds
      * Default: 180000ms (3 minutes) for large batch inserts
      * @returns {number}

@@ -92,6 +92,7 @@ const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/provi
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 const { QueryRewriterManager } = require('../../../../queryRewriters/queryRewriterManager');
 const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
+const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 
 // ============ Helpers ============
 
@@ -536,7 +537,8 @@ describe('Conditional Delete — Cross-Tenant Security', () => {
             queryRewriterManager: createMockInstance(QueryRewriterManager),
             postRequestProcessor: createMockInstance(PostRequestProcessor),
             searchManager: createMockInstance(SearchManager),
-            removeHelper: createMockInstance(RemoveHelper)
+            removeHelper: createMockInstance(RemoveHelper),
+            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
         };
 
         mocks.scopesValidator.verifyHasValidScopesAsync = jestGlobal.fn().mockResolvedValue(undefined);

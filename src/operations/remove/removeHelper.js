@@ -91,11 +91,19 @@ class RemoveHelper {
      *   e.g. MongoGroupMemberRepository stamps a GroupMember delete tombstone with the owning
      *   Group's own lastUpdated (four-way parity: Group/Group_History/GroupMember/
      *   GroupMember_History must all agree), which "now" would silently overwrite otherwise.
+     * @property {boolean} [skipRequestScopedBuffering] - Do not buffer per-resource state for the end
+     *   of the request: (1) post-save 'D' events are sent right after the delete commits instead of
+     *   being queued on the post-request processor, which would hold the documents until the
+     *   response is sent; (2) no per-resource entries are added to the access-log data, whose
+     *   array the logger JSON-stringifies at the end -- millions of entries would be large and
+     *   exceed the maximum string length, losing the whole access-log record. For callers that
+     *   delete millions of resources in batches within one request (the extended-Group member
+     *   cascade). Default (false): both unchanged.
      *
      * @param {DeleteManyAsyncOption}
      * @return {Promise<Number>}
      */
-    async deleteManyAsync({ requestInfo, options = {}, resourceType, resources, base_version, preserveLastUpdated = false }) {
+    async deleteManyAsync({ requestInfo, options = {}, resourceType, resources, base_version, preserveLastUpdated = false, skipRequestScopedBuffering = false }) {
         const { requestId } = requestInfo;
         let uuidList = [];
         let query = {};
@@ -181,23 +189,27 @@ class RemoveHelper {
                 }
             }
 
-            const operationResult = httpContext.get(ACCESS_LOGS_ENTRY_DATA)?.operationResult || [];
-            operationResult.push(...deletionResult);
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                operationResult: operationResult
-            });
+            if (!skipRequestScopedBuffering) {
+                const operationResult = httpContext.get(ACCESS_LOGS_ENTRY_DATA)?.operationResult || [];
+                operationResult.push(...deletionResult);
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                    operationResult: operationResult
+                });
+            }
 
             if (resourceType !== 'AuditEvent') {
-                this.postRequestProcessor.add({
-                    requestId,
-                    fnTask: async () => {
-                        for (const resource of resources) {
-                            await this.postSaveProcessor.afterSaveAsync({
-                                requestId, eventType: 'D', resourceType, doc: resource
-                            });
-                        }
+                const sendPostSaveEventsAsync = async () => {
+                    for (const resource of resources) {
+                        await this.postSaveProcessor.afterSaveAsync({
+                            requestId, eventType: 'D', resourceType, doc: resource
+                        });
                     }
-                });
+                };
+                if (skipRequestScopedBuffering) {
+                    await sendPostSaveEventsAsync();
+                } else {
+                    this.postRequestProcessor.add({ requestId, fnTask: sendPostSaveEventsAsync });
+                }
             }
 
             return result.deletedCount;
