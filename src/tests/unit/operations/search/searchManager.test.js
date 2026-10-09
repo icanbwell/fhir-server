@@ -91,8 +91,8 @@ describe('SearchManager', () => {
         Object.defineProperty(mockConfigManager, 'isAtlasSearchNativeSortEnabled', { value: false, writable: true, configurable: true });
         mockQueryRewriterManager = Object.create(QueryRewriterManager.prototype);
         mockScopesManager = Object.create(ScopesManager.prototype);
-        mockScopesManager.isPersonTagStrictAccess = jest.fn().mockReturnValue(false);
-        mockScopesManager.isPersonTagResourceScoped = jest.fn().mockReturnValue(false);
+        mockScopesManager.isPersonContextStrictAccess = jest.fn().mockReturnValue(false);
+        mockScopesManager.isPersonContextResourceScoped = jest.fn().mockReturnValue(false);
         mockDatabaseAttachmentManager = Object.create(DatabaseAttachmentManager.prototype);
         mockBase64DataManager = Object.create(Base64DataManager.prototype);
         mockFhirResourceWriterFactory = Object.create(FhirResourceWriterFactory.prototype);

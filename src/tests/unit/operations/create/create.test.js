@@ -86,7 +86,7 @@ describe('CreateOperation', () => {
         };
 
         // Setup default mocks
-        mocks.scopesManager.isPatientScopedPersonTagCreate = jest.fn().mockReturnValue(false);
+        mocks.scopesManager.isPatientScopedPersonContextCreate = jest.fn().mockReturnValue(false);
         mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
         mocks.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes = jest.fn().mockResolvedValue(undefined);
         mocks.scopesValidator.isAccessTagChangeAllowedByAccessScopes = jest.fn();
@@ -314,9 +314,7 @@ describe('CreateOperation', () => {
             expect(resourcePassedToAttachmentManager.photo[0]._file_id).toBeUndefined();
         });
 
-        describe('patient-scoped Binary create (person tag)', () => {
-            const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
-            const personTag = (code) => ({ system: SecurityTagSystem.clientPersonId, code });
+        describe('patient-scoped Binary create (person securityContext)', () => {
 
             beforeEach(() => {
                 const { FhirResourceCreator } = require('../../../../fhir/fhirResourceCreator');
@@ -330,7 +328,7 @@ describe('CreateOperation', () => {
                     toJSON: () => json,
                     toJSONInternal: () => json
                 }));
-                mocks.scopesManager.isPatientScopedPersonTagCreate = jest.fn().mockReturnValue(true);
+                mocks.scopesManager.isPatientScopedPersonContextCreate = jest.fn().mockReturnValue(true);
             });
 
             const create = (body, personIdFromJwtToken) => createOp.createAsync({
@@ -342,21 +340,21 @@ describe('CreateOperation', () => {
                 resourceType: 'Binary'
             });
 
-            test('stamps the caller\'s person id before the meta is validated, and marks the write as a create (T1)', async () => {
+            test('sets the caller\'s securityContext before the meta is validated, and marks the write as a create (T1)', async () => {
                 const body = { resourceType: 'Binary', contentType: 'application/pdf', data: 'AAAA', meta: { security: [] } };
                 await create(body, 'person-A');
 
-                expect(mocks.scopesManager.isPatientScopedPersonTagCreate).toHaveBeenCalledWith({
+                expect(mocks.scopesManager.isPatientScopedPersonContextCreate).toHaveBeenCalledWith({
                     scope: 'patient/Binary.write', resourceType: 'Binary', action: 'create'
                 });
                 const validatedBody = mocks.resourceValidator.validateResourceMetaSync.mock.calls[0][0];
-                expect(validatedBody.meta.security).toEqual([personTag('person-A')]);
+                expect(validatedBody.securityContext).toEqual({ reference: 'Patient/person.person-A' });
                 expect(mocks.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes)
                     .toHaveBeenCalledWith(expect.objectContaining({ isCreate: true }));
             });
 
-            test('a mismatched supplied tag is rejected with 403, logged, and nothing is written (T3)', async () => {
-                const body = { resourceType: 'Binary', data: 'AAAA', meta: { security: [personTag('person-B')] } };
+            test('a securityContext supplied for another person is rejected with 403, logged, and nothing is written (T3)', async () => {
+                const body = { resourceType: 'Binary', data: 'AAAA', meta: { security: [] }, securityContext: { reference: 'Patient/person.person-B' } };
                 let error;
                 try {
                     await create(body, 'person-A');
@@ -382,11 +380,11 @@ describe('CreateOperation', () => {
             });
 
             test('is not applied when the create is not a patient-scoped Binary create (T18)', async () => {
-                mocks.scopesManager.isPatientScopedPersonTagCreate = jest.fn().mockReturnValue(false);
+                mocks.scopesManager.isPatientScopedPersonContextCreate = jest.fn().mockReturnValue(false);
                 const body = { resourceType: 'Binary', data: 'AAAA', meta: { security: [] } };
                 await create(body, 'person-A');
                 const validatedBody = mocks.resourceValidator.validateResourceMetaSync.mock.calls[0][0];
-                expect(validatedBody.meta.security).toEqual([]);
+                expect(validatedBody.securityContext).toBeUndefined();
             });
         });
 

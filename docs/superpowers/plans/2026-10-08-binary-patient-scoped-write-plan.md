@@ -1,5 +1,11 @@
 # Patient-scoped `Binary` create and person-scoped `Binary` read: implementation plan
 
+> **Revision 2026-10-09:** the ownership marker is now `Binary.securityContext` set by the server to
+> `Patient/person.{person_uuid}` (not a custom `clientPersonId` security tag). The read filter matches the
+> caller's patient ids (person proxy plus linked patients) through `PatientQueryCreator.getQueryWithPersonSecurityContext`.
+> See design section 0.1. Where this plan says "tag", read "securityContext"; the Implementation status section at the
+> end is current.
+
 **Ticket:** [DCON-5986](https://icanbwell.atlassian.net/browse/DCON-5986)
 **Design:** [`docs/superpowers/specs/2026-10-08-binary-patient-scoped-write-design.md`](../specs/2026-10-08-binary-patient-scoped-write-design.md)
 
@@ -55,8 +61,8 @@ the create path lands).
 |---|---|
 | `src/utils/securityTagSystem.js` | add `clientPersonId: 'https://www.icanbwell.com/clientPersonId'` |
 | `src/utils/configManager.js` | `get enablePatientScopedBinaryCreate()` reading `ENABLE_PATIENT_SCOPED_BINARY_CREATE` via `isTrue(...)`, next to `enableDelegatedAccessDetection` (~line 1429). The flag name is kept; it gates both the create carve-out and the read changes |
-| `src/fhir/patientFilterManager.js` | `personSecurityTagResources = ['Binary']` and `isPersonSecurityTagResource({ resourceType })`; **do not** touch `patientFilterMapping` (design §4.3: adding `Binary` there would make it patient-filterable for every caller) |
-| `src/operations/security/scopesManager.js` | `isPatientScopedPersonTagAccess({ scope, resourceType, action })`: true iff flag on, `isPersonSecurityTagResource`, `action` is `create` or a read action, and `hasPatientScope({ scope })` (the existing case-insensitive predicate that `isUser` must agree with); plus `isPatientScopedPersonTagCreate` as the `create`-only variant used in PR 3. Also a small helper `hasUserOrSystemScope({ scope })` for the read-gate decision below |
+| `src/fhir/patientFilterManager.js` | `personSecurityContextResources = ['Binary']` and `isPersonSecurityContextResource({ resourceType })`; **do not** touch `patientFilterMapping` (design §4.3: adding `Binary` there would make it patient-filterable for every caller) |
+| `src/operations/security/scopesManager.js` | `isPatientScopedPersonTagAccess({ scope, resourceType, action })`: true iff flag on, `isPersonSecurityContextResource`, `action` is `create` or a read action, and `hasPatientScope({ scope })` (the existing case-insensitive predicate that `isUser` must agree with); plus `isPatientScopedPersonContextCreate` as the `create`-only variant used in PR 3. Also a small helper `hasUserOrSystemScope({ scope })` for the read-gate decision below |
 | `src/operations/common/securityTagManager.js` | pure builder `getQueryWithPersonSecurityTag({ query, personId, hasAccessTags, useHistoryTable })` implementing design §4.4: `{ _uuid: '__invalid__' }` when `personId` is empty (fail closed); mixed mode (`hasAccessTags`): ANDs `untagged OR own tag`; strict mode (pure patient token): ANDs `own tag` only |
 | `src/tests/unit/operations/security/` | unit tests: the predicates' truth table (flag x action x scope shape, including upper-case `PATIENT/` and mixed tokens); the query builder (mixed vs strict shape, history-table field names, empty person id) |
 
@@ -67,7 +73,7 @@ Exit criteria: unit tests green; `git diff` shows no call sites using the new fu
 | File | Change |
 |---|---|
 | `src/operations/security/scopesValidator.js` | in `isScopesValidAsync` (the `accessViaPatientScopes` / `else` branch, ~lines 144-171): for a **read** of `Binary` when the token has a patient scope and **no** `user/`/`system/` scope, evaluate the patient scopes (`getPatientScopes`) for `Binary` instead of falling to the `user/`+`system/` branch that requires an `access/` code. Tokens that also carry `user/`/`system/` scopes keep today's evaluation unchanged |
-| `src/operations/search/searchManager.js` | after the access-tag / patient-filter block (the `else if (securityTags ...)` branch ends ~line 440) and **before** `queryRewriterManager.rewriteQueryAsync` (~line 471): if flag on and `isPersonSecurityTagResource({ resourceType })` and `hasPatientScope({ scope })`, call the builder from PR 1 with `hasAccessTags = securityTags && securityTags.length > 0`. The predicate is ANDed on top of the access-tag filter, never an `else` branch of it (design §9). A pure patient token has no access tags, so it gets the strict "own tagged only" mode; without it every untagged `Binary` of every tenant would be readable (design §4.4.1) |
+| `src/operations/search/searchManager.js` | after the access-tag / patient-filter block (the `else if (securityTags ...)` branch ends ~line 440) and **before** `queryRewriterManager.rewriteQueryAsync` (~line 471): if flag on and `isPersonSecurityContextResource({ resourceType })` and `hasPatientScope({ scope })`, call the builder from PR 1 with `hasAccessTags = securityTags && securityTags.length > 0`. The predicate is ANDed on top of the access-tag filter, never an `else` branch of it (design §9). A pure patient token has no access tags, so it gets the strict "own tagged only" mode; without it every untagged `Binary` of every tenant would be readable (design §4.4.1) |
 | `src/tests/integration/patientScope/binary_with_patient_scope/binary_with_patient_scope.test.js` | replace the matching `test.todo` entries with real tests (list below) |
 | OQ-2 verification | read `fhirResponseWriter.getReassembledTextForBinaryAsync` (`src/middleware/fhir/fhirResponseWriter.js`) and any Redis/request-cache short-circuit in `$everything`/`$graph`. If either can return a `Binary` without passing through `constructQueryAsync`, apply the same predicate there. T25/T26 either prove they are covered or drive the fix |
 | `docs/resource-authorization.md` | document the read rule, the two modes and the `patient/Binary.read` gate |
@@ -87,10 +93,10 @@ patient-scope suites pass unchanged (regression gate for T17/T32).
 
 | File | Change |
 |---|---|
-| `src/operations/security/scopesValidator.js` | in `isScopesValidAsync`, the `else` branch of `accessViaPatientScopes` (~lines 144-171) returns `Write not allowed using user scopes if patient scope is present`; when `isPatientScopedPersonTagCreate`, evaluate the **patient** scopes (`getPatientScopes`) with `evaluateResourceTypeScopeMatch` for `Binary` / `create` instead, with no `access/` code required (patient tokens carry none). A `user/`/`system/`/`access/` scope alone is not sufficient in this branch |
-| `src/operations/security/patientScopeManager.js` | `canWriteResourceAsync` (~line 298): for `isPatientScopedPersonTagCreate`, return true iff `personIdFromJwtToken` is a non-empty string and the resource's single `clientPersonId` tag equals it. This skips `getPatientIdsFromScopeAsync` for this path. Leave `canWriteResourceWithAllowedPatientIdsAsync` (line 234, throws `cannot be written via a patient scope`) untouched: it is not reached on this path |
+| `src/operations/security/scopesValidator.js` | in `isScopesValidAsync`, the `else` branch of `accessViaPatientScopes` (~lines 144-171) returns `Write not allowed using user scopes if patient scope is present`; when `isPatientScopedPersonContextCreate`, evaluate the **patient** scopes (`getPatientScopes`) with `evaluateResourceTypeScopeMatch` for `Binary` / `create` instead, with no `access/` code required (patient tokens carry none). A `user/`/`system/`/`access/` scope alone is not sufficient in this branch |
+| `src/operations/security/patientScopeManager.js` | `canWriteResourceAsync` (~line 298): for `isPatientScopedPersonContextCreate`, return true iff `personIdFromJwtToken` is a non-empty string and the resource's single `clientPersonId` tag equals it. This skips `getPatientIdsFromScopeAsync` for this path. Leave `canWriteResourceWithAllowedPatientIdsAsync` (line 234, throws `cannot be written via a patient scope`) untouched: it is not reached on this path |
 | `src/operations/security/scopesManager.js` | `isAccessTagChangeAllowedByScopes` (~line 189) and `isAccessToResourceAllowedBySecurityTags` (~line 254): same patient-scope short-circuit, **only when `isCreate`** |
-| `src/operations/create/create.js` | new step between `removeUnderscoreFieldsRecursive` (~line 167) and `validateResourceMetaSync`, run only when `isPatientScopedPersonTagCreate`: apply the stamping table from design §4.3 (append tag; accept one matching tag; 403 with a reason on mismatch, not echoing the other person id; 400 on more than one; 403 on missing person id). Pure in-memory array work on the request body, no I/O. The stamping function lives in its own small module so it is unit-testable (`src/operations/create/personTagStamper.js`). `access`/`owner` tags are **not** constrained (parity with other patient-scoped creates; follow-up F-1) |
+| `src/operations/create/create.js` | new step between `removeUnderscoreFieldsRecursive` (~line 167) and `validateResourceMetaSync`, run only when `isPatientScopedPersonContextCreate`: apply the stamping table from design §4.3 (append tag; accept one matching tag; 403 with a reason on mismatch, not echoing the other person id; 400 on more than one; 403 on missing person id). Pure in-memory array work on the request body, no I/O. The stamping function lives in its own small module so it is unit-testable (`src/operations/create/personTagStamper.js`). `access`/`owner` tags are **not** constrained (parity with other patient-scoped creates; follow-up F-1) |
 | `src/tests/...` | integration tests below; unit tests for the stamper (the §4.3 table) |
 
 Tests in this PR: T1, T2, T3, T3b, T4 (unit-level op-layer 403; 401 at auth is covered by existing
@@ -146,7 +152,7 @@ There are no size or content-type limit tests (limits were descoped, design §4.
 | Read predicate accidentally hides existing untagged `Binary` | filter is `untagged OR tag == person`; T17/T32 and the flag-off regression gate in every PR |
 | A read path bypasses `constructQueryAsync` | OQ-2 verification in PR 4; T25/T26 |
 | Mixed-scope token bypasses the person check | branch keyed on `hasPatientScope`, the same predicate as `isUser`; T22 |
-| Widening patient-scope helpers affects other resource types | the new concept is deliberately separate (`personSecurityTagResources`); `patientFilterMapping` and `canAccessResourceWithPatientScope` are not changed |
+| Widening patient-scope helpers affects other resource types | the new concept is deliberately separate (`personSecurityContextResources`); `patientFilterMapping` and `canAccessResourceWithPatientScope` are not changed |
 | Large uploads / unauthenticated body parsing | no new limits (decision: parity); only the global 50 MB `PAYLOAD_LIMIT` applies and the body is parsed before the token is verified today (existing behavior, follow-up F-2); gateway rate limiting and malware scanning are dependencies outside this repo |
 | Pure patient token reading untagged `Binary` across tenants | strict read mode plus T39; the review step above calls it out |
 | Cross-tenant `access`/`owner` tags on member-created `Binary` | unchanged from every other patient-scoped create today (follow-up F-1) |
@@ -176,3 +182,18 @@ Not done / deviations:
   audit and text/plain integration cases remain `test.todo`.
 - New finding (design §16.1): the `$everything` response cache key does not include the caller's person
   id; a decision is needed before enabling the flag where two persons share a Patient.
+
+### Revision 2026-10-09 (securityContext)
+
+Replaced the `clientPersonId` tag with the standard `Binary.securityContext` (design §0.1):
+- the server sets `securityContext = Patient/person.{token person id}` on a patient-scoped create and rejects
+  any other client-supplied value (403 with a reason);
+- system tokens may set `Patient/person.{id}` or a real `Patient/{id}` themselves;
+- reads match the caller's patient ids (person proxy plus linked patients, from `getPatientIdsFromScopeAsync`)
+  against `securityContext._uuid` / `_sourceId`; a Binary whose securityContext is not a Patient reference is
+  unowned and reads as before (mixed tokens), and a pure patient token reads owned Binary only;
+- `SecurityTagSystem` is unchanged; `getQueryWithPersonSecurityTag` was removed in favour of
+  `PatientQueryCreator.getQueryWithPersonSecurityContext`; `src/utils/personSecurityTag.js` became
+  `src/utils/personSecurityContext.js`.
+- Later migration: backfill `securityContext` on existing Binary, drop the unowned branch, add
+  `Binary: 'securityContext.reference'` to `patientFilterMapping`, and regenerate the generator lists.

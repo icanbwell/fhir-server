@@ -184,7 +184,7 @@ class ScopesManager {
     }) {
         // a patient-scoped create of a person-tag resource (Binary) is likewise authorized via the
         // person it is stamped for (patientScopeManager.canWriteResourceAsync), not via access codes
-        if (isCreate && this.isPersonTagResourceScoped({ scope, resourceType })) {
+        if (isCreate && this.isPersonContextResourceScoped({ scope, resourceType })) {
             return true;
         }
         // a patient scoped caller is authorized via the patient/person the resource belongs to, not via
@@ -260,9 +260,9 @@ class ScopesManager {
             scope, resourceType: resource.resourceType
         });
         // Only on create: Binary created by a patient-scoped caller carries the caller's person tag
-        // instead of an access scope (see isPersonTagResourceScoped).
+        // instead of an access scope (see isPersonContextResourceScoped).
         if (accessViaPatientScopes ||
-            (isCreate && this.isPersonTagResourceScoped({ scope, resourceType: resource.resourceType }))) {
+            (isCreate && this.isPersonContextResourceScoped({ scope, resourceType: resource.resourceType }))) {
             // Patient scope tokens in this system never carry an access/ scope of their
             // own (that's the separate tenant/service-account mechanism), so requiring a
             // tenant-tag match here would deny every legitimate patient-scoped write. The
@@ -517,10 +517,10 @@ class ScopesManager {
      * @param {IsPersonTagResourceScopedParams}
      * @return {boolean}
      */
-    isPersonTagResourceScoped ({ scope, resourceType }) {
+    isPersonContextResourceScoped ({ scope, resourceType }) {
         return this.configManager.enablePatientScopedBinaryCreate &&
             !!scope &&
-            this.patientFilterManager.isPersonSecurityTagResource({ resourceType }) &&
+            this.patientFilterManager.isPersonSecurityContextResource({ resourceType }) &&
             this.hasPatientScope({ scope });
     }
 
@@ -535,8 +535,8 @@ class ScopesManager {
      * @param {IsPatientScopedPersonTagCreateParams}
      * @return {boolean}
      */
-    isPatientScopedPersonTagCreate ({ scope, resourceType, action }) {
-        return action === 'create' && this.isPersonTagResourceScoped({ scope, resourceType });
+    isPatientScopedPersonContextCreate ({ scope, resourceType, action }) {
+        return action === 'create' && this.isPersonContextResourceScoped({ scope, resourceType });
     }
 
     /**
@@ -552,8 +552,8 @@ class ScopesManager {
      * @param {IsPersonTagStrictAccessParams}
      * @return {boolean}
      */
-    isPersonTagStrictAccess ({ scope, resourceType }) {
-        return this.isPersonTagResourceScoped({ scope, resourceType }) &&
+    isPersonContextStrictAccess ({ scope, resourceType }) {
+        return this.isPersonContextResourceScoped({ scope, resourceType }) &&
             this.getResourceTypeScopes({ scope }).length === 0;
     }
 

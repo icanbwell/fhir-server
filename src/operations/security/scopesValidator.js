@@ -148,9 +148,9 @@ class ScopesValidator {
                 // scopes) keeps its existing evaluation below. Off unless
                 // ENABLE_PATIENT_SCOPED_BINARY_CREATE.
                 const accessViaPersonTagScopes =
-                    this.scopesManager.isPatientScopedPersonTagCreate({ scope, resourceType, action }) ||
+                    this.scopesManager.isPatientScopedPersonContextCreate({ scope, resourceType, action }) ||
                     (isReadOnlyAccessRequested(resourceTypeAccessRequested) &&
-                        this.scopesManager.isPersonTagStrictAccess({ scope, resourceType }));
+                        this.scopesManager.isPersonContextStrictAccess({ scope, resourceType }));
                 const accessViaPatientScopes = accessViaPersonTagScopes ||
                     this.scopesManager.isAccessAllowedByPatientScopes({
                         scope, resourceType

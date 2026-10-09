@@ -368,10 +368,10 @@ class SearchManager {
              */
             // Binary read by a patient-scoped caller that holds no user/ or system/ scope: authorized by its
             // patient scopes, so (like patient-filterable types) it needs no access code
-            const personTagStrictAccess = !!scope &&
-                this.scopesManager.isPersonTagStrictAccess({ scope, resourceType });
+            const personContextStrictAccess = !!scope &&
+                this.scopesManager.isPersonContextStrictAccess({ scope, resourceType });
             const securityTags = this.securityTagManager.getSecurityTagsFromScope({
-                accessRequested, user, scope, accessViaPatientScopes: accessViaPatientScopes || personTagStrictAccess
+                accessRequested, user, scope, accessViaPatientScopes: accessViaPatientScopes || personContextStrictAccess
             });
             /**
              * @type {import('mongodb').Document}
@@ -466,16 +466,28 @@ class SearchManager {
                 });
             }
 
-            // Binary: a patient-scoped caller sees only Binary owned by its own person id (clientPersonId tag
-            // stamped on create). ANDed on top of the access-tag filter above, never instead of it.
-            if (scope && this.scopesManager.isPersonTagResourceScoped({ scope, resourceType })) {
+            // Binary: a patient-scoped caller sees only Binary owned by itself (its securityContext is the caller's
+            // person proxy patient or one of the caller's linked patients), plus, for mixed tokens, Binary that
+            // nobody owns. ANDed on top of the access-tag filter above, never instead of it.
+            if (scope && this.scopesManager.isPersonContextResourceScoped({ scope, resourceType })) {
                 shouldUpdateColumns = true;
-                query = this.securityTagManager.getQueryWithPersonSecurityTag({
-                    query,
-                    personId: personIdFromJwtToken,
-                    strict: personTagStrictAccess,
-                    useHistoryTable
-                });
+                if (personIdFromJwtToken) {
+                    const callerPatientIds = await this.patientScopeManager.getPatientIdsFromScopeAsync({
+                        base_version,
+                        isUser,
+                        personIdFromJwtToken,
+                        requestInfo: typeof user === 'string' ? { user, scope } : undefined
+                    });
+                    query = this.patientQueryCreator.getQueryWithPersonSecurityContext({
+                        patientIds: callerPatientIds,
+                        query,
+                        resourceType,
+                        useHistoryTable,
+                        strict: personContextStrictAccess
+                    });
+                } else {
+                    query = { _uuid: '__invalid__' }; // fail closed: never "no filter"
+                }
             }
 
             if (shouldUpdateColumns) {

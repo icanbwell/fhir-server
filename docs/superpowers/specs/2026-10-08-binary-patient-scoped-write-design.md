@@ -12,10 +12,31 @@ of this document: "Option 1" below.
 | Tag hardening (was OQ-1) | **Parity with other patient-scoped creates: no extra restriction.** Verified that fhir-server does not constrain `access`/`owner` tags on any patient-scoped create today (§4.3.1). The gap is general, not Binary-specific, so it is tracked as a separate follow-up | §4.3.1, §9 T3 |
 | Upload limits (was OQ-3) | **Whatever fhir-server does today: no Binary-specific limits.** The server-wide `PAYLOAD_LIMIT` (default 50 MB) applies. Verified findings on limits and on token-before-body ordering are in §4.6 | §4.6, §14 |
 | Logging the person id (was OQ-4) | **Same as existing code: log it as-is** (existing code already logs person ids in plain text) | §8 |
-| Tag system URI (was OQ-6) | **Approved**, and the stamped value is the same id the read path uses for a person (`clientFhirPersonId`, i.e. `personIdFromJwtToken`) | §4.1, §4.2 |
+| Ownership id (was OQ-6, tag URI) | Uploads use the **client person id from the token** (`clientFhirPersonId`, i.e. `personIdFromJwtToken`), as `Patient/person.{person_uuid}` in `securityContext` (§0.1) | §4.1, §4.2 |
 | Member read scope (was OQ-5) | **Yes: `patient/Binary.read` alone lets a member read their own tagged `Binary`**, like other resource reads | §4.4.1 (new) |
 | Mismatched tag on create | **Reject with a reason** (403 with an explanatory OperationOutcome) | §4.3 |
 | Rollout order | **Read filter first, then the create carve-out** | §7 |
+
+### 0.1 Revision (2026-10-09): ownership is `securityContext`, not a security tag
+
+After review (Imran Qureshi, Mintu Kumar Sah), the ownership marker changed from a custom
+`clientPersonId` security tag to the standard FHIR field `Binary.securityContext`, which is also where a
+later move to a fully patient-scoped Binary (like `Task`) lands. Everywhere this document says "person tag",
+"`clientPersonId` tag" or "stamp the tag", read the following (sections 4.2, 4.3, 4.4 and 16 are rewritten to
+match; the other sections keep the original wording for history):
+
+| Question | Answer |
+|---|---|
+| Who sets it? | **Only the server**, from the token. A client can never send it on a patient-scoped create (spoofing): any supplied `securityContext` other than the caller's own is rejected with 403 and a reason, and the supplied value is not echoed. |
+| What value? | The caller's person as the proxy patient this server already uses: `Patient/person.{person_uuid}`, with `person_uuid` the token's `clientFhirPersonId` (`PERSON_PROXY_PREFIX` = `person.`). |
+| What may it point to? | A **Patient** reference: the person proxy (`Patient/person.{person_uuid}`, what member uploads get) or a real patient (`Patient/{id}`, which a backend or migration may set with a system token). Backends and migrations are trusted and may set either. |
+| Who can read an owned Binary? | A patient-scoped caller whose patient ids (from `getPatientIdsFromScopeAsync`: the person's proxy plus every linked patient) include the securityContext. So a Binary owned by `Patient/person.X` is readable by person X, and one owned by a real patient is readable by every person linked to that patient. |
+| Existing Binary? | No securityContext pointing at a Patient: unowned, exactly as today (mixed tokens read them; a pure patient token never does). This is what keeps `$everything` and DocumentReference traversal working for existing Binaries. |
+| Later migration | Backfill `securityContext` on existing Binary, then drop the "unowned" branch and add `Binary: 'securityContext.reference'` to `patientFilterMapping`; no further change to how members' own uploads are stored. |
+
+Matching follows the existing patient filter: ids for which `isUuid()` is true (this includes the proxy id,
+because it contains the person's uuid) match `securityContext._uuid`, others match `securityContext._sourceId`.
+A literal `Person/{id}` reference is not an owner marker and is treated as "unowned".
 
 ## 1. Problem
 
@@ -81,30 +102,31 @@ Goals
 
 - G1. A patient-scoped token may **create** a `Binary`, and the created `Binary` is cryptographically
   tied to the token's person id so only that person (and tenant-wide/system readers) can read it.
-- G2. Every read path applies the person check to tagged `Binary` resources; none can be used to bypass
+- G2. Every read path applies the person check to owned `Binary` resources; none can be used to bypass
   it (search, search-by-id, `_history`/vread, `$everything`, `$graph`, GraphQL, export).
-- G3. Zero behavior change for existing (untagged) `Binary` resources and for system/user/admin
+- G3. Zero behavior change for existing (unowned) `Binary` resources and for system/user/admin
   tokens that carry no patient scope.
 - G4. Ship behind a feature flag, default off.
 - G5. A member holding only `patient/Binary.read` (no user/system scope, no access code) can read their own
-  tagged `Binary`, consistent with how other patient-scoped resource reads work (§4.4.1).
+  owned `Binary`, consistent with how other patient-scoped resource reads work (§4.4.1).
 
 Non-goals (explicit)
 
 - N1. Update / patch / delete / `$merge` of `Binary` by patient-scoped tokens: stay forbidden.
-- N2. Closing the by-id read gap for **untagged** `Binary` (all existing clinical `Binary` and
+- N2. Closing the by-id read gap for **unowned** `Binary` (all existing clinical `Binary` and
   system-written ones with no tag): documented as a separate follow-up (§12.1).
 - N3. Backfilling tags onto existing `Binary` resources.
 - N4. Changing authorization for other non-clinical resource types (surveyed in §10).
 
-## 3. Decision: Option 1 — person-id security tag, create-only
+## 3. Decision: Option 1 — person-owned via securityContext, create-only
 
 1. Allow `Binary` **create only** (REST `POST /4_0_0/Binary`) for a token that has a patient scope
    granting create on `Binary` (`patient/Binary.write`, `patient/Binary.c`, `patient/*.write`, ...).
-2. On such a create the server **stamps** a security tag onto `meta.security` from the person id in the
-   token (§4). The client does not control it.
-3. On read, when the caller is patient-scoped and a `Binary` carries the person tag, the tag must equal
-   the caller's person id. A `Binary` with no person tag is treated exactly as today.
+2. On such a create the server **sets `securityContext`** to the caller's person proxy patient
+   (`Patient/person.{person_uuid}`) from the person id in the token (§4, §0.1). The client does not control it.
+3. On read, when the caller is patient-scoped and a `Binary` is owned (its `securityContext` is a Patient
+   reference), it must be one of the caller's patients (the person proxy or a linked patient). A `Binary`
+   with no such `securityContext` is treated exactly as today.
 4. Everything else stays as it is (N1, N3, G3).
 
 Why this and not the alternatives is in §11.
@@ -134,24 +156,23 @@ We stamp **`clientFhirPersonId` (`personIdFromJwtToken`)**, not the b.well maste
 rest of the patient-scope machinery (and the Subscription family's `client_person_id`) already uses and it
 is per-client, which keeps tags tenant-local.
 
-### 4.2 Tag format
+### 4.2 Ownership value (`securityContext`)
 
-Follow the existing `meta.security` conventions (`SecurityTagSystem`, `src/utils/securityTagSystem.js`:
-`access`, `owner`, `vendor`, `sourceAssigningAuthority`, `connectionType`, all
-`https://www.icanbwell.com/<camelCaseName>`). Proposed addition:
+`Binary.securityContext` (a `Reference`, FHIR R4 `Binary.securityContext`) holds the owner:
 
-```js
-SecurityTagSystem.clientPersonId = 'https://www.icanbwell.com/clientPersonId';
-```
+| Writer | Value |
+|---|---|
+| Member (patient-scoped token) | `Patient/person.{person_uuid}`, set by the server from `clientFhirPersonId` (`PERSON_PROXY_PREFIX` + person uuid; the same proxy-patient form used on Consent and by `Patient/person.{id}/$everything`) |
+| Backend / migration (system token) | `Patient/person.{person_uuid}` or a real `Patient/{id}`; trusted, not validated |
 
-Tag: `{ system: 'https://www.icanbwell.com/clientPersonId', code: '<Person _uuid>' }`.
+On save the reference handler fills `_uuid` / `_sourceId` / `_sourceAssigningAuthority`
+(`referenceGlobalIdHandler.js`): for `Patient/person.{uuid}`, `isUuid()` is true (the id contains the uuid), so
+`_uuid` is stored unhashed as `Patient/person.{uuid}` and `_sourceId` the same; for a source-id patient
+(`Patient/abc`) `_uuid` is `Patient/<uuidv5(abc|authority)>` and `_sourceId` is `Patient/abc`. The read filter
+(§4.4) matches those fields, so nothing is added to `meta.security` and `SecurityTagSystem` is unchanged.
 
-Notes: (a) this deliberately differs from the Subscription family's *extension* system
-`https://icanbwell.com/codes/client_person_id`, because that is an `extension`/`identifier` namespace, not
-a `meta.security` namespace; (b) a single tag only — resources with more than one `clientPersonId` tag
-are rejected on write; (c) the existing multi-index `meta_security_code.uuid`
-(`{meta.security.code: 1, _uuid: 1}`, `src/indexes/customIndexes.js` ~line 806, defined without an
-include/exclude list so applied to all collections) already supports an equality probe by code.
+No new index is required for by-id reads. A "list my Binaries" search benefits from a `securityContext._uuid`
+index (Task has `for._uuid`); see §13.
 
 ### 4.3 Write path (create only)
 
@@ -159,49 +180,48 @@ Introduce one narrow concept instead of widening `canAccessResourceWithPatientSc
 callers: delegated access, query rewriting, `$everything`; widening it would silently make `Binary`
 "patient-filterable" everywhere):
 
-- `PatientFilterManager.personSecurityTagResources = ['Binary']` and
-  `isPersonSecurityTagResource({resourceType})`.
-- `ScopesManager.isPatientScopedPersonTagCreate({scope, resourceType, action})`: true when feature flag on,
+- `PatientFilterManager.personSecurityContextResources = ['Binary']` and
+  `isPersonSecurityContextResource({resourceType})`.
+- `ScopesManager.isPatientScopedPersonContextCreate({scope, resourceType, action})`: true when feature flag on,
   `resourceType` is in that set, `action === 'create'`, and `hasPatientScope({scope})` (the same
   case-insensitive predicate `isUser` uses — they must agree; see the comment on `hasPatientScope`).
 
 Required changes at the three gates in §1.1:
 
-1. `ScopesValidator.isScopesValidAsync`: when `isPatientScopedPersonTagCreate`, evaluate the **patient**
+1. `ScopesValidator.isScopesValidAsync`: when `isPatientScopedPersonContextCreate`, evaluate the **patient**
    scopes (`getPatientScopes`) via `evaluateResourceTypeScopeMatch` for `resourceType: 'Binary'`,
    `accessRequested` = `c`/`write` (existing CRUDS mapping, `create → 'c'`). A `user/`/`system/`/`access/`
    scope alone is not sufficient in this branch, and no `access/` code is required (patient tokens carry
    none, as for every other patient-scoped write).
-2. `PatientScopeManager.canWriteResourceAsync`: for `isPatientScopedPersonTagCreate` return true **iff**
-   `personIdFromJwtToken` is a non-empty string and the resource's single `clientPersonId` tag equals it
-   (after stamping this is always so). No Person/Patient link expansion is needed; this removes the
-   `getPatientIdsFromScopeAsync` cost for this path.
+2. `PatientScopeManager.canWriteResourceAsync`: for `isPatientScopedPersonContextCreate` return true **iff**
+   `personIdFromJwtToken` is a non-empty string and the resource's `securityContext` is exactly
+   `Patient/person.{personIdFromJwtToken}` (after stamping this is always so). No Person/Patient link
+   expansion is needed; this removes the `getPatientIdsFromScopeAsync` cost for this path.
 3. `ScopesManager.isAccessTagChangeAllowedByScopes` / `isAccessToResourceAllowedBySecurityTags`: same
    patient-scope short-circuit, but only when `isCreate`.
 
 Stamping (a new step in `Create.createAsync` (`src/operations/create/create.js`, between
 `removeUnderscoreFieldsRecursive` and `validateResourceMetaSync`, ~lines 160-180), executed only when
-`isPatientScopedPersonTagCreate`):
+`isPatientScopedPersonContextCreate`):
 
-| Incoming `meta.security` | Result |
+| Incoming `securityContext` | Result |
 |---|---|
-| no `clientPersonId` tag | server appends `{system: clientPersonId, code: personIdFromJwtToken}` |
-| one tag equal to token person id | accepted unchanged (idempotent) |
-| one tag with a different code | `403 Forbidden` — no silent overwrite (a mismatch signals a bug or an attack and should be visible in logs) |
-| more than one `clientPersonId` tag | `400` |
+| absent (or `null`) | server sets `{reference: 'Patient/person.' + personIdFromJwtToken}` |
+| exactly the caller's own `Patient/person.{personIdFromJwtToken}` (a trailing `\|authority` is ignored) | accepted unchanged (idempotent) |
+| anything else (another person, a real Patient, another resource type, a reference-less value) | `403 Forbidden` with a reason; never silently overwritten (a mismatch signals a bug or an attack and should be visible in logs); the supplied value is not echoed |
 | token has patient scope, `personIdFromJwtToken` empty/missing | `403` (defence in depth, §4.1) |
 
 Decision on "overwrite vs reject": reject on mismatch (as the coordinator decision allows). Overwriting
 silently would mask client bugs and make audit trails misleading.
 
-Stamping is **synchronous and in-process**: a pure array manipulation on the request body that is already
-in memory, using a claim already resolved at authentication. No I/O, no await on the hot path, so there is
-no reason to defer it; deferring (e.g. post-response) would be incorrect because the tag must be durable
-with the first write. The audit entry is the part that is correctly asynchronous (§8).
+Setting it is **synchronous and in-process**: a property assignment on the request body that is already in
+memory, using a claim already resolved at authentication. No I/O, no await on the hot path, so there is no
+reason to defer it; deferring (e.g. post-response) would be incorrect because it must be durable with the
+first write. The audit entry is the part that is correctly asynchronous (§8).
 
-The mismatch rejection (row 3 of the table above) returns `403` with an OperationOutcome whose
-diagnostic names the problem ("the clientPersonId security tag does not match the authenticated person")
-without echoing the other person's id, and the server logs the supplied code at `warn` (§8).
+The rejection (row 3 of the table above) returns `403` with an OperationOutcome whose diagnostic names the
+problem ("the securityContext ... is set from the token and cannot be supplied by the client") without
+echoing the supplied value, and the server logs it at `warn` (§8).
 
 #### 4.3.1 Owner/access tags on the new `Binary`: parity with other creates (decision)
 
@@ -224,25 +244,31 @@ and keep returning the existing `Write not allowed using user scopes if patient 
 Single choke point: add one predicate in `SearchManager.constructQueryAsync`
 (`src/operations/search/searchManager.js`, after the access-tag/patient-filter block and before
 `queryRewriterManager.rewriteQueryAsync`, ~line 458). Condition: flag on **and** `resourceType` is in
-`personSecurityTagResources` **and** `hasPatientScope({scope})` (equivalently `isUser`).
+`personSecurityContextResources` **and** `hasPatientScope({scope})` (equivalently `isUser`).
 
 ```js
-// pseudo-code
-const own = { [f('meta.security')]: { $elemMatch: { system: clientPersonId, code: personId } } };
+// pseudo-code (PatientQueryCreator.getQueryWithPersonSecurityContext)
+// patientIds = PatientScopeManager.getPatientIdsFromScopeAsync(...): 'person.{uuid}' (proxy) + linked patients
+const uuids = patientIds.filter(isUuid).map(p => `Patient/${p}`);       // the proxy id is matched here too
+const others = patientIds.filter(id => !isUuid(id)).map(p => `Patient/${p}`);
+const owned = OR([ { [f('securityContext._uuid')]: { $in: uuids } },
+                   { [f('securityContext._sourceId')]: { $in: others } } ]);   // each clause only if non-empty
+const unowned = AND([ { [f('securityContext._uuid')]:     { $not: { $regex: '^Patient/' } } },
+                      { [f('securityContext._sourceId')]: { $not: { $regex: '^Patient/' } } } ]);
 if (!personId) {
-  query = { _uuid: '__invalid__' }; // fail closed: never "no filter" (review.md §3.D)
-} else if (!strict) {               // mixed token: keep today's behavior for untagged Binary
-  query = AND(query, { $or: [
-     { [f('meta.security')]: { $not: { $elemMatch: { system: clientPersonId } } } },   // untagged: unchanged
-     own
-  ]});
-} else {                            // pure patient token (§4.4.1): own tagged only
-  query = AND(query, own);
+  query = { _uuid: '__invalid__' };                        // fail closed: never "no filter" (review.md §3.D)
+} else if (!strict) {                                      // mixed token: keep today's behavior for unowned Binary
+  query = AND(query, owned ? OR([unowned, owned]) : unowned);
+} else {                                                   // pure patient token (§4.4.1): owned by the caller only
+  query = AND(query, owned || { _uuid: '__invalid__' });
 }
 ```
 
+`getPatientIdsFromScopeAsync` is the machinery every patient-scoped read already uses (cached per request); it
+adds one Person/link resolution to a patient-scoped Binary read that previously needed none.
+
 `f()` is `FieldMapper({useHistoryTable}).getFieldName`, so the same predicate is correct against
-`resource.meta.security` in `*_History` collections.
+`resource.securityContext.*` in `*_History` collections.
 
 Because every read operation calls `constructQueryAsync` (verified list, `grep constructQueryAsync(`):
 
@@ -265,19 +291,19 @@ Today a token with only patient scopes cannot read `Binary` at all (§1.2): the 
 as not patient-accessible, so it falls to the `user/`+`system/` branch and then needs an `access/` code.
 Decision: members can read with `patient/Binary.read`, like other patient-scoped reads.
 
-Gate change (flag on, `isPersonSecurityTagResource`, `hasPatientScope`, action `read`/`search`): in
+Gate change (flag on, `isPersonSecurityContextResource`, `hasPatientScope`, action `read`/`search`): in
 `ScopesValidator.isScopesValidAsync`, evaluate the patient scopes (`getPatientScopes`) for `Binary`, as for
 creates in §4.3, instead of requiring a `user/`/`system/` scope + access code **when the token has no
 `user/`/`system/` scope**. A token that also carries `user/`/`system/` scopes keeps today's evaluation (and
-therefore today's behavior for untagged Binary).
+therefore today's behavior for unowned Binary).
 
 The read predicate then has **two modes**, chosen by whether the token holds any `user/` or `system/` scope
 (the same namespaces the existing resource-type gate uses):
 
 | Caller | Predicate on `Binary` | Reads |
 |---|---|---|
-| Patient-scoped **and** holds a `user/` or `system/` scope (mixed token: `patient/*` + `user/*` + `access/<c>`; the clinical viewers) | access-tag filter AND (untagged OR tag = my person id) | own tagged + untagged in tenant (today's behavior preserved) |
-| Patient-scoped with **no** `user/` or `system/` scope (pure patient token) | tag = my person id, strictly | own tagged only; **untagged Binary are never returned** |
+| Patient-scoped **and** holds a `user/` or `system/` scope (mixed token: `patient/*` + `user/*` + `access/<c>`; the clinical viewers) | access-tag filter AND (unowned OR owned by one of my patients) | my Binary + unowned Binary in tenant (today's behavior preserved) |
+| Patient-scoped with **no** `user/` or `system/` scope (pure patient token) | owned by one of my patients, strictly | my Binary only; **unowned Binary are never returned** |
 
 The mode is decided by the namespace alone, not by whether the user/system scope happens to grant `Binary`:
 a token like `patient/Binary.read user/Condition.read` is mixed, so its `Binary` read is evaluated through
@@ -285,8 +311,8 @@ the user/system scopes as today and is denied (403); it is never silently downgr
 This is deliberately conservative (it can only deny more, never expose more).
 
 The strict mode matters: a pure patient token carries no access code, so `constructQueryAsync` builds no
-tenant filter (the `else if (securityTags ...)` branch is skipped). If the "untagged OR own" form were
-used there, every untagged `Binary` of every tenant would become readable. Strict mode closes that by
+tenant filter (the `else if (securityTags ...)` branch is skipped). If the "unowned OR own" form were
+used there, every unowned `Binary` of every tenant would become readable. Strict mode closes that by
 construction, and T39 pins it.
 
 Two reads do **not** go through `constructQueryAsync` and must be verified at implementation time
@@ -306,12 +332,12 @@ Position: **do not validate `DocumentReference.content.attachment.url` ownership
 Reasons: (a) the member can already create a `DocumentReference` (it is patient-filterable) and nothing
 checks its attachment target today; (b) validating needs a lookup of the referenced `Binary` per create
 and races with out-of-order uploads (Binary created after the DocumentReference, which is legal); (c) the
-read-side filter already makes a foreign tagged `Binary` invisible, whichever `DocumentReference` points
+read-side filter already makes a foreign owned `Binary` invisible, whichever `DocumentReference` points
 at it, so a member who points their `DocumentReference` at another member's `Binary` id gets `null`
 from the GraphQL resolver and nothing in `$everything`. We do log (§8) a structured warning when a
 patient-scoped `DocumentReference` create/update references a `Binary` id, for later abuse analysis, but
-do not block. Revisit if untagged `Binary` by-id access (§12.1) is closed, since that would remove the
-remaining way to read a foreign untagged `Binary`.
+do not block. Revisit if unowned `Binary` by-id access (§12.1) is closed, since that would remove the
+remaining way to read a foreign unowned `Binary`.
 
 ### 4.6 Size, content type, cloud storage: no Binary-specific limits (decision)
 
@@ -345,12 +371,12 @@ stamping step (§4.3) and is deferred (F-3, §12).
 
 | Token | Create `Binary` | Read `Binary` (REST/GraphQL/`$everything`/`$graph`) |
 |---|---|---|
-| `patient/Binary.write` (+ person claims) | allowed; tag stamped | needs a read grant (`patient/Binary.read`, §4.4.1, or user/system + access as today) |
-| `patient/Binary.read` only (no user/system scope, no access code) | 403 (no create grant) | **new (§4.4.1):** own tagged `Binary` only; untagged never returned |
+| `patient/Binary.write` (+ person claims) | allowed; securityContext set | needs a read grant (`patient/Binary.read`, §4.4.1, or user/system + access as today) |
+| `patient/Binary.read` only (no user/system scope, no access code) | 403 (no create grant) | **new (§4.4.1):** own owned `Binary` only; unowned never returned |
 | `patient/*.read` only (no `Binary` grant) | 403 (no create grant) | 403 at scope gate |
-| `system/*.*` or `user/*.*` + `access/<c>` (no patient scope) | unchanged; **no auto-stamp** | unchanged (no tag filter; sees tagged and untagged within tenant) |
+| `system/*.*` or `user/*.*` + `access/<c>` (no patient scope) | unchanged; **no auto-stamp** | unchanged (no person filter; sees owned and unowned within tenant) |
 | `access/*` + `admin/*`, no patient scope | unchanged | unchanged |
-| any token with **any** patient scope plus `user/`/`system/`/`access/` (mixed) | treated as patient-scoped: requires patient create grant, always stamped, tag filter applied; user/system/access privileges do **not** bypass | tag filter applied (so a mixed token reads own tagged + untagged only) |
+| any token with **any** patient scope plus `user/`/`system/`/`access/` (mixed) | treated as patient-scoped: requires patient create grant, always stamped, tag filter applied; user/system/access privileges do **not** bypass | tag filter applied (so a mixed token reads own owned + unowned only) |
 | patient scope, no person claim | 401 at auth today; defence-in-depth 403 | filter fails closed |
 | flag off | exactly today's 403 | exactly today's behavior |
 
@@ -367,7 +393,7 @@ tag itself (§6).
 
 System/admin/user tokens without a patient scope are not auto-stamped (the server cannot know whose
 `Binary` it is). Backends that create member-owned `Binary` should set the
-`clientPersonId` tag themselves. Untagged `Binary` written by system tokens keep today's semantics (§12.1).
+`securityContext` themselves. Unowned `Binary` written by system tokens keep today's semantics (§12.1).
 We do not forbid or validate a supplied tag on system writes, other than the "single tag" rule, so a
 backend can write a tag for any person — this is intentional (backends are trusted by tenant access code).
 
@@ -377,17 +403,17 @@ backend can write a tag for any person — this is intentional (backends are tru
   (e.g. `get enablePatientScopedBinaryCreate() { return isTrue(env.ENABLE_PATIENT_SCOPED_BINARY_CREATE); }`),
   matching how `ENABLE_DELEGATED_ACCESS_DETECTION` / `enableDelegatedAccessDetection` are done. The flag
   gates both the create carve-out and the read predicate.
-- The read predicate is a strict no-op for untagged data, so enabling the flag changes nothing for the
+- The read predicate is a strict no-op for unowned data, so enabling the flag changes nothing for the
   existing corpus; only new patient-scoped writes carry the tag.
 - Rollout: (1) deploy flag-off (code dormant), (2) **the read filter, including the `patient/Binary.read`
-  gate change, lands before the create carve-out** (decision): it is a no-op for untagged data and no
-  tagged `Binary` can exist until the create path ships, (3) enable in a lower environment and run the
+  gate change, lands before the create carve-out** (decision): it is a no-op for unowned data and no
+  owned `Binary` can exist until the create path ships, (3) enable in a lower environment and run the
   integration matrix plus a manual DocumentReference→Binary GraphQL walkthrough, (4) enable per
-  environment, (5) backend clients that want per-member isolation start stamping tags for their writes. Rollback = flag
-  off; tagged `Binary` already written remain readable by tenant tokens (no patient filter) and become
+  environment, (5) backend clients that want per-member isolation start setting `securityContext` on their writes. Rollback = flag
+  off; owned `Binary` already written remain readable by tenant tokens (no patient filter) and become
   unreadable to member tokens only in the sense that the flag-off server no longer applies the filter
   (i.e. they would be readable by any in-tenant caller, as all `Binary` are today). Call this out to
-  reviewers: **rollback weakens isolation for already-tagged Binary back to today's baseline, not below
+  reviewers: **rollback weakens isolation for already-owned Binary back to today's baseline, not below
   it.**
 - No schema/index migration is required.
 
@@ -398,8 +424,8 @@ backend can write a tag for any person — this is intentional (backends are tru
   the durability path of the write). It records resource type, operation and uuid; the design adds the
   stamped person id to the audit/log context as-is (decision: same as existing code, which already logs
   person ids in plain text, e.g. `personToPatientIdsExpander.js`).
-- Logs (`logInfo`/`logWarn`, `src/operations/common/logging.js`): `binary_person_tag_stamped`,
-  `binary_person_tag_mismatch_rejected` (warn, include caller `user`, supplied code, token code), and
+- Logs (`logInfo`/`logWarn`, `src/operations/common/logging.js`): `binary_person_security_context_set`,
+  `binary_person_security_context_rejected` (warn, include caller `user`, supplied code, token code), and
   `documentreference_references_binary` (§4.5).
 - Metrics: follow ADR 0002 (custom OpenTelemetry meters via DI). Proposed counters:
   `fhir.binary.patient_create.total{outcome=created|forbidden|mismatch}`,
@@ -412,8 +438,8 @@ Walked against `review.md` §3 A, B, C, D, E.
 
 | # | Threat | Mitigation | Residual |
 |---|---|---|---|
-| T1 | Tag forgery: member supplies another person's tag | server rejects any supplied tag that is not the token's person id; never trusts body | none for create |
-| T2 | Cross-member read of tagged `Binary` by id/search/history/`$everything`/`$graph`/GraphQL | single predicate in `constructQueryAsync` (§4.4) fail-closed on empty person id | by-id read of **untagged** `Binary` still allowed (§12.1); OQ-2 paths to verify |
+| T1 | Spoofing: member supplies another person's (or a real patient's) `securityContext` | server sets it from the token and rejects any supplied value other than the caller's own proxy; never trusts the body | none for create |
+| T2 | Cross-member read of owned `Binary` by id/search/history/`$everything`/`$graph`/GraphQL | single predicate in `constructQueryAsync` (§4.4) fail-closed on empty person id | by-id read of **unowned** `Binary` still allowed (§12.1); OQ-2 paths to verify |
 | T3 | Cross-tenant injection via member-chosen `access`/`owner` tags | none added (decision: parity with every other patient-scoped create, §4.3.1) | pre-existing, type-independent gap; follow-up F-1 |
 | T4 | Enumeration of ids | filtered resource is indistinguishable from a missing one (empty result / 404, same as a failed access-tag filter) | timing difference negligible; not measured |
 | T5 | Mixed-scope bypass (`patient/* system/*`) | branch keyed on `hasPatientScope`; user/system privileges do not bypass | none |
@@ -421,8 +447,8 @@ Walked against `review.md` §3 A, B, C, D, E.
 | T7 | Empty/undefined person id making the filter match everything | filter builds `_uuid: '__invalid__'` instead (review.md §3.D) | none |
 | T8 | Two tenants sharing the same real person (review.md §3.E) | tag holds the **client** person id and the existing access-tag filter is still ANDed (not replaced); mixed tokens keep both | none |
 | T9 | Abuse of upload surface (size, type, volume) | server-wide `PAYLOAD_LIMIT` only (§4.6); gateway rate limit | body is parsed before the token is verified (existing, F-2); malware scanning out of scope |
-| T10 | Retrieval via DocumentReference of another member pointing at a foreign Binary | read filter (§4.5) | untagged case |
-| T11 | Pure patient token reads untagged `Binary` of any tenant (no access tag filter exists for it) | strict mode: `tag = my person id` only (§4.4.1) | none |
+| T10 | Retrieval via DocumentReference of another member pointing at a foreign Binary | read filter (§4.5) | unowned case |
+| T11 | Pure patient token reads unowned `Binary` of any tenant (no access tag filter exists for it) | strict mode: `tag = my person id` only (§4.4.1) | none |
 
 Important: the person predicate is **ANDed on top of** the access-tag filter, never an `else` branch of
 it (the exact bug shape `docs/resource-authorization.md` / `review.md` §2 warn about).
@@ -469,13 +495,13 @@ follow-ups to triage.**
 
 ## 11. Alternatives considered
 
-- **A. (chosen) Person-id security tag on `Binary`, stamped on create, filtered on read.** Smallest
+- **A. (chosen, revised 2026-10-09) Person ownership on `Binary` through `securityContext` (`Patient/person.{person_uuid}`), set by the server on create, filtered on read.** (The first version used a custom `clientPersonId` security tag; see §0.1.) Smallest
   surface, backward compatible, no backfill, matches existing `meta.security` conventions.
 - **B. Subscription-style `personFilterWithQueryMapping`** (add `Binary` with a filter on
   extension/identifier). Rejected: `personFilterWithQueryMapping` is consulted by
   `canAccessResourceWithPatientScope`/`isPatientRelatedResource`, which would make `Binary` fully
   "patient-filterable" for every caller and turn the person filter into the *only* gate for all `Binary`
-  reads, including every existing untagged one — an immediate regression for GraphQL
+  reads, including every existing unowned one — an immediate regression for GraphQL
   `DocumentReference → Binary` for existing data unless a full backfill precedes enablement. It also uses
   an extension, which `Binary` does not support in a queryable form without adding a field to a
   pass-through payload resource.
@@ -483,17 +509,20 @@ follow-ups to triage.**
   `DocumentReference` references it). Rejected: an extra query per `Binary` read (N+1 on `$everything`),
   breaks for uploads that precede their `DocumentReference`, and cannot gate the create itself.
 - **D. `Binary.securityContext` = Patient reference + `patientFilterMapping: Binary: 'securityContext.reference'`**
-  (the FHIR-native approach). Attractive and reuses the existing patient machinery for read and write, but
-  existing `Binary` have no `securityContext`, so enabling it hides them from patient scopes until a
-  backfill; it also needs the client to know the Patient id at upload time. Recorded as the preferred
-  **long-term** direction if the by-id gap (§12.1) is closed by backfill.
+  (the FHIR-native approach, Mintu's recommendation). As a *full* switch it hides every existing `Binary`
+  (none has a `securityContext`) from any token holding a patient scope, including the mixed viewer tokens, so
+  it needs a one-time backfill of about 60M Binary plus helix/PROA pipeline changes first. **Adopted in a
+  transitional form (§0.1):** the same field and the same Patient-reference convention, but the read filter
+  treats a Binary with no securityContext as unowned (unchanged), so only new member uploads are owned and no
+  backfill is needed up front. The backfill and the switch to the plain mapping become a later, separate
+  work item.
 - **E. Backend service-client workaround** (member calls a backend that writes with a system token).
   Rejected as the end state: it is today's behavior and is precisely what leaves `Binary` untied to a
   person; but it remains available and compatible (§6).
 
 ## 12. Open questions and follow-ups
 
-12.1 (follow-up, out of scope) By-id read of **untagged** `Binary` by a patient-scoped caller remains
+12.1 (follow-up, out of scope) By-id read of **unowned** `Binary` by a patient-scoped caller remains
 possible within the tenant. Close by backfilling tags or moving to alternative D, then flipping the filter
 to "tag required for patient-scoped callers".
 
@@ -528,8 +557,8 @@ Nothing below was measured; no benchmark was run for this document.
   is ever needed. **Plan to measure:** run `explain('executionStats')` for the three query shapes
   (by id, by `DocumentReference` batch of `graphQLFetchResourceBatchSize` ids, unconstrained search; in
   both mixed and strict modes) on a
-  seeded `Binary_4_0_0` with tagged and untagged documents before enabling in production.
-- Write cost: stamping is an in-memory array push (sub-millisecond, estimate); no added I/O.
+  seeded `Binary_4_0_0` with owned and unowned documents before enabling in production.
+- Write cost: setting `securityContext` is an in-memory property assignment (sub-millisecond, estimate); no added I/O.
 - Payload sizes: see §4.6 (arithmetic from configuration defaults).
 - Strict-mode read (§4.4.1) is an equality probe on `meta.security` with the person code and can use the
   `meta_security_code.uuid` index; not measured (same `explain` plan as above).
@@ -550,27 +579,27 @@ code; **M** = `patient/*.* system/*.*` (mixed); **flag** = `ENABLE_PATIENT_SCOPE
 
 | ID | Use case | Token | Expected |
 |---|---|---|---|
-| T1 | Member creates Binary, no tag supplied | P, flag on | 201; `meta.security` contains `clientPersonId|A` |
-| T2 | Member supplies matching tag | P | 201; exactly one tag |
-| T3 | Member supplies other person's tag | P | 403 with reason (see T42); nothing persisted |
-| T3b | Two `clientPersonId` tags | P | 400 |
+| T1 | Member creates Binary, no securityContext supplied | P, flag on | 201; `securityContext.reference` = `Patient/person.{A}` |
+| T2 | Member supplies their own proxy patient | P | 201; unchanged |
+| T3 | Member supplies another person's securityContext | P | 403 with reason (see T42); nothing persisted |
+| T3b | Member supplies a real Patient or another resource type | P | 403 |
 | T4 | Patient scope but no/empty person id | P w/o `clientFhirPersonId` | 401 at auth (and unit test: op-layer 403) |
 | T5 | PUT/update Binary | P | 403 |
 | T6 | PATCH Binary | P | 403 |
 | T7 | DELETE Binary | P | 403 |
 | T8 | `$merge` Binary | P | 403 |
-| T9 | Member A reads own tagged Binary by id | Pr(A) | 200 |
-| T10 | Member B reads A's tagged Binary by id | Pr(B) | 404 / not found (same as missing) |
+| T9 | Member A reads own owned Binary by id | Pr(A) | 200 |
+| T10 | Member B reads A's owned Binary by id | Pr(B) | 404 / not found (same as missing) |
 | T11 | Member B searches `Binary?_id=` and `Binary` search | Pr(B) | empty bundle; A's does not leak |
 | T12 | `_history` and `_history/{vid}` | P/Pr | 403 (unchanged: history rejects patient scope) |
 | T13 | `Patient/$everything` / `Person/$everything` as B with A's DocumentReference pointing to A's Binary (and B's own DR pointing at A's Binary) | Pr(B) | A's Binary absent from bundle; B's own present |
 | T14 | `$graph` DocumentReference → Binary | Pr(A)/Pr(B) | A sees it; B does not |
 | T15 | GraphQL `DocumentReference → attachment.resource` for owner | Pr(A) | Binary returned |
 | T16 | GraphQL same, other member | Pr(B) | `resource: null` |
-| T17 | Untagged Binary (existing fixtures) | Pr | readable exactly as today (regression against `graphql.documentReference.test.js` expectations) |
+| T17 | Unowned Binary (existing fixtures) | Pr | readable exactly as today (regression against `graphql.documentReference.test.js` expectations) |
 | T18 | System token writes Binary without tag | S | 201; no tag added |
-| T19 | System token writes Binary with tag A | S | 201; tag preserved; readable by Pr(A), not Pr(B) |
-| T20 | System token reads tagged Binary | S | 200 (no person filter without patient scope) |
+| T19 | System token writes Binary owned by `Patient/person.{A}` (or a real patient linked to A) | S | 201; securityContext preserved; readable by Pr(A), not Pr(B) |
+| T20 | System token reads owned Binary | S | 200 (no person filter without patient scope) |
 | T21 | Cross-tenant: S-other reads/creates | S-other | access-tag filter still denies |
 | T22 | Mixed-scope create | M | treated as patient-scoped: requires patient create grant, stamped; `system/*` alone does not bypass; `patient/Condition.write system/*.*` → 403 |
 | T23 | Patient token lacking create grant (`patient/Binary.read` only) | P-read | 403 on create |
@@ -579,26 +608,26 @@ code; **M** = `patient/*.* system/*.*` (mixed); **flag** = `ENABLE_PATIENT_SCOPE
 | T26 | Cache short-circuit paths in `$everything`/`$graph` | Pr(B) | not returned (OQ-2) |
 | T30 | Cloud-storage offload on (`BASE64_FIELD_CLOUD_STORAGE_ENABLED`) with member Binary > threshold | P | 201; tag present on stored doc and in history entry |
 | T31 | Flag off | P | 403 with today's message `Write not allowed using user scopes if patient scope is present` |
-| T32 | Flag off, tagged Binary exists | Pr(B) | no person filter (today's behavior), documents rollback note in §7 |
+| T32 | Flag off, owned Binary exists | Pr(B) | no person filter (today's behavior), documents rollback note in §7 |
 | T33 | Person id claim empty on read | Pr | filter fails closed (`_uuid: '__invalid__'`) — unit test of query construction |
 | T34 | Query shape | Pr | `toHaveMongoQuery` shows `$or` clause ANDed with access-tag filter, using `resource.meta.security` for history |
 | T36 | Audit entry written; stamping logged | P | audit logger invoked once with resource uuid |
-| T37 | Pure patient token reads own tagged Binary by id | P-read(A) | 200 |
-| T38 | Pure patient token reads another member's tagged Binary by id and by search | P-read(B) | 404 / empty bundle |
-| T39 | Pure patient token reads an untagged Binary (any tenant) | P-read | 404 / not returned (strict mode, §4.4.1) |
+| T37 | Pure patient token reads own owned Binary by id | P-read(A) | 200 |
+| T38 | Pure patient token reads another member's owned Binary by id and by search | P-read(B) | 404 / empty bundle |
+| T39 | Pure patient token reads an unowned Binary (any tenant) | P-read | 404 / not returned (strict mode, §4.4.1) |
 | T40 | Pure patient token without a `Binary` read grant | `patient/Condition.read` only | 403 |
-| T41 | Mixed token reads untagged Binary | Pr | readable as today (clinical viewers unchanged) |
-| T42 | Mismatched tag rejected with reason | P | 403; OperationOutcome names the mismatch and does not echo the other person id |
+| T41 | Mixed token reads unowned Binary | Pr | readable as today (clinical viewers unchanged) |
+| T42 | Foreign securityContext rejected with reason | P | 403; OperationOutcome says it is set from the token and does not echo the supplied value |
 
-Unit tests (new, `src/tests/unit/...`): `ScopesManager.isPatientScopedPersonTagCreate` truth table
+Unit tests (new, `src/tests/unit/...`): `ScopesManager.isPatientScopedPersonContextCreate` truth table
 (flag × action × scope shapes, including upper-case `PATIENT/`), stamping function table in §4.3,
 `SecurityTagManager` person-filter builder.
 
 ## 15. Implementation outline (after approval; not part of this change)
 
-1. `SecurityTagSystem.clientPersonId`; `ConfigManager` flag and limits.
-2. `PatientFilterManager.personSecurityTagResources` + helpers.
-3. `ScopesManager.isPatientScopedPersonTagCreate` and the three gate changes (§4.3).
+1. `SecurityTagSystem.securityContext`; `ConfigManager` flag and limits.
+2. `PatientFilterManager.personSecurityContextResources` + helpers.
+3. `ScopesManager.isPatientScopedPersonContextCreate` and the three gate changes (§4.3).
 4. `PatientScopeManager`/`Create`: stamping and mismatch rejection (no size/type limits, no tag hardening).
 5. `SecurityTagManager.getQueryWithPersonSecurityTag` (mixed and strict modes) and its call in
    `constructQueryAsync`; read-scope gate change for `patient/Binary.read` (§4.4.1). Ships before 4.
@@ -606,29 +635,32 @@ Unit tests (new, `src/tests/unit/...`): `ScopesManager.isPatientScopedPersonTagC
 
 ## 16. Implementation notes (what was built)
 
-Everything is behind `ENABLE_PATIENT_SCOPED_BINARY_CREATE` (default off; flag off = today's behavior).
+Everything is behind `ENABLE_PATIENT_SCOPED_BINARY_CREATE` (default off; flag off = today's behavior). The
+ownership marker is `Binary.securityContext` (§0.1), so `SecurityTagSystem` is unchanged.
 
-- `SecurityTagSystem.clientPersonId`; `ConfigManager.enablePatientScopedBinaryCreate`;
-  `PatientFilterManager.personSecurityTagResources` / `isPersonSecurityTagResource` (Binary is **not** added
-  to any patient/person filter mapping).
-- `ScopesManager`: `isPersonTagResourceScoped` (flag, Binary, `hasPatientScope`),
-  `isPatientScopedPersonTagCreate` (adds `action === 'create'`), `isPersonTagStrictAccess` (adds "no
+- `ConfigManager.enablePatientScopedBinaryCreate`; `PatientFilterManager.personSecurityContextResources`
+  (`{ Binary: 'securityContext.reference' }`), `isPersonSecurityContextResource`,
+  `getPersonSecurityContextProperty` (Binary is **not** added to any patient/person filter mapping).
+- `ScopesManager`: `isPersonContextResourceScoped` (flag, Binary, `hasPatientScope`),
+  `isPatientScopedPersonContextCreate` (adds `action === 'create'`), `isPersonContextStrictAccess` (adds "no
   `user/`/`system/` scope"). `isAccessTagChangeAllowedByScopes` and `isAccessToResourceAllowedBySecurityTags`
-  short-circuit only on a create (`isCreate`), which is now threaded explicitly from `CreateOperation`
-  through `ScopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes` (default `false`, so update,
-  patch, remove and merge are untouched).
+  short-circuit only on a create (`isCreate`), which is threaded explicitly from `CreateOperation` through
+  `ScopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes` (default `false`, so update, patch,
+  remove and merge are untouched).
 - `ScopesValidator.isScopesValidAsync`: evaluates the patient scopes for a Binary create and for a Binary
   read by a pure patient token.
-- `PatientScopeManager.canWriteResourceAsync`: for a Binary create requires exactly one `clientPersonId`
-  tag equal to the token's person id (defence in depth after stamping).
-- `src/utils/personSecurityTag.js`: tag helpers and the stamping table of §4.3. `CreateOperation` calls it
-  right after `removeUnderscoreFieldsRecursive`, before meta validation; it now takes `scopesManager`
-  (registered in `createContainer.js`).
-- `SecurityTagManager.getQueryWithPersonSecurityTag` and its call in `SearchManager.constructQueryAsync`
-  (after the access-tag/patient-filter block, before query rewriting). `getSecurityTagsFromScope` is told a
-  pure-patient Binary read is patient-authorized so it does not demand an access code.
+- `PatientScopeManager.canWriteResourceAsync`: for a Binary create requires the `securityContext` to be exactly
+  `Patient/person.{token person id}` (defence in depth after it is set).
+- `src/utils/personSecurityContext.js`: `getPersonProxyReference`, `hasOwnPersonSecurityContext`,
+  `stampPersonSecurityContext` (the §4.3 table). `CreateOperation` calls it right after
+  `removeUnderscoreFieldsRecursive`, before meta validation; it now takes `scopesManager` (registered in
+  `createContainer.js`).
+- `PatientQueryCreator.getQueryWithPersonSecurityContext` and its call in `SearchManager.constructQueryAsync`
+  (after the access-tag/patient-filter block, before query rewriting); the caller's patient ids come from
+  `PatientScopeManager.getPatientIdsFromScopeAsync`. `getSecurityTagsFromScope` is told a pure-patient Binary
+  read is patient-authorized so it does not demand an access code.
 - Not built here: OpenTelemetry counters (§8 metrics) and the `explain` measurements (§13); log lines
-  `binary_person_tag_stamped` and `binary_person_tag_rejected` are in place.
+  `binary_person_security_context_set` and `binary_person_security_context_rejected` are in place.
 
 ### 16.1 OQ-2 verification (read paths that might skip the filter)
 
@@ -640,6 +672,7 @@ Everything is behind `ENABLE_PATIENT_SCOPED_BINARY_CREATE` (default off; flag of
   (`EverythingHelper.getCacheKey`) is used only for callers with a person id, but its key is built from the
   resolved patient id (or the proxy person id) plus the scope, not the caller's person id. If two different
   persons link the same Patient and both call `$everything` on it with the same scope, a response cached for
-  one could include a Binary tagged for that person and be served to the other. Fix options: include the
-  caller's person id in the key whenever the flag is on, or exclude Binary from cached `$everything`
-  responses. Needs a decision before enabling the flag where Patients are shared between persons.
+  one could include a Binary owned by that person's proxy patient and be served to the other. (A Binary owned
+  by the shared real patient is visible to both, so only proxy-owned member uploads are at risk.) Fix options:
+  include the caller's person id in the key whenever the flag is on, or exclude Binary from cached
+  `$everything` responses. Needs a decision before enabling the flag where Patients are shared between persons.

@@ -133,54 +133,6 @@ class SecurityTagManager {
         }
         return query;
     }
-
-    /**
-     * Narrows a query on a person-security-tag resource (Binary) to what the patient-scoped caller may
-     * read, by the clientPersonId security tag stamped on create. ANDed on top of whatever access-tag
-     * filter is already in the query -- it is never a replacement for it.
-     *
-     * - no personId: fails closed ({_uuid: '__invalid__'}), never "no filter".
-     * - strict (pure patient token, no tenant filter exists for it): only Binary tagged with the caller's
-     *   own person id. Untagged Binary are never returned.
-     * - otherwise (mixed token): Binary tagged with the caller's person id, or carrying no clientPersonId
-     *   tag at all (so existing, untagged Binary read exactly as before). Binary tagged for a different
-     *   person are excluded.
-     * @typedef {Object} GetQueryWithPersonSecurityTagParams
-     * @property {import('mongodb').Document} query
-     * @property {string|undefined} personId the caller's person id (personIdFromJwtToken)
-     * @property {boolean} strict
-     * @property {boolean} useHistoryTable
-     *
-     * @param {GetQueryWithPersonSecurityTagParams}
-     * @return {import('mongodb').Document}
-     */
-    getQueryWithPersonSecurityTag ({ query, personId, strict, useHistoryTable }) {
-        if (!personId || typeof personId !== 'string') {
-            return { _uuid: '__invalid__' };
-        }
-        const securityField = new FieldMapper({ useHistoryTable }).getFieldName('meta.security');
-        const ownTagQuery = {
-            [securityField]: {
-                $elemMatch: {
-                    system: SecurityTagSystem.clientPersonId,
-                    code: personId
-                }
-            }
-        };
-        const personTagQuery = strict
-            ? ownTagQuery
-            : {
-                $or: [
-                    {
-                        [securityField]: {
-                            $not: { $elemMatch: { system: SecurityTagSystem.clientPersonId } }
-                        }
-                    },
-                    ownTagQuery
-                ]
-            };
-        return this.r4SearchQueryCreator.appendAndSimplifyQuery({ query, andQuery: personTagQuery });
-    }
 }
 
 module.exports = {

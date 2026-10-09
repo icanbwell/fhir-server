@@ -11,7 +11,7 @@ const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS } = require('../../constants');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const httpContext = require('express-http-context');
-const { hasOwnPersonTagOnly } = require('../../utils/personSecurityTag');
+const { hasOwnPersonSecurityContext } = require('../../utils/personSecurityContext');
 
 class PatientScopeManager {
     /**
@@ -295,7 +295,7 @@ class PatientScopeManager {
      * @param {string} [user] Present when called via isAccessToResourceAllowedByPatientScopes(), which
      *   spreads the full FhirRequestInfo (including `user`) into this call.
      * @param {boolean} [isCreate] true when the resource is being created. Only a create of a
-     *   person-tag resource (Binary) is authorized through the person tag; every other write keeps
+     *   person-owned resource (Binary) is authorized through its securityContext; every other write keeps
      *   the patient-filterable-type requirement.
      * @returns {Promise<boolean>}
      */
@@ -317,14 +317,14 @@ class PatientScopeManager {
             return true;
         }
 
-        if (isCreate && this.scopesManager.isPersonTagResourceScoped({
+        if (isCreate && this.scopesManager.isPersonContextResourceScoped({
             scope,
             resourceType: resource.resourceType
         })) {
-            // Binary: owned by a person through the clientPersonId tag stamped on create, not by a
-            // Patient reference. The resource must carry exactly one such tag and it must be the
-            // caller's own person id (stamping guarantees this; checked again here as defence in depth).
-            return hasOwnPersonTagOnly(resource, personIdFromJwtToken);
+            // Binary: owned by a person through its securityContext (Patient/person.{person_uuid}), set on
+            // create from the token. It must be the caller's own person (stamping guarantees this; checked
+            // again here as defence in depth).
+            return hasOwnPersonSecurityContext(resource, personIdFromJwtToken);
         }
 
         if (!this.scopesManager.isAccessAllowedByPatientScopes({

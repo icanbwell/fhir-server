@@ -22,7 +22,7 @@ const { buildContextDataForHybridStorage } = require('../../utils/contextDataBui
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
-const { stampPersonTag } = require('../../utils/personSecurityTag');
+const { stampPersonSecurityContext } = require('../../utils/personSecurityContext');
 
 class CreateOperation {
     /**
@@ -177,21 +177,22 @@ class CreateOperation {
         // can never reach validation or attachment handling.
         removeUnderscoreFieldsRecursive(resource_incoming);
 
-        // A patient-scoped caller creating a Binary owns it: the server stamps the caller's person id
-        // on it (never trusted from the body) so reads can be limited to that person. Done before the
-        // meta validation below so the tag is part of what gets validated and stored.
-        if (this.scopesManager.isPatientScopedPersonTagCreate({
+        // A patient-scoped caller creating a Binary owns it: the server sets the Binary's securityContext to
+        // the caller's person (Patient/person.{person_uuid}, taken from the token, never from the body) so
+        // reads can be limited to that person. Done before the meta validation below so it is part of what
+        // gets validated and stored.
+        if (this.scopesManager.isPatientScopedPersonContextCreate({
             scope: requestInfo.scope, resourceType, action: currentOperationName
         })) {
             try {
-                stampPersonTag({ resource: resource_incoming, personId: requestInfo.personIdFromJwtToken });
-                logInfo('binary_person_tag_stamped', {
+                stampPersonSecurityContext({ resource: resource_incoming, personId: requestInfo.personIdFromJwtToken });
+                logInfo('binary_person_security_context_set', {
                     user: requestInfo.user,
                     resourceType,
                     personId: requestInfo.personIdFromJwtToken
                 });
             } catch (e) {
-                logWarn('binary_person_tag_rejected', {
+                logWarn('binary_person_security_context_rejected', {
                     user: requestInfo.user,
                     resourceType,
                     reason: e.message
