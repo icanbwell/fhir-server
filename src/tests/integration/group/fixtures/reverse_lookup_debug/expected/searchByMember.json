@@ -1,0 +1,104 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "Group",
+                "id": "dcon5532-ext-group",
+                "meta": {
+                    "versionId": "2",
+                    "lastUpdated": "2026-10-08T13:19:13.881Z",
+                    "source": "http://test-system.com/Group",
+                    "security": [
+                        {
+                            "id": "436b2942-d00e-530d-9fea-a739e4f2fdae",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "test-owner"
+                        },
+                        {
+                            "id": "86e84b30-9452-5e96-8724-2210a32577fd",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "test-access"
+                        },
+                        {
+                            "id": "de37f03f-077e-55b8-841c-875273597e83",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "test-owner"
+                        }
+                    ],
+                    "tag": [
+                        {
+                            "id": "8f74265b-3b86-58e4-baaf-e3b4e12bb3a1",
+                            "system": "https://www.icanbwell.com/groupSize",
+                            "code": "extended"
+                        }
+                    ]
+                },
+                "type": "person",
+                "actual": true,
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "dcon5532-ext-group"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "33feed35-d949-5e84-bdf8-c15cf9c7e004"
+                    }
+                ]
+            }
+        }
+    ],
+    "type": "searchset",
+    "timestamp": "2026-10-08T01:19:14.1414Z",
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/4_0_0/Group?member=Patient%2Fdcon5532-member-1&_bundle=1&_debug=1"
+        },
+        {
+            "relation": "next",
+            "url": "http://localhost:3000/4_0_0/Group?member=Patient%2Fdcon5532-member-1&_bundle=1&_debug=1&id%3Aabove=33feed35-d949-5e84-bdf8-c15cf9c7e004"
+        }
+    ],
+    "resourceType": "Bundle",
+    "total": 0,
+    "id": "cb961959-9900-4e89-b51a-28a4eb614758",
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "db.Group_4_0_0.find({'$and':[{'$or':[{'member.entity._sourceId':'Patient/dcon5532-member-1'},{'_uuid':'33feed35-d949-5e84-bdf8-c15cf9c7e004'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)  | db.GroupMember_4_0_0.find({'member.entity._sourceId':'Patient/dcon5532-member-1'}, {'groupUuid':1,'_id':0})"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": "Group_4_0_0|GroupMember_4_0_0"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "[{'limit':100,'sort':{'_uuid':1}},{'projection':{'groupUuid':1,'_id':0}}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "['member.entity._sourceId','_uuid','meta.tag.system','meta.tag.code']"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime",
+                "display": "0.012"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryDatabase",
+                "code": "fhir"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain",
+                "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Group_4_0_0\",\"parsedQuery\":{\"$and\":[{\"$or\":[{\"_uuid\":{\"$eq\":\"33feed35-d949-5e84-bdf8-c15cf9c7e004\"}},{\"member.entity._sourceId\":{\"$eq\":\"Patient/dcon5532-member-1\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"indexFilterSet\":false,\"queryHash\":\"84DBD8D4\",\"planCacheShapeHash\":\"84DBD8D4\",\"planCacheKey\":\"9E18E6BF\",\"optimizationTimeMillis\":0,\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"prunedSimilarIndexes\":false,\"winningPlan\":{\"isCached\":false,\"stage\":\"SORT\",\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"$or\":[{\"_uuid\":{\"$eq\":\"33feed35-d949-5e84-bdf8-c15cf9c7e004\"}},{\"member.entity._sourceId\":{\"$eq\":\"Patient/dcon5532-member-1\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"direction\":\"forward\"}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":1,\"totalKeysExamined\":0,\"totalDocsExamined\":1,\"executionStages\":{\"isCached\":false,\"stage\":\"SORT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":4,\"advanced\":1,\"needTime\":2,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":838,\"usedDisk\":false,\"spills\":0,\"spilledDataStorageSize\":0,\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"$or\":[{\"_uuid\":{\"$eq\":\"33feed35-d949-5e84-bdf8-c15cf9c7e004\"}},{\"member.entity._sourceId\":{\"$eq\":\"Patient/dcon5532-member-1\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"direction\":\"forward\",\"docsExamined\":1}},\"allPlansExecution\":[]},\"queryShapeHash\":\"779D9D2A0DB43FFF72AF4DFF30F008A4E1AFBD48E20A7C0EB3FE7268B5B7AD7C\",\"command\":{\"find\":\"Group_4_0_0\",\"filter\":{\"$and\":[{\"$or\":[{\"member.entity._sourceId\":\"Patient/dcon5532-member-1\"},{\"_uuid\":\"33feed35-d949-5e84-bdf8-c15cf9c7e004\"}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":120000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Vinay-KushwahaMacBook-Air\",\"port\":63110,\"version\":\"8.0.20\",\"gitVersion\":\"28927c60881a488fcbc5fd4d925b410f33258827\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600,\"internalQueryFrameworkControl\":\"trySbeRestricted\",\"internalQueryPlannerIgnoreIndexWithCollationForRegex\":1},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7694285966340521990\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7694285966340521990\"}},{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.GroupMember_4_0_0\",\"parsedQuery\":{\"member.entity._sourceId\":{\"$eq\":\"Patient/dcon5532-member-1\"}},\"indexFilterSet\":false,\"queryHash\":\"BBD4AE5E\",\"planCacheShapeHash\":\"BBD4AE5E\",\"planCacheKey\":\"15A6DE1E\",\"optimizationTimeMillis\":0,\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"prunedSimilarIndexes\":false,\"winningPlan\":{\"isCached\":false,\"stage\":\"PROJECTION_SIMPLE\",\"transformBy\":{\"groupUuid\":1,\"_id\":0},\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"member.entity._sourceId\":{\"$eq\":\"Patient/dcon5532-member-1\"}},\"direction\":\"forward\"}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":1,\"executionStages\":{\"isCached\":false,\"stage\":\"PROJECTION_SIMPLE\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"transformBy\":{\"groupUuid\":1,\"_id\":0},\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"member.entity._sourceId\":{\"$eq\":\"Patient/dcon5532-member-1\"}},\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"direction\":\"forward\",\"docsExamined\":1}},\"allPlansExecution\":[]},\"queryShapeHash\":\"6E2033F1E398F6DC6322F11BFD84C82C3F2E75058EE6ABBC7FD3DA0C76B56C54\",\"command\":{\"find\":\"GroupMember_4_0_0\",\"filter\":{\"member.entity._sourceId\":\"Patient/dcon5532-member-1\"},\"projection\":{\"groupUuid\":1,\"_id\":0},\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Vinay-KushwahaMacBook-Air\",\"port\":63110,\"version\":\"8.0.20\",\"gitVersion\":\"28927c60881a488fcbc5fd4d925b410f33258827\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600,\"internalQueryFrameworkControl\":\"trySbeRestricted\",\"internalQueryPlannerIgnoreIndexWithCollationForRegex\":1},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7694285966340521990\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7694285966340521990\"}}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple",
+                "display": "[{\"step\":{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"COLLSCAN\",\"friendlyStage\":\"for a collection scan\",\"filter\":{\"$and\":[{\"$or\":[{\"_uuid\":{\"$eq\":\"33feed35-d949-5e84-bdf8-c15cf9c7e004\"}},{\"member.entity._sourceId\":{\"$eq\":\"Patient/dcon5532-member-1\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"docsExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"SORT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":1,\"totalKeysExamined\":0,\"totalDocsExamined\":1},\"query\":\"db.Group_4_0_0.find({'$and':[{'$or':[{'member.entity._sourceId':'Patient/dcon5532-member-1'},{'_uuid':'33feed35-d949-5e84-bdf8-c15cf9c7e004'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)\"},{\"step\":{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"COLLSCAN\",\"friendlyStage\":\"for a collection scan\",\"filter\":{\"member.entity._sourceId\":{\"$eq\":\"Patient/dcon5532-member-1\"}},\"docsExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"PROJECTION_SIMPLE\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":1},\"query\":\"db.GroupMember_4_0_0.find({'member.entity._sourceId':'Patient/dcon5532-member-1'}, {}).sort({'_uuid':1}).limit(100)\"}]"
+            }
+        ]
+    }
+}

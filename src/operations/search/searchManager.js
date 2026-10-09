@@ -468,12 +468,14 @@ class SearchManager {
                 columns = MongoQuerySimplifier.findColumnsInFilter({ filter: query });
             }
 
-            ({ query, columns } = await this.queryRewriterManager.rewriteQueryAsync({
+            let additionalRewriteQueries;
+            ({ query, columns, additionalRewriteQueries } = await this.queryRewriterManager.rewriteQueryAsync({
                 base_version,
                 query,
                 columns,
                 resourceType,
-                operation
+                operation,
+                parsedArgs
             }));
             if (query) {
                 query = MongoQuerySimplifier.simplifyFilter({ filter: query });
@@ -494,7 +496,7 @@ class SearchManager {
                 });
             }
 
-            return { base_version, query, columns, atlasSearchCompound };
+            return { base_version, query, columns, atlasSearchCompound, additionalRewriteQueries };
         } catch (e) {
             throw new RethrownError({
                     message: 'Error in constructQueryAsync(): ' + (e.message || ''),

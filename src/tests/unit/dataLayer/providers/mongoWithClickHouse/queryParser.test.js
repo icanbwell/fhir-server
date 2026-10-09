@@ -63,3 +63,43 @@ describe('QueryParser.validateMemberCriteria', () => {
         expect(result.reason).toBe('no_criteria');
     });
 });
+
+describe('QueryParser.extractRequestedIds with a member $or', () => {
+    // GroupMemberQueryRewriter output for member=Patient/<uuid>
+    const widenedMember = {
+        $or: [{
+            $or: [{
+                $or: [
+                    { 'member.entity._uuid': { $in: ['Patient/u1'] } },
+                    { _uuid: { $in: ['extended-group-1'] } }
+                ]
+            }]
+        }]
+    };
+
+    test('ignores the _uuid branch of a member $or', () => {
+        expect(QueryParser.extractRequestedIds({ $and: [widenedMember] })).toBeNull();
+    });
+
+    test('still collects a real _id constraint next to a member $or', () => {
+        const idFilter = { $or: [{ id: 'group-1' }, { _uuid: 'group-1' }] };
+
+        expect(QueryParser.extractRequestedIds({ $and: [widenedMember, idFilter] })).toEqual(['group-1']);
+    });
+
+    test('still extracts the member criteria from inside the member $or', () => {
+        expect(QueryParser.extractMemberCriteria({ $and: [widenedMember] }).memberUuid).toBe('Patient/u1');
+    });
+});
+
+describe('QueryParser.hasMemberField', () => {
+    test.each([
+        [{ 'member.entity._uuid': 'Patient/u1' }, true],
+        [{ $or: [{ $and: [{ 'member.entity._sourceId': 'Patient/1' }] }] }, true],
+        [{ member: { $exists: true } }, true],
+        [{ $or: [{ id: 'group-1' }, { _uuid: 'group-1' }] }, false],
+        [{ 'resource.member.entity._uuid': 'Patient/u1' }, false]
+    ])('%j -> %s', (query, expected) => {
+        expect(QueryParser.hasMemberField(query)).toBe(expected);
+    });
+});
