@@ -260,9 +260,16 @@ resources tagged for its own tenants; an `access/*` code adds no filter. On the 
 since the scan is already limited to the caller's own Patients. This uses the granular letter
 directly in `getSecurityTagsFromScope`, the same letter as the gate.
 
+The accessor lookups — each accessor type, the `Person` behind a proxy-patient accessor, and that
+Person's managing `Organization` — get the same filter with the letter `r`. An accessor whose record
+is outside the caller's tenants is still listed with its counts, since those come from the audit
+rows, but its display name falls back to the reference and no `organization` block is returned. On
+the patient branch (a patient-filterable accessor type such as `Person` or `RelatedPerson`) no
+access-tag filter is added, so a patient-scoped caller still sees who accessed its own records.
+
 Still not filtered by tenant: the Patients reached through `Person.link` (their ids are taken from
-the link, never fetched), the accessor display-name lookups, and the `AuditEvent` aggregation in
-ClickHouse. The Person resolution is tag-filtered, as before.
+the link, never fetched) and the `AuditEvent` aggregation in ClickHouse. The Person resolution is
+tag-filtered, as before.
 
 **What was allowed before, and what is allowed now**
 
@@ -271,6 +278,7 @@ ClickHouse. The Person resolution is tag-filtered, as before.
 | v1 `user/*.read` (or `user/*.*`) with an `access/` read code | allowed | allowed |
 | v1 `patient/*.read user/*.read access/*.*` | allowed | allowed |
 | v1 `user/*.read access/<tenant>.read` | allowed, counting linked clinical resources from every tenant | allowed, counting only linked clinical resources tagged `<tenant>` |
+| v1 `user/*.read access/<tenant>.read`, accessor record in another tenant | accessor name and managing organization resolved | accessor listed by reference only, no organization block |
 | v1 `user/Person.read user/AuditEvent.read` with an `access/` read code | allowed | **rejected** — no `read` on `Patient` or the patient-linked types |
 | v1 `read` on most types but not on an accessor type present in the history | allowed | **rejected** once that accessor appears |
 | v1 `patient/*.read` alone | allowed | allowed while every accessor is patient-filterable; **rejected** once a `Practitioner` or `Organization` accessor appears |

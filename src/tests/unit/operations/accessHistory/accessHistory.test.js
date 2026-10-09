@@ -561,6 +561,66 @@ describe('AccessHistoryOperation', () => {
             expect(queriedTypes).toEqual(['Person']);
         });
 
+        test('filters the accessor lookup by the caller access tags with r', async () => {
+            await operation._resolveAccessorDetails({
+                requestInfo: { isUser: false, user: 'service-account', scope: 'user/*.read access/healthsystem1.read' },
+                parsedArgs,
+                accessorRefs: ['Practitioner/pract-1'],
+                base_version: '4_0_0'
+            });
+
+            expect(mockSecurityTagManager.getSecurityTagsFromScope).toHaveBeenCalledWith({
+                user: 'service-account',
+                scope: 'user/*.read access/healthsystem1.read',
+                accessViaPatientScopes: false,
+                accessRequested: 'r'
+            });
+            const { findAsync } = mockDatabaseQueryFactory.createQuery.mock.results[0].value;
+            expect(findAsync).toHaveBeenCalledWith(expect.objectContaining({
+                query: { $and: [{ _uuid: { $in: ['pract-1'] } }, { accessTags: ['healthsystem1'] }] }
+            }));
+        });
+
+        test('filters the proxy person and managing organization lookups by the caller access tags', async () => {
+            mockCursor.hasNext = jest.fn()
+                .mockResolvedValueOnce(true)
+                .mockResolvedValue(false);
+            mockCursor.next = jest.fn().mockResolvedValue({
+                _uuid: 'person-1',
+                name: [{ given: ['Jane'], family: 'Doe' }],
+                managingOrganization: { reference: 'Organization/org-1' }
+            });
+
+            await operation._resolveAccessorDetails({
+                requestInfo,
+                parsedArgs,
+                accessorRefs: ['Patient/person.person-1'],
+                base_version: '4_0_0'
+            });
+
+            const filtered = mockSecurityTagManager.getQueryWithSecurityTags.mock.calls.map(([args]) => [args.resourceType, args.query]);
+            expect(filtered).toEqual([
+                ['Person', { _uuid: { $in: ['person-1'] } }],
+                ['Organization', { _uuid: { $in: ['org-1'] } }]
+            ]);
+        });
+
+        test('a patient-scoped caller gets no tag filter on a patient-filterable accessor type only', async () => {
+            mockScopesManager.isAccessAllowedByPatientScopes.mockImplementation(
+                ({ resourceType }) => resourceType === 'RelatedPerson'
+            );
+
+            await operation._resolveAccessorDetails({
+                requestInfo: { isUser: true, user: 'patient-user', scope: 'patient/*.read user/*.read access/healthsystem1.read' },
+                parsedArgs,
+                accessorRefs: ['RelatedPerson/related-1', 'Practitioner/pract-1'],
+                base_version: '4_0_0'
+            });
+
+            const filteredTypes = mockSecurityTagManager.getQueryWithSecurityTags.mock.calls.map(([args]) => args.resourceType);
+            expect(filteredTypes).toEqual(['Practitioner']);
+        });
+
         test('resolves accessors when every type is readable', async () => {
             mockCursor.hasNext = jest.fn()
                 .mockResolvedValueOnce(true)
