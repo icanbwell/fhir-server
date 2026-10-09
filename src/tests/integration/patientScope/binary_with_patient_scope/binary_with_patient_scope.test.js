@@ -22,16 +22,23 @@ const PERSON_TAG_SYSTEM = 'https://www.icanbwell.com/clientPersonId';
 const OWNER_TAG = { system: 'https://www.icanbwell.com/owner', code: 'client1' };
 const ACCESS_TAG = { system: 'https://www.icanbwell.com/access', code: 'client1' };
 const personTag = (code) => ({ system: PERSON_TAG_SYSTEM, code });
+// the server adds an `id` to every security tag it returns, so compare on system and code only
+const personTagsOf = (security) => security
+    .filter((s) => s.system === PERSON_TAG_SYSTEM)
+    .map((s) => ({ system: s.system, code: s.code }));
 
-class FlagOnConfigManager extends ConfigManager {
+// The test app (and so its configManager) is created once per test file, by the first createTestRequest call,
+// so the flag has to be switchable at runtime rather than by registering a different config class per test.
+let binaryFlagEnabled = true;
+
+class BinaryConfigManager extends ConfigManager {
     get enablePatientScopedBinaryCreate () {
-        return true;
+        return binaryFlagEnabled;
     }
-}
 
-class FlagOffConfigManager extends ConfigManager {
-    get enablePatientScopedBinaryCreate () {
-        return false;
+    // searches must return a Bundle so the tests can read `entry`
+    get enableReturnBundle () {
+        return true;
     }
 }
 
@@ -66,18 +73,23 @@ describe('Binary with patient scope', () => {
     let requestId;
 
     beforeEach(async () => {
+        binaryFlagEnabled = true;
         await commonBeforeEach();
         requestId = mockHttpContext();
     });
 
     afterEach(async () => {
+        binaryFlagEnabled = true;
         await commonAfterEach();
     });
 
-    const createRequest = async (ConfigManagerClass = FlagOnConfigManager) => createTestRequest((c) => {
-        c.register('configManager', () => new ConfigManagerClass());
-        return c;
-    });
+    const createRequest = async ({ flag = true } = {}) => {
+        binaryFlagEnabled = flag;
+        return createTestRequest((c) => {
+            c.register('configManager', () => new BinaryConfigManager());
+            return c;
+        });
+    };
 
     // seed a Binary with a system token ($merge), the way backends write them today
     const seed = async (request, binary) => {
@@ -99,8 +111,7 @@ describe('Binary with patient scope', () => {
                 .send(newBinary('ignored'))
                 .set(memberWriter('person-A'));
             expect(resp).toHaveStatusCode(201);
-            expect(securityOf(resp)).toEqual(expect.arrayContaining([personTag('person-A')]));
-            expect(securityOf(resp).filter((s) => s.system === PERSON_TAG_SYSTEM)).toHaveLength(1);
+            expect(personTagsOf(securityOf(resp))).toEqual([personTag('person-A')]);
         });
 
         test('T2: a member supplying their own tag is accepted with exactly one tag', async () => {
@@ -110,7 +121,7 @@ describe('Binary with patient scope', () => {
                 .send(newBinary('ignored', [OWNER_TAG, ACCESS_TAG, personTag('person-A')]))
                 .set(memberWriter('person-A'));
             expect(resp).toHaveStatusCode(201);
-            expect(securityOf(resp).filter((s) => s.system === PERSON_TAG_SYSTEM)).toEqual([personTag('person-A')]);
+            expect(personTagsOf(securityOf(resp))).toEqual([personTag('person-A')]);
         });
 
         test('T3 / T42: another person\'s tag is rejected with 403 and a reason; the other id is not echoed', async () => {
@@ -161,7 +172,13 @@ describe('Binary with patient scope', () => {
                 .post('/4_0_0/Binary/1/$merge?validate=true')
                 .send(newBinary('b-merge', [OWNER_TAG, ACCESS_TAG, personTag('person-A')]))
                 .set(memberWriter('person-A'));
-            expect(resp).toHaveStatusCode(403);
+            // $merge reports a per-resource result rather than failing the whole request
+            expect(resp.body.created).toBe(false);
+            expect(resp.body.updated).toBe(false);
+            expect(resp.body.issue.code).toBe('forbidden');
+            expect(resp.body.issue.details.text).toContain(
+                'Write not allowed using user scopes if patient scope is present'
+            );
         });
 
         test('T23: a member token with only patient/Binary.read cannot create a Binary', async () => {
@@ -180,11 +197,11 @@ describe('Binary with patient scope', () => {
                 .send(newBinary('ignored'))
                 .set(getHeaders());
             expect(resp).toHaveStatusCode(201);
-            expect(securityOf(resp).filter((s) => s.system === PERSON_TAG_SYSTEM)).toHaveLength(0);
+            expect(personTagsOf(securityOf(resp))).toEqual([]);
         });
 
         test('T31: with the flag off a member create is rejected exactly as today', async () => {
-            const request = await createRequest(FlagOffConfigManager);
+            const request = await createRequest({ flag: false });
             const resp = await request
                 .post('/4_0_0/Binary')
                 .send(newBinary('ignored'))
@@ -283,7 +300,7 @@ describe('Binary with patient scope', () => {
         });
 
         test('T32: with the flag off there is no person filter and a pure patient token still cannot read Binary', async () => {
-            const request = await createRequest(FlagOffConfigManager);
+            const request = await createRequest({ flag: false });
             await seedThree(request);
             // viewer token: today's behavior, a tagged Binary of another person is readable in-tenant
             const viewer = await request.get('/4_0_0/Binary/binary-a').set(memberViewer('person-B'));
