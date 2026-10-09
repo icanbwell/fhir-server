@@ -759,6 +759,26 @@ describe('ScopesManager', () => {
         test('should return false for system/*.* (no access/ code present)', () => {
             expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'system/*.*' })).toBe(false);
         });
+
+        describe('when enableSmartV2CrudsScopes is enabled', () => {
+            beforeEach(() => {
+                Object.defineProperty(mockConfigManager, 'enableSmartV2CrudsScopes', {
+                    value: true, configurable: true
+                });
+            });
+
+            test('should return false for a tenant-scoped v2 read grant', () => {
+                expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/tenantA.rs' })).toBe(false);
+            });
+
+            test('should return true for a wildcard v2 read grant', () => {
+                expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.rs' })).toBe(true);
+            });
+
+            test('should return false for a wildcard v2 grant without r', () => {
+                expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.s' })).toBe(false);
+            });
+        });
     });
 
     describe('doesResourceHaveMetaSource', () => {

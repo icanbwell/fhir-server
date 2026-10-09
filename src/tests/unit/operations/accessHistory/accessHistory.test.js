@@ -15,6 +15,9 @@ const { PersonToPatientIdsExpander } = require('../../../../utils/personToPatien
 const { PatientFilterManager } = require('../../../../fhir/patientFilterManager');
 const { ConfigManager } = require('../../../../utils/configManager');
 const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
+const { ScopesManager } = require('../../../../operations/security/scopesManager');
+const { SecurityTagManager } = require('../../../../operations/common/securityTagManager');
+const { ForbiddenError } = require('../../../../utils/httpErrors');
 
 describe('AccessHistoryOperation', () => {
     let operation;
@@ -24,6 +27,8 @@ describe('AccessHistoryOperation', () => {
     let mockAccessHistoryClickHouseRepository;
     let mockConfigManager;
     let mockScopesValidator;
+    let mockScopesManager;
+    let mockSecurityTagManager;
     let mockCursor;
 
     beforeEach(() => {
@@ -61,15 +66,34 @@ describe('AccessHistoryOperation', () => {
         mockScopesValidator = Object.create(ScopesValidator.prototype);
         mockScopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(true);
 
+        mockScopesManager = Object.create(ScopesManager.prototype);
+        mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(false);
+
+        mockSecurityTagManager = Object.create(SecurityTagManager.prototype);
+        mockSecurityTagManager.getSecurityTagsFromScope = jest.fn().mockReturnValue(['healthsystem1']);
+        mockSecurityTagManager.getQueryWithSecurityTags = jest.fn(({ query, securityTags }) => ({
+            $and: [query, { accessTags: securityTags }]
+        }));
+
         operation = new AccessHistoryOperation({
             databaseQueryFactory: mockDatabaseQueryFactory,
             personToPatientIdsExpander: mockPersonToPatientIdsExpander,
             patientFilterManager: mockPatientFilterManager,
             accessHistoryClickHouseRepository: mockAccessHistoryClickHouseRepository,
             configManager: mockConfigManager,
-            scopesValidator: mockScopesValidator
+            scopesValidator: mockScopesValidator,
+            scopesManager: mockScopesManager,
+            securityTagManager: mockSecurityTagManager
         });
     });
+
+    const denyResourceType = (deniedType) => {
+        mockScopesValidator.verifyHasValidScopesAsync.mockImplementation(async ({ resourceType }) => {
+            if (resourceType === deniedType) {
+                throw new ForbiddenError(`user does not have access to [${deniedType}]`);
+            }
+        });
+    };
 
     describe('accessHistoryAsync', () => {
         const baseRequestInfo = {
@@ -175,19 +199,71 @@ describe('AccessHistoryOperation', () => {
             expect(accessorParam.part.find(p => p.name === 'totalCount').valueInteger).toBe(5);
         });
 
-        test('verifies both resource type and AuditEvent scopes', async () => {
+        test('checks r on the target, s on AuditEvent, r on Patient and s on every patient-linked type', async () => {
             await operation.accessHistoryAsync({
                 requestInfo: baseRequestInfo,
                 parsedArgs: baseParsedArgs,
-                resourceType: 'Patient'
+                resourceType: 'Person'
             });
-            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledTimes(2);
-            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
-                expect.objectContaining({ resourceType: 'Patient' })
+            const checks = mockScopesValidator.verifyHasValidScopesAsync.mock.calls.map(
+                ([args]) => [args.resourceType, args.accessRequested, args.action]
             );
-            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
-                expect.objectContaining({ resourceType: 'AuditEvent' })
+            expect(checks).toEqual([
+                ['Person', 'r', '$access-history'],
+                ['AuditEvent', 's', '$access-history'],
+                ['Patient', 'r', '$access-history'],
+                ['Observation', 's', '$access-history'],
+                ['Condition', 's', '$access-history']
+            ]);
+        });
+
+        test('runs the scope checks one at a time so a delegated consent lookup is shared', async () => {
+            let inFlight = 0;
+            let maxInFlight = 0;
+            mockScopesValidator.verifyHasValidScopesAsync.mockImplementation(async () => {
+                inFlight++;
+                maxInFlight = Math.max(maxInFlight, inFlight);
+                await new Promise((resolve) => setImmediate(resolve));
+                inFlight--;
+            });
+
+            await operation.accessHistoryAsync({
+                requestInfo: baseRequestInfo,
+                parsedArgs: baseParsedArgs,
+                resourceType: 'Person'
+            });
+
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledTimes(5);
+            expect(maxInFlight).toBe(1);
+        });
+
+        test('throws before any query when a patient-linked type is missing s', async () => {
+            denyResourceType('Condition');
+
+            await expect(operation.accessHistoryAsync({
+                requestInfo: baseRequestInfo,
+                parsedArgs: baseParsedArgs,
+                resourceType: 'Person'
+            })).rejects.toThrow('does not have access to [Condition]');
+
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenLastCalledWith(
+                expect.objectContaining({ resourceType: 'Condition', accessRequested: 's' })
             );
+            expect(mockPersonToPatientIdsExpander.getPatientProxyIdsAsync).not.toHaveBeenCalled();
+            expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
+        });
+
+        test('stops at the first failed check when Patient is missing r', async () => {
+            denyResourceType('Patient');
+
+            await expect(operation.accessHistoryAsync({
+                requestInfo: baseRequestInfo,
+                parsedArgs: baseParsedArgs,
+                resourceType: 'Person'
+            })).rejects.toThrow('does not have access to [Patient]');
+
+            const checkedTypes = mockScopesValidator.verifyHasValidScopesAsync.mock.calls.map(([args]) => args.resourceType);
+            expect(checkedTypes).toEqual(['Person', 'AuditEvent', 'Patient']);
         });
 
         test('batches entity refs per configManager.accessHistoryBatchSize', async () => {
@@ -345,9 +421,12 @@ describe('AccessHistoryOperation', () => {
     });
 
     describe('_collectEntityRefs', () => {
+        const requestInfo = { isUser: false, user: 'service-account', scope: 'user/*.read access/healthsystem1.read' };
+
         test('returns patient refs when no related resource types have linking fields', async () => {
             mockPatientFilterManager.getPatientPropertyForResource.mockReturnValue(null);
             const result = await operation._collectEntityRefs({
+                requestInfo,
                 patientUuids: ['uuid-1'],
                 base_version: '4_0_0'
             });
@@ -364,10 +443,204 @@ describe('AccessHistoryOperation', () => {
             mockCursor.next = jest.fn().mockResolvedValue({ _uuid: 'obs-uuid-1' });
 
             const result = await operation._collectEntityRefs({
+                requestInfo,
                 patientUuids: ['uuid-patient-1'],
                 base_version: '4_0_0'
             });
             expect(result).toContain('Patient/uuid-patient-1');
+        });
+
+        test('filters each patient-linked resource query by the caller access tags', async () => {
+            await operation._collectEntityRefs({
+                requestInfo,
+                patientUuids: ['uuid-patient-1'],
+                base_version: '4_0_0'
+            });
+
+            expect(mockSecurityTagManager.getSecurityTagsFromScope).toHaveBeenCalledWith({
+                user: 'service-account',
+                scope: 'user/*.read access/healthsystem1.read',
+                accessViaPatientScopes: false,
+                accessRequested: 's'
+            });
+            expect(mockSecurityTagManager.getQueryWithSecurityTags).toHaveBeenCalledWith(expect.objectContaining({
+                resourceType: 'Observation',
+                securityTags: ['healthsystem1'],
+                query: { 'subject._uuid': { $in: ['Patient/uuid-patient-1'] } },
+                useHistoryTable: false
+            }));
+            const { findAsync } = mockDatabaseQueryFactory.createQuery.mock.results[0].value;
+            expect(findAsync).toHaveBeenCalledWith(expect.objectContaining({
+                query: {
+                    $and: [
+                        { 'subject._uuid': { $in: ['Patient/uuid-patient-1'] } },
+                        { accessTags: ['healthsystem1'] }
+                    ]
+                }
+            }));
+        });
+
+        test('does not add an access tag filter for a patient-scoped caller on a patient-filterable type', async () => {
+            mockScopesManager.isAccessAllowedByPatientScopes.mockReturnValue(true);
+
+            await operation._collectEntityRefs({
+                requestInfo: { isUser: true, user: 'patient-user', scope: 'patient/*.read' },
+                patientUuids: ['uuid-patient-1'],
+                base_version: '4_0_0'
+            });
+
+            expect(mockSecurityTagManager.getSecurityTagsFromScope).not.toHaveBeenCalled();
+            expect(mockSecurityTagManager.getQueryWithSecurityTags).not.toHaveBeenCalled();
+            const { findAsync } = mockDatabaseQueryFactory.createQuery.mock.results[0].value;
+            expect(findAsync).toHaveBeenCalledWith(expect.objectContaining({
+                query: { 'subject._uuid': { $in: ['Patient/uuid-patient-1'] } }
+            }));
+        });
+
+        test('propagates the 403 when the caller holds no access code that grants s', async () => {
+            mockSecurityTagManager.getSecurityTagsFromScope.mockImplementation(() => {
+                throw new ForbiddenError('user service-account with scopes [user/*.read] has no access scopes');
+            });
+
+            await expect(operation._collectEntityRefs({
+                requestInfo,
+                patientUuids: ['uuid-patient-1'],
+                base_version: '4_0_0'
+            })).rejects.toThrow('has no access scopes');
+        });
+    });
+
+    describe('_resolveAccessorDetails', () => {
+        const requestInfo = { isUser: false };
+        const parsedArgs = { base_version: '4_0_0' };
+
+        test('checks r on every accessor type before resolving any of them', async () => {
+            denyResourceType('Device');
+            await expect(operation._resolveAccessorDetails({
+                requestInfo,
+                parsedArgs,
+                accessorRefs: ['Practitioner/pract-1', 'Device/device-1'],
+                base_version: '4_0_0'
+            })).rejects.toThrow('does not have access to [Device]');
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Practitioner', accessRequested: 'r' })
+            );
+            expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
+        });
+
+        test('throws for a proxy patient accessor without r on Person', async () => {
+            denyResourceType('Person');
+            await expect(operation._resolveAccessorDetails({
+                requestInfo,
+                parsedArgs,
+                accessorRefs: ['Patient/person.person-1'],
+                base_version: '4_0_0'
+            })).rejects.toThrow('does not have access to [Person]');
+            expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
+        });
+
+        test('throws before looking up the managing organization without r on Organization', async () => {
+            denyResourceType('Organization');
+            mockCursor.hasNext = jest.fn()
+                .mockResolvedValueOnce(true)
+                .mockResolvedValue(false);
+            mockCursor.next = jest.fn().mockResolvedValue({
+                _uuid: 'person-1',
+                name: [{ given: ['Jane'], family: 'Doe' }],
+                managingOrganization: { reference: 'Organization/org-1' }
+            });
+
+            await expect(operation._resolveAccessorDetails({
+                requestInfo,
+                parsedArgs,
+                accessorRefs: ['Patient/person.person-1'],
+                base_version: '4_0_0'
+            })).rejects.toThrow('does not have access to [Organization]');
+
+            const queriedTypes = mockDatabaseQueryFactory.createQuery.mock.calls.map(([args]) => args.resourceType);
+            expect(queriedTypes).toEqual(['Person']);
+        });
+
+        test('filters the accessor lookup by the caller access tags with r', async () => {
+            await operation._resolveAccessorDetails({
+                requestInfo: { isUser: false, user: 'service-account', scope: 'user/*.read access/healthsystem1.read' },
+                parsedArgs,
+                accessorRefs: ['Practitioner/pract-1'],
+                base_version: '4_0_0'
+            });
+
+            expect(mockSecurityTagManager.getSecurityTagsFromScope).toHaveBeenCalledWith({
+                user: 'service-account',
+                scope: 'user/*.read access/healthsystem1.read',
+                accessViaPatientScopes: false,
+                accessRequested: 'r'
+            });
+            const { findAsync } = mockDatabaseQueryFactory.createQuery.mock.results[0].value;
+            expect(findAsync).toHaveBeenCalledWith(expect.objectContaining({
+                query: { $and: [{ _uuid: { $in: ['pract-1'] } }, { accessTags: ['healthsystem1'] }] }
+            }));
+        });
+
+        test('filters the proxy person and managing organization lookups by the caller access tags', async () => {
+            mockCursor.hasNext = jest.fn()
+                .mockResolvedValueOnce(true)
+                .mockResolvedValue(false);
+            mockCursor.next = jest.fn().mockResolvedValue({
+                _uuid: 'person-1',
+                name: [{ given: ['Jane'], family: 'Doe' }],
+                managingOrganization: { reference: 'Organization/org-1' }
+            });
+
+            await operation._resolveAccessorDetails({
+                requestInfo,
+                parsedArgs,
+                accessorRefs: ['Patient/person.person-1'],
+                base_version: '4_0_0'
+            });
+
+            const filtered = mockSecurityTagManager.getQueryWithSecurityTags.mock.calls.map(([args]) => [args.resourceType, args.query]);
+            expect(filtered).toEqual([
+                ['Person', { _uuid: { $in: ['person-1'] } }],
+                ['Organization', { _uuid: { $in: ['org-1'] } }]
+            ]);
+        });
+
+        test('a patient-scoped caller gets no tag filter on a patient-filterable accessor type only', async () => {
+            mockScopesManager.isAccessAllowedByPatientScopes.mockImplementation(
+                ({ resourceType }) => resourceType === 'RelatedPerson'
+            );
+
+            await operation._resolveAccessorDetails({
+                requestInfo: { isUser: true, user: 'patient-user', scope: 'patient/*.read user/*.read access/healthsystem1.read' },
+                parsedArgs,
+                accessorRefs: ['RelatedPerson/related-1', 'Practitioner/pract-1'],
+                base_version: '4_0_0'
+            });
+
+            const filteredTypes = mockSecurityTagManager.getQueryWithSecurityTags.mock.calls.map(([args]) => args.resourceType);
+            expect(filteredTypes).toEqual(['Practitioner']);
+        });
+
+        test('resolves accessors when every type is readable', async () => {
+            mockCursor.hasNext = jest.fn()
+                .mockResolvedValueOnce(true)
+                .mockResolvedValue(false);
+            mockCursor.next = jest.fn().mockResolvedValue({
+                _uuid: 'pract-1',
+                name: [{ given: ['Greg'], family: 'House' }]
+            });
+
+            const result = await operation._resolveAccessorDetails({
+                requestInfo,
+                parsedArgs,
+                accessorRefs: ['Practitioner/pract-1'],
+                base_version: '4_0_0'
+            });
+
+            expect(result).toEqual({ 'Practitioner/pract-1': { display: 'Greg House', organizations: [] } });
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Practitioner', accessRequested: 'r' })
+            );
         });
     });
 

@@ -5,6 +5,7 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 const activeConsentResource = require('./fixtures/Consent/activeConsent.json');
 const org1Resource = require('./fixtures/Organization/org1.json');
 const accessorPersonWithOrgResource = require('./fixtures/Person/accessorPersonWithOrg.json');
+const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.json');
 
 const expectedEmptyParameters = require('./fixtures/expected/expected_empty_parameters.json');
 const expectedSingleAccessor = require('./fixtures/expected/expected_single_accessor.json');
@@ -36,6 +37,7 @@ const {
 const { AccessHistoryClickHouseRepository } = require('../../../../dataLayer/repositories/accessHistoryClickHouseRepository');
 const { ConfigManager } = require('../../../../utils/configManager');
 const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
+const { DelegatedAccessRulesManager } = require('../../../../utils/delegatedAccessRulesManager');
 
 class TestAccessHistoryConfigManager extends ConfigManager {
     get enableAccessAuditEvent() {
@@ -76,6 +78,22 @@ function getAccessors(body) {
  * Copies the dynamic `generatedAt` timestamp from the actual response into the
  * expected fixture so the summary block can be asserted with an exact match.
  */
+function summarizeAccessors(body) {
+    return getAccessors(body).map((accessor) => ({
+        reference: accessor.part.find((p) => p.name === 'reference').valueReference.reference,
+        display: accessor.part.find((p) => p.name === 'reference').valueReference.display,
+        totalCount: accessor.part.find((p) => p.name === 'totalCount').valueInteger,
+        resourceTypes: Object.fromEntries(
+            accessor.part
+                .filter((p) => p.name === 'resourceType')
+                .map((p) => [
+                    p.part.find((q) => q.name === 'type').valueCode,
+                    p.part.find((q) => q.name === 'count').valueInteger
+                ])
+        )
+    }));
+}
+
 function syncGeneratedAt(expected, respBody) {
     const expectedSummary = expected.parameter.find((p) => p.name === 'summary');
     const respSummary = respBody.parameter.find((p) => p.name === 'summary');
@@ -420,6 +438,62 @@ describe('Person $access-history Tests', () => {
             getAccessors(resp.body)[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
         syncGeneratedAt(expected, resp.body);
         expect(resp).toHaveResponse(expected);
+    });
+
+    test('$access-history rejects a delegated user before any consent lookup', async () => {
+        const request = sharedRequest;
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const personUuid = resp.body.uuid;
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const patientUuid = resp.body.uuid;
+
+        const delegatedActorRef = 'RelatedPerson/delegated-actor-consent-once';
+        const consent = deepcopy(activeConsentResource);
+        consent.patient.reference = `Patient/person.${personUuid}`;
+        consent.provision.actor[0].reference.reference = delegatedActorRef;
+        resp = await request
+            .post('/4_0_0/Consent/1/$merge?validate=true')
+            .send(consent)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        const fetchConsentSpy = jest.spyOn(DelegatedAccessRulesManager.prototype, 'fetchConsentResourcesAsync');
+        try {
+            resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(
+                    getHeadersWithCustomPayload({
+                        scope: 'patient/*.read user/*.read access/*.*',
+                        username: 'delegated-user',
+                        client_id: 'client',
+                        clientFhirPersonId: personUuid,
+                        clientFhirPatientId: patientUuid,
+                        bwellFhirPersonId: personUuid,
+                        bwellFhirPatientId: patientUuid,
+                        token_use: 'access',
+                        act: {
+                            reference: delegatedActorRef,
+                            sub: 'delegated-sub-consent-once'
+                        }
+                    })
+                );
+
+            expect(resp.status).toBe(403);
+            expect(resp.body.issue[0].details.text).toBe('User does not have access to ACCESSHISTORY method');
+            expect(fetchConsentSpy).not.toHaveBeenCalled();
+        } finally {
+            fetchConsentSpy.mockRestore();
+        }
     });
 
     test('$access-history returns resource type breakdown for multiple entity types', async () => {
@@ -898,5 +972,440 @@ describe('Person $access-history Tests', () => {
         expect(resp).toHaveResponse(expected);
 
         container.accessHistoryOperation.accessHistoryClickHouseRepository = clickHouseRepository;
+    });
+
+    describe('per-resource-type scope checks', () => {
+        const arrangePractitionerReadOfPatientAndObservationAsync = async (request) => {
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const personUuid = resp.body.uuid;
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const patientUuid = resp.body.uuid;
+
+            const obs = deepcopy(observation1Resource);
+            obs.subject.reference = `Patient/${patientUuid}`;
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(obs)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const observationUuid = resp.body.uuid;
+
+            resp = await request
+                .post('/4_0_0/Practitioner/1/$merge?validate=true')
+                .send(practitioner1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const accessorRef = `Practitioner/${resp.body.uuid}`;
+
+            await insertAuditEvents([
+                {
+                    id: 'ae-scope-patient',
+                    _uuid: 'ae-uuid-scope-patient',
+                    recorded: daysAgo(1),
+                    action: 'R',
+                    agent_who: [accessorRef],
+                    agent_altid: [],
+                    entity_what: [`Patient/${patientUuid}`],
+                    agent_requestor_who: accessorRef
+                },
+                {
+                    id: 'ae-scope-obs',
+                    _uuid: 'ae-uuid-scope-obs',
+                    recorded: daysAgo(1),
+                    action: 'R',
+                    agent_who: [accessorRef],
+                    agent_altid: [],
+                    entity_what: [`Observation/${observationUuid}`],
+                    agent_requestor_who: accessorRef
+                }
+            ]);
+
+            return { personUuid, accessorRef };
+        };
+
+        test('full read scopes resolve the accessor and count every linked resource type', async () => {
+            const request = sharedRequest;
+            const { personUuid, accessorRef } = await arrangePractitionerReadOfPatientAndObservationAsync(request);
+
+            const resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(getHeaders('user/*.read access/*.*'));
+
+            expect(resp.status).toBe(200);
+            expect(summarizeAccessors(resp.body)).toEqual([{
+                reference: accessorRef,
+                display: 'Dr Dr Sarah Jones',
+                totalCount: 2,
+                resourceTypes: { Patient: 1, Observation: 1 }
+            }]);
+        });
+
+        test('v1 scopes missing a patient-linked resource type return 403 instead of partial data', async () => {
+            const request = sharedRequest;
+            const { personUuid } = await arrangePractitionerReadOfPatientAndObservationAsync(request);
+
+            const resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(getHeaders('user/Person.read user/AuditEvent.read user/Patient.read user/Observation.read access/*.*'));
+
+            expect(resp.status).toBe(403);
+        });
+
+        describe('with SMART v2 CRUDS scopes enabled', () => {
+            let originalFlag;
+
+            beforeAll(() => {
+                originalFlag = process.env.ENABLE_SMART_V2_CRUDS_SCOPES;
+                process.env.ENABLE_SMART_V2_CRUDS_SCOPES = '1';
+            });
+
+            afterAll(() => {
+                if (originalFlag === undefined) {
+                    delete process.env.ENABLE_SMART_V2_CRUDS_SCOPES;
+                } else {
+                    process.env.ENABLE_SMART_V2_CRUDS_SCOPES = originalFlag;
+                }
+            });
+
+            const minimalScope = 'user/*.s user/Person.r user/Patient.r user/Practitioner.r access/*.rs';
+
+            test('s on every type plus r on Person, Patient and the accessor type return everything', async () => {
+                const request = sharedRequest;
+                const { personUuid, accessorRef } = await arrangePractitionerReadOfPatientAndObservationAsync(request);
+
+                const resp = await request
+                    .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                    .set(getHeaders(minimalScope));
+
+                expect(resp.status).toBe(200);
+                expect(summarizeAccessors(resp.body)).toEqual([{
+                    reference: accessorRef,
+                    display: 'Dr Dr Sarah Jones',
+                    totalCount: 2,
+                    resourceTypes: { Patient: 1, Observation: 1 }
+                }]);
+            });
+
+            test('r without s on the patient-linked types returns 403', async () => {
+                const request = sharedRequest;
+                const { personUuid } = await arrangePractitionerReadOfPatientAndObservationAsync(request);
+
+                const resp = await request
+                    .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                    .set(getHeaders('user/*.r user/AuditEvent.s access/*.rs'));
+
+                expect(resp.status).toBe(403);
+            });
+
+            test('s without r on Patient returns 403', async () => {
+                const request = sharedRequest;
+                const { personUuid } = await arrangePractitionerReadOfPatientAndObservationAsync(request);
+
+                const resp = await request
+                    .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                    .set(getHeaders('user/*.s user/Person.r user/Practitioner.r access/*.rs'));
+
+                expect(resp.status).toBe(403);
+                expect(resp.body.issue[0].details.text).toContain('[Patient]');
+            });
+
+            test('s without r on the accessor type returns 403 once that accessor appears in the history', async () => {
+                const request = sharedRequest;
+                const { personUuid } = await arrangePractitionerReadOfPatientAndObservationAsync(request);
+
+                const resp = await request
+                    .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                    .set(getHeaders('user/*.s user/Person.r user/Patient.r access/*.rs'));
+
+                expect(resp.status).toBe(403);
+                expect(resp.body.issue[0].details.text).toContain('[Practitioner]');
+            });
+
+            test.each([
+                ['s instead of r on Person', 'user/Person.s user/AuditEvent.s access/*.rs'],
+                ['r instead of s on AuditEvent', 'user/Person.r user/AuditEvent.r access/*.rs'],
+                ['an access scope without s', 'user/Person.r user/AuditEvent.s access/*.r'],
+                ['an access scope without r', 'user/Person.r user/AuditEvent.s access/*.s']
+            ])('returns 403 with %s', async (_label, scope) => {
+                const request = sharedRequest;
+                const { personUuid } = await arrangePractitionerReadOfPatientAndObservationAsync(request);
+
+                const resp = await request
+                    .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                    .set(getHeaders(scope));
+
+                expect(resp.status).toBe(403);
+            });
+        });
+    });
+
+    describe('access-tag filter on patient-linked clinical resources', () => {
+        const arrangeObservationsInTwoTenantsAsync = async (request) => {
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const personUuid = resp.body.uuid;
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const patientUuid = resp.body.uuid;
+
+            const sameTenantObservation = deepcopy(observation1Resource);
+            sameTenantObservation.subject.reference = `Patient/${patientUuid}`;
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(sameTenantObservation)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const sameTenantObservationUuid = resp.body.uuid;
+
+            const otherTenantObservation = deepcopy(observation1Resource);
+            otherTenantObservation.id = 'obs-other-tenant';
+            otherTenantObservation.subject.reference = `Patient/${patientUuid}`;
+            otherTenantObservation.meta.security = [
+                { system: 'https://www.icanbwell.com/access', code: 'healthsystem2' },
+                { system: 'https://www.icanbwell.com/owner', code: 'healthsystem2' }
+            ];
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(otherTenantObservation)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const otherTenantObservationUuid = resp.body.uuid;
+
+            resp = await request
+                .post('/4_0_0/Practitioner/1/$merge?validate=true')
+                .send(practitioner1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const accessorRef = `Practitioner/${resp.body.uuid}`;
+
+            await insertAuditEvents([
+                ['ae-tenant-patient', `Patient/${patientUuid}`],
+                ['ae-tenant-obs-same', `Observation/${sameTenantObservationUuid}`],
+                ['ae-tenant-obs-other', `Observation/${otherTenantObservationUuid}`]
+            ].map(([id, entityRef]) => ({
+                id,
+                _uuid: `${id}-uuid`,
+                recorded: daysAgo(1),
+                action: 'R',
+                agent_who: [accessorRef],
+                agent_altid: [],
+                entity_what: [entityRef],
+                agent_requestor_who: accessorRef
+            })));
+
+            return { personUuid, patientUuid, accessorRef };
+        };
+
+        test('a tenant-scoped caller only counts clinical resources tagged for its tenant', async () => {
+            const request = sharedRequest;
+            const { personUuid, accessorRef } = await arrangeObservationsInTwoTenantsAsync(request);
+
+            const resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(getHeaders('user/*.read access/healthsystem1.read'));
+
+            expect(resp.status).toBe(200);
+            expect(summarizeAccessors(resp.body)).toEqual([{
+                reference: accessorRef,
+                display: 'Dr Dr Sarah Jones',
+                totalCount: 2,
+                resourceTypes: { Patient: 1, Observation: 1 }
+            }]);
+        });
+
+        test('a caller holding both tenant codes counts clinical resources from both tenants', async () => {
+            const request = sharedRequest;
+            const { personUuid, accessorRef } = await arrangeObservationsInTwoTenantsAsync(request);
+
+            const resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(getHeaders('user/*.read access/healthsystem1.read access/healthsystem2.read'));
+
+            expect(resp.status).toBe(200);
+            expect(summarizeAccessors(resp.body)).toEqual([{
+                reference: accessorRef,
+                display: 'Dr Dr Sarah Jones',
+                totalCount: 3,
+                resourceTypes: { Patient: 1, Observation: 2 }
+            }]);
+        });
+
+        test('a wildcard access code is not filtered by tenant', async () => {
+            const request = sharedRequest;
+            const { personUuid, accessorRef } = await arrangeObservationsInTwoTenantsAsync(request);
+
+            const resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(getHeaders('user/*.read access/*.read'));
+
+            expect(resp.status).toBe(200);
+            expect(summarizeAccessors(resp.body)).toEqual([{
+                reference: accessorRef,
+                display: 'Dr Dr Sarah Jones',
+                totalCount: 3,
+                resourceTypes: { Patient: 1, Observation: 2 }
+            }]);
+        });
+
+        test('a patient-scoped caller is limited to its own patients, not by access tag', async () => {
+            const request = sharedRequest;
+            const { personUuid, patientUuid, accessorRef } = await arrangeObservationsInTwoTenantsAsync(request);
+
+            const resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(getHeadersWithCustomPayload({
+                    scope: 'patient/*.read user/*.read access/healthsystem1.read',
+                    username: 'patient-user',
+                    client_id: 'client',
+                    clientFhirPersonId: personUuid,
+                    clientFhirPatientId: patientUuid,
+                    bwellFhirPersonId: personUuid,
+                    bwellFhirPatientId: patientUuid,
+                    token_use: 'access'
+                }));
+
+            expect(resp.status).toBe(200);
+            expect(summarizeAccessors(resp.body)).toEqual([{
+                reference: accessorRef,
+                display: 'Dr Dr Sarah Jones',
+                totalCount: 3,
+                resourceTypes: { Patient: 1, Observation: 2 }
+            }]);
+        });
+    });
+
+    describe('access-tag filter on accessor lookups', () => {
+        const otherTenantSecurity = [
+            { system: 'https://www.icanbwell.com/access', code: 'healthsystem2' },
+            { system: 'https://www.icanbwell.com/owner', code: 'healthsystem2' }
+        ];
+
+        const arrangeAccessorsInOtherTenantAsync = async (request) => {
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const personUuid = resp.body.uuid;
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const patientUuid = resp.body.uuid;
+
+            const otherTenantPractitioner = deepcopy(practitioner1Resource);
+            otherTenantPractitioner.meta.security = otherTenantSecurity;
+            resp = await request
+                .post('/4_0_0/Practitioner/1/$merge?validate=true')
+                .send(otherTenantPractitioner)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const practitionerRef = `Practitioner/${resp.body.uuid}`;
+
+            const otherTenantOrganization = deepcopy(org1Resource);
+            otherTenantOrganization.meta.security = otherTenantSecurity;
+            resp = await request
+                .post('/4_0_0/Organization/1/$merge?validate=true')
+                .send(otherTenantOrganization)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const orgUuid = resp.body.uuid;
+
+            const accessorPerson = deepcopy(accessorPersonWithOrgResource);
+            accessorPerson.managingOrganization = { reference: `Organization/${orgUuid}` };
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(accessorPerson)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const proxyAccessorRef = `Patient/person.${resp.body.uuid}`;
+
+            await insertAuditEvents([
+                ['ae-accessor-practitioner', practitionerRef],
+                ['ae-accessor-proxy', proxyAccessorRef]
+            ].map(([id, accessorRef]) => ({
+                id,
+                _uuid: `${id}-uuid`,
+                recorded: daysAgo(1),
+                action: 'R',
+                agent_who: [accessorRef],
+                agent_altid: [],
+                entity_what: [`Patient/${patientUuid}`],
+                agent_requestor_who: accessorRef
+            })));
+
+            return { personUuid, practitionerRef, proxyAccessorRef };
+        };
+
+        const accessorDetails = (body) => Object.fromEntries(getAccessors(body).map((accessor) => {
+            const reference = accessor.part.find((p) => p.name === 'reference').valueReference;
+            const organizations = accessor.part
+                .filter((p) => p.name === 'organization')
+                .map((p) => p.part.find((q) => q.name === 'name').valueString);
+            return [reference.reference, { display: reference.display, organizations }];
+        }));
+
+        test('a tenant-scoped caller does not resolve accessor names or organizations from another tenant', async () => {
+            const request = sharedRequest;
+            const { personUuid, practitionerRef, proxyAccessorRef } = await arrangeAccessorsInOtherTenantAsync(request);
+
+            const resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(getHeaders('user/*.read access/healthsystem1.read'));
+
+            expect(resp.status).toBe(200);
+            expect(accessorDetails(resp.body)).toEqual({
+                [practitionerRef]: { display: practitionerRef, organizations: [] },
+                [proxyAccessorRef]: { display: 'Maria Alvarez', organizations: [] }
+            });
+        });
+
+        test('a caller holding the other tenant code resolves those accessor names and organizations', async () => {
+            const request = sharedRequest;
+            const { personUuid, practitionerRef, proxyAccessorRef } = await arrangeAccessorsInOtherTenantAsync(request);
+
+            const resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(getHeaders('user/*.read access/healthsystem1.read access/healthsystem2.read'));
+
+            expect(resp.status).toBe(200);
+            expect(accessorDetails(resp.body)).toEqual({
+                [practitionerRef]: { display: 'Dr Dr Sarah Jones', organizations: [] },
+                [proxyAccessorRef]: { display: 'Maria Alvarez', organizations: ['HealthSystem One'] }
+            });
+        });
+
+        test('a wildcard access code resolves accessors from every tenant', async () => {
+            const request = sharedRequest;
+            const { personUuid, practitionerRef, proxyAccessorRef } = await arrangeAccessorsInOtherTenantAsync(request);
+
+            const resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(getHeaders('user/*.read access/*.read'));
+
+            expect(resp.status).toBe(200);
+            expect(accessorDetails(resp.body)).toEqual({
+                [practitionerRef]: { display: 'Dr Dr Sarah Jones', organizations: [] },
+                [proxyAccessorRef]: { display: 'Maria Alvarez', organizations: ['HealthSystem One'] }
+            });
+        });
     });
 });
