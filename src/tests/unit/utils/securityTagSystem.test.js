@@ -24,12 +24,16 @@ describe('SecurityTagSystem', () => {
         expect(SecurityTagSystem.connectionType).toBe('https://www.icanbwell.com/connectionType');
     });
 
-    test('has exactly 5 keys', () => {
-        expect(Object.keys(SecurityTagSystem)).toHaveLength(5);
+    test('has clientPersonId key with correct URL', () => {
+        expect(SecurityTagSystem.clientPersonId).toBe('https://www.icanbwell.com/clientPersonId');
+    });
+
+    test('has exactly 6 keys', () => {
+        expect(Object.keys(SecurityTagSystem)).toHaveLength(6);
     });
 
     test('contains all expected keys', () => {
-        const expectedKeys = ['access', 'owner', 'vendor', 'sourceAssigningAuthority', 'connectionType'];
+        const expectedKeys = ['access', 'owner', 'vendor', 'sourceAssigningAuthority', 'connectionType', 'clientPersonId'];
         expect(Object.keys(SecurityTagSystem).sort()).toEqual(expectedKeys.sort());
     });
 });

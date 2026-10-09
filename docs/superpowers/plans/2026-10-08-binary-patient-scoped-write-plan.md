@@ -3,8 +3,9 @@
 **Ticket:** [DCON-5986](https://icanbwell.atlassian.net/browse/DCON-5986)
 **Design:** [`docs/superpowers/specs/2026-10-08-binary-patient-scoped-write-design.md`](../specs/2026-10-08-binary-patient-scoped-write-design.md)
 
-This is the implementation plan for the design above. It is shared for review before any code is
-written; nothing in `src/` changes in this PR. Section references (§) point at the design doc. The
+This is the implementation plan for the design above. It was reviewed and approved, and the work was then
+done in this single PR (see "Implementation status" at the end); the four-PR split below is kept as the
+logical order of the commits. Section references (§) point at the design doc. The
 design's open questions were resolved in review; the outcomes are in the Decisions table below and in
 design §0, and the plan reflects them.
 
@@ -154,3 +155,24 @@ There are no size or content-type limit tests (limits were descoped, design §4.
 
 - Production data: whether any existing `Binary` already carries a `clientPersonId`-system tag
   (expected none; to be checked with a count query before enabling).
+
+## Implementation status (this PR)
+
+Done, flag-off by default: flag, constants, predicates, query builder (PR 1); read filter and the
+`patient/Binary.read` gate with mixed and strict modes (PR 2); create carve-out, stamping, mismatch
+rejection (PR 3); logs, `docs/resource-authorization.md`, design §16 (PR 4, partly).
+
+Not done / deviations:
+
+- OpenTelemetry counters and the `explain` measurements are not built; they remain gates for enabling in
+  production.
+- Strict vs mixed mode is decided by whether the token holds any `user/` or `system/` scope (not by
+  whether it has access tags): a mixed token with `access/*` has no tenant filter either, so "has access
+  tags" would have been the wrong test (design §4.4.1).
+- Integration tests are written (create, stamping, mismatch, update/delete/merge forbidden, flag off, member
+  read own/other, strict mode, untagged) but could not be run in the authoring environment (MongoDB cannot
+  be downloaded there); they run in CI. Unit tests (stamper, scope predicates and gate, query builder,
+  CreateOperation stamping) were run locally and pass. GraphQL, `$everything`/`$graph`, cloud-storage,
+  audit and text/plain integration cases remain `test.todo`.
+- New finding (design §16.1): the `$everything` response cache key does not include the caller's person
+  id; a decision is needed before enabling the flag where two persons share a Patient.

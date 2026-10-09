@@ -161,6 +161,26 @@ class PatientFilterManager {
     }
 
     /**
+     * Resource types that carry no patient reference but are owned by a person via a
+     * `clientPersonId` security tag stamped by the server on a patient-scoped create.
+     * Deliberately NOT part of any of the filter mappings above: adding Binary there would make it
+     * patient-filterable for every caller (see the Binary design doc, section 4.3).
+     * @returns {string[]}
+     */
+    get personSecurityTagResources() {
+        return ['Binary'];
+    }
+
+    /**
+     * Whether the resource type is owned by a person via a clientPersonId security tag
+     * @param {string} resourceType
+     * @returns {boolean}
+     */
+    isPersonSecurityTagResource({resourceType}) {
+        return this.personSecurityTagResources.includes(resourceType);
+    }
+
+    /**
      * Checks if the resourceType is related to patient
      * @param {string} resourceType
      */

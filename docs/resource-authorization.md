@@ -241,6 +241,36 @@ as separate authorization paths, specifically to keep this restriction from bein
   explicitly-requested Person id(s) — a sibling Person sharing the same underlying Patient is
   resolved internally but excluded from the response. See `readme/personEverything.md`.
 
+### 5.1 `Binary`: person-owned through a `clientPersonId` security tag
+
+`Binary` has no patient reference (it is two hops from a Patient, via
+`DocumentReference.content.attachment.url`), so it is deliberately **not** in the patient/person filter
+mappings and patient scopes cannot filter it by link. When `ENABLE_PATIENT_SCOPED_BINARY_CREATE` is on
+(default off), ownership is instead recorded on the resource itself. Design:
+`docs/superpowers/specs/2026-10-08-binary-patient-scoped-write-design.md`.
+
+- **Create (only).** A token with a patient scope may create a `Binary` if a patient scope grants it
+  (`patient/Binary.write`, `patient/Binary.c`, `patient/*.*`, ...). The server stamps
+  `meta.security` with `{system: https://www.icanbwell.com/clientPersonId, code: <token person id>}`. A
+  supplied tag for another person is rejected (403, reason given), more than one such tag is a 400, and a
+  missing person id is a 403. `access`/`owner` tags are not constrained (same as every other
+  patient-scoped create). Update, patch, delete and `$merge` stay forbidden for patient scopes.
+- **Any token with a patient scope is treated as patient-scoped for `Binary`**, including mixed
+  `patient/* + user/* + access/*` tokens: `user/`/`system/` privileges do not bypass the person check.
+- **Read.** `SearchManager.constructQueryAsync` ANDs a person filter onto the normal access-tag filter
+  (never instead of it), so it covers search, by-id, `$everything`, `$graph` and GraphQL. Two modes:
+  - *Mixed token* (patient scope **and** a `user/` or `system/` scope; the clinical viewers): sees `Binary`
+    tagged with its own person id **plus every untagged `Binary`** (exactly as before); `Binary` tagged for
+    another person are excluded.
+  - *Pure patient token* (patient scope, no `user/`/`system/` scope): authorized by `patient/Binary.read`
+    alone, sees **only** `Binary` tagged with its own person id. Untagged `Binary` are never returned,
+    because such a token carries no access code and therefore no tenant filter exists for it.
+  - A caller with no person id gets `_uuid: '__invalid__'` (never "no filter").
+- **System/admin/user tokens without a patient scope** are unchanged and are not auto-stamped; a backend
+  that writes a member-owned `Binary` must set the `clientPersonId` tag itself.
+- Untagged `Binary` (all existing clinical ones) stay readable by id by anyone with the tenant's access
+  scope; closing that is a separate follow-up.
+
 ## 6. Consent
 
 There is no single "consent system" — four independent mechanisms use `Consent` resources to gate

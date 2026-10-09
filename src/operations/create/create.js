@@ -1,5 +1,5 @@
 const httpContext = require('express-http-context');
-const { logDebug } = require('../common/logging');
+const { logDebug, logInfo, logWarn } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
 const { NotValidatedError, BadRequestError, PayloadTooLargeError } = require('../../utils/httpErrors');
@@ -8,6 +8,7 @@ const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
+const { ScopesManager } = require('../security/scopesManager');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
@@ -21,6 +22,7 @@ const { buildContextDataForHybridStorage } = require('../../utils/contextDataBui
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
+const { stampPersonTag } = require('../../utils/personSecurityTag');
 
 class CreateOperation {
     /**
@@ -29,6 +31,7 @@ class CreateOperation {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {ScopesManager} scopesManager
      * @param {ResourceValidator} resourceValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ConfigManager} configManager
@@ -42,6 +45,7 @@ class CreateOperation {
             postRequestProcessor,
             fhirLoggingManager,
             scopesValidator,
+            scopesManager,
             resourceValidator,
             databaseBulkInserter,
             configManager,
@@ -70,6 +74,11 @@ class CreateOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
 
         /**
          * @type {ResourceValidator}
@@ -168,6 +177,37 @@ class CreateOperation {
         // can never reach validation or attachment handling.
         removeUnderscoreFieldsRecursive(resource_incoming);
 
+        // A patient-scoped caller creating a Binary owns it: the server stamps the caller's person id
+        // on it (never trusted from the body) so reads can be limited to that person. Done before the
+        // meta validation below so the tag is part of what gets validated and stored.
+        if (this.scopesManager.isPatientScopedPersonTagCreate({
+            scope: requestInfo.scope, resourceType, action: currentOperationName
+        })) {
+            try {
+                stampPersonTag({ resource: resource_incoming, personId: requestInfo.personIdFromJwtToken });
+                logInfo('binary_person_tag_stamped', {
+                    user: requestInfo.user,
+                    resourceType,
+                    personId: requestInfo.personIdFromJwtToken
+                });
+            } catch (e) {
+                logWarn('binary_person_tag_rejected', {
+                    user: requestInfo.user,
+                    resourceType,
+                    reason: e.message
+                });
+                await this.fhirLoggingManager.logOperationFailureAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
+                throw e;
+            }
+        }
+
         /**
          * @type {Resource}
          */
@@ -230,7 +270,7 @@ class CreateOperation {
             // noinspection JSValidateTypes,SpellCheckingInspection
             resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
             await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                requestInfo, resource, base_version
+                requestInfo, resource, base_version, isCreate: true
             });
             // SEC-1580 F3: creating with an access tag counts as adding it - the caller must be
             // authorized for every access tag on the new resource, not just one of them

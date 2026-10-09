@@ -1,51 +1,323 @@
-// Test skeleton for patient-scoped Binary create and person-scoped Binary access.
+// Patient-scoped Binary create and person-scoped Binary access.
 //
-// Design (awaiting review/approval, not yet implemented):
-//   docs/superpowers/specs/2026-10-08-binary-patient-scoped-write-design.md  (section 14, test matrix)
+// Design:    docs/superpowers/specs/2026-10-08-binary-patient-scoped-write-design.md  (section 14, test matrix)
+// Plan:      docs/superpowers/plans/2026-10-08-binary-patient-scoped-write-plan.md
 //
-// Every case below is a `test.todo` so it is tracked without asserting behavior that does not exist
-// yet. When the design is approved and implemented, replace each todo with a real test following
-// src/tests/integration/patientScope/create_with_patient_scope/create_with_patient_scope.test.js.
-const { describe, test } = require('@jest/globals');
+// Test ids (T1, T9, ...) refer to the matrix in the design. Cases that need infrastructure this suite does not
+// set up (GraphQL, $everything/$graph, cloud storage, audit logging) remain `test.todo`.
+const deepcopy = require('deepcopy');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    createTestRequest,
+    getHeaders,
+    getHeadersWithCustomPayload,
+    getTestContainer,
+    mockHttpContext
+} = require('../../common');
+const { ConfigManager } = require('../../../../utils/configManager');
+
+const PERSON_TAG_SYSTEM = 'https://www.icanbwell.com/clientPersonId';
+const OWNER_TAG = { system: 'https://www.icanbwell.com/owner', code: 'client1' };
+const ACCESS_TAG = { system: 'https://www.icanbwell.com/access', code: 'client1' };
+const personTag = (code) => ({ system: PERSON_TAG_SYSTEM, code });
+
+class FlagOnConfigManager extends ConfigManager {
+    get enablePatientScopedBinaryCreate () {
+        return true;
+    }
+}
+
+class FlagOffConfigManager extends ConfigManager {
+    get enablePatientScopedBinaryCreate () {
+        return false;
+    }
+}
+
+const newBinary = (id, security = [OWNER_TAG, ACCESS_TAG]) => ({
+    resourceType: 'Binary',
+    id,
+    meta: { source: 'https://example.com/member-uploads', security },
+    contentType: 'application/pdf',
+    data: 'JVBERi0xLjQK'
+});
+
+const claims = (personId, scope) => ({
+    scope,
+    username: `${personId}@example.com`,
+    clientFhirPersonId: personId,
+    clientFhirPatientId: `${personId}-patient`,
+    bwellFhirPersonId: personId,
+    bwellFhirPatientId: `${personId}-bwell-patient`,
+    token_use: 'access'
+});
+
+// P: member token that can create a Binary
+const memberWriter = (personId) => getHeadersWithCustomPayload(claims(personId, 'patient/Binary.write'));
+// Pr: the mixed token clinical viewers use (patient + user + access)
+const memberViewer = (personId) => getHeadersWithCustomPayload(
+    claims(personId, 'access/*.* patient/*.* user/*.* admin/*.read')
+);
+// P-read: pure patient token with only a Binary read grant (no user/system scope, no access code)
+const memberReader = (personId) => getHeadersWithCustomPayload(claims(personId, 'patient/Binary.read'));
 
 describe('Binary with patient scope', () => {
-    test.todo('T1: Member creates Binary, no tag supplied [token: P, flag on] expects 201 with a clientPersonId tag for person A stamped in meta.security');
-    test.todo('T2: Member supplies matching tag [token: P] expects 201; exactly one tag');
-    test.todo('T3: Member supplies other person\'s tag [token: P] expects 403; nothing persisted');
-    test.todo('T3b: Two clientPersonId tags [token: P] expects 400');
-    test.todo('T4: Patient scope but no/empty person id [token: P w/o clientFhirPersonId] expects 401 at auth (and unit test: op-layer 403)');
-    test.todo('T5: PUT/update Binary [token: P] expects 403');
-    test.todo('T6: PATCH Binary [token: P] expects 403');
-    test.todo('T7: DELETE Binary [token: P] expects 403');
-    test.todo('T8: $merge Binary [token: P] expects 403');
-    test.todo('T9: Member A reads own tagged Binary by id [token: Pr(A)] expects 200');
-    test.todo('T10: Member B reads A\'s tagged Binary by id [token: Pr(B)] expects 404 / not found (same as missing)');
-    test.todo('T11: Member B searches Binary?_id= and Binary search [token: Pr(B)] expects empty bundle; A\'s does not leak');
-    test.todo('T12: _history and _history/{vid} [token: P/Pr] expects 403 (unchanged: history rejects patient scope)');
-    test.todo('T13: Patient/$everything / Person/$everything as B with A\'s DocumentReference pointing to A\'s Binary (and B\'s own DR pointing at A\'s Binary) [token: Pr(B)] expects A\'s Binary absent from bundle; B\'s own present');
-    test.todo('T14: $graph DocumentReference → Binary [token: Pr(A)/Pr(B)] expects A sees it; B does not');
-    test.todo('T15: GraphQL DocumentReference → attachment.resource for owner [token: Pr(A)] expects Binary returned');
-    test.todo('T16: GraphQL same, other member [token: Pr(B)] expects resource: null');
-    test.todo('T17: Untagged Binary (existing fixtures) [token: Pr] expects readable exactly as today (regression against graphql.documentReference.test.js expectations)');
-    test.todo('T18: System token writes Binary without tag [token: S] expects 201; no tag added');
-    test.todo('T19: System token writes Binary with tag A [token: S] expects 201; tag preserved; readable by Pr(A), not Pr(B)');
-    test.todo('T20: System token reads tagged Binary [token: S] expects 200 (no person filter without patient scope)');
-    test.todo('T21: Cross-tenant: S-other reads/creates [token: S-other] expects access-tag filter still denies');
-    test.todo('T22: Mixed-scope create [token: M] expects treated as patient-scoped: requires patient create grant, stamped; system/* alone does not bypass; patient/Condition.write system/*.* → 403');
-    test.todo('T23: Patient token lacking create grant (patient/Binary.read only) [token: P-read] expects 403 on create');
-    test.todo('T24: Patient token with only access/* + user/* (no patient) [token: S-like] expects unchanged');
-    test.todo('T25: Binary read with format=text/plain path (fhirResponseWriter) as B [token: Pr(B)] expects not returned (OQ-2)');
-    test.todo('T26: Cache short-circuit paths in $everything/$graph [token: Pr(B)] expects not returned (OQ-2)');
-    test.todo('T30: Cloud-storage offload on (BASE64_FIELD_CLOUD_STORAGE_ENABLED) with member Binary > threshold [token: P] expects 201; tag present on stored doc and in history entry');
-    test.todo('T31: Flag off [token: P] expects 403 with today\'s message Write not allowed using user scopes if patient scope is present');
-    test.todo('T32: Flag off, tagged Binary exists [token: Pr(B)] expects no person filter (today\'s behavior), documents rollback note in §7');
-    test.todo('T33: Person id claim empty on read [token: Pr] expects filter fails closed (_uuid: \'__invalid__\') — unit test of query construction');
-    test.todo('T34: Query shape [token: Pr] expects toHaveMongoQuery shows $or clause ANDed with access-tag filter, using resource.meta.security for history');
-    test.todo('T36: Audit entry written; stamping logged [token: P] expects audit logger invoked once with resource uuid');
-    test.todo('T37: Pure patient token (patient/Binary.read, no user/system scope, no access code) reads own tagged Binary by id [token: P-read(A)] expects 200');
-    test.todo('T38: Pure patient token reads another member\'s tagged Binary by id and by search [token: P-read(B)] expects 404 / empty bundle');
-    test.todo('T39: Pure patient token reads an untagged Binary (any tenant) [token: P-read] expects 404 / not returned: untagged Binary are never exposed through a patient-only read');
-    test.todo('T40: Pure patient token without patient/Binary.read [token: patient/Condition.read only] expects 403 reading Binary');
-    test.todo('T41: Mixed token (patient/Binary.read + user/*.read + access code) reads untagged Binary [token: Pr] expects readable as today (clinical viewers unchanged)');
-    test.todo('T42: Create with a clientPersonId tag for another person, with reason [token: P] expects 403 whose OperationOutcome names the mismatch (without echoing the other person id)');
+    let requestId;
+
+    beforeEach(async () => {
+        await commonBeforeEach();
+        requestId = mockHttpContext();
+    });
+
+    afterEach(async () => {
+        await commonAfterEach();
+    });
+
+    const createRequest = async (ConfigManagerClass = FlagOnConfigManager) => createTestRequest((c) => {
+        c.register('configManager', () => new ConfigManagerClass());
+        return c;
+    });
+
+    // seed a Binary with a system token ($merge), the way backends write them today
+    const seed = async (request, binary) => {
+        const resp = await request
+            .post('/4_0_0/Binary/1/$merge?validate=true')
+            .send(binary)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId });
+    };
+
+    const securityOf = (resp) => (resp.body && resp.body.meta && resp.body.meta.security) || [];
+
+    describe('create', () => {
+        test('T1: a member creates a Binary with no tag; the server stamps the member\'s person id', async () => {
+            const request = await createRequest();
+            const resp = await request
+                .post('/4_0_0/Binary')
+                .send(newBinary('ignored'))
+                .set(memberWriter('person-A'));
+            expect(resp).toHaveStatusCode(201);
+            expect(securityOf(resp)).toEqual(expect.arrayContaining([personTag('person-A')]));
+            expect(securityOf(resp).filter((s) => s.system === PERSON_TAG_SYSTEM)).toHaveLength(1);
+        });
+
+        test('T2: a member supplying their own tag is accepted with exactly one tag', async () => {
+            const request = await createRequest();
+            const resp = await request
+                .post('/4_0_0/Binary')
+                .send(newBinary('ignored', [OWNER_TAG, ACCESS_TAG, personTag('person-A')]))
+                .set(memberWriter('person-A'));
+            expect(resp).toHaveStatusCode(201);
+            expect(securityOf(resp).filter((s) => s.system === PERSON_TAG_SYSTEM)).toEqual([personTag('person-A')]);
+        });
+
+        test('T3 / T42: another person\'s tag is rejected with 403 and a reason; the other id is not echoed', async () => {
+            const request = await createRequest();
+            const resp = await request
+                .post('/4_0_0/Binary')
+                .send(newBinary('ignored', [OWNER_TAG, ACCESS_TAG, personTag('person-B')]))
+                .set(memberWriter('person-A'));
+            expect(resp).toHaveStatusCode(403);
+            expect(resp.body.resourceType).toStrictEqual('OperationOutcome');
+            const text = resp.body.issue[0].details.text;
+            expect(text).toContain(PERSON_TAG_SYSTEM);
+            expect(text).toContain('does not match');
+            expect(text).not.toContain('person-B');
+        });
+
+        test('T3b: two person tags are rejected with 400', async () => {
+            const request = await createRequest();
+            const resp = await request
+                .post('/4_0_0/Binary')
+                .send(newBinary('ignored', [OWNER_TAG, ACCESS_TAG, personTag('person-A'), personTag('person-A')]))
+                .set(memberWriter('person-A'));
+            expect(resp).toHaveStatusCode(400);
+        });
+
+        test('T5: a member cannot update a Binary (PUT)', async () => {
+            const request = await createRequest();
+            const created = await request.post('/4_0_0/Binary').send(newBinary('ignored')).set(memberWriter('person-A'));
+            expect(created).toHaveStatusCode(201);
+            const resp = await request
+                .put(`/4_0_0/Binary/${created.body.id}`)
+                .send({ ...deepcopy(created.body), contentType: 'image/png' })
+                .set(memberWriter('person-A'));
+            expect(resp).toHaveStatusCode(403);
+        });
+
+        test('T7: a member cannot delete a Binary', async () => {
+            const request = await createRequest();
+            const created = await request.post('/4_0_0/Binary').send(newBinary('ignored')).set(memberWriter('person-A'));
+            expect(created).toHaveStatusCode(201);
+            const resp = await request.delete(`/4_0_0/Binary/${created.body.id}`).set(memberWriter('person-A'));
+            expect(resp).toHaveStatusCode(403);
+        });
+
+        test('T8: a member cannot $merge a Binary', async () => {
+            const request = await createRequest();
+            const resp = await request
+                .post('/4_0_0/Binary/1/$merge?validate=true')
+                .send(newBinary('b-merge', [OWNER_TAG, ACCESS_TAG, personTag('person-A')]))
+                .set(memberWriter('person-A'));
+            expect(resp).toHaveStatusCode(403);
+        });
+
+        test('T23: a member token with only patient/Binary.read cannot create a Binary', async () => {
+            const request = await createRequest();
+            const resp = await request
+                .post('/4_0_0/Binary')
+                .send(newBinary('ignored'))
+                .set(memberReader('person-A'));
+            expect(resp).toHaveStatusCode(403);
+        });
+
+        test('T18: a system token writes a Binary with no tag and none is added', async () => {
+            const request = await createRequest();
+            const resp = await request
+                .post('/4_0_0/Binary')
+                .send(newBinary('ignored'))
+                .set(getHeaders());
+            expect(resp).toHaveStatusCode(201);
+            expect(securityOf(resp).filter((s) => s.system === PERSON_TAG_SYSTEM)).toHaveLength(0);
+        });
+
+        test('T31: with the flag off a member create is rejected exactly as today', async () => {
+            const request = await createRequest(FlagOffConfigManager);
+            const resp = await request
+                .post('/4_0_0/Binary')
+                .send(newBinary('ignored'))
+                .set(memberWriter('person-A'));
+            expect(resp).toHaveStatusCode(403);
+            expect(resp.body.issue[0].details.text).toContain(
+                'Write not allowed using user scopes if patient scope is present'
+            );
+        });
+    });
+
+    describe('read', () => {
+        // person A's tagged Binary, person B's tagged Binary, and one untagged (existing, clinical) Binary
+        const seedThree = async (request) => {
+            await seed(request, newBinary('binary-a', [OWNER_TAG, ACCESS_TAG, personTag('person-A')]));
+            await seed(request, newBinary('binary-b', [OWNER_TAG, ACCESS_TAG, personTag('person-B')]));
+            await seed(request, newBinary('binary-untagged'));
+        };
+
+        test('T19 / T20: a system token reads tagged and untagged Binary (no person filter)', async () => {
+            const request = await createRequest();
+            await seedThree(request);
+            for (const id of ['binary-a', 'binary-b', 'binary-untagged']) {
+                const resp = await request.get(`/4_0_0/Binary/${id}`).set(getHeaders());
+                expect(resp).toHaveStatusCode(200);
+            }
+        });
+
+        test('T9: member A reads their own tagged Binary (mixed viewer token)', async () => {
+            const request = await createRequest();
+            await seedThree(request);
+            const resp = await request.get('/4_0_0/Binary/binary-a').set(memberViewer('person-A'));
+            expect(resp).toHaveStatusCode(200);
+        });
+
+        test('T10: member B cannot read member A\'s tagged Binary by id (mixed viewer token)', async () => {
+            const request = await createRequest();
+            await seedThree(request);
+            const resp = await request.get('/4_0_0/Binary/binary-a').set(memberViewer('person-B'));
+            expect(resp).toHaveStatusCode(404);
+        });
+
+        test('T11: member B\'s search does not return member A\'s Binary (mixed viewer token)', async () => {
+            const request = await createRequest();
+            await seedThree(request);
+            const resp = await request.get('/4_0_0/Binary').set(memberViewer('person-B'));
+            expect(resp).toHaveStatusCode(200);
+            const ids = (resp.body.entry || []).map((e) => e.resource.id);
+            expect(ids).toEqual(expect.arrayContaining(['binary-b', 'binary-untagged']));
+            expect(ids).not.toContain('binary-a');
+        });
+
+        test('T17 / T41: an untagged Binary is readable by a mixed viewer token exactly as today', async () => {
+            const request = await createRequest();
+            await seedThree(request);
+            for (const person of ['person-A', 'person-B']) {
+                const resp = await request.get('/4_0_0/Binary/binary-untagged').set(memberViewer(person));
+                expect(resp).toHaveStatusCode(200);
+            }
+        });
+
+        test('T37: a pure patient token with patient/Binary.read reads its own tagged Binary', async () => {
+            const request = await createRequest();
+            await seedThree(request);
+            const resp = await request.get('/4_0_0/Binary/binary-a').set(memberReader('person-A'));
+            expect(resp).toHaveStatusCode(200);
+        });
+
+        test('T38: a pure patient token cannot read another member\'s tagged Binary (by id or search)', async () => {
+            const request = await createRequest();
+            await seedThree(request);
+            const byId = await request.get('/4_0_0/Binary/binary-a').set(memberReader('person-B'));
+            expect(byId).toHaveStatusCode(404);
+            const search = await request.get('/4_0_0/Binary').set(memberReader('person-B'));
+            expect(search).toHaveStatusCode(200);
+            const ids = (search.body.entry || []).map((e) => e.resource.id);
+            expect(ids).toEqual(['binary-b']);
+        });
+
+        test('T39: a pure patient token never sees an untagged Binary (no tenant filter exists for it)', async () => {
+            const request = await createRequest();
+            await seedThree(request);
+            const byId = await request.get('/4_0_0/Binary/binary-untagged').set(memberReader('person-A'));
+            expect(byId).toHaveStatusCode(404);
+            const search = await request.get('/4_0_0/Binary').set(memberReader('person-A'));
+            const ids = (search.body.entry || []).map((e) => e.resource.id);
+            expect(ids).not.toContain('binary-untagged');
+        });
+
+        test('T40: a pure patient token without a Binary grant cannot read Binary', async () => {
+            const request = await createRequest();
+            await seedThree(request);
+            const headers = getHeadersWithCustomPayload(claims('person-A', 'patient/Condition.read'));
+            const resp = await request.get('/4_0_0/Binary/binary-a').set(headers);
+            expect(resp).toHaveStatusCode(403);
+        });
+
+        test('T32: with the flag off there is no person filter and a pure patient token still cannot read Binary', async () => {
+            const request = await createRequest(FlagOffConfigManager);
+            await seedThree(request);
+            // viewer token: today's behavior, a tagged Binary of another person is readable in-tenant
+            const viewer = await request.get('/4_0_0/Binary/binary-a').set(memberViewer('person-B'));
+            expect(viewer).toHaveStatusCode(200);
+            const reader = await request.get('/4_0_0/Binary/binary-a').set(memberReader('person-A'));
+            expect(reader).toHaveStatusCode(403);
+        });
+
+        test('a member reads back the Binary they just created, another member cannot', async () => {
+            const request = await createRequest();
+            const created = await request.post('/4_0_0/Binary').send(newBinary('ignored')).set(memberWriter('person-A'));
+            expect(created).toHaveStatusCode(201);
+            const own = await request.get(`/4_0_0/Binary/${created.body.id}`).set(memberReader('person-A'));
+            expect(own).toHaveStatusCode(200);
+            const other = await request.get(`/4_0_0/Binary/${created.body.id}`).set(memberReader('person-B'));
+            expect(other).toHaveStatusCode(404);
+        });
+    });
+
+    describe('not covered here', () => {
+        test.todo('T4: patient scope but no/empty person id (401 at auth; op-layer 403 is a unit test)');
+        test.todo('T12: _history and _history/{vid} stay 403 for patient scopes (unchanged)');
+        test.todo('T13: Patient/$everything and Person/$everything omit another member\'s tagged Binary');
+        test.todo('T14: $graph DocumentReference -> Binary omits another member\'s tagged Binary');
+        test.todo('T15: GraphQL DocumentReference -> attachment.resource returns the owner\'s Binary');
+        test.todo('T16: GraphQL same query as another member returns resource: null');
+        test.todo('T21: a system token for another tenant is still denied by the access-tag filter');
+        test.todo('T22: mixed-scope create (patient grant required; system/* alone does not bypass) at the HTTP level (unit-tested in personTagScopes.test.js)');
+        test.todo('T24: user/ + access/ tokens without a patient scope are unchanged');
+        test.todo('T25: Binary read with format=text/plain (fhirResponseWriter) omits another member\'s tagged Binary (OQ-2)');
+        test.todo('T26: cache short-circuit paths in $everything/$graph run after the filter (OQ-2)');
+        test.todo('T30: cloud-storage offload on with a member Binary above the threshold keeps the tag on the stored doc and the history entry');
+        test.todo('T33: an empty person id on read fails closed (unit-tested in securityTagManager.test.js)');
+        test.todo('T34: query shape via toHaveMongoQuery (unit-tested in securityTagManager.test.js)');
+        test.todo('T36: audit entry written once and stamping logged');
+    });
 });

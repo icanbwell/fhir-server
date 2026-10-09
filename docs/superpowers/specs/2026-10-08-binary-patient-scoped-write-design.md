@@ -1,6 +1,6 @@
 # Patient-Scoped Binary Create and Person-Scoped Binary Access — Design
 
-Status: **Proposed — for review and approval. No implementation is included in this change.**
+Status: **Approved for implementation; implemented in this PR behind `ENABLE_PATIENT_SCOPED_BINARY_CREATE` (default off). Implementation notes are in §16.**
 
 Direction decided in the originating Slack thread (Imran Qureshi, Guillermo Granados), pending review
 of this document: "Option 1" below.
@@ -231,7 +231,7 @@ Single choke point: add one predicate in `SearchManager.constructQueryAsync`
 const own = { [f('meta.security')]: { $elemMatch: { system: clientPersonId, code: personId } } };
 if (!personId) {
   query = { _uuid: '__invalid__' }; // fail closed: never "no filter" (review.md §3.D)
-} else if (hasAccessTags) {         // mixed token: keep today's behavior for untagged Binary
+} else if (!strict) {               // mixed token: keep today's behavior for untagged Binary
   query = AND(query, { $or: [
      { [f('meta.security')]: { $not: { $elemMatch: { system: clientPersonId } } } },   // untagged: unchanged
      own
@@ -271,12 +271,18 @@ creates in §4.3, instead of requiring a `user/`/`system/` scope + access code *
 `user/`/`system/` scope**. A token that also carries `user/`/`system/` scopes keeps today's evaluation (and
 therefore today's behavior for untagged Binary).
 
-The read predicate then has **two modes**, chosen by whether the caller has tenant access tags:
+The read predicate then has **two modes**, chosen by whether the token holds any `user/` or `system/` scope
+(the same namespaces the existing resource-type gate uses):
 
 | Caller | Predicate on `Binary` | Reads |
 |---|---|---|
-| Patient-scoped **with** access tags (mixed token: `patient/*` + `user/*` + `access/<c>`; the clinical viewers) | access-tag filter AND (untagged OR tag = my person id) | own tagged + untagged in tenant (today's behavior preserved) |
-| Patient-scoped **without** access tags (pure patient token) | tag = my person id, strictly | own tagged only; **untagged Binary are never returned** |
+| Patient-scoped **and** holds a `user/` or `system/` scope (mixed token: `patient/*` + `user/*` + `access/<c>`; the clinical viewers) | access-tag filter AND (untagged OR tag = my person id) | own tagged + untagged in tenant (today's behavior preserved) |
+| Patient-scoped with **no** `user/` or `system/` scope (pure patient token) | tag = my person id, strictly | own tagged only; **untagged Binary are never returned** |
+
+The mode is decided by the namespace alone, not by whether the user/system scope happens to grant `Binary`:
+a token like `patient/Binary.read user/Condition.read` is mixed, so its `Binary` read is evaluated through
+the user/system scopes as today and is denied (403); it is never silently downgraded to the strict path.
+This is deliberately conservative (it can only deny more, never expose more).
 
 The strict mode matters: a pure patient token carries no access code, so `constructQueryAsync` builds no
 tenant filter (the `else if (securityTags ...)` branch is skipped). If the "untagged OR own" form were
@@ -597,3 +603,43 @@ Unit tests (new, `src/tests/unit/...`): `ScopesManager.isPatientScopedPersonTagC
 5. `SecurityTagManager.getQueryWithPersonSecurityTag` (mixed and strict modes) and its call in
    `constructQueryAsync`; read-scope gate change for `patient/Binary.read` (§4.4.1). Ships before 4.
 6. Tests per §14, docs: add §5/§12 notes to `docs/resource-authorization.md`.
+
+## 16. Implementation notes (what was built)
+
+Everything is behind `ENABLE_PATIENT_SCOPED_BINARY_CREATE` (default off; flag off = today's behavior).
+
+- `SecurityTagSystem.clientPersonId`; `ConfigManager.enablePatientScopedBinaryCreate`;
+  `PatientFilterManager.personSecurityTagResources` / `isPersonSecurityTagResource` (Binary is **not** added
+  to any patient/person filter mapping).
+- `ScopesManager`: `isPersonTagResourceScoped` (flag, Binary, `hasPatientScope`),
+  `isPatientScopedPersonTagCreate` (adds `action === 'create'`), `isPersonTagStrictAccess` (adds "no
+  `user/`/`system/` scope"). `isAccessTagChangeAllowedByScopes` and `isAccessToResourceAllowedBySecurityTags`
+  short-circuit only on a create (`isCreate`), which is now threaded explicitly from `CreateOperation`
+  through `ScopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes` (default `false`, so update,
+  patch, remove and merge are untouched).
+- `ScopesValidator.isScopesValidAsync`: evaluates the patient scopes for a Binary create and for a Binary
+  read by a pure patient token.
+- `PatientScopeManager.canWriteResourceAsync`: for a Binary create requires exactly one `clientPersonId`
+  tag equal to the token's person id (defence in depth after stamping).
+- `src/utils/personSecurityTag.js`: tag helpers and the stamping table of §4.3. `CreateOperation` calls it
+  right after `removeUnderscoreFieldsRecursive`, before meta validation; it now takes `scopesManager`
+  (registered in `createContainer.js`).
+- `SecurityTagManager.getQueryWithPersonSecurityTag` and its call in `SearchManager.constructQueryAsync`
+  (after the access-tag/patient-filter block, before query rewriting). `getSecurityTagsFromScope` is told a
+  pure-patient Binary read is patient-authorized so it does not demand an access code.
+- Not built here: OpenTelemetry counters (§8 metrics) and the `explain` measurements (§13); log lines
+  `binary_person_tag_stamped` and `binary_person_tag_rejected` are in place.
+
+### 16.1 OQ-2 verification (read paths that might skip the filter)
+
+- `text/plain` Binary retrieval (`fhirResponseWriter.resolveDerivedTextAsync`) runs on the `resource` the
+  read operation already returned (so already filtered), keyed by that resource's own id and
+  `sourceAssigningAuthority`; it does not fetch by a caller-supplied reference. **Runs after the filter.**
+- `$graph` and GraphQL resolve linked Binary through `constructQueryAsync` (per-request DataLoader only).
+- **Open risk, not changed in this PR:** the `$everything` whole-response Redis cache
+  (`EverythingHelper.getCacheKey`) is used only for callers with a person id, but its key is built from the
+  resolved patient id (or the proxy person id) plus the scope, not the caller's person id. If two different
+  persons link the same Patient and both call `$everything` on it with the same scope, a response cached for
+  one could include a Binary tagged for that person and be served to the other. Fix options: include the
+  caller's person id in the key whenever the flag is on, or exclude Binary from cached `$everything`
+  responses. Needs a decision before enabling the flag where Patients are shared between persons.

@@ -418,4 +418,60 @@ describe('SecurityTagManager', () => {
             expect(mockAccessIndexManager.resourceHasAccessIndexForAccessCodes).not.toHaveBeenCalled();
         });
     });
+
+    describe('getQueryWithPersonSecurityTag', () => {
+        const ownTag = (field = 'meta.security') => ({
+            [field]: { $elemMatch: { system: SecurityTagSystem.clientPersonId, code: 'person-A' } }
+        });
+        const untagged = (field = 'meta.security') => ({
+            [field]: { $not: { $elemMatch: { system: SecurityTagSystem.clientPersonId } } }
+        });
+
+        test.each([undefined, null, '', 5])('fails closed when the person id is %p (T33)', (personId) => {
+            expect(securityTagManager.getQueryWithPersonSecurityTag({
+                query: { id: 'x' }, personId, strict: false, useHistoryTable: false
+            })).toEqual({ _uuid: '__invalid__' });
+            expect(securityTagManager.getQueryWithPersonSecurityTag({
+                query: { id: 'x' }, personId, strict: true, useHistoryTable: false
+            })).toEqual({ _uuid: '__invalid__' });
+        });
+
+        test('mixed mode: own tag OR no clientPersonId tag, ANDed with the existing query (T34)', () => {
+            const query = { 'meta.security': { $elemMatch: { system: SecurityTagSystem.access, code: 'client' } } };
+            const result = securityTagManager.getQueryWithPersonSecurityTag({
+                query, personId: 'person-A', strict: false, useHistoryTable: false
+            });
+            expect(result).toEqual({
+                $and: [query, { $or: [untagged(), ownTag()] }]
+            });
+        });
+
+        test('strict mode: own tag only; untagged Binary are not matched (T39)', () => {
+            const result = securityTagManager.getQueryWithPersonSecurityTag({
+                query: {}, personId: 'person-A', strict: true, useHistoryTable: false
+            });
+            expect(result).toEqual(ownTag());
+            expect(JSON.stringify(result)).not.toContain('$not');
+        });
+
+        test('uses the resource.* field names against the history table', () => {
+            const mixed = securityTagManager.getQueryWithPersonSecurityTag({
+                query: {}, personId: 'person-A', strict: false, useHistoryTable: true
+            });
+            expect(mixed).toEqual({ $or: [untagged('resource.meta.security'), ownTag('resource.meta.security')] });
+            const strict = securityTagManager.getQueryWithPersonSecurityTag({
+                query: {}, personId: 'person-A', strict: true, useHistoryTable: true
+            });
+            expect(strict).toEqual(ownTag('resource.meta.security'));
+        });
+
+        test('is ANDed onto the query, never replacing it', () => {
+            const query = { _uuid: 'abc' };
+            const result = securityTagManager.getQueryWithPersonSecurityTag({
+                query, personId: 'person-A', strict: true, useHistoryTable: false
+            });
+            expect(mockR4SearchQueryCreator.appendAndSimplifyQuery).toHaveBeenCalled();
+            expect(result).toEqual({ $and: [query, ownTag()] });
+        });
+    });
 });
