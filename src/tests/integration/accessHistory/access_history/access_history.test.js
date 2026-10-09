@@ -1289,4 +1289,123 @@ describe('Person $access-history Tests', () => {
             }]);
         });
     });
+
+    describe('access-tag filter on accessor lookups', () => {
+        const otherTenantSecurity = [
+            { system: 'https://www.icanbwell.com/access', code: 'healthsystem2' },
+            { system: 'https://www.icanbwell.com/owner', code: 'healthsystem2' }
+        ];
+
+        const arrangeAccessorsInOtherTenantAsync = async (request) => {
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const personUuid = resp.body.uuid;
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const patientUuid = resp.body.uuid;
+
+            const otherTenantPractitioner = deepcopy(practitioner1Resource);
+            otherTenantPractitioner.meta.security = otherTenantSecurity;
+            resp = await request
+                .post('/4_0_0/Practitioner/1/$merge?validate=true')
+                .send(otherTenantPractitioner)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const practitionerRef = `Practitioner/${resp.body.uuid}`;
+
+            const otherTenantOrganization = deepcopy(org1Resource);
+            otherTenantOrganization.meta.security = otherTenantSecurity;
+            resp = await request
+                .post('/4_0_0/Organization/1/$merge?validate=true')
+                .send(otherTenantOrganization)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const orgUuid = resp.body.uuid;
+
+            const accessorPerson = deepcopy(accessorPersonWithOrgResource);
+            accessorPerson.managingOrganization = { reference: `Organization/${orgUuid}` };
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(accessorPerson)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+            const proxyAccessorRef = `Patient/person.${resp.body.uuid}`;
+
+            await insertAuditEvents([
+                ['ae-accessor-practitioner', practitionerRef],
+                ['ae-accessor-proxy', proxyAccessorRef]
+            ].map(([id, accessorRef]) => ({
+                id,
+                _uuid: `${id}-uuid`,
+                recorded: daysAgo(1),
+                action: 'R',
+                agent_who: [accessorRef],
+                agent_altid: [],
+                entity_what: [`Patient/${patientUuid}`],
+                agent_requestor_who: accessorRef
+            })));
+
+            return { personUuid, practitionerRef, proxyAccessorRef };
+        };
+
+        const accessorDetails = (body) => Object.fromEntries(getAccessors(body).map((accessor) => {
+            const reference = accessor.part.find((p) => p.name === 'reference').valueReference;
+            const organizations = accessor.part
+                .filter((p) => p.name === 'organization')
+                .map((p) => p.part.find((q) => q.name === 'name').valueString);
+            return [reference.reference, { display: reference.display, organizations }];
+        }));
+
+        test('a tenant-scoped caller does not resolve accessor names or organizations from another tenant', async () => {
+            const request = sharedRequest;
+            const { personUuid, practitionerRef, proxyAccessorRef } = await arrangeAccessorsInOtherTenantAsync(request);
+
+            const resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(getHeaders('user/*.read access/healthsystem1.read'));
+
+            expect(resp.status).toBe(200);
+            expect(accessorDetails(resp.body)).toEqual({
+                [practitionerRef]: { display: practitionerRef, organizations: [] },
+                [proxyAccessorRef]: { display: 'Maria Alvarez', organizations: [] }
+            });
+        });
+
+        test('a caller holding the other tenant code resolves those accessor names and organizations', async () => {
+            const request = sharedRequest;
+            const { personUuid, practitionerRef, proxyAccessorRef } = await arrangeAccessorsInOtherTenantAsync(request);
+
+            const resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(getHeaders('user/*.read access/healthsystem1.read access/healthsystem2.read'));
+
+            expect(resp.status).toBe(200);
+            expect(accessorDetails(resp.body)).toEqual({
+                [practitionerRef]: { display: 'Dr Dr Sarah Jones', organizations: [] },
+                [proxyAccessorRef]: { display: 'Maria Alvarez', organizations: ['HealthSystem One'] }
+            });
+        });
+
+        test('a wildcard access code resolves accessors from every tenant', async () => {
+            const request = sharedRequest;
+            const { personUuid, practitionerRef, proxyAccessorRef } = await arrangeAccessorsInOtherTenantAsync(request);
+
+            const resp = await request
+                .get(`/4_0_0/Person/${personUuid}/$access-history`)
+                .set(getHeaders('user/*.read access/*.read'));
+
+            expect(resp.status).toBe(200);
+            expect(accessorDetails(resp.body)).toEqual({
+                [practitionerRef]: { display: 'Dr Dr Sarah Jones', organizations: [] },
+                [proxyAccessorRef]: { display: 'Maria Alvarez', organizations: ['HealthSystem One'] }
+            });
+        });
+    });
 });

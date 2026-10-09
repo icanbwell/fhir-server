@@ -215,7 +215,8 @@ class AccessHistoryOperation {
         const query = this._getQueryWithAccessTagsForResourceType({
             requestInfo,
             resourceType: rt,
-            query: { [uuidField]: { $in: patientRefs } }
+            query: { [uuidField]: { $in: patientRefs } },
+            accessRequested: 's'
         });
         const dqm = this.databaseQueryFactory.createQuery({
             resourceType: rt,
@@ -237,7 +238,7 @@ class AccessHistoryOperation {
         return refs;
     }
 
-    _getQueryWithAccessTagsForResourceType({ requestInfo, resourceType, query }) {
+    _getQueryWithAccessTagsForResourceType({ requestInfo, resourceType, query, accessRequested }) {
         const { user, scope } = requestInfo;
         if (this.scopesManager.isAccessAllowedByPatientScopes({ scope, resourceType })) {
             return query;
@@ -246,7 +247,7 @@ class AccessHistoryOperation {
             user,
             scope,
             accessViaPatientScopes: false,
-            accessRequested: 's'
+            accessRequested
         });
         return this.securityTagManager.getQueryWithSecurityTags({
             resourceType,
@@ -344,6 +345,7 @@ class AccessHistoryOperation {
             const chunkResults = await Promise.all(
                 chunk.map(([type, ids]) =>
                     this._findResourcesByUuids({
+                        requestInfo,
                         resourceType: type,
                         uuids: ids,
                         base_version,
@@ -356,6 +358,7 @@ class AccessHistoryOperation {
 
         const persons = proxyPersonIds.length > 0
             ? await this._findResourcesByUuids({
+                requestInfo,
                 resourceType: 'Person',
                 uuids: proxyPersonIds,
                 base_version,
@@ -401,6 +404,7 @@ class AccessHistoryOperation {
                     checks: [{ resourceType: 'Organization', accessRequested: 'r' }]
                 });
                 const orgs = await this._findResourcesByUuids({
+                    requestInfo,
                     resourceType: 'Organization',
                     uuids: Array.from(orgIds),
                     base_version,
@@ -436,23 +440,30 @@ class AccessHistoryOperation {
     /**
      * Queries resources by UUIDs with a given projection.
      * @param {Object} params
+     * @param {import('../common/fhirRequestInfo').FhirRequestInfo} params.requestInfo
      * @param {string} params.resourceType
      * @param {string[]} params.uuids
      * @param {string} params.base_version
      * @param {Object} params.projection
      * @returns {Promise<Object[]>}
      */
-    async _findResourcesByUuids({ resourceType, uuids, base_version, projection }) {
+    async _findResourcesByUuids({ requestInfo, resourceType, uuids, base_version, projection }) {
         if (!uuids || uuids.length === 0) {
             return [];
         }
 
+        const query = this._getQueryWithAccessTagsForResourceType({
+            requestInfo,
+            resourceType,
+            query: { _uuid: { $in: uuids } },
+            accessRequested: 'r'
+        });
         const dqm = this.databaseQueryFactory.createQuery({
             resourceType,
             base_version
         });
         const cursor = await dqm.findAsync({
-            query: { _uuid: { $in: uuids } },
+            query,
             options: { projection }
         });
 
