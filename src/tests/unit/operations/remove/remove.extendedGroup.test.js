@@ -12,7 +12,6 @@ const { SearchManager } = require('../../../../operations/search/searchManager')
 const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
-const { BadRequestError } = require('../../../../utils/httpErrors');
 
 function createMockInstance(ClassRef, methods = {}) {
     const instance = Object.create(ClassRef.prototype);
@@ -184,8 +183,7 @@ describe('RemoveOperation -- extended Group cascade', () => {
         mockFind([makeGroup(1, true), makeGroup(2, true)]);
 
         const error = await remove().catch(e => e);
-
-        expect(error).toBeInstanceOf(BadRequestError);
+        expect(error.statusCode).toBe(400);
         expect(error.issue[0].code).toBe('too-costly');
         expect(mockMongoGroupMemberRepository.cascadeDeleteForGroupAsync).not.toHaveBeenCalled();
         expect(mockRemoveHelper.deleteManyAsync).not.toHaveBeenCalled();
@@ -196,7 +194,10 @@ describe('RemoveOperation -- extended Group cascade', () => {
         enableExtendedGroup = false;
         mockFind([makeGroup(1, true)]);
 
-        await expect(remove()).rejects.toBeInstanceOf(BadRequestError);
+        const error = await remove().catch(e => e);
+
+        expect(error.statusCode).toBe(400);
+        expect(error.issue[0].code).toBe('invalid');
 
         expect(mockMongoGroupMemberRepository.cascadeDeleteForGroupAsync).not.toHaveBeenCalled();
         expect(mockRemoveHelper.deleteManyAsync).not.toHaveBeenCalled();

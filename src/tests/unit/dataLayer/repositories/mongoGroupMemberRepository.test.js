@@ -327,7 +327,7 @@ describe('MongoGroupMemberRepository', () => {
     });
 
     describe('cascadeDeleteForGroupAsync', () => {
-        const requestInfo = { requestId: 'req-1', method: 'DELETE', user: 'u' };
+        const requestInfo = { requestId: 'req-1', method: 'DELETE', user: 'u', headers: {} };
         const makeRow = (n) => ({
             resourceType: 'GroupMember',
             id: `m-${n}`,
