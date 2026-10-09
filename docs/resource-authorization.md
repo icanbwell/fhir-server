@@ -241,6 +241,40 @@ as separate authorization paths, specifically to keep this restriction from bein
   explicitly-requested Person id(s) — a sibling Person sharing the same underlying Patient is
   resolved internally but excluded from the response. See `readme/personEverything.md`.
 
+### 5.1 `Binary`: person-owned through `securityContext`
+
+`Binary` has no patient reference of its own (it is two hops from a Patient, via
+`DocumentReference.content.attachment.url`), so it is deliberately **not** in the patient/person filter
+mappings and patient scopes cannot filter it by link. When `ENABLE_PATIENT_SCOPED_BINARY_CREATE` is on
+(default off), ownership is instead recorded on the resource through its standard `securityContext`
+reference. Design: `docs/superpowers/specs/2026-10-08-binary-patient-scoped-write-design.md`.
+
+- **Create (only).** A token with a patient scope may create a `Binary` if a patient scope grants it
+  (`patient/Binary.write`, `patient/Binary.c`, `patient/*.*`, ...). The server sets `securityContext` to the
+  caller's person proxy patient, `Patient/person.{clientFhirPersonId from the token}`. A client can never
+  supply it: any supplied value other than the caller's own is rejected (403, reason given, value not echoed),
+  and a missing person id is a 403. `access`/`owner` tags are not constrained (same as every other
+  patient-scoped create). Update, patch, delete and `$merge` stay forbidden for patient scopes.
+- **Any token with a patient scope is treated as patient-scoped for `Binary`**, including mixed
+  `patient/* + user/* + access/*` tokens: `user/`/`system/` privileges do not bypass the ownership check.
+- **Read.** `SearchManager.constructQueryAsync` ANDs an ownership filter onto the normal access-tag filter
+  (never instead of it), so it covers search, by-id, `$everything`, `$graph` and GraphQL. A Binary is *owned*
+  when its `securityContext` is a Patient reference (the person proxy `Patient/person.{uuid}`, or a real
+  patient), and it matches the caller when it is one of the caller's patient ids (the person's proxy plus
+  linked patients, as for every other patient-scoped read). Two modes:
+  - *Mixed token* (patient scope **and** a `user/` or `system/` scope; the clinical viewers): sees `Binary`
+    owned by the caller **plus every unowned `Binary`** (exactly as before); `Binary` owned by someone else
+    are excluded.
+  - *Pure patient token* (patient scope, no `user/`/`system/` scope): authorized by `patient/Binary.read`
+    alone, sees **only** `Binary` owned by the caller. Unowned `Binary` are never returned, because such a
+    token carries no access code and therefore no tenant filter exists for it.
+  - A caller with no person id gets `_uuid: '__invalid__'` (never "no filter").
+- **System/admin/user tokens without a patient scope** are unchanged and are not auto-set; a backend that
+  writes a member-owned `Binary` sets `securityContext` itself (`Patient/person.{uuid}` or a real `Patient/{id}`).
+- Existing `Binary` (none has a `securityContext`) stay readable by id by anyone with the tenant's access
+  scope; closing that is the later backfill, after which `Binary: 'securityContext.reference'` can join
+  `patientFilterMapping`.
+
 ## 6. Consent
 
 There is no single "consent system" — four independent mechanisms use `Consent` resources to gate

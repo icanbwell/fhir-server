@@ -141,9 +141,20 @@ class ScopesValidator {
                  * @type {string[]}
                  */
                 let scopes;
-                const accessViaPatientScopes = this.scopesManager.isAccessAllowedByPatientScopes({
-                    scope, resourceType
-                });
+                // Binary: a patient-scoped caller may create it (stamped with its person id) and, when it
+                // holds no user/ or system/ scope, read its own tagged Binary. Both are authorized by
+                // evaluating the patient scopes, like patient-filterable resource types. Anything else
+                // for Binary (update/patch/delete/merge, or reads by tokens that also hold user/system
+                // scopes) keeps its existing evaluation below. Off unless
+                // ENABLE_PATIENT_SCOPED_BINARY_CREATE.
+                const accessViaPersonTagScopes =
+                    this.scopesManager.isPatientScopedPersonContextCreate({ scope, resourceType, action }) ||
+                    (isReadOnlyAccessRequested(resourceTypeAccessRequested) &&
+                        this.scopesManager.isPersonContextStrictAccess({ scope, resourceType }));
+                const accessViaPatientScopes = accessViaPersonTagScopes ||
+                    this.scopesManager.isAccessAllowedByPatientScopes({
+                        scope, resourceType
+                    });
 
                 let error, success;
                 if (accessViaPatientScopes) {
@@ -277,10 +288,11 @@ class ScopesValidator {
      * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @property {Resource} resource
      * @property {string} accessRequested
+     * @property {boolean} [isCreate] true when the resource is being created
      *
      * @param {IsAccessToResourceAllowedByAccessScopesParams}
      */
-    isAccessToResourceAllowedByAccessScopes({requestInfo, resource, accessRequested = 'write'}) {
+    isAccessToResourceAllowedByAccessScopes({requestInfo, resource, accessRequested = 'write', isCreate = false}) {
         // eslint-disable-next-line no-useless-catch
         try {
             const {user, scope} = requestInfo;
@@ -289,7 +301,8 @@ class ScopesValidator {
                     resource,
                     user,
                     scope,
-                    accessRequested
+                    accessRequested,
+                    isCreate
                 })
             ) {
                 logInfo('Access scope check failed', {
@@ -349,17 +362,19 @@ class ScopesValidator {
      * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @property {Resource} resource
      * @property {string} base_version
+     * @property {boolean} [isCreate] true when the resource is being created
      *
      * @param {IsAccessToResourceAllowedByPatientScopesParams}
      */
-    async isAccessToResourceAllowedByPatientScopes({requestInfo, resource, base_version}) {
+    async isAccessToResourceAllowedByPatientScopes({requestInfo, resource, base_version, isCreate = false}) {
         // eslint-disable-next-line no-useless-catch
         try {
             if (
                 !(await this.patientScopeManager.canWriteResourceAsync({
                     resource,
                     ...requestInfo,
-                    base_version
+                    base_version,
+                    isCreate
                 }))
             ) {
                 throw new ForbiddenError(
@@ -406,6 +421,7 @@ class ScopesValidator {
      * @property {Resource} resource
      * @property {string} base_version
      * @property {string} accessRequested
+     * @property {boolean} [isCreate] true when the resource is being created (create operation only)
      *
      * @param {IsAccessToResourceAllowedByAccessAndPatientScopesParams}
      */
@@ -413,7 +429,8 @@ class ScopesValidator {
                                                                 requestInfo,
                                                                 resource,
                                                                 base_version,
-                                                                accessRequested = 'write'
+                                                                accessRequested = 'write',
+                                                                isCreate = false
                                                             }) {
         // eslint-disable-next-line no-useless-catch
         try {
@@ -421,11 +438,11 @@ class ScopesValidator {
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             resource = await this.preSaveManager.preSaveAsync({resource, options: preSaveOptions});
             // validate access scopes for resource
-            this.isAccessToResourceAllowedByAccessScopes({requestInfo, resource, accessRequested});
+            this.isAccessToResourceAllowedByAccessScopes({requestInfo, resource, accessRequested, isCreate});
             // validate if resource being accessed is restricted for patient
             this.isAccessToResourceRestrictedForPatientScope({requestInfo, resource, accessRequested});
             // validate patient scopes for resource
-            await this.isAccessToResourceAllowedByPatientScopes({requestInfo, resource, base_version});
+            await this.isAccessToResourceAllowedByPatientScopes({requestInfo, resource, base_version, isCreate});
         } catch (e) {
             throw e;
         }

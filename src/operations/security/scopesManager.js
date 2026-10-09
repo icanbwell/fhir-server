@@ -182,6 +182,11 @@ class ScopesManager {
         ignoreRemovals = false,
         accessRequested = 'write'
     }) {
+        // a patient-scoped create of a person-tag resource (Binary) is likewise authorized via the
+        // person it is stamped for (patientScopeManager.canWriteResourceAsync), not via access codes
+        if (isCreate && this.isPersonContextResourceScoped({ scope, resourceType })) {
+            return true;
+        }
         // a patient scoped caller is authorized via the patient/person the resource belongs to, not via
         // access codes - it holds no access scopes to compare against, so defer to the patient scope
         // checks. Only safe on a create (see isCreate doc above) - an existing resource's tags must
@@ -250,11 +255,14 @@ class ScopesManager {
      * @param {string} accessRequested
      * @return {boolean}
      */
-    isAccessToResourceAllowedBySecurityTags ({ resource, user, scope, accessRequested = 'read' }) {
+    isAccessToResourceAllowedBySecurityTags ({ resource, user, scope, accessRequested = 'read', isCreate = false }) {
         const accessViaPatientScopes = this.isAccessAllowedByPatientScopes({
             scope, resourceType: resource.resourceType
         });
-        if (accessViaPatientScopes) {
+        // Only on create: Binary created by a patient-scoped caller carries the caller's person tag
+        // instead of an access scope (see isPersonContextResourceScoped).
+        if (accessViaPatientScopes ||
+            (isCreate && this.isPersonContextResourceScoped({ scope, resourceType: resource.resourceType }))) {
             // Patient scope tokens in this system never carry an access/ scope of their
             // own (that's the separate tenant/service-account mechanism), so requiring a
             // tenant-tag match here would deny every legitimate patient-scoped write. The
@@ -494,6 +502,59 @@ class ScopesManager {
         // comment on hasPatientScope below for why these must always agree.
         const scopes = this.parseScopes(scope);
         return scopes.some(s => s.toLowerCase().startsWith('patient/'));
+    }
+
+    /**
+     * Whether this request is for a person-security-tag resource type (Binary) by a caller holding a
+     * patient scope, with ENABLE_PATIENT_SCOPED_BINARY_CREATE on. Such callers are authorized for the
+     * resource type via their patient scopes and are filtered by the clientPersonId tag.
+     * Keyed on hasPatientScope (not a stricter check) so it can never disagree with `isUser`; a token
+     * with ANY patient scope is treated as patient-scoped for these resource types, mixed tokens included.
+     * @typedef {Object} IsPersonTagResourceScopedParams
+     * @property {string|undefined} scope
+     * @property {string} resourceType
+     *
+     * @param {IsPersonTagResourceScopedParams}
+     * @return {boolean}
+     */
+    isPersonContextResourceScoped ({ scope, resourceType }) {
+        return this.configManager.enablePatientScopedBinaryCreate &&
+            !!scope &&
+            this.patientFilterManager.isPersonSecurityContextResource({ resourceType }) &&
+            this.hasPatientScope({ scope });
+    }
+
+    /**
+     * Whether a patient-scoped caller is creating a person-security-tag resource (Binary): the only
+     * write a patient scope may authorize for these types.
+     * @typedef {Object} IsPatientScopedPersonTagCreateParams
+     * @property {string|undefined} scope
+     * @property {string} resourceType
+     * @property {string} [action] the FHIR interaction, e.g. 'create'
+     *
+     * @param {IsPatientScopedPersonTagCreateParams}
+     * @return {boolean}
+     */
+    isPatientScopedPersonContextCreate ({ scope, resourceType, action }) {
+        return action === 'create' && this.isPersonContextResourceScoped({ scope, resourceType });
+    }
+
+    /**
+     * Whether a person-security-tag resource read is authorized through the caller's patient scopes
+     * alone ("strict" mode): a patient-scoped caller holding NO user/ or system/ scope (so no access
+     * code either, in practice). Such a caller reads only Binary tagged with its own person id; untagged
+     * Binary are never returned to it. Callers that also hold user/ or system/ scopes keep today's
+     * evaluation and additionally never see Binary tagged for a different person (mixed mode).
+     * @typedef {Object} IsPersonTagStrictAccessParams
+     * @property {string|undefined} scope
+     * @property {string} resourceType
+     *
+     * @param {IsPersonTagStrictAccessParams}
+     * @return {boolean}
+     */
+    isPersonContextStrictAccess ({ scope, resourceType }) {
+        return this.isPersonContextResourceScoped({ scope, resourceType }) &&
+            this.getResourceTypeScopes({ scope }).length === 0;
     }
 
     /**

@@ -37,6 +37,73 @@ class PatientQueryCreator {
     }
 
     /**
+     * Narrows a query on a securityContext-owned resource type (Binary) to what a patient-scoped caller may
+     * read. ANDed onto whatever filter (including the tenant access-tag filter) is already in the query,
+     * never instead of it.
+     *
+     * "Owned by the caller" means the resource's securityContext is a Patient reference matching one of the
+     * caller's patient ids: a real linked patient (`Patient/{uuid}`), or the person's proxy patient
+     * (`Patient/person.{person_uuid}`) which getPatientIdsFromScopeAsync always includes. Matching follows the
+     * same uuid / source-id split as getQueryWithPatientFilter.
+     *
+     * - no patient ids: fails closed ({_uuid: '__invalid__'}) when strict; otherwise only unowned resources
+     * - strict (pure patient token, so no tenant filter exists): owned by the caller only; a resource with
+     *   no securityContext is never returned
+     * - otherwise (mixed token): owned by the caller, or not owned by anybody (no securityContext pointing
+     *   at a Patient), so existing Binary read exactly as before; Binary owned by someone else are excluded
+     * @typedef {Object} GetQueryWithPersonSecurityContextParams
+     * @property {string[]|undefined} patientIds the caller's patient ids (see getPatientIdsFromScopeAsync)
+     * @property {import('mongodb').Document} query
+     * @property {string} resourceType
+     * @property {boolean} useHistoryTable
+     * @property {boolean} strict
+     *
+     * @param {GetQueryWithPersonSecurityContextParams}
+     * @return {import('mongodb').Document}
+     */
+    getQueryWithPersonSecurityContext({patientIds, query, resourceType, useHistoryTable, strict}) {
+        const property = this.patientFilterManager.getPersonSecurityContextProperty({resourceType});
+        if (!property) {
+            throw new ForbiddenError(`Resource type ${resourceType} is not owned through a securityContext`);
+        }
+        const fieldMapper = new FieldMapper({useHistoryTable});
+        const uuidField = fieldMapper.getFieldName(property.replace('.reference', '._uuid'));
+        const sourceIdField = fieldMapper.getFieldName(property.replace('.reference', '._sourceId'));
+        const ids = (patientIds || []).filter(id => typeof id === 'string' && id.length > 0);
+        /**
+         * @type {import('mongodb').Document[]}
+         */
+        const ownedQueries = [];
+        const uuids = ids.filter(id => isUuid(id)).map(id => `Patient/${id}`);
+        if (uuids.length > 0) {
+            ownedQueries.push({[uuidField]: {$in: uuids}});
+        }
+        const nonUuids = ids.filter(id => !isUuid(id)).map(id => `Patient/${id}`);
+        if (nonUuids.length > 0) {
+            ownedQueries.push({[sourceIdField]: {$in: nonUuids}});
+        }
+        /**
+         * @type {import('mongodb').Document|null}
+         */
+        const ownedQuery = ownedQueries.length === 0
+            ? null
+            : (ownedQueries.length === 1 ? ownedQueries[0] : {$or: ownedQueries});
+        let personQuery;
+        if (strict) {
+            personQuery = ownedQuery || {_uuid: '__invalid__'};
+        } else {
+            const unownedQuery = {
+                $and: [
+                    {[uuidField]: {$not: {$regex: '^Patient/'}}},
+                    {[sourceIdField]: {$not: {$regex: '^Patient/'}}}
+                ]
+            };
+            personQuery = ownedQuery ? {$or: [unownedQuery, ownedQuery]} : unownedQuery;
+        }
+        return this.r4SearchQueryCreator.appendAndSimplifyQuery({query, andQuery: personQuery});
+    }
+
+    /**
      * Gets Patient Filter Query
      * @param {string[] | null} patientIds
      * @param {string[] | null} personIds

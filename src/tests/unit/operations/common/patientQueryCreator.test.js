@@ -41,6 +41,111 @@ describe('PatientQueryCreator', () => {
         });
     });
 
+    describe('getQueryWithPersonSecurityContext', () => {
+        const UUID_1 = '8d1d6c0a-5a43-4a7b-9c07-3f1f6f2a9e11';
+        const UUID_2 = '2b7a64f8-0c1e-4d6a-8e55-9a3c1d7b6f22';
+        const PERSON_UUID = 'c4f9a1d2-7e30-4b58-a6d1-0e8b2f3c5a33';
+        // isUuid() is true for the proxy id (it contains the person's uuid), so, exactly like the existing patient
+        // filter, the proxy is matched on _uuid, where the reference handler stores it unhashed
+        const proxy = `person.${PERSON_UUID}`;
+        const NON_UUID = 'legacy-patient-1';
+        const unowned = (uuidField = 'securityContext._uuid', sourceIdField = 'securityContext._sourceId') => ({
+            $and: [
+                { [uuidField]: { $not: { $regex: '^Patient/' } } },
+                { [sourceIdField]: { $not: { $regex: '^Patient/' } } }
+            ]
+        });
+
+        beforeEach(() => {
+            mockPatientFilterManager.getPersonSecurityContextProperty = jest.fn().mockImplementation(
+                ({ resourceType }) => (resourceType === 'Binary' ? 'securityContext.reference' : undefined)
+            );
+        });
+
+        const run = (overrides) => patientQueryCreator.getQueryWithPersonSecurityContext({
+            patientIds: [proxy, UUID_1, UUID_2],
+            query: { _uuid: 'b1' },
+            resourceType: 'Binary',
+            useHistoryTable: false,
+            strict: false,
+            ...overrides
+        });
+
+        it('throws for a resource type that is not owned through a securityContext', () => {
+            expect(() => run({ resourceType: 'Condition' })).toThrow('not owned through a securityContext');
+        });
+
+        it('mixed mode: owned by the caller (linked patient uuids or the person proxy) OR owned by nobody (T34)', () => {
+            const result = run();
+            expect(result).toEqual({
+                $and: [
+                    { _uuid: 'b1' },
+                    {
+                        $or: [
+                            unowned(),
+                            { 'securityContext._uuid': { $in: [`Patient/${proxy}`, `Patient/${UUID_1}`, `Patient/${UUID_2}`] } }
+                        ]
+                    }
+                ]
+            });
+        });
+
+        it('matches a non-uuid patient id on the stored source id', () => {
+            expect(run({ strict: true, patientIds: [proxy, NON_UUID] })).toEqual({
+                $and: [
+                    { _uuid: 'b1' },
+                    {
+                        $or: [
+                            { 'securityContext._uuid': { $in: [`Patient/${proxy}`] } },
+                            { 'securityContext._sourceId': { $in: [`Patient/${NON_UUID}`] } }
+                        ]
+                    }
+                ]
+            });
+        });
+
+        it('strict mode: owned by the caller only; no clause admits a resource with no securityContext (T39)', () => {
+            const result = run({ strict: true });
+            expect(result).toEqual({
+                $and: [
+                    { _uuid: 'b1' },
+                    { 'securityContext._uuid': { $in: [`Patient/${proxy}`, `Patient/${UUID_1}`, `Patient/${UUID_2}`] } }
+                ]
+            });
+            expect(JSON.stringify(result)).not.toContain('$not');
+        });
+
+        it('uses a single owned clause when there is only a proxy id (the usual member upload)', () => {
+            expect(run({ strict: true, patientIds: [proxy] })).toEqual({
+                $and: [{ _uuid: 'b1' }, { 'securityContext._uuid': { $in: [`Patient/${proxy}`] } }]
+            });
+        });
+
+        it('strict mode fails closed with no patient ids (T33)', () => {
+            for (const patientIds of [undefined, null, [], ['']]) {
+                expect(run({ strict: true, patientIds })).toEqual({
+                    $and: [{ _uuid: 'b1' }, { _uuid: '__invalid__' }]
+                });
+            }
+        });
+
+        it('mixed mode with no patient ids only admits resources owned by nobody', () => {
+            expect(run({ patientIds: [] })).toEqual({ $and: [{ _uuid: 'b1' }, unowned()] });
+        });
+
+        it('uses the resource.* field names against the history table', () => {
+            const result = run({ strict: true, useHistoryTable: true, patientIds: [proxy] });
+            expect(result).toEqual({
+                $and: [
+                    { _uuid: 'b1' },
+                    { 'resource.securityContext._uuid': { $in: [`Patient/${proxy}`] } }
+                ]
+            });
+            const mixed = run({ useHistoryTable: true, patientIds: [proxy] });
+            expect(JSON.stringify(mixed)).toContain('resource.securityContext._uuid');
+        });
+    });
+
     describe('getQueryWithPatientFilter', () => {
         it('should throw ForbiddenError when resource cannot be accessed via patient scope', () => {
             mockPatientFilterManager.canAccessResourceWithPatientScope.mockReturnValue(false);

@@ -161,6 +161,37 @@ class PatientFilterManager {
     }
 
     /**
+     * Resource types that are owned by a patient or person through their `securityContext` reference, but only
+     * when one is set: a member's upload carries `Patient/person.{person_uuid}`, a backend or migration may
+     * point it at a real `Patient/{id}`. Value is the reference property holding the owner.
+     * Deliberately NOT part of any of the filter mappings above: adding Binary there would make it
+     * patient-filterable for every caller, and every existing Binary (which has no securityContext) would
+     * disappear from them (see the Binary design doc, section 4.3).
+     * @returns {Object<string, string>}
+     */
+    get personSecurityContextResources() {
+        return { Binary: 'securityContext.reference' };
+    }
+
+    /**
+     * Whether the resource type is owned through its securityContext (see personSecurityContextResources)
+     * @param {string} resourceType
+     * @returns {boolean}
+     */
+    isPersonSecurityContextResource({resourceType}) {
+        return Object.hasOwn(this.personSecurityContextResources, resourceType);
+    }
+
+    /**
+     * The reference property holding the owner of a securityContext-owned resource type
+     * @param {string} resourceType
+     * @returns {string|undefined}
+     */
+    getPersonSecurityContextProperty({resourceType}) {
+        return this.personSecurityContextResources[resourceType];
+    }
+
+    /**
      * Checks if the resourceType is related to patient
      * @param {string} resourceType
      */

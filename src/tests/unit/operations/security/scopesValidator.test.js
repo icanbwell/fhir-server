@@ -30,6 +30,8 @@ describe('ScopesValidator', () => {
         mockScopesManager.getPatientScopes = jest.fn().mockReturnValue([]);
         mockScopesManager.getResourceTypeScopes = jest.fn().mockReturnValue(['user/Patient.read']);
         mockScopesManager.hasPatientScope = jest.fn().mockReturnValue(false);
+        mockScopesManager.isPatientScopedPersonContextCreate = jest.fn().mockReturnValue(false);
+        mockScopesManager.isPersonContextStrictAccess = jest.fn().mockReturnValue(false);
         mockScopesManager.getAccessCodesFromScopes = jest.fn().mockReturnValue(['client']);
         mockScopesManager.isAccessToResourceAllowedBySecurityTags = jest.fn().mockReturnValue(true);
 
@@ -606,7 +608,8 @@ describe('ScopesValidator', () => {
                 resource: { resourceType: 'Patient', id: '123' },
                 user: 'testUser',
                 scope: 'access/client.*',
-                accessRequested: 'write'
+                accessRequested: 'write',
+                isCreate: false
             });
         });
     });
