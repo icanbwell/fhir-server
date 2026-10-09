@@ -16,6 +16,7 @@ const { QueryRewriterManager } = require('../../../../queryRewriters/queryRewrit
 const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
 const { SearchManager } = require('../../../../operations/search/searchManager');
 const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
+const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 
 /**
@@ -38,6 +39,7 @@ describe('RemoveOperation', () => {
     let mockPostRequestProcessor;
     let mockSearchManager;
     let mockRemoveHelper;
+    let mockMongoGroupMemberRepository;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -76,6 +78,10 @@ describe('RemoveOperation', () => {
             deleteManyAsync: jest.fn().mockResolvedValue(1)
         });
 
+        mockMongoGroupMemberRepository = createMockInstance(MongoGroupMemberRepository, {
+            cascadeDeleteForGroupAsync: jest.fn().mockResolvedValue(0)
+        });
+
         removeOperation = new RemoveOperation({
             databaseQueryFactory: mockDatabaseQueryFactory,
             auditLogger: mockAuditLogger,
@@ -85,7 +91,8 @@ describe('RemoveOperation', () => {
             queryRewriterManager: mockQueryRewriterManager,
             postRequestProcessor: mockPostRequestProcessor,
             searchManager: mockSearchManager,
-            removeHelper: mockRemoveHelper
+            removeHelper: mockRemoveHelper,
+            mongoGroupMemberRepository: mockMongoGroupMemberRepository
         });
     });
 

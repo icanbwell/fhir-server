@@ -8,7 +8,8 @@ const { generateUUIDv5 } = require('../../utils/uid.util');
 const { GROUP_MEMBER_RESOURCE_TYPE } = require('../../constants');
 const { resolveMemberWrite } = require('../../operations/common/resolveMemberWrite');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
-const { logError } = require('../../operations/common/logging');
+const { logError, logInfo } = require('../../operations/common/logging');
+const { ConfigManager } = require('../../utils/configManager');
 
 /**
  * Repository for the MongoDB-native, large-Group ("extended") member storage, written from
@@ -37,8 +38,9 @@ class MongoGroupMemberRepository {
      * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      * @param {RemoveHelper} removeHelper
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {ConfigManager} configManager
      */
-    constructor({ databaseQueryFactory, fastDatabaseBulkInserter, removeHelper, resourceLocatorFactory }) {
+    constructor({ databaseQueryFactory, fastDatabaseBulkInserter, removeHelper, resourceLocatorFactory, configManager }) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /** @type {DatabaseQueryFactory} */
         this.databaseQueryFactory = databaseQueryFactory;
@@ -54,6 +56,10 @@ class MongoGroupMemberRepository {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /** @type {ResourceLocatorFactory} */
         this.resourceLocatorFactory = resourceLocatorFactory;
+
+        assertTypeEquals(configManager, ConfigManager);
+        /** @type {ConfigManager} */
+        this.configManager = configManager;
     }
 
     /**
@@ -241,6 +247,64 @@ class MongoGroupMemberRepository {
         }
 
         return outcomes;
+    }
+
+    /**
+     * Tombstones then hard-deletes every GroupMember row of an extended Group, as the first half
+     * of deleting that Group (the Group document itself is deleted by the caller afterwards --
+     * never before: a Group deleted first and a crash before this ran would orphan its rows with
+     * no way for a retry to find them again).
+     *
+     * Works in batches, one after another. Each pass re-queries the next `batchSize` rows still
+     * present for the Group (index-backed on groupUuid) and tombstones+deletes them via
+     * RemoveHelper.deleteManyAsync (history is written before the delete), until none remain. So
+     * memory holds at most one batch, and a retry after a crash simply finds only what is left.
+     *
+     * The live rows are handed to RemoveHelper as they are: the DELETE history entry is the row's
+     * last-known state (its own member and versionId), stamped with the time of the delete, like
+     * any other resource delete. (A PATCH remove, by contrast, stamps the Group's new version.)
+     *
+     * @param {Object} params
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {string} params.groupUuid - _uuid of the Group being deleted
+     * @returns {Promise<number>} number of GroupMember rows deleted
+     */
+    async cascadeDeleteForGroupAsync({ requestInfo, base_version, groupUuid }) {
+        const batchSize = this.configManager.groupMemberCascadeDeleteBatchSize;
+        const deleteRequestInfo = new FhirRequestInfo({ ...requestInfo, method: 'DELETE' });
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+
+        let totalDeleted = 0;
+        while (true) {
+            const cursor = await databaseQueryManager.findAsync({
+                query: { groupUuid },
+                options: { limit: batchSize, projection: { _id: 0 } }
+            });
+            const rows = await cursor.toArrayAsync();
+            if (rows.length === 0) {
+                logInfo('Cascade deleted GroupMember rows for Group', { groupUuid, totalDeleted });
+                return totalDeleted;
+            }
+
+            const deleted = await this.removeHelper.deleteManyAsync({
+                requestInfo: deleteRequestInfo,
+                resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+                resources: rows,
+                base_version,
+                skipRequestScopedBuffering: true
+            });
+            if (deleted === 0) {
+                throw new Error(
+                    `GroupMember cascade delete made no progress for Group ${groupUuid}: ` +
+                    `${rows.length} rows found but none deleted`
+                );
+            }
+            totalDeleted += deleted;
+        }
     }
 
     async getMemberCursorAsync({ base_version, groupUuid }) {

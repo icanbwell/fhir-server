@@ -919,7 +919,8 @@ const createContainer = function () {
             queryRewriterManager: c.queryRewriterManager,
             postRequestProcessor: c.postRequestProcessor,
             searchManager: c.searchManager,
-            removeHelper: c.removeHelper
+            removeHelper: c.removeHelper,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(
@@ -979,7 +980,8 @@ const createContainer = function () {
             databaseQueryFactory: c.databaseQueryFactory,
             fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
             removeHelper: c.removeHelper,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            configManager: c.configManager
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(

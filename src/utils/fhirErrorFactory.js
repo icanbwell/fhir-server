@@ -63,4 +63,34 @@ function createExtendedGroupMemberWriteError({ groupId }) {
     };
 }
 
-module.exports = { createTooCostlyError, createExtendedGroupMemberWriteError, GUIDANCE };
+/**
+ * Creates the too-costly BadRequestError for a DELETE that matches more than one Group in
+ * extended member storage. Deleting an extended Group also tombstones and deletes every one of its
+ * member rows (up to millions), so only one is deleted per request.
+ * @param {Object} params
+ * @param {number} params.matched - number of extended Groups the delete matched
+ * @returns {Object} Error parameters for BadRequestError constructor
+ */
+function createExtendedGroupDeleteTooCostlyError({ matched }) {
+    return {
+        message: `Delete matched ${matched} extended Groups; only one can be deleted per request`,
+        options: {
+            issue: [new OperationOutcomeIssue({
+                severity: 'error',
+                code: 'too-costly',
+                diagnostics:
+                    `Delete matched ${matched} Groups in extended member storage. Deleting an extended ` +
+                    `Group also deletes all of its members, so deleting more than one in a single ` +
+                    `request is too costly to process. Delete them one at a time ` +
+                    `(example: DELETE /4_0_0/Group/{id}).`
+            })]
+        }
+    };
+}
+
+module.exports = {
+    createTooCostlyError,
+    createExtendedGroupMemberWriteError,
+    createExtendedGroupDeleteTooCostlyError,
+    GUIDANCE
+};

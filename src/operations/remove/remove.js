@@ -13,6 +13,10 @@ const {SearchManager} = require('../search/searchManager');
 const {OPERATIONS: {DELETE}} = require('../../constants');
 const {logInfo, logWarn} = require('../common/logging');
 const { RemoveHelper } = require('./removeHelper');
+const { BadRequestError } = require('../../utils/httpErrors');
+const { createExtendedGroupDeleteTooCostlyError } = require('../../utils/fhirErrorFactory');
+const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
+const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 
 class RemoveOperation {
     /**
@@ -25,6 +29,7 @@ class RemoveOperation {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {SearchManager} searchManager
      * @param {RemoveHelper} removeHelper
+     * @param {MongoGroupMemberRepository} mongoGroupMemberRepository
      */
     constructor(
         {
@@ -36,7 +41,8 @@ class RemoveOperation {
             queryRewriterManager,
             postRequestProcessor,
             searchManager,
-            removeHelper
+            removeHelper,
+            mongoGroupMemberRepository
         }
     ) {
         /**
@@ -89,6 +95,12 @@ class RemoveOperation {
          */
         this.removeHelper = removeHelper;
         assertTypeEquals(removeHelper, RemoveHelper);
+
+        /**
+         * @type {MongoGroupMemberRepository}
+         */
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
     }
 
     /**
@@ -201,6 +213,10 @@ class RemoveOperation {
                 }
             }
 
+            await this.cascadeDeleteExtendedGroupMembersAsync({
+                requestInfo, base_version, resourceType, resources: resourceArrayToDelete
+            });
+
             const deletedResourceCount = await this.removeHelper.deleteManyAsync({
                 requestInfo,
                 resources: resourceArrayToDelete,
@@ -247,6 +263,46 @@ class RemoveOperation {
             });
             throw e;
         }
+    }
+
+    /**
+     * An extended Group's roster lives in GroupMember_4_0_0, not on the Group document, so deleting
+     * just the document would orphan those rows. Tombstones and hard-deletes the roster of the
+     * extended Group among the resources about to be deleted -- always before the caller deletes
+     * the Group itself. No-op for anything other than Group, and for embedded Groups.
+     *
+     * Rejects, before writing anything, a delete that includes an extended Group while extended
+     * Group support is disabled, or that matches more than one extended Group.
+     * @param {Object} params
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {string} params.resourceType
+     * @param {Resource[]} params.resources - the resources about to be deleted
+     * @returns {Promise<void>}
+     * @private
+     */
+    async cascadeDeleteExtendedGroupMembersAsync({requestInfo, base_version, resourceType, resources}) {
+        if (resourceType !== 'Group') {
+            return;
+        }
+        const extendedGroups = resources.filter(r => r[MONGO_GROUP_EXTENDED_FIELD] === true);
+        if (extendedGroups.length === 0) {
+            return;
+        }
+        if (!this.configManager.enableExtendedGroup) {
+            throw new BadRequestError(new Error(
+                'Cannot delete an extended Group while extended Group support is disabled'
+            ));
+        }
+        if (extendedGroups.length > 1) {
+            const { message, options } = createExtendedGroupDeleteTooCostlyError({
+                matched: extendedGroups.length
+            });
+            throw new BadRequestError({ message }, options);
+        }
+        await this.mongoGroupMemberRepository.cascadeDeleteForGroupAsync({
+            requestInfo, base_version, groupUuid: extendedGroups[0]._uuid
+        });
     }
 }
 
