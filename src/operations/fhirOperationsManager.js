@@ -382,6 +382,15 @@ class FhirOperationsManager {
             if (queryTag && debugTags) {
                 debugTags.push(queryTag);
             }
+            // DCON-5855: a chain criterion that's too broad must not be allowed to build an
+            // unbounded $in across pages -- a performance/DoS risk, and functionally close to
+            // "no restriction" even when it isn't literally unfiltered. Truncate rather than
+            // fail the whole search -- the caller has no way to know in advance how broad their
+            // criteria will turn out to be.
+            if (resolvedUuids.length > this.configManager.chainedSearchMaxResolvedIds) {
+                resolvedUuids.length = this.configManager.chainedSearchMaxResolvedIds;
+                break;
+            }
             if (entries.length < pageSize) {
                 break;
             }
@@ -1027,7 +1036,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<any | undefined>}
      */
-    async searchByVersionId(args, { req }, resourceType) {
+    async searchByVersionId(args, { req, res }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
         this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'searchByVersionId' });
         /**
@@ -1048,7 +1057,8 @@ class FhirOperationsManager {
             {
                 requestInfo: requestInfo,
                 parsedArgs,
-                resourceType
+                resourceType,
+                res
             }
         );
     }

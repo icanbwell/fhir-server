@@ -1,0 +1,13 @@
+{
+    "resourceType": "Group",
+    "id": "dcon5532-ext-group",
+    "meta": {
+        "source": "http://test-system.com/Group",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "test-owner" },
+            { "system": "https://www.icanbwell.com/access", "code": "test-access" }
+        ]
+    },
+    "type": "person",
+    "actual": true
+}

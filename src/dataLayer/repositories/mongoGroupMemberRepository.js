@@ -3,10 +3,14 @@ const { DatabaseQueryFactory } = require('../databaseQueryFactory');
 const { FastDatabaseBulkInserter } = require('../fastDatabaseBulkInserter');
 const { RemoveHelper } = require('../../operations/remove/removeHelper');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
+const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { GROUP_MEMBER_RESOURCE_TYPE } = require('../../constants');
 const { resolveMemberWrite } = require('../../operations/common/resolveMemberWrite');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { logError } = require('../../operations/common/logging');
+const { QueryItem } = require('../../operations/graph/queryItem');
+const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 
 /**
  * Repository for the MongoDB-native, large-Group ("extended") member storage, written from
@@ -21,8 +25,8 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
  * members, deciding what each requested write actually needs to do) and then, unless every one
  * of them resolved to a no-op, pass that same result into applyResolvedMemberWritesAsync() to
  * write it -- one DB read+resolve per PATCH request, not two. applyResolvedMemberWritesAsync()
- * flushes its own buffered create/update writes before returning, so callers don't need their
- * own reference to this same FastDatabaseBulkInserter instance just to commit it.
+ * flushes its create/update ops before returning, ahead of the Group's own write, and throws if
+ * any of them fails.
  *
  * A PATCH remove hard-deletes the GroupMember document instead of a soft inactive:true flag, via
  * RemoveHelper.deleteManyAsync() (history-then-delete), wired to the databaseBulkInserter
@@ -34,8 +38,9 @@ class MongoGroupMemberRepository {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      * @param {RemoveHelper} removeHelper
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
-    constructor({ databaseQueryFactory, fastDatabaseBulkInserter, removeHelper }) {
+    constructor({ databaseQueryFactory, fastDatabaseBulkInserter, removeHelper, resourceLocatorFactory }) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /** @type {DatabaseQueryFactory} */
         this.databaseQueryFactory = databaseQueryFactory;
@@ -47,6 +52,10 @@ class MongoGroupMemberRepository {
         assertTypeEquals(removeHelper, RemoveHelper);
         /** @type {RemoveHelper} */
         this.removeHelper = removeHelper;
+
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+        /** @type {ResourceLocatorFactory} */
+        this.resourceLocatorFactory = resourceLocatorFactory;
     }
 
     /**
@@ -64,6 +73,57 @@ class MongoGroupMemberRepository {
      */
     static deriveMemberUuid(groupUuid, entityUuid) {
         return generateUUIDv5(`${groupUuid}|${entityUuid}`);
+    }
+
+    /**
+     * Finds every distinct groupUuid with a GroupMember_4_0_0 row matching the given query --
+     * the reverse lookup for GET /Group?member=X. The caller builds `query` using the same
+     * field-resolution rules the standard reference search parameter already uses
+     * (member.entity._uuid / member.entity._sourceId) so this method's matching semantics never
+     * drift from the embedded-Group case -- it just runs that same shape of filter against this
+     * collection instead. Matches active and inactive rows alike: FHIR's `member` search
+     * parameter has no notion of "currently active member".
+     *
+     * No tenant filter here -- a GroupMember row's copied security tags exist for the shared
+     * write pipeline's own invariants, not as a second, independently-checked tenant boundary.
+     * The caller is responsible for joining the returned groupUuids back against Group_4_0_0
+     * and applying the caller's own tenant filter there.
+     *
+     * The lookup runs once. When `explain` is set (`_debug` / `_explain`) the explain plan is taken
+     * from the same cursor before its rows are read, as search and $everything do, so the plan
+     * and the result cannot drift apart, and the lookup is returned as `explainedQuery`.
+     *
+     * @param {Object} params
+     * @param {string} params.base_version
+     * @param {import('mongodb').Document} params.query
+     * @param {boolean} [params.explain] also explain the lookup and return it as `explainedQuery`
+     * @returns {Promise<{groupUuids: string[], explainedQuery: {queryItem: QueryItem, options: Object, explanations: import('mongodb').Document[], columns: Set}|undefined}>}
+     */
+    async findGroupUuidsByMemberQueryAsync ({ base_version, query, explain = false }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        // only the group uuid of each matching GroupMember row is needed to find the extended Groups
+        const options = { projection: { groupUuid: 1, _id: 0 } };
+        const cursor = await databaseQueryManager.findAsync({ query, options });
+        const explanations = explain ? await cursor.explainAsync() : [];
+        const rows = await cursor.toArrayAsync();
+        return {
+            groupUuids: [...new Set(rows.map((row) => row.groupUuid))],
+            explainedQuery: explain
+                ? {
+                    queryItem: new QueryItem({
+                        query,
+                        resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+                        collectionName: cursor.getCollection()
+                    }),
+                    options,
+                    explanations,
+                    columns: MongoQuerySimplifier.findColumnsInFilter({ filter: query })
+                }
+                : undefined
+        };
     }
 
     /**
@@ -142,6 +202,8 @@ class MongoGroupMemberRepository {
      * @param {Map<string, {writeRequest: Object, writeType: 'create'|'update'|'delete'|'none', member: Object|undefined}>} params.resolvedMemberWrites
      *   the result of a prior resolveMemberWritesAsync call against these same requested writes.
      * @returns {Promise<Array<{reference:string, operation:'create'|'update'|'delete'|'none'}>>}
+     * @throws {Error} if any create/update fails to write, so the caller never goes on to write
+     *   the Group itself against a roster that isn't there.
      */
     async applyResolvedMemberWritesAsync({ requestInfo, base_version, groupUuid, groupVersionId, groupLastUpdated, sourceAssigningAuthority, securityTags, resolvedMemberWrites }) {
         if (!resolvedMemberWrites || resolvedMemberWrites.size === 0) {
@@ -200,7 +262,18 @@ class MongoGroupMemberRepository {
         }
 
         if (hasBufferedWrite) {
-            await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+            const results = await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+            const failedResults = results.filter((result) => result.issue);
+            if (failedResults.length > 0) {
+                logError('Error writing Group members', {
+                    args: {
+                        requestId: requestInfo.requestId,
+                        groupUuid,
+                        issues: failedResults.map((result) => result.issue)
+                    }
+                });
+                throw new Error('Error writing Group members');
+            }
         }
 
         if (docsToDelete.length > 0) {
@@ -231,6 +304,125 @@ class MongoGroupMemberRepository {
         return await databaseQueryManager.findAsync({
             query: { groupUuid }
         });
+    }
+
+    /**
+     * Deletes every GroupMember_4_0_0 row of groupUuid that was not written for the given Group
+     * version.
+     *
+     * Its one caller is groupPromotion.js's promoteGroup, which passes the version the promotion
+     * claims (v+1). A Group that has never extended has no legitimate rows, so any row stamped
+     * with another version is left over from an earlier promotion attempt (or from an earlier life
+     * of a deleted and recreated Group, whose versions restarted). Rows stamped v+1 are kept: they
+     * belong to this promotion or to a concurrent one writing the same version, so two promotions
+     * never delete each other's roster.
+     *
+     * @param {Object} params
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {string} params.groupUuid
+     * @param {number} params.versionId - rows stamped with any other version are deleted.
+     * @returns {Promise<number>} how many rows were removed
+     */
+    async removeMembersNotAtVersionAsync({ requestInfo, base_version, groupUuid, versionId }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        const cursor = await databaseQueryManager.findAsync({
+            query: { groupUuid, 'meta.versionId': { $ne: `${versionId}` } }
+        });
+        // Raw documents, not toObjectArrayAsync(): deleteManyAsync only needs the plain field values.
+        const existingMembers = await cursor.toArrayAsync();
+        if (existingMembers.length === 0) {
+            return 0;
+        }
+
+        // Cloned FhirRequestInfo overrides method to 'DELETE' for the tombstone, same as
+        // applyResolvedMemberWritesAsync's own delete branch. No preserveLastUpdated here: unlike
+        // that branch, these rows aren't being deleted as part of the same write that just
+        // stamped a fresh groupLastUpdated on them -- they're stale leftovers being garbage
+        // collected, so the tombstone should carry the real time of deletion.
+        await this.removeHelper.deleteManyAsync({
+            requestInfo: new FhirRequestInfo({ ...requestInfo, method: 'DELETE' }),
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            resources: existingMembers,
+            base_version
+        });
+        return existingMembers.length;
+    }
+
+    /**
+     * Reconstructs the roster as it stood at a point in time, straight from
+     * GroupMember_4_0_0_History -- the live GroupMember_4_0_0 collection is never consulted.
+     * That's what makes this correct for a membership that was hard-deleted and never revived
+     * (no live row exists for it, ever again) and for a Group that was deleted and recreated
+     * (live-collection state resets; history doesn't) -- see design doc §6.
+     *
+     * For each row identity (_uuid), only the latest history entry at or before
+     * targetLastUpdated survives; if that latest entry is a tombstone (request.method ===
+     * 'DELETE') the row is dropped entirely, since the membership was already removed as of
+     * that moment.
+     *
+     * Backed by the GroupMember_4_0_0_History compound index (customIndexes.js): match by
+     * groupUuid, then $sort/$group using the same key order/directions as that index lets
+     * MongoDB's $groupByDistinctScan optimization walk it directly (FETCH<-DISTINCT_SCAN, no
+     * blocking SORT/GROUP), verified against 55k rows. Keep the $sort spec here in lockstep with
+     * the index if either changes.
+     *
+     * @param {Object} params
+     * @param {string} params.base_version
+     * @param {string} params.groupUuid
+     * @param {Date} params.targetLastUpdated - the target Group version's own meta.lastUpdated
+     * @param {string} [params.afterUuid] - resume past this row identity (exclusive). Rows stream
+     *   out in ascending resource._uuid order (see the $sort stage below), so this is how a
+     *   caller resumes a stream after a mid-read failure without re-emitting or skipping rows --
+     *   see MongoReadableStream's timeout-retry path.
+     * @param {number} [params.maxTimeMS] - per-query server-side timeout, widened by a caller
+     *   retrying after a timeout (see streamGroupMemberArrayAsync's rebuildCursorAsync).
+     * @returns {Promise<import('mongodb').AggregationCursor>} yields plain GroupMember documents
+     *   (same shape as getMemberCursorAsync's live rows), one per membership still active as of
+     *   targetLastUpdated
+     */
+    async getMemberCursorAtAsync({ base_version, groupUuid, targetLastUpdated, afterUuid, maxTimeMS }) {
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        const historyCollection = await resourceLocator.getHistoryCollectionAsync();
+        const matchStage = {
+            'resource.groupUuid': groupUuid,
+            'resource.meta.lastUpdated': { $lte: targetLastUpdated }
+        };
+        if (afterUuid) {
+            matchStage['resource._uuid'] = { $gt: afterUuid };
+        }
+        return historyCollection.aggregate([
+            {
+                $match: matchStage
+            },
+            {
+                $sort: {
+                    'resource._uuid': 1,
+                    'resource.meta.lastUpdated': -1,
+                    _id: 1
+                }
+            },
+            {
+                $group: {
+                    _id: '$resource._uuid',
+                    latest: { $first: '$$ROOT' }
+                }
+            },
+            {
+                $match: {
+                    'latest.request.method': { $ne: 'DELETE' }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: '$latest.resource' }
+            }
+        ], ...(maxTimeMS ? [{ maxTimeMS }] : []));
     }
 }
 

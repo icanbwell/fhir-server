@@ -1,5 +1,5 @@
 const { describe, test, expect } = require('@jest/globals');
-const { splitUnescaped, unescapeSearchValue } = require('../../../utils/searchValueEscaping');
+const { splitUnescaped, unescapeSearchValue, hasNoRealTokenValue } = require('../../../utils/searchValueEscaping');
 
 describe('searchValueEscaping', () => {
     describe('splitUnescaped', () => {
@@ -75,6 +75,37 @@ describe('searchValueEscaping', () => {
 
         test('handles an empty string', () => {
             expect(unescapeSearchValue('')).toBe('');
+        });
+    });
+
+    describe('hasNoRealTokenValue', () => {
+        test('is true for a completely empty string', () => {
+            expect(hasNoRealTokenValue('')).toBe(true);
+        });
+
+        test('is true for undefined/null', () => {
+            expect(hasNoRealTokenValue(undefined)).toBe(true);
+            expect(hasNoRealTokenValue(null)).toBe(true);
+        });
+
+        test('is true for "system|" -- a system with nothing after the pipe', () => {
+            expect(hasNoRealTokenValue('http://example.com/mrn|')).toBe(true);
+        });
+
+        test('is false for "system|value"', () => {
+            expect(hasNoRealTokenValue('http://example.com/mrn|123456')).toBe(false);
+        });
+
+        test('is false for a plain value with no pipe at all', () => {
+            expect(hasNoRealTokenValue('123456')).toBe(false);
+        });
+
+        test('is false for "|code" -- empty system, real code', () => {
+            expect(hasNoRealTokenValue('|123456')).toBe(false);
+        });
+
+        test('is false when the trailing pipe is escaped (literal value ending in a pipe character)', () => {
+            expect(hasNoRealTokenValue('123456\\|')).toBe(false);
         });
     });
 });

@@ -1,4 +1,5 @@
 const { isTrue } = require('./isTrue');
+const { MONGO_GROUP_EXTENDED_FIELD } = require('./mongoGroupExtendedTag');
 
 /**
  * Header name for activating external storage (ClickHouse).
@@ -24,7 +25,8 @@ const USE_EXTERNAL_STORAGE_HEADER = 'useexternalstorage';
  */
 function buildContextDataForHybridStorage(resourceType, resource, requestInfo = null, { smartMerge } = {}) {
     if (resourceType === 'Group') {
-        const useExternalStorage = isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER]);
+        const useExternalStorage = isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER]) &&
+            resource[MONGO_GROUP_EXTENDED_FIELD] !== true;
 
         return {
             groupMembers: resource.member,  // Preserve undefined to distinguish missing vs empty

@@ -458,6 +458,25 @@ module.exports = {
                 }
             }
         ],
+        // Backs point-in-time roster reconstruction (design doc §6): match by groupUuid,
+        // then let MongoDB's $groupByDistinctScan optimization walk this index directly for
+        // sort+group-by-_uuid-picking-latest, with no blocking SORT/GROUP stage. The key order
+        // and directions must exactly match the read pipeline's own $sort spec, or the optimizer
+        // falls back to COLLSCAN + in-memory SORT/GROUP. Trailing _id: 1 breaks ties between rows
+        // with identical resource._uuid + lastUpdated (same-millisecond writes).
+        GroupMember_4_0_0_History: [
+            {
+                keys: {
+                    'resource.groupUuid': 1,
+                    'resource._uuid': 1,
+                    'resource.meta.lastUpdated': -1,
+                    _id: 1
+                },
+                options: {
+                    name: 'groupUuid_1_uuid_1_lastUpdated_-1__id_1'
+                }
+            }
+        ],
         HealthcareService_4_0_0: [
             {
                 keys: {

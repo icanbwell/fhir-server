@@ -779,6 +779,20 @@ class ConfigManager {
     }
 
     /**
+     * Safety cap on the total number of ids a chained search parameter (e.g.
+     * patient.identifier=X) may accumulate across all pages of its sub-search before being
+     * OR'd into the outer query's $in. Without this, a criterion that's too broad (matches a
+     * large share of a resource type) would build an unbounded $in -- a performance/DoS risk,
+     * and functionally close to "no restriction" even when it isn't literally unfiltered.
+     * Default of 10000 is 10x the per-page cap (DB_SEARCH_LIMIT_FOR_IDS) -- generous for
+     * legitimate chains while still bounding pathological ones.
+     * @return {number}
+     */
+    get chainedSearchMaxResolvedIds() {
+        return env.CHAINED_SEARCH_MAX_RESOLVED_IDS ? parseInt(env.CHAINED_SEARCH_MAX_RESOLVED_IDS) : 10000;
+    }
+
+    /**
      * the size limit for request body in access log
      * @return {number}
      */
@@ -1337,13 +1351,24 @@ class ConfigManager {
     }
 
     /**
-     * Maximum number of members allowed in Group.member array for CREATE/PUT operations
-     * Default: 50000 (can be overridden in production based on infrastructure)
-     * PATCH operations bypass this limit (they append events, not full arrays)
+     * Maximum number of members allowed in Group.member for a PUT. Not used by the extended Group
+     * checks, which use groupMemberPromotionLimit for both promotion and rejection.
      * @returns {number}
      */
     get groupMemberLimit() {
         return parseInt(env.MAX_GROUP_MEMBERS_PER_PUT || '50000', 10);
+    }
+
+    /**
+     * Maximum number of members an embedded Group's member[] may hold when ENABLE_EXTENDED_GROUP
+     * is on. Above it, a PATCH promotes the Group to MongoDB-native extended member storage
+     * (promoteExistingGroupIfNeeded), and a POST, PUT or $merge is rejected with too-costly,
+     * pointing to PATCH (getGroupMemberLimitError) -- see src/utils/groupPromotion.js.
+     * Default: 50000.
+     * @returns {number}
+     */
+    get groupMemberPromotionLimit() {
+        return parseInt(env.GROUP_MEMBER_PROMOTION_LIMIT || '50000', 10);
     }
 
     /**
@@ -1358,12 +1383,18 @@ class ConfigManager {
 
     /**
      * Enables the MongoDB-native large-Group member storage: the GroupMember_4_0_0 /
-     * GroupMember_4_0_0_History collections and the extended-regime branch of $member-add /
-     * $member-remove. Default: false -- when disabled, $member-add / $member-remove reject any
-     * Group already tagged groupSize|extended rather than silently falling back to the
-     * embedded regime (which would risk writing member[] inline on a Group whose roster already
-     * lives in GroupMember_4_0_0). Independent of enableClickHouse -- a Group is tracked by at
-     * most one of the two external-storage mechanisms, never both.
+     * GroupMember_4_0_0_History collections, the `_extended` branch of
+     * GroupMemberPatchStrategy.determineGroupMemberType, and the checks in
+     * src/utils/groupPromotion.js: once member[] is over groupMemberPromotionLimit,
+     * getGroupMemberLimitError rejects a POST/PUT/$merge and promoteExistingGroupIfNeeded promotes
+     * the Group to this storage on a PATCH.
+     * Default: false -- when disabled, a Group already marked
+     * `_extended: true` still has its member changes rejected on PUT/$merge (see
+     * getExtendedGroupMemberWriteError) rather than silently falling back to the embedded regime
+     * (which would risk writing member[] inline on a Group whose roster already lives in
+     * GroupMember_4_0_0), but no further Group can be promoted into this storage while the flag
+     * is off. Independent of enableClickHouse -- a Group is tracked by at most one of the two
+     * external-storage mechanisms, never both.
      * @returns {boolean}
      */
     get enableExtendedGroup() {

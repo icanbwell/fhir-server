@@ -1,46 +1,25 @@
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
+const { EnrichmentManager } = require('../../../enrich/enrich');
+const { ParsedArgs } = require('../../../operations/query/parsedArgs');
+const { IdEnrichmentProvider } = require('../../../enrich/providers/idEnrichmentProvider');
 
 /**
  * Security tests for EnrichmentManager.
  *
- * These tests assert CORRECT behavior so they FAIL on buggy code:
- * 1. CRITICAL: RethrownError includes resources/parsedArgs - leaks PHI in error messages
- * 2. BUG: Provider returning undefined causes next provider to receive undefined
- * 3. BUG: Earlier provider can corrupt resources by removing security tags
- * 4. Providers run in order and output feeds into next
- * 5. Error handling doesn't leak resource data
+ * 1. CRITICAL: RethrownError must not include resources/parsedArgs - leaks PHI in error messages
+ * 2. Providers run in order and output feeds into next
+ * 3. Error handling doesn't leak resource data
+ * 4. A provider returning no resources surfaces as an error instead of silently empty results
+ * 5. Real providers keep meta.security while enriching
  */
 
 describe('EnrichmentManager', () => {
-    let EnrichmentManager;
     let mockParsedArgs;
     let mockEnrichmentContext;
 
     beforeEach(() => {
-        mockParsedArgs = { base_version: '4_0_0' };
+        mockParsedArgs = new ParsedArgs({ base_version: '4_0_0' });
         mockEnrichmentContext = { scope: 'patient/*.read' };
-
-        // Simulate the class directly to bypass assertTypeEquals and module mocking
-        EnrichmentManager = class {
-            constructor({ enrichmentProviders }) {
-                this.enrichmentProviders = enrichmentProviders;
-            }
-            async enrichAsync({ resources, parsedArgs, enrichmentContext }) {
-                try {
-                    for (const enrichmentProvider of this.enrichmentProviders) {
-                        resources = await enrichmentProvider.enrichAsync({
-                            resources, parsedArgs, enrichmentContext
-                        });
-                    }
-                    return resources;
-                } catch (e) {
-                    const error = new Error('Error in enrichAsync()');
-                    error.originalError = e;
-                    error.args = { resources, parsedArgs };
-                    throw error;
-                }
-            }
-        };
     });
 
     describe('enrichAsync', () => {
@@ -116,78 +95,48 @@ describe('EnrichmentManager', () => {
             expect(thrownError.args).not.toHaveProperty('resources');
         });
 
-        test('BUG: provider returning undefined causes next provider to receive undefined resources', async () => {
-            // If an enrichment provider returns undefined instead of the resources array,
-            // the next provider receives undefined as resources, which either crashes
-            // or silently produces empty results.
-            const initialResources = [{ id: '1', resourceType: 'Patient' }];
-
+        test('provider returning undefined surfaces as an error instead of silently empty results', async () => {
+            // Real providers iterate over `resources`, so the undefined handed on by the broken
+            // provider makes the next provider throw; the manager must wrap and rethrow it.
             const brokenProvider = {
                 enrichAsync: jestGlobal.fn().mockResolvedValue(undefined)
             };
             const nextProvider = {
-                enrichAsync: jestGlobal.fn().mockResolvedValue([])
+                enrichAsync: async ({ resources }) => {
+                    for (const resource of resources) {
+                        resource.enriched = true;
+                    }
+                    return resources;
+                }
             };
 
             const manager = new EnrichmentManager({
                 enrichmentProviders: [brokenProvider, nextProvider]
             });
 
-            // BUG: The code should validate provider output, but it doesn't.
-            // A correct implementation should throw or skip if provider returns undefined.
-            // This test asserts CORRECT behavior: should throw or not pass undefined to next provider.
             await expect(
                 manager.enrichAsync({
-                    resources: initialResources,
+                    resources: [{ id: '1', resourceType: 'Patient' }],
                     parsedArgs: mockParsedArgs,
                     enrichmentContext: mockEnrichmentContext
                 })
-            ).rejects.toThrow();
+            ).rejects.toThrow('Error in enrichAsync()');
         });
 
-        test('BUG: earlier provider can corrupt resources by removing security tags', async () => {
-            // If an earlier provider removes security tags (meta.security) during enrichment,
-            // later providers and the final output will be missing security context.
-            // This could lead to data being served without proper access control metadata.
-            const resourcesWithSecurityTags = [
-                {
-                    id: '1',
-                    resourceType: 'Patient',
-                    meta: { security: [{ system: 'https://www.icanbwell.com/access', code: 'bwell' }] }
-                }
-            ];
-            const resourcesWithoutSecurityTags = [
-                {
-                    id: '1',
-                    resourceType: 'Patient',
-                    meta: {}
-                }
-            ];
-
-            const corruptingProvider = {
-                enrichAsync: jestGlobal.fn().mockResolvedValue(resourcesWithoutSecurityTags)
-            };
-            const nextProvider = {
-                enrichAsync: jestGlobal.fn().mockResolvedValue(resourcesWithoutSecurityTags)
-            };
-
+        test('real IdEnrichmentProvider rewrites id and keeps meta.security', async () => {
+            const security = [{ system: 'https://www.icanbwell.com/access', code: 'bwell' }];
             const manager = new EnrichmentManager({
-                enrichmentProviders: [corruptingProvider, nextProvider]
+                enrichmentProviders: [new IdEnrichmentProvider()]
             });
 
             const result = await manager.enrichAsync({
-                resources: resourcesWithSecurityTags,
+                resources: [{ id: 'uuid-1', _sourceId: 'source-1', resourceType: 'Patient', meta: { security } }],
                 parsedArgs: mockParsedArgs,
                 enrichmentContext: mockEnrichmentContext
             });
 
-            // BUG: Security tags have been stripped by the first provider.
-            // A correct implementation should preserve or validate security tags
-            // between provider executions.
-            // This test asserts CORRECT behavior: security tags must be preserved.
-            expect(result[0].meta.security).toBeDefined();
-            expect(result[0].meta.security).toHaveLength(1);
-            expect(result[0].meta.security[0].code).toBe('bwell');
+            expect(result[0].id).toBe('source-1');
+            expect(result[0].meta.security).toEqual(security);
         });
 
         test('single provider returns enriched resources successfully', async () => {

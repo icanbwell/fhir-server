@@ -111,6 +111,7 @@ const {ConsentCacheInvalidationHandler} = require('./dataLayer/postSaveHandlers/
 const {ProfileUrlMapper} = require('./utils/profileMapper');
 const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const {ChainedSearchQueryRewriter} = require('./queryRewriters/rewriters/chainedSearchQueryRewriter');
+const {GroupMemberQueryRewriter} = require('./queryRewriters/rewriters/groupMemberQueryRewriter');
 const {PatientScopeManager} = require('./operations/security/patientScopeManager');
 const {WriteAllowedByScopesValidator} = require('./operations/merge/validators/writeAllowedByScopesValidator');
 const {PatientQueryCreator} = require('./operations/common/patientQueryCreator');
@@ -226,12 +227,13 @@ const createContainer = function () {
                 clickHouseClientManager: c.clickHouseClientManager,
                 configManager: c.configManager
             }),
-            new GroupExtendedTagEnrichmentProvider()
+            c.groupExtendedTagEnrichmentProvider
         ]
     }));
     container.register('identifierEnrichmentProvider', (c) => new IdentifierEnrichmentProvider({
         fhirTypesManager: c.fhirTypesManager
     }));
+    container.register('groupExtendedTagEnrichmentProvider', () => new GroupExtendedTagEnrichmentProvider());
     container.register('compositionSectionFilterEnrichmentProvider', (c) => new CompositionSectionFilterEnrichmentProvider({
         configManager: c.configManager
     }));
@@ -501,6 +503,10 @@ const createContainer = function () {
                     personToPatientIdsExpander: c.personToPatientIdsExpander,
                     configManager: c.configManager,
                     requestSpecificCache: c.requestSpecificCache
+                }),
+                new GroupMemberQueryRewriter({
+                    configManager: c.configManager,
+                    mongoGroupMemberRepository: c.mongoGroupMemberRepository
                 })
             ]
         }
@@ -871,7 +877,8 @@ const createContainer = function () {
                 base64DataManager: c.base64DataManager,
                 searchManager: c.searchManager,
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
-                identifierEnrichmentProvider: c.identifierEnrichmentProvider
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+                groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
             }
         )
     );
@@ -932,7 +939,8 @@ const createContainer = function () {
             databaseAttachmentManager: c.databaseAttachmentManager,
             base64DataManager: c.base64DataManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
-            identifierEnrichmentProvider: c.identifierEnrichmentProvider
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
@@ -975,7 +983,8 @@ const createContainer = function () {
         {
             databaseQueryFactory: c.databaseQueryFactory,
             fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
-            removeHelper: c.removeHelper
+            removeHelper: c.removeHelper,
+            resourceLocatorFactory: c.resourceLocatorFactory
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
@@ -994,6 +1003,7 @@ const createContainer = function () {
             resourceValidator: c.resourceValidator,
             postSaveHandlerFactory: c.postSaveHandlerFactory,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
             mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));

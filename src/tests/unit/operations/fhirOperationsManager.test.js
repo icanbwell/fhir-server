@@ -240,7 +240,8 @@ describe('FhirOperationsManager', () => {
             useAccessIndex: false,
             enableVulcanIgQuery: false,
             externalServicesWithRestrictions: {},
-            streamingHighWaterMark: 100
+            streamingHighWaterMark: 100,
+            chainedSearchMaxResolvedIds: 10000
         };
         mockAccessManager = {
             verifyAccess: jest.fn()
@@ -581,6 +582,49 @@ describe('FhirOperationsManager', () => {
 
             expect(uuids).toEqual(['uuid-0']);
             expect(mockSearchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(1);
+        });
+
+        test('truncates to the configured cap instead of building an unbounded $in or failing the whole search', async () => {
+            // DCON-5855: a chain criterion that's too broad (e.g. matches a large share of a
+            // resource type) must not be allowed to accumulate an unbounded id list across
+            // pages -- that's a performance/DoS risk and functionally close to "no
+            // restriction" even when it isn't literally unfiltered. The caller has no way to
+            // know in advance how broad their criteria will turn out to be, so this truncates
+            // rather than failing the whole search.
+            mockConfigManager.chainedSearchMaxResolvedIds = 3;
+            const page1 = Array.from({ length: 3 }, (_, i) => ({ resource: { _uuid: `uuid-${i}` } }));
+            const page2 = Array.from({ length: 3 }, (_, i) => ({ resource: { _uuid: `uuid-${i + 3}` } }));
+            mockSearchBundleOperation.searchBundleAsync
+                .mockResolvedValueOnce({ entry: page1 })
+                .mockResolvedValueOnce({ entry: page2 });
+
+            const uuids = await manager.searchResourceForChainAsync({
+                resourceType: 'Patient',
+                args: { identifier: 'X' },
+                requestInfo: {},
+                base_version: '4_0_0',
+                pageSize: 3
+            });
+
+            expect(uuids).toEqual(['uuid-0', 'uuid-1', 'uuid-2']);
+            // must not have fetched a third page once the cap was already exceeded
+            expect(mockSearchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(2);
+        });
+
+        test('does not throw when accumulated ids are exactly at the configured cap', async () => {
+            mockConfigManager.chainedSearchMaxResolvedIds = 3;
+            const page1 = Array.from({ length: 3 }, (_, i) => ({ resource: { _uuid: `uuid-${i}` } }));
+            mockSearchBundleOperation.searchBundleAsync.mockResolvedValueOnce({ entry: page1 });
+
+            const uuids = await manager.searchResourceForChainAsync({
+                resourceType: 'Patient',
+                args: { identifier: 'X' },
+                requestInfo: {},
+                base_version: '4_0_0',
+                pageSize: 3
+            });
+
+            expect(uuids).toEqual(['uuid-0', 'uuid-1', 'uuid-2']);
         });
     });
 

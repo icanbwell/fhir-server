@@ -34,6 +34,8 @@ const { buildContextDataForHybridStorage } = require('../../utils/contextDataBui
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { validatePatchDoesNotTargetInternalFields } = require('./validators/patchInternalFieldsValidator');
+const { promoteExistingGroupIfNeeded } = require('../../utils/groupPromotion');
+const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
 
 class PatchOperation {
     /**
@@ -52,6 +54,7 @@ class PatchOperation {
      * @param {ResourceValidator} resourceValidator
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
      * @param {import('../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} mongoGroupMemberRepository
      */
     constructor (
@@ -70,6 +73,7 @@ class PatchOperation {
             resourceValidator,
             postSaveHandlerFactory,
             identifierEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider,
             mongoGroupMemberRepository
         }
     ) {
@@ -179,6 +183,12 @@ class PatchOperation {
          */
         this.identifierEnrichmentProvider = identifierEnrichmentProvider;
         assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
+
+        /**
+         * @type {GroupExtendedTagEnrichmentProvider}
+         */
+        this.groupExtendedTagEnrichmentProvider = groupExtendedTagEnrichmentProvider;
+        assertTypeEquals(groupExtendedTagEnrichmentProvider, GroupExtendedTagEnrichmentProvider);
     }
 
     /**
@@ -530,6 +540,33 @@ class PatchOperation {
                 // TODO: remove alwaysCreateNew when this operation is updated to be version aware
                 resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.INSERT, requestInfo, { alwaysCreateNew: true });
 
+                // An embedded Group whose member[] crosses groupMemberPromotionLimit via a standard
+                // JSON-Patch add on /member is promoted here, before it's staged for its own
+                // write. resource._uuid/_sourceAssigningAuthority are already
+                // set (carried forward from foundResource). No-op for non-Group resources and for
+                // an already-extended Group (whose resolved member writes are committed
+                // separately below via groupMemberPatchStrategy.commitPendingMemberWrites).
+                await promoteExistingGroupIfNeeded({
+                    doc: resource,
+                    requestInfo,
+                    base_version,
+                    configManager: this.configManager,
+                    mongoGroupMemberRepository: this.mongoGroupMemberRepository
+                });
+
+                if (hasPendingMemberWrites) {
+                    await this.groupMemberPatchStrategy.commitPendingMemberWrites({
+                        requestInfo,
+                        base_version,
+                        groupUuid: resource._uuid,
+                        groupVersionId: parseInt(resource.meta.versionId, 10),
+                        groupLastUpdated: resource.meta.lastUpdated,
+                        sourceAssigningAuthority: pendingMemberWritesSourceAssigningAuthority,
+                        securityTags: resource.meta.security,
+                        pendingMemberWrites
+                    });
+                }
+
                 // Same as update from this point on
                 // Insert/update our resource record
                 const contextData = buildContextDataForHybridStorage(resourceType, resource, requestInfo);
@@ -576,26 +613,6 @@ class PatchOperation {
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     operationResult: mergeResults
                 });
-
-                // Commit the GroupMember_4_0_0 row writes resolved by
-                // prepareExtendedMemberWrites() now that the Group's real, final version has
-                // actually been committed above -- the single place this bump was computed, so
-                // the rows written here get stamped with a version that genuinely reflects this
-                // commit (four-way parity), not a stale or reused one. Passes through that same
-                // resolution -- this request never touches mongoGroupMemberRepository or
-                // re-resolves these writes itself.
-                if (hasPendingMemberWrites) {
-                    await this.groupMemberPatchStrategy.commitPendingMemberWrites({
-                        requestInfo,
-                        base_version,
-                        groupUuid: resource._uuid,
-                        groupVersionId: parseInt(resource.meta.versionId, 10),
-                        groupLastUpdated: resource.meta.lastUpdated,
-                        sourceAssigningAuthority: pendingMemberWritesSourceAssigningAuthority,
-                        securityTags: resource.meta.security,
-                        pendingMemberWrites
-                    });
-                }
             }
 
             await this.fhirLoggingManager.logOperationSuccessAsync({
@@ -612,6 +629,7 @@ class PatchOperation {
 
             // enrich resource
             this.identifierEnrichmentProvider.enrichIdentifierList(resource);
+            [resource] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({ resources: [resource] });
             resource = FhirResourceSerializer.serialize(resource.toJSONInternal());
 
             return {

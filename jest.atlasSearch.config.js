@@ -10,6 +10,8 @@
  * See docs/adr/0003-atlas-search-for-patient-person-practitioner-lookup.md.
  * @type {import('jest').Config}
  */
+const { transform, transformIgnorePatterns } = require('./jest/transformConfig');
+
 module.exports = {
     watchman: false,
     watchPathIgnorePatterns: ['globalConfig'],
@@ -19,9 +21,8 @@ module.exports = {
     testEnvironment: 'node',
     collectCoverage: false,
     reporters: ['default', 'github-actions'],
-    transformIgnorePatterns: [
-        'node_modules/(?!@kubernetes/client-node)/'
-    ],
+    transform,
+    transformIgnorePatterns,
     testMatch: ['<rootDir>/src/tests/integration/atlasSearch/**/*.test.js'],
     setupFiles: [
         '<rootDir>/jest/patchClickHouseClient.js',

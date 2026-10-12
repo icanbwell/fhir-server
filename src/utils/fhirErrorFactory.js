@@ -40,4 +40,27 @@ function createTooCostlyError({ actual, limit, operation, customGuidance }) {
     };
 }
 
-module.exports = { createTooCostlyError, GUIDANCE };
+/**
+ * Creates the too-costly BadRequestError for a PUT/$merge that sends member[] to a Group in
+ * extended member storage, whose members change only through PATCH.
+ * @param {Object} params
+ * @param {string} params.groupId
+ * @returns {Object} Error parameters for BadRequestError constructor
+ */
+function createExtendedGroupMemberWriteError({ groupId }) {
+    return {
+        message: `Group ${groupId} members can only be changed with PATCH`,
+        options: {
+            issue: [new OperationOutcomeIssue({
+                severity: 'error',
+                code: 'too-costly',
+                diagnostics:
+                    `Group ${groupId} stores its members in extended member storage, so PUT and $merge ` +
+                    `can only change its other fields. ${GUIDANCE.PATCH} on /4_0_0/Group/${groupId} ` +
+                    `(example: ${GUIDANCE.PATCH_EXAMPLE}). See: ${GUIDANCE.FHIR_PATCH_URL}`
+            })]
+        }
+    };
+}
+
+module.exports = { createTooCostlyError, createExtendedGroupMemberWriteError, GUIDANCE };

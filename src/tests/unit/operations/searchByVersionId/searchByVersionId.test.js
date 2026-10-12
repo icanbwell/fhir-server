@@ -45,6 +45,8 @@ const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAtt
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { CloudStorageClient } = require('../../../../utils/cloudStorageClient');
+const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
+const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../../utils/mongoGroupExtendedTag');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -66,12 +68,14 @@ describe('SearchByVersionIdOperation', () => {
             scopesManager: createMockInstance(ScopesManager),
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
             base64DataManager: createMockInstance(Base64DataManager),
-            historyResourceCloudStorageClient: null
+            historyResourceCloudStorageClient: null,
+            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
         };
 
         // Setup default mocks
         mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
         mocks.scopesManager.hasPatientScope = jest.fn().mockReturnValue(false);
+        mocks.scopesManager.hasHistoryAccess = jest.fn().mockReturnValue(true);
         mocks.searchManager.constructQueryAsync = jest.fn().mockResolvedValue({ query: { _sourceId: 'test-id' } });
         mocks.databaseHistoryFactory.createDatabaseHistoryManager = jest.fn().mockReturnValue({
             findOneAsync: jest.fn().mockResolvedValue(null)
@@ -358,6 +362,124 @@ describe('SearchByVersionIdOperation', () => {
                     resourceType: 'Patient'
                 })
             ).rejects.toThrow(/Resource not found/);
+        });
+    });
+
+    describe('extended Group roster streaming (DCON-5530)', () => {
+        const requestInfo = {
+            user: 'admin',
+            scope: 'user/*.read',
+            requestId: 'r1',
+            isUser: false,
+            personIdFromJwtToken: null,
+            actor: null,
+            userType: 'user'
+        };
+
+        function mockExtendedGroupHistoryResult () {
+            return {
+                resource: {
+                    id: 'group-1',
+                    _uuid: 'group-uuid-1',
+                    resourceType: 'Group',
+                    [MONGO_GROUP_EXTENDED_FIELD]: true,
+                    meta: { versionId: '3', lastUpdated: new Date('2026-01-01T00:00:00.000Z') }
+                },
+                collectionName: 'Group_4_0_0_History'
+            };
+        }
+
+        beforeEach(() => {
+            Object.defineProperty(mocks.configManager, 'enableExtendedGroup', { get: () => true, configurable: true });
+            mocks.databaseHistoryFactory.createDatabaseHistoryManager.mockReturnValue({
+                findOneAsync: jest.fn().mockResolvedValue(mockExtendedGroupHistoryResult())
+            });
+        });
+
+        test('streams the reconstructed roster and returns null instead of the resource', async () => {
+            const fakeCursor = {};
+            mocks.mongoGroupMemberRepository.getMemberCursorAtAsync = jest.fn().mockResolvedValue(fakeCursor);
+            mocks.searchManager.streamGroupMemberArrayAsync = jest.fn().mockResolvedValue(undefined);
+            const res = {};
+
+            const result = await searchByVersionIdOp.searchByVersionIdAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Group',
+                res
+            });
+
+            expect(result).toBeNull();
+            expect(mocks.mongoGroupMemberRepository.getMemberCursorAtAsync).toHaveBeenCalledWith({
+                base_version: '4_0_0',
+                groupUuid: 'group-uuid-1',
+                targetLastUpdated: new Date('2026-01-01T00:00:00.000Z')
+            });
+            expect(mocks.searchManager.streamGroupMemberArrayAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    requestId: 'r1',
+                    cursor: fakeCursor,
+                    res,
+                    rebuildCursorAsync: expect.any(Function)
+                })
+            );
+        });
+
+        test('rebuildCursorAsync resumes past the given lastUUID with the widened timeout', async () => {
+            mocks.mongoGroupMemberRepository.getMemberCursorAtAsync = jest.fn().mockResolvedValue({});
+            let capturedRebuild;
+            mocks.searchManager.streamGroupMemberArrayAsync = jest.fn().mockImplementation(
+                async ({ rebuildCursorAsync }) => {
+                    capturedRebuild = rebuildCursorAsync;
+                }
+            );
+
+            await searchByVersionIdOp.searchByVersionIdAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Group',
+                res: {}
+            });
+
+            mocks.mongoGroupMemberRepository.getMemberCursorAtAsync.mockClear();
+            await capturedRebuild({ lastUUID: 'row-uuid-5', maxMongoTimeMS: 60000 });
+
+            expect(mocks.mongoGroupMemberRepository.getMemberCursorAtAsync).toHaveBeenCalledWith({
+                base_version: '4_0_0',
+                groupUuid: 'group-uuid-1',
+                targetLastUpdated: new Date('2026-01-01T00:00:00.000Z'),
+                afterUuid: 'row-uuid-5',
+                maxTimeMS: 60000
+            });
+        });
+
+        test('does not stream when ENABLE_EXTENDED_GROUP is disabled -- returns the resource as-is', async () => {
+            Object.defineProperty(mocks.configManager, 'enableExtendedGroup', { get: () => false, configurable: true });
+            mocks.searchManager.streamGroupMemberArrayAsync = jest.fn();
+
+            const result = await searchByVersionIdOp.searchByVersionIdAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Group',
+                res: {}
+            });
+
+            expect(mocks.searchManager.streamGroupMemberArrayAsync).not.toHaveBeenCalled();
+            expect(result).toBeDefined();
+            expect(result._uuid).toBe('group-uuid-1');
+        });
+
+        test('does not stream when res is not provided', async () => {
+            mocks.searchManager.streamGroupMemberArrayAsync = jest.fn();
+
+            const result = await searchByVersionIdOp.searchByVersionIdAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Group'
+            });
+
+            expect(mocks.searchManager.streamGroupMemberArrayAsync).not.toHaveBeenCalled();
+            expect(result).toBeDefined();
         });
     });
 });

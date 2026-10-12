@@ -9,6 +9,7 @@ const { QueryParameterValue } = require('./queryParameterValue');
 const { ParsedArgs } = require('./parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
+const { hasNoRealTokenValue } = require('../../utils/searchValueEscaping');
 
 // Chained search is deliberately gated to only the (target type, target field) pairs listed
 // here, even though the resolution mechanism can already handle any resource type/field. Add an
@@ -205,6 +206,20 @@ class R4ArgsParser {
                     }
                     continue;
                 }
+                const rawValues = Array.isArray(args[`${argName}`]) ? args[`${argName}`] : [args[`${argName}`]];
+                if (
+                    (rawValues.length === 0 || rawValues.some(hasNoRealTokenValue)) &&
+                    handlingType === STRICT_SEARCH_HANDLING
+                ) {
+                    throw new BadRequestError(new Error(
+                        `${argName} has no value to match on -- a chained search parameter ` +
+                        'requires an actual identifying value'
+                    ));
+                }
+                // lenient (or the value is fine): fall through regardless -- chain stays set, so
+                // the item is kept below, never dropped. ChainedSearchQueryRewriter resolves a
+                // chain with no real value to the unmatchable sentinel, never to "no filter"
+                // (review.md §D).
                 chain = { targetType, targetParam: chainDescriptor.targetParam };
             }
             /**
@@ -327,12 +342,12 @@ class R4ArgsParser {
                 modifiers = modifiers.concat(newModifiers);
             }
 
-            if (typeof orQueryParameterValue !== 'undefined' &&
+            if (chain || (typeof orQueryParameterValue !== 'undefined' &&
                     orQueryParameterValue !== null &&
                     orQueryParameterValue !== '' && (
                     !Array.isArray(orQueryParameterValue) ||
                     orQueryParameterValue.filter(v => v).length > 0
-                )
+                ))
             ) {
                 parseArgItems.push(
                     new ParsedArgsItem({

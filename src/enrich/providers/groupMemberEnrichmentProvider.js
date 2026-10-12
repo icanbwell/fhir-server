@@ -4,6 +4,17 @@ const { TABLES } = require('../../constants/clickHouseConstants');
 const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { isTrue } = require('../../utils/isTrue');
+const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
+
+/**
+ * True for a Group whose members are tracked in ClickHouse. A Group in extended member storage
+ * keeps its members in GroupMember_4_0_0, so it is left as is even when the header is sent.
+ * @param {Object} resource
+ * @returns {boolean}
+ */
+function isClickHouseTrackedGroup(resource) {
+    return resource?.resourceType === 'Group' && resource[MONGO_GROUP_EXTENDED_FIELD] !== true;
+}
 
 /**
  * Enrichment provider for Group resources using ClickHouse member storage
@@ -59,7 +70,7 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
             // Process each Group resource
             const enrichedResources = await Promise.all(
                 resources.map(async (resource) => {
-                    if (resource.resourceType === 'Group') {
+                    if (isClickHouseTrackedGroup(resource)) {
                         return await this._enrichGroupResource(resource);
                     }
                     return resource;
@@ -97,7 +108,7 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
             // Process each bundle entry
             const enrichedEntries = await Promise.all(
                 entries.map(async (entry) => {
-                    if (entry.resource && entry.resource.resourceType === 'Group') {
+                    if (isClickHouseTrackedGroup(entry.resource)) {
                         entry.resource = await this._enrichGroupResource(entry.resource);
                     }
                     return entry;

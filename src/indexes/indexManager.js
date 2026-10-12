@@ -182,6 +182,17 @@ args: {
                         }
                     }
                 }
+                // A collection-specific history entry (e.g. "GroupMember_4_0_0_History"), matched
+                // by the full history collection name -- not baseCollectionName -- so it stays
+                // scoped to that one resource type's history collection instead of every "_History"
+                // collection getting an index on a field only that resource type has.
+                if (indexCollectionName === collectionName) {
+                    for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
+                        if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
+                            indexesToCreate.push(indexConfig);
+                        }
+                    }
+                }
             } else {
                 if (indexCollectionName === '*') {
                     for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {

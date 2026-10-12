@@ -127,6 +127,15 @@ describe('GroupMemberEnrichmentProvider', () => {
             expect(result[0].id).toBe('group1');
         });
 
+        test('does not enrich an extended Group, whose members are not in ClickHouse', async () => {
+            const resources = [{ resourceType: 'Group', id: 'group1', _extended: true, quantity: 7 }];
+
+            const result = await provider.enrichAsync({ resources, parsedArgs: baseParsedArgs });
+
+            expect(result[0]).toEqual(resources[0]);
+            expect(mockClickHouseClientManager.queryAsync).not.toHaveBeenCalled();
+        });
+
         test('does not enrich non-Group resources', async () => {
             const resources = [{
                 resourceType: 'Patient',
@@ -225,6 +234,15 @@ describe('GroupMemberEnrichmentProvider', () => {
             expect(result[0].resource.member).toBeUndefined();
             expect(result[0].resource.quantity).toBe(10);
             expect(result[0].resource.name).toBe('Bundle Group');
+        });
+
+        test('does not enrich an extended Group entry', async () => {
+            const entries = [{ resource: { resourceType: 'Group', id: 'g1', _extended: true } }];
+
+            const result = await provider.enrichBundleEntriesAsync({ entries, parsedArgs: baseParsedArgs });
+
+            expect(result[0].resource).toEqual({ resourceType: 'Group', id: 'g1', _extended: true });
+            expect(mockClickHouseClientManager.queryAsync).not.toHaveBeenCalled();
         });
 
         test('does not enrich non-Group entries', async () => {

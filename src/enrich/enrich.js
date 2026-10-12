@@ -41,7 +41,7 @@ class EnrichmentManager {
             throw new RethrownError({
                     message: 'Error in enrichAsync()',
                     error: e,
-                    args: { resources, parsedArgs }
+                    args: { resourceRefs: resources?.map(r => ({ resourceType: r?.resourceType, id: r?.id })) }
                 }
             );
         }
@@ -70,7 +70,7 @@ class EnrichmentManager {
             throw new RethrownError({
                     message: 'Error in enrichBundleEntriesAsync()',
                     error: e,
-                    args: { entries, parsedArgs }
+                    args: { resourceRefs: entries?.map(e => ({ resourceType: e?.resource?.resourceType, id: e?.resource?.id })) }
                 }
             );
         }
