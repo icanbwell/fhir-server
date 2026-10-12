@@ -790,6 +790,7 @@ const createContainer = function () {
         everythingRelatedResourceMapper: c.everythingRelatedResourceMapper,
         customTracer: c.customTracer,
         patientDataViewControlManager: c.patientDataViewControlManager,
+        mongoGroupMemberRepository: c.mongoGroupMemberRepository,
         auditLogger: c.auditLogger,
         postRequestProcessor: c.postRequestProcessor,
         redisStreamManager: c.redisStreamManager,

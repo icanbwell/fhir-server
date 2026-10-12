@@ -56,6 +56,8 @@ const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 const { CustomTracer } = require('../../utils/customTracer');
 const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
+const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
+const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
 const { RedisManager } = require('../../utils/redisManager');
@@ -133,6 +135,7 @@ class EverythingHelper {
      * @property {SearchParametersManager} searchParametersManager
      * @property {CustomTracer} customTracer
      * @property {PatientDataViewControlManager} patientDataViewControlManager
+     * @property {MongoGroupMemberRepository} mongoGroupMemberRepository
      * @property {AuditLogger} auditLogger
      * @property {PostRequestProcessor} postRequestProcessor
      *
@@ -154,6 +157,7 @@ class EverythingHelper {
         everythingRelatedResourceMapper,
         customTracer,
         patientDataViewControlManager,
+        mongoGroupMemberRepository,
         auditLogger,
         postRequestProcessor,
         redisStreamManager,
@@ -230,6 +234,12 @@ class EverythingHelper {
          * */
         this.patientDataViewControlManager = patientDataViewControlManager;
         assertTypeEquals(patientDataViewControlManager, PatientDataViewControlManager);
+
+        /**
+         * @type {MongoGroupMemberRepository}
+         */
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
 
         /**
          * @type {AuditLogger}
@@ -1709,6 +1719,10 @@ class EverythingHelper {
             if (useUuidProjection) {
                 projection = deepcopy(this.uuidProjection);
                 projection[parentLookupField] = 1;
+                if (relatedResourceType === 'Group' && this.configManager.enableExtendedGroup) {
+                    // an extended Group has no member[]; _extended is how its parent match and tag are resolved
+                    projection[MONGO_GROUP_EXTENDED_FIELD] = 1;
+                }
                 if (parsedArgs._since) {
                     projection.meta = {
                         lastUpdated: 1
@@ -1796,6 +1810,39 @@ class EverythingHelper {
     }
 
     /**
+     * Whether the roster of an extended Group (GroupMember_4_0_0) has any of the given parents as a
+     * member. Stands in for the inline member[] check, which an extended Group cannot satisfy.
+     * One indexed lookup per Group (groupUuid + member.entity._uuid), memoised for the caller's cursor.
+     * @param {{
+     *  base_version: string,
+     *  groupUuid: string,
+     *  parentReferences: string[],
+     *  memberOfParentsByGroupUuid: Map<string, boolean>
+     * }} options
+     * @return {Promise<boolean>}
+     */
+    async isExtendedGroupMemberOfParentsAsync({
+        base_version,
+        groupUuid,
+        parentReferences,
+        memberOfParentsByGroupUuid
+    }) {
+        if (memberOfParentsByGroupUuid.has(groupUuid)) {
+            return memberOfParentsByGroupUuid.get(groupUuid);
+        }
+        let isMember = false;
+        if (parentReferences.length > 0) {
+            const { groupUuids } = await this.mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync({
+                base_version,
+                query: { groupUuid, 'member.entity._uuid': { $in: parentReferences } }
+            });
+            isMember = groupUuids.includes(groupUuid);
+        }
+        memberOfParentsByGroupUuid.set(groupUuid, isMember);
+        return isMember;
+    }
+
+    /**
      * Fetches the data from cursor and streams it
      * @param {{
      *  cursor: import('../../dataLayer/databaseCursor').DatabaseCursor,
@@ -1843,6 +1890,11 @@ class EverythingHelper {
          * @type {BundleEntry[]}
          */
         const bundleEntries = [];
+        /**
+         * extended Group _uuid -> whether the roster has one of this request's parents
+         * @type {Map<string, boolean>}
+         */
+        const memberOfParentsByGroupUuid = new Map();
         while (await cursor.hasNext()) {
             /**
              * element
@@ -1938,6 +1990,20 @@ class EverythingHelper {
                     // if parent reference is present in child resource, then only send it in response
                     if (matchingParentReferences.length === 0) {
                         if (parentResourceType === 'Patient' && proxyPatientIds && proxyPatientIds.some(id => referenceWithSourceIds.includes(PATIENT_REFERENCE_PREFIX + id))) {
+                            sendResource = true;
+                        } else if (
+                            this.configManager.enableExtendedGroup &&
+                            startResource.resourceType === 'Group' &&
+                            startResource[MONGO_GROUP_EXTENDED_FIELD] === true &&
+                            await this.isExtendedGroupMemberOfParentsAsync({
+                                base_version: parentParsedArgs.base_version,
+                                groupUuid: startResource._uuid,
+                                parentReferences: Array.from(parentReferenceKeys),
+                                memberOfParentsByGroupUuid
+                            })
+                        ) {
+                            // An extended Group's roster lives in GroupMember_4_0_0, not in member[], so the
+                            // inline reference check above cannot match it; the roster lookup does.
                             sendResource = true;
                         } else {
                             sendResource = false;
