@@ -445,14 +445,6 @@ module.exports = {
             },
             {
                 keys: {
-                    groupUuid: 1
-                },
-                options: {
-                    name: 'groupUuid_1'
-                }
-            },
-            {
-                keys: {
                     'member.entity._uuid': 1
                 },
                 options: {
