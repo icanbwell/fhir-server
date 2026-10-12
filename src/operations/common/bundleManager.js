@@ -54,6 +54,7 @@ class BundleManager {
      * @param {string | null} user
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
+     * @param {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]} [additionalRewriteQueries] queries query rewriters ran on their own, listed in the `_debug` / `_explain` tags
      * @return {Bundle}
      */
     createBundle (
@@ -78,7 +79,8 @@ class BundleManager {
             cursorBatchSize,
             user,
             explanations,
-            allCollectionsToSearch
+            allCollectionsToSearch,
+            additionalRewriteQueries
         }) {
         /**
          * @type {BundleEntry[]}
@@ -118,7 +120,8 @@ class BundleManager {
                 cursorBatchSize,
                 user,
                 explanations,
-                allCollectionsToSearch
+                allCollectionsToSearch,
+                additionalRewriteQueries
             });
     }
 
@@ -145,6 +148,7 @@ class BundleManager {
      * @param {string | null} user
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
+     * @param {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]} [additionalRewriteQueries] queries query rewriters ran on their own, listed in the `_debug` / `_explain` tags
      * @param {string|undefined} [externalReqUrlPrefix]
      * @return {Bundle}
      */
@@ -170,6 +174,7 @@ class BundleManager {
         user,
         explanations,
         allCollectionsToSearch,
+        additionalRewriteQueries,
         externalReqUrlPrefix
     }) {
         /**
@@ -206,6 +211,7 @@ class BundleManager {
                 user,
                 explanations,
                 allCollectionsToSearch,
+                additionalRewriteQueries,
                 externalReqUrlPrefix
             });
 
@@ -233,6 +239,7 @@ class BundleManager {
      * @param {string | null} user
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
+     * @param {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]} [additionalRewriteQueries] queries query rewriters ran on their own, listed in the `_debug` / `_explain` tags
      * @param {string | null} [lastResourceLastUpdated]
      * @param {string|undefined} [externalReqUrlPrefix]
      * @return {Bundle}
@@ -259,6 +266,7 @@ class BundleManager {
             user,
             explanations,
             allCollectionsToSearch,
+            additionalRewriteQueries,
             lastResourceLastUpdated,
             externalReqUrlPrefix
     }) {
@@ -348,6 +356,16 @@ class BundleManager {
         }
 
         if (parsedArgs._explain || parsedArgs._debug || process.env.LOGLEVEL === 'DEBUG') {
+            // add the queries the query rewriters ran on their own (e.g. the GroupMember lookup)
+            ({ originalQuery, originalOptions, explanations, columns, allCollectionsToSearch } =
+                this.addAdditionalRewriteQueries({
+                    originalQuery,
+                    originalOptions,
+                    explanations,
+                    columns,
+                    allCollectionsToSearch,
+                    additionalRewriteQueries
+                }));
             /**
              * @type {[{[system]: string|undefined, [display]: string|undefined, [code]: string|undefined}]}
              */
@@ -458,6 +476,7 @@ class BundleManager {
      * @param {string | null} user
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
+     * @param {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]} [additionalRewriteQueries] queries query rewriters ran on their own, listed in the `_debug` / `_explain` tags
      * @param {string|undefined} [externalReqUrlPrefix]
      * @return {Bundle}
      */
@@ -483,6 +502,7 @@ class BundleManager {
             user,
             explanations,
             allCollectionsToSearch,
+            additionalRewriteQueries,
             externalReqUrlPrefix
         }) {
         if (Array.isArray(originalQuery)) {
@@ -560,6 +580,16 @@ class BundleManager {
         }
 
         if (((parsedArgs._explain || parsedArgs._debug)) || process.env.LOGLEVEL === 'DEBUG') {
+            // add the queries the query rewriters ran on their own (e.g. the GroupMember lookup)
+            ({ originalQuery, originalOptions, explanations, columns, allCollectionsToSearch } =
+                this.addAdditionalRewriteQueries({
+                    originalQuery,
+                    originalOptions,
+                    explanations,
+                    columns,
+                    allCollectionsToSearch,
+                    additionalRewriteQueries
+                }));
             /**
              * @type {[{[system]: string|undefined, [display]: string|undefined, [code]: string|undefined}]}
              */
@@ -665,6 +695,41 @@ class BundleManager {
      */
     getQueryOptions (originalOptions) {
         return originalOptions ? mongoQueryStringify(originalOptions) : null;
+    }
+
+    /**
+     * Adds the queries that query rewriters ran on their own (e.g. the GroupMember lookup of
+     * GroupMemberQueryRewriter) to the main query, the way $everything lists its queries: parallel
+     * arrays of query / options / explanations, so the `query`, `queryCollection`, `queryOptions`,
+     * `queryExplain` and `queryExplainSimple` tags pipe-join them. Returns the inputs unchanged
+     * when there are none.
+     * @param {QueryItem|QueryItem[]} originalQuery
+     * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
+     * @param {import('mongodb').Document[]} [explanations]
+     * @param {Set} [columns]
+     * @param {string[]|undefined} [allCollectionsToSearch]
+     * @param {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]|undefined} [additionalRewriteQueries]
+     * @return {{originalQuery: QueryItem|QueryItem[], originalOptions: Object|Object[], explanations: import('mongodb').Document[]|undefined, columns: Set|undefined, allCollectionsToSearch: string[]|undefined}}
+     */
+    addAdditionalRewriteQueries ({
+        originalQuery,
+        originalOptions,
+        explanations,
+        columns,
+        allCollectionsToSearch,
+        additionalRewriteQueries
+    }) {
+        if (!additionalRewriteQueries || additionalRewriteQueries.length === 0) {
+            return { originalQuery, originalOptions, explanations, columns, allCollectionsToSearch };
+        }
+        return {
+            originalQuery: [].concat(originalQuery, additionalRewriteQueries.map(q => q.queryItem)),
+            originalOptions: [].concat(originalOptions || {}, additionalRewriteQueries.map(q => q.options)),
+            explanations: [...(explanations || []), ...additionalRewriteQueries.flatMap(q => q.explanations || [])],
+            columns: new Set([...(columns || []), ...additionalRewriteQueries.flatMap(q => [...(q.columns || [])])]),
+            // the per-item collection names are what give `queryCollection` its `a|b` form
+            allCollectionsToSearch: undefined
+        };
     }
 
     /**

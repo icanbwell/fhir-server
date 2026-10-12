@@ -4,6 +4,7 @@ module.exports = {
     env: {
         test: {
             plugins: [
+                '@babel/plugin-transform-dynamic-import',
                 [
                     '@babel/plugin-transform-modules-commonjs',
                     {

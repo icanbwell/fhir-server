@@ -1,0 +1,11 @@
+[
+    {
+        "op": "add",
+        "path": "/member/-",
+        "value": {
+            "entity": {
+                "reference": "Patient/dcon5532-member-1"
+            }
+        }
+    }
+]
