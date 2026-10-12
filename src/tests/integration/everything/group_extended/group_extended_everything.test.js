@@ -14,7 +14,8 @@ const {
     createTestRequest,
     getTestContainer,
     getHeaders,
-    getHeadersJsonPatch
+    getHeadersJsonPatch,
+    withExtendedGroupDisabled
 } = require('../../common');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../../utils/mongoGroupExtendedTag');
 
@@ -150,24 +151,14 @@ describe('$everything returns extended Groups', () => {
         expect(groupResources.length).toBeGreaterThanOrEqual(2);
     });
 
-    describe('with ENABLE_EXTENDED_GROUP off', () => {
-        let previousFlag;
+    test('with ENABLE_EXTENDED_GROUP off the extended Group is not returned and the embedded Group is unchanged', async () => {
+        // the roster write (PATCH member) needs the flag on, so set the Groups up first
+        const embedded = await createGroup('flag-off-embedded', `Patient/${PATIENT_ID}|${OWNER}`);
+        const extended = await createGroup('flag-off-extended');
+        await makeExtended(extended.id, `Patient/${PATIENT_ID}|${OWNER}`);
+        expect(embedded.id).toBeDefined();
 
-        beforeAll(() => {
-            previousFlag = process.env.ENABLE_EXTENDED_GROUP;
-            process.env.ENABLE_EXTENDED_GROUP = '0';
-        });
-
-        afterAll(() => {
-            process.env.ENABLE_EXTENDED_GROUP = previousFlag;
-        });
-
-        test('extended Group is not returned, embedded Group is unchanged', async () => {
-            const embedded = await createGroup('flag-off-embedded', `Patient/${PATIENT_ID}|${OWNER}`);
-            const extended = await createGroup('flag-off-extended');
-            await makeExtended(extended.id, `Patient/${PATIENT_ID}|${OWNER}`);
-            expect(embedded.id).toBeDefined();
-
+        await withExtendedGroupDisabled(async () => {
             const response = await request
                 .get(`/4_0_0/Patient/${PATIENT_ID}/$everything?_type=Patient,Group`)
                 .set(getHeaders());
