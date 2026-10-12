@@ -110,7 +110,7 @@ its required CRUDS letter(s), extended here with the operations analyzed since t
 | `graph` — each resolution step, including the root | `r` if the step resolves one instance by reference/id, `s` if it searches a type (forward reference vs. reverse/child search) | not a single fixed letter; evaluated per step, same rule for the root call as for every child link. For DELETE see the next row |
 | `graph` (DELETE)                               | `d` on the root and on every resource deleted; forward-reference steps are satisfied by `d` (in place of `r`); reverse/child search steps still require `s` | see "DELETE behavior" below |
 | `$merge`                                       | `u`              | see "`u` covers update-as-create" below |
-| `$import`                                      | `c` on `Task`    | the request-time gate only covers creating the `Task`; per-resource authorization for what the import actually writes happens downstream, in the import processors, and is not enforced by this request-time gate |
+| `$import`                                      | `u` on `Task` at the resource gate and `u` on the `access/` tenant codes | request-time gate; `u`, not `c`, because every imported resource is written as a merge (`u`), and the tenant codes copied onto the Task are those granting `u`. Each imported resource is then checked separately in the import worker, as `$merge` does: `u` on its resource type and `u` on its access tags |
 | `$export`                                      | `c` on `Task` directly, plus `s` on every resource type actually requested via `_type` | the check targets `Task`, not `ExportStatus` — replaces the export runner's current silent-drop-on-unauthorized-type behavior with a 403 |
 | `$access-history`                              | unchanged for now (still the coarse `read` check, twice) | deferred — not part of this pass; tracked as a TODO to assign granular letters later |
 
@@ -208,6 +208,26 @@ Two of these changes reach v1 clients, because v1
 `write` normalizes to a fixed CRUDS set regardless of `ENABLE_SMART_V2_CRUDS_SCOPES`: a v1
 `write`-only client that issues a conditional (search-based) delete is now rejected, and a v1
 `write`-only client's `$graph` DELETE now also deletes forward-reference children.
+
+### `$import` behavior
+
+| Grant | Operation | Before | Now |
+|---|---|---|---|
+| v1 `write` with `access/` codes | `$import` | accepted | accepted (needs a `user/` scope covering `Task`) |
+| v1 `read` only | `$import` | rejected at the tenant check (no write codes) | rejected |
+| `access/<tag>` only, no `user/` scope | `$import` | accepted | **rejected** — `u` on `Task` is now required at the resource gate |
+| v2 `user/Task.u` + `access/<tag>.u` | `$import` | rejected (needs `c`, `u`, `d`) | accepted |
+| v2 `user/Task.c` + `access/<tag>.c` | `$import` | rejected | rejected (needs `u`) |
+| a scope without `u` on an imported resource's type (e.g. `user/Patient.c`, or `user/Observation.rs` in a mixed file) | `$import` worker | **resource imported** — only its access tags were checked | resource rejected and recorded as a failed entry; the rest of the import continues |
+
+The `$import` request-time gate requires `u`, on `Task` and on the tenant codes, so a caller who
+could not write any imported resource is rejected up front instead of getting a Task that imports
+nothing. Each imported resource is then checked in the import worker with the caller's own scope,
+through the same two gates `$merge` applies: the resource gate checks `u` on the resource's type
+(via `MergeManager.preMergeChecksMultipleAsync`), and `WriteAllowedByScopesValidator` checks `u` on
+the resource's access tags (and that the caller may add any access tag the resource carries). A
+resource that fails either gate is recorded as a failed entry in the error output and skipped; the
+rest of the import continues. Before this change the worker checked only the access gate.
 
 ## Components & data flow
 
