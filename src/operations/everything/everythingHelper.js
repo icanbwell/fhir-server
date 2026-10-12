@@ -1834,7 +1834,8 @@ class EverythingHelper {
         if (parentReferences.length > 0) {
             const { groupUuids } = await this.mongoGroupMemberRepository.findGroupUuidsByMemberQueryAsync({
                 base_version,
-                query: { groupUuid, 'member.entity._uuid': { $in: parentReferences } }
+                query: { groupUuid, 'member.entity._uuid': { $in: parentReferences } },
+                maxTimeMS: this.configManager.mongoTimeout
             });
             isMember = groupUuids.includes(groupUuid);
         }

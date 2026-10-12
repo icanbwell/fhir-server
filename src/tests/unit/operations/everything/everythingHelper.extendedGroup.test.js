@@ -78,7 +78,7 @@ describe('EverythingHelper.processCursorAsync - extended Group parent match', ()
     beforeEach(() => {
         jest.clearAllMocks();
         logging = require('../../../../operations/common/logging');
-        mockConfigManager = { enableExtendedGroup: true };
+        mockConfigManager = { enableExtendedGroup: true, mongoTimeout: 120000 };
         findGroupUuidsByMemberQueryAsync = jest.fn().mockResolvedValue({ groupUuids: [] });
 
         const { EverythingHelper } = require('../../../../operations/everything/everythingHelper');
@@ -106,7 +106,8 @@ describe('EverythingHelper.processCursorAsync - extended Group parent match', ()
         expect(findGroupUuidsByMemberQueryAsync).toHaveBeenCalledTimes(1);
         expect(findGroupUuidsByMemberQueryAsync).toHaveBeenCalledWith({
             base_version: '4_0_0',
-            query: { groupUuid: 'g-ext', 'member.entity._uuid': { $in: ['Patient/p-1'] } }
+            query: { groupUuid: 'g-ext', 'member.entity._uuid': { $in: ['Patient/p-1'] } },
+            maxTimeMS: 120000
         });
         expect(logging.logError).not.toHaveBeenCalled();
     });
@@ -171,7 +172,8 @@ describe('EverythingHelper.processCursorAsync - extended Group parent match', ()
         expect(findGroupUuidsByMemberQueryAsync).toHaveBeenCalledTimes(1);
         expect(findGroupUuidsByMemberQueryAsync).toHaveBeenCalledWith({
             base_version: '4_0_0',
-            query: { groupUuid: 'g-ext', 'member.entity._uuid': { $in: ['Patient/p-1', 'Patient/p-2'] } }
+            query: { groupUuid: 'g-ext', 'member.entity._uuid': { $in: ['Patient/p-1', 'Patient/p-2'] } },
+            maxTimeMS: 120000
         });
     });
 });
