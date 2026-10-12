@@ -1,3 +1,5 @@
+const { transform, transformIgnorePatterns } = require('./jest/transformConfig');
+
 /** @type {import('jest').Config} */
 module.exports = {
     watchman: false,
@@ -9,9 +11,8 @@ module.exports = {
     collectCoverage: false,
     coverageReporters: ['text', 'lcov', 'json'],
     reporters: ['default', 'github-actions'],
-    transformIgnorePatterns: [
-        'node_modules/(?!@kubernetes/client-node)/'
-    ],
+    transform,
+    transformIgnorePatterns,
     coveragePathIgnorePatterns: [
         '<rootDir>/src/testutils/',
         '<rootDir>/src/fhir/classes',
