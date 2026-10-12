@@ -149,6 +149,38 @@ describe('$everything returns extended Groups', () => {
         const groupResources = response.body.entry.filter((e) => e.resource.resourceType === 'Group');
         expect(groupResources.length).toBeGreaterThanOrEqual(2);
     });
+
+    describe('with ENABLE_EXTENDED_GROUP off', () => {
+        let previousFlag;
+
+        beforeAll(() => {
+            previousFlag = process.env.ENABLE_EXTENDED_GROUP;
+            process.env.ENABLE_EXTENDED_GROUP = '0';
+        });
+
+        afterAll(() => {
+            process.env.ENABLE_EXTENDED_GROUP = previousFlag;
+        });
+
+        test('extended Group is not returned, embedded Group is unchanged', async () => {
+            const embedded = await createGroup('flag-off-embedded', `Patient/${PATIENT_ID}|${OWNER}`);
+            const extended = await createGroup('flag-off-extended');
+            await makeExtended(extended.id, `Patient/${PATIENT_ID}|${OWNER}`);
+            expect(embedded.id).toBeDefined();
+
+            const response = await request
+                .get(`/4_0_0/Patient/${PATIENT_ID}/$everything?_type=Patient,Group`)
+                .set(getHeaders());
+
+            expect(response.status).toBe(200);
+            const names = (response.body.entry || [])
+                .filter((e) => e.resource.resourceType === 'Group')
+                .map((e) => e.resource.name);
+            expect(names).toContain('flag-off-embedded');
+            expect(names).not.toContain('flag-off-extended');
+        });
+    });
+
     describe('several ids in one request', () => {
         const A = `Patient/${PATIENT_ID}|${OWNER}`;
         const B = `Patient/${OTHER_PATIENT_ID}|${OWNER}`;

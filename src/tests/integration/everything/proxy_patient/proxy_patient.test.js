@@ -15,12 +15,15 @@ const expectedPersonResourcesWithProxyPatient = require('./fixtures/expected/exp
 const expectedPersonResourcesWithProxyPatientSourceId = require('./fixtures/expected/expected_person_everything_sourceid.json');
 const expectedPatientResourcesWithProxyPatient = require('./fixtures/expected/expected_patient_everything_without_graph.json');
 const expectedPatientResourcesWithProxyPatientAndUuidOnly = require('./fixtures/expected/expected_patient_everything_without_graph_and_uuid_only.json');
+const expectedPatientResourcesWithProxyPatientAndUuidOnlyFlagOff = require('./fixtures/expected/expected_patient_everything_without_graph_and_uuid_only_flag_off.json');
 const expectedPatientResourcesWithProxyPatientAndPatientScope = require('./fixtures/expected/expected_patient_everything_without_graph_with_patient_scope.json');
 const expectedPatientResourcesWithMultipleProxyPatient = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph.json');
 const expectedPatientResourcesWithIncludeProxyOnly = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph_proxy_only.json');
 const expectedPatientResourcesWithIncludeProxyUuidOnly = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph_proxy_uuid_only.json');
+const expectedPatientResourcesWithIncludeProxyUuidOnlyFlagOff = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph_proxy_uuid_only_flag_off.json');
 const expectedPatientResourcesWithExcludeProxy = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph_and_exclude_proxy.json');
 const expectedPatientResourcesWithExcludeProxyUuidOnly = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph_and_exclude_proxy_uuid_only.json');
+const expectedPatientResourcesWithExcludeProxyUuidOnlyFlagOff = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph_and_exclude_proxy_uuid_only_flag_off.json');
 const expectedPatientResourcesWithProxyPatientSourceId = require('./fixtures/expected/expected_patient_everything_sourceid.json');
 const expectedPatientResourcesWithoutGraphWithRewritePatientRef = require('./fixtures/expected/expected_patient_everything_without_graph_rewrite_patient_ref.json');
 
@@ -31,7 +34,8 @@ const {
     getHeadersWithAdmin,
     createTestRequest,
     getHeadersWithCustomPayload,
-    getTestContainer
+    getTestContainer,
+    withExtendedGroupDisabled
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
@@ -142,6 +146,18 @@ describe('Proxy Patient $everything Tests', () => {
             });
         expect(resp).toHaveResponse(expectedPatientResourcesWithProxyPatientAndUuidOnly);
 
+        // same request with the extended-group flag off: identical apart from the Group projection
+        await withExtendedGroupDisabled(async () => {
+            const flagOffResp = await request
+                .get(
+                    '/4_0_0/Patient/person.' +
+                        person1Resp.body.uuid +
+                        '/$everything?_debug=true&_includePatientLinkedUuidOnly=true&_rewritePatientReference=true'
+                )
+                .set({ ...getHeadersWithAdmin(), prefer: 'global_id=false' });
+            expect(flagOffResp).toHaveResponse(expectedPatientResourcesWithProxyPatientAndUuidOnlyFlagOff);
+        });
+
         // get patient everything using proxy patient with contained and _rewritePatientReference as true
         resp = await request
             .get(
@@ -204,12 +220,24 @@ describe('Proxy Patient $everything Tests', () => {
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_includeProxyPatientLinkedOnly=1&_includePatientLinkedUuidOnly=1`)
             .set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedPatientResourcesWithIncludeProxyUuidOnly);
+        await withExtendedGroupDisabled(async () => {
+            const flagOffResp = await request
+                .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_includeProxyPatientLinkedOnly=1&_includePatientLinkedUuidOnly=1`)
+                .set(getHeadersWithAdmin());
+            expect(flagOffResp).toHaveResponse(expectedPatientResourcesWithIncludeProxyUuidOnlyFlagOff);
+        });
 
         // get proxy patient everything with _excludeProxyPatientLinked and _includePatientLinkedUuidOnly
         resp = await request
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_excludeProxyPatientLinked=1&_includePatientLinkedUuidOnly=1`)
             .set(getHeadersWithAdmin());
         expect(resp).toHaveResponse(expectedPatientResourcesWithExcludeProxyUuidOnly);
+        await withExtendedGroupDisabled(async () => {
+            const flagOffResp = await request
+                .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_excludeProxyPatientLinked=1&_includePatientLinkedUuidOnly=1`)
+                .set(getHeadersWithAdmin());
+            expect(flagOffResp).toHaveResponse(expectedPatientResourcesWithExcludeProxyUuidOnlyFlagOff);
+        });
     });
 
     test('Proxy Patient tests for $everything with repeated id query params', async () => {

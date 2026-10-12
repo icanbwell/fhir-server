@@ -39,12 +39,14 @@ const expectedPatientEverythingPatientWithSubscription = require('./fixtures/exp
 const expectedPatientResources = require('./fixtures/expected/expected_Patient_no_graph.json');
 const expectedPatientResourcesGlobalId = require('./fixtures/expected/expected_Patient_no_graph_global_id.json');
 const expectedPatientResourcesWithUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_uuid_only.json');
+const expectedPatientResourcesWithUuidOnlyFlagOff = require('./fixtures/expected/expected_Patient_no_graph_uuid_only_flag_off.json');
 const expectedPatientResourceWithIncludeAllUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_all_uuid_only.json');
+const expectedPatientResourceWithIncludeAllUuidOnlyFlagOff = require('./fixtures/expected/expected_Patient_no_graph_all_uuid_only_flag_off.json');
 const expectedPatientResourcesWithNonClinicalAndAllUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_include_non_clinical_all_uuid_only.json');
 const expectedPatientResourcesTypeNoGraph = require('./fixtures/expected/expected_Patient_type_no_graph.json');
 const expectedPatientIncludeHiddenResourcesNoGraph = require('./fixtures/expected/expected_Patient_no_graph_include_hidden.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest, getTestContainer, getHeadersWithCustomPayload } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithAdmin, createTestRequest, getTestContainer, getHeadersWithCustomPayload, withExtendedGroupDisabled } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { FhirResourceSerializer } = require('../../../../fhir/fhirResourceSerializer');
 const deepcopy = require('deepcopy');
@@ -193,6 +195,15 @@ describe('Person and Patient $everything Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResourcesWithUuidOnly);
 
+            // same request with the extended-group flag off: identical apart from the Group projection
+            await withExtendedGroupDisabled(async () => {
+                const flagOffResp = await request
+                    .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includePatientLinkedUuidOnly=true')
+                    .set(getHeadersWithAdmin());
+                expect(flagOffResp).toHaveMongoQuery(expectedPatientResourcesWithUuidOnlyFlagOff);
+                expect(flagOffResp).toHaveResponse(expectedPatientResourcesWithUuidOnlyFlagOff);
+            });
+
             // with _includeUuidOnly and _includePatientLinkedOnly as true
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeUuidOnly=true&_includePatientLinkedOnly=true')
@@ -200,6 +211,14 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp).toHaveMongoQuery(expectedPatientResourceWithIncludeAllUuidOnly);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResourceWithIncludeAllUuidOnly);
+
+            await withExtendedGroupDisabled(async () => {
+                const flagOffResp = await request
+                    .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeUuidOnly=true&_includePatientLinkedOnly=true')
+                    .set(getHeadersWithAdmin());
+                expect(flagOffResp).toHaveMongoQuery(expectedPatientResourceWithIncludeAllUuidOnlyFlagOff);
+                expect(flagOffResp).toHaveResponse(expectedPatientResourceWithIncludeAllUuidOnlyFlagOff);
+            });
 
             // should not use projection when _includePatientLinkedOnly is false
             resp = await request
