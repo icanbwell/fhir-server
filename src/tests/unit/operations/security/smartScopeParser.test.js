@@ -180,6 +180,14 @@ describe('smartScopeParser', () => {
             expect(getRequiredCrudsForAccessRequested(letter)).toEqual(new Set([letter]));
         });
 
+        test('an in-order letter combination normalizes to its letters', () => {
+            expect(getRequiredCrudsForAccessRequested('ds')).toEqual(new Set(['d', 's']));
+        });
+
+        test('an out-of-order letter combination returns null', () => {
+            expect(getRequiredCrudsForAccessRequested('sd')).toBeNull();
+        });
+
         test('an unrecognized value returns null', () => {
             expect(getRequiredCrudsForAccessRequested('bogus')).toBeNull();
             expect(getRequiredCrudsForAccessRequested(undefined)).toBeNull();
