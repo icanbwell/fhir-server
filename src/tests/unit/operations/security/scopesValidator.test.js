@@ -452,6 +452,18 @@ describe('ScopesValidator', () => {
             }).success).toBe(false);
         });
 
+        test('a letter combination is satisfied by letters granted across different scopes', () => {
+            expect(scopesValidator.evaluateResourceTypeScopeMatch({
+                scopes: ['user/Patient.read', 'user/Patient.write'], resourceType: 'Patient', accessRequested: 'ds'
+            }).success).toBe(true);
+        });
+
+        test('a letter combination fails when any one letter is not granted', () => {
+            expect(scopesValidator.evaluateResourceTypeScopeMatch({
+                scopes: ['user/Patient.d'], resourceType: 'Patient', accessRequested: 'ds'
+            }).success).toBe(false);
+        });
+
         test('returns a non-null error and success:false for an unrecognized accessRequested', () => {
             const result = scopesValidator.evaluateResourceTypeScopeMatch({
                 scopes: ['user/Patient.read'], resourceType: 'Patient', accessRequested: 'bogus'

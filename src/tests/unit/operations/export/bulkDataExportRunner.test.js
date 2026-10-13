@@ -28,6 +28,7 @@ const { S3Client } = require('../../../../utils/s3Client');
 const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../../utils/bulkExportEventProducer');
 const { StorageProviderFactory } = require('../../../../dataLayer/providers/storageProviderFactory');
+const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -60,6 +61,7 @@ describe('BulkDataExportRunner', () => {
             postSaveProcessor: createMockInstance(PostSaveProcessor),
             bulkExportEventProducer: createMockInstance(BulkExportEventProducer),
             storageProviderFactory: createMockInstance(StorageProviderFactory),
+            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
             exportStatusId: 'export-123',
             patientReferenceBatchSize: 100,
             fetchResourceBatchSize: 50,
@@ -141,6 +143,24 @@ describe('BulkDataExportRunner', () => {
                 allowedResources: ['Patient', 'Observation']
             });
             expect(result).toEqual(['Patient']);
+        });
+
+        test.each([
+            ['user/Patient.rs', ['Patient']],
+            ['user/Patient.s', ['Patient']],
+            ['user/Patient.r', []],
+            ['user/Patient.cud', []],
+            ['user/*.rs', ['Patient', 'Observation']]
+        ])('with v2 scopes enabled, scope %s yields %j', async (scope, expected) => {
+            Object.defineProperty(mocks.scopesManager.configManager, 'enableSmartV2CrudsScopes', {
+                value: true, configurable: true
+            });
+            const result = await runner.getRequestedResourceAsync({
+                scope,
+                searchParams: new URLSearchParams(),
+                allowedResources: ['Patient', 'Observation']
+            });
+            expect(result).toEqual(expected);
         });
 
         test('excludes AuditEvent always', async () => {

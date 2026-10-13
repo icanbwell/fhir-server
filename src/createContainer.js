@@ -274,6 +274,7 @@ const createContainer = function () {
         ]
     }));
     container.register('sourceAssigningAuthorityColumnHandler', (c) => new SourceAssigningAuthorityColumnHandler({ configManager: c.configManager }));
+    container.register('ownerColumnHandler', (c) => new OwnerColumnHandler({ configManager: c.configManager }));
     container.register('uuidColumnHandler', (_c) => new UuidColumnHandler());
     container.register('resourceMerger', (c) => new ResourceMerger({
         preSaveManager: c.preSaveManager
@@ -1277,6 +1278,7 @@ const createContainer = function () {
 
     container.register('exportOperation', (c) => new ExportOperation({
         scopesManager: c.scopesManager,
+        scopesValidator: c.scopesValidator,
         fhirLoggingManager: c.fhirLoggingManager,
         preSaveManager: c.preSaveManager,
         resourceValidator: c.resourceValidator,
@@ -1340,7 +1342,9 @@ const createContainer = function () {
         databaseBulkLoader: c.databaseBulkLoader,
         sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
         uuidColumnHandler: c.uuidColumnHandler,
-        writeAllowedByScopesValidator: c.writeAllowedByScopesValidator
+        writeAllowedByScopesValidator: c.writeAllowedByScopesValidator,
+        resourceValidator: c.resourceValidator,
+        ownerColumnHandler: c.ownerColumnHandler
     }));
 
     // Routes messages on kafkaBulkImportTaskCreatedTopic and kafkaBulkImportRangeProgressTopic
@@ -1371,6 +1375,7 @@ const createContainer = function () {
 
     container.register('importOperation', (c) => new ImportOperation({
         scopesManager: c.scopesManager,
+        scopesValidator: c.scopesValidator,
         fhirLoggingManager: c.fhirLoggingManager,
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,

@@ -1,0 +1,22 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "OperationOutcome",
+                "issue": [
+                    {
+                        "severity": "error",
+                        "code": "forbidden",
+                        "details": {
+                            "text": "None of the provided scopes matched an allowed scope.: user imran does not have access to [Person]"
+                        },
+                        "diagnostics": "None of the provided scopes matched an allowed scope.: user imran does not have access to [Person]"
+                    }
+                ]
+            }
+        }
+    ],
+    "type": "searchset",
+    "resourceType": "Bundle",
+    "total": 1
+}

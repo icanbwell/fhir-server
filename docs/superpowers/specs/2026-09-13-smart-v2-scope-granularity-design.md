@@ -102,16 +102,16 @@ its required CRUDS letter(s), extended here with the operations analyzed since t
 |------------------------------------------------|------------------|-------|
 | `create`                                       | `c`              | type-level create, POST, server-assigned id |
 | `update`, `patch`                              | `u`              | see "`u` covers update-as-create" below |
-| `remove`                                       | `d`              | |
+| `remove`                                       | `d` for a delete addressed only by `id`/`_id`; `d` **and** `s` when any other search parameter is present | see "DELETE behavior" below |
 | `searchById` (instance read), vread            | `r`              | |
 | instance-level `_history`                      | `r`              | |
 | type/system-level `history`                    | `s`              | |
 | `searchBundle`, `searchStreaming`, `everything`, `summary`, `expand` | `s` | |
-| `graph` — each resolution step, including the root | `r` if the step resolves one instance by reference/id, `s` if it searches a type (forward reference vs. reverse/child search) | not a single fixed letter; evaluated per step, same rule for the root call as for every child link |
-| `graph` (DELETE)                               | `d`              | on the root resource type **and** on every child resource type touched, since graph-delete never creates or updates |
+| `graph` — each resolution step, including the root | `r` if the step resolves one instance by reference/id, `s` if it searches a type (forward reference vs. reverse/child search) | not a single fixed letter; evaluated per step, same rule for the root call as for every child link. For DELETE see the next row |
+| `graph` (DELETE)                               | `d` on the root and on every resource deleted; forward-reference steps are satisfied by `d` (in place of `r`); reverse/child search steps still require `s` | see "DELETE behavior" below |
 | `$merge`                                       | `u`              | see "`u` covers update-as-create" below |
-| `$import`                                      | `c` on `Task`    | the request-time gate only covers creating the `Task`; per-resource authorization for what the import actually writes happens downstream, in the import processors, and is not enforced by this request-time gate |
-| `$export`                                      | `c` on `Task` directly, plus `s` on every resource type actually requested via `_type` | the check targets `Task`, not `ExportStatus` — replaces the export runner's current silent-drop-on-unauthorized-type behavior with a 403 |
+| `$import`                                      | `u` on `Task` at the resource gate and `u` on the `access/` tenant codes | request-time gate; `u`, not `c`, because every imported resource is written as a merge (`u`), and the tenant codes copied onto the Task are those granting `u`. Each imported resource is then checked separately in the import worker, as `$merge` does: `u` on its resource type and `u` on its access tags |
+| `$export`                                      | `c` on `Task` at the resource gate, plus at least one `access/` tenant code granting `c` and at least one granting `s` | creating the export job is gated like any other create; the tenant codes stamped on the ExportStatus are those granting `c`, and a caller with no tenant code granting `c`, or none granting `s`, is rejected. The runner's tenant filter for the exported data uses every tenant code granting `s`, including ones not stamped on the ExportStatus (see "`$export` behavior"); status polling (`$export/<id>`) is an instance read and uses `r` on the ExportStatus access tag; the runner includes a resource type only if a `user/`/`system/` scope grants `s` on it — types without it are dropped silently, as before |
 | `$access-history`                              | unchanged for now (still the coarse `read` check, twice) | deferred — not part of this pass; tracked as a TODO to assign granular letters later |
 
 `$access-history`'s existing hardcoded `'*'`-access-code requirement (a pre-existing regression
@@ -141,6 +141,126 @@ This also means the "create" column in any per-operation verification table refe
 type-level POST create (`c`); instance creation via PUT or `$merge` is a `u` grant, not a `c` grant.
 This is worth stating explicitly wherever such a table appears, since the column header alone is
 easy to misread as "any way a new resource comes into existence."
+
+### DELETE behavior — `remove` and `$graph` DELETE
+
+A delete is authorized by `d` alone wherever the target is identified rather than searched for.
+Only a step that has to *search* for resources requires `s`. Both the resource gate
+(`user/…`) and the access gate (`access/<tag>…`) apply the same letters, and the per-resource tag
+check and the Mongo query filter use the same letter as the gates.
+
+**`DELETE [base]/[type]/[id]` and `DELETE [base]/[type]?_id=…`** — `d`.
+
+**`DELETE [base]/[type]?<any other search parameter>`** — `d` **and** `s`. A type-level conditional
+delete enumerates resources by search, so it needs the search interaction in addition to the delete.
+
+`remove` passes the whole requirement as one value (`d` or `ds`) to the resource gate, access gate,
+query filter and per-resource check. A multi-letter requirement is evaluated per letter: each
+letter may be granted by a different scope token (so `user/*.read user/*.write` satisfies `ds`),
+and for the access gate a tenant code qualifies only if every letter is granted for it, directly
+or through the `*` code.
+
+**`DELETE [base]/[type]/[id]/$graph`**
+
+| Step | Required |
+|------|----------|
+| root resource, fetched by id | `d` |
+| forward-reference link (follows a reference held by a parent) | `d` (replaces `r`) |
+| reverse / child link (searches a type for resources referencing a parent) | `s` |
+| each resource actually deleted | `d` (resource type and tenant tags) |
+
+A link whose gate fails is skipped silently, as before; a resource the caller lacks `d` on is
+skipped silently, as before. `GET`/`POST` `$graph` is unchanged: `r` for forward links, `s` for
+reverse links.
+
+**What was allowed before, and what is allowed now**
+
+Previously the `remove` access gate, query filter and per-resource check all required the coarse
+`write` set (`c`, `u` and `d`), and `$graph` DELETE required `write` at the root and for each
+deleted resource, with every link gate still requiring `read` (`r`). A v2 token carrying only
+`d` was therefore rejected outright by both operations.
+
+`$graph` DELETE:
+
+| Grant (resource gate and access gate) | Before | Now |
+|---|---|---|
+| v1 `read` + `write`, or v1 `*` | whole graph | whole graph |
+| v1 `write` only (`cud`) | root only; link gates need `r`, children skipped silently | root and forward-reference children; reverse children need `s` and are skipped |
+| v2 `rds` | rejected (lacks `c`, `u`) | whole graph |
+| v2 `ds` | rejected | whole graph |
+| v2 `d` only | rejected | root and forward-reference children; reverse children skipped |
+| v2 `rs` / read-only | rejected | rejected, nothing deleted |
+| `d` on only one of the two gates | rejected | rejected |
+
+`remove`:
+
+| Grant | Request | Before | Now |
+|---|---|---|---|
+| v1 `write` (`cud`) | by id | allowed | allowed |
+| v1 `write` (`cud`) | with search parameters | allowed | **rejected** — `write` carries no `s` |
+| v1 `*` or v1 `read` + `write` | either | allowed | allowed |
+| v2 `d` only | by id | rejected (needs `c`, `u`) | allowed |
+| v2 `d` only | with search parameters | rejected | rejected (needs `s`) |
+| v2 `ds` | either | rejected | allowed |
+| v2 `rs` / read-only | either | rejected | rejected |
+
+Two of these changes reach v1 clients, because v1
+`write` normalizes to a fixed CRUDS set regardless of `ENABLE_SMART_V2_CRUDS_SCOPES`: a v1
+`write`-only client that issues a conditional (search-based) delete is now rejected, and a v1
+`write`-only client's `$graph` DELETE now also deletes forward-reference children.
+
+### `$import` behavior
+
+| Grant | Operation | Before | Now |
+|---|---|---|---|
+| v1 `write` with `access/` codes | `$import` | accepted | accepted (needs a `user/` scope covering `Task`) |
+| v1 `read` only | `$import` | rejected at the tenant check (no write codes) | rejected |
+| `access/<tag>` only, no `user/` scope | `$import` | accepted | **rejected** — `u` on `Task` is now required at the resource gate |
+| v2 `user/Task.u` + `access/<tag>.u` | `$import` | rejected (needs `c`, `u`, `d`) | accepted |
+| v2 `user/Task.c` + `access/<tag>.c` | `$import` | rejected | rejected (needs `u`) |
+| a scope without `u` on an imported resource's type (e.g. `user/Patient.c`, or `user/Observation.rs` in a mixed file) | `$import` worker | **resource imported** — only its access tags were checked | resource rejected and recorded as a failed entry; the rest of the import continues |
+
+The `$import` request-time gate requires `u`, on `Task` and on the tenant codes, so a caller who
+could not write any imported resource is rejected up front instead of getting a Task that imports
+nothing. Each imported resource is then checked in the import worker with the caller's own scope,
+through the same two gates `$merge` applies: the resource gate checks `u` on the resource's type
+(via `MergeManager.preMergeChecksMultipleAsync`), and `WriteAllowedByScopesValidator` checks `u` on
+the resource's access tags (and that the caller may add any access tag the resource carries). A
+resource that fails either gate is recorded as a failed entry in the error output and skipped; the
+rest of the import continues. Before this change the worker checked only the access gate.
+
+### `$export` behavior
+
+| Grant | Operation | Before | Now |
+|---|---|---|---|
+| v1 `user/*.read` + `user/*.write` with `access/<tag>.*`, or v1 `*` | `$export` | accepted | accepted |
+| v1 read-only (`user/*.read` / `user/Patient.read`), no `user/` scope covering `Task` | `$export` | accepted | **rejected** — `c` on `Task` is now required |
+| v2 `user/*.rs user/Task.c` + `access/<tag>.cs` | `$export` | rejected | accepted |
+| v2 `user/*.rs user/Task.c` + `access/<tag>.s` | `$export` | rejected | rejected (no tenant code grants `c`) |
+| v2 `user/*.rs user/Task.c` + `access/<tag>.c` | `$export` | rejected | rejected (no tenant code grants `s`) |
+| v2 `user/*.rs user/Task.c` + `access/tenantA.c access/tenantB.s` | `$export` | rejected | accepted; only tenantA is stamped on the ExportStatus |
+| v1 `access/<tag>.read` only | `$export` | accepted, tag stamped on the ExportStatus | **rejected** (no tenant code grants `c`) |
+| v1 `access/<tag>.write` only | `$export` | rejected | rejected (no tenant code grants `s`) |
+| v1 `access/<tag>.read access/<tag>.write` | `$export` | accepted, tag stamped | accepted, tag stamped |
+| v2 `access/<tag>.cs` (no `r`) | polling the status (`$export/<id>`) | rejected | rejected, 403 (needs `r`) |
+| v2 `access/<tag>.rs` | polling the status (`$export/<id>`) | rejected | accepted |
+| v2 `user/*.rs` + `access/<tag>.s`, no `c` on `Task` | `$export` | rejected | rejected |
+| v2 `access/<tag>.r` only | `$export` | rejected | rejected (needs `s`) |
+| v1 `write` / v2 `cud` only | `$export` | rejected | rejected (tenant codes need `s`) |
+| v2 `user/Patient.rs` | `$export` runner | zero rows, HTTP 200 (literal suffix comparison) | Patient exported |
+
+`$export` requires `c` on `Task` at the resource gate, at least one tenant code granting `c`, and
+at least one tenant code granting `s` at request time; only the codes granting `c` are stamped on
+the ExportStatus. The runner then
+narrows silently to the types the caller's scopes grant `s` on.
+
+The two tenant checks are deliberately different. `c` decides which tenant codes are stamped on
+the ExportStatus, since stamping a code on the job record is a create in that tenant. `s` decides
+which tenants' data the runner exports: every tenant code granting `s`, not just the stamped ones.
+The request-time `s` check only rejects a job that could never export any data. So a caller
+holding `access/tenantA.c access/tenantB.s` can start the export, the ExportStatus is tagged with
+tenantA only, and the exported data is tenantB's. A caller holding only `access/tenantB.s`, or only
+`access/tenantA.c`, cannot start an export at all.
 
 ## Components & data flow
 
@@ -267,7 +387,9 @@ subsequence rule above before the flag is enabled; see Open items.
   full coarse `{c,u,d}` composite regardless of what the resource gate just decided. Under this
   revision's combined-phase policy, once `create` is migrated, both sides ask for `c` and this
   succeeds.
-- **`bulkDataExportRunner.getRequestedResourceAsync`** decides which resource types a bulk export
+- **`bulkDataExportRunner.getRequestedResourceAsync`** (fixed: it now resolves types through
+  `ScopesManager.getResourceTypesWithAccess` and requires `s`; the note below describes the
+  behavior before the fix) decided which resource types a bulk export
   may include by splitting the scope string and comparing the suffix literally
   (`accessType === '*' || accessType === 'read'`) instead of calling `parseScopeToken`. Found
   during the 2026-09-25 documentation review; not yet folded into a fix plan, and deliberately kept

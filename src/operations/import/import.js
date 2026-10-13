@@ -11,6 +11,7 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { ScopesManager } = require('../security/scopesManager');
+const { ScopesValidator } = require('../security/scopesValidator');
 const { SecurityTagManager } = require('../common/securityTagManager');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, CLOUD_EVENT, BULK_IMPORT_TASK } = require('../../constants');
@@ -36,6 +37,7 @@ class ImportOperation {
      */
     constructor({
         scopesManager,
+        scopesValidator,
         fhirLoggingManager,
         postRequestProcessor,
         auditLogger,
@@ -48,6 +50,9 @@ class ImportOperation {
     }) {
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
 
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
@@ -215,7 +220,7 @@ class ImportOperation {
         const accessCodesFromScopes = this.securityTagManager.getSecurityTagsFromScope({
             user,
             scope,
-            accessRequested: 'write'
+            accessRequested: 'u'
         });
 
         accessCodesFromScopes.forEach((code) => {
@@ -305,6 +310,17 @@ class ImportOperation {
         try {
             if (this.scopesManager.hasPatientScope({ scope })) {
                 throw new ForbiddenError('Bulk import cannot be triggered with patient scopes');
+            }
+
+            const scopeError = await this.scopesValidator.isScopesValidAsync({
+                requestInfo,
+                resourceType: 'Task',
+                accessRequested: 'u',
+                action: currentOperationName,
+                base_version
+            });
+            if (scopeError) {
+                throw scopeError;
             }
 
             const { id: importJobId, inputs } = this.parseParametersResource(resource);
