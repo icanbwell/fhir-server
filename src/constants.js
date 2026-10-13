@@ -173,6 +173,10 @@ module.exports = {
     },
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
+    NON_SEARCH_QUERY_PARAMS: [
+        'base_version', 'id', '_id', '_format', '_pretty', '_bundle', '_prefer', '_keepOldUI',
+        '_explain', '_debug', '_streamResponse', 'streamResponse'
+    ],
     SPECIFIED_QUERY_PARAMS: [
         '_explain', '_debug', 'contained', '_hash_references', 'base_version', '_elements',
         '_useAccessIndex', 'active', '_source', '_id', 'onset-date', '_lastUpdated',

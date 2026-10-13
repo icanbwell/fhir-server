@@ -166,7 +166,8 @@ describe('BulkImportHandler — worker path', () => {
                 }))
             },
             mergeManager: {
-                mergeResourceAsync: jestGlobal.fn().mockResolvedValue(null)
+                mergeResourceAsync: jestGlobal.fn().mockResolvedValue(null),
+                preMergeChecksMultipleAsync: jestGlobal.fn().mockResolvedValue({ mergePreCheckErrors: [], validResources: [] })
             },
             databaseBulkLoader: {
                 loadResourcesAsync: jestGlobal.fn().mockResolvedValue(undefined),
@@ -188,6 +189,12 @@ describe('BulkImportHandler — worker path', () => {
             },
             writeAllowedByScopesValidator: {
                 validate: jestGlobal.fn().mockResolvedValue({ preCheckErrors: [], validatedObjects: [] })
+            },
+            resourceValidator: {
+                validateResourceMetaSync: jestGlobal.fn(() => null)
+            },
+            ownerColumnHandler: {
+                preSaveAsync: jestGlobal.fn(async ({ resource }) => resource)
             }
         };
 
@@ -676,6 +683,61 @@ describe('BulkImportHandler — worker path', () => {
             const errorWrite = deps.s3NdjsonReader.writeNdjsonAsync.mock.calls
                 .find((c) => c[0].filepath.includes('/errors/'));
             expect(errorWrite).toBeDefined();
+        });
+
+        test('SECURITY: a $merge pre-merge check rejection blocks the merge and is recorded as a failure', async () => {
+            const preCheckError = new MergeResultEntry({
+                id: 'p1', uuid: 'uuid-of-p1', resourceType: 'Patient', created: false, updated: false,
+                issue: { severity: 'error', code: 'forbidden' },
+                operationOutcome: { resourceType: 'OperationOutcome' }
+            });
+            deps.mergeManager.preMergeChecksMultipleAsync.mockResolvedValue({
+                mergePreCheckErrors: [preCheckError], validResources: []
+            });
+            deps.s3NdjsonReader.readNdjsonAsync.mockImplementation(ndjsonLines([
+                makeLine({ resource: makePatient({ id: 'p1', owner: 'client-a' }) })
+            ]));
+
+            await handler.handleImportRangeRequestedAsync(rangeMessage());
+
+            expect(deps.mergeManager.preMergeChecksMultipleAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourcesToMerge: [expect.objectContaining({ id: 'p1' })] })
+            );
+            expect(deps.writeAllowedByScopesValidator.validate).not.toHaveBeenCalled();
+            expect(deps.mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
+            const errorWrite = deps.s3NdjsonReader.writeNdjsonAsync.mock.calls
+                .find((c) => c[0].filepath.includes('/errors/'));
+            expect(errorWrite).toBeDefined();
+        });
+
+        test('a pipe in a resource id blocks the merge and is recorded as a failure', async () => {
+            deps.s3NdjsonReader.readNdjsonAsync.mockImplementation(ndjsonLines([
+                makeLine({ resource: makePatient({ id: 'p1|other', owner: 'client-a' }) })
+            ]));
+
+            await handler.handleImportRangeRequestedAsync(rangeMessage());
+
+            expect(deps.mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
+            const errorWrite = deps.s3NdjsonReader.writeNdjsonAsync.mock.calls
+                .find((c) => c[0].filepath.includes('/errors/'));
+            expect(JSON.stringify(errorWrite[0])).toContain('Pipe | is not allowed in id field');
+        });
+
+        test('meta validation failure on a new resource blocks the merge and is recorded as a failure', async () => {
+            deps.resourceValidator.validateResourceMetaSync.mockReturnValue({
+                resourceType: 'OperationOutcome',
+                issue: [{ severity: 'error', code: 'invalid', details: { text: 'meta invalid' } }]
+            });
+            deps.s3NdjsonReader.readNdjsonAsync.mockImplementation(ndjsonLines([
+                makeLine({ resource: makePatient({ id: 'p1', owner: 'client-a' }) })
+            ]));
+
+            await handler.handleImportRangeRequestedAsync(rangeMessage());
+
+            expect(deps.mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
+            const errorWrite = deps.s3NdjsonReader.writeNdjsonAsync.mock.calls
+                .find((c) => c[0].filepath.includes('/errors/'));
+            expect(JSON.stringify(errorWrite[0])).toContain('meta invalid');
         });
 
         test('an unparseable NDJSON line is recorded as a failure without aborting the range', async () => {

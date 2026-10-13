@@ -132,6 +132,16 @@ describe('ScopesManager', () => {
                 });
             });
 
+            test('a letter combination returns codes whose letters are granted across different scopes', () => {
+                const result = scopesManager.getAccessCodesFromScopes('ds', 'testUser', 'access/a.d access/a.s access/b.d');
+                expect(result).toEqual(['a']);
+            });
+
+            test('a letter combination lets a wildcard code supply the missing letter', () => {
+                const result = scopesManager.getAccessCodesFromScopes('ds', 'testUser', 'access/a.d access/*.s');
+                expect(result).toEqual(['a']);
+            });
+
             test('extracts access codes from a v2 access/ scope whose letters satisfy the action', () => {
                 expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'access/client.rs')).toEqual(['client']);
                 expect(scopesManager.getAccessCodesFromScopes('write', 'testUser', 'access/client.cud')).toEqual(['client']);
