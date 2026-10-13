@@ -1,0 +1,29 @@
+{
+    "entry": [
+        {
+            "id": "person-1",
+            "resource": {
+                "resourceType": "Person",
+                "id": "person-1"
+            },
+            "request": {
+                "method": "DELETE",
+                "url": "/4_0_0/Person/person-1"
+            }
+        },
+        {
+            "id": "patient-1",
+            "resource": {
+                "resourceType": "Patient",
+                "id": "patient-1"
+            },
+            "request": {
+                "method": "DELETE",
+                "url": "/4_0_0/Patient/patient-1"
+            }
+        }
+    ],
+    "resourceType": "Bundle",
+    "type": "batch-response",
+    "total": 2
+}

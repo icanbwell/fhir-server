@@ -1,0 +1,22 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "OperationOutcome",
+                "issue": [
+                    {
+                        "severity": "error",
+                        "code": "forbidden",
+                        "details": {
+                            "text": "user imran does not have access to [Person]"
+                        },
+                        "diagnostics": "user imran does not have access to [Person]"
+                    }
+                ]
+            }
+        }
+    ],
+    "type": "searchset",
+    "resourceType": "Bundle",
+    "total": 1
+}
