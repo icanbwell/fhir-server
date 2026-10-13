@@ -18,6 +18,8 @@ const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const { logInfo } = require('../operations/common/logging');
+const { PreconditionFailedError } = require('../utils/httpErrors');
+const { normalizeETag } = require('../utils/ifMatchHelper');
 
 class DatabaseUpdateManager {
     /**
@@ -151,9 +153,10 @@ class DatabaseUpdateManager {
      * @param {FhirRequestInfo} requestInfo
      * @param {Resource} doc
      * @param {Boolean} [smartMerge]
+     * @param {string[]} [ifMatchVersionIds] - normalized If-Match version ids the live doc must match
      * @return {Promise<{savedResource: Resource|null, patches: MergePatchEntry[]|null}>}
      */
-    async replaceOneAsync ({ base_version, requestInfo, doc, smartMerge = true }) {
+    async replaceOneAsync ({ base_version, requestInfo, doc, smartMerge = true, ifMatchVersionIds = [] }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         assertTypeEquals(doc, Resource);
         const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
@@ -176,6 +179,22 @@ class DatabaseUpdateManager {
                     base_version: '4_0_0'
                 }
             );
+            // This fallback only runs after the primary bulkWrite's atomic If-Match filter
+            // (databaseBulkInserter.js) already failed to match, meaning a real concurrent write
+            // happened -- so unlike the retry-merge logic below, a mismatch here must fail the
+            // request rather than be silently rebased.
+            const throwIfMatchOnMissingResource = () => {
+                throw new PreconditionFailedError(`Version conflict: Resource no longer exists, but If-Match header was provided. If-Match: ${ifMatchVersionIds.join(', ')}`);
+            };
+            const assertIfMatchSatisfied = (currentResourceInDb) => {
+                if (ifMatchVersionIds.length === 0 || ifMatchVersionIds.includes('*')) {
+                    return;
+                }
+                const currentVersionId = normalizeETag(String(currentResourceInDb.meta.versionId));
+                if (!ifMatchVersionIds.includes(currentVersionId)) {
+                    throw new PreconditionFailedError(`Version conflict: If-Match does not match current resource version. Older version: ${currentVersionId}, If-Match: ${ifMatchVersionIds.join(', ')}`);
+                }
+            };
             /**
              * @type {Resource|null}
              */
@@ -201,8 +220,14 @@ class DatabaseUpdateManager {
                 }
             );
             if (!resourceInDatabase) {
+                // If-Match (including *) requires an existing resource -- a concurrent DELETE must not
+                // be undone by recreating it here
+                if (ifMatchVersionIds.length > 0) {
+                    throwIfMatchOnMissingResource();
+                }
                 return { savedResource: await this.insertOneAsync({ doc, requestInfo }), patches: null };
             }
+            assertIfMatchSatisfied(resourceInDatabase);
             /**
              * @type {Resource|null}
              */
@@ -272,8 +297,12 @@ class DatabaseUpdateManager {
                     previousLiveRefs = this.base64DataManager.getLiveObjectRefs(resourceInDatabase);
 
                     if (resourceInDatabase === null) {
+                        if (ifMatchVersionIds.length > 0) {
+                            throwIfMatchOnMissingResource();
+                        }
                         throw new Error(`Unable to read resource ${doc.resourceType}/${doc._uuid} from database`);
                     } else {
+                        assertIfMatchSatisfied(resourceInDatabase);
                         // merge with our resource
                         ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync(
                                 {
