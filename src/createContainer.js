@@ -1279,6 +1279,7 @@ const createContainer = function () {
 
     container.register('exportOperation', (c) => new ExportOperation({
         scopesManager: c.scopesManager,
+        scopesValidator: c.scopesValidator,
         fhirLoggingManager: c.fhirLoggingManager,
         preSaveManager: c.preSaveManager,
         resourceValidator: c.resourceValidator,

@@ -473,6 +473,20 @@ class ScopesManager {
     }
 
     /**
+     * The resource types (or '*') that the caller's user/ and system/ scopes grant for accessRequested
+     * @param {string|undefined} scope
+     * @param {string} accessRequested legacy 'read'/'write', a CRUDS letter, or a letter combination
+     * @returns {string[]}
+     */
+    getResourceTypesWithAccess ({ scope, accessRequested }) {
+        const requiredCruds = getRequiredCrudsForAccessRequested(accessRequested);
+        return this.getResourceTypeScopes({ scope })
+            .map(scopeToken => parseScopeToken(scopeToken, this.configManager.enableSmartV2CrudsScopes))
+            .filter(parsed => parsed && isCrudsRequirementSatisfied(parsed.cruds, requiredCruds))
+            .map(parsed => parsed.resourceType);
+    }
+
+    /**
      * Gets scope from request
      * @param {import('http').IncomingMessage} req
      * @return {string|undefined}
