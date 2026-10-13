@@ -558,6 +558,11 @@ class EverythingHelper {
              */
             let queryItems = [];
             /**
+             * queries the query rewriters ran on their own (e.g. the GroupMember lookup), listed in `_debug` / `_explain`
+             * @type {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]}
+             */
+            let additionalRewriteQueries = [];
+            /**
              * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
              */
             let options = [];
@@ -632,7 +637,8 @@ class EverythingHelper {
                         entries: entries1,
                         queryItems: queryItems1,
                         options: options1,
-                        explanations: explanations1
+                        explanations: explanations1,
+                        additionalRewriteQueries: additionalRewriteQueries1
                     } = await this.retrieveEverythingMulipleIdsAsync(
                         {
                             base_version,
@@ -655,6 +661,7 @@ class EverythingHelper {
 
                     entries = entries.concat(entries1);
                     queryItems = queryItems.concat(queryItems1);
+                    additionalRewriteQueries = additionalRewriteQueries.concat(additionalRewriteQueries1);
                     options = options.concat(options1);
                     explanations = explanations.concat(explanations1);
                 }
@@ -683,6 +690,7 @@ class EverythingHelper {
                     parsedArgs,
                     originalQuery: queryItems,
                     originalOptions: options,
+                    additionalRewriteQueries,
                     columns: new Set(),
                     stopTime,
                     startTime,
@@ -864,6 +872,10 @@ class EverythingHelper {
              */
             let optionsForQueries = [];
             /**
+             * @type {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]}
+             */
+            const additionalRewriteQueries = [];
+            /**
              * @type {import('mongodb').Document[]}
              */
             let explanations = [];
@@ -987,7 +999,7 @@ class EverythingHelper {
              * @type {import('mongodb').Document[]}
              */
             for (const relatedResourceMapChunk of relatedResourceMapChunks) {
-                let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions } = await this.retriveveRelatedResourcesParallelyAsync({
+                let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions, additionalRewriteQueries: relatedRewriteQueries } = await this.retriveveRelatedResourcesParallelyAsync({
                     requestInfo,
                     base_version,
                     parentResourceType: resourceType,
@@ -1032,6 +1044,7 @@ class EverythingHelper {
                 if (relatedOptions) {
                     optionsForQueries.push(...relatedOptions);
                 }
+                pushAll(additionalRewriteQueries, relatedRewriteQueries);
             }
 
             // Dedicated subscription fetch step. Runs after all clinical resources (so every Person
@@ -1043,7 +1056,7 @@ class EverythingHelper {
                 const personResourceIdentifiers = Array.from(personResourceIdentifierMap.values())
                     .sort((a, b) => a._uuid.localeCompare(b._uuid));
 
-                let { entities: subscriptionEntities, queryItems: subscriptionQueryItems, optionsForQueries: subscriptionOptions } = await this.retriveveRelatedResourcesParallelyAsync({
+                let { entities: subscriptionEntities, queryItems: subscriptionQueryItems, optionsForQueries: subscriptionOptions, additionalRewriteQueries: subscriptionRewriteQueries } = await this.retriveveRelatedResourcesParallelyAsync({
                     requestInfo,
                     base_version,
                     parentResourceType: resourceType,
@@ -1088,6 +1101,7 @@ class EverythingHelper {
                 if (subscriptionOptions) {
                     optionsForQueries.push(...subscriptionOptions);
                 }
+                pushAll(additionalRewriteQueries, subscriptionRewriteQueries);
             }
 
             if (includeNonClinicalResources || everythingRelatedResourceManager.nonClinicalResources?.size > 0) {
@@ -1214,6 +1228,7 @@ class EverythingHelper {
                 queryItems: queries,
                 options: optionsForQueries,
                 explanations,
+                additionalRewriteQueries,
                 streamedResources
             })
         } catch (e) {
@@ -1453,7 +1468,7 @@ class EverythingHelper {
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
-     * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {_uuid: string, resourceType: string}[]}>}
+     * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], additionalRewriteQueries: import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[], streamedResources: {_uuid: string, resourceType: string}[]}>}
      */
     async retriveveRelatedResourcesParallelyAsync({
         requestInfo,
@@ -1487,6 +1502,11 @@ class EverythingHelper {
          * @type {QueryItem[]}
          */
         const queryItems = []
+
+        /**
+         * @type {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]}
+         */
+        const additionalRewriteQueries = [];
 
         /**
          * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
@@ -1552,6 +1572,14 @@ class EverythingHelper {
             let commonArgs = {
                 _includeHidden: parsedArgs._includeHidden
             };
+            // lets the query rewriters explain the lookups they run (listed in _debug / _explain); both are
+            // ignored when building the query and already cleared for non-admin callers
+            if (parsedArgs._debug) {
+                commonArgs._debug = parsedArgs._debug;
+            }
+            if (parsedArgs._explain) {
+                commonArgs._explain = parsedArgs._explain;
+            }
 
             if (resourceToExcludeIdsMap && resourceToExcludeIdsMap[relatedResourceType]?.length > 0) {
                 commonArgs["id:not"] = resourceToExcludeIdsMap[relatedResourceType].join(',');
@@ -1583,7 +1611,8 @@ class EverythingHelper {
              */
             let {
                 /** @type {import('mongodb').Document}**/
-                query
+                query,
+                additionalRewriteQueries: relatedRewriteQueries
             } = await this.searchManager.constructQueryAsync({
                 user: requestInfo.user,
                 scope: requestInfo.scope,
@@ -1607,7 +1636,6 @@ class EverythingHelper {
                 useProxyPatientToPersonCache: Boolean(scopedPersonIds?.length),
                 everythingChunkIndex
             });
-
             if (filterTemplateCustomQuery) {
                 let customParentQuery = [];
                 parentLookupField = filterTemplateCustomQuery.fieldForParentLookup;
@@ -1793,6 +1821,8 @@ class EverythingHelper {
                 collectionName,
                 explanations
             }))
+            // lookups the rewriters ran to build this query (e.g. GroupMember) are listed with it in _debug / _explain
+            pushAll(additionalRewriteQueries, relatedRewriteQueries);
         }
 
         const result = await settleAllOrThrow(parallelProcess);
@@ -1805,6 +1835,7 @@ class EverythingHelper {
             entities: bundleEntries,
             queryItems,
             optionsForQueries,
+            additionalRewriteQueries,
             streamedResources
         }
     }

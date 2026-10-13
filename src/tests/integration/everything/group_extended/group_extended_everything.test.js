@@ -5,7 +5,7 @@
  * query already finds it (GroupMemberQueryRewriter); processCursorAsync must also accept it as a
  * child of the requested Patient, and the read-side enrichment tags it.
  *
- * ENABLE_EXTENDED_GROUP is set to '1' globally in jest/setEnvVars.js.
+ * ENABLE_EXTENDED_GROUP is turned on for the suite's tests (off by default in jest).
  */
 const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals');
 const {
@@ -14,9 +14,9 @@ const {
     createTestRequest,
     getTestContainer,
     getHeaders,
-    getHeadersJsonPatch,
-    withExtendedGroupDisabled
+    getHeadersJsonPatch
 } = require('../../common');
+
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../../utils/mongoGroupExtendedTag');
 
 const OWNER = 'test-owner';
@@ -38,8 +38,11 @@ const EXTENDED_TAG = { system: 'https://www.icanbwell.com/groupSize', code: 'ext
 
 describe('$everything returns extended Groups', () => {
     let request;
+    let originalEnableExtendedGroup;
 
     beforeAll(async () => {
+        originalEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+        process.env.ENABLE_EXTENDED_GROUP = '1';
         await commonBeforeEach();
         request = await createTestRequest();
 
@@ -67,6 +70,7 @@ describe('$everything returns extended Groups', () => {
 
     afterAll(async () => {
         await commonAfterEach();
+        process.env.ENABLE_EXTENDED_GROUP = originalEnableExtendedGroup;
     });
 
     async function createGroup (name, member, owner = OWNER) {
@@ -158,7 +162,9 @@ describe('$everything returns extended Groups', () => {
         await makeExtended(extended.id, `Patient/${PATIENT_ID}|${OWNER}`);
         expect(embedded.id).toBeDefined();
 
-        await withExtendedGroupDisabled(async () => {
+        const savedEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+        delete process.env.ENABLE_EXTENDED_GROUP;
+        try {
             const response = await request
                 .get(`/4_0_0/Patient/${PATIENT_ID}/$everything?_type=Patient,Group`)
                 .set(getHeaders());
@@ -169,7 +175,9 @@ describe('$everything returns extended Groups', () => {
                 .map((e) => e.resource.name);
             expect(names).toContain('flag-off-embedded');
             expect(names).not.toContain('flag-off-extended');
-        });
+        } finally {
+            process.env.ENABLE_EXTENDED_GROUP = savedEnableExtendedGroup;
+        }
     });
 
     describe('several ids in one request', () => {

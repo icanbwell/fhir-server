@@ -6,7 +6,7 @@
  * no inline array left to search -- so GroupMemberQueryRewriter widens every member condition
  * with `OR _uuid in <extended Groups whose GroupMember rows match it>`.
  *
- * ENABLE_EXTENDED_GROUP is set to '1' globally in jest/setEnvVars.js.
+ * ENABLE_EXTENDED_GROUP is turned on for the suite's tests (off by default in jest).
  */
 const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals');
 const deepcopy = require('deepcopy');
@@ -51,13 +51,18 @@ function defaultMeta(accessCode = 'test-access') {
 describe('Group member reverse lookup', () => {
     let request;
 
+    let originalEnableExtendedGroup;
+
     beforeAll(async () => {
+        originalEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+        process.env.ENABLE_EXTENDED_GROUP = '1';
         await commonBeforeEach();
         request = await createTestRequest();
     });
 
     afterAll(async () => {
         await commonAfterEach();
+        process.env.ENABLE_EXTENDED_GROUP = originalEnableExtendedGroup;
     });
 
     async function createGroup(overrides = {}, headers = getHeaders()) {

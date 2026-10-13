@@ -536,19 +536,3 @@ module.exports.parseNdjsonResponse = (resp) => {
             }
         });
 };
-
-/**
- * Runs fn with ENABLE_EXTENDED_GROUP off and restores the previous value afterwards.
- * jest/setEnvVars.js turns the flag on for every test run.
- * @param {() => Promise<void>} fn
- * @return {Promise<void>}
- */
-module.exports.withExtendedGroupDisabled = async (fn) => {
-    const previous = process.env.ENABLE_EXTENDED_GROUP;
-    process.env.ENABLE_EXTENDED_GROUP = '0';
-    try {
-        await fn();
-    } finally {
-        process.env.ENABLE_EXTENDED_GROUP = previous;
-    }
-};
