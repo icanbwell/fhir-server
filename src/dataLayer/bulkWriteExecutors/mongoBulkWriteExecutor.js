@@ -23,6 +23,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { PostSaveProcessor } = require('../postSaveProcessor');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { Base64DataManager } = require('../base64DataManager');
+const { PreconditionFailedError } = require('../../utils/httpErrors');
 
 // MongoDB BSON document hard limit is 16 MiB (16,777,216 bytes). The Node driver and
 // libbson allocate a 17 MiB scratch buffer (kMaxBSONSize + 1 MiB headroom = 17,825,792 bytes),
@@ -346,6 +347,14 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                         expectedInsertsByUniqueIdCount > 0 &&
                         expectedInsertsByUniqueIdCount > actualInsertsByUniqueIdCount
                     ) {
+                        // The insertUniqueId operation (databaseBulkInserter.js) is itself an atomic
+                        // updateOne-with-upsert, so upsertedCount < expected here means a concurrent
+                        // writer's create won the race for at least one of these resources -- exactly
+                        // what If-None-Match: * asks us to reject rather than silently fold into an
+                        // update, so check that before falling into the generic concurrency fallback.
+                        if (expectedInsertsByUniqueId.some(e => e.writePrecondition?.rejectIfExists)) {
+                            throw new PreconditionFailedError('Version conflict: If-None-Match: * was provided but resource already exists.');
+                        }
                         await logTraceSystemEventAsync(
                             {
                                 event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
@@ -638,7 +647,8 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                 {
                     base_version,
                     requestInfo,
-                    doc: bulkInsertUpdateEntry.resource
+                    doc: bulkInsertUpdateEntry.resource,
+                    ifMatchVersionIds: bulkInsertUpdateEntry.writePrecondition?.ifMatchVersionIds
                 }
             );
             if (savedResource) {
