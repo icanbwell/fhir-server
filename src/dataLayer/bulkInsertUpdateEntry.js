@@ -7,6 +7,12 @@
  * @typedef {('insert'|'insertUniqueId'|'replace'|'merge')} OperationType
  **/
 
+/**
+ * @typedef {Object} WritePrecondition
+ * @property {string[]} [ifMatchVersionIds] - normalized If-Match version ids the live doc must match
+ * @property {boolean} [rejectIfExists] - If-None-Match: * -- fail instead of folding a lost insert race into an update
+ **/
+
 class BulkInsertUpdateEntry {
     /**
      * constructor
@@ -22,6 +28,7 @@ class BulkInsertUpdateEntry {
      * @param {boolean|undefined} [skipped]
      * @param {string} sourceAssigningAuthority
      * @param {Object|null} [contextData] - Optional context data for resource-specific handling (e.g., Group members)
+     * @param {WritePrecondition|null} [writePrecondition]
      */
     constructor ({
                     operationType,
@@ -35,7 +42,8 @@ class BulkInsertUpdateEntry {
                     patches,
                     skipped,
                     sourceAssigningAuthority,
-                    contextData = null
+                    contextData = null,
+                    writePrecondition = null
                 }
     ) {
         /**
@@ -86,6 +94,10 @@ class BulkInsertUpdateEntry {
          * @type {Object|null}
          */
         this.contextData = contextData;
+        /**
+         * @type {WritePrecondition|null}
+         */
+        this.writePrecondition = writePrecondition;
     }
 }
 

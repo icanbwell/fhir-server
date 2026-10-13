@@ -466,7 +466,8 @@ class UpdateOperation {
                             doc,
                             uuid: doc._uuid,
                             patches,
-                            contextData
+                            contextData,
+                            ifMatchVersionIds: versionIds
                         }
                     );
                 } else {
@@ -489,7 +490,8 @@ class UpdateOperation {
                         requestInfo,
                         resourceType,
                         doc,
-                        contextData
+                        contextData,
+                        rejectIfExists: ifNoneMatch === '*'
                     });
                 }
             }

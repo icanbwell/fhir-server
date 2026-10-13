@@ -1,4 +1,4 @@
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, getHeadersJsonPatch, createTestRequest } = require('../../common');
 const { describe, beforeAll, afterAll, expect, it } = require('@jest/globals');
 
 describe('PUT with If-Match (optimistic locking)', () => {
@@ -145,5 +145,14 @@ describe('PUT with If-Match (optimistic locking)', () => {
 
         const statuses = [respA.statusCode, respB.statusCode].sort();
         expect(statuses).toEqual([201, 412]);
+    });
+
+    it('should ignore a stale If-Match on PATCH since version preconditions are PUT-only', async () => {
+        const resp = await request
+            .patch(`/4_0_0/Patient/${resourceId}`)
+            .send([{ op: 'replace', path: '/name/0/given/0', value: 'Patched' }])
+            .set({ ...getHeadersJsonPatch(), 'If-Match': 'W/"999"' });
+        expect(resp).toHaveStatusCode(200);
+        expect(resp.body.name[0].given[0]).toBe('Patched');
     });
 });

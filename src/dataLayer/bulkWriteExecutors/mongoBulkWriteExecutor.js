@@ -352,8 +352,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                         // writer's create won the race for at least one of these resources -- exactly
                         // what If-None-Match: * asks us to reject rather than silently fold into an
                         // update, so check that before falling into the generic concurrency fallback.
-                        const ifNoneMatch = requestInfo.headers && requestInfo.headers['if-none-match'];
-                        if (ifNoneMatch === '*') {
+                        if (expectedInsertsByUniqueId.some(e => e.writePrecondition?.rejectIfExists)) {
                             throw new PreconditionFailedError('Version conflict: If-None-Match: * was provided but resource already exists.');
                         }
                         await logTraceSystemEventAsync(
@@ -648,7 +647,8 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                 {
                     base_version,
                     requestInfo,
-                    doc: bulkInsertUpdateEntry.resource
+                    doc: bulkInsertUpdateEntry.resource,
+                    ifMatchVersionIds: bulkInsertUpdateEntry.writePrecondition?.ifMatchVersionIds
                 }
             );
             if (savedResource) {

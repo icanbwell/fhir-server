@@ -28,7 +28,6 @@ const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
-const { parseIfMatchVersionIds } = require('../utils/ifMatchHelper');
 const { handleClickHouseGroupPreSave } = require('../utils/clickHouseGroupPreSave');
 
 /**
@@ -179,7 +178,8 @@ class DatabaseBulkInserter extends EventEmitter {
             operationType,
             operation,
             patches,
-            contextData = null
+            contextData = null,
+            writePrecondition = null
         }
     ) {
         assertIsValid(requestId, 'requestId is null');
@@ -205,7 +205,8 @@ class DatabaseBulkInserter extends EventEmitter {
                 operationType,
                 operation,
                 patches,
-                contextData
+                contextData,
+                writePrecondition
             })
         );
     }
@@ -284,7 +285,8 @@ class DatabaseBulkInserter extends EventEmitter {
         operation,
         patches,
         isAccessLogOperation = false,
-        contextData = null
+        contextData = null,
+        writePrecondition = null
     }) {
         try {
             if (!isAccessLogOperation) {
@@ -312,7 +314,8 @@ class DatabaseBulkInserter extends EventEmitter {
                 patches,
                 isCreateOperation: operationType === 'insert' || operationType === 'insertUniqueId',
                 isUpdateOperation: operationType === 'replace' || operationType === 'merge',
-                contextData
+                contextData,
+                writePrecondition
             });
         } catch (e) {
             throw new RethrownError({
@@ -328,9 +331,10 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} resourceType
      * @param {Resource} doc
      * @param {Object|null} contextData - Optional context data for resource-specific handling
+     * @param {boolean} [rejectIfExists] - fail with 412 instead of folding a lost create race into an update
      * @returns {Promise<void>}
      */
-    async insertOneAsync ({ base_version, requestInfo, resourceType, doc, contextData = null }) {
+    async insertOneAsync ({ base_version, requestInfo, resourceType, doc, contextData = null, rejectIfExists = false }) {
         try {
             assertTypeEquals(doc, Resource);
             if (!doc.meta) {
@@ -415,7 +419,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         },
                         operationType: 'insertUniqueId',
                         patches: null,
-                        contextData
+                        contextData,
+                        writePrecondition: rejectIfExists ? { rejectIfExists: true } : null
                     });
                 }
             }
@@ -513,6 +518,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Array} contextData.groupMembers - Group member array (for Group resources)
      * @param {string} contextData.resourceType - Resource type
      * @param {string} contextData.resourceId - Resource ID
+     * @param {string[]} [ifMatchVersionIds] - normalized If-Match version ids the live doc must match
      * @returns {Promise<void>}
      */
     async replaceOneAsync (
@@ -523,7 +529,8 @@ class DatabaseBulkInserter extends EventEmitter {
             doc,
             upsert = false,
             patches,
-            contextData = null
+            contextData = null,
+            ifMatchVersionIds = []
         }
     ) {
         assertTypeEquals(doc, Resource);
@@ -572,12 +579,11 @@ class DatabaseBulkInserter extends EventEmitter {
                     previousInsert.resource = doc;
                     previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
                 } else { // no previuous insert or update found
-                    // Enforce the client's If-Match precondition atomically in the write filter
+                    // Enforce the caller's If-Match precondition atomically in the write filter
                     // itself, so a concurrent writer landing between our read and this write can't
                     // both pass the If-Match check (see update.js) yet still both succeed here.
-                    const ifMatch = requestInfo.headers && requestInfo.headers['if-match'];
-                    const ifMatchVersionIds = parseIfMatchVersionIds(ifMatch);
-                    const filter = (ifMatchVersionIds.length > 0 && !ifMatchVersionIds.includes('*'))
+                    const enforceIfMatch = ifMatchVersionIds.length > 0 && !ifMatchVersionIds.includes('*');
+                    const filter = enforceIfMatch
                         ? { $and: [{ _uuid: uuid }, { 'meta.versionId': { $in: ifMatchVersionIds } }] }
                         : { _uuid: uuid };
                     // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
@@ -594,7 +600,10 @@ class DatabaseBulkInserter extends EventEmitter {
                                 }
                             },
                             patches,
-                            contextData
+                            contextData,
+                            // stored even for If-Match: * so the concurrency fallback still knows the
+                            // resource must exist and won't recreate it after a concurrent delete
+                            writePrecondition: ifMatchVersionIds.length > 0 ? { ifMatchVersionIds } : null
                         }
                     );
                 }
