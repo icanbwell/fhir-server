@@ -28,6 +28,7 @@ const { S3Client } = require('../../../../utils/s3Client');
 const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../../utils/bulkExportEventProducer');
 const { StorageProviderFactory } = require('../../../../dataLayer/providers/storageProviderFactory');
+const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -60,6 +61,7 @@ describe('BulkDataExportRunner', () => {
             postSaveProcessor: createMockInstance(PostSaveProcessor),
             bulkExportEventProducer: createMockInstance(BulkExportEventProducer),
             storageProviderFactory: createMockInstance(StorageProviderFactory),
+            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
             exportStatusId: 'export-123',
             patientReferenceBatchSize: 100,
             fetchResourceBatchSize: 50,
