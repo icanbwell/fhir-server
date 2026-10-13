@@ -37,6 +37,56 @@ describe('MongoGroupMemberRepository', () => {
         });
     });
 
+    describe('getPatientMemberReferencesPageAsync', () => {
+        let findAsyncMock;
+        let rows;
+
+        beforeEach(() => {
+            rows = [{ _uuid: 'a', member: { entity: { reference: 'Patient/p1' } } }];
+            findAsyncMock = jest.fn().mockResolvedValue({ toArrayAsync: jest.fn().mockResolvedValue(rows) });
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({ findAsync: findAsyncMock });
+        });
+
+        test('first page: Patient-prefix filter, _uuid sort, limit, projection, no seek bound', async () => {
+            const result = await repository.getPatientMemberReferencesPageAsync({
+                base_version: '4_0_0', groupUuid: 'group-123', afterUuid: null, limit: 2
+            });
+
+            expect(mockDatabaseQueryFactory.createQuery).toHaveBeenCalledWith({
+                resourceType: 'GroupMember', base_version: '4_0_0'
+            });
+            expect(findAsyncMock).toHaveBeenCalledWith({
+                query: { groupUuid: 'group-123', 'member.entity.reference': { $regex: /^Patient\// } },
+                options: {
+                    projection: { _id: 0, _uuid: 1, 'member.entity.reference': 1 },
+                    sort: { _uuid: 1 },
+                    limit: 2
+                }
+            });
+            expect(result).toBe(rows);
+        });
+
+        test('subsequent page: seeks strictly after afterUuid', async () => {
+            await repository.getPatientMemberReferencesPageAsync({
+                base_version: '4_0_0', groupUuid: 'group-123', afterUuid: 'a', limit: 2
+            });
+
+            expect(findAsyncMock.mock.calls[0][0].query).toEqual({
+                groupUuid: 'group-123',
+                'member.entity.reference': { $regex: /^Patient\// },
+                _uuid: { $gt: 'a' }
+            });
+        });
+
+        test('does not filter on member.inactive', async () => {
+            await repository.getPatientMemberReferencesPageAsync({
+                base_version: '4_0_0', groupUuid: 'group-123', afterUuid: null, limit: 2
+            });
+
+            expect(findAsyncMock.mock.calls[0][0].query).not.toHaveProperty(['member.inactive']);
+        });
+    });
+
     describe('getMemberCursorAsync', () => {
         test('queries the GroupMember collection scoped by groupUuid and returns the resulting cursor', async () => {
             const fakeCursor = { toArrayAsync: jest.fn() };
