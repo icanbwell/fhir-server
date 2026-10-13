@@ -1837,7 +1837,7 @@ class EverythingHelper {
                 query: { groupUuid, 'member.entity._uuid': { $in: parentReferences } },
                 maxTimeMS: this.configManager.mongoTimeout
             });
-            isMember = groupUuids.includes(groupUuid);
+            isMember = groupUuids.length > 0;
         }
         memberOfParentsByGroupUuid.set(groupUuid, isMember);
         return isMember;
