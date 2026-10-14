@@ -427,10 +427,10 @@ backend can write a tag for any person — this is intentional (backends are tru
 - Logs (`logInfo`/`logWarn`, `src/operations/common/logging.js`): `binary_person_security_context_set`,
   `binary_person_security_context_rejected` (warn, include caller `user`, supplied code, token code), and
   `documentreference_references_binary` (§4.5).
-- Metrics: follow ADR 0002 (custom OpenTelemetry meters via DI). Proposed counters:
-  `fhir.binary.patient_create.total{outcome=created|forbidden|mismatch}`,
-  `fhir.binary.person_filter.applied.total{mode=mixed|strict}`.
-  Alert on a non-zero `mismatch` rate (tag-forgery signal).
+- Metrics (built, see §16): `fhir_binary_patient_create_total{outcome=set|rejected, reason=missing_person_id|client_supplied_security_context}`
+  and `fhir_binary_person_filter_applied_total{mode=strict|mixed|no_person_id}`, in `src/utils/metrics.js`
+  (the repo's ambient-meter pattern; no PHI or ids in attributes). Alert on a non-zero
+  `client_supplied_security_context` rate (tag-forgery signal).
 
 ## 9. Security and threat considerations
 
@@ -544,7 +544,7 @@ Still open:
 
 ## 13. Quantitative notes (estimates vs measured)
 
-Nothing below was measured; no benchmark was run for this document.
+Nothing in the bullets below was measured; the one measurement made is in "Measured" at the end of this section.
 
 - Extra read cost: one additional `$or` clause evaluated per **already-selected** document (id lookup
   by `_uuid`, or access-tag match, selects first). Estimate: O(documents returned), a few BSON field
@@ -552,7 +552,7 @@ Nothing below was measured; no benchmark was run for this document.
   index but is never the driving predicate for by-id/`$everything`/GraphQL reads. A free-text
   `GET /Binary` search with no id would scan under the access-tag filter today as well; the new clause
   does not change the access path.
-- Index: no new index required. The existing `{meta.security.code: 1, _uuid: 1}` index
+- Index (superseded by the measurements at the end of this section): originally "no new index required". The existing `{meta.security.code: 1, _uuid: 1}` index
   (`meta_security_code.uuid`) supports an equality probe on the person code if a "list my Binaries" query
   is ever needed. **Plan to measure:** run `explain('executionStats')` for the three query shapes
   (by id, by `DocumentReference` batch of `graphQLFetchResourceBatchSize` ids, unconstrained search; in
@@ -562,6 +562,33 @@ Nothing below was measured; no benchmark was run for this document.
 - Payload sizes: see §4.6 (arithmetic from configuration defaults).
 - Strict-mode read (§4.4.1) is an equality probe on `meta.security` with the person code and can use the
   `meta_security_code.uuid` index; not measured (same `explain` plan as above).
+
+### Measured (local, synthetic)
+
+**Measured locally on mongodb-memory-server, synthetic data, not prod.** 50,000 Binary without
+`securityContext` + 320 owned (300 via person proxy `Patient/person.{uuid}`, 20 via a real `Patient/{uuid}`);
+filter built by `PatientQueryCreator.getQueryWithPersonSecurityContext` with 3 caller patient ids (proxy + 2
+linked). "Before" = generic `Binary_4_0_0` indexes (`meta.source_1`, `uuid`, `sourceId`) plus a per-client
+`_access.client1_1._uuid_1` index as prod has; "after" adds `securityContextUuid_uuid` and
+`securityContextSourceId_uuid` (created through `IndexManager`). Script (opt-in, excluded from the default
+suite): `src/tests/integration/performance/binary_person_filter/binaryPersonFilterExplain.test.js`.
+
+| Shape | Stage | Winning plan | Index | keysExamined | docsExamined | nReturned |
+| :- | :- | :- | :- | -: | -: | -: |
+| pure patient token (strict): `securityContext._uuid $in [..]` | before | COLLSCAN | none | 0 | 50,320 | 2 |
+| pure patient token (strict) | after | FETCH > IXSCAN | `securityContextUuid_uuid` | 4 | 2 | 2 |
+| mixed token, tenant filter only (`_access.client1` AND `$or[unowned, owned]`) | before | FETCH > IXSCAN | `_access_client1_1._uuid_1` | 50,320 | 50,320 | 50,002 |
+| mixed token, tenant filter only | after | FETCH > IXSCAN | `_access_client1_1._uuid_1` | 50,320 | 50,320 | 50,002 |
+| mixed token, by `_uuid` | before | FETCH > IXSCAN | `uuid` | 1 | 1 | 1 |
+| mixed token, by `_uuid` | after | FETCH > IXSCAN | `uuid` | 1 | 1 | 1 |
+
+Reading it: the new indexes matter for the pure-patient list (`GET /Binary` with a `patient/Binary.read` token),
+which went from a full collection scan to 4 keys / 2 docs. They change nothing for the mixed-token and by-id
+shapes: the "unowned" branch (`securityContext._uuid`/`_sourceId` `$not $regex ^Patient/`) is not indexable, so a
+mixed-token search without an id stays bounded by the tenant access-tag index exactly as before (it examines all
+of the tenant's Binary, as it did without the filter). Index size on the 50,320-doc set: 45 KB each, versus
+2.2 MB for `uuid`, i.e. the partial filter keeps the 50k unowned documents out. Not measured: real cardinality
+(~60M Binary), non-uuid patient ids hitting the `_sourceId` branch, wall-clock at prod scale.
 
 ## 14. Test plan
 
@@ -659,8 +686,11 @@ ownership marker is `Binary.securityContext` (§0.1), so `SecurityTagSystem` is 
   (after the access-tag/patient-filter block, before query rewriting); the caller's patient ids come from
   `PatientScopeManager.getPatientIdsFromScopeAsync`. `getSecurityTagsFromScope` is told a pure-patient Binary
   read is patient-authorized so it does not demand an access code.
-- Not built here: OpenTelemetry counters (§8 metrics) and the `explain` measurements (§13); log lines
-  `binary_person_security_context_set` and `binary_person_security_context_rejected` are in place.
+- Indexes: `securityContextUuid_uuid` and `securityContextSourceId_uuid` in `src/indexes/customIndexes.js` (`'*'`
+  list, `include: ['Binary_4_0_0']`), partial on `securityContext.{_uuid,_sourceId}` existing. See §13 for measurements.
+- Metrics: `binaryPatientCreateCounter` / `binaryPersonFilterAppliedCounter` in `src/utils/metrics.js`, emitted from
+  `CreateOperation` (set / rejected) and `SearchManager.constructQueryAsync` (filter applied). Log lines
+  `binary_person_security_context_set` and `binary_person_security_context_rejected` remain.
 
 ### 16.1 OQ-2 verification (read paths that might skip the filter)
 

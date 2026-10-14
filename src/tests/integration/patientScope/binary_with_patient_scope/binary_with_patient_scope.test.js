@@ -8,7 +8,7 @@
 // design. Cases that need infrastructure this suite does not set up (GraphQL, $everything/$graph, cloud storage,
 // audit logging) remain `test.todo`.
 const deepcopy = require('deepcopy');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, jest: jestObj } = require('@jest/globals');
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -19,6 +19,7 @@ const {
     mockHttpContext
 } = require('../../common');
 const { ConfigManager } = require('../../../../utils/configManager');
+const metrics = require('../../../../utils/metrics');
 
 const OWNER_TAG = { system: 'https://www.icanbwell.com/owner', code: 'client1' };
 const ACCESS_TAG = { system: 'https://www.icanbwell.com/access', code: 'client1' };
@@ -129,12 +130,16 @@ describe('Binary with patient scope', () => {
         test('T1: a member creates a Binary with no securityContext; the server sets the member\'s proxy patient', async () => {
             const request = await createRequest();
             const personA = await seedPerson(request, 'person-a');
+            const addSpy = jestObj.spyOn(metrics.binaryPatientCreateCounter, 'add');
             const resp = await request
                 .post('/4_0_0/Binary')
                 .send(newBinary('ignored'))
                 .set(memberWriter(personA));
             expect(resp).toHaveStatusCode(201);
             expect(resp.body.securityContext.reference).toStrictEqual(proxyOf(personA).reference);
+            expect(addSpy).toHaveBeenCalledTimes(1);
+            expect(addSpy).toHaveBeenCalledWith(1, { outcome: 'set' });
+            addSpy.mockRestore();
         });
 
         test('T2: a member supplying their own proxy patient is accepted unchanged', async () => {
@@ -152,11 +157,16 @@ describe('Binary with patient scope', () => {
             const request = await createRequest();
             const personA = await seedPerson(request, 'person-a');
             const personB = await seedPerson(request, 'person-b');
+            const addSpy = jestObj.spyOn(metrics.binaryPatientCreateCounter, 'add');
             const resp = await request
                 .post('/4_0_0/Binary')
                 .send(newBinary('ignored', proxyOf(personB)))
                 .set(memberWriter(personA));
             expect(resp).toHaveStatusCode(403);
+            expect(addSpy).toHaveBeenCalledTimes(1);
+            // bounded attributes only: no person or patient id
+            expect(addSpy).toHaveBeenCalledWith(1, { outcome: 'rejected', reason: 'client_supplied_security_context' });
+            addSpy.mockRestore();
             expect(resp.body.resourceType).toStrictEqual('OperationOutcome');
             const text = resp.body.issue[0].details.text;
             expect(text).toContain('securityContext');
@@ -326,8 +336,22 @@ describe('Binary with patient scope', () => {
         test('T37: a pure patient token with patient/Binary.read reads its own Binary', async () => {
             const request = await createRequest();
             const { personA } = await seedAll(request);
+            const addSpy = jestObj.spyOn(metrics.binaryPersonFilterAppliedCounter, 'add');
             const resp = await request.get('/4_0_0/Binary/binary-a').set(memberReader(personA));
             expect(resp).toHaveStatusCode(200);
+            expect(addSpy).toHaveBeenCalledWith(1, { mode: 'strict' });
+            expect(addSpy).not.toHaveBeenCalledWith(1, { mode: 'mixed' });
+            addSpy.mockRestore();
+        });
+
+        test('the person filter counter records mode=mixed for a mixed viewer token', async () => {
+            const request = await createRequest();
+            const { personA } = await seedAll(request);
+            const addSpy = jestObj.spyOn(metrics.binaryPersonFilterAppliedCounter, 'add');
+            const resp = await request.get('/4_0_0/Binary/binary-untagged').set(memberViewer(personA));
+            expect(resp).toHaveStatusCode(200);
+            expect(addSpy).toHaveBeenCalledWith(1, { mode: 'mixed' });
+            addSpy.mockRestore();
         });
 
         test('T38: a pure patient token cannot read another member\'s Binary (by id or search)', async () => {

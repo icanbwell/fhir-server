@@ -23,6 +23,11 @@ const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identif
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 const { stampPersonSecurityContext } = require('../../utils/personSecurityContext');
+const {
+    recordBinaryPatientCreate,
+    BINARY_CREATE_OUTCOME,
+    BINARY_CREATE_REJECT_REASON
+} = require('../../utils/metrics');
 
 class CreateOperation {
     /**
@@ -186,12 +191,19 @@ class CreateOperation {
         })) {
             try {
                 stampPersonSecurityContext({ resource: resource_incoming, personId: requestInfo.personIdFromJwtToken });
+                recordBinaryPatientCreate(BINARY_CREATE_OUTCOME.SET);
                 logInfo('binary_person_security_context_set', {
                     user: requestInfo.user,
                     resourceType,
                     personId: requestInfo.personIdFromJwtToken
                 });
             } catch (e) {
+                recordBinaryPatientCreate(
+                    BINARY_CREATE_OUTCOME.REJECTED,
+                    requestInfo.personIdFromJwtToken
+                        ? BINARY_CREATE_REJECT_REASON.CLIENT_SUPPLIED_SECURITY_CONTEXT
+                        : BINARY_CREATE_REJECT_REASON.MISSING_PERSON_ID
+                );
                 logWarn('binary_person_security_context_rejected', {
                     user: requestInfo.user,
                     resourceType,

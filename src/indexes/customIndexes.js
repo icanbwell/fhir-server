@@ -59,6 +59,33 @@ module.exports = {
                         GROUP_MEMBER_COLLECTION_NAME
                     ]
             })),
+            // Member-owned Binary: the person filter (PatientQueryCreator.getQueryWithPersonSecurityContext) matches
+            // securityContext._uuid (real Patient uuids) or securityContext._sourceId (person proxy patient,
+            // Patient/person.{uuid}, and non-uuid patient ids). Same shape as subjectUuid_uuid / subjectSourceId_uuid.
+            // Partial: the ~60M existing Binary have no securityContext, so they are kept out of the index entirely
+            // (a plain or sparse compound index would still hold one entry per document because _uuid is always set).
+            {
+                keys: {
+                    'securityContext._uuid': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'securityContextUuid_uuid',
+                    partialFilterExpression: { 'securityContext._uuid': { $exists: true } }
+                },
+                include: ['Binary_4_0_0']
+            },
+            {
+                keys: {
+                    'securityContext._sourceId': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'securityContextSourceId_uuid',
+                    partialFilterExpression: { 'securityContext._sourceId': { $exists: true } }
+                },
+                include: ['Binary_4_0_0']
+            },
             {
                 keys: {
                     'subject._uuid': 1,

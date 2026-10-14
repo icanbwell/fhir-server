@@ -32,6 +32,13 @@ const {
     recordImportRangeDuration,
     recordImportS3ReadThroughput,
     recordImportFileSize,
+    recordBinaryPatientCreate,
+    recordBinaryPersonFilterApplied,
+    binaryPatientCreateCounter,
+    binaryPersonFilterAppliedCounter,
+    BINARY_CREATE_OUTCOME,
+    BINARY_CREATE_REJECT_REASON,
+    BINARY_PERSON_FILTER_MODE,
     mergeOutcomeCounter,
     validationFailureCounter,
     bundleSizeHistogram,
@@ -498,6 +505,38 @@ describe('metrics.js', () => {
         test('records the histogram with the given file size', () => {
             recordImportFileSize(2048);
             expect(importFileSizeHistogram.record).toHaveBeenCalledWith(2048);
+        });
+    });
+
+    describe('recordBinaryPatientCreate', () => {
+        test('set: counts with outcome only, no reason attribute', () => {
+            recordBinaryPatientCreate(BINARY_CREATE_OUTCOME.SET);
+            expect(binaryPatientCreateCounter.add).toHaveBeenCalledWith(1, { [LABEL.OUTCOME]: 'set' });
+        });
+
+        test('rejected: counts with a bounded reason', () => {
+            recordBinaryPatientCreate(
+                BINARY_CREATE_OUTCOME.REJECTED, BINARY_CREATE_REJECT_REASON.CLIENT_SUPPLIED_SECURITY_CONTEXT
+            );
+            expect(binaryPatientCreateCounter.add).toHaveBeenCalledWith(1, {
+                [LABEL.OUTCOME]: 'rejected',
+                [LABEL.REASON]: 'client_supplied_security_context'
+            });
+        });
+
+        test('rejected: a reason outside the vocabulary (e.g. an id or error text) collapses to unknown', () => {
+            recordBinaryPatientCreate(BINARY_CREATE_OUTCOME.REJECTED, 'Patient/person.1234-secret');
+            expect(binaryPatientCreateCounter.add).toHaveBeenCalledWith(1, {
+                [LABEL.OUTCOME]: 'rejected',
+                [LABEL.REASON]: UNKNOWN
+            });
+        });
+    });
+
+    describe('recordBinaryPersonFilterApplied', () => {
+        test.each(Object.values(BINARY_PERSON_FILTER_MODE))('counts mode %s', (mode) => {
+            recordBinaryPersonFilterApplied(mode);
+            expect(binaryPersonFilterAppliedCounter.add).toHaveBeenCalledWith(1, { [LABEL.MODE]: mode });
         });
     });
 

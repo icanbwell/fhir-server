@@ -71,7 +71,8 @@ const LABEL = Object.freeze({
     SUBSYSTEM: 'subsystem',
     PATH: 'path',
     POOL: 'pool',
-    REASON: 'reason'
+    REASON: 'reason',
+    MODE: 'mode'
 });
 
 const OUTCOME = Object.freeze({
@@ -116,6 +117,26 @@ const POOL_CHECKOUT_FAILURE_REASON = Object.freeze({
 const PATH = Object.freeze({
     SAVE: 'save',
     VALIDATE: 'validate'
+});
+
+// Patient-scoped Binary create (ENABLE_PATIENT_SCOPED_BINARY_CREATE): did the server set the person-owned
+// securityContext, or reject the create. Bounded sets only -- never a person id, patient id or the supplied value.
+const BINARY_CREATE_OUTCOME = Object.freeze({
+    SET: 'set',
+    REJECTED: 'rejected'
+});
+
+const BINARY_CREATE_REJECT_REASON = Object.freeze({
+    MISSING_PERSON_ID: 'missing_person_id',
+    // the client sent a securityContext that is not the caller's own person proxy (tag-forgery signal)
+    CLIENT_SUPPLIED_SECURITY_CONTEXT: 'client_supplied_security_context'
+});
+
+// Which shape of person-securityContext read filter was applied to a Binary search/read.
+const BINARY_PERSON_FILTER_MODE = Object.freeze({
+    STRICT: 'strict',
+    MIXED: 'mixed',
+    NO_PERSON_ID: 'no_person_id'
 });
 
 const UNKNOWN = 'unknown';
@@ -283,6 +304,14 @@ const mongoPoolClearedCounter = meter.createCounter('fhir_mongo_pool_cleared_tot
 
 const mongoPoolConnectionCreatedCounter = meter.createCounter('fhir_mongo_pool_connection_created_total', {
     description: 'MongoDB connections created by pool. On a warm pool this should sit near zero; a sustained rate means churn, which puts the SCRAM auth handshake on the request hot path.'
+});
+
+const binaryPatientCreateCounter = meter.createCounter('fhir_binary_patient_create_total', {
+    description: 'Patient-scoped Binary creates by outcome (set = server stamped the person-owned securityContext, rejected = create refused) and, when rejected, a bounded reason. Alert on a non-zero client_supplied_security_context rate (tag-forgery signal).'
+});
+
+const binaryPersonFilterAppliedCounter = meter.createCounter('fhir_binary_person_filter_applied_total', {
+    description: 'Binary reads where the person-securityContext filter was applied, by mode (strict = pure patient token, mixed = patient plus user/system scope, no_person_id = failed closed).'
 });
 
 /**
@@ -527,6 +556,27 @@ function recordMongoPoolConnectionCreated (pool) {
     mongoPoolConnectionCreatedCounter.add(1, { [LABEL.POOL]: pool || UNKNOWN });
 }
 
+/**
+ * Emit fhir_binary_patient_create_total.
+ * @param {string} outcome one of BINARY_CREATE_OUTCOME.*
+ * @param {string} [reason] one of BINARY_CREATE_REJECT_REASON.* (rejected only); anything else collapses to UNKNOWN
+ */
+function recordBinaryPatientCreate (outcome, reason) {
+    const attributes = { [LABEL.OUTCOME]: outcome };
+    if (outcome === BINARY_CREATE_OUTCOME.REJECTED) {
+        attributes[LABEL.REASON] = Object.values(BINARY_CREATE_REJECT_REASON).includes(reason) ? reason : UNKNOWN;
+    }
+    binaryPatientCreateCounter.add(1, attributes);
+}
+
+/**
+ * Emit fhir_binary_person_filter_applied_total.
+ * @param {string} mode one of BINARY_PERSON_FILTER_MODE.*
+ */
+function recordBinaryPersonFilterApplied (mode) {
+    binaryPersonFilterAppliedCounter.add(1, { [LABEL.MODE]: mode });
+}
+
 module.exports = {
     // Instruments — exported so integration tests can spy on `.add` / `.record`.
     mergeOutcomeCounter,
@@ -544,6 +594,8 @@ module.exports = {
     mongoPoolCheckoutFailedCounter,
     mongoPoolClearedCounter,
     mongoPoolConnectionCreatedCounter,
+    binaryPatientCreateCounter,
+    binaryPersonFilterAppliedCounter,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -560,6 +612,8 @@ module.exports = {
     recordMongoPoolCheckoutFailed,
     recordMongoPoolCleared,
     recordMongoPoolConnectionCreated,
+    recordBinaryPatientCreate,
+    recordBinaryPersonFilterApplied,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,
@@ -574,5 +628,8 @@ module.exports = {
     SUBSYSTEM,
     PATH,
     POOL_CHECKOUT_FAILURE_REASON,
+    BINARY_CREATE_OUTCOME,
+    BINARY_CREATE_REJECT_REASON,
+    BINARY_PERSON_FILTER_MODE,
     UNKNOWN
 };

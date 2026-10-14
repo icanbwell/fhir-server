@@ -38,6 +38,7 @@ const { PatientQueryCreator } = require('../common/patientQueryCreator');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const { ClinicalNoteSearchClient } = require('../../utils/clinicalNoteSearchClient');
 const { FilterById } = require('../query/filters/id');
+const { recordBinaryPersonFilterApplied, BINARY_PERSON_FILTER_MODE } = require('../../utils/metrics');
 const {
     DB_SEARCH_LIMIT_FOR_IDS,
     DB_SEARCH_LIMIT,
@@ -485,7 +486,11 @@ class SearchManager {
                         useHistoryTable,
                         strict: personContextStrictAccess
                     });
+                    recordBinaryPersonFilterApplied(
+                        personContextStrictAccess ? BINARY_PERSON_FILTER_MODE.STRICT : BINARY_PERSON_FILTER_MODE.MIXED
+                    );
                 } else {
+                    recordBinaryPersonFilterApplied(BINARY_PERSON_FILTER_MODE.NO_PERSON_ID);
                     query = { _uuid: '__invalid__' }; // fail closed: never "no filter"
                 }
             }
