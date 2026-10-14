@@ -8,7 +8,7 @@
  * - mongoNative ("extended", DCON-5527): rows are written to GroupMember_4_0_0 /
  *   GroupMember_4_0_0_History via MongoGroupMemberRepository.
  *
- * ENABLE_EXTENDED_GROUP is set to '1' globally in jest/setEnvVars.js.
+ * ENABLE_EXTENDED_GROUP is turned on for the suite's tests (off by default in jest).
  */
 const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getHeaders, getHeadersJsonPatch } = require('../common');
@@ -32,13 +32,18 @@ function defaultMeta(extraTags = []) {
 describe('Group member PATCH write path (DCON-5527)', () => {
     let request;
 
+    let originalEnableExtendedGroup;
+
     beforeAll(async () => {
+        originalEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+        process.env.ENABLE_EXTENDED_GROUP = '1';
         await commonBeforeEach();
         request = await createTestRequest();
     });
 
     afterAll(async () => {
         await commonAfterEach();
+        process.env.ENABLE_EXTENDED_GROUP = originalEnableExtendedGroup;
     });
 
     async function createGroup(overrides = {}) {

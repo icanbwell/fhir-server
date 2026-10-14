@@ -97,16 +97,20 @@ class MongoGroupMemberRepository {
      * @param {string} params.base_version
      * @param {import('mongodb').Document} params.query
      * @param {boolean} [params.explain] also explain the lookup and return it as `explainedQuery`
+     * @param {number} [params.maxTimeMS] server-side time limit for the lookup, omitted when not set
      * @returns {Promise<{groupUuids: string[], explainedQuery: {queryItem: QueryItem, options: Object, explanations: import('mongodb').Document[], columns: Set}|undefined}>}
      */
-    async findGroupUuidsByMemberQueryAsync ({ base_version, query, explain = false }) {
+    async findGroupUuidsByMemberQueryAsync ({ base_version, query, explain = false, maxTimeMS }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: GROUP_MEMBER_RESOURCE_TYPE,
             base_version
         });
         // only the group uuid of each matching GroupMember row is needed to find the extended Groups
         const options = { projection: { groupUuid: 1, _id: 0 } };
-        const cursor = await databaseQueryManager.findAsync({ query, options });
+        let cursor = await databaseQueryManager.findAsync({ query, options });
+        if (maxTimeMS) {
+            cursor = cursor.maxTimeMS({ milliSecs: maxTimeMS });
+        }
         const explanations = explain ? await cursor.explainAsync() : [];
         const rows = await cursor.toArrayAsync();
         return {

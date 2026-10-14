@@ -131,6 +131,36 @@ describe('MongoGroupMemberRepository', () => {
         });
     });
 
+    describe('findGroupUuidsByMemberQueryAsync maxTimeMS', () => {
+        function mockCursor () {
+            const cursor = { toArrayAsync: jest.fn().mockResolvedValue([{ groupUuid: 'g-1' }]) };
+            cursor.maxTimeMS = jest.fn().mockReturnValue(cursor);
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(cursor)
+            });
+            return cursor;
+        }
+
+        test('bounds the lookup when maxTimeMS is given', async () => {
+            const cursor = mockCursor();
+
+            const { groupUuids } = await repository.findGroupUuidsByMemberQueryAsync({
+                base_version: '4_0_0', query: { groupUuid: 'g-1' }, maxTimeMS: 120000
+            });
+
+            expect(cursor.maxTimeMS).toHaveBeenCalledWith({ milliSecs: 120000 });
+            expect(groupUuids).toEqual(['g-1']);
+        });
+
+        test('sets no time limit when maxTimeMS is omitted', async () => {
+            const cursor = mockCursor();
+
+            await repository.findGroupUuidsByMemberQueryAsync({ base_version: '4_0_0', query: { groupUuid: 'g-1' } });
+
+            expect(cursor.maxTimeMS).not.toHaveBeenCalled();
+        });
+    });
+
     describe('removeMembersNotAtVersionAsync', () => {
         const requestInfo = { requestId: 'req-1', method: 'PATCH', headers: {} };
 

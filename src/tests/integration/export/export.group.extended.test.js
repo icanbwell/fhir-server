@@ -1,5 +1,5 @@
 // Group/{id}/$export for Mongo-native ("extended") Groups: the roster lives in GroupMember_4_0_0.
-// ENABLE_EXTENDED_GROUP is set to '1' globally in jest/setEnvVars.js.
+// ENABLE_EXTENDED_GROUP is turned on for the suite's tests (off by default in jest).
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getTestContainer } = require('../common');
@@ -153,7 +153,11 @@ describe('Group $export for extended (Mongo-native) Groups', () => {
     let request;
     let fhirDb;
 
+    let originalEnableExtendedGroup;
+
     beforeEach(async () => {
+        originalEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+        process.env.ENABLE_EXTENDED_GROUP = '1';
         process.env.ENABLE_BULK_EXPORT = '1';
         const container = getTestContainer();
         if (container) {
@@ -170,6 +174,7 @@ describe('Group $export for extended (Mongo-native) Groups', () => {
     afterEach(async () => {
         process.env.ENABLE_BULK_EXPORT = '0';
         await commonAfterEach();
+        process.env.ENABLE_EXTENDED_GROUP = originalEnableExtendedGroup;
     });
 
     async function mergePatients(ids, { tenant = 'bwell', headers = getHeaders() } = {}) {

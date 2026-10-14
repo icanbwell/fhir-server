@@ -5,6 +5,7 @@ class ProcessMultipleIdsAsyncResult {
      * @param {QueryItem[]} queryItems
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]} options
      * @param {import('mongodb').Document[]} explanations
+     * @param {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]} [additionalRewriteQueries] queries query rewriters ran on their own, listed in `_debug` / `_explain`
      * @param {ResourceIdentifier[]} bundleEntryIdsProcessed
      * @param {{id: string, resourceType: string}[]} streamedResources
      */
@@ -13,6 +14,7 @@ class ProcessMultipleIdsAsyncResult {
                     queryItems,
                     options,
                     explanations,
+                    additionalRewriteQueries,
                     bundleEntryIdsProcessed,
                     streamedResources
                 }) {
@@ -32,6 +34,11 @@ class ProcessMultipleIdsAsyncResult {
          * @type {import('mongodb').Document[]}
          */
         this.explanations = explanations;
+
+        /**
+         * @type {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]}
+         */
+        this.additionalRewriteQueries = additionalRewriteQueries || [];
 
         /**
          * @type {ResourceIdentifier[]}
