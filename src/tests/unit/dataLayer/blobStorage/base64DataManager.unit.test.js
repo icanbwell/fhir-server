@@ -108,15 +108,6 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
         ctx.mgr.resourcePaths = { ...ctx.mgr.resourcePaths, DocRefFake: NESTED_CONFIG };
     });
 
-    test('getLiveObjectRefs returns one ref per nested array leaf, keyed by resolved path', () => {
-        const lu0 = new Date('2026-07-10T00:00:00.000Z');
-        const lu1 = new Date('2026-07-10T00:00:01.000Z');
-        const refs = ctx.mgr.getLiveObjectRefs(makeDoc('uuid-n', { lastUpdated: lu0 }, { lastUpdated: lu1 }));
-        expect(refs.size).toBe(2);
-        expect(refs.get('content/0/attachment/data').getTime()).toBe(lu0.getTime());
-        expect(refs.get('content/1/attachment/data').getTime()).toBe(lu1.getTime());
-    });
-
     test('getLiveObjectRefsOrResourceLastUpdated falls back to resource.meta.lastUpdated for a leaf with no _blobMeta, but keeps the sidecar timestamp where one exists', () => {
         const metaLu = new Date('2026-07-10T00:00:10.000Z');
         const blobLu = new Date('2026-07-10T00:00:01.000Z');
@@ -139,44 +130,6 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
         };
         const refs = ctx.mgr.getLiveObjectRefsOrResourceLastUpdated(resource);
         expect(refs.size).toBe(0);
-    });
-
-    test('deleteSupersededLiveObjectsAsync retains the previous object and deletes only older ones for the leaves whose ref changed', async () => {
-        const lu0 = new Date('2026-07-10T00:00:00.000Z');
-        const lu1 = new Date('2026-07-10T00:00:01.000Z');
-        const key0 = `DocRefFake_4_0_0/uuid-n/${lu0.getTime()}`;
-        const key1 = `DocRefFake_4_0_0/uuid-n/${lu1.getTime()}`;
-        const olderKey = `DocRefFake_4_0_0/uuid-n/${lu0.getTime() - 10_000}`;
-        ctx.client.uploadedData[key0] = 'old0';
-        ctx.client.uploadedData[key1] = 'old1';
-        ctx.client.uploadedData[olderKey] = 'older';
-        const previousRefs = ctx.mgr.getLiveObjectRefs(makeDoc('uuid-n', { lastUpdated: lu0 }, { lastUpdated: lu1 }));
-        // Leaf 0 rotated to a new ts; leaf 1 unchanged.
-        const lu0New = new Date('2026-07-10T00:00:05.000Z');
-        const current = makeDoc('uuid-n', { lastUpdated: lu0New }, { lastUpdated: lu1 });
-        await ctx.mgr.deleteSupersededLiveObjectsAsync(current, previousRefs);
-        expect(ctx.client.uploadedData[olderKey]).toBeUndefined();
-        expect(ctx.client.uploadedData[key0]).toBe('old0');
-        expect(ctx.client.uploadedData[key1]).toBe('old1');
-    });
-
-    test('deleteSupersededLiveObjectsAsync must NOT sweep away the currently-committed live object when the previous ref is numerically NEWER (concurrent-write key reuse)', async () => {
-        const uuid = 'uuid-supersede-guard';
-        const ownReusedLu = new Date('2026-07-10T00:00:00.000Z');
-        const raceLostLu = new Date('2026-07-10T00:00:05.000Z');
-        const strayOlderLu = new Date('2026-07-09T23:59:55.000Z');
-        const ownReusedKey = `DocRefFake_4_0_0/${uuid}/${ownReusedLu.getTime()}`;
-        const raceLostKey = `DocRefFake_4_0_0/${uuid}/${raceLostLu.getTime()}`;
-        const strayOlderKey = `DocRefFake_4_0_0/${uuid}/${strayOlderLu.getTime()}`;
-        ctx.client.uploadedData[ownReusedKey] = 'just-committed';
-        ctx.client.uploadedData[raceLostKey] = 'superseded-by-this-write';
-        ctx.client.uploadedData[strayOlderKey] = 'stray-older';
-        const previousRefs = ctx.mgr.getLiveObjectRefs(makeDoc(uuid, { lastUpdated: raceLostLu }, undefined));
-        const current = makeDoc(uuid, { lastUpdated: ownReusedLu }, undefined);
-        await ctx.mgr.deleteSupersededLiveObjectsAsync(current, previousRefs);
-        expect(ctx.client.uploadedData[ownReusedKey]).toBe('just-committed');
-        expect(ctx.client.uploadedData[raceLostKey]).toBe('superseded-by-this-write');
-        expect(ctx.client.uploadedData[strayOlderKey]).toBeUndefined();
     });
 
     test('resolveWriteForExternalizedDataChange (nested): a diverged leaf re-uploads R\'s bytes and wins; a matching leaf is left alone', async () => {
@@ -349,39 +302,6 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
             expect(ctx.client.uploadedData[keyAt(1)]).toBe('ancient');
         });
 
-        test('deleteSupersededLiveObjectsAsync uses the request\'s first-seen timestamp when it is older than its own snapshot', async () => {
-            const requestInfo = { requestId: 'r-first-seen' };
-            const firstSeen = new Date(initialMs - 20);
-            const snapshot = new Date(initialMs);
-            const committed = new Date(initialMs + 5);
-            [initialMs - 30, initialMs - 20, initialMs - 10, initialMs, initialMs + 5].forEach((ms) => {
-                ctx.client.uploadedData[keyAt(ms)] = `v${ms}`;
-            });
-            ctx.mgr._stashOriginalData(requestInfo, uuid, ['content', '[]', 'attachment', 'data'], [0], {
-                changed: true, previousLastUpdated: firstSeen
-            });
-            const previousRefs = ctx.mgr.getLiveObjectRefs(makeDoc(uuid, { lastUpdated: snapshot }, undefined));
-            const current = makeDoc(uuid, { lastUpdated: committed }, undefined);
-            await ctx.mgr.deleteSupersededLiveObjectsAsync(current, previousRefs, requestInfo);
-            expect(Object.keys(ctx.client.uploadedData).sort()).toEqual(
-                [initialMs - 20, initialMs - 10, initialMs, initialMs + 5].map(keyAt)
-            );
-        });
-
-        test('deleteSupersededLiveObjectsAsync ignores a first-seen timestamp that is newer than its own snapshot', async () => {
-            const requestInfo = { requestId: 'r-first-seen-newer' };
-            const snapshot = new Date(initialMs);
-            [initialMs - 10, initialMs, initialMs + 5].forEach((ms) => {
-                ctx.client.uploadedData[keyAt(ms)] = `v${ms}`;
-            });
-            ctx.mgr._stashOriginalData(requestInfo, uuid, ['content', '[]', 'attachment', 'data'], [0], {
-                changed: true, previousLastUpdated: new Date(initialMs + 3)
-            });
-            const previousRefs = ctx.mgr.getLiveObjectRefs(makeDoc(uuid, { lastUpdated: snapshot }, undefined));
-            const current = makeDoc(uuid, { lastUpdated: new Date(initialMs + 5) }, undefined);
-            await ctx.mgr.deleteSupersededLiveObjectsAsync(current, previousRefs, requestInfo);
-            expect(Object.keys(ctx.client.uploadedData).sort()).toEqual([initialMs, initialMs + 5].map(keyAt));
-        });
     });
 });
 

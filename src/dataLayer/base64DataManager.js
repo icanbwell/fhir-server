@@ -601,37 +601,6 @@ class Base64DataManager {
         }
     }
 
-    /**
-     * Snapshot the live-object refs on `resource` — one entry per configured leaf carrying a
-     * `_blobMeta.lastUpdated`. Path-aware (nested/`[]` leaves included); synchronous (in-memory
-     * only). Keyed by resolved leaf path so refs can be matched across two versions of the resource
-     * (see `deleteSupersededLiveObjectsAsync`).
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource
-     * @returns {Map<string, Date>} resolved-leaf-path -> `_blobMeta.lastUpdated`
-     */
-    getLiveObjectRefs (resource) {
-        const refs = new Map();
-        if (!resource || !this.enableBase64FieldCloudStorage) {
-            return refs;
-        }
-        const entries = this.resourcePaths[resource.resourceType];
-        if (!entries) {
-            return refs;
-        }
-        for (const entry of entries) {
-            const dataSegments = this._parseJsonPointer(entry.dataPath);
-            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
-            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
-            this._processPathsSync(resource, dataSegments, [], ({ parent, indices }) => {
-                const blobMeta = parent[blobMetaLeaf];
-                if (blobMeta && blobMeta.lastUpdated) {
-                    refs.set(this._substituteIndices(dataSegments, indices), blobMeta.lastUpdated);
-                }
-            });
-        }
-        return refs;
-    }
-
     getLiveObjectRefsOrResourceLastUpdated (resource) {
         const refs = new Map();
         if (!resource || !this.enableBase64FieldCloudStorage) {
@@ -655,53 +624,6 @@ class Base64DataManager {
             });
         }
         return refs;
-    }
-
-    /**
-     * Sweep the live objects `currentResource` superseded relative to a pre-write snapshot from
-     * `getLiveObjectRefs`. For each previously-referenced leaf now absent or pointing at a different
-     * `lastUpdated`, deletes only keys strictly older than the previous ref (or older than the
-     * request's stashed first-seen timestamp, when that is older still), so the previous and new
-     * versions are retained. Path-aware, never throws.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} currentResource - just committed.
-     * @param {Map<string, Date>} previousRefs - snapshot from `getLiveObjectRefs(previousResource)`.
-     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo] - keys the stash.
-     * @returns {Promise<void>}
-     */
-    async deleteSupersededLiveObjectsAsync (currentResource, previousRefs, requestInfo) {
-        if (!previousRefs || previousRefs.size === 0 || !currentResource || !this.enableBase64FieldCloudStorage) {
-            return;
-        }
-        const currentRefs = this.getLiveObjectRefs(currentResource);
-        for (const [leafKey, previousLastUpdated] of previousRefs) {
-            const currentLastUpdated = currentRefs.get(leafKey);
-            if (!currentLastUpdated || this._toEpochMs(currentLastUpdated) !== this._toEpochMs(previousLastUpdated)) {
-                await this._sweepSupersededLiveObjectsAsync(
-                    currentResource.resourceType, currentResource._uuid,
-                    this._olderLastUpdated(previousLastUpdated, this._readFirstSeenLastUpdated(requestInfo, currentResource._uuid, leafKey)),
-                    currentLastUpdated
-                );
-            }
-        }
-    }
-
-    _readFirstSeenLastUpdated (requestInfo, uuid, resolvedLeafPath) {
-        if (!requestInfo || !requestInfo.requestId) {
-            return undefined;
-        }
-        const map = this.requestSpecificCache.getMap({
-            requestId: requestInfo.requestId,
-            name: ORIGINAL_DATA_CACHE_NAME
-        });
-        const stashed = map.get(`${uuid}|${resolvedLeafPath}`);
-        return stashed ? stashed.previousLastUpdated : undefined;
-    }
-
-    _olderLastUpdated (first, second) {
-        if (!second) {
-            return first;
-        }
-        return this._toEpochMs(second) < this._toEpochMs(first) ? second : first;
     }
 
     /**

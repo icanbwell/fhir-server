@@ -603,6 +603,31 @@ describe('Binary base64 S3 offload — write paths', () => {
         }
     });
 
+    test('shrink-below-threshold update after two versions sweeps the older key and retains the previous one', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-shrink-two-versions';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+        const docV1 = await readBinaryFromMongo(container, id);
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: ALT_LARGE_DATA })).set(getHeaders()).expect(200);
+        await drainPostRequest(container);
+        const docV2 = await readBinaryFromMongo(container, id);
+        expect(liveClient.uploadedData[liveKeyOf(docV1)]).toBe(LARGE_DATA);
+        expect(liveClient.uploadedData[liveKeyOf(docV2)]).toBe(ALT_LARGE_DATA);
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: SMALL_DATA })).set(getHeaders()).expect(200);
+        await drainPostRequest(container);
+
+        const docV3 = await readBinaryFromMongo(container, id);
+        expect(docV3.data).toBe(SMALL_DATA);
+        expect(docV3._blobMeta).toBeUndefined();
+        expect(liveClient.uploadedData[liveKeyOf(docV1)]).toBeUndefined();
+        expect(liveClient.uploadedData[liveKeyOf(docV2)]).toBe(ALT_LARGE_DATA);
+    });
+
     test('shrink-below-threshold update retains the previous live S3 object', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();

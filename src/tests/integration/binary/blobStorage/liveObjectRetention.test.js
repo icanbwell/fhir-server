@@ -429,6 +429,45 @@ describe('Live-object retention: superseded keys survive for stale readers', () 
         });
     });
 
+    describe('removal sweeps older keys and retains the previous one', () => {
+        const REMOVERS = {
+            'PUT omitting data': async (request, id) => {
+                const body = buildBinary(id, DATA_1);
+                delete body.data;
+                return request.put(`/4_0_0/Binary/${id}`).send(body).set(getHeaders());
+            },
+            'PATCH removing /data': async (request, id) => request.patch(`/4_0_0/Binary/${id}`)
+                .send([{ op: 'remove', path: '/data' }])
+                .set({ ...getHeaders(), 'Content-Type': 'application/json-patch+json' }),
+            '$merge smartMerge=false omitting data': async (request, id) => {
+                const body = { ...buildBinary(id, DATA_1), contentType: 'application/xml' };
+                delete body.data;
+                return request.post('/4_0_0/Binary/$merge?smartMerge=false').send(body).set(getHeaders());
+            }
+        };
+
+        test.each(Object.keys(REMOVERS))('%s', async (label) => {
+            const request = await createTestRequest(registerMockClients);
+            const container = getTestContainer();
+            const id = `binary-removal-${label.replace(/\W+/g, '-').toLowerCase()}`;
+            const v1 = await seed(container, request, id, DATA_1);
+            await write(container, 'PUT', request, id, DATA_2);
+            const v2 = await readMongo(container, id);
+            expect(keysFor(container, v1._uuid)).toEqual([liveKeyOf(v1), liveKeyOf(v2)].sort());
+
+            newRequestId();
+            const resp = await REMOVERS[label](request, id);
+            expect(resp.status).toBeLessThan(300);
+            await drain(container);
+
+            const after = await readMongo(container, id);
+            expect(after.data).toBeUndefined();
+            expect(after._blobMeta).toBeUndefined();
+            expect(keysFor(container, v1._uuid)).toEqual([liveKeyOf(v2)]);
+            expect(container.base64FieldCloudStorageClient.uploadedData[liveKeyOf(v2)]).toBe(DATA_2);
+        });
+    });
+
     describe('stale reader across a data removal', () => {
         test('GET by id hydrates data while a PATCH removes the data the reader holds', async () => {
             const request = await createTestRequest(registerMockClients);
@@ -467,41 +506,6 @@ describe('Live-object retention: superseded keys survive for stale readers', () 
             .createDatabaseUpdateManager({ resourceType: 'Binary', base_version: '4_0_0' })
             .replaceOneAsync({ base_version: '4_0_0', requestInfo, doc: incoming });
 
-        test('a writer that retries after a concurrent commit sweeps only below the version it first read', async () => {
-            const request = await createTestRequest(registerMockClients);
-            const container = getTestContainer();
-            const liveData = container.base64FieldCloudStorageClient.uploadedData;
-            const id = 'binary-retry-initial-threshold';
-            const v1 = await seed(container, request, id, DATA_1);
-
-            const writerA = await buildIncoming(container, v1, DATA_3, 'retry-writer-a');
-            const writerB = await buildIncoming(container, v1, DATA_2, 'retry-writer-b');
-
-            const merger = container.resourceMerger;
-            const originalMerge = merger.mergeResourceAsync.bind(merger);
-            let writerBCommitted = false;
-            jest.spyOn(merger, 'mergeResourceAsync').mockImplementation(async (args) => {
-                const merged = await originalMerge(args);
-                if (!writerBCommitted) {
-                    writerBCommitted = true;
-                    await replace(container, writerB);
-                }
-                return merged;
-            });
-
-            const { savedResource } = await replace(container, writerA);
-            expect(savedResource).not.toBeNull();
-
-            const v3 = await readMongo(container, id);
-            expect(v3.meta.versionId).toBe('3');
-            expect(liveData[liveKeyOf(v3)]).toBe(DATA_3);
-            const keys = keysFor(container, v1._uuid);
-            expect(keys).toHaveLength(3);
-            expect(keys).toContain(liveKeyOf(v1));
-            expect(liveData[liveKeyOf(v1)]).toBe(DATA_1);
-            expect(keys.map((key) => liveData[key]).sort()).toEqual([DATA_1, DATA_2, DATA_3].sort());
-        });
-
         test('a concurrent $merge that conflicts and falls back to the one-by-one path keeps every version since its first read', async () => {
             const request = await createTestRequest(registerMockClients);
             const container = getTestContainer();
@@ -526,10 +530,12 @@ describe('Live-object retention: superseded keys survive for stale readers', () 
             const mergeWriter = WRITERS.MERGE(request, id, DATA_3).then((resp) => resp);
             await uploaded;
             await write(container, 'PUT', request, id, DATA_2);
+            const listSpy = jest.spyOn(liveClient, 'listObjectsAsync');
             release();
             const mergeResp = await mergeWriter;
             expect(mergeResp.status).toBe(200);
             await drain(container);
+            expect(listSpy).toHaveBeenCalledTimes(1);
 
             const committed = await readMongo(container, id);
             const liveData = liveClient.uploadedData;

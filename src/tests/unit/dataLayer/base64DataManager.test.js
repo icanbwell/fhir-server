@@ -621,26 +621,6 @@ describe('Base64DataManager', () => {
         });
     });
 
-    describe('getLiveObjectRefs', () => {
-        test('returns map with refs from externalized leaf', () => {
-            const lastUpdated = new Date('2024-05-01');
-            const resource = {
-                resourceType: 'Binary',
-                _blobMeta: { hash: 'h1', rawSize: 1, lastUpdated },
-                _uuid: 'uuid-refs'
-            };
-            const refs = manager.getLiveObjectRefs(resource);
-            expect(refs.size).toBe(1);
-            expect(refs.get('data')).toBe(lastUpdated);
-        });
-
-        test('returns empty map for non-externalized resource', () => {
-            const resource = { resourceType: 'Binary', data: 'inline', _uuid: 'uuid-x' };
-            const refs = manager.getLiveObjectRefs(resource);
-            expect(refs.size).toBe(0);
-        });
-    });
-
     describe('excludeExternalizedLeaves', () => {
         test('removes data key from view when externalized', () => {
             const currentResource = {
