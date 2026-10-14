@@ -706,3 +706,36 @@ ownership marker is `Binary.securityContext` (§0.1), so `SecurityTagSystem` is 
   by the shared real patient is visible to both, so only proxy-owned member uploads are at risk.) Fix options:
   include the caller's person id in the key whenever the flag is on, or exclude Binary from cached
   `$everything` responses. Needs a decision before enabling the flag where Patients are shared between persons.
+
+### 16.2 R12: orphan Binary on retry
+
+**Problem.** A client retry or re-upload of the same bytes creates a second `Binary` that no `DocumentReference`
+points at.
+
+**Findings (this branch).**
+- `create.js:170` does `resource_incoming.id = generateUUID()`, discarding any client id. Intentional per
+  FHIR R4 create semantics (the comment at `create.js:169` cites http.html#create: server assigns the id).
+- No conditional create. `If-None-Exist` is not read by any route or middleware (grep of `src/routes`,
+  `src/middleware`, `src/controllers` is empty). The only hits are the `Bundle.entry.request.ifNoneExist` data
+  classes, and a bulk-import doc comment (`bulkImport/handler.js:232`). The capability template only declares
+  `conditionalDelete: 'not-supported'` (`capability.template.js:23`).
+- `Binary` has no search parameters (`searchParameters.js:662`, `Binary: {}`) and R4 `Binary` has no
+  `identifier`, so there is no key a conditional search could match on. Only `_id` could, which defeats the point.
+- Update (PUT), patch, delete and `$merge` of `Binary` are rejected for patient tokens by design (N1, §4.3,
+  T5/T8 in §14); `scopesManager` short-circuits only `isCreate`.
+
+**Options.**
+
+| Option | Security impact | Invasiveness | Verdict |
+| :- | :- | :- | :- |
+| 0. Implement `If-None-Exist` for Binary | Would need the search filtered by the person `securityContext` filter, otherwise an existence oracle across members. Not verifiable today: no search param to match on | New feature across routes and create op, plus a new Binary search param (Binary is a pass-through resource) | Not recommended: large, and no key |
+| a. PUT `/Binary/{client-uuid}` (update-as-create) | Opens update for patient tokens; ownership of a client-chosen id can be squatted or overwritten by another member unless create-vs-overwrite is guarded | Re-opens N1 and the update path | Rejected: widens the surface |
+| b. `$merge` with client id | Same as (a); merge is deliberately untouched (§16) | Re-opens N1 | Rejected |
+| c. Deterministic id = hash(person, content) | Hash oracle only if the hash is not salted by person; server-side id override breaks R4 create semantics and the `create.js:170` rule for all callers | Moderate: special case in `create.js`, collision handling needed | Not recommended |
+| d. Writer-side dedupe and cleanup (health-data-service): reuse the Binary id for a retry of the same upload (idempotency key on its own side, written back once the `DocumentReference` exists) | None; no change here | None in fhir-server | **Recommended** |
+
+**Decision.** No fhir-server change; no code or tests added. Any fix here either needs a conditional-create
+feature plus a new Binary search parameter or reopens update/merge for patient scopes, both outside this PR's
+create-only surface. Orphans that still occur are the R16 deletion-finder problem, explicitly out of scope.
+If conditional create is wanted later, it should be its own design, with the person `securityContext` filter
+applied to the conditional search and a cross-member test (B must not match A's Binary).
