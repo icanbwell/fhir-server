@@ -267,7 +267,7 @@ reference. Design: `docs/superpowers/specs/2026-10-08-binary-patient-scoped-writ
   - *Mixed token* (patient scope **and** a `user/` or `system/` scope; the clinical viewers): sees `Binary`
     owned by the caller **plus every unowned `Binary`** (exactly as before); `Binary` owned by someone else
     are excluded.
-  - *Pure patient token* (patient scope, no `user/`/`system/` scope): authorized by `patient/Binary.read`
+  - *Pure patient token* (patient scope, no `user/`/`system/` scope; flag on, otherwise 403): authorized by `patient/Binary.read`
     alone, sees **only** `Binary` owned by the caller. Unowned `Binary` are never returned, because such a
     token carries no access code and therefore no tenant filter exists for it.
   - A caller with no person id gets `_uuid: '__invalid__'` (never "no filter").
