@@ -246,6 +246,22 @@ class QueryParser {
     }
 
     /**
+     * Whether a query (or any $and/$or/$nor branch of it) filters on a Group member field
+     * @param {Object} query
+     * @returns {boolean}
+     */
+    static hasMemberField(query) {
+        if (!query || typeof query !== 'object') {
+            return false;
+        }
+        return Object.entries(query).some(([key, value]) =>
+            key === 'member' || key.startsWith('member.') ||
+            (['$and', '$or', '$nor'].includes(key) && Array.isArray(value) &&
+                value.some((v) => QueryParser.hasMemberField(v)))
+        );
+    }
+
+    /**
      * Extracts requested resource id constraints from a MongoDB query.
      *
      * A `_id` search parameter is rewritten upstream into one of several field
@@ -300,6 +316,12 @@ class QueryParser {
             }
 
             for (const [key, value] of Object.entries(obj)) {
+                // A membership predicate (e.g. `member OR _uuid in extended Groups` from
+                // GroupMemberQueryRewriter): ClickHouse answers membership itself, so ids
+                // inside it are not requested ids.
+                if (key === '$or' && Array.isArray(value) && value.some((v) => QueryParser.hasMemberField(v))) {
+                    continue;
+                }
                 if (idFields.has(key)) {
                     collectFromValue(value);
                 } else if ((key === '$and' || key === '$or') && Array.isArray(value)) {

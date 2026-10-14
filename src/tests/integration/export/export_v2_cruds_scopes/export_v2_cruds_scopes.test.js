@@ -1,0 +1,102 @@
+const expectedResponses = {
+    expected_denied_write_only: require('./fixtures/expected/expected_denied_write_only.json'),
+    expected_denied_without_task_c: require('./fixtures/expected/expected_denied_without_task_c.json'),
+    expected_denied_access_gate_without_c: require('./fixtures/expected/expected_denied_access_gate_without_c.json'),
+    expected_denied_access_gate_r_only: require('./fixtures/expected/expected_denied_access_gate_r_only.json'),
+    expected_denied_access_gate_without_s: require('./fixtures/expected/expected_denied_access_gate_without_s.json')
+};
+
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeAll, afterAll, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { MockK8sClient } = require('../mocks/k8sClient');
+
+describe('$export v2 CRUDS scope granularity Tests', () => {
+    let originalFlag;
+
+    beforeAll(() => {
+        originalFlag = process.env.ENABLE_SMART_V2_CRUDS_SCOPES;
+        process.env.ENABLE_SMART_V2_CRUDS_SCOPES = '1';
+    });
+
+    afterAll(() => {
+        if (originalFlag === undefined) {
+            delete process.env.ENABLE_SMART_V2_CRUDS_SCOPES;
+        } else {
+            process.env.ENABLE_SMART_V2_CRUDS_SCOPES = originalFlag;
+        }
+    });
+
+    beforeEach(async () => {
+        process.env.ENABLE_BULK_EXPORT = '1';
+        await commonBeforeEach();
+    });
+
+    afterEach(async () => {
+        process.env.ENABLE_BULK_EXPORT = '0';
+        await commonAfterEach();
+    });
+
+    const createRequestWithMockK8s = () => createTestRequest((c) => {
+        c.register('k8sClient', (c) => new MockK8sClient({
+            configManager: c.configManager
+        }));
+        return c;
+    });
+
+    test('c and s can come from different tenant codes, and only the c tenant codes are stamped on the ExportStatus', async () => {
+        const request = await createRequestWithMockK8s();
+
+        const createResp = await request
+            .post('/4_0_0/$export?_type=Patient')
+            .set(getHeaders('user/*.rs user/Task.c access/tenantA.c access/tenantB.s'));
+        expect(createResp.status).toBe(202);
+        const exportStatusId = createResp.headers['content-location'].split('/').pop();
+
+        const pollAsTenantAResp = await request
+            .get(`/4_0_0/$export/${exportStatusId}`)
+            .set(getHeaders('user/*.rs access/tenantA.r'));
+        expect(pollAsTenantAResp.status).toBe(202);
+
+        const pollAsTenantBResp = await request
+            .get(`/4_0_0/$export/${exportStatusId}`)
+            .set(getHeaders('user/*.rs access/tenantB.rs'));
+        expect(pollAsTenantBResp.status).toBe(404);
+    });
+
+    test('c on Task with c and s on the access gate can start an export, and polling its status needs r', async () => {
+        const request = await createRequestWithMockK8s();
+        const scope = 'user/*.rs user/Task.c access/client.cs';
+
+        const createResp = await request
+            .post('/4_0_0/$export?_type=Patient')
+            .set(getHeaders(scope));
+        expect(createResp.status).toBe(202);
+        const exportStatusId = createResp.headers['content-location'].split('/').pop();
+
+        const pollResp = await request
+            .get(`/4_0_0/$export/${exportStatusId}`)
+            .set(getHeaders(scope));
+        expect(pollResp.status).toBe(403);
+
+        const pollWithReadResp = await request
+            .get(`/4_0_0/$export/${exportStatusId}`)
+            .set(getHeaders('user/*.rs user/Task.c access/client.rs'));
+        expect(pollWithReadResp.status).toBe(202);
+    });
+
+    test.each([
+        ['a read-only grant without c on Task', 'user/*.rs access/client.s', 'expected_denied_without_task_c'],
+        ['a write-only grant', 'user/*.cud access/client.cud', 'expected_denied_write_only'],
+        ['an access/ scope granting r but not s', 'user/*.rs user/Task.c access/client.r', 'expected_denied_access_gate_r_only'],
+        ['an access/ scope granting s but not c', 'user/*.rs user/Task.c access/client.s', 'expected_denied_access_gate_without_c'],
+        ['an access/ scope granting c but not s', 'user/*.rs user/Task.c access/client.c', 'expected_denied_access_gate_without_s']
+    ])('%s cannot start an export', async (name, scope, expectedName) => {
+        const request = await createRequestWithMockK8s();
+
+        const resp = await request
+            .post('/4_0_0/$export?_type=Patient')
+            .set(getHeaders(scope));
+        expect(resp.status).toBe(403);
+        expect(resp).toHaveResponse(expectedResponses[expectedName]);
+    });
+});

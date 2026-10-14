@@ -9,6 +9,8 @@ const { GROUP_MEMBER_RESOURCE_TYPE } = require('../../constants');
 const { resolveMemberWrite } = require('../../operations/common/resolveMemberWrite');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { logError, logInfo } = require('../../operations/common/logging');
+const { QueryItem } = require('../../operations/graph/queryItem');
+const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { ConfigManager } = require('../../utils/configManager');
 
 /**
@@ -77,6 +79,61 @@ class MongoGroupMemberRepository {
      */
     static deriveMemberUuid(groupUuid, entityUuid) {
         return generateUUIDv5(`${groupUuid}|${entityUuid}`);
+    }
+
+    /**
+     * Finds every distinct groupUuid with a GroupMember_4_0_0 row matching the given query --
+     * the reverse lookup for GET /Group?member=X. The caller builds `query` using the same
+     * field-resolution rules the standard reference search parameter already uses
+     * (member.entity._uuid / member.entity._sourceId) so this method's matching semantics never
+     * drift from the embedded-Group case -- it just runs that same shape of filter against this
+     * collection instead. Matches active and inactive rows alike: FHIR's `member` search
+     * parameter has no notion of "currently active member".
+     *
+     * No tenant filter here -- a GroupMember row's copied security tags exist for the shared
+     * write pipeline's own invariants, not as a second, independently-checked tenant boundary.
+     * The caller is responsible for joining the returned groupUuids back against Group_4_0_0
+     * and applying the caller's own tenant filter there.
+     *
+     * The lookup runs once. When `explain` is set (`_debug` / `_explain`) the explain plan is taken
+     * from the same cursor before its rows are read, as search and $everything do, so the plan
+     * and the result cannot drift apart, and the lookup is returned as `explainedQuery`.
+     *
+     * @param {Object} params
+     * @param {string} params.base_version
+     * @param {import('mongodb').Document} params.query
+     * @param {boolean} [params.explain] also explain the lookup and return it as `explainedQuery`
+     * @param {number} [params.maxTimeMS] server-side time limit for the lookup, omitted when not set
+     * @returns {Promise<{groupUuids: string[], explainedQuery: {queryItem: QueryItem, options: Object, explanations: import('mongodb').Document[], columns: Set}|undefined}>}
+     */
+    async findGroupUuidsByMemberQueryAsync ({ base_version, query, explain = false, maxTimeMS }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        // only the group uuid of each matching GroupMember row is needed to find the extended Groups
+        const options = { projection: { groupUuid: 1, _id: 0 } };
+        let cursor = await databaseQueryManager.findAsync({ query, options });
+        if (maxTimeMS) {
+            cursor = cursor.maxTimeMS({ milliSecs: maxTimeMS });
+        }
+        const explanations = explain ? await cursor.explainAsync() : [];
+        const rows = await cursor.toArrayAsync();
+        return {
+            groupUuids: [...new Set(rows.map((row) => row.groupUuid))],
+            explainedQuery: explain
+                ? {
+                    queryItem: new QueryItem({
+                        query,
+                        resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+                        collectionName: cursor.getCollection()
+                    }),
+                    options,
+                    explanations,
+                    columns: MongoQuerySimplifier.findColumnsInFilter({ filter: query })
+                }
+                : undefined
+        };
     }
 
     /**
@@ -435,6 +492,40 @@ class MongoGroupMemberRepository {
             }
         ], ...(maxTimeMS ? [{ maxTimeMS }] : []));
     }
+
+    /**
+     * One seek page of a Group's Patient member rows, for $export seed resolution. Ordered and
+     * seeked on _uuid via groupUuid_1__uuid_1; the Patient-prefix filter runs in the query so
+     * `limit` counts only Patient rows. Active and inactive rows alike. No tenant filter -- the
+     * caller has already fetched the parent Group under the export's tenant scope (§7).
+     *
+     * @param {Object} params
+     * @param {string} params.base_version
+     * @param {string} params.groupUuid
+     * @param {string|null} params.afterUuid - _uuid of the last row of the previous page; null for the first page
+     * @param {number} params.limit
+     * @returns {Promise<Array<{_uuid: string, member: {entity: {reference: string}}}>>}
+     */
+    async getPatientMemberReferencesPageAsync({ base_version, groupUuid, afterUuid, limit }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        const query = { groupUuid, 'member.entity.reference': { $regex: /^Patient\// } };
+        if (afterUuid) {
+            query._uuid = { $gt: afterUuid };
+        }
+        const cursor = await databaseQueryManager.findAsync({
+            query,
+            options: {
+                projection: { _id: 0, _uuid: 1, 'member.entity.reference': 1 },
+                sort: { _uuid: 1 },
+                limit
+            }
+        });
+        return await cursor.toArrayAsync();
+    }
+
 }
 
 module.exports = { MongoGroupMemberRepository };

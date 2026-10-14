@@ -353,6 +353,64 @@ describe('BundleManager', () => {
             expect(queryTag).toBeDefined();
         });
 
+        describe('additionalRewriteQueries (queries a query rewriter ran on its own)', () => {
+            const mainQuery = { $and: [{ 'member.entity._uuid': 'x' }] };
+            const memberQuery = { 'member.entity._uuid': 'x' };
+
+            function createBundleWith (additionalRewriteQueries) {
+                const parsedArgs = { _debug: true };
+                return bundleManager.createRawBundleFromEntries({
+                    requestId: 'req-1',
+                    type: 'searchset',
+                    originalUrl: '/4_0_0/Group',
+                    host: 'localhost:3000',
+                    protocol: 'http',
+                    entries: [],
+                    total_count: 0,
+                    parsedArgs,
+                    additionalRewriteQueries,
+                    originalQuery: new QueryItem({ query: mainQuery, resourceType: 'Group', collectionName: 'Group_4_0_0' }),
+                    originalOptions: { limit: 100 },
+                    databaseName: 'fhir',
+                    columns: new Set(['_uuid']),
+                    allCollectionsToSearch: ['Group_4_0_0'],
+                    stopTime: 1000,
+                    startTime: 0,
+                    user: null,
+                    explanations: [{ queryPlanner: { namespace: 'fhir.Group_4_0_0' } }]
+                });
+            }
+
+            const tagOf = (bundle, name) => bundle.meta.tag.find(t => t.system === `https://www.icanbwell.com/${name}`);
+
+            it('pipe-joins the recorded query into the query, collection, options, fields and explain tags', () => {
+                const result = createBundleWith([{
+                    queryItem: new QueryItem({ query: memberQuery, resourceType: 'GroupMember', collectionName: 'GroupMember_4_0_0' }),
+                    options: { projection: { groupUuid: 1, _id: 0 } },
+                    explanations: [{ queryPlanner: { namespace: 'fhir.GroupMember_4_0_0' } }],
+                    columns: new Set(['member.entity._uuid'])
+                }]);
+
+                expect(tagOf(result, 'query').display).toContain('db.Group_4_0_0.find(');
+                expect(tagOf(result, 'query').display).toContain(' | db.GroupMember_4_0_0.find(');
+                expect(tagOf(result, 'queryCollection').code).toBe('Group_4_0_0|GroupMember_4_0_0');
+                expect(JSON.parse(tagOf(result, 'queryOptions').display.replace(/'/g, '"'))).toHaveLength(2);
+                expect(tagOf(result, 'queryFields').display).toContain('member.entity._uuid');
+                expect(tagOf(result, 'queryFields').display).toContain('_uuid');
+                expect(JSON.parse(tagOf(result, 'queryExplain').display)).toHaveLength(2);
+                expect(JSON.parse(tagOf(result, 'queryExplainSimple').display)).toHaveLength(2);
+                expect(tagOf(result, 'queryDatabase').code).toBe('fhir');
+            });
+
+            it('leaves every tag as before when there are no additional queries', () => {
+                const result = createBundleWith([]);
+
+                expect(tagOf(result, 'queryCollection').code).toBe('Group_4_0_0');
+                expect(tagOf(result, 'query').display).not.toContain('GroupMember');
+                expect(JSON.parse(tagOf(result, 'queryExplain').display)).toHaveLength(1);
+            });
+        });
+
         it('appends parsedArgs.chainDebugDisplay onto the existing query tag rather than adding a new tag', () => {
             const entries = [];
             const originalQuery = new QueryItem({ query: {}, resourceType: 'Patient', collectionName: 'Patient_4_0_0' });
@@ -541,6 +599,72 @@ describe('BundleManager', () => {
             const entries = [{ id: 'e1', resource: { resourceType: 'Observation', _uuid: 'uuid-1' } }];
             const result = bundleManager.removeDuplicateEntries({ entries });
             expect(result.length).toBe(1);
+        });
+    });
+
+    describe('addAdditionalRewriteQueries', () => {
+        const main = {
+            originalQuery: new QueryItem({ query: { a: 1 }, resourceType: 'Group', collectionName: 'Group_4_0_0' }),
+            originalOptions: { limit: 100 },
+            explanations: [{ queryPlanner: { namespace: 'fhir.Group_4_0_0' } }],
+            columns: new Set(['_uuid']),
+            allCollectionsToSearch: ['Group_4_0_0']
+        };
+        const additional = {
+            queryItem: new QueryItem({ query: { b: 2 }, resourceType: 'GroupMember', collectionName: 'GroupMember_4_0_0' }),
+            options: { projection: { groupUuid: 1, _id: 0 } },
+            explanations: [{ queryPlanner: { namespace: 'fhir.GroupMember_4_0_0' } }],
+            columns: new Set(['member.entity._uuid'])
+        };
+
+        it.each([[undefined], [[]]])('returns the inputs unchanged when there are no additional rewrite queries (%p)', (additionalRewriteQueries) => {
+            expect(bundleManager.addAdditionalRewriteQueries({ ...main, additionalRewriteQueries })).toEqual({ ...main });
+        });
+
+        it('lists the additional queries after the main one, index-aligned across query, options and explanations', () => {
+            const result = bundleManager.addAdditionalRewriteQueries({ ...main, additionalRewriteQueries: [additional] });
+
+            expect(result.originalQuery).toEqual([main.originalQuery, additional.queryItem]);
+            expect(result.originalOptions).toEqual([main.originalOptions, additional.options]);
+            expect(result.explanations).toEqual([...main.explanations, ...additional.explanations]);
+        });
+
+        it('keeps a main query that is already a list, and several additional queries in order', () => {
+            const second = { ...additional, queryItem: new QueryItem({ query: { c: 3 }, collectionName: 'GroupMember_4_0_0' }) };
+
+            const result = bundleManager.addAdditionalRewriteQueries({
+                ...main,
+                originalQuery: [main.originalQuery],
+                originalOptions: [main.originalOptions],
+                additionalRewriteQueries: [additional, second]
+            });
+
+            expect(result.originalQuery).toEqual([main.originalQuery, additional.queryItem, second.queryItem]);
+            expect(result.originalOptions).toHaveLength(3);
+        });
+
+        it('drops allCollectionsToSearch so each query reports its own collection', () => {
+            expect(bundleManager.addAdditionalRewriteQueries({ ...main, additionalRewriteQueries: [additional] }).allCollectionsToSearch)
+                .toBeUndefined();
+        });
+
+        it('unions the columns without changing the input set', () => {
+            const result = bundleManager.addAdditionalRewriteQueries({ ...main, additionalRewriteQueries: [additional] });
+
+            expect(result.columns).toEqual(new Set(['_uuid', 'member.entity._uuid']));
+            expect(main.columns).toEqual(new Set(['_uuid']));
+        });
+
+        it('works when the main query has no explanations or columns', () => {
+            const result = bundleManager.addAdditionalRewriteQueries({
+                originalQuery: main.originalQuery,
+                originalOptions: undefined,
+                additionalRewriteQueries: [additional]
+            });
+
+            expect(result.explanations).toEqual(additional.explanations);
+            expect(result.columns).toEqual(additional.columns);
+            expect(result.originalOptions).toEqual([{}, additional.options]);
         });
     });
 

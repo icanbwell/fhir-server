@@ -4,6 +4,8 @@ const { PersonToPatientIdsExpander } = require('../../utils/personToPatientIdsEx
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { ScopesValidator } = require('../security/scopesValidator');
+const { ScopesManager } = require('../security/scopesManager');
+const { SecurityTagManager } = require('../common/securityTagManager');
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
 const { PERSON_PROXY_PREFIX } = require('../../constants');
 const { sliceIntoChunks } = require('../../utils/list.util');
@@ -19,6 +21,8 @@ class AccessHistoryOperation {
      * @param {AccessHistoryClickHouseRepository} params.accessHistoryClickHouseRepository
      * @param {ConfigManager} params.configManager
      * @param {ScopesValidator} params.scopesValidator
+     * @param {ScopesManager} params.scopesManager
+     * @param {SecurityTagManager} params.securityTagManager
      */
     constructor({
         databaseQueryFactory,
@@ -26,7 +30,9 @@ class AccessHistoryOperation {
         patientFilterManager,
         accessHistoryClickHouseRepository,
         configManager,
-        scopesValidator
+        scopesValidator,
+        scopesManager,
+        securityTagManager
     }) {
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
@@ -44,6 +50,12 @@ class AccessHistoryOperation {
 
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
+
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+
+        this.securityTagManager = securityTagManager;
+        assertTypeEquals(securityTagManager, SecurityTagManager);
     }
 
     /**
@@ -67,24 +79,17 @@ class AccessHistoryOperation {
         }
 
         const startTime = Date.now();
-        await Promise.all([
-            this.scopesValidator.verifyHasValidScopesAsync({
-                requestInfo,
-                parsedArgs,
-                resourceType,
-                startTime,
-                action: '$access-history',
-                accessRequested: 'read'
-            }),
-            this.scopesValidator.verifyHasValidScopesAsync({
-                requestInfo,
-                parsedArgs,
-                resourceType: 'AuditEvent',
-                startTime,
-                action: '$access-history',
-                accessRequested: 'read'
-            })
-        ]);
+        await this._verifyAccessToResourceTypesAsync({
+            requestInfo,
+            parsedArgs,
+            startTime,
+            checks: [
+                { resourceType, accessRequested: 'r' },
+                { resourceType: 'AuditEvent', accessRequested: 's' },
+                { resourceType: 'Patient', accessRequested: 'r' },
+                ...this._getPatientLinkedResourceTypes().map((rt) => ({ resourceType: rt, accessRequested: 's' }))
+            ]
+        });
 
         if (!this.accessHistoryClickHouseRepository) {
             logInfo('$access-history operation unavailable: ClickHouse is not enabled');
@@ -117,6 +122,7 @@ class AccessHistoryOperation {
 
         // 2. Collect entity_refs from MongoDB
         const entityRefs = await this._collectEntityRefs({
+            requestInfo,
             patientUuids,
             base_version
         });
@@ -144,6 +150,8 @@ class AccessHistoryOperation {
         // 5. Resolve accessor display names
         const accessorRefs = Object.keys(accessorMap);
         const accessorDetails = await this._resolveAccessorDetails({
+            requestInfo,
+            parsedArgs,
             accessorRefs,
             base_version
         });
@@ -152,24 +160,42 @@ class AccessHistoryOperation {
         return this._buildParametersResponse({ accessorMap, accessorDetails });
     }
 
+    async _verifyAccessToResourceTypesAsync({ requestInfo, parsedArgs, startTime, checks }) {
+        for (const check of checks) {
+            await this.scopesValidator.verifyHasValidScopesAsync({
+                requestInfo,
+                parsedArgs,
+                startTime,
+                action: '$access-history',
+                ...check
+            });
+        }
+    }
+
+    _getPatientLinkedResourceTypes() {
+        return this.patientFilterManager.getAllPatientOrPersonRelatedResources()
+            .filter(rt => rt !== 'Patient' && rt !== 'AuditEvent' &&
+                this.patientFilterManager.getPatientPropertyForResource({ resourceType: rt }));
+    }
+
     /**
      * @param {Object} params
+     * @param {import('../common/fhirRequestInfo').FhirRequestInfo} params.requestInfo
      * @param {string[]} params.patientUuids
      * @param {string} params.base_version
      * @returns {Promise<string[]>}
      */
-    async _collectEntityRefs({ patientUuids, base_version }) {
+    async _collectEntityRefs({ requestInfo, patientUuids, base_version }) {
         const patientRefs = patientUuids.map((uuid) => `Patient/${uuid}`);
         const entityRefs = [...patientRefs];
-        const resourceTypes = this.patientFilterManager.getAllPatientOrPersonRelatedResources()
-            .filter(rt => rt !== 'Patient' && rt !== 'AuditEvent');
+        const resourceTypes = this._getPatientLinkedResourceTypes();
 
         const parallelLimit = this.configManager.accessHistoryMaxParallelProcess;
         const chunks = sliceIntoChunks(resourceTypes, parallelLimit);
 
         for (const chunk of chunks) {
             const chunkResults = await Promise.all(
-                chunk.map(rt => this._getEntityRefsForResourceType({ rt, patientRefs, base_version }))
+                chunk.map(rt => this._getEntityRefsForResourceType({ requestInfo, rt, patientRefs, base_version }))
             );
             entityRefs.push(...chunkResults.flat());
         }
@@ -177,7 +203,7 @@ class AccessHistoryOperation {
         return entityRefs;
     }
 
-    async _getEntityRefsForResourceType({ rt, patientRefs, base_version }) {
+    async _getEntityRefsForResourceType({ requestInfo, rt, patientRefs, base_version }) {
         const linkingField = this.patientFilterManager.getPatientPropertyForResource({
             resourceType: rt
         });
@@ -186,13 +212,19 @@ class AccessHistoryOperation {
         }
 
         const uuidField = linkingField.replace('.reference', '._uuid');
+        const query = this._getQueryWithAccessTagsForResourceType({
+            requestInfo,
+            resourceType: rt,
+            query: { [uuidField]: { $in: patientRefs } },
+            accessRequested: 's'
+        });
         const dqm = this.databaseQueryFactory.createQuery({
             resourceType: rt,
             base_version
         });
 
         const cursor = await dqm.findAsync({
-            query: { [uuidField]: { $in: patientRefs } },
+            query,
             options: { projection: { _uuid: 1 } }
         });
 
@@ -204,6 +236,26 @@ class AccessHistoryOperation {
             }
         }
         return refs;
+    }
+
+    _getQueryWithAccessTagsForResourceType({ requestInfo, resourceType, query, accessRequested }) {
+        const { user, scope } = requestInfo;
+        if (this.scopesManager.isAccessAllowedByPatientScopes({ scope, resourceType })) {
+            return query;
+        }
+        const securityTags = this.securityTagManager.getSecurityTagsFromScope({
+            user,
+            scope,
+            accessViaPatientScopes: false,
+            accessRequested
+        });
+        return this.securityTagManager.getQueryWithSecurityTags({
+            resourceType,
+            securityTags,
+            query,
+            useAccessIndex: this.configManager.useAccessIndex,
+            useHistoryTable: false
+        });
     }
 
     /**
@@ -246,11 +298,13 @@ class AccessHistoryOperation {
      * For proxy patient accessors (Patient/person.{id}), resolves display and
      * organization from Person's managingOrganization.
      * @param {Object} params
+     * @param {import('../common/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {import('../query/parsedArgs').ParsedArgs} params.parsedArgs
      * @param {string[]} params.accessorRefs
      * @param {string} params.base_version
      * @returns {Promise<Object<string, {display: string, organizations: Array<{reference: string, display: string, name: string, sourceId: string}>}>>}
      */
-    async _resolveAccessorDetails({ accessorRefs, base_version }) {
+    async _resolveAccessorDetails({ requestInfo, parsedArgs, accessorRefs, base_version }) {
         const details = {};
         const proxyPersonIds = [];
         const byType = {};
@@ -273,6 +327,14 @@ class AccessHistoryOperation {
             }
         }
 
+        await this._verifyAccessToResourceTypesAsync({
+            requestInfo,
+            parsedArgs,
+            startTime: Date.now(),
+            checks: [...Object.keys(byType), ...(proxyPersonIds.length > 0 ? ['Person'] : [])]
+                .map((type) => ({ resourceType: type, accessRequested: 'r' }))
+        });
+
         // Resolve standard accessors and proxy person accessors in parallel
         const typeEntries = Object.entries(byType);
         const parallelLimit = this.configManager.accessHistoryMaxParallelProcess;
@@ -283,6 +345,7 @@ class AccessHistoryOperation {
             const chunkResults = await Promise.all(
                 chunk.map(([type, ids]) =>
                     this._findResourcesByUuids({
+                        requestInfo,
                         resourceType: type,
                         uuids: ids,
                         base_version,
@@ -295,6 +358,7 @@ class AccessHistoryOperation {
 
         const persons = proxyPersonIds.length > 0
             ? await this._findResourcesByUuids({
+                requestInfo,
                 resourceType: 'Person',
                 uuids: proxyPersonIds,
                 base_version,
@@ -333,7 +397,14 @@ class AccessHistoryOperation {
 
             const orgDetails = {};
             if (orgIds.size > 0) {
+                await this._verifyAccessToResourceTypesAsync({
+                    requestInfo,
+                    parsedArgs,
+                    startTime: Date.now(),
+                    checks: [{ resourceType: 'Organization', accessRequested: 'r' }]
+                });
                 const orgs = await this._findResourcesByUuids({
+                    requestInfo,
                     resourceType: 'Organization',
                     uuids: Array.from(orgIds),
                     base_version,
@@ -369,23 +440,30 @@ class AccessHistoryOperation {
     /**
      * Queries resources by UUIDs with a given projection.
      * @param {Object} params
+     * @param {import('../common/fhirRequestInfo').FhirRequestInfo} params.requestInfo
      * @param {string} params.resourceType
      * @param {string[]} params.uuids
      * @param {string} params.base_version
      * @param {Object} params.projection
      * @returns {Promise<Object[]>}
      */
-    async _findResourcesByUuids({ resourceType, uuids, base_version, projection }) {
+    async _findResourcesByUuids({ requestInfo, resourceType, uuids, base_version, projection }) {
         if (!uuids || uuids.length === 0) {
             return [];
         }
 
+        const query = this._getQueryWithAccessTagsForResourceType({
+            requestInfo,
+            resourceType,
+            query: { _uuid: { $in: uuids } },
+            accessRequested: 'r'
+        });
         const dqm = this.databaseQueryFactory.createQuery({
             resourceType,
             base_version
         });
         const cursor = await dqm.findAsync({
-            query: { _uuid: { $in: uuids } },
+            query,
             options: { projection }
         });
 

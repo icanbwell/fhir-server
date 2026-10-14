@@ -1,0 +1,17 @@
+{
+    "resourceType": "Person",
+    "id": "5a1c0d2e-7b34-4c8a-9f10-2d6e8b0a1d01",
+    "meta": {
+        "source": "http://test-system.com/dcon5657",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "test-owner" },
+            { "system": "https://www.icanbwell.com/access", "code": "test-owner" }
+        ]
+    },
+    "link": [
+        {
+            "target": { "reference": "Patient/5a1c0d2e-7b34-4c8a-9f10-2d6e8b0a1d02|test-owner", "type": "Patient" },
+            "assurance": "level4"
+        }
+    ]
+}

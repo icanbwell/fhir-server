@@ -39,7 +39,9 @@ const expectedPatientEverythingPatientWithSubscription = require('./fixtures/exp
 const expectedPatientResources = require('./fixtures/expected/expected_Patient_no_graph.json');
 const expectedPatientResourcesGlobalId = require('./fixtures/expected/expected_Patient_no_graph_global_id.json');
 const expectedPatientResourcesWithUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_uuid_only.json');
+const expectedPatientResourcesWithUuidOnlyFlagOn = require('./fixtures/expected/expected_Patient_no_graph_uuid_only_flag_on.json');
 const expectedPatientResourceWithIncludeAllUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_all_uuid_only.json');
+const expectedPatientResourceWithIncludeAllUuidOnlyFlagOn = require('./fixtures/expected/expected_Patient_no_graph_all_uuid_only_flag_on.json');
 const expectedPatientResourcesWithNonClinicalAndAllUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_include_non_clinical_all_uuid_only.json');
 const expectedPatientResourcesTypeNoGraph = require('./fixtures/expected/expected_Patient_type_no_graph.json');
 const expectedPatientIncludeHiddenResourcesNoGraph = require('./fixtures/expected/expected_Patient_no_graph_include_hidden.json');
@@ -193,6 +195,19 @@ describe('Person and Patient $everything Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResourcesWithUuidOnly);
 
+            // same request with the extended-group flag on: also projects _extended on Group and lists the GroupMember lookup
+            const savedEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+            process.env.ENABLE_EXTENDED_GROUP = '1';
+            try {
+                const flagOnResp = await request
+                    .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includePatientLinkedUuidOnly=true')
+                    .set(getHeadersWithAdmin());
+                expect(flagOnResp).toHaveMongoQuery(expectedPatientResourcesWithUuidOnlyFlagOn);
+                expect(flagOnResp).toHaveResponse(expectedPatientResourcesWithUuidOnlyFlagOn);
+            } finally {
+                process.env.ENABLE_EXTENDED_GROUP = savedEnableExtendedGroup;
+            }
+
             // with _includeUuidOnly and _includePatientLinkedOnly as true
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeUuidOnly=true&_includePatientLinkedOnly=true')
@@ -200,6 +215,17 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp).toHaveMongoQuery(expectedPatientResourceWithIncludeAllUuidOnly);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResourceWithIncludeAllUuidOnly);
+
+            process.env.ENABLE_EXTENDED_GROUP = '1';
+            try {
+                const flagOnResp = await request
+                    .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeUuidOnly=true&_includePatientLinkedOnly=true')
+                    .set(getHeadersWithAdmin());
+                expect(flagOnResp).toHaveMongoQuery(expectedPatientResourceWithIncludeAllUuidOnlyFlagOn);
+                expect(flagOnResp).toHaveResponse(expectedPatientResourceWithIncludeAllUuidOnlyFlagOn);
+            } finally {
+                process.env.ENABLE_EXTENDED_GROUP = savedEnableExtendedGroup;
+            }
 
             // should not use projection when _includePatientLinkedOnly is false
             resp = await request

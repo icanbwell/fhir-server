@@ -18,7 +18,7 @@ const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, BLOB_OP } = require('../../constants');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
-const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
+const { isExtendedGroup } = require('../../utils/mongoGroupExtendedTag');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 
 class SearchByIdOperation {
@@ -247,7 +247,7 @@ class SearchByIdOperation {
             if (resource) {
                 const resourceUuid = resource._uuid;
 
-                const isExtendedGroup = resourceType === 'Group' && resource[MONGO_GROUP_EXTENDED_FIELD] === true &&
+                const isExtendedGroupRead = resourceType === 'Group' && isExtendedGroup(resource) &&
                     this.configManager.enableExtendedGroup;
 
                 // remove any nulls or empty objects or arrays
@@ -294,7 +294,7 @@ class SearchByIdOperation {
                 resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
                 FhirResourceSerializer.serializeByResourceType(resource, resourceType);
 
-                if (isExtendedGroup && res) {
+                if (isExtendedGroupRead && res) {
                     const memberCursor = await this.mongoGroupMemberRepository.getMemberCursorAsync({
                         base_version,
                         groupUuid: resourceUuid

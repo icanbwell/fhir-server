@@ -49,6 +49,31 @@ describe('ScopesManager', () => {
         });
     });
 
+    describe('getResourceTypesWithAccess', () => {
+        test('returns the resource types whose v1 scopes satisfy the requirement', () => {
+            expect(scopesManager.getResourceTypesWithAccess({
+                scope: 'user/Patient.read user/Observation.write system/Condition.*', accessRequested: 's'
+            })).toEqual(['Patient', 'Condition']);
+        });
+
+        describe('when enableSmartV2CrudsScopes is enabled', () => {
+            beforeEach(() => {
+                Object.defineProperty(mockConfigManager, 'enableSmartV2CrudsScopes', {
+                    value: true, configurable: true
+                });
+            });
+
+            test('honors v2 letters and the * resource type', () => {
+                expect(scopesManager.getResourceTypesWithAccess({
+                    scope: 'user/Patient.rs user/Observation.r user/*.d', accessRequested: 's'
+                })).toEqual(['Patient']);
+                expect(scopesManager.getResourceTypesWithAccess({
+                    scope: 'user/*.s', accessRequested: 's'
+                })).toEqual(['*']);
+            });
+        });
+    });
+
     describe('getAccessCodesFromScopes', () => {
         test('should return empty array when scope is null', () => {
             const result = scopesManager.getAccessCodesFromScopes('read', 'testUser', null);
@@ -130,6 +155,16 @@ describe('ScopesManager', () => {
                 Object.defineProperty(mockConfigManager, 'enableSmartV2CrudsScopes', {
                     value: true, configurable: true
                 });
+            });
+
+            test('a letter combination returns codes whose letters are granted across different scopes', () => {
+                const result = scopesManager.getAccessCodesFromScopes('ds', 'testUser', 'access/a.d access/a.s access/b.d');
+                expect(result).toEqual(['a']);
+            });
+
+            test('a letter combination lets a wildcard code supply the missing letter', () => {
+                const result = scopesManager.getAccessCodesFromScopes('ds', 'testUser', 'access/a.d access/*.s');
+                expect(result).toEqual(['a']);
             });
 
             test('extracts access codes from a v2 access/ scope whose letters satisfy the action', () => {
@@ -748,6 +783,26 @@ describe('ScopesManager', () => {
         // Tripwire: history access is access/-only. system/*.* must not grant it (SEC-1580 SAE-1).
         test('should return false for system/*.* (no access/ code present)', () => {
             expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'system/*.*' })).toBe(false);
+        });
+
+        describe('when enableSmartV2CrudsScopes is enabled', () => {
+            beforeEach(() => {
+                Object.defineProperty(mockConfigManager, 'enableSmartV2CrudsScopes', {
+                    value: true, configurable: true
+                });
+            });
+
+            test('should return false for a tenant-scoped v2 read grant', () => {
+                expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/tenantA.rs' })).toBe(false);
+            });
+
+            test('should return true for a wildcard v2 read grant', () => {
+                expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.rs' })).toBe(true);
+            });
+
+            test('should return false for a wildcard v2 grant without r', () => {
+                expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'access/*.s' })).toBe(false);
+            });
         });
     });
 

@@ -111,6 +111,7 @@ const {ConsentCacheInvalidationHandler} = require('./dataLayer/postSaveHandlers/
 const {ProfileUrlMapper} = require('./utils/profileMapper');
 const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const {ChainedSearchQueryRewriter} = require('./queryRewriters/rewriters/chainedSearchQueryRewriter');
+const {GroupMemberQueryRewriter} = require('./queryRewriters/rewriters/groupMemberQueryRewriter');
 const {PatientScopeManager} = require('./operations/security/patientScopeManager');
 const {WriteAllowedByScopesValidator} = require('./operations/merge/validators/writeAllowedByScopesValidator');
 const {PatientQueryCreator} = require('./operations/common/patientQueryCreator');
@@ -273,6 +274,7 @@ const createContainer = function () {
         ]
     }));
     container.register('sourceAssigningAuthorityColumnHandler', (c) => new SourceAssigningAuthorityColumnHandler({ configManager: c.configManager }));
+    container.register('ownerColumnHandler', (c) => new OwnerColumnHandler({ configManager: c.configManager }));
     container.register('uuidColumnHandler', (_c) => new UuidColumnHandler());
     container.register('resourceMerger', (c) => new ResourceMerger({
         preSaveManager: c.preSaveManager
@@ -502,6 +504,10 @@ const createContainer = function () {
                     personToPatientIdsExpander: c.personToPatientIdsExpander,
                     configManager: c.configManager,
                     requestSpecificCache: c.requestSpecificCache
+                }),
+                new GroupMemberQueryRewriter({
+                    configManager: c.configManager,
+                    mongoGroupMemberRepository: c.mongoGroupMemberRepository
                 })
             ]
         }
@@ -785,6 +791,7 @@ const createContainer = function () {
         everythingRelatedResourceMapper: c.everythingRelatedResourceMapper,
         customTracer: c.customTracer,
         patientDataViewControlManager: c.patientDataViewControlManager,
+        mongoGroupMemberRepository: c.mongoGroupMemberRepository,
         auditLogger: c.auditLogger,
         postRequestProcessor: c.postRequestProcessor,
         redisStreamManager: c.redisStreamManager,
@@ -1063,7 +1070,9 @@ const createContainer = function () {
         patientFilterManager: c.patientFilterManager,
         accessHistoryClickHouseRepository: c.accessHistoryClickHouseRepository,
         configManager: c.configManager,
-        scopesValidator: c.scopesValidator
+        scopesValidator: c.scopesValidator,
+        scopesManager: c.scopesManager,
+        securityTagManager: c.securityTagManager
     }));
 
     container.register('databaseAttachmentManager', (c) => new DatabaseAttachmentManager(
@@ -1274,6 +1283,7 @@ const createContainer = function () {
 
     container.register('exportOperation', (c) => new ExportOperation({
         scopesManager: c.scopesManager,
+        scopesValidator: c.scopesValidator,
         fhirLoggingManager: c.fhirLoggingManager,
         preSaveManager: c.preSaveManager,
         resourceValidator: c.resourceValidator,
@@ -1337,7 +1347,9 @@ const createContainer = function () {
         databaseBulkLoader: c.databaseBulkLoader,
         sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
         uuidColumnHandler: c.uuidColumnHandler,
-        writeAllowedByScopesValidator: c.writeAllowedByScopesValidator
+        writeAllowedByScopesValidator: c.writeAllowedByScopesValidator,
+        resourceValidator: c.resourceValidator,
+        ownerColumnHandler: c.ownerColumnHandler
     }));
 
     // Routes messages on kafkaBulkImportTaskCreatedTopic and kafkaBulkImportRangeProgressTopic
@@ -1368,6 +1380,7 @@ const createContainer = function () {
 
     container.register('importOperation', (c) => new ImportOperation({
         scopesManager: c.scopesManager,
+        scopesValidator: c.scopesValidator,
         fhirLoggingManager: c.fhirLoggingManager,
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,

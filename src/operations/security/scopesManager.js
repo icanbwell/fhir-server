@@ -4,7 +4,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { RESOURCE_TYPE_SCOPE_NAMESPACES } = require('../../constants');
-const { parseScopeToken, getRequiredCrudsForAccessRequested, isCrudsRequirementSatisfied } = require('./smartScopeParser');
+const { parseScopeToken, getRequiredCrudsForAccessRequested, isCrudsRequirementSatisfied, isV2Suffix } = require('./smartScopeParser');
 const { logInfo } = require('../common/logging');
 
 class ScopesManager {
@@ -44,7 +44,8 @@ class ScopesManager {
 
     /**
      * Returns all the access codes present in scopes
-     * @param {string} action legacy 'read'/'write' or a single v2 CRUDS letter ('c'/'r'/'u'/'d'/'s')
+     * @param {string} action legacy 'read'/'write', a single v2 CRUDS letter, or an in-order letter
+     *  combination such as 'ds' (each letter may be granted by a different scope)
      * @param {string} user
      * @param {string|null} scope
      * @return {string[]} security tags allowed by scopes
@@ -55,6 +56,12 @@ class ScopesManager {
         /**
          * @type {string[]}
          */
+        if (isV2Suffix(action) && action.length > 1) {
+            const codesPerLetter = action.split('').map(letter => this.getAccessCodesFromScopes(letter, user, scope));
+            const grantsLetter = (codes, code) => codes.includes(code) || codes.includes('*');
+            const candidates = new Set(codesPerLetter.flat());
+            return [...candidates].filter(code => codesPerLetter.every(codes => grantsLetter(codes, code)));
+        }
         const scopes = this.parseScopes(scope);
         /**
          * @type {string[]}
@@ -463,6 +470,20 @@ class ScopesManager {
      */
     getResourceTypeScopes ({ scope }) {
         return this.getScopesForNamespaces({ scope, namespaces: RESOURCE_TYPE_SCOPE_NAMESPACES });
+    }
+
+    /**
+     * The resource types (or '*') that the caller's user/ and system/ scopes grant for accessRequested
+     * @param {string|undefined} scope
+     * @param {string} accessRequested legacy 'read'/'write', a CRUDS letter, or a letter combination
+     * @returns {string[]}
+     */
+    getResourceTypesWithAccess ({ scope, accessRequested }) {
+        const requiredCruds = getRequiredCrudsForAccessRequested(accessRequested);
+        return this.getResourceTypeScopes({ scope })
+            .map(scopeToken => parseScopeToken(scopeToken, this.configManager.enableSmartV2CrudsScopes))
+            .filter(parsed => parsed && isCrudsRequirementSatisfied(parsed.cruds, requiredCruds))
+            .map(parsed => parsed.resourceType);
     }
 
     /**

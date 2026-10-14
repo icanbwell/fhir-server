@@ -434,11 +434,13 @@ module.exports = {
         ],
         [GROUP_MEMBER_COLLECTION_NAME]: [
             {
+                // $export seed resolution: seek-pages one Group's rows by _uuid (equality, then sort)
                 keys: {
-                    groupUuid: 1
+                    groupUuid: 1,
+                    _uuid: 1
                 },
                 options: {
-                    name: 'groupUuid_1'
+                    name: 'groupUuid_1__uuid_1'
                 }
             },
             {
