@@ -6,6 +6,9 @@ const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabase
 const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
 const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
 const { ConfigManager } = require('../../../../utils/configManager');
+const { logInfo } = require('../../../../operations/common/logging');
+
+jest.mock('../../../../operations/common/logging');
 
 function createMockInstance (ClassRef, methods = {}) {
     const instance = Object.create(ClassRef.prototype);
@@ -603,8 +606,21 @@ describe('MongoGroupMemberRepository', () => {
             expect(args.requestInfo.requestId).toBe('req-1');
             expect(args.resourceType).toBe('GroupMember');
             expect(args.base_version).toBe('4_0_0');
-            expect(args.skipRequestScopedBuffering).toBe(true);
+            expect(args.skipAccessLogEntries).toBe(true);
             expect(args).not.toHaveProperty('preserveLastUpdated');
+        });
+
+        test('logs the comma-separated ids of the members each batch deleted, with the group and request ids', async () => {
+            mockRounds([[makeRow(1), makeRow(2)], [makeRow(3)]]);
+            logInfo.mockClear();
+
+            await repository.cascadeDeleteForGroupAsync({ requestInfo, base_version: '4_0_0', groupUuid: 'group-1' });
+
+            const memberLogs = logInfo.mock.calls.filter(c => c[1] && c[1].memberUuids);
+            expect(memberLogs.map(c => c[1])).toEqual([
+                { groupUuid: 'group-1', deleted: 2, totalDeleted: 2, memberUuids: 'm-1,m-2' },
+                { groupUuid: 'group-1', deleted: 1, totalDeleted: 3, memberUuids: 'm-3' }
+            ]);
         });
 
         test('deletes the batches sequentially: the next batch is not queried until the previous is deleted', async () => {

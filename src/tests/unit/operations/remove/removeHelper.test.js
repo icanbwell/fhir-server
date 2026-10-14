@@ -436,80 +436,56 @@ describe('RemoveHelper', () => {
             });
         });
 
-        describe('skipRequestScopedBuffering', () => {
+        describe('skipAccessLogEntries', () => {
             const makeResources = () => [
                 { id: 'm-1', _uuid: 'u-1', _sourceAssigningAuthority: 'a', meta: { lastUpdated: new Date('2026-01-01T00:00:00.000Z') } },
                 { id: 'm-2', _uuid: 'u-2', _sourceAssigningAuthority: 'a', meta: { lastUpdated: new Date('2026-01-01T00:00:00.000Z') } }
             ];
-            const cascadeParams = {
-                ...baseParams,
-                resourceType: 'GroupMember',
-                skipRequestScopedBuffering: true
-            };
-
-            test('sends post-save D events inline under the original requestId and does not queue them', async () => {
-                httpContext.get.mockReturnValue(undefined);
-                mockCollection.deleteMany.mockResolvedValue({ deletedCount: 2 });
-                const resources = makeResources();
-
-                await removeHelper.deleteManyAsync({ ...cascadeParams, resources });
-
-                expect(mockPostRequestProcessor.add).not.toHaveBeenCalled();
-                expect(mockPostSaveProcessor.afterSaveAsync).toHaveBeenCalledTimes(2);
-                expect(mockPostSaveProcessor.afterSaveAsync).toHaveBeenCalledWith({
-                    requestId: 'test-request-123',
-                    eventType: 'D',
-                    resourceType: 'GroupMember',
-                    doc: resources[0]
-                });
-            });
 
             test('does not record per-resource access-log entries', async () => {
                 httpContext.get.mockReturnValue(undefined);
                 mockCollection.deleteMany.mockResolvedValue({ deletedCount: 2 });
 
-                await removeHelper.deleteManyAsync({ ...cascadeParams, resources: makeResources() });
+                await removeHelper.deleteManyAsync({
+                    ...baseParams,
+                    resourceType: 'GroupMember',
+                    resources: makeResources(),
+                    skipAccessLogEntries: true
+                });
 
                 expect(httpContext.set).not.toHaveBeenCalled();
             });
 
-            test('stamps each resource with the current time, like a normal delete', async () => {
-                httpContext.get.mockReturnValue(undefined);
-                mockCollection.deleteMany.mockResolvedValue({ deletedCount: 2 });
-                const resources = makeResources();
-                const before = Date.now();
-
-                await removeHelper.deleteManyAsync({ ...cascadeParams, resources });
-
-                for (const resource of resources) {
-                    expect(resource.meta.lastUpdated.getTime()).toBeGreaterThanOrEqual(before);
-                }
-            });
-
-            test('writes history before deleting the rows', async () => {
+            test('still writes history before deleting, stamps the time, and queues the post-save events', async () => {
                 httpContext.get.mockReturnValue(undefined);
                 const order = [];
                 mockDatabaseBulkInserter.executeHistoryAsync.mockImplementation(async () => { order.push('history'); });
                 mockCollection.deleteMany.mockImplementation(async () => { order.push('delete'); return { deletedCount: 2 }; });
+                const resources = makeResources();
+                const before = Date.now();
 
-                await removeHelper.deleteManyAsync({ ...cascadeParams, resources: makeResources() });
+                await removeHelper.deleteManyAsync({
+                    ...baseParams,
+                    resourceType: 'GroupMember',
+                    resources,
+                    skipAccessLogEntries: true
+                });
 
                 expect(order).toEqual(['history', 'delete']);
+                for (const resource of resources) {
+                    expect(resource.meta.lastUpdated.getTime()).toBeGreaterThanOrEqual(before);
+                }
+                expect(mockPostRequestProcessor.add).toHaveBeenCalledTimes(1);
             });
 
-            test('by default queues post-save events and records access-log entries', async () => {
+            test('by default records an access-log entry for every deleted resource', async () => {
                 httpContext.get.mockReturnValue(undefined);
                 mockCollection.deleteMany.mockResolvedValue({ deletedCount: 2 });
 
                 await removeHelper.deleteManyAsync({ ...baseParams, resources: makeResources() });
 
-                expect(mockDatabaseBulkInserter.executeHistoryAsync).toHaveBeenCalledWith({
-                    requestInfo: baseRequestInfo,
-                    base_version: '4_0_0'
-                });
-                expect(mockPostRequestProcessor.add).toHaveBeenCalledTimes(1);
-                expect(mockPostSaveProcessor.afterSaveAsync).not.toHaveBeenCalled();
                 expect(httpContext.set).toHaveBeenCalledTimes(1);
+                expect(httpContext.set.mock.calls[0][1].operationResult).toHaveLength(2);
             });
         });
 

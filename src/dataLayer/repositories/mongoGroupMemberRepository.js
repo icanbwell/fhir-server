@@ -343,7 +343,9 @@ class MongoGroupMemberRepository {
             });
             const rows = await cursor.toArrayAsync();
             if (rows.length === 0) {
-                logInfo('Cascade deleted GroupMember rows for Group', { groupUuid, totalDeleted });
+                logInfo('Cascade delete of GroupMember rows for Group finished', {
+                    groupUuid, totalDeleted
+                });
                 return totalDeleted;
             }
 
@@ -352,7 +354,7 @@ class MongoGroupMemberRepository {
                 resourceType: GROUP_MEMBER_RESOURCE_TYPE,
                 resources: rows,
                 base_version,
-                skipRequestScopedBuffering: true
+                skipAccessLogEntries: true
             });
             if (deleted === 0) {
                 throw new Error(
@@ -361,6 +363,14 @@ class MongoGroupMemberRepository {
                 );
             }
             totalDeleted += deleted;
+            // The per-row access-log entries are skipped, so log which members were deleted here;
+            // each member's DELETE history entry is the full record.
+            logInfo('Cascade deleted GroupMember rows for Group', {
+                groupUuid,
+                deleted,
+                totalDeleted,
+                memberUuids: rows.map(row => row._uuid).join(',')
+            });
         }
     }
 
