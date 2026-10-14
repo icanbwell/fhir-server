@@ -60,8 +60,9 @@ module.exports = {
                     ]
             })),
             // Member-owned Binary: the person filter (PatientQueryCreator.getQueryWithPersonSecurityContext) matches
-            // securityContext._uuid (real Patient uuids) or securityContext._sourceId (person proxy patient,
-            // Patient/person.{uuid}, and non-uuid patient ids). Same shape as subjectUuid_uuid / subjectSourceId_uuid.
+            // securityContext._uuid for uuid-shaped caller ids (real Patient uuids and the person proxy
+            // Patient/person.{uuid}, which isUuid also accepts) and securityContext._sourceId for any other patient
+            // id. Same shape as subjectUuid_uuid / subjectSourceId_uuid.
             // Partial: the ~60M existing Binary have no securityContext, so they are kept out of the index entirely
             // (a plain or sparse compound index would still hold one entry per document because _uuid is always set).
             {
