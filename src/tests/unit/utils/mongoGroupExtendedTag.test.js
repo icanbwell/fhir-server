@@ -2,6 +2,7 @@ const { describe, test, expect } = require('@jest/globals');
 const {
     getExtendedGroupMemberWriteError,
     isExtendedGroup,
+    isExtendedGroupMemberPath,
     rejectMemberOnExtendedGroupWrite,
     MONGO_GROUP_EXTENDED_FIELD
 } = require('../../../utils/mongoGroupExtendedTag');
@@ -71,5 +72,37 @@ describe('isExtendedGroup', () => {
     test('false for null and undefined', () => {
         expect(isExtendedGroup(null)).toBe(false);
         expect(isExtendedGroup(undefined)).toBe(false);
+    });
+});
+
+describe('isExtendedGroupMemberPath', () => {
+    const extendedGroup = { resourceType: 'Group', id: 'g1', [MONGO_GROUP_EXTENDED_FIELD]: true };
+
+    test.each(['member', 'member.entity', 'member.entity.reference'])(
+        'true for %s on an extended Group', (property) => {
+            expect(isExtendedGroupMemberPath({ resource: extendedGroup, property })).toBe(true);
+        }
+    );
+
+    test('false for an embedded Group (no _extended marker), whatever the path', () => {
+        const embedded = { resourceType: 'Group', id: 'g2', member: [{ entity: { reference: 'Patient/1' } }] };
+        expect(isExtendedGroupMemberPath({ resource: embedded, property: 'member.entity' })).toBe(false);
+    });
+
+    test('false for an extended Group when the path is not under member', () => {
+        expect(isExtendedGroupMemberPath({ resource: extendedGroup, property: 'managingEntity' })).toBe(false);
+        expect(isExtendedGroupMemberPath({ resource: extendedGroup, property: 'memberOf' })).toBe(false);
+        expect(isExtendedGroupMemberPath({ resource: extendedGroup, property: 'characteristic.member' })).toBe(false);
+    });
+
+    test('false for a non-Group resource that carries the marker', () => {
+        const patient = { resourceType: 'Patient', id: 'p1', [MONGO_GROUP_EXTENDED_FIELD]: true };
+        expect(isExtendedGroupMemberPath({ resource: patient, property: 'member' })).toBe(false);
+    });
+
+    test('false for null, undefined and items without a resourceType', () => {
+        expect(isExtendedGroupMemberPath({ resource: null, property: 'member' })).toBe(false);
+        expect(isExtendedGroupMemberPath({ resource: undefined, property: 'member' })).toBe(false);
+        expect(isExtendedGroupMemberPath({ resource: { entity: {} }, property: 'member' })).toBe(false);
     });
 });
