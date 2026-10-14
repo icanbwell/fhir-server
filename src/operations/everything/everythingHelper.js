@@ -390,13 +390,23 @@ class EverythingHelper {
             idForCache = patientIds && patientIds.length == 1 ? patientIds[0] : undefined;
         }
 
+        // A response for a real Patient can contain resources visible only to the calling person
+        // (a member-owned Binary, securityContext = Patient/person.{personId}), while the key is
+        // built from the Patient uuid + scope, which several persons can share. Scope the entry
+        // to the caller's person when member Binary ownership is enabled. The proxy-patient path
+        // is already per-person (id must equal personIdFromJwtToken). Flag off: key unchanged.
+        const callerPersonId = !isProxyPatient && this.configManager.enablePatientScopedBinaryCreate
+            ? requestInfo.personIdFromJwtToken
+            : undefined;
+
         return idForCache
             ? await keyGenerator.generateCacheKey({
                 id: idForCache,
                 isPersonId: isProxyPatient,
                 parsedArgs: parsedArgs,
                 scope: requestInfo.scope,
-                isPersonEverything
+                isPersonEverything,
+                callerPersonId
             })
             : undefined;
     }

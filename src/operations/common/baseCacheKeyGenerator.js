@@ -51,11 +51,14 @@ class BaseCacheKeyGenerator {
      *  Person $everything response (which may include PROA consented-data-access expansion) is
      *  never served from cache to, or overwritten by, the equivalent proxy-patient $everything
      *  request (which must not) even though both share the same id/isPersonId/scope/_type
+     * @property {string} [callerPersonId] - when set, appended as the LAST key component so the
+     *  entry is private to that caller's person. Appended after the id prefix (so prefix-based
+     *  invalidation still matches) and after the generation (so generation bumps still apply).
      *
      * @param {options} options
      * @returns {Promise<string|undefined>}
      */
-    async generateCacheKey({ id, isPersonId, parsedArgs, scope, isPersonEverything }) {
+    async generateCacheKey({ id, isPersonId, parsedArgs, scope, isPersonEverything, callerPersonId }) {
         const rawArgs = parsedArgs.getRawArgs();
 
         // Don't cache if any cache-invalidating params are present and their value is not false
@@ -107,6 +110,10 @@ class BaseCacheKeyGenerator {
             if (Object.keys(params).length > 0) {
                 cacheKey += `:Param:${generateUUIDv5(JSON.stringify(params))}`;
             }
+        }
+
+        if (callerPersonId) {
+            cacheKey += `:CallerPerson:${callerPersonId}`;
         }
 
         return cacheKey;
