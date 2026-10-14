@@ -540,7 +540,25 @@ class ScopesManager {
      */
     isPersonContextResourceScoped ({ scope, resourceType }) {
         return this.configManager.enablePatientScopedBinaryCreate &&
-            !!scope &&
+            this.isPersonContextReadFiltered({ scope, resourceType });
+    }
+
+    /**
+     * READ-side counterpart of isPersonContextResourceScoped, deliberately NOT gated on
+     * ENABLE_PATIENT_SCOPED_BINARY_CREATE: whether a person-security-tag resource (Binary) read by a
+     * caller holding any patient scope must be filtered so it never returns Binary owned by another
+     * person. The flag gates only creating owned Binary and authorizing strict (pure patient token)
+     * reads; protection of already-owned Binary stays on with the flag off, so rolling the flag back
+     * or a deployment without it set cannot expose member uploads.
+     * @typedef {Object} IsPersonContextReadFilteredParams
+     * @property {string|undefined} scope
+     * @property {string} resourceType
+     *
+     * @param {IsPersonContextReadFilteredParams}
+     * @return {boolean}
+     */
+    isPersonContextReadFiltered ({ scope, resourceType }) {
+        return !!scope &&
             this.patientFilterManager.isPersonSecurityContextResource({ resourceType }) &&
             this.hasPatientScope({ scope });
     }

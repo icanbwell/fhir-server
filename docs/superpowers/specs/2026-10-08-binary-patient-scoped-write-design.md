@@ -243,8 +243,9 @@ and keep returning the existing `Write not allowed using user scopes if patient 
 
 Single choke point: add one predicate in `SearchManager.constructQueryAsync`
 (`src/operations/search/searchManager.js`, after the access-tag/patient-filter block and before
-`queryRewriterManager.rewriteQueryAsync`, ~line 458). Condition: flag on **and** `resourceType` is in
-`personSecurityContextResources` **and** `hasPatientScope({scope})` (equivalently `isUser`).
+`queryRewriterManager.rewriteQueryAsync`, ~line 458). Condition: `resourceType` is in
+`personSecurityContextResources` **and** `hasPatientScope({scope})` (equivalently `isUser`). **Not gated on the
+flag** (§16.3).
 
 ```js
 // pseudo-code (PatientQueryCreator.getQueryWithPersonSecurityContext)
@@ -402,19 +403,20 @@ backend can write a tag for any person — this is intentional (backends are tru
 - Feature flag `ENABLE_PATIENT_SCOPED_BINARY_CREATE` (default false) in `ConfigManager`
   (e.g. `get enablePatientScopedBinaryCreate() { return isTrue(env.ENABLE_PATIENT_SCOPED_BINARY_CREATE); }`),
   matching how `ENABLE_DELEGATED_ACCESS_DETECTION` / `enableDelegatedAccessDetection` are done. The flag
-  gates both the create carve-out and the read predicate.
-- The read predicate is a strict no-op for unowned data, so enabling the flag changes nothing for the
-  existing corpus; only new patient-scoped writes carry the tag.
+  gates the create carve-out and strict (pure patient token) read authorization. It does **not** gate the read
+  filter (§16.3).
+- The read filter is a strict no-op for unowned data, so the existing corpus is unaffected, with the flag on or
+  off: the only behaviour change with the flag off is for `Binary` whose `securityContext._uuid`/`_sourceId`
+  starts with `Patient/`, and no known pipeline writes those today (only this create path does).
 - Rollout: (1) deploy flag-off (code dormant), (2) **the read filter, including the `patient/Binary.read`
   gate change, lands before the create carve-out** (decision): it is a no-op for unowned data and no
   owned `Binary` can exist until the create path ships, (3) enable in a lower environment and run the
   integration matrix plus a manual DocumentReference→Binary GraphQL walkthrough, (4) enable per
   environment, (5) backend clients that want per-member isolation start setting `securityContext` on their writes. Rollback = flag
-  off; owned `Binary` already written remain readable by tenant tokens (no patient filter) and become
-  unreadable to member tokens only in the sense that the flag-off server no longer applies the filter
-  (i.e. they would be readable by any in-tenant caller, as all `Binary` are today). Call this out to
-  reviewers: **rollback weakens isolation for already-owned Binary back to today's baseline, not below
-  it.**
+  off: new member creates are rejected again (403, as today) and pure patient tokens lose `Binary` read, but the
+  read filter stays on, so already-owned `Binary` remain hidden from other persons' tokens (including mixed
+  tokens). **Rollback does not weaken isolation of already-owned Binary** (§16.3). Members' own pure patient
+  tokens can no longer read their uploads until the flag is back on; mixed tokens still can.
 - No schema/index migration is required.
 
 ## 8. Audit logging and observability
@@ -662,13 +664,13 @@ Unit tests (new, `src/tests/unit/...`): `ScopesManager.isPatientScopedPersonCont
 
 ## 16. Implementation notes (what was built)
 
-Everything is behind `ENABLE_PATIENT_SCOPED_BINARY_CREATE` (default off; flag off = today's behavior). The
+The create carve-out and strict read authorization are behind `ENABLE_PATIENT_SCOPED_BINARY_CREATE` (default off; flag off = today's behavior for every existing Binary). The read filter is not (§16.3). The
 ownership marker is `Binary.securityContext` (§0.1), so `SecurityTagSystem` is unchanged.
 
 - `ConfigManager.enablePatientScopedBinaryCreate`; `PatientFilterManager.personSecurityContextResources`
   (`{ Binary: 'securityContext.reference' }`), `isPersonSecurityContextResource`,
   `getPersonSecurityContextProperty` (Binary is **not** added to any patient/person filter mapping).
-- `ScopesManager`: `isPersonContextResourceScoped` (flag, Binary, `hasPatientScope`),
+- `ScopesManager`: `isPersonContextReadFiltered` (Binary, `hasPatientScope`; no flag), `isPersonContextResourceScoped` (flag AND the former),
   `isPatientScopedPersonContextCreate` (adds `action === 'create'`), `isPersonContextStrictAccess` (adds "no
   `user/`/`system/` scope"). `isAccessTagChangeAllowedByScopes` and `isAccessToResourceAllowedBySecurityTags`
   short-circuit only on a create (`isCreate`), which is threaded explicitly from `CreateOperation` through
@@ -698,7 +700,7 @@ ownership marker is `Binary.securityContext` (§0.1), so `SecurityTagSystem` is 
   read operation already returned (so already filtered), keyed by that resource's own id and
   `sourceAssigningAuthority`; it does not fetch by a caller-supplied reference. **Runs after the filter.**
 - `$graph` and GraphQL resolve linked Binary through `constructQueryAsync` (per-request DataLoader only).
-- **Open risk, not changed in this PR:** the `$everything` whole-response Redis cache
+- **Resolved by B-7 (key includes the caller's person id, unconditionally, see §16.3).** Original risk: the `$everything` whole-response Redis cache
   (`EverythingHelper.getCacheKey`) is used only for callers with a person id, but its key is built from the
   resolved patient id (or the proxy person id) plus the scope, not the caller's person id. If two different
   persons link the same Patient and both call `$everything` on it with the same scope, a response cached for
@@ -706,6 +708,27 @@ ownership marker is `Binary.securityContext` (§0.1), so `SecurityTagSystem` is 
   by the shared real patient is visible to both, so only proxy-owned member uploads are at risk.) Fix options:
   include the caller's person id in the key whenever the flag is on, or exclude Binary from cached
   `$everything` responses. Needs a decision before enabling the flag where Patients are shared between persons.
+
+### 16.3 Read filter independent of the flag
+
+The read filter (`ScopesManager.isPersonContextReadFiltered`, used in `SearchManager.constructQueryAsync`) and the
+`$everything` cache key's `callerPersonId` (`EverythingHelper.getCacheKey`) do not depend on
+`ENABLE_PATIENT_SCOPED_BINARY_CREATE`. Reasons:
+
+1. **Rollback safety.** Once member-owned Binary exist (`securityContext` = `Patient/person.{A}`), turning the flag
+   off must not let member B's mixed token (`patient/*.* user/*.* access/*.*`) with a matching access tag read A's
+   upload. If the filter were flag-gated, rollback would remove it.
+2. **Per-deployment flag drift.** fhir-server runs as several deployments (fhir-server, -internal, -everything,
+   -graphql). A deployment where the flag is unset would serve owned Binary unfiltered.
+
+What stays flag-gated: the member create (`isPersonContextResourceScoped`, `isPatientScopedPersonContextCreate`,
+create-time access-tag short-circuits) and strict read authorization (`isPersonContextStrictAccess`,
+`ScopesValidator`), so with the flag off a pure patient token still gets 403 on Binary (T32). In the search path
+a pure patient token that reaches `constructQueryAsync` anyway (e.g. internal fetches) is evaluated as mixed
+(access-tag filter AND unowned-or-own), never more permissive than before. System/user tokens without a patient
+scope are unchanged. Cost: one Person/link resolution per patient-scoped Binary read, with the flag off too. The
+cache key shape changes once on deploy (one-time $everything cache miss, TTL default 300s). Test:
+`binary_flag_rollback.test.js`.
 
 ### 16.2 R12: orphan Binary on retry
 

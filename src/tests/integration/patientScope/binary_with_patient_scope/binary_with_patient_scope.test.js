@@ -383,12 +383,15 @@ describe('Binary with patient scope', () => {
             expect(resp).toHaveStatusCode(403);
         });
 
-        test('T32: with the flag off there is no person filter and a pure patient token still cannot read Binary', async () => {
+        test('T32: with the flag off a pure patient token still cannot read Binary, and owned Binary stay filtered', async () => {
             const request = await createRequest({ flag: false });
             const { personA, personB } = await seedAll(request);
-            // viewer token: today's behavior, another person's Binary is readable in-tenant
+            // viewer token: the person filter is NOT gated on the flag, so another person's owned Binary is
+            // hidden even with the flag off (see binary_flag_rollback.test.js); unowned Binary stay readable
             const viewer = await request.get('/4_0_0/Binary/binary-a').set(memberViewer(personB));
-            expect(viewer).toHaveStatusCode(200);
+            expect(viewer).toHaveStatusCode(404);
+            const unowned = await request.get('/4_0_0/Binary/binary-untagged').set(memberViewer(personB));
+            expect(unowned).toHaveStatusCode(200);
             const reader = await request.get('/4_0_0/Binary/binary-a').set(memberReader(personA));
             expect(reader).toHaveStatusCode(403);
         });

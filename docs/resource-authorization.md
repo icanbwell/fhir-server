@@ -257,7 +257,9 @@ reference. Design: `docs/superpowers/specs/2026-10-08-binary-patient-scoped-writ
   patient-scoped create). Update, patch, delete and `$merge` stay forbidden for patient scopes.
 - **Any token with a patient scope is treated as patient-scoped for `Binary`**, including mixed
   `patient/* + user/* + access/*` tokens: `user/`/`system/` privileges do not bypass the ownership check.
-- **Read.** `SearchManager.constructQueryAsync` ANDs an ownership filter onto the normal access-tag filter
+- **Read.** The ownership filter is **not** gated on `ENABLE_PATIENT_SCOPED_BINARY_CREATE`: it applies to every patient-scoped caller
+  with the flag on or off, so rolling the flag back (or a deployment without it) never exposes owned Binary. Only the create and
+  pure-patient-token read authorization are flag-gated (design §16.3). `SearchManager.constructQueryAsync` ANDs an ownership filter onto the normal access-tag filter
   (never instead of it), so it covers search, by-id, `$everything`, `$graph` and GraphQL. A Binary is *owned*
   when its `securityContext` is a Patient reference (the person proxy `Patient/person.{uuid}`, or a real
   patient), and it matches the caller when it is one of the caller's patient ids (the person's proxy plus

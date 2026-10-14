@@ -1,8 +1,9 @@
 'use strict';
 
 /**
- * B-7: the $everything response cache key must be private to the calling person when member
- * Binary ownership (ENABLE_PATIENT_SCOPED_BINARY_CREATE) is on, and unchanged when it is off.
+ * B-7: the $everything response cache key must be private to the calling person regardless of
+ * ENABLE_PATIENT_SCOPED_BINARY_CREATE, because the Binary read filter that makes responses
+ * caller-specific is not gated on the flag (rollback safety, per-deployment flag drift).
  */
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
@@ -71,12 +72,12 @@ describe('EverythingHelper.getCacheKey - caller person in key (B-7)', () => {
         expect(keyA.startsWith(`Patient:${PATIENT_UUID}:Everything:Generation:3:Scopes:`)).toBe(true);
     });
 
-    test('flag off: key is byte-identical to the pre-change key (no caller component)', async () => {
+    test('flag off: still per-person (the Binary read filter is not flag-gated)', async () => {
         config.enablePatientScopedBinaryCreate = false;
         const keyA = await key('shared-patient', PERSON_A);
         const keyB = await key('shared-patient', PERSON_B);
-        expect(keyA).toEqual(keyB);
-        expect(keyA).not.toContain('CallerPerson');
+        expect(keyA).not.toEqual(keyB);
+        expect(keyA.endsWith(`:CallerPerson:${PERSON_A}`)).toBe(true);
     });
 
     test('flag on: the proxy-patient path (already per-person) is unchanged', async () => {

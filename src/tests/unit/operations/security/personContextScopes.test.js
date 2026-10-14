@@ -101,6 +101,18 @@ describe('Binary person securityContext: scope handling', () => {
             expect(scopesManager.isPersonContextStrictAccess({ scope: PATIENT_READ, resourceType: 'Binary' })).toBe(false);
         });
 
+        test('read filter predicate is NOT gated on the flag (rollback safety)', () => {
+            for (const f of [true, false]) {
+                flag = f;
+                expect(scopesManager.isPersonContextReadFiltered({ scope: MIXED_VIEWER, resourceType: 'Binary' })).toBe(true);
+                expect(scopesManager.isPersonContextReadFiltered({ scope: PATIENT_READ, resourceType: 'Binary' })).toBe(true);
+                expect(scopesManager.isPersonContextReadFiltered({ scope: PATIENT_READ, resourceType: 'Condition' })).toBe(false);
+                expect(scopesManager.isPersonContextReadFiltered({ scope: SYSTEM, resourceType: 'Binary' })).toBe(false);
+                expect(scopesManager.isPersonContextReadFiltered({ scope: USER, resourceType: 'Binary' })).toBe(false);
+                expect(scopesManager.isPersonContextReadFiltered({ scope: undefined, resourceType: 'Binary' })).toBe(false);
+            }
+        });
+
         test('is false without a scope', () => {
             expect(scopesManager.isPersonContextResourceScoped({ scope: undefined, resourceType: 'Binary' })).toBe(false);
         });

@@ -106,6 +106,7 @@ describe('Resource Authorization §6b — CMS partner data-sharing consent', () 
             mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(true);
             mockScopesManager.isPersonContextStrictAccess = jest.fn().mockReturnValue(false);
             mockScopesManager.isPersonContextResourceScoped = jest.fn().mockReturnValue(false);
+            mockScopesManager.isPersonContextReadFiltered = jest.fn().mockReturnValue(false);
 
             mockPatientScopeManager = createMockInstance(PatientScopeManager);
             mockPatientScopeManager.getPatientIdsFromScopeAsync = jest.fn().mockResolvedValue(['patient-1', 'patient-2']);

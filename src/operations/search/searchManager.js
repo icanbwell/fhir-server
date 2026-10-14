@@ -470,7 +470,8 @@ class SearchManager {
             // Binary: a patient-scoped caller sees only Binary owned by itself (its securityContext is the caller's
             // person proxy patient or one of the caller's linked patients), plus, for mixed tokens, Binary that
             // nobody owns. ANDed on top of the access-tag filter above, never instead of it.
-            if (scope && this.scopesManager.isPersonContextResourceScoped({ scope, resourceType })) {
+            // Not gated on ENABLE_PATIENT_SCOPED_BINARY_CREATE: owned Binary stay protected with the flag off.
+            if (scope && this.scopesManager.isPersonContextReadFiltered({ scope, resourceType })) {
                 shouldUpdateColumns = true;
                 if (personIdFromJwtToken) {
                     const callerPatientIds = await this.patientScopeManager.getPatientIdsFromScopeAsync({
