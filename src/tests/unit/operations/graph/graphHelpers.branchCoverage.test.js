@@ -1041,7 +1041,7 @@ describe('GraphHelper - branch coverage & security (Category A)', () => {
             });
 
             expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
-                expect.objectContaining({ resourceType: 'Condition', accessRequested: 'write' })
+                expect.objectContaining({ resourceType: 'Condition', accessRequested: 'd' })
             );
             expect(mockPostRequestProcessor.add).toHaveBeenCalledTimes(1);
             expect(bundle.type).toBe('batch-response');

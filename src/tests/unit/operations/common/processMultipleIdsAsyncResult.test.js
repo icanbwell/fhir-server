@@ -44,6 +44,29 @@ describe('ProcessMultipleIdsAsyncResult', () => {
         expect(result.streamedResources).toEqual([]);
     });
 
+    test('additionalRewriteQueries defaults to empty array when not provided', () => {
+        const result = new ProcessMultipleIdsAsyncResult({
+            entries: [],
+            queryItems: [],
+            options: [],
+            explanations: [],
+            bundleEntryIdsProcessed: []
+        });
+        expect(result.additionalRewriteQueries).toEqual([]);
+    });
+
+    test('stores the additionalRewriteQueries it is given', () => {
+        const lookup = { queryItem: { query: { groupUuid: 'g' } }, options: {}, explanations: [], columns: new Set() };
+        const result = new ProcessMultipleIdsAsyncResult({
+            entries: [],
+            queryItems: [],
+            options: [],
+            explanations: [],
+            additionalRewriteQueries: [lookup]
+        });
+        expect(result.additionalRewriteQueries).toEqual([lookup]);
+    });
+
     test('preserves reference identity of arrays', () => {
         const entries = [{ resource: { id: 'a' } }];
         const result = new ProcessMultipleIdsAsyncResult({

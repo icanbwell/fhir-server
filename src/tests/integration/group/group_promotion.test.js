@@ -14,7 +14,7 @@
  * pointing to PATCH. So an embedded Group never holds more than the promotion limit.
  * $merge reports that as the Group's own failed entry; the rest of the batch is unaffected.
  *
- * ENABLE_EXTENDED_GROUP is set to '1' globally in jest/setEnvVars.js.
+ * ENABLE_EXTENDED_GROUP is turned on for the suite's tests (off by default in jest).
  */
 const { describe, test, beforeAll, afterAll, beforeEach, afterEach, expect, jest } = require('@jest/globals');
 const { Collection } = require('mongodb');
@@ -54,13 +54,18 @@ describe('Group promotion to extended member storage', () => {
     let savedLimit;
     let savedPromotionLimit;
 
+    let originalEnableExtendedGroup;
+
     beforeAll(async () => {
+        originalEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+        process.env.ENABLE_EXTENDED_GROUP = '1';
         await commonBeforeEach();
         request = await createTestRequest();
     });
 
     afterAll(async () => {
         await commonAfterEach();
+        process.env.ENABLE_EXTENDED_GROUP = originalEnableExtendedGroup;
     });
 
     beforeEach(() => {

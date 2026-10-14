@@ -34,11 +34,12 @@ class QueryRewriterManager {
      * @property {Set} columns
      * @property {string} resourceType
      * @property {'READ'|'WRITE'} operation
+     * @property {import('../operations/query/parsedArgs').ParsedArgs} [parsedArgs]
      *
      * @param {rewriteQueryAsyncParams}
-     * @return {Promise<{query:import('mongodb').Document,columns:Set}>}
+     * @return {Promise<{query:import('mongodb').Document,columns:Set,additionalRewriteQueries:import('./rewriters/queryRewriter').AdditionalRewriteQuery[]}>}
      */
-    async rewriteQueryAsync ({ base_version, query, columns, resourceType, operation }) {
+    async rewriteQueryAsync ({ base_version, query, columns, resourceType, operation, parsedArgs }) {
         /**
          * @typedef {import('./rewriters/queryRewriter').QueryRewriter[]}
          */
@@ -46,21 +47,29 @@ class QueryRewriterManager {
             ...this.queryRewriters,
             ...(this.operationSpecificQueryRewriters[`${operation}`] || [])
         ];
+        /**
+         * queries the rewriters ran on their own, to be listed in the `_debug` / `_explain` metadata
+         * @type {import('./rewriters/queryRewriter').AdditionalRewriteQuery[]}
+         */
+        const additionalRewriteQueries = [];
         for (const queryRewriter of queryRewriters) {
             try {
-                ({ query, columns } = await queryRewriter.rewriteQueryAsync({
+                const rewritten = await queryRewriter.rewriteQueryAsync({
                     base_version,
                     query,
                     columns,
-                    resourceType
-                }));
+                    resourceType,
+                    parsedArgs
+                });
+                ({ query, columns } = rewritten);
+                additionalRewriteQueries.push(...(rewritten.additionalRewriteQueries || []));
             } catch (e) {
                 throw new RethrownError({
                     message: 'Error in rewriteQueryAsync(): ', error: e
                 });
             }
         }
-        return { query, columns };
+        return { query, columns, additionalRewriteQueries };
     }
 
     /**

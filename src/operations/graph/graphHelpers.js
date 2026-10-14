@@ -167,6 +167,10 @@ class GraphHelper {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
+    getLinkAccessRequested({requestInfo, readLetter}) {
+        return readLetter === 'r' && requestInfo.method && requestInfo.method.toLowerCase() === 'delete' ? 'd' : readLetter;
+    }
+
     /**
      * returns property values
      * @param {EntityAndContainedBase} entity
@@ -371,6 +375,7 @@ class GraphHelper {
                 requestId: requestInfo.requestId,
                 parsedArgs: childParseArgs,
                 operation: READ,
+                accessRequested: this.getLinkAccessRequested({requestInfo, readLetter: 'r'}),
                 everythingChunkIndex: graphChunkIndex
             });
 
@@ -719,6 +724,7 @@ class GraphHelper {
                     requestId: requestInfo.requestId,
                     parsedArgs: relatedResourceParsedArgs,
                     operation: READ,
+                    accessRequested: this.getLinkAccessRequested({requestInfo, readLetter: 's'}),
                     everythingChunkIndex: graphChunkIndex
                 }
             );
@@ -1066,7 +1072,7 @@ class GraphHelper {
                         resourceType,
                         startTime: Date.now(),
                         action: 'graph',
-                        accessRequested: 'read'
+                        accessRequested: this.getLinkAccessRequested({requestInfo, readLetter: 'r'})
                     })) {
                         let targetParams = {};
 
@@ -1138,7 +1144,7 @@ class GraphHelper {
                         resourceType,
                         startTime: Date.now(),
                         action: 'graph',
-                        accessRequested: 'read'
+                        accessRequested: this.getLinkAccessRequested({requestInfo, readLetter: 's'})
                     })) {
                         if (!parentResourceType) {
                             const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource._uuid}`).toString();
@@ -1517,7 +1523,7 @@ class GraphHelper {
                 requestId: requestInfo.requestId,
                 parsedArgs,
                 operation: READ,
-                accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
+                accessRequested: this.getLinkAccessRequested({requestInfo, readLetter: 'r'}),
                 everythingChunkIndex: graphChunkIndex
             });
 
@@ -1996,6 +2002,21 @@ class GraphHelper {
              * @type {BundleEntry[]}
              */
             const deleteOperationBundleEntries = [];
+            const resourceTypesToDelete = new Set(
+                (bundle.entry || [])
+                    .map(entry => entry.resource.resourceType)
+                    .filter(resourceType => resourceType !== 'AuditEvent')
+            );
+            for (const resourceTypeToDelete of resourceTypesToDelete) {
+                await this.scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo,
+                    parsedArgs,
+                    resourceType: resourceTypeToDelete,
+                    action: 'graph',
+                    accessRequested: 'd',
+                    startTime
+                });
+            }
             for (const entry of (bundle.entry || [])) {
                 /**
                  * Raw Resource
@@ -2018,18 +2039,9 @@ class GraphHelper {
                     continue;
                 }
 
-                await this.scopesValidator.verifyHasValidScopesAsync({
-                    requestInfo,
-                    parsedArgs,
-                    resourceType: resultResourceType,
-                    action: 'graph',
-                    accessRequested: 'write',
-                    startTime
-                });
-
                 try {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                        requestInfo, resource, base_version
+                        requestInfo, resource, base_version, accessRequested: 'd'
                     });
                 } catch (err) {
                     logWarn(

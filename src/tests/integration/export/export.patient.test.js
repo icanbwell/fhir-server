@@ -96,6 +96,7 @@ describe('Export Tests', () => {
                 postSaveProcessor: c.postSaveProcessor,
                 bulkExportEventProducer: c.bulkExportEventProducer,
                 storageProviderFactory: c.storageProviderFactory,
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -202,6 +203,7 @@ describe('Export Tests', () => {
                 postSaveProcessor: c.postSaveProcessor,
                 bulkExportEventProducer: c.bulkExportEventProducer,
                 storageProviderFactory: c.storageProviderFactory,
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -247,7 +249,7 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
-                .set(getHeaders('access/*.* user/Person.*'))
+                .set(getHeaders('access/*.* user/Person.* user/Task.write'))
                 .expect(202);
 
             expect(resp.headers['content-location']).toBeDefined();
@@ -297,6 +299,7 @@ describe('Export Tests', () => {
                 postSaveProcessor: c.postSaveProcessor,
                 bulkExportEventProducer: c.bulkExportEventProducer,
                 storageProviderFactory: c.storageProviderFactory,
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -394,6 +397,7 @@ describe('Export Tests', () => {
                 postSaveProcessor: c.postSaveProcessor,
                 bulkExportEventProducer: c.bulkExportEventProducer,
                 storageProviderFactory: c.storageProviderFactory,
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,

@@ -1,0 +1,13 @@
+{
+    "resourceType": "OperationOutcome",
+    "issue": [
+        {
+            "severity": "error",
+            "code": "forbidden",
+            "details": {
+                "text": "user imran with scopes [user/*.cud access/client.cud] has no access scopes"
+            },
+            "diagnostics": "user imran with scopes [user/*.cud access/client.cud] has no access scopes"
+        }
+    ]
+}

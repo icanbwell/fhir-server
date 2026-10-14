@@ -17,6 +17,8 @@ const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
 const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
 const { WriteAllowedByScopesValidator } = require('../../merge/validators/writeAllowedByScopesValidator');
+const { ResourceValidator } = require('../../common/resourceValidator');
+const { OwnerColumnHandler } = require('../../../preSaveHandlers/handlers/ownerColumnHandler');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { removeUnderscoreFieldsRecursive } = require('../../../utils/removeUnderscoreFields');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, STRICT_SEARCH_HANDLING } = require('../../../constants');
@@ -99,6 +101,8 @@ class BulkImportHandler {
      * @property {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
      * @property {UuidColumnHandler} uuidColumnHandler
      * @property {WriteAllowedByScopesValidator} writeAllowedByScopesValidator
+     * @property {ResourceValidator} resourceValidator
+     * @property {OwnerColumnHandler} ownerColumnHandler
      *
      * @param {ConstructorParams}
      */
@@ -119,7 +123,9 @@ class BulkImportHandler {
         databaseBulkLoader,
         sourceAssigningAuthorityColumnHandler,
         uuidColumnHandler,
-        writeAllowedByScopesValidator
+        writeAllowedByScopesValidator,
+        resourceValidator,
+        ownerColumnHandler
     }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -171,6 +177,12 @@ class BulkImportHandler {
 
         this.writeAllowedByScopesValidator = writeAllowedByScopesValidator;
         assertTypeEquals(writeAllowedByScopesValidator, WriteAllowedByScopesValidator);
+
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
+
+        this.ownerColumnHandler = ownerColumnHandler;
+        assertTypeEquals(ownerColumnHandler, OwnerColumnHandler);
     }
 
     /**
@@ -211,6 +223,59 @@ class BulkImportHandler {
      */
     async loadTaskAsync(taskId) {
         return this.bulkImportTaskStateMachine.loadTaskAsync(taskId);
+    }
+
+    /**
+     * Runs, for one imported resource, the same pre-merge checks the $merge API applies before it
+     * writes a resource. The worker calls MergeManager.mergeResourceAsync directly, which trusts its
+     * caller to have run these, so without them an imported resource skipped every check below.
+     *
+     * - MergeManager.preMergeChecksMultipleAsync: id and resourceType present, supported resource
+     *   type, uuid id or an owner/sourceAssigningAuthority tag, `u` on the resource type for the
+     *   requester's scope (the resource gate), and the resource size limit
+     * - the `|`-in-id rule from MergeResourceValidator
+     * - ResourceValidator.validateResourceMetaSync for a resource that does not exist yet (meta.source
+     *   and exactly one owner tag), as MergeResourceValidator does for new resources
+     *
+     * The access gate (`u` on the resource's access tags) is checked separately afterwards by
+     * WriteAllowedByScopesValidator, in the same order as the $merge validator chain.
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource} fhirResource
+     * @param {string} base_version
+     * @param {boolean} isNew
+     * @returns {Promise<MergeResultEntry[]>}
+     */
+    async getPreMergeErrorsAsync ({ requestInfo, fhirResource, base_version, isNew }) {
+        const { mergePreCheckErrors } = await this.mergeManager.preMergeChecksMultipleAsync({
+            requestInfo,
+            resourcesToMerge: [fhirResource],
+            base_version
+        });
+        if (mergePreCheckErrors.length > 0) {
+            return mergePreCheckErrors;
+        }
+        if (typeof fhirResource.id === 'string' && fhirResource.id.includes('|')) {
+            return [MergeResultEntry.createFromError({
+                error: new Error('Pipe | is not allowed in id field'),
+                resource: fhirResource
+            })];
+        }
+        if (isNew) {
+            const metaOperationOutcome = this.resourceValidator.validateResourceMetaSync(fhirResource);
+            if (metaOperationOutcome) {
+                return [new MergeResultEntry({
+                    id: fhirResource.id,
+                    uuid: fhirResource._uuid,
+                    sourceAssigningAuthority: fhirResource._sourceAssigningAuthority,
+                    created: false,
+                    updated: false,
+                    issue: metaOperationOutcome.issue?.[0] || null,
+                    operationOutcome: metaOperationOutcome,
+                    resourceType: fhirResource.resourceType
+                })];
+            }
+        }
+        return [];
     }
 
     /**
@@ -867,6 +932,26 @@ class BulkImportHandler {
             });
 
             try {
+                // Import accepts a line that carries only an access tag: the owner tag is backfilled
+                // from the first access tag, as OwnerColumnHandler does during preSave. Run that
+                // backfill before the checks below, which require an owner tag on a new resource, so
+                // such a line keeps importing as it did before these checks were added.
+                await this.ownerColumnHandler.preSaveAsync({ resource: fhirResource });
+
+                // Same pre-merge checks as $merge (see getPreMergeErrorsAsync). A failure is
+                // recorded for this line only; the rest of the range carries on.
+                const preMergeErrors = await this.getPreMergeErrorsAsync({
+                    requestInfo, fhirResource, base_version, isNew: !wasExisting
+                });
+                if (preMergeErrors.length > 0) {
+                    failed++;
+                    mergeResultEntries.push(...preMergeErrors.map((e) => e.withSourceByteOffset(byteOffset)));
+                    if (ifNoneExistKey) {
+                        claimedIfNoneExistKeys.delete(ifNoneExistKey);
+                    }
+                    return;
+                }
+
                 // mergeManager.mergeResourceAsync trusts its caller to have already enforced
                 // scopes -- the real $merge API path always runs WriteAllowedByScopesValidator
                 // before ever reaching mergeManager. Without this, an id colliding with
@@ -880,7 +965,7 @@ class BulkImportHandler {
                 });
                 if (scopeErrors.length > 0) {
                     failed++;
-                    mergeResultEntries.push(...scopeErrors);
+                    mergeResultEntries.push(...scopeErrors.map((e) => e.withSourceByteOffset(byteOffset)));
                     if (ifNoneExistKey) {
                         claimedIfNoneExistKeys.delete(ifNoneExistKey);
                     }
@@ -896,7 +981,7 @@ class BulkImportHandler {
 
                 if (validationFailure) {
                     failed++;
-                    mergeResultEntries.push(validationFailure);
+                    mergeResultEntries.push(validationFailure.withSourceByteOffset(byteOffset));
                     if (ifNoneExistKey) {
                         claimedIfNoneExistKeys.delete(ifNoneExistKey);
                     }
