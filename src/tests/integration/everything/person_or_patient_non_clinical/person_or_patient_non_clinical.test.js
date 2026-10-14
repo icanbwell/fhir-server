@@ -70,9 +70,11 @@ const expectedPatientEverythingWithPatientScope = require('./fixtures/expected/e
 const expectedPatientEverythingWithPatientScopeAndExcludeRes = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_exclude_res.json');
 const expectedPatientEverythingWithPatientScopeSinceAndExcludeRes = require('./fixtures/expected/expected_patient_everything_with_patient_scope_since_and_exclude_res.json');
 const expectedPatientEverythingWithPatientScopeSinceAndExcludeResUuidOnly = require('./fixtures/expected/expected_patient_everything_with_patient_scope_since_and_exclude_res_uuid_only.json');
+const expectedPatientEverythingWithPatientScopeSinceAndExcludeResUuidOnlyFlagOn = require('./fixtures/expected/expected_patient_everything_with_patient_scope_since_and_exclude_res_uuid_only_flag_on.json');
 const expectedPatientEverythingWithPatientScopeSinceAndExcludeResAllUuidOnly = require('./fixtures/expected/expected_patient_everything_with_patient_scope_since_and_exclude_res_all_uuid_only.json');
 const expectedPatientResourcesWithNonClinicalDepth3GlobalIdAndExcludeRes = require('./fixtures/expected/expected_Patient_with_non_clinical_depth_3_without_graph_global_id_exclude_res.json');
 const expectedPatientEverythingWithPatientScopeAndExcludeResUuidOnly = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_exclude_res_uuid_only.json');
+const expectedPatientEverythingWithPatientScopeAndExcludeResUuidOnlyFlagOn = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_exclude_res_uuid_only_flag_on.json');
 const expectedPatientEverythingWithPatientScopeAndExcludeResAllUuidOnly = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_exclude_res_all_uuid_only.json');
 const expectedPatientEverythingWithPatientScopeWithoutExclude = require('./fixtures/expected/expected_patient_everything_with_patient_scope_without_exclude.json');
 const expectedPatientEverythingWithPatientScopeAndIncludeHidden = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_include_hidden_without_graph.json');
@@ -623,6 +625,19 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeAndExcludeResUuidOnly);
 
+        // same request with the extended-group flag on: also projects _extended on Group and lists the GroupMember lookup
+        const savedEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+        process.env.ENABLE_EXTENDED_GROUP = '1';
+        try {
+            const flagOnResp = await request
+                .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includePatientLinkedUuidOnly=1')
+                .set(patientHeader);
+            expect(flagOnResp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeAndExcludeResUuidOnlyFlagOn);
+            expect(flagOnResp).toHaveResponse(expectedPatientEverythingWithPatientScopeAndExcludeResUuidOnlyFlagOn);
+        } finally {
+            process.env.ENABLE_EXTENDED_GROUP = savedEnableExtendedGroup;
+        }
+
         // when resources are excluded using consent, and uuid only is set to true for all resources
         resp = await request
             .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeUuidOnly=1')
@@ -710,6 +725,17 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeSinceAndExcludeResUuidOnly);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeSinceAndExcludeResUuidOnly);
+
+        process.env.ENABLE_EXTENDED_GROUP = '1';
+        try {
+            const flagOnResp = await request
+                .get('/4_0_0/Patient/patient1/$everything?_debug=true&_since=2025-01-02T02:00:00.000%2B02:00&_includePatientLinkedUuidOnly=1')
+                .set(patientHeader);
+            expect(flagOnResp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeSinceAndExcludeResUuidOnlyFlagOn);
+            expect(flagOnResp).toHaveResponse(expectedPatientEverythingWithPatientScopeSinceAndExcludeResUuidOnlyFlagOn);
+        } finally {
+            process.env.ENABLE_EXTENDED_GROUP = savedEnableExtendedGroup;
+        }
 
         process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
     });

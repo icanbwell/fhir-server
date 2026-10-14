@@ -337,24 +337,30 @@ describe('SearchByIdOperation', () => {
 
                 const mockRes = { on: jest.fn() };
 
-                const result = await searchByIdOp.searchByIdAsync({
-                    requestInfo: makeRequestInfo(),
-                    parsedArgs: mockParsedArgs,
-                    resourceType: 'Group',
-                    res: mockRes
-                });
+                const savedEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+                process.env.ENABLE_EXTENDED_GROUP = '1';
+                try {
+                    const result = await searchByIdOp.searchByIdAsync({
+                        requestInfo: makeRequestInfo(),
+                        parsedArgs: mockParsedArgs,
+                        resourceType: 'Group',
+                        res: mockRes
+                    });
 
-                expect(result).toBeNull();
-                expect(mocks.mongoGroupMemberRepository.getMemberCursorAsync).toHaveBeenCalledWith({
-                    base_version: '4_0_0',
-                    groupUuid: 'uuid-group-1'
-                });
-                expect(mocks.searchManager.streamGroupMemberArrayAsync).toHaveBeenCalledWith({
-                    requestId: 'r1',
-                    cursor: fakeCursor,
-                    groupResourceJson: expect.objectContaining({ id: 'group-1', _uuid: 'uuid-group-1' }),
-                    res: mockRes
-                });
+                    expect(result).toBeNull();
+                    expect(mocks.mongoGroupMemberRepository.getMemberCursorAsync).toHaveBeenCalledWith({
+                        base_version: '4_0_0',
+                        groupUuid: 'uuid-group-1'
+                    });
+                    expect(mocks.searchManager.streamGroupMemberArrayAsync).toHaveBeenCalledWith({
+                        requestId: 'r1',
+                        cursor: fakeCursor,
+                        groupResourceJson: expect.objectContaining({ id: 'group-1', _uuid: 'uuid-group-1' }),
+                        res: mockRes
+                    });
+                } finally {
+                    process.env.ENABLE_EXTENDED_GROUP = savedEnableExtendedGroup;
+                }
             });
 
             test('returns the resource normally, without streaming, when the Group is not extended storage', async () => {

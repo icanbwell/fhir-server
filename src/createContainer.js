@@ -791,6 +791,7 @@ const createContainer = function () {
         everythingRelatedResourceMapper: c.everythingRelatedResourceMapper,
         customTracer: c.customTracer,
         patientDataViewControlManager: c.patientDataViewControlManager,
+        mongoGroupMemberRepository: c.mongoGroupMemberRepository,
         auditLogger: c.auditLogger,
         postRequestProcessor: c.postRequestProcessor,
         redisStreamManager: c.redisStreamManager,
@@ -1280,6 +1281,7 @@ const createContainer = function () {
 
     container.register('exportOperation', (c) => new ExportOperation({
         scopesManager: c.scopesManager,
+        scopesValidator: c.scopesValidator,
         fhirLoggingManager: c.fhirLoggingManager,
         preSaveManager: c.preSaveManager,
         resourceValidator: c.resourceValidator,

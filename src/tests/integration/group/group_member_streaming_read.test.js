@@ -23,13 +23,18 @@ const GROUP_COLLECTION_NAME = 'Group_4_0_0';
 describe('Group GET streaming read (extended storage)', () => {
     let requestId;
 
+    let originalEnableExtendedGroup;
+
     beforeEach(async () => {
+        originalEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+        process.env.ENABLE_EXTENDED_GROUP = '1';
         await commonBeforeEach();
         requestId = mockHttpContext();
     });
 
     afterEach(async () => {
         await commonAfterEach();
+        process.env.ENABLE_EXTENDED_GROUP = originalEnableExtendedGroup;
     });
 
     function baseGroupMeta(extraTags = []) {

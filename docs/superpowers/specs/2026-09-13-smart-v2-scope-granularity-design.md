@@ -111,7 +111,7 @@ its required CRUDS letter(s), extended here with the operations analyzed since t
 | `graph` (DELETE)                               | `d` on the root and on every resource deleted; forward-reference steps are satisfied by `d` (in place of `r`); reverse/child search steps still require `s` | see "DELETE behavior" below |
 | `$merge`                                       | `u`              | see "`u` covers update-as-create" below |
 | `$import`                                      | `u` on `Task` at the resource gate and `u` on the `access/` tenant codes | request-time gate; `u`, not `c`, because every imported resource is written as a merge (`u`), and the tenant codes copied onto the Task are those granting `u`. Each imported resource is then checked separately in the import worker, as `$merge` does: `u` on its resource type and `u` on its access tags |
-| `$export`                                      | `c` on `Task` directly, plus `s` on every resource type actually requested via `_type` | the check targets `Task`, not `ExportStatus` — replaces the export runner's current silent-drop-on-unauthorized-type behavior with a 403 |
+| `$export`                                      | `c` on `Task` at the resource gate, plus at least one `access/` tenant code granting `c` and at least one granting `s` | creating the export job is gated like any other create; the tenant codes stamped on the ExportStatus are those granting `c`, and a caller with no tenant code granting `c`, or none granting `s`, is rejected. The runner's tenant filter for the exported data uses every tenant code granting `s`, including ones not stamped on the ExportStatus (see "`$export` behavior"); status polling (`$export/<id>`) is an instance read and uses `r` on the ExportStatus access tag; the runner includes a resource type only if a `user/`/`system/` scope grants `s` on it — types without it are dropped silently, as before |
 | `$access-history`                              | `r` on the target type, `s` on `AuditEvent`, `r` on `Patient`, `s` on every patient-linked type, `r` on every accessor type | every resource type the operation reads is checked, and any missing letter is a 403 — see "`$access-history`" below |
 
 ### `u` covers update-as-create — resolves the `$merge` / PUT inconsistency
@@ -311,6 +311,39 @@ The rejected v1 rows are an exception to the "v1 tokens behave identically" rule
 satisfies every letter required here, but the operation now requires it on many more resource types
 than before.
 
+### `$export` behavior
+
+| Grant | Operation | Before | Now |
+|---|---|---|---|
+| v1 `user/*.read` + `user/*.write` with `access/<tag>.*`, or v1 `*` | `$export` | accepted | accepted |
+| v1 read-only (`user/*.read` / `user/Patient.read`), no `user/` scope covering `Task` | `$export` | accepted | **rejected** — `c` on `Task` is now required |
+| v2 `user/*.rs user/Task.c` + `access/<tag>.cs` | `$export` | rejected | accepted |
+| v2 `user/*.rs user/Task.c` + `access/<tag>.s` | `$export` | rejected | rejected (no tenant code grants `c`) |
+| v2 `user/*.rs user/Task.c` + `access/<tag>.c` | `$export` | rejected | rejected (no tenant code grants `s`) |
+| v2 `user/*.rs user/Task.c` + `access/tenantA.c access/tenantB.s` | `$export` | rejected | accepted; only tenantA is stamped on the ExportStatus |
+| v1 `access/<tag>.read` only | `$export` | accepted, tag stamped on the ExportStatus | **rejected** (no tenant code grants `c`) |
+| v1 `access/<tag>.write` only | `$export` | rejected | rejected (no tenant code grants `s`) |
+| v1 `access/<tag>.read access/<tag>.write` | `$export` | accepted, tag stamped | accepted, tag stamped |
+| v2 `access/<tag>.cs` (no `r`) | polling the status (`$export/<id>`) | rejected | rejected, 403 (needs `r`) |
+| v2 `access/<tag>.rs` | polling the status (`$export/<id>`) | rejected | accepted |
+| v2 `user/*.rs` + `access/<tag>.s`, no `c` on `Task` | `$export` | rejected | rejected |
+| v2 `access/<tag>.r` only | `$export` | rejected | rejected (needs `s`) |
+| v1 `write` / v2 `cud` only | `$export` | rejected | rejected (tenant codes need `s`) |
+| v2 `user/Patient.rs` | `$export` runner | zero rows, HTTP 200 (literal suffix comparison) | Patient exported |
+
+`$export` requires `c` on `Task` at the resource gate, at least one tenant code granting `c`, and
+at least one tenant code granting `s` at request time; only the codes granting `c` are stamped on
+the ExportStatus. The runner then
+narrows silently to the types the caller's scopes grant `s` on.
+
+The two tenant checks are deliberately different. `c` decides which tenant codes are stamped on
+the ExportStatus, since stamping a code on the job record is a create in that tenant. `s` decides
+which tenants' data the runner exports: every tenant code granting `s`, not just the stamped ones.
+The request-time `s` check only rejects a job that could never export any data. So a caller
+holding `access/tenantA.c access/tenantB.s` can start the export, the ExportStatus is tagged with
+tenantA only, and the exported data is tenantB's. A caller holding only `access/tenantB.s`, or only
+`access/tenantA.c`, cannot start an export at all.
+
 ## Components & data flow
 
 - **`scopesManager.js`** — `getAccessCodesFromScopes`, `getPatientScopes`, `getUserScopes` call
@@ -437,7 +470,9 @@ subsequence rule above before the flag is enabled; see Open items.
   full coarse `{c,u,d}` composite regardless of what the resource gate just decided. Under this
   revision's combined-phase policy, once `create` is migrated, both sides ask for `c` and this
   succeeds.
-- **`bulkDataExportRunner.getRequestedResourceAsync`** decides which resource types a bulk export
+- **`bulkDataExportRunner.getRequestedResourceAsync`** (fixed: it now resolves types through
+  `ScopesManager.getResourceTypesWithAccess` and requires `s`; the note below describes the
+  behavior before the fix) decided which resource types a bulk export
   may include by splitting the scope string and comparing the suffix literally
   (`accessType === '*' || accessType === 'read'`) instead of calling `parseScopeToken`. Found
   during the 2026-09-25 documentation review; not yet folded into a fix plan, and deliberately kept

@@ -29,13 +29,18 @@ const {
 describe('Group - All 10 FHIR R4B Search Parameters', () => {
     let testGroup;
 
+    let originalEnableExtendedGroup;
+
     beforeAll(async () => {
+        originalEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+        process.env.ENABLE_EXTENDED_GROUP = '1';
         await setupGroupTests();
         await cleanupAllData(); // Clean data from previous Jest runs
     });
 
     afterAll(async () => {
         await teardownGroupTests();
+        process.env.ENABLE_EXTENDED_GROUP = originalEnableExtendedGroup;
     });
 
     async function createTestGroup() {
