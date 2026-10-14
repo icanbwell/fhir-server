@@ -419,7 +419,7 @@ describe('Binary with patient scope', () => {
     //   T22  mixed-scope create: binary_cross_member_matrix.test.js (truth table: unit/operations/security/personContextScopes.test.js)
     //   T24  user/ + access/ tokens without a patient scope: binary_cross_member_matrix.test.js
     //   T25  _format=text/plain read: binary_cross_member_matrix.test.js
-    //   T26  $everything cache: binary_everything_cache.test.js; $graph has no cache (asserted in binary_everything_graph.test.js)
+    //   T26  $everything cache: binary_everything_cache.test.js; $graph has no response cache (see binary_everything_graph.test.js)
     //   T30  cloud-storage offload: binary_cloud_storage.test.js
     //   T33  no patient ids on read fails closed: unit/operations/common/patientQueryCreator.test.js (~L124)
     //   T34  query shape: unit/operations/common/patientQueryCreator.test.js (~L78)

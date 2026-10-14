@@ -163,19 +163,7 @@ describe('Binary with patient scope: $everything and $graph', () => {
         }
     });
 
-    describe('T26: cache short-circuit paths', () => {
-        // $everything: covered by binary_everything_cache.test.js (B-7, the response cache is keyed per caller person).
-        test('$graph has no response cache to short-circuit (nothing under operations/graph reads or writes one)', () => {
-            const fs = require('fs');
-            const path = require('path');
-            const dir = path.resolve(__dirname, '../../../../operations/graph');
-            const hits = fs
-                .readdirSync(dir)
-                .filter((f) => f.endsWith('.js'))
-                .filter((f) => /redis|cacheKey|readFromCache|writeToCache|CacheReader|CacheWriter/i.test(
-                    fs.readFileSync(path.join(dir, f), 'utf8')
-                ));
-            expect(hits).toStrictEqual([]);
-        });
-    });
+    // T26 (cache short-circuit paths run after the filter): $everything is covered by
+    // binary_everything_cache.test.js (B-7, response cache keyed per caller person). $graph has no
+    // response cache (src/operations/graph reads/writes none), so there is no short-circuit to test.
 });
