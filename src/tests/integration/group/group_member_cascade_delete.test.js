@@ -4,7 +4,7 @@
  * DELETE /4_0_0/Group/{id} on an extended Group tombstones and hard-deletes every
  * GroupMember_4_0_0 row first, in bounded batches, and only then deletes the Group document.
  *
- * ENABLE_EXTENDED_GROUP is set to '1' globally in jest/setEnvVars.js.
+ * ENABLE_EXTENDED_GROUP is off by default in jest; it is turned on for each test here.
  */
 const { describe, test, beforeEach, afterEach, expect, jest } = require('@jest/globals');
 const {
@@ -24,8 +24,11 @@ const GROUP_COLLECTION_NAME = 'Group_4_0_0';
 describe('Group cascade delete (extended storage)', () => {
     let request;
     let requestId;
+    let originalEnableExtendedGroup;
 
     beforeEach(async () => {
+        originalEnableExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+        process.env.ENABLE_EXTENDED_GROUP = '1';
         await commonBeforeEach();
         requestId = mockHttpContext();
         request = await createTestRequest();
@@ -39,6 +42,11 @@ describe('Group cascade delete (extended storage)', () => {
             delete configManager[name];
         }
         await commonAfterEach();
+        if (originalEnableExtendedGroup === undefined) {
+            delete process.env.ENABLE_EXTENDED_GROUP;
+        } else {
+            process.env.ENABLE_EXTENDED_GROUP = originalEnableExtendedGroup;
+        }
     });
 
     function defaultMeta() {

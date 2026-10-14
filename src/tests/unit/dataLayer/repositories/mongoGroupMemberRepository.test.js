@@ -1,5 +1,11 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
+// Mock logging
+jest.mock('../../../../operations/common/logging', () => ({
+    logInfo: jest.fn(),
+    logError: jest.fn()
+}));
+
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const { DatabaseQueryFactory } = require('../../../../dataLayer/databaseQueryFactory');
 const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
@@ -7,8 +13,6 @@ const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
 const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
 const { ConfigManager } = require('../../../../utils/configManager');
 const { logInfo } = require('../../../../operations/common/logging');
-
-jest.mock('../../../../operations/common/logging');
 
 function createMockInstance (ClassRef, methods = {}) {
     const instance = Object.create(ClassRef.prototype);
@@ -26,6 +30,7 @@ describe('MongoGroupMemberRepository', () => {
     let mockConfigManager;
 
     beforeEach(() => {
+        jest.clearAllMocks();
         mockDatabaseQueryFactory = createMockInstance(DatabaseQueryFactory);
         mockDatabaseBulkInserter = createMockInstance(FastDatabaseBulkInserter);
         mockRemoveHelper = createMockInstance(RemoveHelper);
@@ -610,17 +615,20 @@ describe('MongoGroupMemberRepository', () => {
             expect(args).not.toHaveProperty('preserveLastUpdated');
         });
 
-        test('logs the comma-separated ids of the members each batch deleted, with the group and request ids', async () => {
+        test('logs the comma-separated ids of the members each batch deleted', async () => {
             mockRounds([[makeRow(1), makeRow(2)], [makeRow(3)]]);
-            logInfo.mockClear();
 
             await repository.cascadeDeleteForGroupAsync({ requestInfo, base_version: '4_0_0', groupUuid: 'group-1' });
 
-            const memberLogs = logInfo.mock.calls.filter(c => c[1] && c[1].memberUuids);
-            expect(memberLogs.map(c => c[1])).toEqual([
-                { groupUuid: 'group-1', deleted: 2, totalDeleted: 2, memberUuids: 'm-1,m-2' },
-                { groupUuid: 'group-1', deleted: 1, totalDeleted: 3, memberUuids: 'm-3' }
-            ]);
+            expect(logInfo).toHaveBeenCalledWith('Cascade deleted GroupMember rows for Group', {
+                groupUuid: 'group-1', deleted: 2, totalDeleted: 2, memberUuids: 'm-1,m-2'
+            });
+            expect(logInfo).toHaveBeenCalledWith('Cascade deleted GroupMember rows for Group', {
+                groupUuid: 'group-1', deleted: 1, totalDeleted: 3, memberUuids: 'm-3'
+            });
+            expect(logInfo).toHaveBeenCalledWith('Cascade delete of GroupMember rows for Group finished', {
+                groupUuid: 'group-1', totalDeleted: 3
+            });
         });
 
         test('deletes the batches sequentially: the next batch is not queried until the previous is deleted', async () => {
