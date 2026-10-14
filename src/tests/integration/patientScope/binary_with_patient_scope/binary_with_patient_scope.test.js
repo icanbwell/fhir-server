@@ -5,8 +5,8 @@
 //
 // A member's upload is owned through its securityContext, which the server sets from the token's person id to
 // the person's proxy patient, `Patient/person.{person_uuid}`. Test ids (T1, T9, ...) refer to the matrix in the
-// design. Cases that need infrastructure this suite does not set up (GraphQL, $everything/$graph, cloud storage,
-// audit logging) remain `test.todo`.
+// design. Cases that need other infrastructure (GraphQL, $everything/$graph, cloud storage, audit logging) live in
+// the sibling files in this directory; see the index at the bottom of this file.
 const deepcopy = require('deepcopy');
 const { describe, beforeEach, afterEach, test, expect, jest: jestObj } = require('@jest/globals');
 const {
@@ -408,21 +408,20 @@ describe('Binary with patient scope', () => {
         });
     });
 
-    describe('not covered here', () => {
-        test.todo('T4: patient scope but no/empty person id (401 at auth; op-layer 403 is a unit test)');
-        test.todo('T12: _history and _history/{vid} stay 403 for patient scopes (unchanged)');
-        test.todo('T13: Patient/$everything and Person/$everything omit another member\'s Binary');
-        test.todo('T14: $graph DocumentReference -> Binary omits another member\'s Binary');
-        test.todo('T15: GraphQL DocumentReference -> attachment.resource returns the owner\'s Binary');
-        test.todo('T16: GraphQL same query as another member returns resource: null');
-        test.todo('T21: a system token for another tenant is still denied by the access-tag filter');
-        test.todo('T22: mixed-scope create (patient grant required; system/* alone does not bypass) at the HTTP level (unit-tested in personContextScopes.test.js)');
-        test.todo('T24: user/ + access/ tokens without a patient scope are unchanged');
-        test.todo('T25: Binary read with format=text/plain (fhirResponseWriter) omits another member\'s Binary (OQ-2)');
-        test.todo('T26: cache short-circuit paths in $everything/$graph run after the filter (OQ-2)');
-        test.todo('T30: cloud-storage offload on with a member Binary above the threshold keeps the securityContext on the stored doc and the history entry');
-        test.todo('T33: no patient ids on read fails closed (unit-tested in patientQueryCreator.test.js)');
-        test.todo('T34: query shape via toHaveMongoQuery (unit-tested in patientQueryCreator.test.js)');
-        test.todo('T36: audit entry written once and the securityContext setting logged');
-    });
+    // Cases covered elsewhere (every id refers to the matrix in the design, section 14):
+    //   T4   token without a person id: 401 at auth in binary_cross_member_matrix.test.js; the operation-layer 403 is
+    //        unit-tested in src/tests/unit/operations/create/create.test.js (~L370)
+    //   T12  _history and _history/{vid}: binary_cross_member_matrix.test.js
+    //   T13  Patient/$everything and Person/$everything: binary_everything_graph.test.js (cache: binary_everything_cache.test.js)
+    //   T14  $graph: binary_everything_graph.test.js
+    //   T15 / T16  GraphQL v2 DocumentReference -> attachment.resource: binary_graphql.test.js (v1 has no such field)
+    //   T21  another tenant's token: binary_cross_member_matrix.test.js
+    //   T22  mixed-scope create: binary_cross_member_matrix.test.js (truth table: unit/operations/security/personContextScopes.test.js)
+    //   T24  user/ + access/ tokens without a patient scope: binary_cross_member_matrix.test.js
+    //   T25  _format=text/plain read: binary_cross_member_matrix.test.js
+    //   T26  $everything cache: binary_everything_cache.test.js; $graph has no cache (asserted in binary_everything_graph.test.js)
+    //   T30  cloud-storage offload: binary_cloud_storage.test.js
+    //   T33  no patient ids on read fails closed: unit/operations/common/patientQueryCreator.test.js (~L124)
+    //   T34  query shape: unit/operations/common/patientQueryCreator.test.js (~L78)
+    //   T36  audit entry and stamping log: binary_audit.test.js
 });
