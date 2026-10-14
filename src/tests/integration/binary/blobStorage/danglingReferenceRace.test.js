@@ -66,15 +66,14 @@ describe('Timestamp-keyed live bucket: A->B->A never produces a dangling referen
         const keyA1 = `Binary_4_0_0/${docA1._uuid}/${docA1._blobMeta.lastUpdated.getTime()}`;
 
         await request.put('/4_0_0/Binary/binary-aba-race').send(buildBinary(DATA_B)).set(getHeaders()).expect(200);
-        // A's FIRST key is now superseded and should be cleaned up — unconditionally, no Mongo read.
-        expect(liveClient.uploadedData[keyA1]).toBeUndefined();
+        expect(liveClient.uploadedData[keyA1]).toBe(DATA_A);
 
         await request.put('/4_0_0/Binary/binary-aba-race').send(buildBinary(DATA_A)).set(getHeaders()).expect(200);
         const docA2 = await readBinaryFromMongo(container);
         const keyA2 = `Binary_4_0_0/${docA2._uuid}/${docA2._blobMeta.lastUpdated.getTime()}`;
 
-        // Second "A" got a DIFFERENT (new) key than the first — never resurrects the deleted one.
         expect(keyA2).not.toBe(keyA1);
+        expect(liveClient.uploadedData[keyA1]).toBeUndefined();
         expect(liveClient.uploadedData[keyA2]).toBe(DATA_A);
 
         // The Mongo doc's committed live key must always be present and correct.

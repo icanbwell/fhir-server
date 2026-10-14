@@ -141,35 +141,42 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
         expect(refs.size).toBe(0);
     });
 
-    test('deleteSupersededLiveObjectsAsync deletes only the leaves whose ref changed', async () => {
+    test('deleteSupersededLiveObjectsAsync retains the previous object and deletes only older ones for the leaves whose ref changed', async () => {
         const lu0 = new Date('2026-07-10T00:00:00.000Z');
         const lu1 = new Date('2026-07-10T00:00:01.000Z');
         const key0 = `DocRefFake_4_0_0/uuid-n/${lu0.getTime()}`;
         const key1 = `DocRefFake_4_0_0/uuid-n/${lu1.getTime()}`;
+        const olderKey = `DocRefFake_4_0_0/uuid-n/${lu0.getTime() - 10_000}`;
         ctx.client.uploadedData[key0] = 'old0';
         ctx.client.uploadedData[key1] = 'old1';
+        ctx.client.uploadedData[olderKey] = 'older';
         const previousRefs = ctx.mgr.getLiveObjectRefs(makeDoc('uuid-n', { lastUpdated: lu0 }, { lastUpdated: lu1 }));
         // Leaf 0 rotated to a new ts; leaf 1 unchanged.
         const lu0New = new Date('2026-07-10T00:00:05.000Z');
         const current = makeDoc('uuid-n', { lastUpdated: lu0New }, { lastUpdated: lu1 });
         await ctx.mgr.deleteSupersededLiveObjectsAsync(current, previousRefs);
-        expect(ctx.client.uploadedData[key0]).toBeUndefined(); // superseded → deleted
-        expect(ctx.client.uploadedData[key1]).toBe('old1'); // unchanged → kept
+        expect(ctx.client.uploadedData[olderKey]).toBeUndefined();
+        expect(ctx.client.uploadedData[key0]).toBe('old0');
+        expect(ctx.client.uploadedData[key1]).toBe('old1');
     });
 
     test('deleteSupersededLiveObjectsAsync must NOT sweep away the currently-committed live object when the previous ref is numerically NEWER (concurrent-write key reuse)', async () => {
         const uuid = 'uuid-supersede-guard';
-        const ownReusedLu = new Date('2026-07-10T00:00:00.000Z'); // this write's own, reused (older) key — now committed
-        const raceLostLu = new Date('2026-07-10T00:00:05.000Z'); // a concurrent writer's key seen mid-retry — actually superseded
+        const ownReusedLu = new Date('2026-07-10T00:00:00.000Z');
+        const raceLostLu = new Date('2026-07-10T00:00:05.000Z');
+        const strayOlderLu = new Date('2026-07-09T23:59:55.000Z');
         const ownReusedKey = `DocRefFake_4_0_0/${uuid}/${ownReusedLu.getTime()}`;
         const raceLostKey = `DocRefFake_4_0_0/${uuid}/${raceLostLu.getTime()}`;
+        const strayOlderKey = `DocRefFake_4_0_0/${uuid}/${strayOlderLu.getTime()}`;
         ctx.client.uploadedData[ownReusedKey] = 'just-committed';
         ctx.client.uploadedData[raceLostKey] = 'superseded-by-this-write';
+        ctx.client.uploadedData[strayOlderKey] = 'stray-older';
         const previousRefs = ctx.mgr.getLiveObjectRefs(makeDoc(uuid, { lastUpdated: raceLostLu }, undefined));
         const current = makeDoc(uuid, { lastUpdated: ownReusedLu }, undefined);
         await ctx.mgr.deleteSupersededLiveObjectsAsync(current, previousRefs);
-        expect(ctx.client.uploadedData[ownReusedKey]).toBe('just-committed'); // just-committed → MUST survive
-        expect(ctx.client.uploadedData[raceLostKey]).toBeUndefined(); // superseded → deleted
+        expect(ctx.client.uploadedData[ownReusedKey]).toBe('just-committed');
+        expect(ctx.client.uploadedData[raceLostKey]).toBe('superseded-by-this-write');
+        expect(ctx.client.uploadedData[strayOlderKey]).toBeUndefined();
     });
 
     test('resolveWriteForExternalizedDataChange (nested): a diverged leaf re-uploads R\'s bytes and wins; a matching leaf is left alone', async () => {
@@ -255,17 +262,126 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
         const dataSegments = ['content', '[]', 'attachment', 'data'];
         const ownReusedLu = new Date('2026-07-10T00:00:00.000Z');
         const raceLostLu = new Date('2026-07-10T00:00:05.000Z');
+        const strayOlderLu = new Date('2026-07-09T23:59:55.000Z');
         const ownReusedKey = `DocRefFake_4_0_0/${uuid}/${ownReusedLu.getTime()}`;
         const raceLostKey = `DocRefFake_4_0_0/${uuid}/${raceLostLu.getTime()}`;
+        const strayOlderKey = `DocRefFake_4_0_0/${uuid}/${strayOlderLu.getTime()}`;
         ctx.client.uploadedData[ownReusedKey] = 'just-committed';
         ctx.client.uploadedData[raceLostKey] = 'superseded-by-this-write';
+        ctx.client.uploadedData[strayOlderKey] = 'stray-older';
         ctx.mgr._stashOriginalData(requestInfo, uuid, dataSegments, [0], {
             changed: true, previousLastUpdated: raceLostLu
         });
         const resource = makeDoc(uuid, { lastUpdated: ownReusedLu }, undefined);
         await ctx.mgr.cleanupPreviousLiveObjectAsync(resource, requestInfo);
-        expect(ctx.client.uploadedData[ownReusedKey]).toBe('just-committed'); // just-committed → MUST survive
-        expect(ctx.client.uploadedData[raceLostKey]).toBeUndefined(); // superseded → deleted
+        expect(ctx.client.uploadedData[ownReusedKey]).toBe('just-committed');
+        expect(ctx.client.uploadedData[raceLostKey]).toBe('superseded-by-this-write');
+        expect(ctx.client.uploadedData[strayOlderKey]).toBeUndefined();
+    });
+
+    describe('superseded-object sweep', () => {
+        const uuid = 'uuid-sweep';
+        const initialMs = Date.parse('2026-07-10T00:00:10.000Z');
+        const keyAt = (ms) => `DocRefFake_4_0_0/${uuid}/${ms}`;
+
+        test('deletes only keys strictly older than the initial timestamp', async () => {
+            [initialMs - 2, initialMs - 1, initialMs, initialMs + 1].forEach((ms) => {
+                ctx.client.uploadedData[keyAt(ms)] = `v${ms}`;
+            });
+            await ctx.mgr._sweepSupersededLiveObjectsAsync('DocRefFake', uuid, new Date(initialMs), new Date(initialMs + 1));
+            expect(Object.keys(ctx.client.uploadedData).sort()).toEqual([keyAt(initialMs), keyAt(initialMs + 1)]);
+        });
+
+        test('never deletes the committed key even when it is older than the initial timestamp', async () => {
+            ctx.client.uploadedData[keyAt(initialMs - 5)] = 'committed-older';
+            ctx.client.uploadedData[keyAt(initialMs - 6)] = 'older';
+            await ctx.mgr._sweepSupersededLiveObjectsAsync('DocRefFake', uuid, new Date(initialMs), new Date(initialMs - 5));
+            expect(Object.keys(ctx.client.uploadedData)).toEqual([keyAt(initialMs - 5)]);
+        });
+
+        test('never touches keys that are not a pure timestamp', async () => {
+            const foreign = [`DocRefFake_4_0_0/${uuid}/abc`, `DocRefFake_4_0_0/${uuid}/12x`, `DocRefFake_4_0_0/${uuid}/1/nested`, `DocRefFake_4_0_0/${uuid}/`];
+            foreign.forEach((key) => { ctx.client.uploadedData[key] = 'foreign'; });
+            await ctx.mgr._sweepSupersededLiveObjectsAsync('DocRefFake', uuid, new Date(initialMs), undefined);
+            foreign.forEach((key) => expect(ctx.client.uploadedData[key]).toBe('foreign'));
+        });
+
+        test('does not touch another uuid under the same resource type', async () => {
+            const otherKey = `DocRefFake_4_0_0/${uuid}-other/${initialMs - 100}`;
+            ctx.client.uploadedData[otherKey] = 'other-uuid';
+            await ctx.mgr._sweepSupersededLiveObjectsAsync('DocRefFake', uuid, new Date(initialMs), undefined);
+            expect(ctx.client.uploadedData[otherKey]).toBe('other-uuid');
+        });
+
+        test('is idempotent: a second pass over the same inputs changes nothing and does not throw', async () => {
+            ctx.client.uploadedData[keyAt(initialMs - 3)] = 'older';
+            ctx.client.uploadedData[keyAt(initialMs)] = 'initial';
+            await ctx.mgr._sweepSupersededLiveObjectsAsync('DocRefFake', uuid, new Date(initialMs), new Date(initialMs + 1));
+            const afterFirst = { ...ctx.client.uploadedData };
+            await expect(
+                ctx.mgr._sweepSupersededLiveObjectsAsync('DocRefFake', uuid, new Date(initialMs), new Date(initialMs + 1))
+            ).resolves.toBeUndefined();
+            expect(ctx.client.uploadedData).toEqual(afterFirst);
+        });
+
+        test('a list failure deletes nothing and does not throw', async () => {
+            ctx.client.uploadedData[keyAt(initialMs - 3)] = 'older';
+            jest.spyOn(ctx.client, 'listObjectsAsync').mockRejectedValue(new Error('list unavailable'));
+            await expect(
+                ctx.mgr._sweepSupersededLiveObjectsAsync('DocRefFake', uuid, new Date(initialMs), undefined)
+            ).resolves.toBeUndefined();
+            expect(ctx.client.uploadedData[keyAt(initialMs - 3)]).toBe('older');
+        });
+
+        test('a delete failure does not throw', async () => {
+            ctx.client.uploadedData[keyAt(initialMs - 3)] = 'older';
+            jest.spyOn(ctx.client, 'deleteObjectsAsync').mockRejectedValue(new Error('delete unavailable'));
+            await expect(
+                ctx.mgr._sweepSupersededLiveObjectsAsync('DocRefFake', uuid, new Date(initialMs), undefined)
+            ).resolves.toBeUndefined();
+        });
+
+        test('is a no-op without an initial timestamp', async () => {
+            ctx.client.uploadedData[keyAt(1)] = 'ancient';
+            const listSpy = jest.spyOn(ctx.client, 'listObjectsAsync');
+            await ctx.mgr._sweepSupersededLiveObjectsAsync('DocRefFake', uuid, undefined, undefined);
+            expect(listSpy).not.toHaveBeenCalled();
+            expect(ctx.client.uploadedData[keyAt(1)]).toBe('ancient');
+        });
+
+        test('deleteSupersededLiveObjectsAsync uses the request\'s first-seen timestamp when it is older than its own snapshot', async () => {
+            const requestInfo = { requestId: 'r-first-seen' };
+            const firstSeen = new Date(initialMs - 20);
+            const snapshot = new Date(initialMs);
+            const committed = new Date(initialMs + 5);
+            [initialMs - 30, initialMs - 20, initialMs - 10, initialMs, initialMs + 5].forEach((ms) => {
+                ctx.client.uploadedData[keyAt(ms)] = `v${ms}`;
+            });
+            ctx.mgr._stashOriginalData(requestInfo, uuid, ['content', '[]', 'attachment', 'data'], [0], {
+                changed: true, previousLastUpdated: firstSeen
+            });
+            const previousRefs = ctx.mgr.getLiveObjectRefs(makeDoc(uuid, { lastUpdated: snapshot }, undefined));
+            const current = makeDoc(uuid, { lastUpdated: committed }, undefined);
+            await ctx.mgr.deleteSupersededLiveObjectsAsync(current, previousRefs, requestInfo);
+            expect(Object.keys(ctx.client.uploadedData).sort()).toEqual(
+                [initialMs - 20, initialMs - 10, initialMs, initialMs + 5].map(keyAt)
+            );
+        });
+
+        test('deleteSupersededLiveObjectsAsync ignores a first-seen timestamp that is newer than its own snapshot', async () => {
+            const requestInfo = { requestId: 'r-first-seen-newer' };
+            const snapshot = new Date(initialMs);
+            [initialMs - 10, initialMs, initialMs + 5].forEach((ms) => {
+                ctx.client.uploadedData[keyAt(ms)] = `v${ms}`;
+            });
+            ctx.mgr._stashOriginalData(requestInfo, uuid, ['content', '[]', 'attachment', 'data'], [0], {
+                changed: true, previousLastUpdated: new Date(initialMs + 3)
+            });
+            const previousRefs = ctx.mgr.getLiveObjectRefs(makeDoc(uuid, { lastUpdated: snapshot }, undefined));
+            const current = makeDoc(uuid, { lastUpdated: new Date(initialMs + 5) }, undefined);
+            await ctx.mgr.deleteSupersededLiveObjectsAsync(current, previousRefs, requestInfo);
+            expect(Object.keys(ctx.client.uploadedData).sort()).toEqual([initialMs, initialMs + 5].map(keyAt));
+        });
     });
 });
 

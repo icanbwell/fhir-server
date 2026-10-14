@@ -266,13 +266,11 @@ describe('Binary base64 S3 offload — write paths', () => {
             .expect(200);
         await drainPostRequest(container);
 
-        // Live key ROTATED: the new version lives at a fresh timestamped key holding the new
-        // payload, and the superseded v1 object was cleaned up.
         const docV2 = await readBinaryFromMongo(container, id);
         const keyV2 = liveKeyOf(docV2);
         expect(keyV2).not.toBe(keyV1);
         expect(liveClient.uploadedData[keyV2]).toBe(ALT_LARGE_DATA);
-        expect(liveClient.uploadedData[keyV1]).toBeUndefined();
+        expect(liveClient.uploadedData[keyV1]).toBe(LARGE_DATA);
 
         // History bucket is content-addressed: `Binary_4_0_0_History/{uuid}/{hash}`. Two distinct
         // payloads (LARGE + ALT) => two distinct history objects; the suffix is a base64url hash,
@@ -436,7 +434,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(Object.keys(liveClient.uploadedData).some(k => k.startsWith(`Binary_4_0_0/${smallDoc._uuid}/`))).toBe(false);
     });
 
-    test('$merge changing the data rotates the live key AND deletes the superseded live object', async () => {
+    test('$merge changing the data rotates the live key AND retains the superseded live object', async () => {
         // The merged doc inherits the current version's `_blobMeta`, so the data-change upload
         // branch rotates to a fresh key. The superseded key must be deleted post-commit — the same
         // cleanup PUT/PATCH get, driven off the recorded previous key rather than `alwaysCreateNew`.
@@ -471,8 +469,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         // New live object holds the new bytes at a fresh key...
         expect(keyV2).not.toBe(keyV1);
         expect(liveClient.uploadedData[keyV2]).toBe(ALT_LARGE_DATA);
-        // ...and the superseded live object is gone (the bug: it used to linger orphaned).
-        expect(liveClient.uploadedData[keyV1]).toBeUndefined();
+        expect(liveClient.uploadedData[keyV1]).toBe(LARGE_DATA);
     });
 
     test('$merge self-heals when the referenced live object is missing: re-uploads incoming data instead of erroring', async () => {
@@ -515,7 +512,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(liveClient.uploadedData[keyV2]).toBe(ALT_LARGE_DATA);
     });
 
-    test('PUT without /data field deletes the orphaned live S3 object and clears _blobMeta', async () => {
+    test('PUT without /data field retains the previous live S3 object and clears _blobMeta', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const liveClient = container.base64FieldCloudStorageClient;
@@ -544,8 +541,7 @@ describe('Binary base64 S3 offload — write paths', () => {
             .expect(200);
         await drainPostRequest(container);
 
-        // Live S3 object should be gone.
-        expect(liveClient.uploadedData[liveKey]).toBeUndefined();
+        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
 
         // Mongo doc should have no data and no _blobMeta.
         const mongoDocAfterPut = await readBinaryFromMongo(container, id);
@@ -554,7 +550,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(mongoDocAfterPut._blobMeta).toBeUndefined();
     });
 
-    test('PATCH removing /data deletes the orphaned live S3 object', async () => {
+    test('PATCH removing /data retains the previous live S3 object', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const liveClient = container.base64FieldCloudStorageClient;
@@ -581,8 +577,7 @@ describe('Binary base64 S3 offload — write paths', () => {
             .expect(200);
         await drainPostRequest(container);
 
-        // Live S3 object should be gone.
-        expect(liveClient.uploadedData[liveKey]).toBeUndefined();
+        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
 
         // Mongo doc should have no data and no _blobMeta.
         const mongoDocAfterPatch = await readBinaryFromMongo(container, id);
@@ -608,7 +603,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         }
     });
 
-    test('shrink-below-threshold update deletes the orphaned live S3 object', async () => {
+    test('shrink-below-threshold update retains the previous live S3 object', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const liveClient = container.base64FieldCloudStorageClient;
@@ -626,7 +621,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         const liveKey = liveKeyOf(mongoDocAfterCreate);
         expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
 
-        // PUT with a small payload — should trigger orphan cleanup of the live S3 object.
+        // PUT with a small payload — the previous live S3 object is retained for stale readers.
         await request
             .put(`/4_0_0/Binary/${id}`)
             .send(buildBinary({ id, data: SMALL_DATA }))
@@ -634,8 +629,7 @@ describe('Binary base64 S3 offload — write paths', () => {
             .expect(200);
         await drainPostRequest(container);
 
-        // Live key should be gone.
-        expect(liveClient.uploadedData[liveKey]).toBeUndefined();
+        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
 
         // Mongo doc should have inline data and no _blobMeta.
         const mongoDocAfterUpdate = await readBinaryFromMongo(container, id);
@@ -811,12 +805,14 @@ describe('Binary base64 S3 offload — write paths', () => {
         const hashA = v1._blobMeta.hash;
         expect(liveClient.uploadedData[keyA]).toBe(LARGE_DATA);
 
-        // Concurrent writer W commits data B (v2 → K_B); W's cleanup deletes the superseded K_A.
+        // Concurrent writer W commits data B (v2 → K_B); K_A is then lost from S3 out of band.
         await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: ALT_LARGE_DATA })).set(getHeaders()).expect(200);
         await drainPostRequest(container);
         const v2 = await readBinaryFromMongo(container, id);
         expect(liveClient.uploadedData[liveKeyOf(v2)]).toBe(ALT_LARGE_DATA);
-        expect(liveClient.uploadedData[keyA]).toBeUndefined(); // K_A gone
+        expect(liveClient.uploadedData[keyA]).toBe(LARGE_DATA);
+        await liveClient.deleteAsync(keyA);
+        expect(liveClient.uploadedData[keyA]).toBeUndefined();
 
         // R now reaches the version-checked manager: it read v1 and re-sends data A. R hash-skipped
         // the upload (data matched what it read), so its sidecar still points at the now-deleted
@@ -1478,10 +1474,10 @@ describe('Binary base64 S3 offload — write paths', () => {
             const doc = await readBinaryFromMongo(container, id);
             expect(doc.contentType).toBe('application/xml');
             // Content is byte-identical, but the key still rotates (alwaysCreateNew, unaffected by
-            // this design) — the old key is cleaned up, the new one holds the same bytes.
+            // this design) — the old key is retained, the new one holds the same bytes.
             const newKey = liveKeyOf(doc);
             expect(newKey).not.toBe(seededKey);
-            expect(liveClient.uploadedData[seededKey]).toBeUndefined();
+            expect(liveClient.uploadedData[seededKey]).toBe(LARGE_DATA);
             expect(liveClient.uploadedData[newKey]).toBe(LARGE_DATA);
         } finally {
             downloadSpy.mockRestore();
@@ -1532,7 +1528,7 @@ describe('Binary base64 S3 offload — write paths', () => {
             const doc = await readBinaryFromMongo(container, id);
             expect(doc.data).toBeUndefined();
             expect(doc._blobMeta).toBeUndefined();
-            expect(liveClient.uploadedData[liveKey]).toBeUndefined();
+            expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
         } finally {
             downloadSpy.mockRestore();
         }
@@ -1602,7 +1598,7 @@ describe('Binary base64 S3 offload — write paths', () => {
             const doc = await readBinaryFromMongo(container, id);
             expect(doc.data).toBeUndefined();
             expect(doc._blobMeta).toBeUndefined();
-            expect(liveClient.uploadedData[liveKey]).toBeUndefined();
+            expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
         } finally {
             downloadSpy.mockRestore();
         }
