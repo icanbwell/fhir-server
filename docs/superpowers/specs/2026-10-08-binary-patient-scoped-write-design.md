@@ -622,7 +622,7 @@ code; **M** = `patient/*.* system/*.*` (mixed); **flag** = `ENABLE_PATIENT_SCOPE
 | T11 | Member B searches `Binary?_id=` and `Binary` search | Pr(B) | empty bundle; A's does not leak |
 | T12 | `_history` and `_history/{vid}` | P/Pr | 403 (unchanged: history rejects patient scope) |
 | T13 | `Patient/$everything` / `Person/$everything` as B with A's DocumentReference pointing to A's Binary (and B's own DR pointing at A's Binary) | Pr(B) | A's Binary absent from bundle; B's own present |
-| T14 | `$graph` DocumentReference → Binary | Pr(A)/Pr(B) | A sees it; B does not |
+| T14 | `$graph` to a Binary: `Communication.payload.contentReference` → Binary, and Binary as the start resource (`DocumentReference.content.attachment.url` is a `uri`, not a Reference, so `$graph` cannot follow it) | Pr(A)/Pr(B) | A sees it; B does not |
 | T15 | GraphQL `DocumentReference → attachment.resource` for owner | Pr(A) | Binary returned |
 | T16 | GraphQL same, other member | Pr(B) | `resource: null` |
 | T17 | Unowned Binary (existing fixtures) | Pr | readable exactly as today (regression against `graphql.documentReference.test.js` expectations) |
