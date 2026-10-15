@@ -829,7 +829,7 @@ applied to the conditional search and a cross-member test (B must not match A's 
 
 ## 17. Backfill and rollout for the backfill-first model
 
-The backfill runs as a notebook in [`icanbwell/bwell-data-ops-notebooks`](https://github.com/icanbwell/bwell-data-ops-notebooks), per Mintu's guidance, not as a fhir-server admin script. The closest precedent is `document_reference/fix_document_reference_binary_url.py` (DCON-5502), which reaches fhir-server only through the REST API and writes through `$merge?smartMerge=false`, so every change goes through the real merge path, with History and an AuditEvent. An earlier commit on this PR built the backfill as an admin runner (`src/admin/runners/`). It has been removed, so this PR only carries the fhir-server change. The ownership rules below still apply to the notebook. **Nothing has run against real data.** Sizes are estimates, not measurements.
+The backfill runs as a notebook in [`icanbwell/bwell-data-ops-notebooks`](https://github.com/icanbwell/bwell-data-ops-notebooks), per Mintu's guidance, not as a fhir-server admin script. The closest precedent is `document_reference/fix_document_reference_binary_url.py` (DCON-5502), which reaches fhir-server only through the REST API and writes through `$merge`, so every change goes through the real merge path, with History and an AuditEvent. An earlier commit on this PR built the backfill as an admin runner (`src/admin/runners/`). It has been removed, so this PR only carries the fhir-server change. The ownership rules below still apply to the notebook. **Nothing has run against real data.** Sizes are estimates, not measurements.
 
 ### 17.1 Who owns an existing Binary
 
@@ -857,7 +857,12 @@ and PROA use system tokens, so they are unaffected by the flag but not by this r
 - **Modes:** `validate` (one known Binary), then `dry_run` (discovery and transform, no writes), then `run`, the same as DCON-5502. A report of counts and conflicts goes to S3.
 - **Scan from DocumentReference, write to Binary.** Stream the DocumentReferences that reference a `Binary/`, resolve each Binary id as in 17.1, and copy the stored `subject` into the Binary's `securityContext`. Only write where `securityContext` is missing.
 - **Conflicts are found before any write.** A read-only pass groups the Binary uuids by their distinct subjects. A Binary with more than one subject is reported, and what happens to it is an open question (17.6).
-- **Write path:** `$merge?smartMerge=false`. **Still to verify in dev:** whether a `$merge` that changes only `securityContext` keeps `data` and the cloud-storage bytes intact. The cloud-storage key is built from `meta.lastUpdated`, which a real merge bumps. Also how many requests a run needs, and whether `data` has to be re-sent.
+- **Write path: the default `$merge` (smartMerge on), sending only `resourceType`, `id`, `meta.source`, `meta.security` and `securityContext`. Never `smartMerge=false`, even though DCON-5502 uses it.**
+  - With `smartMerge=false` the merge replaces the whole resource (`resourceMerger.js`, the `else` branch `mergedObject = deepcopy(resourceToMerge)`). A body without `data` therefore deletes the bytes, and for an offloaded Binary it also clears the externalized object (`base64DataManager.js`, the `!smartMerge` branch that calls `clearExternalizedLeaf`). `blobStorage.test.js` asserts this ("$merge (smartMerge:false) omitting data … data IS removed").
+  - With smartMerge on, `data` is kept, and an offloaded Binary is not even downloaded (`base64DataManager.js`, the smartMerge branch that stashes the leaf as unchanged).
+  - Each stamped Binary still gets a new `versionId`, a History entry and an AuditEvent.
+  - DCON-5502 needed `smartMerge=false` because it had to remove array entries. Here we only add a field.
+  - **Still to confirm empirically:** with cloud storage on, before a real run.
 - **Bounded concurrency and idempotent re-runs:** an already-stamped Binary is skipped.
 
 ### 17.3 Size
