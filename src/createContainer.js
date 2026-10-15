@@ -859,7 +859,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                identifierEnrichmentProvider: c.identifierEnrichmentProvider
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+                personToPatientIdsExpander: c.personToPatientIdsExpander
             }
         )
     );

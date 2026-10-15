@@ -22,7 +22,8 @@ const { buildContextDataForHybridStorage } = require('../../utils/contextDataBui
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
-const { stampPersonSecurityContext } = require('../../utils/personSecurityContext');
+const { stampPersonSecurityContext, assertTenantTagsWithinPersonTags } = require('../../utils/personSecurityContext');
+const { PersonToPatientIdsExpander } = require('../../utils/personToPatientIdsExpander');
 const {
     recordBinaryPatientCreate,
     BINARY_CREATE_OUTCOME,
@@ -43,6 +44,7 @@ class CreateOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      */
     constructor (
         {
@@ -56,7 +58,8 @@ class CreateOperation {
             configManager,
             databaseAttachmentManager,
             base64DataManager,
-            identifierEnrichmentProvider
+            identifierEnrichmentProvider,
+            personToPatientIdsExpander
         }
     ) {
         /**
@@ -119,6 +122,12 @@ class CreateOperation {
          */
         this.identifierEnrichmentProvider = identifierEnrichmentProvider;
         assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
+
+        /**
+         * @type {PersonToPatientIdsExpander}
+         */
+        this.personToPatientIdsExpander = personToPatientIdsExpander;
+        assertTypeEquals(personToPatientIdsExpander, PersonToPatientIdsExpander);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -186,11 +195,25 @@ class CreateOperation {
         // the caller's person (Patient/person.{person_uuid}, taken from the token, never from the body) so
         // reads can be limited to that person. Done before the meta validation below so it is part of what
         // gets validated and stored.
+        // The owner/access tags in the body are not trusted either: each must be one the caller's own Person
+        // carries or the platform code `bwell` (otherwise a member could tag a Binary for another tenant and
+        // inject it into that tenant's view). 403 on any other tag. Keyed on the create condition only, not on
+        // the token's scopes: a mixed token (access/*.*) would pass any tag in the scope comparison.
         if (this.scopesManager.isPatientScopedPersonContextCreate({
             scope: requestInfo.scope, resourceType, action: currentOperationName
         })) {
+            let rejectReason = requestInfo.personIdFromJwtToken
+                ? BINARY_CREATE_REJECT_REASON.CLIENT_SUPPLIED_SECURITY_CONTEXT
+                : BINARY_CREATE_REJECT_REASON.MISSING_PERSON_ID;
             try {
                 stampPersonSecurityContext({ resource: resource_incoming, personId: requestInfo.personIdFromJwtToken });
+                rejectReason = BINARY_CREATE_REJECT_REASON.TENANT_TAG_NOT_ON_PERSON;
+                assertTenantTagsWithinPersonTags({
+                    resource: resource_incoming,
+                    personTags: await this.personToPatientIdsExpander.getPersonOwnerAndAccessCodesAsync({
+                        base_version, personId: requestInfo.personIdFromJwtToken
+                    })
+                });
                 recordBinaryPatientCreate(BINARY_CREATE_OUTCOME.SET);
                 logInfo('binary_person_security_context_set', {
                     user: requestInfo.user,
@@ -198,15 +221,11 @@ class CreateOperation {
                     personId: requestInfo.personIdFromJwtToken
                 });
             } catch (e) {
-                recordBinaryPatientCreate(
-                    BINARY_CREATE_OUTCOME.REJECTED,
-                    requestInfo.personIdFromJwtToken
-                        ? BINARY_CREATE_REJECT_REASON.CLIENT_SUPPLIED_SECURITY_CONTEXT
-                        : BINARY_CREATE_REJECT_REASON.MISSING_PERSON_ID
-                );
+                recordBinaryPatientCreate(BINARY_CREATE_OUTCOME.REJECTED, rejectReason);
                 logWarn('binary_person_security_context_rejected', {
                     user: requestInfo.user,
                     resourceType,
+                    rejectReason,
                     reason: e.message
                 });
                 await this.fhirLoggingManager.logOperationFailureAsync({

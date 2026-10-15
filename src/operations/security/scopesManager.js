@@ -190,7 +190,9 @@ class ScopesManager {
         accessRequested = 'write'
     }) {
         // a patient-scoped create of a person-tag resource (Binary) is likewise authorized via the
-        // person it is stamped for (patientScopeManager.canWriteResourceAsync), not via access codes
+        // person it is stamped for (patientScopeManager.canWriteResourceAsync), not via access codes.
+        // The owner/access tags in the body are not compared here: create.js validates them against the
+        // caller's own Person (assertTenantTagsWithinPersonTags: the Person's codes plus `bwell`) before this check runs.
         if (isCreate && this.isPersonContextResourceScoped({ scope, resourceType })) {
             return true;
         }
@@ -272,7 +274,9 @@ class ScopesManager {
             (isCreate && this.isPersonContextResourceScoped({ scope, resourceType: resource.resourceType }))) {
             // Patient scope tokens in this system never carry an access/ scope of their
             // own (that's the separate tenant/service-account mechanism), so requiring a
-            // tenant-tag match here would deny every legitimate patient-scoped write. The
+            // tenant-tag match here would deny every legitimate patient-scoped write. For a
+            // Binary create the tenant tags are checked in create.js instead: each owner/access
+            // code must be one the caller's own Person carries or `bwell` (assertTenantTagsWithinPersonTags). The
             // "does this resource actually belong to this patient" check the old TODO asked
             // for is already enforced independently by patientScopeManager.canWriteResourceAsync
             // (Person/Patient-id matching), which every write path ANDs with this check via

@@ -1,6 +1,7 @@
 const { PERSON_PROXY_PREFIX } = require('../constants');
 const { ForbiddenError } = require('./httpErrors');
 const { ReferenceParser } = require('./referenceParser');
+const { SecurityTagSystem } = require('./securityTagSystem');
 
 /**
  * Helpers for the `securityContext` that ties a person-owned resource (Binary) to the person who created it.
@@ -86,7 +87,67 @@ function stampPersonSecurityContext ({ resource, personId }) {
     return resource;
 }
 
+/**
+ * The platform-owned tenant code. health-data-service writes member uploads as owner/access `bwell`, so no
+ * client tenant sees them; a member's own Person carries its client's slug (e.g. `bwell_demo`) instead.
+ * There is no existing constant for this code (exportManager.js, auditLogger.js use the literal).
+ */
+const BWELL_PLATFORM_TENANT_CODE = 'bwell';
+
+/**
+ * The single place that decides which owner/access codes a patient-scoped caller may put on a resource it
+ * creates: the codes its own Person carries, plus the platform code `bwell`.
+ * @param {{owner: Set<string>, access: Set<string>}} personTags
+ * @returns {{owner: Set<string>, access: Set<string>}}
+ */
+function getAllowedTenantTagCodes ({ personTags }) {
+    return {
+        owner: new Set([...personTags.owner, BWELL_PLATFORM_TENANT_CODE]),
+        access: new Set([...personTags.access, BWELL_PLATFORM_TENANT_CODE])
+    };
+}
+
+/**
+ * A patient-scoped caller (pure patient token or a mixed one: with `access/*.*` the scope check compares
+ * nothing) cannot be trusted to choose the tenant tags of a resource it creates. Every owner and access code
+ * in the incoming resource's meta.security must be allowed (getAllowedTenantTagCodes: the caller's own
+ * Person's codes plus `bwell`), and the resource must carry an owner tag. Without this a member could tag a
+ * Binary for another tenant and inject content into that tenant's view.
+ * Fails closed: no Person (null) is a 403. Reasons never echo the codes supplied.
+ * @param {Object} resource plain incoming resource body
+ * @param {{owner: Set<string>, access: Set<string>}|null} personTags from
+ *   PersonToPatientIdsExpander.getPersonOwnerAndAccessCodesAsync
+ * @returns {void}
+ * @throws {ForbiddenError}
+ */
+function assertTenantTagsWithinPersonTags ({ resource, personTags }) {
+    if (!personTags) {
+        throw new ForbiddenError(
+            `The caller's person could not be found, so the security tags of a ${resource.resourceType} ` +
+            'created with a patient scope cannot be verified'
+        );
+    }
+    const allowed = getAllowedTenantTagCodes({ personTags });
+    const security = Array.isArray(resource.meta?.security) ? resource.meta.security : [];
+    const ownerCodes = security.filter(s => s && s.system === SecurityTagSystem.owner).map(s => s.code);
+    const accessCodes = security.filter(s => s && s.system === SecurityTagSystem.access).map(s => s.code);
+    if (ownerCodes.length === 0) {
+        throw new ForbiddenError(
+            `A ${resource.resourceType} created with a patient scope must carry an owner security tag`
+        );
+    }
+    if (ownerCodes.some(c => !allowed.owner.has(c)) || accessCodes.some(c => !allowed.access.has(c))) {
+        throw new ForbiddenError(
+            `The owner and access security tags of a ${resource.resourceType} created with a patient scope ` +
+            'must be tags the caller\'s person carries or the platform tag'
+        );
+    }
+}
+
 module.exports = {
+    BWELL_PLATFORM_TENANT_CODE,
+    assertTenantTagsWithinPersonTags,
+    getAllowedTenantTagCodes,
     getPersonProxyReference,
     getSecurityContextReference,
     hasOwnPersonSecurityContext,

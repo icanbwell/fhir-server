@@ -186,6 +186,115 @@ describe('Binary with patient scope', () => {
             }
         });
 
+        describe('tenant tags must be ones the caller\'s Person carries', () => {
+            const OTHER_OWNER = { system: 'https://www.icanbwell.com/owner', code: 'otherTenant' };
+            const OTHER_ACCESS = { system: 'https://www.icanbwell.com/access', code: 'otherTenant' };
+            const binaryWithTags = (security) => ({ ...newBinary('ignored'), meta: { source: 'https://example.com/member-uploads', security } });
+
+            // a system token sees every Binary: nothing the member sent may have been stored
+            const expectNothingPersisted = async (request) => {
+                const resp = await request.get('/4_0_0/Binary').set(getHeaders());
+                expect(resp).toHaveStatusCode(200);
+                expect(resp.body.entry || []).toHaveLength(0);
+            };
+
+            test('owner and access of a tenant the Person does not carry: 403, nothing persisted', async () => {
+                const request = await createRequest();
+                const personA = await seedPerson(request, 'person-a');
+                const addSpy = jestObj.spyOn(metrics.binaryPatientCreateCounter, 'add');
+                const resp = await request
+                    .post('/4_0_0/Binary')
+                    .send(binaryWithTags([OTHER_OWNER, OTHER_ACCESS]))
+                    .set(memberWriter(personA));
+                expect(resp).toHaveStatusCode(403);
+                expect(addSpy).toHaveBeenCalledWith(1, { outcome: 'rejected', reason: 'tenant_tag_not_on_person' });
+                addSpy.mockRestore();
+                expect(JSON.stringify(resp.body)).not.toContain('otherTenant');
+                await waitForPostSave();
+                await expectNothingPersisted(request);
+            });
+
+            test('owner and access matching the Person\'s own tags: 201', async () => {
+                const request = await createRequest();
+                const personA = await seedPerson(request, 'person-a');
+                const resp = await request
+                    .post('/4_0_0/Binary')
+                    .send(binaryWithTags([OWNER_TAG, ACCESS_TAG]))
+                    .set(memberWriter(personA));
+                expect(resp).toHaveStatusCode(201);
+                expect(resp.body.securityContext.reference).toStrictEqual(proxyOf(personA).reference);
+            });
+
+            test('owner and access `bwell` (what HDS writes) while the Person carries another tenant: 201', async () => {
+                const request = await createRequest();
+                const personA = await seedPerson(request, 'person-a');
+                const bwell = (system) => ({ system, code: 'bwell' });
+                const resp = await request
+                    .post('/4_0_0/Binary')
+                    .send(binaryWithTags([bwell(OWNER_TAG.system), bwell(ACCESS_TAG.system)]))
+                    .set(memberWriter(personA));
+                expect(resp).toHaveStatusCode(201);
+            });
+
+            test('mixed token (access/*.* user/*.* patient/*.*) with a foreign tag: 403, nothing persisted', async () => {
+                const request = await createRequest();
+                const personA = await seedPerson(request, 'person-a');
+                const resp = await request
+                    .post('/4_0_0/Binary')
+                    .send(binaryWithTags([OTHER_OWNER, OTHER_ACCESS]))
+                    .set(getHeadersWithCustomPayload(claims(personA, 'access/*.* user/*.* patient/*.*')));
+                expect(resp).toHaveStatusCode(403);
+                await waitForPostSave();
+                await expectNothingPersisted(request);
+            });
+
+            test('mixed token with the Person\'s own tags: 201', async () => {
+                const request = await createRequest();
+                const personA = await seedPerson(request, 'person-a');
+                const resp = await request
+                    .post('/4_0_0/Binary')
+                    .send(binaryWithTags([OWNER_TAG, ACCESS_TAG]))
+                    .set(getHeadersWithCustomPayload(claims(personA, 'access/*.* user/*.* patient/*.*')));
+                expect(resp).toHaveStatusCode(201);
+            });
+
+            test('owner matching but an extra foreign access code: 403, nothing persisted', async () => {
+                const request = await createRequest();
+                const personA = await seedPerson(request, 'person-a');
+                const resp = await request
+                    .post('/4_0_0/Binary')
+                    .send(binaryWithTags([OWNER_TAG, ACCESS_TAG, OTHER_ACCESS]))
+                    .set(memberWriter(personA));
+                expect(resp).toHaveStatusCode(403);
+                await waitForPostSave();
+                await expectNothingPersisted(request);
+            });
+
+            test('no owner tag: 403, nothing persisted', async () => {
+                const request = await createRequest();
+                const personA = await seedPerson(request, 'person-a');
+                const resp = await request
+                    .post('/4_0_0/Binary')
+                    .send(binaryWithTags([ACCESS_TAG]))
+                    .set(memberWriter(personA));
+                expect(resp).toHaveStatusCode(403);
+                await waitForPostSave();
+                await expectNothingPersisted(request);
+            });
+
+            test('a token whose person does not exist cannot create a Binary (fail closed)', async () => {
+                const request = await createRequest();
+                await seedPerson(request, 'person-a');
+                const resp = await request
+                    .post('/4_0_0/Binary')
+                    .send(binaryWithTags([OWNER_TAG, ACCESS_TAG]))
+                    .set(memberWriter('00000000-0000-4000-8000-000000000000'));
+                expect(resp).toHaveStatusCode(403);
+                await waitForPostSave();
+                await expectNothingPersisted(request);
+            });
+        });
+
         test('T5: a member cannot update a Binary (PUT)', async () => {
             const request = await createRequest();
             const personA = await seedPerson(request, 'person-a');

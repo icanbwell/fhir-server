@@ -9,7 +9,7 @@ only, no backfill, `securityContext` set by the server from the JWT), pending re
 
 | Topic | Decision | Where it lands |
 |---|---|---|
-| Tag hardening (was OQ-1) | **Parity with other patient-scoped creates: no extra restriction.** Verified that fhir-server does not constrain `access`/`owner` tags on any patient-scoped create today (§4.3.1). The gap is general, not Binary-specific, so it is tracked as a separate follow-up | §4.3.1, §9 T3 |
+| Tag hardening (was OQ-1) | **Superseded 2026-10-14 (review finding): on a patient-scoped `Binary` create, every `owner`/`access` tag must be one the caller's own Person carries, else 403.** The original decision was parity with other patient-scoped creates (no restriction); that left a cross-tenant injection path for `Binary`. The gap for other resource types stays a separate follow-up (§4.3.1) | §4.3.1, §9 T3 |
 | Upload limits (was OQ-3) | **Whatever fhir-server does today: no Binary-specific limits.** The server-wide `PAYLOAD_LIMIT` (default 50 MB) applies. Verified findings on limits and on token-before-body ordering are in §4.6 | §4.6, §14 |
 | Logging the person id (was OQ-4) | **Same as existing code: log it as-is** (existing code already logs person ids in plain text) | §8 |
 | Ownership id (was OQ-6, tag URI) | Uploads use the **client person id from the token** (`clientFhirPersonId`, i.e. `personIdFromJwtToken`), as `Patient/person.{person_uuid}` in `securityContext` (§0.1) | §4.1, §4.2 |
@@ -223,18 +223,42 @@ The rejection (row 3 of the table above) returns `403` with an OperationOutcome 
 problem ("the securityContext ... is set from the token and cannot be supplied by the client") without
 echoing the supplied value, and the server logs it at `warn` (§8).
 
-#### 4.3.1 Owner/access tags on the new `Binary`: parity with other creates (decision)
+#### 4.3.1 Owner/access tags on the new `Binary`: limited to the caller's Person (amended 2026-10-14)
 
 Verified in code: `validateResourceMetaSync` requires exactly one `owner` tag and the client supplies
 owner/access tags on every create. For a patient-scoped create, `ScopesManager.isAccessTagChangeAllowedByScopes`
 returns `true` immediately when `isCreate` and the type is patient-accessible (`scopesManager.js` ~line
 189: "a patient scoped caller is authorized via the patient/person the resource belongs to, not via
 access codes"), and `canWriteResourceAsync` checks only the patient/person linkage, not the tags. So
-**today no patient-scoped create of any resource type has its `access`/`owner` tags constrained**, and a
-member could already tag, for example, a `Condition` with another tenant's access code. For `Binary`
-we keep exactly that behavior (decision: parity), and add no tag restriction here. This is a pre-existing,
-resource-type-independent gap; it is recorded as follow-up F-1 (§12) so it can be fixed once for all
-patient-scoped creates rather than only for `Binary`.
+**today no patient-scoped create of any other resource type has its `access`/`owner` tags constrained**, and a
+member could already tag, for example, a `Condition` with another tenant's access code. That gap is
+pre-existing and resource-type-independent; it stays recorded as follow-up F-1 (§12).
+
+The first version of this design kept the same behavior for `Binary` (parity). Review found that is not
+safe for `Binary`: a member could put any `owner`/`access` tag on the Binary, and a system or user token for
+another tenant (`access/otherTenant.read`) would then see content a member planted in that tenant's view
+(the person filter in §4.4 only narrows reads for patient-scoped callers). So for `Binary` the server no
+longer trusts body-supplied tenant tags. On a patient-scoped create, in `create.js` right after the
+`securityContext` is set:
+
+- the caller's Person is loaded server-side by the token's person id (`personIdFromJwtToken`);
+- every `owner` and `access` code in the body's `meta.security` must be among the owner/access codes of that
+  Person **or `bwell`**, so a member can only label a Binary for tenants that already see their Person, or for
+  the platform;
+- the body must carry an owner tag;
+- anything else, or a Person that cannot be loaded, is rejected with `403` (fail closed). The response does not
+  echo the supplied codes, and the rejection is counted on the create metric (reason `tenant_tag_not_on_person`).
+
+Why `bwell` is allowed: health-data-service writes member uploads as owner/access `bwell`, so a client
+tenant does not see them. A real member Person carries its client's slug (for example `bwell_demo`, checked
+on dev and staging 2026-10-14), so the Person's codes alone would reject that legitimate path. The allowed
+set is computed in one helper (`getAllowedTenantTagCodes`, `src/utils/personSecurityContext.js`).
+
+The check is keyed on the create condition only, not on the token's scopes, so it also applies to mixed
+tokens (`access/*.* user/*.* patient/*.*`): with `access/*.*` the scope comparison accepts any tag.
+
+The early returns in `ScopesManager` stay (a patient-scoped caller has no access scope to compare against);
+the tag check lives in `create.js`, not there.
 
 Mixed-scope tokens are patient-scoped (§5.4). `$merge`, `PUT`, `PATCH`, `DELETE` of `Binary` are untouched
 and keep returning the existing `Write not allowed using user scopes if patient scope is present`.
@@ -442,7 +466,7 @@ Walked against `review.md` §3 A, B, C, D, E.
 |---|---|---|---|
 | T1 | Spoofing: member supplies another person's (or a real patient's) `securityContext` | server sets it from the token and rejects any supplied value other than the caller's own proxy; never trusts the body | none for create |
 | T2 | Cross-member read of owned `Binary` by id/search/history/`$everything`/`$graph`/GraphQL | single predicate in `constructQueryAsync` (§4.4) fail-closed on empty person id | by-id read of **unowned** `Binary` still allowed (§12.1); OQ-2 paths to verify |
-| T3 | Cross-tenant injection via member-chosen `access`/`owner` tags | none added (decision: parity with every other patient-scoped create, §4.3.1) | pre-existing, type-independent gap; follow-up F-1 |
+| T3 | Cross-tenant injection via member-chosen `access`/`owner` tags | every `owner`/`access` code on the `Binary` must be one the caller's own Person carries or `bwell`, else 403 (§4.3.1) | none for `Binary`; other resource types remain a pre-existing gap, follow-up F-1 |
 | T4 | Enumeration of ids | filtered resource is indistinguishable from a missing one (empty result / 404, same as a failed access-tag filter) | timing difference negligible; not measured |
 | T5 | Mixed-scope bypass (`patient/* system/*`) | branch keyed on `hasPatientScope`; user/system privileges do not bypass | none |
 | T6 | Tag removal by a later update | updates by patient tokens forbidden; system tokens may edit tags by design | trusted backends |
@@ -532,7 +556,7 @@ Open questions for reviewers:
 
 Follow-ups (not part of this change; each applies beyond `Binary`):
 
-- F-1. Constrain `access`/`owner` tags on **all** patient-scoped creates (today unconstrained, §4.3.1).
+- F-1. Constrain `access`/`owner` tags on **all other** patient-scoped creates (today unconstrained, §4.3.1; `Binary` is already constrained).
 - F-2. Authenticate before reading/parsing the request body, or apply a lower pre-auth body limit (§4.6).
 - F-3. Optional per-member upload cap and content-type allowlist for patient-scoped `Binary` create.
 

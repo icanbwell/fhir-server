@@ -129,7 +129,10 @@ const BINARY_CREATE_OUTCOME = Object.freeze({
 const BINARY_CREATE_REJECT_REASON = Object.freeze({
     MISSING_PERSON_ID: 'missing_person_id',
     // the client sent a securityContext that is not the caller's own person proxy (tag-forgery signal)
-    CLIENT_SUPPLIED_SECURITY_CONTEXT: 'client_supplied_security_context'
+    CLIENT_SUPPLIED_SECURITY_CONTEXT: 'client_supplied_security_context',
+    // the body has no owner tag, or an owner/access tag the caller's own Person does not carry
+    // (cross-tenant tag injection signal), or the caller's Person could not be loaded
+    TENANT_TAG_NOT_ON_PERSON: 'tenant_tag_not_on_person'
 });
 
 // Which shape of person-securityContext read filter was applied to a Binary search/read.

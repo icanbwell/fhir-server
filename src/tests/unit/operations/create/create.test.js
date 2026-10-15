@@ -60,6 +60,7 @@ const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAtt
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
+const { PersonToPatientIdsExpander } = require('../../../../utils/personToPatientIdsExpander');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -82,7 +83,8 @@ describe('CreateOperation', () => {
             configManager: createMockInstance(ConfigManager),
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
             base64DataManager: createMockInstance(Base64DataManager),
-            identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider)
+            identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
+            personToPatientIdsExpander: createMockInstance(PersonToPatientIdsExpander)
         };
 
         // Setup default mocks
@@ -329,7 +331,15 @@ describe('CreateOperation', () => {
                     toJSONInternal: () => json
                 }));
                 mocks.scopesManager.isPatientScopedPersonContextCreate = jest.fn().mockReturnValue(true);
+                mocks.personToPatientIdsExpander.getPersonOwnerAndAccessCodesAsync = jest.fn().mockResolvedValue({
+                    owner: new Set(['client-a']), access: new Set(['client-a'])
+                });
             });
+
+            const ownerAccessTags = (code) => [
+                { system: 'https://www.icanbwell.com/owner', code },
+                { system: 'https://www.icanbwell.com/access', code }
+            ];
 
             const create = (body, personIdFromJwtToken) => createOp.createAsync({
                 requestInfo: {
@@ -341,7 +351,7 @@ describe('CreateOperation', () => {
             });
 
             test('sets the caller\'s securityContext before the meta is validated, and marks the write as a create (T1)', async () => {
-                const body = { resourceType: 'Binary', contentType: 'application/pdf', data: 'AAAA', meta: { security: [] } };
+                const body = { resourceType: 'Binary', contentType: 'application/pdf', data: 'AAAA', meta: { security: ownerAccessTags('client-a') } };
                 await create(body, 'person-A');
 
                 expect(mocks.scopesManager.isPatientScopedPersonContextCreate).toHaveBeenCalledWith({
@@ -371,6 +381,43 @@ describe('CreateOperation', () => {
                 let error;
                 try {
                     await create({ resourceType: 'Binary', data: 'AAAA', meta: { security: [] } }, undefined);
+                } catch (e) {
+                    error = e;
+                }
+                expect(error).toBeDefined();
+                expect(error.statusCode).toBe(403);
+                expect(mocks.databaseBulkInserter.insertOneAsync).not.toHaveBeenCalled();
+            });
+
+            test.each([
+                ['an owner tag the person does not carry', [{ system: 'https://www.icanbwell.com/owner', code: 'client-b' }]],
+                ['an access tag the person does not carry', [
+                    { system: 'https://www.icanbwell.com/owner', code: 'client-a' },
+                    { system: 'https://www.icanbwell.com/access', code: 'client-b' }
+                ]],
+                ['no owner tag', []]
+            ])('rejects with 403 a body carrying %s, and nothing is written', async (_name, security) => {
+                let error;
+                try {
+                    await create({ resourceType: 'Binary', data: 'AAAA', meta: { security } }, 'person-A');
+                } catch (e) {
+                    error = e;
+                }
+                expect(error).toBeDefined();
+                expect(error.statusCode).toBe(403);
+                expect(mocks.databaseBulkInserter.insertOneAsync).not.toHaveBeenCalled();
+            });
+
+            test('allows the platform tag bwell even though the person does not carry it', async () => {
+                await create({ resourceType: 'Binary', data: 'AAAA', meta: { security: ownerAccessTags('bwell') } }, 'person-A');
+                expect(mocks.personToPatientIdsExpander.getPersonOwnerAndAccessCodesAsync).toHaveBeenCalled();
+            });
+
+            test('rejects with 403 when the caller\'s person cannot be found', async () => {
+                mocks.personToPatientIdsExpander.getPersonOwnerAndAccessCodesAsync = jest.fn().mockResolvedValue(null);
+                let error;
+                try {
+                    await create({ resourceType: 'Binary', data: 'AAAA', meta: { security: ownerAccessTags('client-a') } }, 'person-A');
                 } catch (e) {
                     error = e;
                 }
