@@ -1,4 +1,4 @@
-const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
+const { describe, test, expect, beforeEach, afterEach, jest } = require('@jest/globals');
 
 // Mock logging
 jest.mock('../../../../operations/common/logging', () => ({
@@ -650,33 +650,89 @@ describe('MongoGroupMemberRepository', () => {
             expect(events).toEqual(['find', 'delete', 'find', 'delete', 'find']);
         });
 
-        test('treats rows already deleted by a concurrent or retried delete as done instead of failing', async () => {
-            // First pass finds rows another delete removes first (0 deleted), the re-query finds none
-            mockRounds([[makeRow(1), makeRow(2)]]);
-            mockRemoveHelper.deleteManyAsync = jest.fn().mockResolvedValue(0);
-
-            const deleted = await repository.cascadeDeleteForGroupAsync({
-                requestInfo, base_version: '4_0_0', groupUuid: 'group-1'
+        describe('after a pass that deleted nothing', () => {
+            beforeEach(() => {
+                jest.useFakeTimers();
             });
 
-            expect(deleted).toBe(0);
-            expect(findAsyncMock).toHaveBeenCalledTimes(2);
-        });
-
-        test('keeps going after passes that lost their rows to a concurrent delete', async () => {
-            mockRounds([[makeRow(1)], [makeRow(2)], [makeRow(3)], [makeRow(4)]]);
-            mockRemoveHelper.deleteManyAsync = jest.fn()
-                .mockResolvedValueOnce(0)
-                .mockResolvedValueOnce(0)
-                .mockResolvedValueOnce(0)
-                .mockResolvedValueOnce(1);
-
-            const deleted = await repository.cascadeDeleteForGroupAsync({
-                requestInfo, base_version: '4_0_0', groupUuid: 'group-1'
+            afterEach(() => {
+                jest.useRealTimers();
             });
 
-            expect(deleted).toBe(1);
-            expect(findAsyncMock).toHaveBeenCalledTimes(5);
+            test('treats rows already deleted by a concurrent or retried delete as done instead of failing', async () => {
+                // First pass finds rows another delete removes first (0 deleted), the re-query finds none
+                mockRounds([[makeRow(1), makeRow(2)]]);
+                mockRemoveHelper.deleteManyAsync = jest.fn().mockResolvedValue(0);
+
+                const promise = repository.cascadeDeleteForGroupAsync({
+                    requestInfo, base_version: '4_0_0', groupUuid: 'group-1'
+                });
+                await jest.advanceTimersByTimeAsync(100);
+                const deleted = await promise;
+
+                expect(deleted).toBe(0);
+                expect(findAsyncMock).toHaveBeenCalledTimes(2);
+            });
+
+            test('waits before re-querying, doubling per consecutive pass and resetting after progress', async () => {
+                mockRounds([[makeRow(1)], [makeRow(2)], [makeRow(3)], [makeRow(4)], [makeRow(5)]]);
+                mockRemoveHelper.deleteManyAsync = jest.fn()
+                    .mockResolvedValueOnce(0)
+                    .mockResolvedValueOnce(0)
+                    .mockResolvedValueOnce(0)
+                    .mockResolvedValueOnce(1)
+                    .mockResolvedValueOnce(0)
+                    .mockResolvedValue(0);
+
+                const promise = repository.cascadeDeleteForGroupAsync({
+                    requestInfo, base_version: '4_0_0', groupUuid: 'group-1'
+                });
+
+                // Pass 1 deletes 0: no re-query until 100ms have passed
+                await jest.advanceTimersByTimeAsync(99);
+                expect(findAsyncMock).toHaveBeenCalledTimes(1);
+                await jest.advanceTimersByTimeAsync(1);
+                expect(findAsyncMock).toHaveBeenCalledTimes(2);
+
+                // Pass 2 deletes 0: the wait doubles to 200ms
+                await jest.advanceTimersByTimeAsync(199);
+                expect(findAsyncMock).toHaveBeenCalledTimes(2);
+                await jest.advanceTimersByTimeAsync(1);
+                expect(findAsyncMock).toHaveBeenCalledTimes(3);
+
+                // Pass 3 deletes 0: 400ms. Pass 4 then deletes 1 and goes straight on to pass 5
+                await jest.advanceTimersByTimeAsync(399);
+                expect(findAsyncMock).toHaveBeenCalledTimes(3);
+                await jest.advanceTimersByTimeAsync(1);
+                expect(findAsyncMock).toHaveBeenCalledTimes(5);
+
+                // Pass 5 deletes 0: the wait is back to 100ms, not 800ms
+                await jest.advanceTimersByTimeAsync(99);
+                expect(findAsyncMock).toHaveBeenCalledTimes(5);
+                await jest.advanceTimersByTimeAsync(1);
+                expect(findAsyncMock).toHaveBeenCalledTimes(6);
+
+                expect(await promise).toBe(1);
+            });
+
+            test('caps the wait at 2000ms', async () => {
+                const rounds = Array.from({ length: 8 }, (_, i) => [makeRow(i + 1)]);
+                mockRounds(rounds);
+                mockRemoveHelper.deleteManyAsync = jest.fn().mockResolvedValue(0);
+
+                const promise = repository.cascadeDeleteForGroupAsync({
+                    requestInfo, base_version: '4_0_0', groupUuid: 'group-1'
+                });
+                // 100 + 200 + 400 + 800 + 1600 = 3100ms for the first five waits
+                await jest.advanceTimersByTimeAsync(3100);
+                expect(findAsyncMock).toHaveBeenCalledTimes(6);
+                // The sixth wait would be 3200ms uncapped; capped, it is 2000ms
+                await jest.advanceTimersByTimeAsync(2000);
+                expect(findAsyncMock).toHaveBeenCalledTimes(7);
+
+                await jest.advanceTimersByTimeAsync(10000);
+                await promise;
+            });
         });
 
         test('propagates a failed batch and stops without querying further batches', async () => {

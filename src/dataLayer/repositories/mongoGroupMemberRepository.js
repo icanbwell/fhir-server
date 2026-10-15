@@ -14,6 +14,15 @@ const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { ConfigManager } = require('../../utils/configManager');
 
 /**
+ * Wait before re-querying after a cascade pass that deleted nothing, doubling per consecutive such
+ * pass up to the max. The read may be served by a replica that has not yet applied the previous
+ * delete, so this gives it time to catch up instead of re-reading the same rows in a tight loop.
+ * @type {number}
+ */
+const CASCADE_NO_PROGRESS_BACKOFF_MS = 100;
+const CASCADE_NO_PROGRESS_BACKOFF_MAX_MS = 2000;
+
+/**
  * Repository for the MongoDB-native, large-Group ("extended") member storage, written from
  * GroupMemberPatchStrategy's Mongo-native branch when a PATCH targets an extended Group's
  * /member. This is a plain resource write, not an event log: each requested write resolves to
@@ -317,6 +326,10 @@ class MongoGroupMemberRepository {
      * RemoveHelper.deleteManyAsync (history is written before the delete), until none remain. So
      * memory holds at most one batch, and a retry after a crash simply finds only what is left.
      *
+     * Known gap: a member PATCH racing this delete can commit rows after the final empty read
+     * above. Once the caller then deletes the Group, those rows are left behind and a retried
+     * DELETE gets a 404, so it never reaches this cascade again.
+     *
      * The live rows are handed to RemoveHelper as they are: the DELETE history entry is the row's
      * last-known state (its own member and versionId), stamped with the time of the delete, like
      * any other resource delete. (A PATCH remove, by contrast, stamps the Group's new version.)
@@ -336,6 +349,7 @@ class MongoGroupMemberRepository {
         });
 
         let totalDeleted = 0;
+        let consecutiveNoProgress = 0;
         while (true) {
             const cursor = await databaseQueryManager.findAsync({
                 query: { groupUuid },
@@ -357,11 +371,19 @@ class MongoGroupMemberRepository {
                 skipAccessLogAndPostSave: true
             });
             if (deleted === 0) {
-                // The delete filter is exactly the _uuids just found, so 0 deleted means a
-                // concurrent or retried delete of this Group already removed them. Re-query for
-                // whatever is left.
+                // The delete filter is exactly the _uuids just found, so 0 deleted means they are
+                // already gone: a concurrent or retried delete of this Group removed them, or the
+                // read hit a replica that has not applied our previous delete yet. Wait a little,
+                // then re-query for whatever is left.
+                const backoffMs = Math.min(
+                    CASCADE_NO_PROGRESS_BACKOFF_MS * 2 ** consecutiveNoProgress,
+                    CASCADE_NO_PROGRESS_BACKOFF_MAX_MS
+                );
+                consecutiveNoProgress += 1;
+                await new Promise(resolve => setTimeout(resolve, backoffMs));
                 continue;
             }
+            consecutiveNoProgress = 0;
             totalDeleted += deleted;
             // The per-row access-log entries are skipped, so log which members were deleted here;
             // each member's DELETE history entry is the full record.
