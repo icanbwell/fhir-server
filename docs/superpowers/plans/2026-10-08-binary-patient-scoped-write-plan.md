@@ -1,5 +1,8 @@
 # Patient-scoped `Binary` create and person-scoped `Binary` read: implementation plan
 
+> **Revision 2026-10-15:** the stacked PR replaces the transitional read filter with the ordinary patient filter
+> and requires a backfill before the flag is turned on; see the last section and design §0.2, §17.
+>
 > **Revision 2026-10-09:** the ownership marker is now `Binary.securityContext` set by the server to
 > `Patient/person.{person_uuid}` (not a custom `clientPersonId` security tag). The read filter matches the
 > caller's patient ids (person proxy plus linked patients) through `PatientQueryCreator.getQueryWithPersonSecurityContext`.
@@ -213,3 +216,20 @@ Replaced the `clientPersonId` tag with the standard `Binary.securityContext` (de
   `src/utils/personSecurityContext.js`.
 - Later migration: backfill `securityContext` on existing Binary, drop the unowned branch, add
   `Binary: 'securityContext.reference'` to `patientFilterMapping`, and regenerate the generator lists.
+
+### Revision 2026-10-15 (backfill first, stacked PR)
+
+Implements Mintu's proposal (design §0.2); the transitional unowned/owned read filter above is replaced:
+- `Binary: 'securityContext.reference'` is patient-filterable through `PatientFilterManager`
+  (`getFlagGatedPatientProperty`, only while `ENABLE_PATIENT_SCOPED_BINARY_CREATE` is on), so reads use the ordinary
+  `PatientQueryCreator.getQueryWithPatientFilter`. Removed: `getQueryWithPersonSecurityContext`, the person-filter block
+  in `SearchManager.constructQueryAsync`, `ScopesManager.isPersonContextReadFiltered` / `isPersonContextStrictAccess`,
+  the `fhir_binary_person_filter_applied_total` metric, and `binary_flag_rollback.test.js`.
+- Create stays create-only: `PatientFilterManager.isCreateOnlyWithPatientScope` keeps update, patch, merge and delete
+  forbidden for a patient scope (in `ScopesValidator` and `PatientScopeManager.canWriteResourceAsync`).
+- The `$everything` cache key carries `callerPersonId` only while the flag is on, so the existing `$everything` and
+  GraphQL query fixtures are back to their `main` content (the flag is off in those tests).
+- Not built: the backfill (design §17). The flag must stay off until it has run.
+- Integration tests under `patientScope/binary_with_patient_scope/` were updated for the new read semantics (unowned
+  Binary hidden from patient-scoped tokens with the flag on; flag off = `main` behavior). They have not been run
+  locally (no MongoDB binary in the sandbox); CI is the check.

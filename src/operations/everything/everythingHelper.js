@@ -390,13 +390,14 @@ class EverythingHelper {
             idForCache = patientIds && patientIds.length == 1 ? patientIds[0] : undefined;
         }
 
-        // A response for a real Patient can contain resources visible only to the calling person
-        // (a member-owned Binary, securityContext = Patient/person.{personId}), while the key is
-        // built from the Patient uuid + scope, which several persons can share. Scope the entry
-        // to the caller's person. Not gated on ENABLE_PATIENT_SCOPED_BINARY_CREATE, because the Binary
-        // read filter that makes responses caller-specific is not gated on it either. The proxy-patient
-        // path is already per-person (id must equal personIdFromJwtToken).
-        const callerPersonId = !isProxyPatient ? requestInfo.personIdFromJwtToken : undefined;
+        // With ENABLE_PATIENT_SCOPED_BINARY_CREATE on, a response for a real Patient can contain resources
+        // visible only to the calling person (a member-owned Binary, securityContext = Patient/person.{personId}),
+        // while the key is built from the Patient uuid + scope, which several persons can share. Scope the
+        // entry to the caller's person. With the flag off no response is caller-specific, so keys are unchanged.
+        // The proxy-patient path is already per-person (id must equal personIdFromJwtToken).
+        const callerPersonId = this.configManager.enablePatientScopedBinaryCreate && !isProxyPatient
+            ? requestInfo.personIdFromJwtToken
+            : undefined;
 
         return idForCache
             ? await keyGenerator.generateCacheKey({

@@ -419,17 +419,19 @@ describe('Binary with patient scope', () => {
             const resp = await request.get('/4_0_0/Binary').set(memberViewer(personB));
             expect(resp).toHaveStatusCode(200);
             const ids = (resp.body.entry || []).map((e) => e.resource.id);
-            expect(ids).toEqual(expect.arrayContaining(['binary-b', 'binary-untagged']));
-            expect(ids).not.toContain('binary-a');
+            expect(ids).toEqual(['binary-b']);
         });
 
-        test('T17 / T41: an existing Binary with no securityContext is readable by a mixed viewer token exactly as today', async () => {
+        test('T17 / T41: an existing Binary with no securityContext is hidden from patient-scoped tokens until it is backfilled', async () => {
             const request = await createRequest();
             const { personA, personB } = await seedAll(request);
             for (const person of [personA, personB]) {
                 const resp = await request.get('/4_0_0/Binary/binary-untagged').set(memberViewer(person));
-                expect(resp).toHaveStatusCode(200);
+                expect(resp).toHaveStatusCode(404);
             }
+            // system / user tokens without a patient scope keep reading it (T19 / T20)
+            const system = await request.get('/4_0_0/Binary/binary-untagged').set(getHeaders());
+            expect(system).toHaveStatusCode(200);
         });
 
         test('a Binary whose securityContext is a real patient linked to the caller is readable by that caller only', async () => {
@@ -445,22 +447,8 @@ describe('Binary with patient scope', () => {
         test('T37: a pure patient token with patient/Binary.read reads its own Binary', async () => {
             const request = await createRequest();
             const { personA } = await seedAll(request);
-            const addSpy = jestObj.spyOn(metrics.binaryPersonFilterAppliedCounter, 'add');
             const resp = await request.get('/4_0_0/Binary/binary-a').set(memberReader(personA));
             expect(resp).toHaveStatusCode(200);
-            expect(addSpy).toHaveBeenCalledWith(1, { mode: 'strict' });
-            expect(addSpy).not.toHaveBeenCalledWith(1, { mode: 'mixed' });
-            addSpy.mockRestore();
-        });
-
-        test('the person filter counter records mode=mixed for a mixed viewer token', async () => {
-            const request = await createRequest();
-            const { personA } = await seedAll(request);
-            const addSpy = jestObj.spyOn(metrics.binaryPersonFilterAppliedCounter, 'add');
-            const resp = await request.get('/4_0_0/Binary/binary-untagged').set(memberViewer(personA));
-            expect(resp).toHaveStatusCode(200);
-            expect(addSpy).toHaveBeenCalledWith(1, { mode: 'mixed' });
-            addSpy.mockRestore();
         });
 
         test('T38: a pure patient token cannot read another member\'s Binary (by id or search)', async () => {
@@ -492,13 +480,12 @@ describe('Binary with patient scope', () => {
             expect(resp).toHaveStatusCode(403);
         });
 
-        test('T32: with the flag off a pure patient token still cannot read Binary, and owned Binary stay filtered', async () => {
+        test('T32: with the flag off Binary reads are exactly as today (no ownership filter); a pure patient token cannot read', async () => {
             const request = await createRequest({ flag: false });
             const { personA, personB } = await seedAll(request);
-            // viewer token: the person filter is NOT gated on the flag, so another person's owned Binary is
-            // hidden even with the flag off (see binary_flag_rollback.test.js); unowned Binary stay readable
+            // viewer token: evaluated through its user/access scopes and the tenant access tag only
             const viewer = await request.get('/4_0_0/Binary/binary-a').set(memberViewer(personB));
-            expect(viewer).toHaveStatusCode(404);
+            expect(viewer).toHaveStatusCode(200);
             const unowned = await request.get('/4_0_0/Binary/binary-untagged').set(memberViewer(personB));
             expect(unowned).toHaveStatusCode(200);
             const reader = await request.get('/4_0_0/Binary/binary-a').set(memberReader(personA));
@@ -530,7 +517,6 @@ describe('Binary with patient scope', () => {
     //   T25  _format=text/plain read: binary_cross_member_matrix.test.js
     //   T26  $everything cache: binary_everything_cache.test.js; $graph has no response cache (see binary_everything_graph.test.js)
     //   T30  cloud-storage offload: binary_cloud_storage.test.js
-    //   T33  no patient ids on read fails closed: unit/operations/common/patientQueryCreator.test.js (~L124)
-    //   T34  query shape: unit/operations/common/patientQueryCreator.test.js (~L78)
+    //   T33 / T34  no patient ids fails closed, query shape: the ordinary patient filter, unit/operations/common/patientQueryCreator.test.js
     //   T36  audit entry and stamping log: binary_audit.test.js
 });

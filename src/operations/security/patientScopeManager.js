@@ -327,6 +327,13 @@ class PatientScopeManager {
             return hasOwnPersonSecurityContext(resource, personIdFromJwtToken);
         }
 
+        if (this.patientFilterManager.isCreateOnlyWithPatientScope({ resourceType: resource.resourceType })) {
+            // Binary is patient-filterable for reads, but a patient scope only ever authorizes CREATING one
+            // (POST, which stamps the owner from the token). Update, patch, merge and delete are forbidden,
+            // regardless of any other scope on the token.
+            return false;
+        }
+
         if (!this.scopesManager.isAccessAllowedByPatientScopes({
             scope,
             resourceType: resource.resourceType

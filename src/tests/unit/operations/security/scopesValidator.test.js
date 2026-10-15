@@ -31,7 +31,7 @@ describe('ScopesValidator', () => {
         mockScopesManager.getResourceTypeScopes = jest.fn().mockReturnValue(['user/Patient.read']);
         mockScopesManager.hasPatientScope = jest.fn().mockReturnValue(false);
         mockScopesManager.isPatientScopedPersonContextCreate = jest.fn().mockReturnValue(false);
-        mockScopesManager.isPersonContextStrictAccess = jest.fn().mockReturnValue(false);
+        mockScopesManager.isCreateOnlyWithPatientScope = jest.fn().mockReturnValue(false);
         mockScopesManager.getAccessCodesFromScopes = jest.fn().mockReturnValue(['client']);
         mockScopesManager.isAccessToResourceAllowedBySecurityTags = jest.fn().mockReturnValue(true);
 

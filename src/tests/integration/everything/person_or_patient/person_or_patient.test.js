@@ -915,7 +915,7 @@ describe('Person and Patient $everything Tests', () => {
                 .set(patientHeader);
 
             expect(resp).toHaveResourceCount(5);
-            let cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044:Everything:Generation:1:Scopes:41b78b54-0a8e-5477-af30-d99864d04833:AllowProa:false:CallerPerson:7b99904f-2f85-51a3-9398-e2eed6854639';
+            let cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044:Everything:Generation:1:Scopes:41b78b54-0a8e-5477-af30-d99864d04833:AllowProa:false';
             expect(streams.keys()).toContain(cacheKey);
             expect(streams.get(cacheKey)).toHaveLength(5);
 

@@ -38,7 +38,6 @@ const { PatientQueryCreator } = require('../common/patientQueryCreator');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const { ClinicalNoteSearchClient } = require('../../utils/clinicalNoteSearchClient');
 const { FilterById } = require('../query/filters/id');
-const { recordBinaryPersonFilterApplied, BINARY_PERSON_FILTER_MODE } = require('../../utils/metrics');
 const {
     DB_SEARCH_LIMIT_FOR_IDS,
     DB_SEARCH_LIMIT,
@@ -367,12 +366,8 @@ class SearchManager {
             /**
              * @type {string[]}
              */
-            // Binary read by a patient-scoped caller that holds no user/ or system/ scope: authorized by its
-            // patient scopes, so (like patient-filterable types) it needs no access code
-            const personContextStrictAccess = !!scope &&
-                this.scopesManager.isPersonContextStrictAccess({ scope, resourceType });
             const securityTags = this.securityTagManager.getSecurityTagsFromScope({
-                accessRequested, user, scope, accessViaPatientScopes: accessViaPatientScopes || personContextStrictAccess
+                accessRequested, user, scope, accessViaPatientScopes
             });
             /**
              * @type {import('mongodb').Document}
@@ -465,35 +460,6 @@ class SearchManager {
                 query = await this.dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                     base_version, query, actor, personIdFromJwtToken
                 });
-            }
-
-            // Binary: a patient-scoped caller sees only Binary owned by itself (its securityContext is the caller's
-            // person proxy patient or one of the caller's linked patients), plus, for mixed tokens, Binary that
-            // nobody owns. ANDed on top of the access-tag filter above, never instead of it.
-            // Not gated on ENABLE_PATIENT_SCOPED_BINARY_CREATE: owned Binary stay protected with the flag off.
-            if (scope && this.scopesManager.isPersonContextReadFiltered({ scope, resourceType })) {
-                shouldUpdateColumns = true;
-                if (personIdFromJwtToken) {
-                    const callerPatientIds = await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                        base_version,
-                        isUser,
-                        personIdFromJwtToken,
-                        requestInfo: typeof user === 'string' ? { user, scope } : undefined
-                    });
-                    query = this.patientQueryCreator.getQueryWithPersonSecurityContext({
-                        patientIds: callerPatientIds,
-                        query,
-                        resourceType,
-                        useHistoryTable,
-                        strict: personContextStrictAccess
-                    });
-                    recordBinaryPersonFilterApplied(
-                        personContextStrictAccess ? BINARY_PERSON_FILTER_MODE.STRICT : BINARY_PERSON_FILTER_MODE.MIXED
-                    );
-                } else {
-                    recordBinaryPersonFilterApplied(BINARY_PERSON_FILTER_MODE.NO_PERSON_ID);
-                    query = { _uuid: '__invalid__' }; // fail closed: never "no filter"
-                }
             }
 
             if (shouldUpdateColumns) {

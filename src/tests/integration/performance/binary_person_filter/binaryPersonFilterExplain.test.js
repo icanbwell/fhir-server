@@ -5,11 +5,18 @@
 //     --testPathIgnorePatterns=/nonexistent/
 //
 // Prints explain('executionStats') for the exact Mongo filter produced by
-// PatientQueryCreator.getQueryWithPersonSecurityContext, before/after the securityContext indexes in
+// PatientQueryCreator.getQueryWithPatientFilter for Binary (ordinary patient filter on securityContext), before/after the securityContext indexes in
 // src/indexes/customIndexes.js. Synthetic data only (design doc section 13).
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { randomUUID } = require('crypto');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../common');
+const { ConfigManager } = require('../../../../utils/configManager');
+
+class BinaryFlagConfigManager extends ConfigManager {
+    get enablePatientScopedBinaryCreate () {
+        return true;
+    }
+}
 
 const COLLECTION = 'Binary_4_0_0';
 const UNOWNED = Number(process.env.EXPLAIN_UNOWNED || 50000);
@@ -50,17 +57,20 @@ const summarize = (explain) => {
     };
 };
 
-describe('Binary person-securityContext filter explain (opt-in)', () => {
+describe('Binary patient filter on securityContext explain (opt-in)', () => {
     beforeEach(async () => { await commonBeforeEach(); });
     afterEach(async () => { await commonAfterEach(); });
 
     test('explain before/after the securityContext indexes', async () => {
-        await createTestRequest();
+        await createTestRequest((c) => {
+            c.register('configManager', () => new BinaryFlagConfigManager());
+            return c;
+        });
         const container = getTestContainer();
         const db = await container.mongoDatabaseManager.getClientDbAsync();
         const collection = db.collection(COLLECTION);
 
-        // seed: UNOWNED Binary without securityContext (like the existing ones) + owned ones
+        // seed: UNOWNED Binary without securityContext (stand-ins for not-yet-backfilled ones) + owned ones
         const docs = [];
         for (let i = 0; i < UNOWNED; i++) docs.push(baseDoc(randomUUID()));
         const persons = [];
@@ -87,15 +97,11 @@ describe('Binary person-securityContext filter explain (opt-in)', () => {
         const newConfigs = toCreate.filter(i => i.options.name.startsWith('securityContext'));
         expect(newConfigs.map(i => i.options.name).sort()).toEqual(['securityContextSourceId_uuid', 'securityContextUuid_uuid']);
         for (const c of newConfigs) await collection.dropIndex(c.options.name);
-        // prod has per-client access-tag indexes (ACCESS_TAGS_INDEXED); model one for the mixed shape
-        await collection.createIndex({ '_access.client1': 1, _uuid: 1 }, { name: '_access_client1_1._uuid_1' });
-
         const patientIds = [`person.${persons[0]}`, realPatients[0], randomUUID()]; // proxy + linked real patient + other linked
         const q = container.patientQueryCreator;
         const shapes = {
-            'pure patient token (strict)': q.getQueryWithPersonSecurityContext({ patientIds, query: {}, resourceType: 'Binary', useHistoryTable: false, strict: true }),
-            'mixed token, tenant filter only': q.getQueryWithPersonSecurityContext({ patientIds, query: { '_access.client1': 1 }, resourceType: 'Binary', useHistoryTable: false, strict: false }),
-            'mixed token, by id': q.getQueryWithPersonSecurityContext({ patientIds, query: { _uuid: byIdUuid }, resourceType: 'Binary', useHistoryTable: false, strict: false })
+            'patient-scoped search': q.getQueryWithPatientFilter({ patientIds, query: {}, resourceType: 'Binary', useHistoryTable: false, personIds: [persons[0]] }),
+            'patient-scoped by id': q.getQueryWithPatientFilter({ patientIds, query: { _uuid: byIdUuid }, resourceType: 'Binary', useHistoryTable: false, personIds: [persons[0]] })
         };
 
         const rows = [];
