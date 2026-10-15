@@ -38,9 +38,10 @@ const UNCHANGED_LEAF_CACHE_NAME = 'base64DataManager.unchangedLeaf';
  *            - live (`base64FieldCloudStorageClient`): the current version, keyed by a per-change
  *              timestamp `{Type}_4_0_0/{uuid}/{lastUpdatedMs}` (`_buildLiveKey`). The key is claimed
  *              via `If-None-Match` and never regenerated once superseded. A superseding write keeps
- *              the version that was in Mongo when the request first read it (and anything newer) so
- *              concurrent readers holding an older `_blobMeta` still find their object, and sweeps
- *              only keys strictly older than that.
+ *              the version that was in Mongo when the request first read it (and anything newer),
+ *              so a reader holding the immediately previous `_blobMeta` still finds its object, and
+ *              sweeps only keys strictly older than that. A reader two or more versions behind can
+ *              still miss; its read degrades to `data` omitted, never an error.
  *            - history (`historyResourceCloudStorageClient`): every version, keyed by content hash
  *              `{Type}_4_0_0_History/{uuid}/{hash}` (`_buildHistoryKey`).
  *
