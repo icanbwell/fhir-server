@@ -33,12 +33,9 @@ const {
     recordImportS3ReadThroughput,
     recordImportFileSize,
     recordBinaryPatientCreate,
-    recordBinaryPersonFilterApplied,
     binaryPatientCreateCounter,
-    binaryPersonFilterAppliedCounter,
     BINARY_CREATE_OUTCOME,
     BINARY_CREATE_REJECT_REASON,
-    BINARY_PERSON_FILTER_MODE,
     mergeOutcomeCounter,
     validationFailureCounter,
     bundleSizeHistogram,
@@ -530,13 +527,6 @@ describe('metrics.js', () => {
                 [LABEL.OUTCOME]: 'rejected',
                 [LABEL.REASON]: UNKNOWN
             });
-        });
-    });
-
-    describe('recordBinaryPersonFilterApplied', () => {
-        test.each(Object.values(BINARY_PERSON_FILTER_MODE))('counts mode %s', (mode) => {
-            recordBinaryPersonFilterApplied(mode);
-            expect(binaryPersonFilterAppliedCounter.add).toHaveBeenCalledWith(1, { [LABEL.MODE]: mode });
         });
     });
 

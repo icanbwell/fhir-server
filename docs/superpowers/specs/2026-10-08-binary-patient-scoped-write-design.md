@@ -1,6 +1,6 @@
 # Patient-Scoped Binary Create and Person-Scoped Binary Access — Design
 
-Status: **Implemented in this PR behind `ENABLE_PATIENT_SCOPED_BINARY_CREATE` (default off), pending fhir-team review of the design and the code together, including §16.3 (read filter independent of the flag). Not formally approved yet. Implementation notes are in §16.**
+Status: **Two designs are on the table. #2635 implements the transitional model (reads keep unowned Binary readable). The stacked PR on top of it implements the backfill-first model of §0.2, which supersedes §4.4, §5 (read column), §7 and §16.3 where they differ. Neither is approved yet; the direction call is Imran's and Mintu's. Implementation notes are in §16 and §17.**
 
 Direction from the originating Slack thread in #temp-user-documents (Imran Qureshi, 2026-10-09: new member uploads
 only, no backfill, `securityContext` set by the server from the JWT), pending review of this document: "Option 1" below.
@@ -37,6 +37,38 @@ match; the other sections keep the original wording for history):
 Matching follows the existing patient filter: ids for which `isUuid()` is true (this includes the proxy id,
 because it contains the person's uuid) match `securityContext._uuid`, others match `securityContext._sourceId`.
 A literal `Person/{id}` reference is not an owner marker and is treated as "unowned".
+
+### 0.2 Revision (2026-10-15): backfill first, then the standard patient filter (Mintu's proposal)
+
+Mintu Kumar Sah objected to the transitional "unowned vs owned" read model: it adds a second ownership path next to
+the standard one, its unowned branch (`$not: {$regex: '^Patient/'}`) cannot use an index, mixed tokens (every real
+member token) would still read every unowned Binary in the tenant, and all of it is removed again in DCON-6075.
+His proposal, implemented in the stacked PR:
+
+| Topic | Transitional model (#2635 head) | Backfill-first model (this revision) |
+|---|---|---|
+| Read filter | Dedicated `getQueryWithPersonSecurityContext`: owned by the caller OR (mixed tokens) owned by nobody | **The ordinary patient filter**: `Binary: 'securityContext.reference'` is patient-filterable (`PatientFilterManager`), so `getQueryWithPatientFilter` matches `securityContext._uuid`/`_sourceId` against the caller's patient ids. No unowned branch, no regex, one index |
+| Binary without a `securityContext` | Readable by mixed tokens, never by pure patient tokens | **Not readable by any patient-scoped token** (mixed or pure) until backfilled. System and user tokens without a patient scope are unchanged |
+| `$everything` / DocumentReference traversal of existing Binary | Keeps working (unowned) | **Hidden from patient-scoped callers until the Binary is backfilled**, so the backfill must complete before the flag is turned on (§17) |
+| Mixed-token read | Patient filter AND tenant access-tag filter | Patient filter only, like every other patient-filterable type (the patient scope replaces the access-tag filter) |
+| Gating | Read filter always on; create and strict reads behind the flag | **Everything behind `ENABLE_PATIENT_SCOPED_BINARY_CREATE`**, including the read filter. With the flag off, Binary is not patient-filterable and reads are exactly as on `main` |
+| Writes | Create only | Unchanged: create only. Binary stays out of the patient-filterable lists used to classify clinical resources, and `PatientFilterManager.isCreateOnlyWithPatientScope` keeps every non-create write forbidden for a patient scope (scope gate and `canWriteResourceAsync`) |
+| `$everything` cache key | `callerPersonId` always in the key | `callerPersonId` only while the flag is on (nothing is caller-specific with it off), so existing keys are unchanged |
+| Metric | `fhir_binary_person_filter_applied_total` | Removed (no dedicated filter any more) |
+
+Consequences to accept or reject when choosing:
+
+1. **Rollback is weaker.** The flag gates the read filter, so turning it off makes member-owned Binary readable again by
+   in-tenant tokens that read Binary through the access-tag path. Likewise a fhir-server deployment (fhir-server,
+   -internal, -everything, -graphql) with the flag unset serves owned Binary unfiltered. This is why the
+   transitional model kept its filter un-gated (§16.3). The end state in Mintu's proposal is the **unconditional**
+   mapping, with no flag, once the backfill is complete (the follow-up that removes the gate is part of §17).
+2. **Turning the flag on before the backfill hides existing Binary from every patient-scoped token**, including
+   clinical viewers on mixed tokens and the DocumentReference to Binary hop in `$everything` and GraphQL.
+3. **Existing Binary owned by a real Patient** (securityContext `Patient/{id}`) become readable by every person linked
+   to that patient as soon as the flag is on. Same as the transitional model.
+
+Sections 4.4, 5 (read column), 7 and 16.3 describe the transitional model; where they differ, this section wins.
 
 ## 1. Problem
 
@@ -265,6 +297,8 @@ and keep returning the existing `Write not allowed using user scopes if patient 
 
 ### 4.4 Read path
 
+> **Superseded by §0.2 in the stacked PR.** The text below is the transitional model implemented in #2635.
+
 Single choke point: add one predicate in `SearchManager.constructQueryAsync`
 (`src/operations/search/searchManager.js`, after the access-tag/patient-filter block and before
 `queryRewriterManager.rewriteQueryAsync`, ~line 458). Condition: `resourceType` is in
@@ -423,6 +457,8 @@ We do not forbid or validate a supplied tag on system writes, other than the "si
 backend can write a tag for any person — this is intentional (backends are trusted by tenant access code).
 
 ## 7. Backward compatibility and rollout
+
+> **Read-side rollout superseded by §0.2 / §17 in the stacked PR**: the flag stays off until the backfill has finished.
 
 - Feature flag `ENABLE_PATIENT_SCOPED_BINARY_CREATE` (default false) in `ConfigManager`
   (e.g. `get enablePatientScopedBinaryCreate() { return isTrue(env.ENABLE_PATIENT_SCOPED_BINARY_CREATE); }`),
@@ -737,6 +773,8 @@ ownership marker is `Binary.securityContext` (§0.1), so `SecurityTagSystem` is 
 
 ### 16.3 Read filter independent of the flag
 
+> **Superseded by §0.2 in the stacked PR**: the read filter is now flag-gated and is the ordinary patient filter. The reasoning below is why the transitional model kept it un-gated, and it is the cost §0.2 consequence 1 accepts.
+
 The read filter (`ScopesManager.isPersonContextReadFiltered`, used in `SearchManager.constructQueryAsync`) and the
 `$everything` cache key's `callerPersonId` (`EverythingHelper.getCacheKey`) do not depend on
 `ENABLE_PATIENT_SCOPED_BINARY_CREATE`. Reasons:
@@ -788,3 +826,80 @@ feature plus a new Binary search parameter or reopens update/merge for patient s
 create-only surface. Orphans that still occur are the R16 deletion-finder problem, explicitly out of scope.
 If conditional create is wanted later, it should be its own design, with the person `securityContext` filter
 applied to the conditional search and a cross-member test (B must not match A's Binary).
+
+## 17. Backfill and rollout for the backfill-first model
+
+The backfill runs as a notebook in [`icanbwell/bwell-data-ops-notebooks`](https://github.com/icanbwell/bwell-data-ops-notebooks), per Mintu's guidance, not as a fhir-server admin script. The closest precedent is `document_reference/fix_document_reference_binary_url.py` (DCON-5502), which reaches fhir-server only through the REST API and writes through `$merge`, so every change goes through the real merge path, with History and an AuditEvent. An earlier commit on this PR built the backfill as an admin runner (`src/admin/runners/`). It has been removed, so this PR only carries the fhir-server change. The ownership rules below still apply to the notebook. **Nothing has run against real data.** Sizes are estimates, not measurements.
+
+### 17.1 Who owns an existing Binary
+
+Existing Binary carry no owner. The only link from a Binary to a person is the `DocumentReference` whose
+`content.attachment.url` points at it (the same link `$everything` follows, `nonClinicalResourceExtractor`), and that
+DocumentReference has a `subject`.
+
+| Case | Result | Notes |
+|---|---|---|
+| Exactly one DocumentReference points at the Binary and its subject is a Patient | `securityContext` = `Patient/<uuid>` (the subject's `https://www.icanbwell.com/uuid` extension, or its id when that is already a uuid) | the common case. A subject with no uuid is not touched (`subjectUuidMissing`) |
+| Several DocumentReferences with the same subject | that subject | counted as `alreadyOwnedBySame` |
+| Several DocumentReferences with **different** subjects | **error: not stamped; reported** (Imran, 2026-10-15) | the notebook does not guess. See 17.4 |
+| A Patient subject plus a non-Patient or missing subject | **error: not stamped; reported** (Imran, 2026-10-15) | same rule as different subjects |
+| No DocumentReference points at it | not touched | stays hidden from patient-scoped tokens; still readable by system/user tokens |
+| The subject is not a Patient (Person, Group, none) | not touched | `skippedSubjectNotPatient` |
+| `content.attachment.url` is not `Binary/{id}` (for example an http url) | ignored | same rule as `$everything` |
+| Referenced from something other than a DocumentReference (for example `Communication.payload.contentReference`) | not touched | open question: does any member-facing flow depend on it? |
+
+The Binary id is resolved exactly as `$everything` does it: a uuid id is used as is, and a non-uuid id becomes
+`generateUUIDv5('{id}|{DocumentReference._sourceAssigningAuthority}')`. Pipelines that write Binary must stamp
+`securityContext` at write time (same value rule) **before** the backfill finishes, or new Binary reopen the gap. Helix
+and PROA use system tokens, so they are unaffected by the flag but not by this requirement.
+
+### 17.2 The notebook ([bwell-data-ops-notebooks #108](https://github.com/icanbwell/bwell-data-ops-notebooks/pull/108), in review)
+
+- **Modes:** `validate` (one known Binary), then `dry_run` (discovery and transform, no writes), then `run`, the same as DCON-5502. A report of counts and conflicts goes to S3.
+- **Scan from DocumentReference, write to Binary.** Stream the DocumentReferences that reference a `Binary/`, resolve each Binary id as in 17.1, and write the subject's `Patient/<uuid>` into the Binary's `securityContext`. Only write where `securityContext` is missing.
+- **Conflicts are found before any write.** A read-only pass groups the Binary uuids by their distinct subjects. A Binary with more than one subject is an error: it is reported and never stamped (17.6 Q5).
+- **Write path: the default `$merge` (smartMerge on), sending only `resourceType`, `id`, `meta.source`, `meta.security` and `securityContext`. Never `smartMerge=false`, even though DCON-5502 uses it.**
+  - With `smartMerge=false` the merge replaces the whole resource (`resourceMerger.js`, the `else` branch `mergedObject = deepcopy(resourceToMerge)`). A body without `data` therefore deletes the bytes, and for an offloaded Binary it also clears the externalized object (`base64DataManager.js`, the `!smartMerge` branch that calls `clearExternalizedLeaf`). `blobStorage.test.js` asserts this ("$merge (smartMerge:false) omitting data … data IS removed").
+  - With smartMerge on, `data` is kept, and an offloaded Binary is not even downloaded (`base64DataManager.js`, the smartMerge branch that stashes the leaf as unchanged).
+  - Each stamped Binary still gets a new `versionId`, a History entry and an AuditEvent.
+  - DCON-5502 needed `smartMerge=false` because it had to remove array entries. Here we only add a field.
+  - **Confirmed locally** against `main` with cloud storage on (S3 mocked, 2026-10-15): the default `$merge` with only `securityContext` keeps the bytes and the S3 object, and `smartMerge=false` without `data` wipes them. Still to confirm in a real environment with the notebook's `validate` mode.
+- **Bounded concurrency and idempotent re-runs:** an already-stamped Binary is skipped.
+
+### 17.3 Size
+
+About 60M Binary (Mintu's figure); the number of DocumentReferences that point at them is unknown. If the job sustains
+500 to 2,000 DocumentReferences per second, 60M is roughly 8 to 33 hours (60M / 2,000 = 8.3 h, 60M / 500 = 33 h). Measure
+the real rate with a dry run on a production-sized copy first, then size `--batchSize` and `--sleepMs`.
+
+### 17.4 Limits to know before running it
+
+- **Conflicts:** a Binary referenced by DocumentReferences with different subjects is found by the read-only pass in 17.2, reported, and never stamped (17.6 Q5). Stamping the first owner found would silently take access away from the other subject.
+- Shared access: a Binary owned by a real Patient becomes readable by every person linked to that Patient (same as the
+  transitional model).
+- A Binary that no DocumentReference points at gets no owner, so patient-scoped tokens cannot read it. Only
+  system/user tokens can.
+- No reconciliation query exists yet (owned + ambiguous + none = total); count `securityContext` presence directly.
+
+### 17.5 Sequence
+
+1. Ship #2643 with the flag off (reads and writes identical to `main`).
+2. Pipelines start stamping `securityContext` at write time.
+3. Build the partial index `securityContextUuid_uuid` (defined in `customIndexes.js`, partial on `securityContext._uuid`,
+   so it indexes only owned Binary) online and off-peak, before enabling the flag.
+4. Run the notebook's `validate` and `dry_run` in a lower environment: rate, how many would be stamped, Binary not found, conflicts.
+5. Run it for real in a lower environment, then production (data-ops); reconcile counts.
+6. Turn the flag on in a lower environment; walk DocumentReference to Binary through GraphQL and `$everything` as a
+   member; then enable per environment, **all deployments at once** (§0.2 consequence 1).
+7. Follow-up (DCON-6075): remove the flag and the create-only special cases that no longer need it, leaving
+   `Binary: 'securityContext.reference'` in `patientFilterMapping`.
+
+### 17.6 Open questions for Mintu and Imran
+
+1. Is losing mixed-token reads of unowned Binary (clinical viewers) acceptable at flag-on, given the backfill leaves
+   un-owned and conflicting Binary hidden?
+2. Through `$merge`, each stamped Binary gets a new version, a History entry and an AuditEvent, as in DCON-5502. Is that acceptable for ~60M Binary, and who runs and approves it in production?
+3. Which pipelines write Binary today besides helix and PROA, and can they stamp `securityContext` before the backfill ends?
+4. Does anything other than a DocumentReference link a Binary to a patient in a member-facing flow?
+5. A Binary referenced by DocumentReferences with different subjects: leave it unowned (hidden from patient-scoped tokens) and report it, or something else?
+   **Answered (Imran, 2026-10-15): an error case, not stamped and reported.**

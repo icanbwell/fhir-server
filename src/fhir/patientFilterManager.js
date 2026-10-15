@@ -1,5 +1,12 @@
 class PatientFilterManager {
-    constructor() {
+    /**
+     * @typedef {Object} PatientFilterManagerParams
+     * @property {import('../utils/configManager').ConfigManager} [configManager] read at call time for
+     *   ENABLE_PATIENT_SCOPED_BINARY_CREATE
+     * @param {PatientFilterManagerParams} [params]
+     */
+    constructor({configManager} = {}) {
+        this.configManager = configManager;
         /**
          * defines the field in each resource that links to patient
          * @type {Object}
@@ -113,7 +120,8 @@ class PatientFilterManager {
      * @return {string|string[]|null}
      */
     getPatientPropertyForResource({resourceType}) {
-        return this.patientFilterMapping[`${resourceType}`];
+        return this.patientFilterMapping[`${resourceType}`] ||
+            this.getFlagGatedPatientProperty({resourceType});
     }
 
     /**
@@ -157,38 +165,45 @@ class PatientFilterManager {
         return Object.hasOwn(this.patientFilterMapping, resourceType) ||
             Object.hasOwn(this.patientFilterWithQueryMapping, resourceType) ||
             Object.hasOwn(this.personFilterMapping, resourceType) ||
-            Object.hasOwn(this.personFilterWithQueryMapping, resourceType);
+            Object.hasOwn(this.personFilterWithQueryMapping, resourceType) ||
+            !!this.getFlagGatedPatientProperty({resourceType});
     }
 
     /**
-     * Resource types that are owned by a patient or person through their `securityContext` reference, but only
-     * when one is set: a member's upload carries `Patient/person.{person_uuid}`, a backend or migration may
-     * point it at a real `Patient/{id}`. Value is the reference property holding the owner.
-     * Deliberately NOT part of any of the filter mappings above: adding Binary there would make it
-     * patient-filterable for every caller, and every existing Binary (which has no securityContext) would
-     * disappear from them (see the Binary design doc, section 4.3).
+     * Resource types that join to a patient or person through their `securityContext` reference: a
+     * member's upload carries `Patient/person.{person_uuid}`, a backend or migration may point it at a
+     * real `Patient/{id}`. They are patient-filterable like every type in patientFilterMapping, but only
+     * while ENABLE_PATIENT_SCOPED_BINARY_CREATE is on, because every existing Binary must carry a
+     * securityContext first (backfill): without one it matches no patient filter and is hidden from every
+     * patient-scoped caller. Do not turn the flag on before that backfill has run.
      * @returns {Object<string, string>}
      */
-    get personSecurityContextResources() {
+    get flagGatedPatientFilterMapping() {
         return { Binary: 'securityContext.reference' };
     }
 
     /**
-     * Whether the resource type is owned through its securityContext (see personSecurityContextResources)
-     * @param {string} resourceType
-     * @returns {boolean}
-     */
-    isPersonSecurityContextResource({resourceType}) {
-        return Object.hasOwn(this.personSecurityContextResources, resourceType);
-    }
-
-    /**
-     * The reference property holding the owner of a securityContext-owned resource type
+     * The patient property of a resource type that is patient-filterable only behind the flag
      * @param {string} resourceType
      * @returns {string|undefined}
      */
-    getPersonSecurityContextProperty({resourceType}) {
-        return this.personSecurityContextResources[resourceType];
+    getFlagGatedPatientProperty({resourceType}) {
+        if (!this.configManager || !this.configManager.enablePatientScopedBinaryCreate) {
+            return undefined;
+        }
+        return Object.hasOwn(this.flagGatedPatientFilterMapping, resourceType)
+            ? this.flagGatedPatientFilterMapping[`${resourceType}`]
+            : undefined;
+    }
+
+    /**
+     * Whether a patient scope may only ever CREATE this resource type (never update, patch, merge or
+     * delete it), regardless of the flag. A patient-scoped caller owns its upload but cannot rewrite it.
+     * @param {string} resourceType
+     * @returns {boolean}
+     */
+    isCreateOnlyWithPatientScope({resourceType}) {
+        return Object.hasOwn(this.flagGatedPatientFilterMapping, resourceType);
     }
 
     /**

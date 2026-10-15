@@ -530,9 +530,11 @@ class ScopesManager {
     }
 
     /**
-     * Whether this request is for a person-security-tag resource type (Binary) by a caller holding a
-     * patient scope, with ENABLE_PATIENT_SCOPED_BINARY_CREATE on. Such callers are authorized for the
-     * resource type via their patient scopes and are filtered by the clientPersonId tag.
+     * Whether this request is for a securityContext-owned resource type (Binary) by a caller holding a
+     * patient scope, with ENABLE_PATIENT_SCOPED_BINARY_CREATE on. Such callers may CREATE the resource
+     * type (the server stamps its securityContext from the token); reads go through the ordinary
+     * patient filter (patientFilterManager.getPatientPropertyForResource) and every other write stays
+     * forbidden (patientScopeManager.canWriteResourceAsync).
      * Keyed on hasPatientScope (not a stricter check) so it can never disagree with `isUser`; a token
      * with ANY patient scope is treated as patient-scoped for these resource types, mixed tokens included.
      * @typedef {Object} IsPersonTagResourceScopedParams
@@ -543,28 +545,20 @@ class ScopesManager {
      * @return {boolean}
      */
     isPersonContextResourceScoped ({ scope, resourceType }) {
-        return this.configManager.enablePatientScopedBinaryCreate &&
-            this.isPersonContextReadFiltered({ scope, resourceType });
+        return !!scope &&
+            this.configManager.enablePatientScopedBinaryCreate &&
+            this.patientFilterManager.isCreateOnlyWithPatientScope({ resourceType }) &&
+            this.hasPatientScope({ scope });
     }
 
     /**
-     * READ-side counterpart of isPersonContextResourceScoped, deliberately NOT gated on
-     * ENABLE_PATIENT_SCOPED_BINARY_CREATE: whether a person-security-tag resource (Binary) read by a
-     * caller holding any patient scope must be filtered so it never returns Binary owned by another
-     * person. The flag gates only creating owned Binary and authorizing strict (pure patient token)
-     * reads; protection of already-owned Binary stays on with the flag off, so rolling the flag back
-     * or a deployment without it set cannot expose member uploads.
-     * @typedef {Object} IsPersonContextReadFilteredParams
-     * @property {string|undefined} scope
-     * @property {string} resourceType
-     *
-     * @param {IsPersonContextReadFilteredParams}
+     * Whether a patient scope may only ever create this resource type (see
+     * PatientFilterManager.isCreateOnlyWithPatientScope)
+     * @param {{resourceType: string}} params
      * @return {boolean}
      */
-    isPersonContextReadFiltered ({ scope, resourceType }) {
-        return !!scope &&
-            this.patientFilterManager.isPersonSecurityContextResource({ resourceType }) &&
-            this.hasPatientScope({ scope });
+    isCreateOnlyWithPatientScope ({ resourceType }) {
+        return this.patientFilterManager.isCreateOnlyWithPatientScope({ resourceType });
     }
 
     /**
@@ -580,24 +574,6 @@ class ScopesManager {
      */
     isPatientScopedPersonContextCreate ({ scope, resourceType, action }) {
         return action === 'create' && this.isPersonContextResourceScoped({ scope, resourceType });
-    }
-
-    /**
-     * Whether a person-security-tag resource read is authorized through the caller's patient scopes
-     * alone ("strict" mode): a patient-scoped caller holding NO user/ or system/ scope (so no access
-     * code either, in practice). Such a caller reads only Binary tagged with its own person id; untagged
-     * Binary are never returned to it. Callers that also hold user/ or system/ scopes keep today's
-     * evaluation and additionally never see Binary tagged for a different person (mixed mode).
-     * @typedef {Object} IsPersonTagStrictAccessParams
-     * @property {string|undefined} scope
-     * @property {string} resourceType
-     *
-     * @param {IsPersonTagStrictAccessParams}
-     * @return {boolean}
-     */
-    isPersonContextStrictAccess ({ scope, resourceType }) {
-        return this.isPersonContextResourceScoped({ scope, resourceType }) &&
-            this.getResourceTypeScopes({ scope }).length === 0;
     }
 
     /**

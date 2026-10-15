@@ -1,5 +1,5 @@
 // T36: a member's Binary create writes exactly one audit entry (for the created resource) and logs the
-// securityContext stamping (`binary_person_security_context_set`, once, with the person id from the token).
+// securityContext stamping (`binary_person_security_context_set`, once, without the person id).
 // A rejected foreign securityContext logs `binary_person_security_context_rejected` and writes no create audit entry.
 const { afterEach, beforeEach, describe, expect, jest, test } = require('@jest/globals');
 
@@ -87,7 +87,8 @@ describe('Binary with patient scope: audit and stamping log', () => {
 
         const stamped = callsNamed(mockLogInfo, 'binary_person_security_context_set');
         expect(stamped).toHaveLength(1);
-        expect(stamped[0][1]).toMatchObject({ resourceType: 'Binary', personId: personA });
+        expect(stamped[0][1]).toMatchObject({ resourceType: 'Binary' });
+        expect(stamped[0][1]).not.toHaveProperty('personId');
         // the log line carries identifiers only, never the document
         expect(JSON.stringify(stamped[0][1])).not.toContain('JVBERi0xLjQK');
     });

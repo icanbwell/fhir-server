@@ -44,7 +44,7 @@ describe('Binary person securityContext: scope handling', () => {
         Object.defineProperty(configManager, 'enableSmartV2CrudsScopes', { get: () => false, configurable: true });
         Object.defineProperty(configManager, 'enableDelegatedAccessDetection', { get: () => false, configurable: true });
 
-        const patientFilterManager = new PatientFilterManager();
+        const patientFilterManager = new PatientFilterManager({ configManager });
         scopesManager = new ScopesManager({ configManager, patientFilterManager });
 
         patientScopeManager = new PatientScopeManager({
@@ -67,13 +67,28 @@ describe('Binary person securityContext: scope handling', () => {
     });
 
     describe('PatientFilterManager', () => {
-        test('Binary is a securityContext-owned resource but NOT patient-filterable', () => {
-            const pfm = new PatientFilterManager();
-            expect(pfm.isPersonSecurityContextResource({ resourceType: 'Binary' })).toBe(true);
-            expect(pfm.isPersonSecurityContextResource({ resourceType: 'Condition' })).toBe(false);
-            expect(pfm.getPersonSecurityContextProperty({ resourceType: 'Binary' })).toBe('securityContext.reference');
-            expect(pfm.getPersonSecurityContextProperty({ resourceType: 'Condition' })).toBeUndefined();
+        test('Binary is patient-filterable on securityContext only while the flag is on', () => {
+            const pfm = new PatientFilterManager({ configManager: scopesManager.configManager });
+            expect(pfm.canAccessResourceWithPatientScope({ resourceType: 'Binary' })).toBe(true);
+            expect(pfm.getPatientPropertyForResource({ resourceType: 'Binary' })).toBe('securityContext.reference');
+            expect(pfm.canAccessResourceWithPatientScope({ resourceType: 'Condition' })).toBe(true);
+            flag = false;
             expect(pfm.canAccessResourceWithPatientScope({ resourceType: 'Binary' })).toBe(false);
+            expect(pfm.getPatientPropertyForResource({ resourceType: 'Binary' })).toBeUndefined();
+        });
+
+        test('without a configManager Binary is never patient-filterable', () => {
+            const pfm = new PatientFilterManager();
+            expect(pfm.canAccessResourceWithPatientScope({ resourceType: 'Binary' })).toBe(false);
+        });
+
+        test('Binary is create-only with a patient scope, whatever the flag says', () => {
+            const pfm = new PatientFilterManager({ configManager: scopesManager.configManager });
+            expect(pfm.isCreateOnlyWithPatientScope({ resourceType: 'Binary' })).toBe(true);
+            expect(pfm.isCreateOnlyWithPatientScope({ resourceType: 'Condition' })).toBe(false);
+            // not part of the lists used to classify clinical / patient-related resources
+            expect(pfm.isPatientRelatedResource({ resourceType: 'Binary' })).toBe(false);
+            expect(pfm.getAllPatientOrPersonRelatedResources()).not.toContain('Binary');
         });
     });
 
@@ -98,19 +113,6 @@ describe('Binary person securityContext: scope handling', () => {
             flag = false;
             expect(scopesManager.isPersonContextResourceScoped({ scope: PATIENT_WRITE, resourceType: 'Binary' })).toBe(false);
             expect(scopesManager.isPatientScopedPersonContextCreate({ scope: PATIENT_WRITE, resourceType: 'Binary', action: 'create' })).toBe(false);
-            expect(scopesManager.isPersonContextStrictAccess({ scope: PATIENT_READ, resourceType: 'Binary' })).toBe(false);
-        });
-
-        test('read filter predicate is NOT gated on the flag (rollback safety)', () => {
-            for (const f of [true, false]) {
-                flag = f;
-                expect(scopesManager.isPersonContextReadFiltered({ scope: MIXED_VIEWER, resourceType: 'Binary' })).toBe(true);
-                expect(scopesManager.isPersonContextReadFiltered({ scope: PATIENT_READ, resourceType: 'Binary' })).toBe(true);
-                expect(scopesManager.isPersonContextReadFiltered({ scope: PATIENT_READ, resourceType: 'Condition' })).toBe(false);
-                expect(scopesManager.isPersonContextReadFiltered({ scope: SYSTEM, resourceType: 'Binary' })).toBe(false);
-                expect(scopesManager.isPersonContextReadFiltered({ scope: USER, resourceType: 'Binary' })).toBe(false);
-                expect(scopesManager.isPersonContextReadFiltered({ scope: undefined, resourceType: 'Binary' })).toBe(false);
-            }
         });
 
         test('is false without a scope', () => {
@@ -125,14 +127,6 @@ describe('Binary person securityContext: scope handling', () => {
             }
         });
 
-        test('strict access = patient-scoped with no user/ or system/ scope', () => {
-            expect(scopesManager.isPersonContextStrictAccess({ scope: PATIENT_READ, resourceType: 'Binary' })).toBe(true);
-            expect(scopesManager.isPersonContextStrictAccess({ scope: `${PATIENT_READ} access/client.*`, resourceType: 'Binary' })).toBe(true);
-            expect(scopesManager.isPersonContextStrictAccess({ scope: MIXED_VIEWER, resourceType: 'Binary' })).toBe(false);
-            expect(scopesManager.isPersonContextStrictAccess({ scope: `${PATIENT_READ} system/*.read`, resourceType: 'Binary' })).toBe(false);
-            expect(scopesManager.isPersonContextStrictAccess({ scope: `${PATIENT_READ} user/Condition.read`, resourceType: 'Binary' })).toBe(false);
-        });
-
         test('create skips the access-tag checks for a patient-scoped Binary create only', () => {
             const res = binary(ownerRef('A'));
             // create by a patient-scoped caller: allowed without access scopes
@@ -143,10 +137,8 @@ describe('Binary person securityContext: scope handling', () => {
                 oldAccessCodes: [], newAccessCodes: ['other-tenant'], resourceType: 'Binary', user: 'u',
                 scope: PATIENT_WRITE, isCreate: true
             })).toBe(true);
-            // not on a non-create: falls through to the access-code requirement
-            expect(() => scopesManager.isAccessToResourceAllowedBySecurityTags({
-                resource: res, user: 'u', scope: PATIENT_WRITE, accessRequested: 'write', isCreate: false
-            })).toThrow();
+            // not on a non-create: the tag change still needs access codes (the write itself is refused by
+            // patientScopeManager.canWriteResourceAsync, see below)
             expect(scopesManager.isAccessTagChangeAllowedByScopes({
                 oldAccessCodes: [], newAccessCodes: ['other-tenant'], resourceType: 'Binary', user: 'u',
                 scope: PATIENT_WRITE, isCreate: false
@@ -224,10 +216,8 @@ describe('Binary person securityContext: scope handling', () => {
             expect(result.statusCode).toBe(403);
         });
 
-        test('read: patient token with a user scope keeps today\'s evaluation (needs an access code)', async () => {
-            // user scope present -> not strict -> evaluated through user/system scopes as before
-            expect((await check('patient/Binary.read user/*.read', 'searchById', 'read')).statusCode).toBe(403);
-            expect(await check('patient/Binary.read user/*.read access/client.*', 'searchById', 'read')).toBeUndefined();
+        test('read: a token that also holds a user scope is authorized by its patient scopes too (filtered to its own Binary)', async () => {
+            expect(await check('patient/Binary.read user/*.read', 'searchById', 'read')).toBeUndefined();
             expect(await check(MIXED_VIEWER, 'searchById', 'read')).toBeUndefined();
         });
 

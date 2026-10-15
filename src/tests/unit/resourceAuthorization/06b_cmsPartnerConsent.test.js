@@ -104,9 +104,7 @@ describe('Resource Authorization §6b — CMS partner data-sharing consent', () 
             // Force every request down the patient-scope branch (§5) regardless of resourceType,
             // so the only thing distinguishing test cases below is resourceType/userType.
             mockScopesManager.isAccessAllowedByPatientScopes = jest.fn().mockReturnValue(true);
-            mockScopesManager.isPersonContextStrictAccess = jest.fn().mockReturnValue(false);
             mockScopesManager.isPersonContextResourceScoped = jest.fn().mockReturnValue(false);
-            mockScopesManager.isPersonContextReadFiltered = jest.fn().mockReturnValue(false);
 
             mockPatientScopeManager = createMockInstance(PatientScopeManager);
             mockPatientScopeManager.getPatientIdsFromScopeAsync = jest.fn().mockResolvedValue(['patient-1', 'patient-2']);

@@ -1431,9 +1431,11 @@ class ConfigManager {
     }
 
     /**
-     * Kill switch (default off) for patient-scoped Binary support: a patient-scoped token may create
-     * (only) a Binary, the server stamps the caller's person id on it as a security tag, and Binary
-     * reads by patient-scoped callers are filtered by that tag. Off = today's behavior exactly.
+     * Kill switch (default off) for patient-scoped Binary support. On: a patient-scoped token may create
+     * (only create, never update/patch/merge/delete) a Binary, and the server stamps its securityContext from
+     * the token (Patient/person.{personId}). Binary is patient-filterable via securityContext.reference only
+     * while the flag is on, so a Binary without a securityContext is hidden from patient-scoped tokens: backfill
+     * existing Binaries before turning it on (design §17). Off = main's behavior.
      * See docs/superpowers/specs/2026-10-08-binary-patient-scoped-write-design.md
      * @return {boolean}
      */

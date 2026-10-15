@@ -59,7 +59,8 @@ module.exports = {
                         GROUP_MEMBER_COLLECTION_NAME
                     ]
             })),
-            // Member-owned Binary: the person filter (PatientQueryCreator.getQueryWithPersonSecurityContext) matches
+            // Member-owned Binary: with the flag on, PatientQueryCreator.getQueryWithPatientFilter filters Binary on
+            // securityContext.reference (PatientFilterManager.getFlagGatedPatientProperty) and so matches
             // securityContext._uuid for uuid-shaped caller ids (real Patient uuids and the person proxy
             // Patient/person.{uuid}, which isUuid also accepts) and securityContext._sourceId for any other patient
             // id. Same shape as subjectUuid_uuid / subjectSourceId_uuid.
