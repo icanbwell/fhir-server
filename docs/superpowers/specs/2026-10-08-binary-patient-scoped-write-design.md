@@ -839,9 +839,10 @@ DocumentReference has a `subject`.
 
 | Case | Result | Notes |
 |---|---|---|
-| Exactly one DocumentReference points at the Binary and its subject is a Patient | `securityContext` = that subject | the common case |
+| Exactly one DocumentReference points at the Binary and its subject is a Patient | `securityContext` = `Patient/<uuid>` (the subject's `https://www.icanbwell.com/uuid` extension, or its id when that is already a uuid) | the common case. A subject with no uuid is not touched (`subjectUuidMissing`) |
 | Several DocumentReferences with the same subject | that subject | counted as `alreadyOwnedBySame` |
-| Several DocumentReferences with **different** subjects | **first one processed wins; counted and logged as a conflict** | the runner does not guess. See 17.4 |
+| Several DocumentReferences with **different** subjects | **error: not stamped; reported** (Imran, 2026-10-15) | the notebook does not guess. See 17.4 |
+| A Patient subject plus a non-Patient or missing subject | **error: not stamped; reported** (Imran, 2026-10-15) | same rule as different subjects |
 | No DocumentReference points at it | not touched | stays hidden from patient-scoped tokens; still readable by system/user tokens |
 | The subject is not a Patient (Person, Group, none) | not touched | `skippedSubjectNotPatient` |
 | `content.attachment.url` is not `Binary/{id}` (for example an http url) | ignored | same rule as `$everything` |
@@ -852,17 +853,17 @@ The Binary id is resolved exactly as `$everything` does it: a uuid id is used as
 `securityContext` at write time (same value rule) **before** the backfill finishes, or new Binary reopen the gap. Helix
 and PROA use system tokens, so they are unaffected by the flag but not by this requirement.
 
-### 17.2 The notebook (not built yet)
+### 17.2 The notebook ([bwell-data-ops-notebooks #108](https://github.com/icanbwell/bwell-data-ops-notebooks/pull/108), in review)
 
 - **Modes:** `validate` (one known Binary), then `dry_run` (discovery and transform, no writes), then `run`, the same as DCON-5502. A report of counts and conflicts goes to S3.
-- **Scan from DocumentReference, write to Binary.** Stream the DocumentReferences that reference a `Binary/`, resolve each Binary id as in 17.1, and copy the stored `subject` into the Binary's `securityContext`. Only write where `securityContext` is missing.
-- **Conflicts are found before any write.** A read-only pass groups the Binary uuids by their distinct subjects. A Binary with more than one subject is reported, and what happens to it is an open question (17.6).
+- **Scan from DocumentReference, write to Binary.** Stream the DocumentReferences that reference a `Binary/`, resolve each Binary id as in 17.1, and write the subject's `Patient/<uuid>` into the Binary's `securityContext`. Only write where `securityContext` is missing.
+- **Conflicts are found before any write.** A read-only pass groups the Binary uuids by their distinct subjects. A Binary with more than one subject is an error: it is reported and never stamped (17.6 Q5).
 - **Write path: the default `$merge` (smartMerge on), sending only `resourceType`, `id`, `meta.source`, `meta.security` and `securityContext`. Never `smartMerge=false`, even though DCON-5502 uses it.**
   - With `smartMerge=false` the merge replaces the whole resource (`resourceMerger.js`, the `else` branch `mergedObject = deepcopy(resourceToMerge)`). A body without `data` therefore deletes the bytes, and for an offloaded Binary it also clears the externalized object (`base64DataManager.js`, the `!smartMerge` branch that calls `clearExternalizedLeaf`). `blobStorage.test.js` asserts this ("$merge (smartMerge:false) omitting data … data IS removed").
   - With smartMerge on, `data` is kept, and an offloaded Binary is not even downloaded (`base64DataManager.js`, the smartMerge branch that stashes the leaf as unchanged).
   - Each stamped Binary still gets a new `versionId`, a History entry and an AuditEvent.
   - DCON-5502 needed `smartMerge=false` because it had to remove array entries. Here we only add a field.
-  - **Still to confirm empirically:** with cloud storage on, before a real run.
+  - **Confirmed locally** against `main` with cloud storage on (S3 mocked, 2026-10-15): the default `$merge` with only `securityContext` keeps the bytes and the S3 object, and `smartMerge=false` without `data` wipes them. Still to confirm in a real environment with the notebook's `validate` mode.
 - **Bounded concurrency and idempotent re-runs:** an already-stamped Binary is skipped.
 
 ### 17.3 Size
@@ -873,7 +874,7 @@ the real rate with a dry run on a production-sized copy first, then size `--batc
 
 ### 17.4 Limits to know before running it
 
-- **Conflicts:** a Binary referenced by DocumentReferences with different subjects is found by the read-only pass in 17.2 and is not stamped until 17.6 Q5 is answered. Stamping the first owner found would silently take access away from the other subject.
+- **Conflicts:** a Binary referenced by DocumentReferences with different subjects is found by the read-only pass in 17.2, reported, and never stamped (17.6 Q5). Stamping the first owner found would silently take access away from the other subject.
 - Shared access: a Binary owned by a real Patient becomes readable by every person linked to that Patient (same as the
   transitional model).
 - A Binary that no DocumentReference points at gets no owner, so patient-scoped tokens cannot read it. Only
@@ -901,3 +902,4 @@ the real rate with a dry run on a production-sized copy first, then size `--batc
 3. Which pipelines write Binary today besides helix and PROA, and can they stamp `securityContext` before the backfill ends?
 4. Does anything other than a DocumentReference link a Binary to a patient in a member-facing flow?
 5. A Binary referenced by DocumentReferences with different subjects: leave it unowned (hidden from patient-scoped tokens) and report it, or something else?
+   **Answered (Imran, 2026-10-15): an error case, not stamped and reported.**

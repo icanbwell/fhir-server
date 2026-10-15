@@ -217,8 +217,7 @@ class CreateOperation {
                 recordBinaryPatientCreate(BINARY_CREATE_OUTCOME.SET);
                 logInfo('binary_person_security_context_set', {
                     user: requestInfo.user,
-                    resourceType,
-                    personId: requestInfo.personIdFromJwtToken
+                    resourceType
                 });
             } catch (e) {
                 recordBinaryPatientCreate(BINARY_CREATE_OUTCOME.REJECTED, rejectReason);
