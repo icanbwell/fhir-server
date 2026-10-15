@@ -37,8 +37,11 @@ const UNCHANGED_LEAF_CACHE_NAME = 'base64DataManager.unchangedLeaf';
  *            `lastUpdated` doubles as the live-bucket key's timestamp. Two buckets hold the bytes:
  *            - live (`base64FieldCloudStorageClient`): the current version, keyed by a per-change
  *              timestamp `{Type}_4_0_0/{uuid}/{lastUpdatedMs}` (`_buildLiveKey`). The key is claimed
- *              via `If-None-Match` and never regenerated once superseded, so a stale key can be
- *              deleted with no cross-check.
+ *              via `If-None-Match` and never regenerated once superseded. A superseding write keeps
+ *              the version that was in Mongo when the request first read it (and anything newer),
+ *              so a reader holding the immediately previous `_blobMeta` still finds its object, and
+ *              sweeps only keys strictly older than that. A reader two or more versions behind can
+ *              still miss; its read degrades to `data` omitted, never an error.
  *            - history (`historyResourceCloudStorageClient`): every version, keyed by content hash
  *              `{Type}_4_0_0_History/{uuid}/{hash}` (`_buildHistoryKey`).
  *
@@ -350,11 +353,9 @@ class Base64DataManager {
      *
      * Used only by `removeHelper.js` (full resource DELETE), where sweeping the whole prefix is
      * unconditionally correct — the resource is gone, so no key under it is ever "still committed".
-     * Do NOT call this for a supersede/rollback cleanup on a resource that still exists: the target
-     * timestamp isn't guaranteed to stay older than whatever key ends up committed (a concurrent
-     * writer's reconciliation can reuse an older key than the one it's superseding), so the <= sweep
-     * can delete a still-referenced object. Those callers use the exact-key
-     * `_deleteExactLiveObjectAsync` instead. No-op on falsy `lastUpdated`; never throws.
+     * Do NOT call this for a supersede/rollback cleanup on a resource that still exists: supersede
+     * cleanup goes through `_sweepSupersededLiveObjectsAsync` and rollback through
+     * `_deleteExactLiveObjectAsync`. No-op on falsy `lastUpdated`; never throws.
      * @param {string} resourceType
      * @param {string} uuid
      * @param {Date|string|number|null|undefined} lastUpdated
@@ -364,6 +365,20 @@ class Base64DataManager {
         if (!this.enableBase64FieldCloudStorage || !lastUpdated) { return; }
         const ms = this._toEpochMs(lastUpdated);
         if (!ms) { return; }
+        await this._deleteLiveKeysAsync(resourceType, uuid, (keyMs) => keyMs <= ms);
+    }
+
+    async _sweepSupersededLiveObjectsAsync (resourceType, uuid, initialLastUpdated, committedLastUpdated) {
+        if (!this.enableBase64FieldCloudStorage || !initialLastUpdated) { return; }
+        const initialMs = this._toEpochMs(initialLastUpdated);
+        if (!initialMs) { return; }
+        const committedMs = committedLastUpdated ? this._toEpochMs(committedLastUpdated) : null;
+        await this._deleteLiveKeysAsync(
+            resourceType, uuid, (keyMs) => keyMs < initialMs && keyMs !== committedMs
+        );
+    }
+
+    async _deleteLiveKeysAsync (resourceType, uuid, isDeletable) {
         const prefix = this._buildLiveFolderKey(resourceType, uuid);
         let keys;
         logInfo('S3 listObjects', { source: 'Base64DataManager', resourceType, uuid, prefix });
@@ -377,7 +392,7 @@ class Base64DataManager {
         }
         const keysToDelete = keys.filter((key) => {
             const keyMs = this._parseLiveKeyTimestamp(key, prefix);
-            return keyMs !== null && keyMs <= ms; // unparseable (foreign key) or strictly newer — never touch
+            return keyMs !== null && isDeletable(keyMs);
         });
         if (keysToDelete.length === 0) {
             return;
@@ -546,11 +561,12 @@ class Base64DataManager {
     }
 
     /**
-     * Delete the live object this write superseded: reads the `previousLastUpdated` stashed by
-     * `_processEntry` per leaf and deletes it if it differs from the resource's post-write
-     * `_blobMeta`. Applies to any data-change rotation — PUT/PATCH (`alwaysCreateNew`) and a `$merge`
-     * that changes an already-externalized payload. Read-free — a live key is never regenerated, so
-     * this can't resurrect anything. No-op when nothing was stashed (unchanged data or a fresh create).
+     * Sweep the live objects this write superseded: reads the `previousLastUpdated` stashed per leaf
+     * (the `_blobMeta.lastUpdated` the resource had at this request's first read) and, if it differs
+     * from the resource's post-write `_blobMeta`, deletes only keys strictly older than it — the
+     * previous version and the new one are retained. Applies to any data change on an
+     * already-externalized payload, including removal and the below-threshold transition. No-op when
+     * nothing was stashed (unchanged data or a fresh create).
      * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - the just-written
      *        doc, carrying this request's new `_blobMeta`.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo - keys the stash.
@@ -577,41 +593,13 @@ class Base64DataManager {
                 const previousMs = this._toEpochMs(stashed.previousLastUpdated);
                 const currentMs = currentBlobMeta ? this._toEpochMs(currentBlobMeta.lastUpdated) : null;
                 if (previousMs !== currentMs) {
-                    await this._deleteExactLiveObjectAsync(resource.resourceType, resource._uuid, stashed.previousLastUpdated);
+                    await this._sweepSupersededLiveObjectsAsync(
+                        resource.resourceType, resource._uuid, stashed.previousLastUpdated,
+                        currentBlobMeta ? currentBlobMeta.lastUpdated : undefined
+                    );
                 }
             });
         }
-    }
-
-    /**
-     * Snapshot the live-object refs on `resource` — one entry per configured leaf carrying a
-     * `_blobMeta.lastUpdated`. Path-aware (nested/`[]` leaves included); synchronous (in-memory
-     * only). Keyed by resolved leaf path so refs can be matched across two versions of the resource
-     * (see `deleteSupersededLiveObjectsAsync`).
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource
-     * @returns {Map<string, Date>} resolved-leaf-path -> `_blobMeta.lastUpdated`
-     */
-    getLiveObjectRefs (resource) {
-        const refs = new Map();
-        if (!resource || !this.enableBase64FieldCloudStorage) {
-            return refs;
-        }
-        const entries = this.resourcePaths[resource.resourceType];
-        if (!entries) {
-            return refs;
-        }
-        for (const entry of entries) {
-            const dataSegments = this._parseJsonPointer(entry.dataPath);
-            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
-            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
-            this._processPathsSync(resource, dataSegments, [], ({ parent, indices }) => {
-                const blobMeta = parent[blobMetaLeaf];
-                if (blobMeta && blobMeta.lastUpdated) {
-                    refs.set(this._substituteIndices(dataSegments, indices), blobMeta.lastUpdated);
-                }
-            });
-        }
-        return refs;
     }
 
     getLiveObjectRefsOrResourceLastUpdated (resource) {
@@ -637,27 +625,6 @@ class Base64DataManager {
             });
         }
         return refs;
-    }
-
-    /**
-     * Delete the live objects `currentResource` superseded relative to a pre-write snapshot from
-     * `getLiveObjectRefs`. For each previously-referenced leaf now absent or pointing at a different
-     * `lastUpdated`, deletes the previous object. Read-free, path-aware, never throws.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} currentResource - just committed.
-     * @param {Map<string, Date>} previousRefs - snapshot from `getLiveObjectRefs(previousResource)`.
-     * @returns {Promise<void>}
-     */
-    async deleteSupersededLiveObjectsAsync (currentResource, previousRefs) {
-        if (!previousRefs || previousRefs.size === 0 || !currentResource || !this.enableBase64FieldCloudStorage) {
-            return;
-        }
-        const currentRefs = this.getLiveObjectRefs(currentResource);
-        for (const [leafKey, previousLastUpdated] of previousRefs) {
-            const currentLastUpdated = currentRefs.get(leafKey);
-            if (!currentLastUpdated || this._toEpochMs(currentLastUpdated) !== this._toEpochMs(previousLastUpdated)) {
-                await this._deleteExactLiveObjectAsync(currentResource.resourceType, currentResource._uuid, previousLastUpdated);
-            }
-        }
     }
 
     /**
@@ -692,12 +659,9 @@ class Base64DataManager {
 
     /**
      * Best-effort, unconditional delete of exactly the live object at `{uuid}/{epochMsOf(lastUpdated)}`
-     * — no sweep of neighboring keys, no `listObjectsAsync` call. Used by `deleteOwnUploadedLiveObjectsAsync`
-     * (write-failure rollback), `deleteSupersededLiveObjectsAsync` (PUT/PATCH supersede), and
-     * `cleanupPreviousLiveObjectAsync` ($merge/bulk supersede) — each already knows the one specific
-     * key it wants gone and must never touch any other key under the same uuid prefix, including
-     * whatever key the write just committed: `deleteLiveObjectAsync`'s <= sweep can't guarantee that,
-     * since a concurrent writer's reconciliation may reuse a key older than the one it superseded.
+     * — no sweep of neighboring keys, no `listObjectsAsync` call. Used by
+     * `deleteOwnUploadedLiveObjectsAsync` (write-failure rollback), which knows the one specific key
+     * it uploaded and must never touch any other key under the same uuid prefix.
      * No-op on falsy `lastUpdated`; never throws.
      * @param {string} resourceType
      * @param {string} uuid
@@ -801,7 +765,8 @@ class Base64DataManager {
                         incomingHash: stashed.hash,
                         incomingLastUpdated: stashed.lastUpdated,
                         incomingRawSize: stashed.rawSize,
-                        previousBlobMeta: currentBlobMeta
+                        previousBlobMeta: currentBlobMeta,
+                        initialLastUpdated: stashed.previousLastUpdated || (stashed.changed ? undefined : stashed.lastUpdated)
                     });
                 }
             });
@@ -816,12 +781,12 @@ class Base64DataManager {
      * @private
      */
     async _reconcileDivergedLeafAsync (docToWrite, leaf, requestInfo) {
-        const { dataSegments, blobMetaLeaf, indices, incomingHash, incomingLastUpdated, incomingRawSize, previousBlobMeta } = leaf;
+        const { dataSegments, blobMetaLeaf, indices, incomingHash, incomingLastUpdated, incomingRawSize, previousBlobMeta, initialLastUpdated } = leaf;
         const targetParent = this._parentAt(docToWrite, dataSegments, indices);
         if (!targetParent) {
             return;
         }
-        const previousLastUpdated = previousBlobMeta ? previousBlobMeta.lastUpdated : undefined;
+        const previousLastUpdated = initialLastUpdated || (previousBlobMeta ? previousBlobMeta.lastUpdated : undefined);
         // Bytes (for the re-upload and the history write) come from the stash — originalData for a
         // changed leaf, else the currentData captured at RETRIEVE.
         const bytes = this._readRequestContent(requestInfo, docToWrite._uuid, dataSegments, indices);
@@ -1171,8 +1136,7 @@ class Base64DataManager {
     }
 
     /**
-     * Live-bucket key: a per-content-change timestamp, never regenerated once superseded (which is
-     * what makes supersession cleanup safe with no cross-check).
+     * Live-bucket key: a per-content-change timestamp, never regenerated once superseded.
      * @param {string} resourceType - e.g. "Binary".
      * @param {string} uuid - the resource `_uuid`.
      * @param {number} lastUpdatedMs - the content stamp (ms-since-epoch) this object was created under.

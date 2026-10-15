@@ -56,7 +56,7 @@ describe('PUT/PATCH live-object cleanup (always-create-new, no version check nee
         return (await db.collection('Binary_4_0_0').find({ id }).toArray())[0];
     };
 
-    test('a plain PUT supersession deletes the previous live object', async () => {
+    test('a plain PUT supersession retains the previous live object', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const liveClient = container.base64FieldCloudStorageClient;
@@ -72,11 +72,11 @@ describe('PUT/PATCH live-object cleanup (always-create-new, no version check nee
         const keyV2 = `Binary_4_0_0/${docV2._uuid}/${docV2._blobMeta.lastUpdated.getTime()}`;
 
         expect(keyV2).not.toBe(keyV1);
-        expect(liveClient.uploadedData[keyV1]).toBeUndefined();
+        expect(liveClient.uploadedData[keyV1]).toBe(DATA_A);
         expect(liveClient.uploadedData[keyV2]).toBe(DATA_B);
     });
 
-    test('a PATCH-driven data change deletes the previous live object', async () => {
+    test('a PATCH-driven data change retains the previous live object', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const liveClient = container.base64FieldCloudStorageClient;
@@ -95,11 +95,11 @@ describe('PUT/PATCH live-object cleanup (always-create-new, no version check nee
         const docV2 = await readBinaryFromMongo(container, id);
         const keyV2 = `Binary_4_0_0/${docV2._uuid}/${docV2._blobMeta.lastUpdated.getTime()}`;
         expect(keyV2).not.toBe(keyV1);
-        expect(liveClient.uploadedData[keyV1]).toBeUndefined();
+        expect(liveClient.uploadedData[keyV1]).toBe(DATA_A);
         expect(liveClient.uploadedData[keyV2]).toBe(DATA_B);
     });
 
-    test('a PATCH that changes only an unrelated field still rotates the live key and deletes the old one', async () => {
+    test('a PATCH that changes only an unrelated field still rotates the live key and retains the old one', async () => {
         // alwaysCreateNew fires whenever update.js/patch.js decide there's a change at all, not only
         // when `data` itself changes — a re-upload of identical bytes under a fresh key is the
         // trade-off that removes the need for a version check.
@@ -120,7 +120,7 @@ describe('PUT/PATCH live-object cleanup (always-create-new, no version check nee
         const docV2 = await readBinaryFromMongo(container, id);
         const keyV2 = `Binary_4_0_0/${docV2._uuid}/${docV2._blobMeta.lastUpdated.getTime()}`;
         expect(keyV2).not.toBe(keyV1);
-        expect(liveClient.uploadedData[keyV1]).toBeUndefined();
+        expect(liveClient.uploadedData[keyV1]).toBe(DATA_A);
         expect(liveClient.uploadedData[keyV2]).toBe(DATA_A); // same bytes, new key
     });
 

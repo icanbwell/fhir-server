@@ -149,11 +149,6 @@ class FastDatabaseUpdateManager {
                 query: { _uuid: doc._uuid },
                 options: findQueryOptions
             });
-            // Snapshot the live-object refs of the version we're about to supersede so the
-            // post-commit cleanup deletes the right objects (path-aware, per configured leaf).
-            // Re-captured on each retry re-read so a concurrent writer moving the DB forward doesn't
-            // leave us cleaning up a stale version.
-            let previousLiveRefs = this.base64DataManager.getLiveObjectRefs(resourceInDatabase);
             await logTraceSystemEventAsync({
                 event: 'replaceOneAsync' + `_${doc.resourceType}`,
                 message: 'Found existing resource',
@@ -230,10 +225,6 @@ class FastDatabaseUpdateManager {
                         query: { _uuid: doc._uuid },
                         options: findQueryOptions
                     });
-                    // A concurrent writer moved the DB forward — refresh the snapshot so we clean up
-                    // the version the next attempt actually supersedes.
-                    previousLiveRefs = this.base64DataManager.getLiveObjectRefs(resourceInDatabase);
-
                     if (resourceInDatabase === null) {
                         throw new Error(`Unable to read resource ${doc.resourceType}/${doc._uuid} from database`);
                     } else {
@@ -275,7 +266,6 @@ class FastDatabaseUpdateManager {
                             runsLeft
                         }
                     });
-                    await this.base64DataManager.deleteSupersededLiveObjectsAsync(doc, previousLiveRefs);
                     return { savedResource: doc, patches };
                 }
             }
