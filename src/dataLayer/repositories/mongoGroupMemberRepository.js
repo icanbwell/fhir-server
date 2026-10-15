@@ -354,13 +354,13 @@ class MongoGroupMemberRepository {
                 resourceType: GROUP_MEMBER_RESOURCE_TYPE,
                 resources: rows,
                 base_version,
-                skipAccessLogEntries: true
+                skipAccessLogAndPostSave: true
             });
             if (deleted === 0) {
-                throw new Error(
-                    `GroupMember cascade delete made no progress for Group ${groupUuid}: ` +
-                    `${rows.length} rows found but none deleted`
-                );
+                // The delete filter is exactly the _uuids just found, so 0 deleted means a
+                // concurrent or retried delete of this Group already removed them. Re-query for
+                // whatever is left.
+                continue;
             }
             totalDeleted += deleted;
             // The per-row access-log entries are skipped, so log which members were deleted here;

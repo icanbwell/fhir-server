@@ -91,16 +91,19 @@ class RemoveHelper {
      *   e.g. MongoGroupMemberRepository stamps a GroupMember delete tombstone with the owning
      *   Group's own lastUpdated (four-way parity: Group/Group_History/GroupMember/
      *   GroupMember_History must all agree), which "now" would silently overwrite otherwise.
-     * @property {boolean} [skipAccessLogEntries] - Do not add per-resource entries to the request's
-     *   access-log data. The access logger JSON-stringifies that whole array at the end of the
-     *   request, so a delete of millions of resources (the extended-Group member cascade) would hold
-     *   them all in memory and exceed the maximum string length, losing the whole access-log record.
-     *   Default (false): every deleted resource is added, unchanged.
+     * @property {boolean} [skipAccessLogAndPostSave] - Do not keep per-resource state for the end of
+     *   the request: (1) no per-resource entries are added to the access-log data, whose array the
+     *   access logger JSON-stringifies at the end of the request, and (2) no post-save task is queued
+     *   on the post-request processor, whose closure would hold the deleted resources until the
+     *   response is sent. A delete of millions of resources (the extended-Group member cascade)
+     *   would otherwise hold them all in memory and exceed the maximum string length, losing the
+     *   whole access-log record. Post-save handlers are not run for these resources.
+     *   Default (false): both are done, unchanged.
      *
      * @param {DeleteManyAsyncOption}
      * @return {Promise<Number>}
      */
-    async deleteManyAsync({ requestInfo, options = {}, resourceType, resources, base_version, preserveLastUpdated = false, skipAccessLogEntries = false }) {
+    async deleteManyAsync({ requestInfo, options = {}, resourceType, resources, base_version, preserveLastUpdated = false, skipAccessLogAndPostSave = false }) {
         const { requestId } = requestInfo;
         let uuidList = [];
         let query = {};
@@ -186,7 +189,7 @@ class RemoveHelper {
                 }
             }
 
-            if (!skipAccessLogEntries) {
+            if (!skipAccessLogAndPostSave) {
                 const operationResult = httpContext.get(ACCESS_LOGS_ENTRY_DATA)?.operationResult || [];
                 operationResult.push(...deletionResult);
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
@@ -194,7 +197,7 @@ class RemoveHelper {
                 });
             }
 
-            if (resourceType !== 'AuditEvent') {
+            if (resourceType !== 'AuditEvent' && !skipAccessLogAndPostSave) {
                 this.postRequestProcessor.add({
                     requestId,
                     fnTask: async () => {

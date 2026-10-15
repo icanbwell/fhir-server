@@ -611,7 +611,7 @@ describe('MongoGroupMemberRepository', () => {
             expect(args.requestInfo.requestId).toBe('req-1');
             expect(args.resourceType).toBe('GroupMember');
             expect(args.base_version).toBe('4_0_0');
-            expect(args.skipAccessLogEntries).toBe(true);
+            expect(args.skipAccessLogAndPostSave).toBe(true);
             expect(args).not.toHaveProperty('preserveLastUpdated');
         });
 
@@ -650,14 +650,33 @@ describe('MongoGroupMemberRepository', () => {
             expect(events).toEqual(['find', 'delete', 'find', 'delete', 'find']);
         });
 
-        test('throws instead of looping forever when rows are found but none are deleted', async () => {
-            mockRounds([[makeRow(1), makeRow(2)], [makeRow(1), makeRow(2)]]);
+        test('treats rows already deleted by a concurrent or retried delete as done instead of failing', async () => {
+            // First pass finds rows another delete removes first (0 deleted), the re-query finds none
+            mockRounds([[makeRow(1), makeRow(2)]]);
             mockRemoveHelper.deleteManyAsync = jest.fn().mockResolvedValue(0);
 
-            await expect(
-                repository.cascadeDeleteForGroupAsync({ requestInfo, base_version: '4_0_0', groupUuid: 'group-1' })
-            ).rejects.toThrow(/no progress/);
-            expect(findAsyncMock).toHaveBeenCalledTimes(1);
+            const deleted = await repository.cascadeDeleteForGroupAsync({
+                requestInfo, base_version: '4_0_0', groupUuid: 'group-1'
+            });
+
+            expect(deleted).toBe(0);
+            expect(findAsyncMock).toHaveBeenCalledTimes(2);
+        });
+
+        test('keeps going after passes that lost their rows to a concurrent delete', async () => {
+            mockRounds([[makeRow(1)], [makeRow(2)], [makeRow(3)], [makeRow(4)]]);
+            mockRemoveHelper.deleteManyAsync = jest.fn()
+                .mockResolvedValueOnce(0)
+                .mockResolvedValueOnce(0)
+                .mockResolvedValueOnce(0)
+                .mockResolvedValueOnce(1);
+
+            const deleted = await repository.cascadeDeleteForGroupAsync({
+                requestInfo, base_version: '4_0_0', groupUuid: 'group-1'
+            });
+
+            expect(deleted).toBe(1);
+            expect(findAsyncMock).toHaveBeenCalledTimes(5);
         });
 
         test('propagates a failed batch and stops without querying further batches', async () => {

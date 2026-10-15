@@ -436,7 +436,7 @@ describe('RemoveHelper', () => {
             });
         });
 
-        describe('skipAccessLogEntries', () => {
+        describe('skipAccessLogAndPostSave', () => {
             const makeResources = () => [
                 { id: 'm-1', _uuid: 'u-1', _sourceAssigningAuthority: 'a', meta: { lastUpdated: new Date('2026-01-01T00:00:00.000Z') } },
                 { id: 'm-2', _uuid: 'u-2', _sourceAssigningAuthority: 'a', meta: { lastUpdated: new Date('2026-01-01T00:00:00.000Z') } }
@@ -450,13 +450,28 @@ describe('RemoveHelper', () => {
                     ...baseParams,
                     resourceType: 'GroupMember',
                     resources: makeResources(),
-                    skipAccessLogEntries: true
+                    skipAccessLogAndPostSave: true
                 });
 
                 expect(httpContext.set).not.toHaveBeenCalled();
             });
 
-            test('still writes history before deleting, stamps the time, and queues the post-save events', async () => {
+            test('does not queue a post-save task, so no closure holds the deleted resources', async () => {
+                httpContext.get.mockReturnValue(undefined);
+                mockCollection.deleteMany.mockResolvedValue({ deletedCount: 2 });
+
+                await removeHelper.deleteManyAsync({
+                    ...baseParams,
+                    resourceType: 'GroupMember',
+                    resources: makeResources(),
+                    skipAccessLogAndPostSave: true
+                });
+
+                expect(mockPostRequestProcessor.add).not.toHaveBeenCalled();
+                expect(mockPostSaveProcessor.afterSaveAsync).not.toHaveBeenCalled();
+            });
+
+            test('still writes history before deleting and stamps the time', async () => {
                 httpContext.get.mockReturnValue(undefined);
                 const order = [];
                 mockDatabaseBulkInserter.executeHistoryAsync.mockImplementation(async () => { order.push('history'); });
@@ -468,17 +483,16 @@ describe('RemoveHelper', () => {
                     ...baseParams,
                     resourceType: 'GroupMember',
                     resources,
-                    skipAccessLogEntries: true
+                    skipAccessLogAndPostSave: true
                 });
 
                 expect(order).toEqual(['history', 'delete']);
                 for (const resource of resources) {
                     expect(resource.meta.lastUpdated.getTime()).toBeGreaterThanOrEqual(before);
                 }
-                expect(mockPostRequestProcessor.add).toHaveBeenCalledTimes(1);
             });
 
-            test('by default records an access-log entry for every deleted resource', async () => {
+            test('by default records an access-log entry for every deleted resource and queues the post-save task', async () => {
                 httpContext.get.mockReturnValue(undefined);
                 mockCollection.deleteMany.mockResolvedValue({ deletedCount: 2 });
 
@@ -486,6 +500,7 @@ describe('RemoveHelper', () => {
 
                 expect(httpContext.set).toHaveBeenCalledTimes(1);
                 expect(httpContext.set.mock.calls[0][1].operationResult).toHaveLength(2);
+                expect(mockPostRequestProcessor.add).toHaveBeenCalledTimes(1);
             });
         });
 
