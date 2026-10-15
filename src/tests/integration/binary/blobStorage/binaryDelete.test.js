@@ -129,7 +129,7 @@ describe('Binary delete — S3 history persistence', () => {
         expect(deleteHistoryEntry.resource._blobMeta.hash).toBe(doc._blobMeta.hash);
     });
 
-    test('a PATCH that drops Binary.data below the externalization threshold cleans up every live object under the uuid prefix', async () => {
+    test('a PATCH that drops Binary.data below the externalization threshold retains only the previous live object under the uuid prefix', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const liveClient = container.base64FieldCloudStorageClient;
@@ -148,7 +148,7 @@ describe('Binary delete — S3 history persistence', () => {
         const docV2 = await readBinaryFromMongo(container, id);
         expect(docV2._blobMeta).toBeUndefined();
         expect(docV2.data).toBe(SMALL_DATA);
-        expect(keysUnderLiveFolder(liveClient, docV1)).toEqual([]);
+        expect(keysUnderLiveFolder(liveClient, docV1)).toEqual([liveKeyOf(docV1)]);
     });
 
     test('REST DELETE of a never-externalized (small) Binary is unchanged: no S3 traffic', async () => {

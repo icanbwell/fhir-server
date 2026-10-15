@@ -569,7 +569,11 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
             );
         }
 
-        if (!bulkInsertUpdateEntry.skipped && !hasBulkWriteErrors) {
+        // Superseded live-bucket objects are swept once, on the main-collection pass. The
+        // history-collection pass runs afterwards for the same entry and only writes history rows
+        // (whose payloads live in the history bucket), so sweeping again would just re-list the
+        // same prefix.
+        if (!bulkInsertUpdateEntry.skipped && !hasBulkWriteErrors && !useHistoryCollection) {
             await this.base64DataManager.cleanupPreviousLiveObjectAsync(bulkInsertUpdateEntry.resource, requestInfo);
         }
 
