@@ -827,64 +827,96 @@ create-only surface. Orphans that still occur are the R16 deletion-finder proble
 If conditional create is wanted later, it should be its own design, with the person `securityContext` filter
 applied to the conditional search and a cross-member test (B must not match A's Binary).
 
-## 17. Backfill and rollout for the backfill-first model (proposal, not built)
+## 17. Backfill and rollout for the backfill-first model
 
-This section sizes and sequences the work the §0.2 model depends on. **Nothing here is implemented in the stacked PR**;
-the numbers are estimates, not measurements.
+The backfill is built in this PR as an admin script that follows the repo's existing pattern (`src/admin/runners/` plus a
+thin CLI in `src/admin/scripts/`, extending `BaseBulkOperationRunner`; closest precedent
+`migrateBinaryDataToCloudStorageRunner`). **It has not been run against real data.** The unit tests pass; the integration
+test (`src/tests/integration/admin/backfillBinarySecurityContext/`) has not been run locally (no MongoDB binary in the
+sandbox), so CI is the check. Sizes below are estimates, not measurements.
 
 ### 17.1 Who owns an existing Binary
 
 Existing Binary carry no owner. The only link from a Binary to a person is the `DocumentReference` whose
 `content.attachment.url` points at it (the same link `$everything` follows, `nonClinicalResourceExtractor`), and that
-DocumentReference has a `subject` Patient.
+DocumentReference has a `subject`.
 
-| Case | Proposed owner | Notes |
+| Case | Result | Notes |
 |---|---|---|
-| Exactly one DocumentReference points at the Binary | `securityContext` = that DocumentReference's `subject` | the common case |
-| Several DocumentReferences with the same subject | that subject | |
-| Several DocumentReferences with different subjects | **none; list for review** | do not guess an owner |
-| No DocumentReference points at it | none | stays hidden from patient-scoped tokens; still readable by system/user tokens |
-| Referenced from something other than a DocumentReference (for example `Communication.payload.contentReference`) | none yet | open question: does any member-facing flow depend on it? |
+| Exactly one DocumentReference points at the Binary and its subject is a Patient | `securityContext` = that subject | the common case |
+| Several DocumentReferences with the same subject | that subject | counted as `alreadyOwnedBySame` |
+| Several DocumentReferences with **different** subjects | **first one processed wins; counted and logged as a conflict** | the runner does not guess. See 17.4 |
+| No DocumentReference points at it | not touched | stays hidden from patient-scoped tokens; still readable by system/user tokens |
+| The subject is not a Patient (Person, Group, none) | not touched | `skippedSubjectNotPatient` |
+| `content.attachment.url` is not `Binary/{id}` (for example an http url) | ignored | same rule as `$everything` |
+| Referenced from something other than a DocumentReference (for example `Communication.payload.contentReference`) | not touched | open question: does any member-facing flow depend on it? |
 
-Pipelines that write Binary must stamp `securityContext` at write time (same value rule) **before** the backfill
-finishes, or new Binary reopen the gap. Helix and PROA use system tokens, so they are unaffected by the flag but not by
-this requirement.
+The Binary id is resolved exactly as `$everything` does it: a uuid id is used as is, and a non-uuid id becomes
+`generateUUIDv5('{id}|{DocumentReference._sourceAssigningAuthority}')`. Pipelines that write Binary must stamp
+`securityContext` at write time (same value rule) **before** the backfill finishes, or new Binary reopen the gap. Helix
+and PROA use system tokens, so they are unaffected by the flag but not by this requirement.
 
-### 17.2 Mechanics (throttled, resumable)
+### 17.2 The script
 
-- Scan `Binary_4_0_0` for `securityContext` missing, ordered by `_id`, in batches (start at 1,000 to 5,000), checkpointing
-  the last `_id`; sleep between batches and stop on replication lag or primary CPU thresholds.
-- Per batch, resolve owners with one `DocumentReference` lookup on `content.attachment.url`. This needs an index that does
-  not exist today for that field; measure on a copy before the full run.
-- Write with a bulk `$set` of the stored form the reference handler produces (`reference`, `_uuid`, `_sourceId`,
-  `_sourceAssigningAuthority`), using the same code path as `preSave` so the stored shape matches what the patient filter
-  queries. Open: whether to bump `meta.versionId`, write a history entry, and suppress change events and audit entries for a
-  metadata-only backfill (60M events would swamp Kafka consumers).
-- Build `securityContextUuid_uuid` (already defined in `customIndexes.js`, partial on `securityContext._uuid`)
-  **before** turning the flag on, online and during off-peak hours. Partial, so it indexes only owned Binary.
-- Idempotent: re-running skips Binary that already have a `securityContext`.
+`node src/admin/scripts/backfillBinarySecurityContext.js` (runner: `BackfillBinarySecurityContextRunner`).
+
+- **Dry run by default.** A real run needs `--dryRun=false`. A dry run counts what it would write and writes nothing.
+- **Scan from DocumentReference, write to Binary.** Query: `content.attachment.url` matches `Binary/`, `subject._uuid`
+  starts with `Patient/`, optional `--before` / `--after` on `meta.lastUpdated`, optional `--startFromId`. The scan is
+  sorted by `_id`, so a run resumes from the last DocumentReference `_id` in the log. This avoids 60M lookups on an
+  unindexed field. Each DocumentReference costs one `findOne({_uuid})` on Binary (indexed).
+- **Writes are `updateOne` with `$set: {securityContext}` and the filter `{_uuid, securityContext: {$exists: false}}`.**
+  It never overwrites an owner set meanwhile (a member upload, another run) and never rewrites inline base64 `data`.
+  The stored subject (`reference`, `_uuid`, `_sourceId`, `_sourceAssigningAuthority`) is copied as is, so the field has
+  the shape the patient filter queries.
+- **No `meta.lastUpdated` or `meta.versionId` change.** The cloud-storage key and `_blobMeta.lastUpdated` are built from
+  `meta.lastUpdated`, so bumping it on an offloaded Binary could orphan its bytes.
+- **No history, change events or audit entries.** No admin runner emits them (they write straight to Mongo); this one
+  follows that. `Binary_4_0_0_History` is not touched: patient scopes get 403 on Binary history, and system readers do
+  not use `securityContext`.
+- **Idempotent.** A second run finds every stamped Binary already owned and writes nothing.
+- **Throttle: `--sleepMs`** pauses after every `--batchSize` DocumentReferences. The base runner has no rate limit or
+  replica-lag check of its own, so this is the only brake; watch primary load and lag while it runs.
+- Options: `--batchSize` (default 1000), `--limit`, `--skip`, `--startFromId`, `--useTransaction`, `--before`, `--after`,
+  `--sleepMs`, `--dryRun`, `--dotenv`. Run with `node --max-old-space-size=8192`.
 
 ### 17.3 Size
 
-About 60M Binary (Mintu's figure). If the job sustains 500 to 2,000 documents per second, that is roughly 8 to 33 hours of
-wall-clock time (60M / 2,000 = 8.3 h, 60M / 500 = 33 h). Measure the real rate against a production-sized copy first;
-the lookup index build and the Kafka question above are the likely limits.
+About 60M Binary (Mintu's figure); the number of DocumentReferences that point at them is unknown. If the job sustains
+500 to 2,000 DocumentReferences per second, 60M is roughly 8 to 33 hours (60M / 2,000 = 8.3 h, 60M / 500 = 33 h). Measure
+the real rate with a dry run on a production-sized copy first, then size `--batchSize` and `--sleepMs`.
 
-### 17.4 Sequence
+### 17.4 Limits to know before running it
 
-1. Ship the stacked PR with the flag off (reads and writes identical to `main`).
+- **Conflicts are first-wins.** In a real run every later conflict is detected (the first stamp is in the database) and
+  listed, up to 1,000 entries, but the Binary keeps the first owner until someone fixes it by hand. In a **dry run only
+  conflicts inside the pending window are detected** (the runner remembers the last 200,000 queued Binary), because
+  nothing is written. Run the real script on a copy first if the conflict count matters.
+- Shared access: a Binary owned by a real Patient becomes readable by every person linked to that Patient (same as the
+  transitional model).
+- A Binary that no DocumentReference points at gets no owner, so patient-scoped tokens cannot read it. Only
+  system/user tokens can.
+- No reconciliation query exists yet (owned + ambiguous + none = total); count `securityContext` presence directly.
+
+### 17.5 Sequence
+
+1. Ship #2643 with the flag off (reads and writes identical to `main`).
 2. Pipelines start stamping `securityContext` at write time.
-3. Build the partial index; dry-run the backfill (count owners found, ambiguous, none).
-4. Run the backfill; reconcile counts (owned + ambiguous + none = total).
-5. Turn the flag on in a lower environment; walk DocumentReference to Binary through GraphQL and `$everything` as a
+3. Build the partial index `securityContextUuid_uuid` (defined in `customIndexes.js`, partial on `securityContext._uuid`,
+   so it indexes only owned Binary) online and off-peak, before enabling the flag.
+4. Dry run the script on a production-sized copy: rate, `queued`, `binaryNotFound`, `conflicts`.
+5. Run it for real in a lower environment, then production, in chunks with `--limit` / `--before` / `--after` and
+   `--sleepMs`; reconcile counts.
+6. Turn the flag on in a lower environment; walk DocumentReference to Binary through GraphQL and `$everything` as a
    member; then enable per environment, **all deployments at once** (§0.2 consequence 1).
-6. Follow-up (DCON-6075): remove the flag and the create-only special cases that no longer need it, leaving
+7. Follow-up (DCON-6075): remove the flag and the create-only special cases that no longer need it, leaving
    `Binary: 'securityContext.reference'` in `patientFilterMapping`.
 
-### 17.5 Open questions for Mintu and Imran
+### 17.6 Open questions for Mintu and Imran
 
 1. Is losing mixed-token reads of unowned Binary (clinical viewers) acceptable at flag-on, given the backfill leaves
-   un-owned and ambiguous Binary hidden?
-2. May the backfill write without versioning, history, change events and audit, and who approves that?
-3. Which pipelines write Binary today besides helix and PROA?
-
+   un-owned and conflicting Binary hidden?
+2. Is the repo's convention (no versioning, history, change events or audit for a metadata-only backfill) acceptable
+   here, and who approves running it in production?
+3. Which pipelines write Binary today besides helix and PROA, and can they stamp `securityContext` before the backfill ends?
+4. Does anything other than a DocumentReference link a Binary to a patient in a member-facing flow?
