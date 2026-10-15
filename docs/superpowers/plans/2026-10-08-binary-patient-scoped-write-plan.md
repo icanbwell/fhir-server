@@ -9,7 +9,8 @@
 **Ticket:** [DCON-5986](https://icanbwell.atlassian.net/browse/DCON-5986)
 **Design:** [`docs/superpowers/specs/2026-10-08-binary-patient-scoped-write-design.md`](../specs/2026-10-08-binary-patient-scoped-write-design.md)
 
-This is the implementation plan for the design above. It was reviewed and approved, and the work was then
+This is the implementation plan for the design above. Direction came from Imran Qureshi in #temp-user-documents
+(2026-10-09); the plan has not been formally approved and is pending fhir-team review with this PR. The work was
 done in this single PR (see "Implementation status" at the end); the four-PR split below is kept as the
 logical order of the commits. Section references (§) point at the design doc. The
 design's open questions were resolved in review; the outcomes are in the Decisions table below and in
@@ -182,6 +183,21 @@ Not done / deviations:
   audit and text/plain integration cases remain `test.todo`.
 - New finding (design §16.1): the `$everything` response cache key does not include the caller's person
   id; a decision is needed before enabling the flag where two persons share a Patient.
+
+### Revision 2026-10-14 (status at this head)
+
+This supersedes the "Not done / deviations" list above:
+- `$everything` cache key (B-7, design §16.1): fixed; the caller's person id is the last key component on the
+  non-proxy path.
+- Read filter: independent of the flag (design §16.3); the flag gates only the member create and strict
+  (pure patient token) read authorization. Regression test: `binary_flag_rollback.test.js`.
+- OpenTelemetry counters (`fhir_binary_patient_create_total`, `fhir_binary_person_filter_applied_total`) and the
+  partial indexes `securityContextUuid_uuid` / `securityContextSourceId_uuid` are built; `explain` is measured
+  (design §13, "Measured").
+- GraphQL, `$everything`/`$graph`, cloud-storage, audit and text/plain integration cases are implemented and run
+  locally; no `test.todo` remains. Existing `$everything`/GraphQL query fixtures were updated for the new
+  `Binary_4_0_0` clause.
+- R12 (orphan Binary on retry): design §16.2; no fhir-server change.
 
 ### Revision 2026-10-09 (securityContext)
 

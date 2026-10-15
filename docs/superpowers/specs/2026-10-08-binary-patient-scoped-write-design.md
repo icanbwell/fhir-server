@@ -1,9 +1,9 @@
 # Patient-Scoped Binary Create and Person-Scoped Binary Access — Design
 
-Status: **Approved for implementation; implemented in this PR behind `ENABLE_PATIENT_SCOPED_BINARY_CREATE` (default off). Implementation notes are in §16.**
+Status: **Implemented in this PR behind `ENABLE_PATIENT_SCOPED_BINARY_CREATE` (default off), pending fhir-team review of the design and the code together, including §16.3 (read filter independent of the flag). Not formally approved yet. Implementation notes are in §16.**
 
-Direction decided in the originating Slack thread (Imran Qureshi, Guillermo Granados), pending review
-of this document: "Option 1" below.
+Direction from the originating Slack thread in #temp-user-documents (Imran Qureshi, 2026-10-09: new member uploads
+only, no backfill, `securityContext` set by the server from the JWT), pending review of this document: "Option 1" below.
 
 ## 0. Decisions recorded from review (2026-10-08)
 
@@ -546,7 +546,9 @@ Still open:
 
 ## 13. Quantitative notes (estimates vs measured)
 
-Nothing in the bullets below was measured; the one measurement made is in "Measured" at the end of this section.
+Nothing in the bullets below was measured, and they were written for the earlier tag-based filter (`meta.security`,
+`$not/$elemMatch`); the `securityContext` filter that was built is measured in "Measured" at the end of this section,
+which supersedes them.
 
 - Extra read cost: one additional `$or` clause evaluated per **already-selected** document (id lookup
   by `_uuid`, or access-tag match, selects first). Estimate: O(documents returned), a few BSON field
@@ -596,8 +598,8 @@ of the tenant's Binary, as it did without the filter). Index size on the 50,320-
 
 Tests are specified here as a matrix, and a skeleton using `test.todo` is added at
 `src/tests/integration/patientScope/binary_with_patient_scope/binary_with_patient_scope.test.js` so the
-cases are visible and tracked without asserting not-yet-existing behavior. They are implemented after
-this design is approved. Style follows
+cases are visible and tracked without asserting not-yet-existing behavior. All of them are now implemented
+(no `test.todo` remains). Style follows
 `src/tests/integration/patientScope/create_with_patient_scope/create_with_patient_scope.test.js`
 (`getHeadersWithCustomPayload`, merge a Person first and use its `uuid` as `clientFhirPersonId`).
 
