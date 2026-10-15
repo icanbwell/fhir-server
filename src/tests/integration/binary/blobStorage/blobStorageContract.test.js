@@ -138,12 +138,12 @@ describe('Binary base64 S3 offload — write-path API contract (feature ENABLED)
             .set({ ...getHeaders(), 'Content-Type': 'application/json-patch+json' });
         expect(resp).toHaveResponse(deepcopy(expectedBinaryV2Patched));
         // PATCH uses always-create-new: even though `data` is unchanged, the payload is re-uploaded
-        // under a fresh timestamped key and the superseded one is deleted. The client-facing
+        // under a fresh timestamped key and the superseded one is retained. The client-facing
         // response is identical either way (verified above) — only the live-bucket key rotates.
         const docV2 = await readBinaryFromMongo(container, BINARY_ID);
         const keyV2 = liveKeyOf(docV2);
         expect(keyV2).not.toBe(keyV1);
         expect(container.base64FieldCloudStorageClient.uploadedData[keyV2]).toBe(CONTRACT_DATA);
-        expect(container.base64FieldCloudStorageClient.uploadedData[keyV1]).toBeUndefined();
+        expect(container.base64FieldCloudStorageClient.uploadedData[keyV1]).toBe(CONTRACT_DATA);
     });
 });

@@ -321,6 +321,25 @@ describe('MongoBulkWriteExecutor', () => {
             expect(postRequestProcessor.add).not.toHaveBeenCalled();
         });
 
+        test('the live-object cleanup runs on the main-collection pass', async () => {
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 1 }));
+            await run({
+                operations: [makeEntry({ operationType: 'merge', isCreateOperation: false, isUpdateOperation: true })]
+            });
+
+            expect(base64DataManager.cleanupPreviousLiveObjectAsync).toHaveBeenCalledTimes(1);
+        });
+
+        test('the live-object cleanup does not run again on the history-collection pass', async () => {
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 1 }));
+            await run({
+                useHistoryCollection: true,
+                operations: [makeEntry({ operationType: 'merge', isCreateOperation: false, isUpdateOperation: true })]
+            });
+
+            expect(base64DataManager.cleanupPreviousLiveObjectAsync).not.toHaveBeenCalled();
+        });
+
         test('RULE 11 boundary: zero operations performs no bulk write and returns no entries', async () => {
             const result = await run({ operations: [] });
 

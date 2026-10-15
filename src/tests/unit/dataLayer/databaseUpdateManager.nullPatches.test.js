@@ -84,11 +84,9 @@ function createDatabaseUpdateManager(overrides = {}) {
     defineGetter(configManager, 'replaceRetries', 10);
 
     const base64DataManager = createPrototypedMock(Base64DataManager);
-    base64DataManager.getLiveObjectRefs = jestGlobal.fn().mockReturnValue(new Map());
     base64DataManager.resolveWriteForExternalizedDataChange = jestGlobal.fn().mockImplementation(
         async (mergeResult) => mergeResult
     );
-    base64DataManager.deleteSupersededLiveObjectsAsync = jestGlobal.fn().mockResolvedValue(undefined);
     base64DataManager.deleteOwnUploadedLiveObjectsAsync = jestGlobal.fn().mockResolvedValue(undefined);
 
     const inst = new DatabaseUpdateManager({

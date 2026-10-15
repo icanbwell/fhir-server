@@ -81,11 +81,9 @@ function createManager(overrides = {}) {
     defineGetter(configManager, 'replaceRetries', overrides.replaceRetries || 10);
 
     const base64DataManager = createPrototypedMock(Base64DataManager);
-    base64DataManager.getLiveObjectRefs = jestObj.fn().mockReturnValue(new Map());
     base64DataManager.resolveWriteForExternalizedDataChange = jestObj.fn().mockImplementation(
         async (mergeResult) => mergeResult
     );
-    base64DataManager.deleteSupersededLiveObjectsAsync = jestObj.fn().mockResolvedValue(undefined);
     base64DataManager.deleteOwnUploadedLiveObjectsAsync = jestObj.fn().mockResolvedValue(undefined);
 
     const inst = new FastDatabaseUpdateManager({
@@ -412,29 +410,6 @@ describe('FastDatabaseUpdateManager', () => {
             ).rejects.toThrow(/Unable to read resource/);
         });
 
-        test('calls deleteSupersededLiveObjectsAsync on success', async () => {
-            const doc = createMockDoc({ _uuid: 'u1', versionId: '1' });
-            const existingDoc = createMockDoc({ _uuid: 'u1', versionId: '1' });
-            const mergedDoc = createMockDoc({ _uuid: 'u1', versionId: '2' });
-            const requestInfo = createMockFhirRequestInfo();
-
-            mocks.databaseQueryManager.fastFindOneAsync.mockResolvedValue(existingDoc);
-            mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: mergedDoc,
-                patches: [{ op: 'add', path: '/x' }]
-            });
-            mocks.base64DataManager.resolveWriteForExternalizedDataChange.mockResolvedValue(mergedDoc);
-            mocks.collection.replaceOne.mockResolvedValue({ matchedCount: 1 });
-
-            await manager.replaceOneAsync({
-                base_version: '4_0_0',
-                requestInfo,
-                doc
-            });
-
-            expect(mocks.base64DataManager.deleteSupersededLiveObjectsAsync).toHaveBeenCalled();
-        });
-
         test('calls deleteOwnUploadedLiveObjectsAsync on error', async () => {
             const doc = createMockDoc({ _uuid: 'u1', versionId: '1' });
             const requestInfo = createMockFhirRequestInfo();
@@ -450,29 +425,6 @@ describe('FastDatabaseUpdateManager', () => {
             ).rejects.toThrow();
 
             expect(mocks.base64DataManager.deleteOwnUploadedLiveObjectsAsync).toHaveBeenCalled();
-        });
-
-        test('calls getLiveObjectRefs for the existing database resource', async () => {
-            const doc = createMockDoc({ _uuid: 'u1', versionId: '1' });
-            const existingDoc = createMockDoc({ _uuid: 'u1', versionId: '1' });
-            const mergedDoc = createMockDoc({ _uuid: 'u1', versionId: '2' });
-            const requestInfo = createMockFhirRequestInfo();
-
-            mocks.databaseQueryManager.fastFindOneAsync.mockResolvedValue(existingDoc);
-            mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: mergedDoc,
-                patches: [{ op: 'add', path: '/x' }]
-            });
-            mocks.base64DataManager.resolveWriteForExternalizedDataChange.mockResolvedValue(mergedDoc);
-            mocks.collection.replaceOne.mockResolvedValue({ matchedCount: 1 });
-
-            await manager.replaceOneAsync({
-                base_version: '4_0_0',
-                requestInfo,
-                doc
-            });
-
-            expect(mocks.base64DataManager.getLiveObjectRefs).toHaveBeenCalledWith(existingDoc);
         });
 
         test('passes smartMerge parameter to fastMergeResourceAsync', async () => {

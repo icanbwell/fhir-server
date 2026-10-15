@@ -84,11 +84,9 @@ function createDatabaseUpdateManager(overrides = {}) {
     defineGetter(configManager, 'replaceRetries', 10);
 
     const base64DataManager = createPrototypedMock(Base64DataManager);
-    base64DataManager.getLiveObjectRefs = jestObj.fn().mockReturnValue(new Map());
     base64DataManager.resolveWriteForExternalizedDataChange = jestObj.fn().mockImplementation(
         async (mergeResult) => mergeResult
     );
-    base64DataManager.deleteSupersededLiveObjectsAsync = jestObj.fn().mockResolvedValue(undefined);
     base64DataManager.deleteOwnUploadedLiveObjectsAsync = jestObj.fn().mockResolvedValue(undefined);
 
     const inst = new DatabaseUpdateManager({
@@ -388,29 +386,6 @@ describe('DatabaseUpdateManager', () => {
             })).rejects.toThrow(RethrownError);
 
             expect(manager._mockBase64DataManager.deleteOwnUploadedLiveObjectsAsync).toHaveBeenCalled();
-        });
-
-        test('calls deleteSupersededLiveObjectsAsync on successful save', async () => {
-            const requestInfo = createMockFhirRequestInfo();
-            const doc = createMockResource({ id: 'p1', _uuid: 'u1', versionId: '1' });
-            const existingDoc = createMockResource({ id: 'p1', _uuid: 'u1', versionId: '1' });
-            const updatedDoc = createMockResource({ id: 'p1', _uuid: 'u1', versionId: '2' });
-
-            manager._mockDatabaseQueryManager.findOneAsync.mockResolvedValue(existingDoc);
-            manager._mockResourceMerger.mergeResourceAsync.mockResolvedValue({
-                updatedResource: updatedDoc,
-                patches: []
-            });
-            manager._mockBase64DataManager.resolveWriteForExternalizedDataChange.mockResolvedValue(updatedDoc);
-            manager._mockCollection.replaceOne.mockResolvedValue({ matchedCount: 1, modifiedCount: 1 });
-
-            await manager.replaceOneAsync({
-                base_version: '4_0_0',
-                requestInfo,
-                doc
-            });
-
-            expect(manager._mockBase64DataManager.deleteSupersededLiveObjectsAsync).toHaveBeenCalled();
         });
 
         test('uses smartMerge parameter', async () => {
