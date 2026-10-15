@@ -229,9 +229,7 @@ Implements Mintu's proposal (design §0.2); the transitional unowned/owned read 
   forbidden for a patient scope (in `ScopesValidator` and `PatientScopeManager.canWriteResourceAsync`).
 - The `$everything` cache key carries `callerPersonId` only while the flag is on, so the existing `$everything` and
   GraphQL query fixtures are back to their `main` content (the flag is off in those tests).
-- Backfill built (design §17): `src/admin/runners/backfillBinarySecurityContextRunner.js` and
-  `src/admin/scripts/backfillBinarySecurityContext.js` (dry run by default, DocumentReference-driven, `$set` only, resumable,
-  `--sleepMs` throttle), with unit and integration tests. Not run on real data. The flag must stay off until it has run.
+- Backfill (design §17): a notebook in `icanbwell/bwell-data-ops-notebooks`, per Mintu, following DCON-5502. It is not built yet. The earlier admin runner was removed from this PR. The flag must stay off until the backfill has run.
 - Integration tests under `patientScope/binary_with_patient_scope/` were updated for the new read semantics (unowned
   Binary hidden from patient-scoped tokens with the flag on; flag off = `main` behavior). They have not been run
   locally (no MongoDB binary in the sandbox); CI is the check.
