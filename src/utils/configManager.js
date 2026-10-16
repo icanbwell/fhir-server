@@ -1431,6 +1431,17 @@ class ConfigManager {
     }
 
     /**
+     * Kill switch (default off) for patient-scoped Binary support: a patient-scoped token may create
+     * (only) a Binary, the server stamps the caller's person id on it as a security tag, and Binary
+     * reads by patient-scoped callers are filtered by that tag. Off = today's behavior exactly.
+     * See docs/superpowers/specs/2026-10-08-binary-patient-scoped-write-design.md
+     * @return {boolean}
+     */
+    get enablePatientScopedBinaryCreate() {
+        return isTrue(env.ENABLE_PATIENT_SCOPED_BINARY_CREATE);
+    }
+
+    /**
      * Kill switch for SMART v2 fine-grained (`.cruds`) scope suffix grammar. Default off: a
      * scope token with a v2 suffix (e.g. `user/Patient.rs`, `access/tenantA.c`) parses as
      * invalid until this is enabled, exactly matching this server's original behavior of

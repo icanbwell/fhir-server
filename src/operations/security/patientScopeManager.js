@@ -11,6 +11,7 @@ const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS } = require('../../constants');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const httpContext = require('express-http-context');
+const { hasOwnPersonSecurityContext } = require('../../utils/personSecurityContext');
 
 class PatientScopeManager {
     /**
@@ -293,6 +294,9 @@ class PatientScopeManager {
      * @param {string | null} scope
      * @param {string} [user] Present when called via isAccessToResourceAllowedByPatientScopes(), which
      *   spreads the full FhirRequestInfo (including `user`) into this call.
+     * @param {boolean} [isCreate] true when the resource is being created. Only a create of a
+     *   person-owned resource (Binary) is authorized through its securityContext; every other write keeps
+     *   the patient-filterable-type requirement.
      * @returns {Promise<boolean>}
      */
     async canWriteResourceAsync ({
@@ -301,7 +305,8 @@ class PatientScopeManager {
         personIdFromJwtToken,
         resource,
         scope,
-        user
+        user,
+        isCreate = false
     }) {
         assertIsValid(scope, 'scope is required');
         assertIsValid(resource, 'resource is required');
@@ -310,6 +315,16 @@ class PatientScopeManager {
             // No patient scope at all on this token -- patient-scope checks don't apply to
             // this caller, so defer entirely to the access/tenant scope check elsewhere.
             return true;
+        }
+
+        if (isCreate && this.scopesManager.isPersonContextResourceScoped({
+            scope,
+            resourceType: resource.resourceType
+        })) {
+            // Binary: owned by a person through its securityContext (Patient/person.{person_uuid}), set on
+            // create from the token. It must be the caller's own person (stamping guarantees this; checked
+            // again here as defence in depth).
+            return hasOwnPersonSecurityContext(resource, personIdFromJwtToken);
         }
 
         if (!this.scopesManager.isAccessAllowedByPatientScopes({

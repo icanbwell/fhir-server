@@ -54,6 +54,21 @@ describe('customIndexes', () => {
         expect(metaSourceIndex.exclude).toContain('access-logs');
     });
 
+    test('Binary has partial securityContext indexes that serve the person filter (_uuid and _sourceId)', () => {
+        const { customIndexes } = loadCustomIndexes();
+        for (const [field, name] of [
+            ['securityContext._uuid', 'securityContextUuid_uuid'],
+            ['securityContext._sourceId', 'securityContextSourceId_uuid']
+        ]) {
+            const index = customIndexes['*'].find(idx => idx.options && idx.options.name === name);
+            expect(index).toBeDefined();
+            expect(index.keys).toEqual({ [field]: 1, _uuid: 1 });
+            expect(index.include).toEqual(['Binary_4_0_0']);
+            // partial: existing Binary without a securityContext must not be indexed
+            expect(index.options.partialFilterExpression).toEqual({ [field]: { $exists: true } });
+        }
+    });
+
     test('wildcard indexes include security system/code index for Person_4_0_0', () => {
         const { customIndexes } = loadCustomIndexes();
         const securityIndex = customIndexes['*'].find(

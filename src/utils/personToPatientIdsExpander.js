@@ -240,6 +240,31 @@ class PersonToPatientIdsExpander {
     }
 
     /**
+     * The owner and access security tag codes carried by a Person, loaded by its _uuid (the value of the
+     * clientFhirPersonId claim, personIdFromJwtToken). Used to limit which tenant tags a patient-scoped
+     * caller may put on a resource it creates (see assertTenantTagsWithinPersonTags in personSecurityContext.js).
+     * Only the Person's own meta.security is read; Person.link is not followed.
+     * @param {string} base_version
+     * @param {string} personId the Person's _uuid
+     * @return {Promise<{owner: Set<string>, access: Set<string>}|null>} null when the Person does not exist
+     */
+    async getPersonOwnerAndAccessCodesAsync ({ base_version, personId }) {
+        assertIsValid(personId, 'personId is required');
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Person',
+            base_version
+        });
+        const person = await databaseQueryManager.findOneAsync({ query: { _uuid: personId } });
+        if (!person) {
+            return null;
+        }
+        const codesOf = (system) => new Set(
+            (person.meta?.security || []).filter(s => s && s.system === system && s.code).map(s => s.code)
+        );
+        return { owner: codesOf(SecurityTagSystem.owner), access: codesOf(SecurityTagSystem.access) };
+    }
+
+    /**
      * Get all related patients for the given master-persons.
      * It traverse down to find all patients.
      * @typedef {Object} RelatedPatientParam

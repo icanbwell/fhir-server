@@ -854,12 +854,14 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
+                scopesManager: c.scopesManager,
                 resourceValidator: c.resourceValidator,
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                identifierEnrichmentProvider: c.identifierEnrichmentProvider
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+                personToPatientIdsExpander: c.personToPatientIdsExpander
             }
         )
     );
