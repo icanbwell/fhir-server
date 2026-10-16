@@ -1402,6 +1402,20 @@ class ConfigManager {
     }
 
     /**
+     * Number of GroupMember rows tombstoned and hard-deleted per RemoveHelper.deleteManyAsync call
+     * when an extended Group is deleted. Bounds per-call memory and the size of the $in list;
+     * batches run one after another.
+     * A value that is not a whole number of at least 1 falls back to the default: a limit of 0
+     * means "no limit" to MongoDB, which would load the whole roster in one pass.
+     * Default: 1000
+     * @returns {number}
+     */
+    get groupMemberCascadeDeleteBatchSize() {
+        const batchSize = parseInt(env.GROUP_MEMBER_CASCADE_DELETE_BATCH_SIZE, 10);
+        return Number.isInteger(batchSize) && batchSize >= 1 ? batchSize : 1000;
+    }
+
+    /**
      * ClickHouse request timeout in milliseconds
      * Default: 180000ms (3 minutes) for large batch inserts
      * @returns {number}
