@@ -772,7 +772,8 @@ const createContainer = function () {
                 searchParametersManager: c.searchParametersManager,
                 removeHelper: c.removeHelper,
                 auditLogger: c.auditLogger,
-                postRequestProcessor: c.postRequestProcessor
+                postRequestProcessor: c.postRequestProcessor,
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository
             }
         )
     );
