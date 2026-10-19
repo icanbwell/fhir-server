@@ -155,13 +155,14 @@ class SearchBundleOperation {
         }
 
         assertIsValid(requestId, 'requestId is null');
+        const accessRequested = parsedArgs.isRequestById() ? 'r' : 's';
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
-            accessRequested: 'read'
+            accessRequested
         });
 
         /**
@@ -205,6 +206,7 @@ class SearchBundleOperation {
                     personIdFromJwtToken,
                     parsedArgs,
                     operation: READ,
+                    accessRequested,
                     ...(applyUserTypeBasedFiltering ? { userType, actor } : {})
                 }));
         } catch (e) {

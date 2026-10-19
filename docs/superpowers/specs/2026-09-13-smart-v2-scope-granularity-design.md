@@ -107,9 +107,11 @@ its required CRUDS letter(s), extended here with the operations analyzed since t
 | `searchById` (instance read), vread            | `r`              | |
 | instance-level `_history`                      | `r`              | |
 | type/system-level `history`                    | `s`              | |
-| `searchBundle`, `searchStreaming`, `everything`, `summary`, `expand` | `s` | |
+| `searchBundle` | `r` when the only search parameter is `id` or `_id`, `s` otherwise | the same by-id rule as `remove`; result-shaping and formatting parameters (`_elements`, `_count`, `_total`, `_sort` and similar) do not turn a by-id request into a search |
+| `searchStreaming`, `everything`, `summary`, `expand` | `s` | |
 | `graph` — each resolution step, including the root | `r` if the step resolves one instance by reference/id, `s` if it searches a type (forward reference vs. reverse/child search) | not a single fixed letter; evaluated per step, same rule for the root call as for every child link. For DELETE see the next row |
 | `graph` (DELETE)                               | `d` on the root and on every resource deleted; forward-reference steps are satisfied by `d` (in place of `r`); reverse/child search steps still require `s` | see "DELETE behavior" below |
+| GraphQL v1 and v2                              | the letter of the operation it resolves through | queries resolve through `searchBundle` (`r` by id, `s` otherwise) and mutations through `$merge` and delete; see "GraphQL v1 and v2" below |
 | `$merge`                                       | `u`              | see "`u` covers update-as-create" below |
 | `$import`                                      | `u` on `Task` at the resource gate and `u` on the `access/` tenant codes | request-time gate; `u`, not `c`, because every imported resource is written as a merge (`u`), and the tenant codes copied onto the Task are those granting `u`. Each imported resource is then checked separately in the import worker, as `$merge` does: `u` on its resource type and `u` on its access tags |
 | `$export`                                      | `c` on `Task` at the resource gate, plus at least one `access/` tenant code granting `c` and at least one granting `s` | creating the export job is gated like any other create; the tenant codes stamped on the ExportStatus are those granting `c`, and a caller with no tenant code granting `c`, or none granting `s`, is rejected. The runner's tenant filter for the exported data uses every tenant code granting `s`, including ones not stamped on the ExportStatus (see "`$export` behavior"); status polling (`$export/<id>`) is an instance read and uses `r` on the ExportStatus access tag; the runner includes a resource type only if a `user/`/`system/` scope grants `s` on it — types without it are dropped silently, as before |
@@ -345,6 +347,32 @@ holding `access/tenantA.c access/tenantB.s` can start the export, the ExportStat
 tenantA only, and the exported data is tenantB's. A caller holding only `access/tenantB.s`, or only
 `access/tenantA.c`, cannot start an export at all.
 
+### GraphQL v1 and v2
+
+GraphQL has no scope check of its own. Queries run through `searchBundle`, so they ask `r` for a
+lookup by id (including each reference followed to another resource) and `s` otherwise. The
+dataloader adds `_elements` and `_isGraphQLRequest` to every lookup, which is why those parameters
+are in the result-shaping list. The mutations call `merge` and, for `updateGeneralPractitioner`
+with `remove`, `remove`:
+
+| Mutation | Letters |
+|---|---|
+| `updateGeneralPractitioner(remove: false)` | `r` and `u` on `Patient`, `r` on `Practitioner` |
+| `updateGeneralPractitioner(remove: true)` | `r`, `u` and `d` on `Patient` |
+| `updateCareTeam` | `u` on `CareTeam` |
+
+The resolver used to pass its own arguments (`patientId`, `practitionerId`, `remove`) through to the
+lookups and to the delete. They became parsed items, so the lookups counted as searches (`s`) and
+the delete as a search-based delete (`ds`). The resolver now passes only `id` (and `base_version`).
+
+| Grant | Query | Result |
+|---|---|---|
+| v2 `user/Patient.r` + `access/<tag>.r` | lookup by id | the resource is returned |
+| v2 `user/Patient.s` + `access/<tag>.s` | lookup by id | nothing |
+| v2 `user/Patient.s` + `access/<tag>.s` | search by another parameter | the resource is returned |
+| v2 `user/Patient.r` + `access/<tag>.r` | search by another parameter | nothing |
+| v1 `read` | either | as before (`read` carries `r` and `s`) |
+
 ### Admin routes
 
 Every admin route asks for one CRUDS letter from the caller's `admin/` scopes through
@@ -462,7 +490,11 @@ subsequence rule above before the flag is enabled; see Open items.
    suffixes, and a v2 suffix granting nothing while the flag is off. `scopesManager.test.js` covers
    `hasAdminScopeForAction` directly, and `adminExportManager.test.js` pins the `c` and `u` letters
    of the export-status checks.
-6. Phase 3 (`securityTagManager` and its query-filter consumers) gets its own test pass, reviewed
+6. GraphQL v1 and v2 have their own suites (`graphql_v2_cruds_scopes`): lookup by id and search by
+   another parameter with `r`-only and `s`-only grants on both gates, and the
+   `updateGeneralPractitioner` mutation with and without `remove`. `parsedArgs.test.js` pins
+   `isRequestById`, and `searchBundle.test.js` pins the letter `searchBundle` asks.
+7. Phase 3 (`securityTagManager` and its query-filter consumers) gets its own test pass, reviewed
    against `review.md`'s access/owner-tag checklist — this work is a named trigger in that
    document (OAuth scope/token parsing, cross-resource join on a shared identifier).
 
@@ -528,3 +560,7 @@ subsequence rule above before the flag is enabled; see Open items.
 - **Admin routes that change Person or Patient data.** Except for the resource checks listed under
   "Admin routes", such a route is guarded only by its `admin/` letter, and the resource segment of
   an `admin/` scope is ignored.
+- **`updateGeneralPractitioner(remove: true)`** (GraphQL v1) deletes the Patient and writes it back
+  without a transaction.
+- **GraphQL.** A new GraphQL argument that is not in the by-id list turns a by-id lookup into a search
+  that needs `s`.

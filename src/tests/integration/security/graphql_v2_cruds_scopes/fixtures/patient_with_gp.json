@@ -1,0 +1,23 @@
+{
+  "resourceType": "Patient",
+  "id": "1",
+  "gender": "male",
+  "generalPractitioner": [
+    {
+      "reference": "Practitioner/p1"
+    }
+  ],
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "access"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "owner"
+      }
+    ]
+  }
+}

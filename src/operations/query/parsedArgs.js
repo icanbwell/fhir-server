@@ -1,5 +1,6 @@
 const { assertIsValid } = require('../../utils/assertType');
 const { removeNull } = require('../../utils/nullRemover');
+const { NON_SEARCH_QUERY_PARAMS, RESULT_SHAPING_QUERY_PARAMS } = require('../../constants');
 
 class ParsedArgs {
     /**
@@ -101,6 +102,20 @@ class ParsedArgs {
      */
     get (argName) {
         return this.parsedArgItems.find(a => a.queryParameter === argName);
+    }
+
+    /**
+     * whether the request addresses resources only by id or _id, with no other search parameter
+     * @return {boolean}
+     */
+    isRequestById () {
+        const idItems = this.parsedArgItems.filter(
+            a => (a.queryParameter === 'id' || a.queryParameter === '_id') && !a.modifiers?.length
+        );
+        return idItems.length > 0 && this.parsedArgItems.every(
+            a => (NON_SEARCH_QUERY_PARAMS.includes(a.queryParameter) || RESULT_SHAPING_QUERY_PARAMS.includes(a.queryParameter)) &&
+                (idItems.includes(a) || !['id', '_id'].includes(a.queryParameter))
+        );
     }
 
     /**

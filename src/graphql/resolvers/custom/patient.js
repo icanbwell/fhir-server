@@ -1359,10 +1359,14 @@ module.exports = {
                 const container = context.container;
                 assertIsValid(container, 'container is not defined');
                 const deletePractitioner = args.remove;
+                // Only the id goes to the lookups and the delete below, not `...args`. `args` holds
+                // the mutation's own arguments (patientId, practitionerId, remove), and parseArgs
+                // turns every key it is given into a parsed item. Those extra items make a lookup
+                // by id look like a search, so it asks for `s` instead of `r`, and make the delete
+                // look search-based, so it asks for `ds` instead of `d`.
                 const patients = await context.dataApi.getResourcesForMutation(
                     parent,
                     {
-                        ...args,
                         id: args.patientId
                     },
                     context,
@@ -1398,8 +1402,8 @@ module.exports = {
                      */
                     const r4ArgsParser = container.r4ArgsParser;
                     assertTypeEquals(r4ArgsParser, R4ArgsParser);
+                    // id only, for the reason given above
                     const args1 = {
-                        ...args,
                         base_version: '4_0_0',
                         id: args.patientId
                     };
@@ -1412,10 +1416,10 @@ module.exports = {
                         resourceType: 'Patient'
                     });
                 } else {
+                    // id only, for the reason given above
                     const practitioners = await context.dataApi.getResources(
                         parent,
                         {
-                            ...args,
                             id: args.practitionerId
                         },
                         context,
