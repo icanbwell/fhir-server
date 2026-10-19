@@ -602,11 +602,12 @@ class FhirDataSource {
                     const resourceFields = Object.getOwnPropertyNames(new resource({}));
 
                     if (!this.resourceProjections[resourceType]) {
-                        this.resourceProjections[resourceType] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType'])
+                        const baseFields = ['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType'];
                         if (resourceType === 'Group') {
                             // Group.member decides between the inline list and the GroupMember_4_0_0 roster by it
-                            this.resourceProjections[resourceType].add(MONGO_GROUP_EXTENDED_FIELD);
+                            baseFields.push(MONGO_GROUP_EXTENDED_FIELD);
                         }
+                        this.resourceProjections[resourceType] = new Set(baseFields);
                     }
                     Object.values(value).forEach(field => {
                         // for handling custom reference fields

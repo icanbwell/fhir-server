@@ -1382,6 +1382,17 @@ class ConfigManager {
     }
 
     /**
+     * Maximum GroupMember rows GraphQL Group.member reads for extended Groups: the page size when
+     * _count is omitted, the cap on _count, and the total across all extended Group member fields
+     * of one request. Embedded Groups are not limited by it.
+     * Default: 50000. Can be overridden via GRAPHQL_GROUP_MEMBER_MAX_COUNT environment variable
+     * @returns {number}
+     */
+    get graphqlGroupMemberMaxCount() {
+        return parseInt(env.GRAPHQL_GROUP_MEMBER_MAX_COUNT || '50000', 10);
+    }
+
+    /**
      * Enables the MongoDB-native large-Group member storage: the GroupMember_4_0_0 /
      * GroupMember_4_0_0_History collections, the `_extended` branch of
      * GroupMemberPatchStrategy.determineGroupMemberType, and the checks in

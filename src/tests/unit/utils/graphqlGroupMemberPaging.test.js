@@ -1,148 +1,36 @@
 const { describe, test, expect, jest } = require('@jest/globals');
-const { buildSchema, graphql } = require('graphql');
 const {
-    isSingleIdGroupRead,
-    isSingleIdRequest,
     getMemberPageWindow,
     sliceList,
-    resolveGroupMemberAsync
+    resolveGroupMemberAsync,
+    reserveMemberRows
 } = require('../../../utils/graphqlGroupMemberPaging');
-const { GRAPHQL_GROUP_MEMBER_MAX_COUNT } = require('../../../constants');
+const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 
-// Minimal schema with the same shape as the generated ones: a root field returning GroupBundle,
-// a Patient that references a Group, and a non-Group bundle.
-const SCHEMA = buildSchema(`
-    input SearchString { searchType: String value: String values: [String] contains: String }
-    type GroupMember { n: Int }
-    type Group { id: String member(_offset: Int, _count: Int): [GroupMember] }
-    type GroupBundleEntry { resource: Group }
-    type GroupBundle { entry: [GroupBundleEntry] }
-    type Patient { group: Group }
-    type PatientBundleEntry { resource: Patient }
-    type PatientBundle { entry: [PatientBundleEntry] }
-    type Query { groups(id: SearchString, _id: SearchString): GroupBundle patients(id: SearchString): PatientBundle }
-`);
-
-/**
- * Executes a query against SCHEMA and returns the GraphQLResolveInfo of every Group.member call,
- * keyed by its response path, so tests use the same info object Apollo would pass.
- */
-async function captureMemberInfos(source, variableValues) {
-    const infos = {};
-    SCHEMA.getType('Group').getFields().member.resolve = (_parent, _args, _context, info) => {
-        const keys = [];
-        for (let p = info.path; p; p = p.prev) {
-            keys.unshift(p.key);
-        }
-        infos[keys.join('.')] = info;
-        return [];
-    };
-    const group = { id: 'g1' };
-    const result = await graphql({
-        schema: SCHEMA,
-        source,
-        variableValues,
-        rootValue: {
-            groups: () => ({ entry: [{ resource: group }] }),
-            patients: () => ({ entry: [{ resource: { group } }] })
-        }
-    });
-    expect(result.errors).toBeUndefined();
-    return infos;
-}
+// stands in for configManager.graphqlGroupMemberMaxCount (default 50000)
+const MAX = 1000;
 
 describe('graphqlGroupMemberPaging', () => {
-    describe('isSingleIdGroupRead', () => {
-        test('true for a root Group search naming one id', async () => {
-            const infos = await captureMemberInfos('{ groups(id: { value: "g1" }) { entry { resource { member { n } } } } }');
-            expect(isSingleIdGroupRead(infos['groups.entry.0.resource.member'])).toBe(true);
-        });
-
-        test('reads the id from a variable', async () => {
-            const infos = await captureMemberInfos(
-                'query ($id: String) { groups(id: { value: $id }) { entry { resource { member { n } } } } }',
-                { id: 'g1' }
-            );
-            expect(isSingleIdGroupRead(infos['groups.entry.0.resource.member'])).toBe(true);
-        });
-
-        test('judges each aliased root field on its own arguments', async () => {
-            const infos = await captureMemberInfos(`{
-                a: groups(id: { value: "g1" }) { entry { resource { member { n } } } }
-                b: groups(id: { values: ["g1", "g2"] }) { entry { resource { member { n } } } }
-                c: groups { entry { resource { member { n } } } }
-            }`);
-            expect(isSingleIdGroupRead(infos['a.entry.0.resource.member'])).toBe(true);
-            expect(isSingleIdGroupRead(infos['b.entry.0.resource.member'])).toBe(false);
-            expect(isSingleIdGroupRead(infos['c.entry.0.resource.member'])).toBe(false);
-        });
-
-        test('aliased entry/resource fields still match', async () => {
-            const infos = await captureMemberInfos('{ g: groups(id: { value: "g1" }) { e: entry { r: resource { m: member { n } } } } }');
-            expect(isSingleIdGroupRead(infos['g.e.0.r.m'])).toBe(true);
-        });
-
-        test('false for a Group reached through another resource, even with a single-id root', async () => {
-            const infos = await captureMemberInfos('{ patients(id: { value: "p1" }) { entry { resource { group { member { n } } } } } }');
-            expect(isSingleIdGroupRead(infos['patients.entry.0.resource.group.member'])).toBe(false);
-        });
-
-        test('false without execution info', () => {
-            expect(isSingleIdGroupRead(undefined)).toBe(false);
-        });
-    });
-
-    describe('isSingleIdRequest', () => {
-        test.each([
-            ['v2 SearchString value', { id: { value: 'g1' } }],
-            ['v2 SearchString one entry in values', { id: { values: ['g1'] } }],
-            ['v1 id list of one', { id: ['g1'] }],
-            ['v1 _id SearchString', { _id: { value: 'g1' } }],
-            ['explicit string searchType', { id: { searchType: 'string', value: 'g1' } }]
-        ])('true for %s', (_name, args) => {
-            expect(isSingleIdRequest(args)).toBe(true);
-        });
-
-        test.each([
-            ['no args', undefined],
-            ['no id', { member: { value: 'Patient/1' } }],
-            ['two values', { id: { values: ['g1', 'g2'] } }],
-            ['value plus values', { id: { value: 'g1', values: ['g2'] } }],
-            ['comma separated OR list', { id: { value: 'g1,g2' } }],
-            ['v1 id list of two', { id: ['g1', 'g2'] }],
-            ['empty value', { id: { value: '' } }],
-            ['id and _id together', { id: ['g1'], _id: { value: 'g1' } }],
-            ['missing modifier', { id: { missing: true } }],
-            ['notEquals modifier', { id: { value: 'g1', notEquals: { value: 'g2' } } }],
-            ['contains modifier', { id: { contains: 'g1' } }],
-            ['non string searchType', { id: { searchType: 'token', value: 'g1' } }]
-        ])('false for %s', (_name, args) => {
-            expect(isSingleIdRequest(args)).toBe(false);
-        });
-    });
-
     describe('getMemberPageWindow', () => {
         test('uses the maximum page size when _count is omitted', () => {
-            expect(getMemberPageWindow({})).toEqual({
-                offset: 0,
-                count: GRAPHQL_GROUP_MEMBER_MAX_COUNT
-            });
-            expect(getMemberPageWindow(undefined)).toEqual({
-                offset: 0,
-                count: GRAPHQL_GROUP_MEMBER_MAX_COUNT
-            });
+            expect(getMemberPageWindow({}, MAX)).toEqual({ offset: 0, count: MAX });
+            expect(getMemberPageWindow(undefined, MAX)).toEqual({ offset: 0, count: MAX });
         });
 
         test('caps _count at the maximum', () => {
-            expect(getMemberPageWindow({ _count: 5000000 }).count).toBe(GRAPHQL_GROUP_MEMBER_MAX_COUNT);
+            expect(getMemberPageWindow({ _count: 5000000 }, MAX).count).toBe(MAX);
+        });
+
+        test('_count 0 is an empty page', () => {
+            expect(getMemberPageWindow({ _count: 0 }, MAX).count).toBe(0);
         });
 
         test('clamps negative _offset and _count to 0', () => {
-            expect(getMemberPageWindow({ _offset: -5, _count: -1 })).toEqual({ offset: 0, count: 0 });
+            expect(getMemberPageWindow({ _offset: -5, _count: -1 }, MAX)).toEqual({ offset: 0, count: 0 });
         });
 
         test('passes through an in-range window', () => {
-            expect(getMemberPageWindow({ _offset: 20, _count: 10 })).toEqual({ offset: 20, count: 10 });
+            expect(getMemberPageWindow({ _offset: 20, _count: 10 }, MAX)).toEqual({ offset: 20, count: 10 });
         });
     });
 
@@ -169,6 +57,53 @@ describe('graphqlGroupMemberPaging', () => {
         });
     });
 
+    describe('reserveMemberRows', () => {
+        function budgetContext(requestId = 'req-1', requestSpecificCache = new RequestSpecificCache()) {
+            return { fhirRequestInfo: { requestId }, container: { requestSpecificCache } };
+        }
+
+        test('allows page sizes adding up to the request total', () => {
+            const context = budgetContext();
+            expect(() => reserveMemberRows(context, MAX - 1, MAX)).not.toThrow();
+            expect(() => reserveMemberRows(context, 1, MAX)).not.toThrow();
+        });
+
+        test('rejects the reservation that takes the request over the total with too-costly', () => {
+            const context = budgetContext();
+            reserveMemberRows(context, MAX, MAX);
+
+            let error;
+            try {
+                reserveMemberRows(context, 1, MAX);
+            } catch (e) {
+                error = e;
+            }
+            expect(error).toBeDefined();
+            expect(error.statusCode).toBe(400);
+            expect(error.message).toBe(
+                `Group members count exceeds maximum (${MAX + 1} > ${MAX})`
+            );
+            expect(error.issue[0].code).toBe('too-costly');
+        });
+
+        test('a rejected reservation does not use up the budget', () => {
+            const context = budgetContext();
+            reserveMemberRows(context, MAX - 400, MAX);
+            expect(() => reserveMemberRows(context, 600, MAX)).toThrow();
+            expect(() => reserveMemberRows(context, 400, MAX)).not.toThrow();
+        });
+
+        test('each request has its own budget', () => {
+            const cache = new RequestSpecificCache();
+            reserveMemberRows(budgetContext('req-1', cache), MAX, MAX);
+            expect(() => reserveMemberRows(budgetContext('req-2', cache), MAX, MAX)).not.toThrow();
+        });
+
+        test('fails closed without a request id', () => {
+            expect(() => reserveMemberRows(budgetContext(null), 1, MAX)).toThrow();
+        });
+    });
+
     describe('resolveGroupMemberAsync', () => {
         function buildContext({ enableExtendedGroup = true, debugMode = false, isAdmin = true } = {}) {
             const getMemberPageAsync = jest.fn().mockResolvedValue({
@@ -181,9 +116,10 @@ describe('graphqlGroupMemberPaging', () => {
                 getMemberPageAsync,
                 getMemberCursorAsync,
                 context: {
-                    fhirRequestInfo: { scope: isAdmin ? 'user/*.read admin/*.*' : 'user/*.read' },
+                    fhirRequestInfo: { requestId: 'req-1', scope: isAdmin ? 'user/*.read admin/*.*' : 'user/*.read' },
                     container: {
-                        configManager: { enableExtendedGroup },
+                        requestSpecificCache: new RequestSpecificCache(),
+                        configManager: { enableExtendedGroup, graphqlGroupMemberMaxCount: MAX },
                         mongoGroupMemberRepository: { getMemberPageAsync, getMemberCursorAsync },
                         scopesValidator: { isAdminScope: () => isAdmin }
                     },
@@ -192,39 +128,20 @@ describe('graphqlGroupMemberPaging', () => {
             };
         }
 
-        async function singleIdInfo() {
-            const infos = await captureMemberInfos('{ groups(id: { value: "g1" }) { entry { resource { member { n } } } } }');
-            return infos['groups.entry.0.resource.member'];
-        }
-
-        async function listInfo() {
-            const infos = await captureMemberInfos('{ groups { entry { resource { member { n } } } } }');
-            return infos['groups.entry.0.resource.member'];
-        }
-
         test('embedded Group resolves the inline list and slices it', async () => {
             const { context, getMemberPageAsync } = buildContext();
             const parent = { _uuid: 'g-uuid', member: [{ n: 1 }, { n: 2 }, { n: 3 }] };
-            const info = await singleIdInfo();
 
-            expect(await resolveGroupMemberAsync(parent, {}, context, info)).toEqual(parent.member);
-            expect(await resolveGroupMemberAsync(parent, { _offset: 1, _count: 1 }, context, info)).toEqual([{ n: 2 }]);
+            expect(await resolveGroupMemberAsync(parent, {}, context)).toEqual(parent.member);
+            expect(await resolveGroupMemberAsync(parent, { _offset: 1, _count: 1 }, context)).toEqual([{ n: 2 }]);
             expect(getMemberPageAsync).not.toHaveBeenCalled();
         });
 
-        test('extended Group not read by a single id gets [] and no Mongo read', async () => {
-            const { context, getMemberPageAsync } = buildContext();
-
-            expect(await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, { _count: 10 }, context, await listInfo()))
-                .toEqual([]);
-            expect(getMemberPageAsync).not.toHaveBeenCalled();
-        });
-
-        test('extended Group read by a single id reads one clamped page, never the full cursor', async () => {
+        test('extended Group reads one clamped page, never the full cursor', async () => {
             const { context, getMemberPageAsync, getMemberCursorAsync } = buildContext();
 
             const result = await resolveGroupMemberAsync(
-                { _uuid: 'g-uuid', _extended: true }, { _offset: 5, _count: 5000000 }, context, await singleIdInfo()
+                { _uuid: 'g-uuid', _extended: true }, { _offset: 5, _count: 5000000 }, context
             );
 
             expect(result).toEqual([{ entity: { reference: 'Patient/1' } }]);
@@ -233,7 +150,7 @@ describe('graphqlGroupMemberPaging', () => {
                 base_version: '4_0_0',
                 groupUuid: 'g-uuid',
                 offset: 5,
-                count: GRAPHQL_GROUP_MEMBER_MAX_COUNT
+                count: MAX
             });
             expect(getMemberCursorAsync).not.toHaveBeenCalled();
         });
@@ -241,17 +158,44 @@ describe('graphqlGroupMemberPaging', () => {
         test('extended Group with no paging args reads the maximum page size', async () => {
             const { context, getMemberPageAsync } = buildContext();
 
-            await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, {}, context, await singleIdInfo());
+            await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, {}, context);
 
             expect(getMemberPageAsync).toHaveBeenCalledWith(
-                expect.objectContaining({ offset: 0, count: GRAPHQL_GROUP_MEMBER_MAX_COUNT })
+                expect.objectContaining({ offset: 0, count: MAX })
             );
+        });
+
+        test.each([0, -5])('_count %p returns [] without a Mongo read (limit 0 is unlimited there)', async (count) => {
+            const { context, getMemberPageAsync } = buildContext();
+
+            expect(await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, { _count: count }, context))
+                .toEqual([]);
+            expect(getMemberPageAsync).not.toHaveBeenCalled();
+        });
+
+        test('pages past the request total are rejected before reading', async () => {
+            const { context, getMemberPageAsync } = buildContext();
+            const parent = { _uuid: 'g-uuid', _extended: true };
+
+            await resolveGroupMemberAsync(parent, { _count: MAX / 2 }, context);
+            await resolveGroupMemberAsync(parent, { _offset: MAX / 2, _count: MAX / 2 }, context);
+            await expect(resolveGroupMemberAsync(parent, { _offset: MAX, _count: 1 }, context))
+                .rejects.toThrow(`Group members count exceeds maximum (${MAX + 1} > ${MAX})`);
+            expect(getMemberPageAsync).toHaveBeenCalledTimes(2);
+        });
+
+        test('_count 0 reserves nothing', async () => {
+            const { context } = buildContext();
+            const parent = { _uuid: 'g-uuid', _extended: true };
+
+            await resolveGroupMemberAsync(parent, { _count: 0 }, context);
+            expect(() => reserveMemberRows(context, MAX, MAX)).not.toThrow();
         });
 
         test('feature flag off: extended Group falls back to the document member (none)', async () => {
             const { context, getMemberPageAsync } = buildContext({ enableExtendedGroup: false });
 
-            expect(await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, {}, context, await singleIdInfo()))
+            expect(await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, {}, context))
                 .toBeUndefined();
             expect(getMemberPageAsync).not.toHaveBeenCalled();
         });
@@ -259,7 +203,7 @@ describe('graphqlGroupMemberPaging', () => {
         test('_debug from an admin caller adds the GroupMember query to the response meta', async () => {
             const { context } = buildContext({ debugMode: true });
 
-            await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, {}, context, await singleIdInfo());
+            await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, {}, context);
 
             expect(context.dataApi.metaList).toHaveLength(1);
             const tags = context.dataApi.metaList[0].tag;
@@ -272,7 +216,7 @@ describe('graphqlGroupMemberPaging', () => {
         test('_debug from a non-admin caller adds no query tags', async () => {
             const { context } = buildContext({ debugMode: true, isAdmin: false });
 
-            await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, {}, context, await singleIdInfo());
+            await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, {}, context);
 
             expect(context.dataApi.metaList).toEqual([]);
         });

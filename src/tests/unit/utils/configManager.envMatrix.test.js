@@ -429,6 +429,15 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
             expect(cm.groupPatchOperationsLimit).toBe(9);
         });
 
+        test('graphqlGroupMemberMaxCount defaults to 50000, falls back on "" and parses a configured value', () => {
+            setEnv('GRAPHQL_GROUP_MEMBER_MAX_COUNT', undefined);
+            expect(new ConfigManager().graphqlGroupMemberMaxCount).toBe(50000);
+            setEnv('GRAPHQL_GROUP_MEMBER_MAX_COUNT', '');
+            expect(new ConfigManager().graphqlGroupMemberMaxCount).toBe(50000);
+            setEnv('GRAPHQL_GROUP_MEMBER_MAX_COUNT', '200');
+            expect(new ConfigManager().graphqlGroupMemberMaxCount).toBe(200);
+        });
+
         test('auditEventMaxRangePeriod defaults to 30, honours "0", and parses a configured value', () => {
             setEnv('AUDIT_EVENT_MAX_RANGE_PERIOD', undefined);
             expect(new ConfigManager().auditEventMaxRangePeriod).toBe(30);
