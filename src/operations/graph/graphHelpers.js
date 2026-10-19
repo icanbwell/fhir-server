@@ -25,6 +25,8 @@ const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
 const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
 const {logError, logInfo, logWarn} = require('../common/logging');
+const {isExtendedGroupMemberPath} = require('../../utils/mongoGroupExtendedTag');
+const {MongoGroupMemberRepository} = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const {sliceIntoChunks} = require('../../utils/list.util');
 const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
@@ -72,6 +74,7 @@ class GraphHelper {
      * @param {RemoveHelper} removeHelper
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {MongoGroupMemberRepository} mongoGroupMemberRepository
      */
     constructor({
                     databaseQueryFactory,
@@ -86,7 +89,8 @@ class GraphHelper {
                     searchParametersManager,
                     removeHelper,
                     auditLogger,
-                    postRequestProcessor
+                    postRequestProcessor,
+                    mongoGroupMemberRepository
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -165,6 +169,12 @@ class GraphHelper {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /**
+         * @type {MongoGroupMemberRepository}
+         */
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
     }
 
     getLinkAccessRequested({requestInfo, readLetter}) {
@@ -588,6 +598,30 @@ class GraphHelper {
     }
 
     /**
+     * Of the given parent entities, those that are members of an extended Group, read from the
+     * Group's roster in GroupMember_4_0_0 (an extended Group has no inline member[] to match on).
+     * One lookup per Group, bounded by the number of parents.
+     * @param {string} base_version
+     * @param {Resource} group extended Group fetched for a reverse link
+     * @param {EntityAndContainedBase[]} parentEntities
+     * @return {Promise<EntityAndContainedBase[]>}
+     */
+    async getParentEntitiesInExtendedGroupAsync({base_version, group, parentEntities}) {
+        const parentsByReference = new Map(
+            parentEntities
+                .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
+                .map(p => [`${p.resource.resourceType}/${p.entityUuid}`, p])
+        );
+        const memberReferences = await this.mongoGroupMemberRepository.findMemberReferencesInGroupAsync({
+            base_version,
+            groupUuid: group._uuid,
+            memberReferences: Array.from(parentsByReference.keys()),
+            maxTimeMS: this.configManager.mongoTimeout
+        });
+        return memberReferences.map(reference => parentsByReference.get(reference)).filter(p => p !== undefined);
+    }
+
+    /**
      * Gets related resources using reverse link and add them to containedEntries in parentEntities
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
@@ -603,6 +637,7 @@ class GraphHelper {
      * @param {string[]} proxyPatientIds
      * @param {ParsedArgs} parseArgs
      * @param {ResourceEntityAndContained[]} proxyPatientResources
+     * @param {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]} additionalRewriteQueries collects the lookups query rewriters ran on their own, for _debug / _explain
      * @returns {QueryItem}
      */
     async getReverseReferencesAsync({
@@ -620,6 +655,7 @@ class GraphHelper {
                                         supportLegacyId = true,
                                         proxyPatientIds = [],
                                         proxyPatientResources = [],
+                                        additionalRewriteQueries = [],
                                         params = {},
                                         graphChunkIndex
                                     }) {
@@ -689,7 +725,9 @@ class GraphHelper {
                     resourceType: relatedResourceType,
                     queryString: reverseFilterWithParentIds,
                     commonArgs: {
-                        _includeHidden: parsedArgs._includeHidden
+                        _includeHidden: parsedArgs._includeHidden,
+                        ...(parsedArgs._debug ? {_debug: parsedArgs._debug} : {}),
+                        ...(parsedArgs._explain ? {_explain: parsedArgs._explain} : {})
                     }
                 }
             );
@@ -709,8 +747,9 @@ class GraphHelper {
              */
             const {
                 /** @type {import('mongodb').Document}**/
-                query // /** @type {Set} **/
+                query, // /** @type {Set} **/
                 // columns
+                additionalRewriteQueries: relatedRewriteQueries
             } = await this.searchManager.constructQueryAsync(
                 {
                     user: requestInfo.user,
@@ -728,6 +767,9 @@ class GraphHelper {
                     everythingChunkIndex: graphChunkIndex
                 }
             );
+            if (relatedRewriteQueries) {
+                additionalRewriteQueries.push(...relatedRewriteQueries);
+            }
 
             const options = {};
             const projection = {};
@@ -855,6 +897,19 @@ class GraphHelper {
                     if (this.configManager.supportLegacyIds && supportLegacyId && matchingParentEntities.length === 0) {
                         matchingParentEntities = uniqueParentEntities.filter(
                             p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
+                    }
+                    // An extended Group keeps its roster in GroupMember_4_0_0, so the inline reference
+                    // match above cannot find its parents; ask the roster instead.
+                    if (
+                        matchingParentEntities.length === 0 &&
+                        this.configManager.enableExtendedGroup &&
+                        isExtendedGroupMemberPath({
+                            resource: relatedResourcePropertyCurrent, property: fieldForSearchParameter
+                        })
+                    ) {
+                        matchingParentEntities = await this.getParentEntitiesInExtendedGroupAsync({
+                            base_version, group: relatedResourcePropertyCurrent, parentEntities: uniqueParentEntities
+                        });
                     }
                     if (matchingParentEntities.length === 0) {
                         if (
@@ -1015,6 +1070,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
+     * @param {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]} additionalRewriteQueries collects the lookups query rewriters ran on their own, for _debug / _explain
      * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
      */
     async processLinkTargetAsync(
@@ -1031,6 +1087,7 @@ class GraphHelper {
             supportLegacyId = true,
             proxyPatientIds = [],
             proxyPatientResources = [],
+            additionalRewriteQueries = [],
             graphChunkIndex
         }
     ) {
@@ -1168,6 +1225,7 @@ class GraphHelper {
                                 supportLegacyId,
                                 proxyPatientIds,
                                 proxyPatientResources,
+                                additionalRewriteQueries,
                                 parsedArgs,
                                 params: targetParams,
                                 graphChunkIndex
@@ -1216,6 +1274,7 @@ class GraphHelper {
                                 supportLegacyId,
                                 proxyPatientIds,
                                 proxyPatientResources,
+                                additionalRewriteQueries,
                                 graphChunkIndex
                             }
                         )
@@ -1280,6 +1339,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
+     * @param {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]} additionalRewriteQueries collects the lookups query rewriters ran on their own, for _debug / _explain
      * @returns {Promise<QueryItem[]>}
      */
     async processOneGraphLinkAsync(
@@ -1295,6 +1355,7 @@ class GraphHelper {
             supportLegacyId = true,
             proxyPatientIds = [],
             proxyPatientResources = [],
+            additionalRewriteQueries = [],
             graphChunkIndex
         }
     ) {
@@ -1322,6 +1383,7 @@ class GraphHelper {
                         supportLegacyId,
                         proxyPatientIds,
                         proxyPatientResources,
+                        additionalRewriteQueries,
                         graphChunkIndex
                     }
                 )
@@ -1364,6 +1426,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
+     * @param {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]} additionalRewriteQueries collects the lookups query rewriters ran on their own, for _debug / _explain
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
     async processGraphLinksAsync(
@@ -1379,6 +1442,7 @@ class GraphHelper {
             supportLegacyId = true,
             proxyPatientIds = [],
             proxyPatientResources = [],
+            additionalRewriteQueries = [],
             graphChunkIndex
         }
     ) {
@@ -1412,6 +1476,7 @@ class GraphHelper {
                         supportLegacyId,
                         proxyPatientIds,
                         proxyPatientResources,
+                        additionalRewriteQueries,
                         graphChunkIndex
                     }
                 )
@@ -1546,6 +1611,10 @@ class GraphHelper {
              */
             const queries = [];
             /**
+             * @type {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]}
+             */
+            const additionalRewriteQueries = [];
+            /**
              * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
              */
             const optionsForQueries = [];
@@ -1630,6 +1699,7 @@ class GraphHelper {
                     supportLegacyId,
                     proxyPatientIds,
                     proxyPatientResources,
+                    additionalRewriteQueries,
                     graphChunkIndex
                 }
             );
@@ -1752,6 +1822,7 @@ class GraphHelper {
                     queryItems: queries,
                     options: optionsForQueries,
                     explanations,
+                    additionalRewriteQueries,
                     bundleEntryIdsProcessed
                 }
             );
@@ -1840,6 +1911,10 @@ class GraphHelper {
              * @type {import('mongodb').Document[]}
              */
             let explanations = [];
+            /**
+             * @type {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]}
+             */
+            let additionalRewriteQueries = [];
 
             /**
              * @type {ResourceIdentifier[]}
@@ -1875,6 +1950,7 @@ class GraphHelper {
                     queryItems: queryItems1,
                     options: options1,
                     explanations: explanations1,
+                    additionalRewriteQueries: additionalRewriteQueries1,
                     bundleEntryIdsProcessed: bundleEntryIdsProcessed1
                 } = await this.processMultipleIdsAsync(
                     {
@@ -1898,6 +1974,7 @@ class GraphHelper {
                 queryItems = queryItems.concat(queryItems1);
                 options = options.concat(options1);
                 explanations = explanations.concat(explanations1);
+                additionalRewriteQueries = additionalRewriteQueries.concat(additionalRewriteQueries1);
                 bundleEntryIdsProcessed = bundleEntryIdsProcessed.concat(bundleEntryIdsProcessed1);
             }
             /**
@@ -1909,6 +1986,14 @@ class GraphHelper {
              * @type {Resource[]}
              */
             const resources = entries.map(bundleEntry => bundleEntry.resource);
+
+            if (additionalRewriteQueries.length > 0) {
+                // options are paired with queries by position and are not recorded for every link query;
+                // pad so the options of the rewriter lookups appended next line up with their own queries
+                while (options.length < queryItems.length) {
+                    options.push({});
+                }
+            }
 
             /**
              * @type {Bundle}
@@ -1929,7 +2014,8 @@ class GraphHelper {
                     stopTime,
                     startTime,
                     user: requestInfo.user,
-                    explanations
+                    explanations,
+                    additionalRewriteQueries
                 }
             );
             if (responseStreamer) {

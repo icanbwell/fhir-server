@@ -1,0 +1,18 @@
+{
+    "resourceType": "GraphDefinition",
+    "id": "1",
+    "name": "extended_group_members",
+    "status": "active",
+    "start": "Group",
+    "link": [
+        {
+            "description": "Group members",
+            "path": "member.entity",
+            "target": [
+                {
+                    "type": "Patient"
+                }
+            ]
+        }
+    ]
+}
