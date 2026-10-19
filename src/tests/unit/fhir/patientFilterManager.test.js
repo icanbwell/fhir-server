@@ -523,6 +523,32 @@ describe('PatientFilterManager', () => {
             expect(manager.patientFilterMapping).not.toHaveProperty('SubscriptionTopic');
         });
 
+        describe('Binary (ENABLE_PATIENT_SCOPED_BINARY)', () => {
+            test('is not patient-filterable by default', () => {
+                expect(manager.patientFilterMapping).not.toHaveProperty('Binary');
+                expect(manager.canAccessResourceWithPatientScope({ resourceType: 'Binary' })).toBe(false);
+            });
+
+            test('is not patient-filterable when the flag is off', () => {
+                const flagOff = new PatientFilterManager({
+                    configManager: { enablePatientScopedBinary: false }
+                });
+                expect(flagOff.patientFilterMapping).not.toHaveProperty('Binary');
+                expect(flagOff.canAccessResourceWithPatientScope({ resourceType: 'Binary' })).toBe(false);
+            });
+
+            test('maps to securityContext.reference when the flag is on', () => {
+                const flagOn = new PatientFilterManager({
+                    configManager: { enablePatientScopedBinary: true }
+                });
+                expect(flagOn.getPatientPropertyForResource({ resourceType: 'Binary' })).toBe(
+                    'securityContext.reference'
+                );
+                expect(flagOn.canAccessResourceWithPatientScope({ resourceType: 'Binary' })).toBe(true);
+                expect(flagOn.isPatientRelatedResource({ resourceType: 'Binary' })).toBe(true);
+            });
+        });
+
         test('constructor creates independent instances', () => {
             const manager1 = new PatientFilterManager();
             const manager2 = new PatientFilterManager();

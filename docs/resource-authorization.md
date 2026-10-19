@@ -237,6 +237,17 @@ as separate authorization paths, specifically to keep this restriction from bein
   via link-following gets the same filter a direct search would apply — not a weaker one. Both
   GraphQL APIs (`src/graphql/dataSource.js` and `src/graphqlv2/dataSource.js`) funnel through the
   same `searchBundleAsync` path rather than an independent query builder.
+- **`Binary` is patient-filterable only behind `ENABLE_PATIENT_SCOPED_BINARY`** (default off). With the
+  flag on, `patientFilterMapping` maps `Binary` to `securityContext.reference`, exactly like `Task`
+  (`for.reference`): a patient-scoped caller reads, creates, updates, patches and deletes a `Binary`
+  only when its `securityContext` is the caller's proxy patient (`Patient/person.<uuid>`) or a linked
+  `Patient`. A `Binary` with no `securityContext` is hidden from patient-scoped tokens, so enable the
+  flag only after existing `Binary` resources have been stamped. For a mixed token such as
+  `patient/*.* user/*.* access/*.*`, only the `patient/` scopes are evaluated for `Binary` while the flag
+  is on (the `user/` write restriction applies to non-filterable types only). As with every
+  patient-scoped create, the `meta.security` tags a caller supplies are not validated against its
+  scopes, and an update is authorized against the stored resource only. Flag off behaves as before:
+  `Binary` is not patient-filterable and a patient scope cannot write it.
 - **Person `$everything`** narrows the *result set* (not the underlying access check) to only the
   explicitly-requested Person id(s) — a sibling Person sharing the same underlying Patient is
   resolved internally but excluded from the response. See `readme/personEverything.md`.
