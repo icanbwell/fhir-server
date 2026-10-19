@@ -105,17 +105,27 @@ class ParsedArgs {
     }
 
     /**
-     * whether the request addresses resources only by id or _id, with no other search parameter
+     * whether the request addresses resources only by id or _id, with no other search parameter.
+     * An id item that only carries the :not modifier is tolerated next to a plain id item, since
+     * that is how a consent exclusion narrows an id lookup.
      * @return {boolean}
      */
     isRequestById () {
-        const idItems = this.parsedArgItems.filter(
-            a => (a.queryParameter === 'id' || a.queryParameter === '_id') && !a.modifiers?.length
-        );
-        return idItems.length > 0 && this.parsedArgItems.every(
-            a => (NON_SEARCH_QUERY_PARAMS.includes(a.queryParameter) || RESULT_SHAPING_QUERY_PARAMS.includes(a.queryParameter)) &&
-                (idItems.includes(a) || !['id', '_id'].includes(a.queryParameter))
-        );
+        const isIdItem = a => a.queryParameter === 'id' || a.queryParameter === '_id';
+        const isNotOnly = a => a.modifiers?.length === 1 && a.modifiers[0] === ':not';
+        const hasPlainId = this.parsedArgItems.some(a => isIdItem(a) && !a.modifiers?.length);
+        if (!hasPlainId) {
+            return false;
+        }
+        return this.parsedArgItems.every(a => {
+            if (isIdItem(a)) {
+                return !a.modifiers?.length || isNotOnly(a);
+            }
+            return (
+                NON_SEARCH_QUERY_PARAMS.includes(a.queryParameter) ||
+                RESULT_SHAPING_QUERY_PARAMS.includes(a.queryParameter)
+            );
+        });
     }
 
     /**

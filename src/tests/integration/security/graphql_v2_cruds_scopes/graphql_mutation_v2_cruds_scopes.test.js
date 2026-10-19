@@ -58,6 +58,18 @@ describe('GraphQL v1 updateGeneralPractitioner v2 CRUDS scope granularity Tests'
             false,
             'user/Patient.r user/Practitioner.r access/access.r access/owner.r',
             false
+        ],
+        [
+            'removing for another tenant is denied',
+            true,
+            'user/Patient.rud user/Practitioner.r access/other.rud',
+            false
+        ],
+        [
+            'adding for another tenant is denied',
+            false,
+            'user/Patient.ru user/Practitioner.r access/other.ru',
+            false
         ]
     ])('%s', async (name, remove, scope, allowed) => {
         const request = await createTestRequest();

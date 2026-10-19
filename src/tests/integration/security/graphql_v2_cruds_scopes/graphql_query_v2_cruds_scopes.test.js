@@ -45,7 +45,9 @@ describe('GraphQL v1 and v2 query v2 CRUDS scope granularity Tests', () => {
             ['a lookup by id with r on both gates returns the patient', 'byId', 'user/Patient.r access/access.r access/owner.r', 1],
             ['a lookup by id with s alone returns nothing', 'byId', 'user/Patient.s access/access.s access/owner.s', 0],
             ['a search by another parameter with s on both gates returns the patient', 'byGender', 'user/Patient.s access/access.s access/owner.s', 1],
-            ['a search by another parameter with r alone returns nothing', 'byGender', 'user/Patient.r access/access.r access/owner.r', 0]
+            ['a search by another parameter with r alone returns nothing', 'byGender', 'user/Patient.r access/access.r access/owner.r', 0],
+            ['a lookup by id for another tenant returns nothing', 'byId', 'user/Patient.r access/other.r', 0],
+            ['a search by another parameter for another tenant returns nothing', 'byGender', 'user/Patient.s access/other.s', 0]
         ])('%s', async (name, queryName, scope, expectedCount) => {
             const request = await createTestRequest();
             await request.post('/4_0_0/Patient/$merge').send(patientResource).set(getHeaders()).expect(200);

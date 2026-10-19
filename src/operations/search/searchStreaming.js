@@ -146,6 +146,7 @@ class SearchStreamingOperation {
             parsedArgs._setIndexHint = undefined;
         }
 
+        const accessRequested = parsedArgs.isRequestById() ? 'r' : 's';
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
@@ -153,7 +154,7 @@ class SearchStreamingOperation {
                 resourceType,
                 startTime,
                 action: currentOperationName,
-                accessRequested: 'read'
+                accessRequested
             }
         );
 
@@ -197,6 +198,7 @@ class SearchStreamingOperation {
                     personIdFromJwtToken,
                     parsedArgs,
                     operation: READ,
+                    accessRequested,
                     actor
                 }));
         } catch (e) {
