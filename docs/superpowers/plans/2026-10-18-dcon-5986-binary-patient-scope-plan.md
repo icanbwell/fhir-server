@@ -40,13 +40,38 @@ Decisions (2026-10-18):
    backfill (flag on). The backfill stamps `CodeSystem/<id>` on Binary referenced by CodeSystems, so
    the "absent" case only covers unstamped stragglers. Open: confirm via Groundcover that the field
    is used at all (if not, consider removing the resolver instead).
-3. **Write paths.** Confirm POST, PUT, PATCH, DELETE and `$merge` for Binary go through
-   `PatientScopeManager.canWriteResourceAsync`, require `securityContext` patient in the caller's
-   reachable ids, and that a mixed token (patient + user/system) still hits "Write not allowed using
-   user scopes if patient scope is present". Check Binary data handling on update (smartMerge, S3
-   object retention per DCON-6064).
-4. **Tenant tags on patient-scoped create.** Match Task (no extra validation). Call out in the PR
-   description that #2635's review flagged this gap, so the reviewer signs off knowingly.
+3. **Write paths.** Create, PUT, PATCH, `$merge` and DELETE all reach
+   `PatientScopeManager.canWriteResourceAsync` through
+   `scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes`.
+   Mixed tokens (e.g. `patient/*.* user/*.* access/*.*`, the shape of a real member token): once
+   Binary is patient-filterable, `isScopesValidAsync` evaluates only the `patient/` scopes for it
+   (`scopesValidator.js:158`); `user/` and `access/` are not consulted
+   (`isAccessToResourceAllowedBySecurityTags` returns true for patient-scoped types). Such a token
+   can write a Binary only when `securityContext` is one of its reachable patients, same as Task.
+   Before the mapping it could not write Binary at all (the "Write not allowed using user scopes if
+   patient scope is present" branch only applies to non-filterable types). Tokens with no patient
+   scope are unchanged.
+   Review findings (from reading the code, each needs a test to confirm):
+   - **Check runs on the stored resource only.** For an existing resource, PUT (`update.js`), PATCH
+     (`patch.js`) and `$merge` (`writeAllowedByScopesValidator.js`) authorize against the stored
+     doc, then re-check only access-tag changes on the result. A member could re-point their own
+     Binary's `securityContext` at another patient (reassign or plant a file). `Task.for` has the
+     same gap today. Decide: accept Task parity, or re-run the patient-scope check on the
+     post-merge/post-patch doc for Binary.
+   - **Needs `securityContext._uuid`.** `getValueOfPropertyFromResource` reads
+     `securityContext._uuid`, so preSave must populate it for both `Patient/<uuid>` and the proxy
+     `Patient/person.<id>` (non-uuid, matched in the non-uuid branch). Test both forms.
+   - **Missing `securityContext` is rejected** on create (no patient value -> false). Intended.
+   - **Bytes can be wiped by the owner.** `$merge?smartMerge=false` without `data` deletes the bytes
+     and the S3 object. With write parity a member can do this to their own Binary. PUT writes a new
+     S3 object each time (`alwaysCreateNew`, previous one retained per DCON-6064). Decide whether to
+     block `smartMerge=false` for patient scopes.
+   - DELETE removes the Binary and its blob via `removeHelper`; confirm the S3 object lifecycle.
+4. **Tenant tags on patient-scoped create.** Match Task (no extra validation):
+   `isAccessTagChangeAllowedByScopes` returns true on create for patient-scoped types, so the
+   `meta.security` tags a member supplies are not validated even when the token also carries
+   `access/*.*` (the common member-token shape). Call out in the PR description that #2635's review
+   flagged this gap, so the reviewer signs off knowingly.
 5. **Tests.** Integration: create allowed; foreign/missing `securityContext` rejected; update,
    patch, delete allowed on own and forbidden on another member's Binary; cross-member read
    forbidden; untagged Binary hidden from patient scope with flag on, unchanged with flag off;
@@ -60,3 +85,12 @@ Decisions (2026-10-18):
 
 ## Open questions
 - Who owns the backfill runner.
+- Update gap (task 3): accept Task parity, or re-run the patient-scope check on the post-merge /
+  post-patch doc for Binary so `securityContext` cannot be re-pointed at another patient.
+  Recommendation: re-check for Binary.
+- Block `$merge?smartMerge=false` for patient scopes on Binary (it can delete the bytes and S3
+  object)? Recommendation: block.
+- Confirm raw-bytes `GET /Binary/<id>` goes through the same patient filter as the JSON read.
+- S3 object lifecycle on Binary DELETE.
+- Whether any client selects `CodeSystem.concept.property.valueString` (task 2b; Groundcover redacts
+  GraphQL bodies, so ask health-data-service or add a temporary log in the resolver).
