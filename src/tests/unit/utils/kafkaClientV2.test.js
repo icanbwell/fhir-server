@@ -1030,6 +1030,72 @@ describe('KafkaClientV2', () => {
                 expect(onMessageAsync).toHaveBeenCalledTimes(1);
                 expect(mockProducerSend).not.toHaveBeenCalled();
             });
+
+            test('rethrows a persistent heartbeat failure of any type instead of dead-lettering', async () => {
+                // A coordinator-unavailable or connection error from heartbeat() is not the message's fault.
+                const heartbeatError = Object.assign(new Error('coordinator not available'), {
+                    type: 'GROUP_COORDINATOR_NOT_AVAILABLE'
+                });
+                mockHeartbeat.mockRejectedValue(heartbeatError);
+                const onMessageAsync = jestObj.fn().mockResolvedValue(undefined);
+
+                await expect(
+                    kafkaClient.receiveMessagesAsync({
+                        consumer: makeConsumer(),
+                        topic: 'test-topic',
+                        onMessageAsync,
+                        deadLetterTopic: 'test-topic.dlt',
+                        maxRetries: 2,
+                        retryInitialDelayMs: 1
+                    })
+                ).rejects.toBe(heartbeatError);
+
+                expect(onMessageAsync).not.toHaveBeenCalled();
+                expect(mockProducerSend).not.toHaveBeenCalled();
+            });
+
+            test('counts handler failures across rebalance redeliveries so a failing message still reaches the DLT', async () => {
+                // Regression: a slow handler that outlasts the session timeout and then throws gets evicted,
+                // the next heartbeat throws a group error, and kafkajs redelivers with a fresh retry budget.
+                // Without a per-offset count the message loops forever and blocks its partition.
+                let eachMessage;
+                const consumer = {
+                    connect: mockConsumerConnect,
+                    disconnect: mockConsumerDisconnect,
+                    subscribe: mockConsumerSubscribe,
+                    run: jestObj.fn().mockImplementation(async (args) => {
+                        eachMessage = args.eachMessage;
+                    })
+                };
+                const message = { key: Buffer.from('k'), value: Buffer.from('v'), headers: {}, offset: '42' };
+                const deliver = () => eachMessage({
+                    topic: 'test-topic', partition: 0, message, heartbeat: mockHeartbeat, pause: jestObj.fn()
+                });
+                const onMessageAsync = jestObj.fn().mockRejectedValue(new Error('slow failure'));
+
+                await kafkaClient.receiveMessagesAsync({
+                    consumer,
+                    topic: 'test-topic',
+                    onMessageAsync,
+                    deadLetterTopic: 'test-topic.dlt',
+                    maxRetries: 3,
+                    retryInitialDelayMs: 1
+                });
+
+                // First delivery: the handler fails once, then the next heartbeat reports a rebalance.
+                mockHeartbeat
+                    .mockResolvedValueOnce(undefined)
+                    .mockRejectedValueOnce(Object.assign(new Error('rebalancing'), { type: 'REBALANCE_IN_PROGRESS' }));
+                await expect(deliver()).rejects.toThrow('rebalancing');
+                expect(mockProducerSend).not.toHaveBeenCalled();
+
+                // Redelivery: only the remaining budget is spent before dead-lettering.
+                mockHeartbeat.mockResolvedValue(undefined);
+                await expect(deliver()).resolves.toBeUndefined();
+
+                expect(onMessageAsync).toHaveBeenCalledTimes(4);
+                expect(mockProducerSend).toHaveBeenCalledWith(expect.objectContaining({ topic: 'test-topic.dlt' }));
+            });
         });
     });
 

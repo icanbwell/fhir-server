@@ -16,6 +16,8 @@ const GROUP_MEMBERSHIP_ERROR_TYPES = new Set([
     'UNKNOWN_MEMBER_ID'
 ]);
 
+const MAX_TRACKED_OFFSETS = 1000;
+
 /**
  * @param {Error} error
  * @returns {boolean}
@@ -326,6 +328,9 @@ class KafkaClientV2 {
         }
         try {
             await consumer.subscribe({ topics: [topic], fromBeginning });
+            // Handler failures per topic:partition:offset, kept across rebalance redeliveries so a
+            // message that keeps failing still exhausts maxRetries instead of looping forever.
+            const handlerFailuresByOffset = new Map();
             await consumer.run({
                 eachMessage: async ({ topic: t, partition, message, heartbeat, pause }) => {
                     // One pass over the raw headers builds both the {key,value} array
@@ -362,6 +367,11 @@ class KafkaClientV2 {
                             return;
                         }
 
+                        const failureKey = `${t}:${partition}:${message.offset}`;
+                        const priorFailures = handlerFailuresByOffset.get(failureKey) ?? 0;
+                        let passFailures = 0;
+                        let heartbeatFailed = false;
+
                         try {
                             await retryWithBackoff({
                                 // Heartbeat before every attempt (including the first), not just
@@ -372,10 +382,17 @@ class KafkaClientV2 {
                                 // triggering a rebalance mid-retry, independent of how short the
                                 // backoff itself is.
                                 fn: async () => {
+                                    heartbeatFailed = true;
                                     await heartbeat();
-                                    return onMessageAsync(parsedMessage);
+                                    heartbeatFailed = false;
+                                    try {
+                                        return await onMessageAsync(parsedMessage);
+                                    } catch (e) {
+                                        passFailures++;
+                                        throw e;
+                                    }
                                 },
-                                maxRetries,
+                                maxRetries: Math.max(0, maxRetries - priorFailures),
                                 initialDelayMs: retryInitialDelayMs,
                                 shouldRetry: (error) => !isGroupMembershipError(error),
                                 onRetry: ({ attempt, error }) => {
@@ -388,12 +405,21 @@ class KafkaClientV2 {
                                     }).catch(() => {});
                                 }
                             });
+                            handlerFailuresByOffset.delete(failureKey);
                         } catch (finalError) {
-                            // A rebalance is not a poison message: rethrow so kafkajs rejoins and
-                            // redelivers it. Dead-lettering would commit the offset and drop it.
-                            if (isGroupMembershipError(finalError)) {
+                            // A heartbeat or group error is not a poison message: rethrow so kafkajs
+                            // rejoins and redelivers it. Dead-lettering would commit the offset and
+                            // drop it. Handler failures so far carry over to the redelivery.
+                            if (heartbeatFailed || isGroupMembershipError(finalError)) {
+                                if (passFailures > 0) {
+                                    if (handlerFailuresByOffset.size >= MAX_TRACKED_OFFSETS) {
+                                        handlerFailuresByOffset.delete(handlerFailuresByOffset.keys().next().value);
+                                    }
+                                    handlerFailuresByOffset.set(failureKey, priorFailures + passFailures);
+                                }
                                 throw finalError;
                             }
+                            handlerFailuresByOffset.delete(failureKey);
                             // Retries exhausted -- this message can't be processed. Publish it to
                             // the dead-letter topic (with the failure reason) and let eachMessage
                             // return normally so the offset commits; otherwise a single poison
