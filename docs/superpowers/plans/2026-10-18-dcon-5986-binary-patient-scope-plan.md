@@ -26,7 +26,5 @@ Supersedes the implementation in #2635 and #2643.
    mixed-scope token (`patient/*.* user/*.* access/*.*`); system token; `$everything`/GraphQL hop;
    CodeSystem lookup (absent, own id, other CodeSystem, `Patient/...`). Unit: mapping + flag.
 6. **Docs.** `docs/resource-authorization.md` (§5 patient-filterable list, write rules, flag).
-7. **Backfill + stamping (rollout blocker).** DCON-6075; bwell-data-ops-notebooks#108; HDS and
-   pipelines stamp `securityContext` on write.
-8. **Rollout.** Backfill complete -> enable `ENABLE_PATIENT_SCOPED_BINARY` in dev/staging -> prod ->
+7. **Rollout.** Backfill complete -> enable `ENABLE_PATIENT_SCOPED_BINARY` in dev/staging -> prod ->
    remove flag.

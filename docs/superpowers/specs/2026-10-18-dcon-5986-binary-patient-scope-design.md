@@ -66,8 +66,7 @@ patient, so the patient filter would hide it from patient-scoped callers. A Bina
 this path is returned only if its `securityContext` is absent or equals exactly
 `CodeSystem/<parent CodeSystem's own id>`; any other value returns `null`. The read keeps the tenant
 access-tag filter but skips the patient filter, and runs only after the parent CodeSystem was itself
-read under the caller's authorization. The backfill stamps `CodeSystem/<id>` on Binary referenced by
-CodeSystems, so the "absent" case only covers unstamped stragglers.
+read under the caller's authorization.
 
 ## Known risks (from reading the code; each needs a test to confirm)
 
@@ -88,10 +87,3 @@ CodeSystems, so the "absent" case only covers unstamped stragglers.
 Backfill complete -> enable `ENABLE_PATIENT_SCOPED_BINARY` in dev/staging -> prod -> remove the flag.
 Until the backfill has run, existing Binary without `securityContext` would be invisible to
 patient-scoped tokens, so the flag stays off.
-
-## Backfill
-
-DCON-6075; notebook in icanbwell/bwell-data-ops-notebooks#108. The owner comes from the
-DocumentReference subject; conflicting subjects are reported, not stamped. It uses the default
-`$merge`, never `smartMerge=false`. Binary referenced by a CodeSystem is stamped
-`CodeSystem/<id>`. HDS and the pipelines stamp `securityContext` on write.
