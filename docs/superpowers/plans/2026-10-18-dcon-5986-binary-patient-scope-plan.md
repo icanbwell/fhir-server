@@ -38,8 +38,7 @@ Decisions (2026-10-18):
    filter but skips the patient filter, and only runs after the parent CodeSystem was itself read
    under the caller's authorization. Like the rest of the feature it is active only after the
    backfill (flag on). The backfill stamps `CodeSystem/<id>` on Binary referenced by CodeSystems, so
-   the "absent" case only covers unstamped stragglers. Open: confirm via Groundcover that the field
-   is used at all (if not, consider removing the resolver instead).
+   the "absent" case only covers unstamped stragglers.
 3. **Write paths.** Create, PUT, PATCH, `$merge` and DELETE all reach
    `PatientScopeManager.canWriteResourceAsync` through
    `scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes`.
@@ -82,15 +81,3 @@ Decisions (2026-10-18):
    not stamped; default `$merge` only (never `smartMerge=false`). HDS/pipelines stamp
    `securityContext` on write.
 8. **Rollout.** Backfill complete -> enable `ENABLE_PATIENT_SCOPED_BINARY` in dev/staging -> prod -> remove flag.
-
-## Open questions
-- Who owns the backfill runner.
-- Update gap (task 3): accept Task parity, or re-run the patient-scope check on the post-merge /
-  post-patch doc for Binary so `securityContext` cannot be re-pointed at another patient.
-  Recommendation: re-check for Binary.
-- Block `$merge?smartMerge=false` for patient scopes on Binary (it can delete the bytes and S3
-  object)? Recommendation: block.
-- Confirm raw-bytes `GET /Binary/<id>` goes through the same patient filter as the JSON read.
-- S3 object lifecycle on Binary DELETE.
-- Whether any client selects `CodeSystem.concept.property.valueString` (task 2b; Groundcover redacts
-  GraphQL bodies, so ask health-data-service or add a temporary log in the resolver).
