@@ -1554,7 +1554,7 @@ class EverythingHelper {
                 parsedArgs,
                 resourceType: relatedResourceType,
                 action: 'everything',
-                accessRequested: 'read'
+                accessRequested: 's'
             }))) {
                 continue;
             }

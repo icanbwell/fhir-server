@@ -249,6 +249,23 @@ describe('EverythingHelper - branch coverage & security (Category A)', () => {
             );
         });
 
+        test('checks the related type with the s letter before building its query', async () => {
+            mockSearchManager.constructQueryAsync.mockResolvedValue({ query: {} });
+
+            await everythingHelper.retriveveRelatedResourcesParallelyAsync(relatedArgs({
+                relatedResources: [{ type: 'BiologicallyDerivedProduct', customQuery: BIO_CUSTOM_QUERY }],
+                parentResourceIdentifiers: [{ resourceType: 'Patient', _uuid: 'p-1' }]
+            }));
+
+            expect(mockScopesValidator.hasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resourceType: 'BiologicallyDerivedProduct',
+                    action: 'everything',
+                    accessRequested: 's'
+                })
+            );
+        });
+
         test('escapes customQuery substitution values so a crafted _uuid cannot inject query operators', async () => {
             mockSearchManager.constructQueryAsync.mockResolvedValue({ query: {} });
             const maliciousUuid = 'abc","$where":"sleep(1000)';
