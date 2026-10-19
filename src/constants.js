@@ -251,6 +251,9 @@ module.exports = {
     GROUP_MEMBER_RESOURCE_TYPE: 'GroupMember',
     GROUP_MEMBER_COLLECTION_NAME: 'GroupMember_4_0_0',
     GROUP_MEMBER_HISTORY_COLLECTION_NAME: 'GroupMember_4_0_0_History',
+    // GraphQL Group.member(_offset, _count) on an extended Group: the page size when _count is
+    // omitted and the hard cap on _count (the roster is read a page at a time, never in full).
+    GRAPHQL_GROUP_MEMBER_MAX_COUNT: 1000,
     PATIENT_REFERENCE_PREFIX: 'Patient/',
     PERSON_REFERENCE_PREFIX: 'Person/',
     PERSON_PROXY_PREFIX: 'person.',

@@ -14,6 +14,7 @@ const { ConfigManager } = require('../utils/configManager');
 const { parseResolveInfo } = require('graphql-parse-resolve-info');
 const { getResource } = require('../operations/common/getResource');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
+const { MONGO_GROUP_EXTENDED_FIELD } = require('../utils/mongoGroupExtendedTag');
 const { SearchBundleOperation } = require('../operations/search/searchBundle');
 
 /**
@@ -602,6 +603,10 @@ class FhirDataSource {
 
                     if (!this.resourceProjections[resourceType]) {
                         this.resourceProjections[resourceType] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType'])
+                        if (resourceType === 'Group') {
+                            // Group.member decides between the inline list and the GroupMember_4_0_0 roster by it
+                            this.resourceProjections[resourceType].add(MONGO_GROUP_EXTENDED_FIELD);
+                        }
                     }
                     Object.values(value).forEach(field => {
                         // for handling custom reference fields
