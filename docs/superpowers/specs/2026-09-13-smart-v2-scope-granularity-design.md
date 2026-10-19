@@ -355,10 +355,11 @@ v2 letters are read only when `ENABLE_SMART_V2_CRUDS_SCOPES` is on. The route le
 
 | Routes | Letter |
 |---|---|
-| `searchLogResults`, `indexes`, `indexProblems`, `runPersonOneToNMatch`, `runMatchWithPayload`, `ExportStatus` with no id | `s` |
+| `searchLogResults`, `indexes`, `indexProblems`, `runMatchWithPayload`, `ExportStatus` with no id | `s` |
 | `runPersonMatch`, `getCacheKeys`, `ExportStatus/[id]` | `r` |
-| `showPersonToPersonLink` (reads the Person by id, then searches for the Persons that link to it) | `r` and `s` |
-| `synchronizeIndexes`, `triggerExport`, `createPersonToPersonLink`, `createPersonToPatientLink`, `removePersonToPersonLink`, `removePersonToPatientLink`, `updatePatientReference`, every `PUT` route | `u` |
+| `showPersonToPersonLink` (reads the Person by id, then searches for the Persons that link to it), `runPersonOneToNMatch` (reads the Patient or Person by id, then asks the matching service for candidates) | `r` and `s` |
+| `synchronizeIndexes`, `triggerExport`, `createPersonToPersonLink`, `removePersonToPersonLink`, `removePersonToPatientLink`, `updatePatientReference`, every `PUT` route | `u` |
+| `createPersonToPatientLink` (inserts a new Person when the external Person does not exist, otherwise updates it) | `c` and `u` |
 | `invalidateCache`, every `DELETE` route not listed below | `d` |
 | `deletePatientDataGraph`, `deletePersonDataGraph` (the `$everything` DELETE graph searches related types), `deletePerson` (searches for the Persons that link to it before deleting) | `d` and `s` |
 

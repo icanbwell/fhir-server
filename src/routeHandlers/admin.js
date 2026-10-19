@@ -300,7 +300,7 @@ async function handleAdminGet (
                 }
 
                 case 'runPersonOneToNMatch': {
-                    assertAdminScope({ scopesManager, scope, accessRequested: 's' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'rs' });
                     logInfo('', { 'req.query': req.query });
                     const id = req.query.id;
                     const resourceType = req.query.resourceType;
@@ -439,7 +439,7 @@ async function handleAdminPost (
                 }
 
                 case 'createPersonToPatientLink': {
-                    assertAdminScope({ scopesManager, scope, accessRequested: 'u' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'cu' });
                     logInfo('', { 'req.body': req.body });
                     const externalPersonId = req.body.externalPersonId;
                     const patientId = req.body.patientId;
