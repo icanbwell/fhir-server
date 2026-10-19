@@ -236,6 +236,19 @@ describe('EverythingHelper - branch coverage & security (Category A)', () => {
             expect(query.$or).toEqual([{ '_access.clientA': 1 }, { '_access.clientB': 1 }]);
         });
 
+        test('builds the related-resource query with the s access codes', async () => {
+            mockSearchManager.constructQueryAsync.mockResolvedValue({ query: {} });
+
+            await everythingHelper.retriveveRelatedResourcesParallelyAsync(relatedArgs({
+                relatedResources: [{ type: 'BiologicallyDerivedProduct', customQuery: BIO_CUSTOM_QUERY }],
+                parentResourceIdentifiers: [{ resourceType: 'Patient', _uuid: 'p-1' }]
+            }));
+
+            expect(mockSearchManager.constructQueryAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: 's' })
+            );
+        });
+
         test('escapes customQuery substitution values so a crafted _uuid cannot inject query operators', async () => {
             mockSearchManager.constructQueryAsync.mockResolvedValue({ query: {} });
             const maliciousUuid = 'abc","$where":"sleep(1000)';

@@ -297,7 +297,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
          * test's own fabricated mock return value, which can never reflect real behavior. This
          * version instead verifies the thing this test file *can* meaningfully check: that
          * `updateAsync` calls `constructQueryAsync` with the parameters the real patient-scope
-         * filter needs (`personIdFromJwtToken`, `accessRequested: 'write'`, the caller's `scope`)
+         * filter needs (`personIdFromJwtToken`, `accessRequested: 'u'`, the caller's `scope`)
          * so that filtering can actually apply downstream.
          */
         mocks.searchManager.constructQueryAsync = jestGlobal.fn().mockResolvedValue({
@@ -348,7 +348,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         expect(mocks.searchManager.constructQueryAsync).toHaveBeenCalled();
         const callArgs = mocks.searchManager.constructQueryAsync.mock.calls[0][0];
         expect(callArgs.personIdFromJwtToken).toBe('person-tenant-b');
-        expect(callArgs.accessRequested).toBe('write');
+        expect(callArgs.accessRequested).toBe('u');
         expect(callArgs.scope).toBe('patient/Patient.write access/tenant_b.*');
         expect(callArgs.isUser).toBe(true);
     });

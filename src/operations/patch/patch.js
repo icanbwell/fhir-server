@@ -317,7 +317,7 @@ class PatchOperation {
                 personIdFromJwtToken,
                 parsedArgs,
                 operation: WRITE,
-                accessRequested: 'write'
+                accessRequested: 'u'
             });
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }

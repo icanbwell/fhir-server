@@ -419,7 +419,7 @@ class PersonToPatientIdsExpander {
                  * @type {string[]}
                  */
                 const securityTags = this.securityTagManager.getSecurityTagsFromScope({
-                    accessRequested: 'read',
+                    accessRequested: 'r',
                     user,
                     scope,
                     accessViaPatientScopes: hasPatientScope

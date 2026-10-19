@@ -331,7 +331,7 @@ class EverythingHelper {
             actor: requestInfo.actor,
             parsedArgs,
             operation: READ,
-            accessRequested: 'read',
+            accessRequested: 'r',
             addPersonOwnerToContext: requestInfo.isUser,
             applyPatientFilter: true
         });
@@ -1336,7 +1336,7 @@ class EverythingHelper {
                 requestId: requestInfo.requestId,
                 parsedArgs,
                 operation: READ,
-                accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
+                accessRequested: 'r',
                 addPersonOwnerToContext: requestInfo.isUser,
                 applyPatientFilter,
                 // PROA consented-data-access expansion is only for a genuine Person $everything
@@ -1625,6 +1625,7 @@ class EverythingHelper {
                 requestId: requestInfo.requestId,
                 parsedArgs: relatedResourceParsedArgs,
                 operation: READ,
+                accessRequested: 's',
                 applyPatientFilter:
                     requestInfo.isUser &&
                     this.relatedResourceNeedingPatientScopeFilter[parentResourceType].includes(relatedResourceType),
