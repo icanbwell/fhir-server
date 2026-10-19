@@ -1,5 +1,6 @@
 const graphqlFields = require('graphql-fields');
 const { graphqlFieldsToMongoProjection } = require('../../../utils/graphqlFieldsProjection');
+const { markCodeSystemProperties } = require('../../../utils/binaryCodeSystemOwnership');
 
 module.exports = {
     CodeSystem: {
@@ -17,19 +18,18 @@ module.exports = {
              * @type {CodeSystem|null}
              */
             const codeSystem = parent;
+            let concepts = codeSystem.concept;
             if (codeSystem && args.code) { // filter by code
                 /**
                  * @type {string[]}
                  */
                 const codes = args.code;
                 if (Array.isArray(codes)) {
-                    return codeSystem.concept.filter(c => codes.includes(c.code));
-                } else {
-                    return codeSystem.concept;
+                    concepts = codeSystem.concept.filter(c => codes.includes(c.code));
                 }
-            } else {
-                return codeSystem.concept;
             }
+            // let a property's valueString resolver check that a referenced Binary belongs to this CodeSystem
+            return markCodeSystemProperties(concepts, codeSystem);
         }
     },
     Query: {

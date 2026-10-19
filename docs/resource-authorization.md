@@ -248,6 +248,13 @@ as separate authorization paths, specifically to keep this restriction from bein
   patient-scoped create, the `meta.security` tags a caller supplies are not validated against its
   scopes, and an update is authorized against the stored resource only. Flag off behaves as before:
   `Binary` is not patient-filterable and a patient scope cannot write it.
+  The GraphQL v1 `CodeSystem.concept.property.valueString` lookup of `Binary/<id>`
+  (`FhirDataSource.findBinaryForCodeSystemAsync`) is the one exception: a CodeSystem-owned `Binary`
+  has no patient, so for that single read the token is evaluated without its `patient/` scopes (the
+  caller's `user/` scopes gate it and its `access/` codes give the tenant filter; a token with
+  neither is refused, not widened), and the `Binary` is returned only if its `securityContext` is
+  absent or exactly the parent CodeSystem (`isBinaryReadableViaCodeSystem`). GraphQL v2 has no such
+  lookup.
 - **Person `$everything`** narrows the *result set* (not the underlying access check) to only the
   explicitly-requested Person id(s) — a sibling Person sharing the same underlying Patient is
   resolved internally but excluded from the response. See `readme/personEverything.md`.

@@ -12,10 +12,11 @@ Supersedes the implementation in #2635 and #2643.
 2. **Read paths.** Confirm direct read/search, `$everything` (DocumentReference -> Binary hop),
    GraphQL DocumentReference.content.attachment Binary resolution, and the `$everything` cache key
    with the mapping on. Flag off must equal `main`.
-3. **CodeSystem -> Binary lookup (GraphQL v1).** In
-   `src/graphql/resolvers/custom/codeSystemProperty1.js`, return the Binary only when its
-   `securityContext` is absent or exactly `CodeSystem/<parent id>`, else `null`. Keep the tenant
-   access-tag filter, skip the patient filter, active only with the flag on.
+3. **CodeSystem -> Binary lookup (GraphQL v1).** Done: `FhirDataSource.findBinaryForCodeSystemAsync`
+   evaluates that one read without the token's `patient/` scopes (tenant filter from `access/`, refused
+   if the token has none), and `isBinaryReadableViaCodeSystem` returns the Binary only when its
+   `securityContext` is absent or exactly the parent CodeSystem. `CodeSystem.concept` marks each
+   property with its owner. Active only with the flag on.
 4. **Write paths.** Confirm POST, PUT, PATCH, `$merge` and DELETE go through
    `PatientScopeManager.canWriteResourceAsync`; confirm preSave populates `securityContext._uuid` for
    `Patient/<uuid>` and `Patient/person.<id>`. Verify the update, byte-wipe and mixed-token behaviors
