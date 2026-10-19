@@ -715,6 +715,38 @@ describe('MongoGroupMemberRepository', () => {
                 expect(await promise).toBe(1);
             });
 
+            test('throws after 10 consecutive passes that delete nothing, leaving the Group for a retry', async () => {
+                mockRounds(Array.from({ length: 12 }, (_, i) => [makeRow(i + 1)]));
+                mockRemoveHelper.deleteManyAsync = jest.fn().mockResolvedValue(0);
+
+                const promise = repository.cascadeDeleteForGroupAsync({
+                    requestInfo, base_version: '4_0_0', groupUuid: 'group-1'
+                });
+                const assertion = expect(promise).rejects.toThrow(/no progress.*10 times in a row/);
+                await jest.advanceTimersByTimeAsync(60000);
+                await assertion;
+
+                expect(findAsyncMock).toHaveBeenCalledTimes(10);
+                expect(mockRemoveHelper.deleteManyAsync).toHaveBeenCalledTimes(10);
+            });
+
+            test('does not throw after 9 consecutive empty passes followed by progress', async () => {
+                mockRounds(Array.from({ length: 10 }, (_, i) => [makeRow(i + 1)]));
+                const deleteMock = jest.fn();
+                for (let i = 0; i < 9; i++) {
+                    deleteMock.mockResolvedValueOnce(0);
+                }
+                deleteMock.mockResolvedValueOnce(1);
+                mockRemoveHelper.deleteManyAsync = deleteMock;
+
+                const promise = repository.cascadeDeleteForGroupAsync({
+                    requestInfo, base_version: '4_0_0', groupUuid: 'group-1'
+                });
+                await jest.advanceTimersByTimeAsync(60000);
+
+                expect(await promise).toBe(1);
+            });
+
             test('caps the wait at 2000ms', async () => {
                 const rounds = Array.from({ length: 8 }, (_, i) => [makeRow(i + 1)]);
                 mockRounds(rounds);

@@ -23,6 +23,14 @@ const CASCADE_NO_PROGRESS_BACKOFF_MS = 100;
 const CASCADE_NO_PROGRESS_BACKOFF_MAX_MS = 2000;
 
 /**
+ * Consecutive cascade passes that find rows but delete none before the cascade gives up. With the
+ * backoff above that is about 11 seconds of waiting, well beyond normal replica lag or an
+ * overlapping delete. The Group is left live, so a retried DELETE resumes with what is left.
+ * @type {number}
+ */
+const CASCADE_MAX_NO_PROGRESS_PASSES = 10;
+
+/**
  * Repository for the MongoDB-native, large-Group ("extended") member storage, written from
  * GroupMemberPatchStrategy's Mongo-native branch when a PATCH targets an extended Group's
  * /member. This is a plain resource write, not an event log: each requested write resolves to
@@ -375,11 +383,17 @@ class MongoGroupMemberRepository {
                 // already gone: a concurrent or retried delete of this Group removed them, or the
                 // read hit a replica that has not applied our previous delete yet. Wait a little,
                 // then re-query for whatever is left.
+                consecutiveNoProgress += 1;
+                if (consecutiveNoProgress >= CASCADE_MAX_NO_PROGRESS_PASSES) {
+                    throw new Error(
+                        `GroupMember cascade delete made no progress for Group ${groupUuid}: ` +
+                        `${rows.length} rows found but none deleted, ${consecutiveNoProgress} times in a row`
+                    );
+                }
                 const backoffMs = Math.min(
-                    CASCADE_NO_PROGRESS_BACKOFF_MS * 2 ** consecutiveNoProgress,
+                    CASCADE_NO_PROGRESS_BACKOFF_MS * 2 ** (consecutiveNoProgress - 1),
                     CASCADE_NO_PROGRESS_BACKOFF_MAX_MS
                 );
-                consecutiveNoProgress += 1;
                 await new Promise(resolve => setTimeout(resolve, backoffMs));
                 continue;
             }
