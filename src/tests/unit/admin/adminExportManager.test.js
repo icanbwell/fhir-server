@@ -616,6 +616,29 @@ describe('AdminExportManager', () => {
             await expect(manager.triggerExportJob({ req, res })).rejects.toThrow('Insufficient scopes');
         });
 
+        test('asks for the u letter', async () => {
+            httpContext.get.mockReturnValue('system-req-id');
+            mockScopesValidator.verifyHasValidScopesAsync.mockRejectedValue(new Error('Insufficient scopes'));
+
+            const req = {
+                id: 'user-req-123',
+                header: jestGlobal.fn(),
+                params: { id: 'export-1' },
+                headers: {},
+                sanitized_args: {},
+                query: {}
+            };
+
+            await expect(manager.triggerExportJob({ req, res: {} })).rejects.toThrow('Insufficient scopes');
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resourceType: 'ExportStatus',
+                    action: 'triggerExportJob',
+                    accessRequested: 'u'
+                })
+            );
+        });
+
         test('rethrows error from exportManager.triggerExportJob', async () => {
             httpContext.get.mockReturnValue('system-req-id');
             const existingResource = { resourceType: 'ExportStatus', id: 'export-1' };
@@ -654,6 +677,30 @@ describe('AdminExportManager', () => {
             const res = {};
 
             await expect(manager.updateExportStatus({ req, res })).rejects.toThrow('Access denied');
+        });
+
+        test('asks for the u letter', async () => {
+            httpContext.get.mockReturnValue('system-req-id');
+            mockScopesValidator.verifyHasValidScopesAsync.mockRejectedValue(new Error('Access denied'));
+
+            const req = {
+                id: 'user-req-123',
+                header: jestGlobal.fn(),
+                params: { id: 'export-1' },
+                headers: {},
+                body: { resourceType: 'ExportStatus' },
+                sanitized_args: {},
+                query: {}
+            };
+
+            await expect(manager.updateExportStatus({ req, res: {} })).rejects.toThrow('Access denied');
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resourceType: 'ExportStatus',
+                    action: 'updateExportStatus',
+                    accessRequested: 'u'
+                })
+            );
         });
 
         test('calls postRequestProcessor.add with fnTask that invokes postSaveProcessor', async () => {

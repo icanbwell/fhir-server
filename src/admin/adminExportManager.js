@@ -189,7 +189,7 @@ class AdminExportManager {
                 resourceType: resourceType,
                 startTime: Date.now(),
                 action: 'updateExportStatus',
-                accessRequested: 'write'
+                accessRequested: 'u'
             });
 
             const exportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId({
@@ -273,7 +273,7 @@ class AdminExportManager {
                 resourceType: resourceType,
                 startTime: Date.now(),
                 action: 'triggerExportJob',
-                accessRequested: 'write'
+                accessRequested: 'u'
             });
             const exportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId({
                 exportStatusId: exportStatusId

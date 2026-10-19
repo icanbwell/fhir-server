@@ -371,7 +371,7 @@ describe('Export Tests', () => {
                         {
                             severity: 'error',
                             code: 'exception',
-                            diagnostics: 'user with scopes [patient/*.*] failed access check to [admin/*.write]'
+                            diagnostics: 'user with scopes [patient/*.*] failed access check to [admin/*.u]'
                         }
                     ]
                 }

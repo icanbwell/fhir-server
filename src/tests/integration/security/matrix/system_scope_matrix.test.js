@@ -233,11 +233,18 @@ describe('SECURITY MATRIX — SMART v2 system/ scope, cross-cutting negatives', 
         // deletePatientDataGraphAsync internally re-runs $everything, which needs read
         // access to Patient in addition to the write access.write's own gate checks, so
         // the success case needs system/Patient.* (read+write), not .write alone.
-        test('control: admin/*.write system/Patient.* WITH access/*.* succeeds', async () => {
+        test('control: admin/*.* system/Patient.* WITH access/*.* succeeds', async () => {
+            const request = await seed();
+            const resp = await request.delete('/admin/deletePatientDataGraph?id=mtxOwnB&sync=1')
+                .set(getHeadersWithCustomToken('admin/*.* system/Patient.* access/*.*'));
+            expect([200, 202]).toContain(resp.status);
+        });
+
+        test('admin/*.write alone is refused: the delete also needs s', async () => {
             const request = await seed();
             const resp = await request.delete('/admin/deletePatientDataGraph?id=mtxOwnB&sync=1')
                 .set(getHeadersWithCustomToken('admin/*.write system/Patient.* access/*.*'));
-            expect([200, 202]).toContain(resp.status);
+            expect(resp.status).toBe(403);
         });
     });
 
