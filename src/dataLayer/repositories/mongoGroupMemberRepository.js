@@ -154,6 +154,38 @@ class MongoGroupMemberRepository {
     }
 
     /**
+     * Which of the given member references are in the roster of one Group. Used where a caller needs
+     * to know *which* of several candidate parents contain an extended Group
+     * One lookup on groupUuid + member.entity._uuid. No tenant filter -- the caller has already
+     * fetched the Group under the request's tenant scope. Active and inactive rows alike.
+     *
+     * @param {Object} params
+     * @param {string} params.base_version
+     * @param {string} params.groupUuid
+     * @param {string[]} params.memberReferences member.entity._uuid values to look for, e.g. `Patient/<uuid>`
+     * @param {number} [params.maxTimeMS] server-side time limit for the lookup, omitted when not set
+     * @returns {Promise<string[]>} the subset of memberReferences found in the Group's roster
+     */
+    async findMemberReferencesInGroupAsync ({ base_version, groupUuid, memberReferences, maxTimeMS }) {
+        if (memberReferences.length === 0) {
+            return [];
+        }
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        let cursor = await databaseQueryManager.findAsync({
+            query: { groupUuid, 'member.entity._uuid': { $in: memberReferences } },
+            options: { projection: { 'member.entity._uuid': 1, _id: 0 } }
+        });
+        if (maxTimeMS) {
+            cursor = cursor.maxTimeMS({ milliSecs: maxTimeMS });
+        }
+        const rows = await cursor.toArrayAsync();
+        return rows.map((row) => row.member.entity._uuid);
+    }
+
+    /**
      * Reads current membership for the given requested writes and, for each one, resolves (via
      * resolveMemberWrite) exactly what it needs: create/update/delete/none. Writes nothing
      * itself.

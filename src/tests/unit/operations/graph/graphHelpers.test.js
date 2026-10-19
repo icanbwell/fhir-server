@@ -187,6 +187,61 @@ describe('GraphHelper', () => {
         });
     });
 
+    describe('getParentEntitiesInExtendedGroupAsync', () => {
+        const parent = (resourceType, entityUuid) => ({ entityUuid, resource: { resourceType, _uuid: entityUuid } });
+        const patient1 = parent('Patient', 'uuid-1');
+        const patient2 = parent('Patient', 'uuid-2');
+        const group = { resourceType: 'Group', _uuid: 'group-uuid', _extended: true };
+
+        beforeEach(() => {
+            mockConfigManager.mongoTimeout = 30000;
+            graphHelper.mongoGroupMemberRepository = {
+                findMemberReferencesInGroupAsync: jest.fn()
+            };
+        });
+
+        test('returns only the parents found in the Group roster, looked up in one call', async () => {
+            graphHelper.mongoGroupMemberRepository.findMemberReferencesInGroupAsync.mockResolvedValue(['Patient/uuid-2']);
+
+            const result = await graphHelper.getParentEntitiesInExtendedGroupAsync({
+                base_version: '4_0_0', group, parentEntities: [patient1, patient2]
+            });
+
+            expect(result).toEqual([patient2]);
+            expect(graphHelper.mongoGroupMemberRepository.findMemberReferencesInGroupAsync).toHaveBeenCalledTimes(1);
+            expect(graphHelper.mongoGroupMemberRepository.findMemberReferencesInGroupAsync).toHaveBeenCalledWith({
+                base_version: '4_0_0',
+                groupUuid: 'group-uuid',
+                memberReferences: ['Patient/uuid-1', 'Patient/uuid-2'],
+                maxTimeMS: 30000
+            });
+        });
+
+        test('returns every parent that is in the roster', async () => {
+            graphHelper.mongoGroupMemberRepository.findMemberReferencesInGroupAsync
+                .mockResolvedValue(['Patient/uuid-1', 'Patient/uuid-2']);
+
+            const result = await graphHelper.getParentEntitiesInExtendedGroupAsync({
+                base_version: '4_0_0', group, parentEntities: [patient1, patient2]
+            });
+
+            expect(result).toEqual([patient1, patient2]);
+        });
+
+        test('ignores parents without a uuid and returns nothing when none is in the roster', async () => {
+            graphHelper.mongoGroupMemberRepository.findMemberReferencesInGroupAsync.mockResolvedValue([]);
+
+            const result = await graphHelper.getParentEntitiesInExtendedGroupAsync({
+                base_version: '4_0_0', group, parentEntities: [patient1, parent('Patient', undefined)]
+            });
+
+            expect(result).toEqual([]);
+            expect(graphHelper.mongoGroupMemberRepository.findMemberReferencesInGroupAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ memberReferences: ['Patient/uuid-1'] })
+            );
+        });
+    });
+
     describe('getReferencesFromPropertyValue', () => {
         test('returns uuids from array (no legacy)', () => {
             mockConfigManager.supportLegacyIds = false;

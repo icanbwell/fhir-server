@@ -77,9 +77,28 @@ function isExtendedGroup(doc) {
     return doc?.[MONGO_GROUP_EXTENDED_FIELD] === true;
 }
 
+/**
+ * True when `property` (a GraphDefinition link path or $everything property path) reads the
+ * Group's roster off an extended Group. An extended Group document carries no member[] (the roster
+ * lives in GroupMember_4_0_0), so such a path can never resolve against the document. Matches on
+ * the path's first segment, so `member`, `member.entity` and `member.entity.reference` all count
+ * but `memberOf` does not. `property` is the path string from the link, never document data.
+ *
+ * @param {Object} params
+ * @param {Object|null|undefined} params.resource - the entity being traversed
+ * @param {string} params.property - dotted property path, filter already stripped
+ * @returns {boolean}
+ */
+function isExtendedGroupMemberPath({ resource, property }) {
+    return resource?.resourceType === 'Group' &&
+        isExtendedGroup(resource) &&
+        property.split('.')[0] === 'member';
+}
+
 module.exports = {
     getExtendedGroupMemberWriteError,
     rejectMemberOnExtendedGroupWrite,
     isExtendedGroup,
+    isExtendedGroupMemberPath,
     MONGO_GROUP_EXTENDED_FIELD
 };

@@ -225,6 +225,61 @@ describe('MongoGroupMemberRepository', () => {
         });
     });
 
+    describe('findMemberReferencesInGroupAsync', () => {
+        function mockCursor (rows) {
+            const cursor = { toArrayAsync: jest.fn().mockResolvedValue(rows) };
+            cursor.maxTimeMS = jest.fn().mockReturnValue(cursor);
+            const findAsync = jest.fn().mockResolvedValue(cursor);
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({ findAsync });
+            return { cursor, findAsync };
+        }
+
+        test('looks the references up in one Group\'s roster and returns those found', async () => {
+            const { findAsync } = mockCursor([
+                { member: { entity: { _uuid: 'Patient/p-1' } } },
+                { member: { entity: { _uuid: 'Patient/p-2' } } }
+            ]);
+
+            const found = await repository.findMemberReferencesInGroupAsync({
+                base_version: '4_0_0',
+                groupUuid: 'g-1',
+                memberReferences: ['Patient/p-1', 'Patient/p-2', 'Patient/p-3']
+            });
+
+            expect(found).toEqual(['Patient/p-1', 'Patient/p-2']);
+            expect(findAsync).toHaveBeenCalledWith({
+                query: { groupUuid: 'g-1', 'member.entity._uuid': { $in: ['Patient/p-1', 'Patient/p-2', 'Patient/p-3'] } },
+                options: { projection: { 'member.entity._uuid': 1, _id: 0 } }
+            });
+        });
+
+        test('does not query when there is nothing to look for', async () => {
+            mockDatabaseQueryFactory.createQuery = jest.fn();
+
+            const found = await repository.findMemberReferencesInGroupAsync({
+                base_version: '4_0_0', groupUuid: 'g-1', memberReferences: []
+            });
+
+            expect(found).toEqual([]);
+            expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
+        });
+
+        test('bounds the lookup when maxTimeMS is given and sets no limit otherwise', async () => {
+            const { cursor } = mockCursor([]);
+
+            await repository.findMemberReferencesInGroupAsync({
+                base_version: '4_0_0', groupUuid: 'g-1', memberReferences: ['Patient/p-1'], maxTimeMS: 120000
+            });
+            expect(cursor.maxTimeMS).toHaveBeenCalledWith({ milliSecs: 120000 });
+
+            cursor.maxTimeMS.mockClear();
+            await repository.findMemberReferencesInGroupAsync({
+                base_version: '4_0_0', groupUuid: 'g-1', memberReferences: ['Patient/p-1']
+            });
+            expect(cursor.maxTimeMS).not.toHaveBeenCalled();
+        });
+    });
+
     describe('removeMembersNotAtVersionAsync', () => {
         const requestInfo = { requestId: 'req-1', method: 'PATCH', headers: {} };
 
