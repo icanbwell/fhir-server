@@ -981,6 +981,55 @@ describe('KafkaClientV2', () => {
                     })
                 ).rejects.toThrow('broker unavailable');
             });
+
+            describe.each(['REBALANCE_IN_PROGRESS', 'ILLEGAL_GENERATION', 'NOT_COORDINATOR_FOR_GROUP', 'UNKNOWN_MEMBER_ID'])(
+                'group-membership error %s from heartbeat',
+                (type) => {
+                    const makeGroupError = () => Object.assign(new Error('The group is rebalancing'), { type });
+
+                    test('is rethrown without retrying or dead-lettering so the offset is not committed', async () => {
+                        // Regression: a heartbeat that fails because the group is rebalancing says nothing
+                        // about the message. Dead-lettering it committed the offset and silently dropped a
+                        // bulk-import range, leaving its Task in-progress forever.
+                        const groupError = makeGroupError();
+                        mockHeartbeat.mockRejectedValue(groupError);
+                        const onMessageAsync = jestObj.fn().mockResolvedValue(undefined);
+
+                        await expect(
+                            kafkaClient.receiveMessagesAsync({
+                                consumer: makeConsumer(),
+                                topic: 'test-topic',
+                                onMessageAsync,
+                                deadLetterTopic: 'test-topic.dlt',
+                                maxRetries: 3,
+                                retryInitialDelayMs: 1
+                            })
+                        ).rejects.toBe(groupError);
+
+                        expect(mockHeartbeat).toHaveBeenCalledTimes(1);
+                        expect(onMessageAsync).not.toHaveBeenCalled();
+                        expect(mockProducerSend).not.toHaveBeenCalled();
+                    });
+                }
+            );
+
+            test('still retries a heartbeat failure that is not a group-membership error', async () => {
+                mockHeartbeat
+                    .mockRejectedValueOnce(new Error('network blip'))
+                    .mockResolvedValue(undefined);
+                const onMessageAsync = jestObj.fn().mockResolvedValue(undefined);
+
+                await kafkaClient.receiveMessagesAsync({
+                    consumer: makeConsumer(),
+                    topic: 'test-topic',
+                    onMessageAsync,
+                    deadLetterTopic: 'test-topic.dlt',
+                    retryInitialDelayMs: 1
+                });
+
+                expect(onMessageAsync).toHaveBeenCalledTimes(1);
+                expect(mockProducerSend).not.toHaveBeenCalled();
+            });
         });
     });
 

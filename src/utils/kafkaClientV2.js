@@ -8,6 +8,22 @@ const { ConfigManager } = require('./configManager');
 const { recordKafkaRetryExhausted } = require('./metrics');
 const { retryWithBackoff } = require('./retryWithBackoff');
 
+// Consumer-group errors say nothing about the message; only a rejoin clears them.
+const GROUP_MEMBERSHIP_ERROR_TYPES = new Set([
+    'REBALANCE_IN_PROGRESS',
+    'ILLEGAL_GENERATION',
+    'NOT_COORDINATOR_FOR_GROUP',
+    'UNKNOWN_MEMBER_ID'
+]);
+
+/**
+ * @param {Error} error
+ * @returns {boolean}
+ */
+function isGroupMembershipError (error) {
+    return GROUP_MEMBERSHIP_ERROR_TYPES.has(error?.type);
+}
+
 class KafkaClientV2 {
     /**
      * @param {ConfigManager} configManager
@@ -361,6 +377,7 @@ class KafkaClientV2 {
                                 },
                                 maxRetries,
                                 initialDelayMs: retryInitialDelayMs,
+                                shouldRetry: (error) => !isGroupMembershipError(error),
                                 onRetry: ({ attempt, error }) => {
                                     // onRetry is invoked synchronously (not awaited) by retryWithBackoff,
                                     // so this log write races the retry delay -- best-effort only.
@@ -372,6 +389,11 @@ class KafkaClientV2 {
                                 }
                             });
                         } catch (finalError) {
+                            // A rebalance is not a poison message: rethrow so kafkajs rejoins and
+                            // redelivers it. Dead-lettering would commit the offset and drop it.
+                            if (isGroupMembershipError(finalError)) {
+                                throw finalError;
+                            }
                             // Retries exhausted -- this message can't be processed. Publish it to
                             // the dead-letter topic (with the failure reason) and let eachMessage
                             // return normally so the offset commits; otherwise a single poison
