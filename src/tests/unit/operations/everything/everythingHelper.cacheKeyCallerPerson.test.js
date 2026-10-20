@@ -72,12 +72,12 @@ describe('EverythingHelper.getCacheKey - caller person in key (B-7)', () => {
         expect(keyA.startsWith(`Patient:${PATIENT_UUID}:Everything:Generation:3:Scopes:`)).toBe(true);
     });
 
-    test('flag off: still per-person (the Binary read filter is not flag-gated)', async () => {
+    test('flag off: nothing is caller-specific, so the key has no person (unchanged from before the flag existed)', async () => {
         config.enablePatientScopedBinaryCreate = false;
         const keyA = await key('shared-patient', PERSON_A);
         const keyB = await key('shared-patient', PERSON_B);
-        expect(keyA).not.toEqual(keyB);
-        expect(keyA.endsWith(`:CallerPerson:${PERSON_A}`)).toBe(true);
+        expect(keyA).toEqual(keyB);
+        expect(keyA).not.toContain('CallerPerson');
     });
 
     test('flag on: the proxy-patient path (already per-person) is unchanged', async () => {

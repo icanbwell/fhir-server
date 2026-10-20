@@ -150,20 +150,19 @@ class ScopesValidator {
                  * @type {string[]}
                  */
                 let scopes;
-                // Binary: a patient-scoped caller may create it (stamped with its person id) and, when it
-                // holds no user/ or system/ scope, read its own tagged Binary. Both are authorized by
-                // evaluating the patient scopes, like patient-filterable resource types. Anything else
-                // for Binary (update/patch/delete/merge, or reads by tokens that also hold user/system
-                // scopes) keeps its existing evaluation below. Off unless
-                // ENABLE_PATIENT_SCOPED_BINARY_CREATE.
-                const accessViaPersonTagScopes =
+                // Binary (ENABLE_PATIENT_SCOPED_BINARY_CREATE on): patient-filterable like any patient-scoped
+                // resource type, so isAccessAllowedByPatientScopes covers reads. A create is also authorized
+                // by the patient scopes (the server stamps its securityContext from the token); every other
+                // write falls through to the user/system evaluation below (a patient scope never authorizes it) and
+                // is rejected again by patientScopeManager.canWriteResourceAsync.
+                const isCreateOnlyWriteOtherThanCreate = action !== 'create' &&
+                    !isReadOnlyAccessRequested(resourceTypeAccessRequested) &&
+                    this.scopesManager.isCreateOnlyWithPatientScope({ resourceType });
+                const accessViaPatientScopes =
                     this.scopesManager.isPatientScopedPersonContextCreate({ scope, resourceType, action }) ||
-                    (isReadOnlyAccessRequested(resourceTypeAccessRequested) &&
-                        this.scopesManager.isPersonContextStrictAccess({ scope, resourceType }));
-                const accessViaPatientScopes = accessViaPersonTagScopes ||
-                    this.scopesManager.isAccessAllowedByPatientScopes({
+                    (!isCreateOnlyWriteOtherThanCreate && this.scopesManager.isAccessAllowedByPatientScopes({
                         scope, resourceType
-                    });
+                    }));
 
                 let error, success;
                 if (accessViaPatientScopes) {

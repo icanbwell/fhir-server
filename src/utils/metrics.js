@@ -71,8 +71,7 @@ const LABEL = Object.freeze({
     SUBSYSTEM: 'subsystem',
     PATH: 'path',
     POOL: 'pool',
-    REASON: 'reason',
-    MODE: 'mode'
+    REASON: 'reason'
 });
 
 const OUTCOME = Object.freeze({
@@ -133,13 +132,6 @@ const BINARY_CREATE_REJECT_REASON = Object.freeze({
     // the body has no owner tag, or an owner/access tag the caller's own Person does not carry
     // (cross-tenant tag injection signal), or the caller's Person could not be loaded
     TENANT_TAG_NOT_ON_PERSON: 'tenant_tag_not_on_person'
-});
-
-// Which shape of person-securityContext read filter was applied to a Binary search/read.
-const BINARY_PERSON_FILTER_MODE = Object.freeze({
-    STRICT: 'strict',
-    MIXED: 'mixed',
-    NO_PERSON_ID: 'no_person_id'
 });
 
 const UNKNOWN = 'unknown';
@@ -311,10 +303,6 @@ const mongoPoolConnectionCreatedCounter = meter.createCounter('fhir_mongo_pool_c
 
 const binaryPatientCreateCounter = meter.createCounter('fhir_binary_patient_create_total', {
     description: 'Patient-scoped Binary creates by outcome (set = server stamped the person-owned securityContext, rejected = create refused) and, when rejected, a bounded reason. Alert on a non-zero client_supplied_security_context rate (tag-forgery signal).'
-});
-
-const binaryPersonFilterAppliedCounter = meter.createCounter('fhir_binary_person_filter_applied_total', {
-    description: 'Binary reads where the person-securityContext filter was applied, by mode (strict = pure patient token, mixed = patient plus user/system scope, no_person_id = failed closed).'
 });
 
 /**
@@ -572,14 +560,6 @@ function recordBinaryPatientCreate (outcome, reason) {
     binaryPatientCreateCounter.add(1, attributes);
 }
 
-/**
- * Emit fhir_binary_person_filter_applied_total.
- * @param {string} mode one of BINARY_PERSON_FILTER_MODE.*
- */
-function recordBinaryPersonFilterApplied (mode) {
-    binaryPersonFilterAppliedCounter.add(1, { [LABEL.MODE]: mode });
-}
-
 module.exports = {
     // Instruments — exported so integration tests can spy on `.add` / `.record`.
     mergeOutcomeCounter,
@@ -598,7 +578,6 @@ module.exports = {
     mongoPoolClearedCounter,
     mongoPoolConnectionCreatedCounter,
     binaryPatientCreateCounter,
-    binaryPersonFilterAppliedCounter,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -616,7 +595,6 @@ module.exports = {
     recordMongoPoolCleared,
     recordMongoPoolConnectionCreated,
     recordBinaryPatientCreate,
-    recordBinaryPersonFilterApplied,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,
@@ -633,6 +611,5 @@ module.exports = {
     POOL_CHECKOUT_FAILURE_REASON,
     BINARY_CREATE_OUTCOME,
     BINARY_CREATE_REJECT_REASON,
-    BINARY_PERSON_FILTER_MODE,
     UNKNOWN
 };
