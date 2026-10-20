@@ -330,6 +330,7 @@ class KafkaClientV2 {
             await consumer.subscribe({ topics: [topic], fromBeginning });
             // Handler failures per topic:partition:offset, kept across rebalance redeliveries so a
             // message that keeps failing still exhausts maxRetries instead of looping forever.
+            // In-memory and best-effort: a consumer restart resets every count.
             const handlerFailuresByOffset = new Map();
             await consumer.run({
                 eachMessage: async ({ topic: t, partition, message, heartbeat, pause }) => {
@@ -409,9 +410,14 @@ class KafkaClientV2 {
                         } catch (finalError) {
                             // A heartbeat or group error is not a poison message: rethrow so kafkajs
                             // rejoins and redelivers it. Dead-lettering would commit the offset and
-                            // drop it. Handler failures so far carry over to the redelivery.
+                            // drop it. A persistent heartbeat failure ends with the outage, not the
+                            // message, so it is deliberately uncapped. Handler failures so far carry
+                            // over to the redelivery.
                             if (heartbeatFailed || isGroupMembershipError(finalError)) {
                                 if (passFailures > 0) {
+                                    // Delete first so the key moves to the newest slot: eviction then drops
+                                    // the least recently updated offset, not one still accumulating failures.
+                                    handlerFailuresByOffset.delete(failureKey);
                                     if (handlerFailuresByOffset.size >= MAX_TRACKED_OFFSETS) {
                                         handlerFailuresByOffset.delete(handlerFailuresByOffset.keys().next().value);
                                     }

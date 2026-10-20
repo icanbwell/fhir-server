@@ -1096,6 +1096,64 @@ describe('KafkaClientV2', () => {
                 expect(onMessageAsync).toHaveBeenCalledTimes(4);
                 expect(mockProducerSend).toHaveBeenCalledWith(expect.objectContaining({ topic: 'test-topic.dlt' }));
             });
+
+            test('evicts the least recently updated offset, not the oldest inserted, when the failure tracker is full', async () => {
+                let eachMessage;
+                const consumer = {
+                    connect: mockConsumerConnect,
+                    disconnect: mockConsumerDisconnect,
+                    subscribe: mockConsumerSubscribe,
+                    run: jestObj.fn().mockImplementation(async (args) => {
+                        eachMessage = args.eachMessage;
+                    })
+                };
+                const onMessageAsync = jestObj.fn().mockRejectedValue(new Error('slow failure'));
+                await kafkaClient.receiveMessagesAsync({
+                    consumer,
+                    topic: 'test-topic',
+                    onMessageAsync,
+                    deadLetterTopic: 'test-topic.dlt',
+                    maxRetries: 3,
+                    retryInitialDelayMs: 1
+                });
+
+                const deliver = (offset) => eachMessage({
+                    topic: 'test-topic',
+                    partition: 0,
+                    message: { key: Buffer.from('k'), value: Buffer.from('v'), headers: {}, offset },
+                    heartbeat: mockHeartbeat,
+                    pause: jestObj.fn()
+                });
+                // One handler failure, then a rebalance, so the failure count is carried over.
+                const failOnceThenRebalance = async (offset) => {
+                    mockHeartbeat
+                        .mockResolvedValueOnce(undefined)
+                        .mockRejectedValueOnce(Object.assign(new Error('rebalancing'), { type: 'REBALANCE_IN_PROGRESS' }));
+                    await expect(deliver(offset)).rejects.toThrow('rebalancing');
+                };
+
+                // Offset 0 is inserted first, then updated while the tracker is only half full (it holds
+                // 1000 entries, MAX_TRACKED_OFFSETS in kafkaClientV2.js). It now has 2 failures and is the
+                // most recently updated, even though it was inserted first.
+                await failOnceThenRebalance('0');
+                for (let offset = 1; offset <= 500; offset++) {
+                    await failOnceThenRebalance(String(offset));
+                }
+                await failOnceThenRebalance('0');
+                for (let offset = 501; offset < 1000; offset++) {
+                    await failOnceThenRebalance(String(offset));
+                }
+                // A new offset overflows the tracker and must evict offset 1, not offset 0.
+                await failOnceThenRebalance('1000');
+
+                onMessageAsync.mockClear();
+                mockHeartbeat.mockResolvedValue(undefined);
+                await expect(deliver('0')).resolves.toBeUndefined();
+
+                // 2 failures already counted, so only maxRetries - 2 retries remain: 2 attempts, not 4.
+                expect(onMessageAsync).toHaveBeenCalledTimes(2);
+                expect(mockProducerSend).toHaveBeenCalledWith(expect.objectContaining({ topic: 'test-topic.dlt' }));
+            });
         });
     });
 
