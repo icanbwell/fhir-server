@@ -57,6 +57,13 @@ module.exports = {
                 };
                 delete args.code;
             }
+            if (projection.concept) {
+                // CodeSystem-owned Binary lookup (concept.property.valueString) compares the Binary's
+                // securityContext against the parent CodeSystem's ids, so they must be projected.
+                projection.id = 1;
+                projection._uuid = 1;
+                projection._sourceId = 1;
+            }
             return await context.dataApi.getResourcesBundle(
                 parent,
                 {

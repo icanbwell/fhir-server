@@ -37,6 +37,21 @@ const query = `query {
     }
 }`;
 
+const codesQuery = (codeArg) => `query {
+    getCodeSystemCodes(id: ["cs-1"]${codeArg}) {
+        entry {
+            resource {
+                concept {
+                    code
+                    property {
+                        valueString
+                    }
+                }
+            }
+        }
+    }
+}`;
+
 describe('Binary patient scope: GraphQL v1 CodeSystem property lookup (flag on)', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -93,6 +108,14 @@ describe('Binary patient scope: GraphQL v1 CodeSystem property lookup (flag on)'
         const resp = await request
             .post('/$graphql')
             .send({ operationName: null, variables: {}, query })
+            .set(getGraphQLHeaders(scope));
+        return resp.body;
+    }
+
+    async function queryCodesAsync (request, scope, codeArg = '') {
+        const resp = await request
+            .post('/$graphql')
+            .send({ operationName: null, variables: {}, query: codesQuery(codeArg) })
             .set(getGraphQLHeaders(scope));
         return resp.body;
     }
@@ -157,5 +180,24 @@ describe('Binary patient scope: GraphQL v1 CodeSystem property lookup (flag on)'
         const body = await queryAsync(request, 'patient/*.* user/*.read');
 
         expect(JSON.stringify(body)).not.toContain('untagged"');
+    });
+
+    test('getCodeSystemCodes returns the CodeSystem-owned Binary (projection keeps the parent ids)', async () => {
+        const request = await setupAsync();
+        const own = await createBinaryAsync(request, 'own', 'CodeSystem/cs-1');
+        const patientOwned = await createBinaryAsync(request, 'patient-owned', 'Patient/patient1');
+        await createCodeSystemAsync(request, [
+            ['own', `Binary/${own}`],
+            ['patient', `Binary/${patientOwned}`]
+        ]);
+
+        for (const codeArg of ['', ', code: ["own", "patient"]']) {
+            const body = await queryCodesAsync(request, MIXED_SCOPE, codeArg);
+
+            expect(body.errors).toBeUndefined();
+            const concepts = body.data.getCodeSystemCodes.entry[0].resource.concept;
+            expect(Object.fromEntries(concepts.map(c => [c.code, c.property[0].valueString])))
+                .toStrictEqual({ own: 'own', patient: null });
+        }
     });
 });
