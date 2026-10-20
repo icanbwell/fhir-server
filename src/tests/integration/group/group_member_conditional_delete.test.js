@@ -56,11 +56,15 @@ describe('Group conditional delete by member (extended storage)', () => {
         }
     });
 
-    function defaultMeta(accessCode = 'test-access') {
+    /**
+     * A write (delete included) needs an access/ scope matching both the owner and the access tag,
+     * so tenant-scoped Groups carry the tenant code in both.
+     */
+    function defaultMeta(accessCode = 'test-access', ownerCode = 'test-owner') {
         return {
             source: 'http://test-system.com/Group',
             security: [
-                { system: 'https://www.icanbwell.com/owner', code: 'test-owner' },
+                { system: 'https://www.icanbwell.com/owner', code: ownerCode },
                 { system: 'https://www.icanbwell.com/access', code: accessCode }
             ]
         };
@@ -282,8 +286,8 @@ describe('Group conditional delete by member (extended storage)', () => {
 
     test('tenant isolation: an other-tenant extended Group holding X is neither deleted nor counted toward too-costly', async () => {
         // Created with full-access headers; only the delete uses tenant-restricted scopes.
-        const tenantA = await createExtendedGroup(['Patient/cross-tenant'], { meta: defaultMeta('tenant-a') });
-        const tenantB = await createExtendedGroup(['Patient/cross-tenant'], { meta: defaultMeta('tenant-b') });
+        const tenantA = await createExtendedGroup(['Patient/cross-tenant'], { meta: defaultMeta('tenant-a', 'tenant-a') });
+        const tenantB = await createExtendedGroup(['Patient/cross-tenant'], { meta: defaultMeta('tenant-b', 'tenant-b') });
         const tenantBUuid = (await groupDoc(tenantB.id))._uuid;
 
         const response = await deleteByMember('Patient/cross-tenant', getHeaders('user/*.* access/tenant-a.*'));
@@ -296,8 +300,8 @@ describe('Group conditional delete by member (extended storage)', () => {
     });
 
     test('read-only access tag: an extended Group the caller can only read is excluded from the delete query and not counted toward too-costly', async () => {
-        const writable = await createExtendedGroup(['Patient/ro-member'], { meta: defaultMeta('tenant-a') });
-        const readOnly = await createExtendedGroup(['Patient/ro-member'], { meta: defaultMeta('tenant-ro') });
+        const writable = await createExtendedGroup(['Patient/ro-member'], { meta: defaultMeta('tenant-a', 'tenant-a') });
+        const readOnly = await createExtendedGroup(['Patient/ro-member'], { meta: defaultMeta('tenant-ro', 'tenant-ro') });
         const readOnlyUuid = (await groupDoc(readOnly.id))._uuid;
 
         const response = await deleteByMember(
