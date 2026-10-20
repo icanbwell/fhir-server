@@ -35,6 +35,7 @@ module.exports = {
     setupFiles: [
         '<rootDir>/jest/patchClickHouseClient.js',
         '<rootDir>/jest/patchClickHouseManager.js',
+        '<rootDir>/jest/guardMockSocketErrors.js',
         '<rootDir>/jest/setEnvVars.js'
     ],
     setupFilesAfterEnv: ['<rootDir>/src/tests/integration/testSetup.js'],
