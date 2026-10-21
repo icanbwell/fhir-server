@@ -485,4 +485,28 @@ describe('ConfigManager', () => {
             expect(configManager.isAtlasSearchNativeSortEnabled).toBe(true);
         });
     });
+    // ========== groupMemberCascadeDeleteBatchSize ==========
+    describe('groupMemberCascadeDeleteBatchSize', () => {
+        test('defaults to 1000 when unset or empty', () => {
+            setEnv('GROUP_MEMBER_CASCADE_DELETE_BATCH_SIZE', undefined);
+            expect(new ConfigManager().groupMemberCascadeDeleteBatchSize).toBe(1000);
+            setEnv('GROUP_MEMBER_CASCADE_DELETE_BATCH_SIZE', '');
+            expect(new ConfigManager().groupMemberCascadeDeleteBatchSize).toBe(1000);
+        });
+
+        test('uses a whole number of at least 1', () => {
+            setEnv('GROUP_MEMBER_CASCADE_DELETE_BATCH_SIZE', '250');
+            expect(new ConfigManager().groupMemberCascadeDeleteBatchSize).toBe(250);
+            setEnv('GROUP_MEMBER_CASCADE_DELETE_BATCH_SIZE', '1');
+            expect(new ConfigManager().groupMemberCascadeDeleteBatchSize).toBe(1);
+        });
+
+        test.each(['0', '-5', 'abc', 'x1'])(
+            'falls back to 1000 for %p, since a Mongo limit of 0 means "no limit"',
+            (value) => {
+                setEnv('GROUP_MEMBER_CASCADE_DELETE_BATCH_SIZE', value);
+                expect(new ConfigManager().groupMemberCascadeDeleteBatchSize).toBe(1000);
+            }
+        );
+    });
 });
