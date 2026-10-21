@@ -981,6 +981,179 @@ describe('KafkaClientV2', () => {
                     })
                 ).rejects.toThrow('broker unavailable');
             });
+
+            describe.each(['REBALANCE_IN_PROGRESS', 'ILLEGAL_GENERATION', 'NOT_COORDINATOR_FOR_GROUP', 'UNKNOWN_MEMBER_ID'])(
+                'group-membership error %s from heartbeat',
+                (type) => {
+                    const makeGroupError = () => Object.assign(new Error('The group is rebalancing'), { type });
+
+                    test('is rethrown without retrying or dead-lettering so the offset is not committed', async () => {
+                        // Regression: a heartbeat that fails because the group is rebalancing says nothing
+                        // about the message. Dead-lettering it committed the offset and silently dropped a
+                        // bulk-import range, leaving its Task in-progress forever.
+                        const groupError = makeGroupError();
+                        mockHeartbeat.mockRejectedValue(groupError);
+                        const onMessageAsync = jestObj.fn().mockResolvedValue(undefined);
+
+                        await expect(
+                            kafkaClient.receiveMessagesAsync({
+                                consumer: makeConsumer(),
+                                topic: 'test-topic',
+                                onMessageAsync,
+                                deadLetterTopic: 'test-topic.dlt',
+                                maxRetries: 3,
+                                retryInitialDelayMs: 1
+                            })
+                        ).rejects.toBe(groupError);
+
+                        expect(mockHeartbeat).toHaveBeenCalledTimes(1);
+                        expect(onMessageAsync).not.toHaveBeenCalled();
+                        expect(mockProducerSend).not.toHaveBeenCalled();
+                    });
+                }
+            );
+
+            test('still retries a heartbeat failure that is not a group-membership error', async () => {
+                mockHeartbeat
+                    .mockRejectedValueOnce(new Error('network blip'))
+                    .mockResolvedValue(undefined);
+                const onMessageAsync = jestObj.fn().mockResolvedValue(undefined);
+
+                await kafkaClient.receiveMessagesAsync({
+                    consumer: makeConsumer(),
+                    topic: 'test-topic',
+                    onMessageAsync,
+                    deadLetterTopic: 'test-topic.dlt',
+                    retryInitialDelayMs: 1
+                });
+
+                expect(onMessageAsync).toHaveBeenCalledTimes(1);
+                expect(mockProducerSend).not.toHaveBeenCalled();
+            });
+
+            test('rethrows a persistent heartbeat failure of any type instead of dead-lettering', async () => {
+                // A coordinator-unavailable or connection error from heartbeat() is not the message's fault.
+                const heartbeatError = Object.assign(new Error('coordinator not available'), {
+                    type: 'GROUP_COORDINATOR_NOT_AVAILABLE'
+                });
+                mockHeartbeat.mockRejectedValue(heartbeatError);
+                const onMessageAsync = jestObj.fn().mockResolvedValue(undefined);
+
+                await expect(
+                    kafkaClient.receiveMessagesAsync({
+                        consumer: makeConsumer(),
+                        topic: 'test-topic',
+                        onMessageAsync,
+                        deadLetterTopic: 'test-topic.dlt',
+                        maxRetries: 2,
+                        retryInitialDelayMs: 1
+                    })
+                ).rejects.toBe(heartbeatError);
+
+                expect(onMessageAsync).not.toHaveBeenCalled();
+                expect(mockProducerSend).not.toHaveBeenCalled();
+            });
+
+            test('counts handler failures across rebalance redeliveries so a failing message still reaches the DLT', async () => {
+                // Regression: a slow handler that outlasts the session timeout and then throws gets evicted,
+                // the next heartbeat throws a group error, and kafkajs redelivers with a fresh retry budget.
+                // Without a per-offset count the message loops forever and blocks its partition.
+                let eachMessage;
+                const consumer = {
+                    connect: mockConsumerConnect,
+                    disconnect: mockConsumerDisconnect,
+                    subscribe: mockConsumerSubscribe,
+                    run: jestObj.fn().mockImplementation(async (args) => {
+                        eachMessage = args.eachMessage;
+                    })
+                };
+                const message = { key: Buffer.from('k'), value: Buffer.from('v'), headers: {}, offset: '42' };
+                const deliver = () => eachMessage({
+                    topic: 'test-topic', partition: 0, message, heartbeat: mockHeartbeat, pause: jestObj.fn()
+                });
+                const onMessageAsync = jestObj.fn().mockRejectedValue(new Error('slow failure'));
+
+                await kafkaClient.receiveMessagesAsync({
+                    consumer,
+                    topic: 'test-topic',
+                    onMessageAsync,
+                    deadLetterTopic: 'test-topic.dlt',
+                    maxRetries: 3,
+                    retryInitialDelayMs: 1
+                });
+
+                // First delivery: the handler fails once, then the next heartbeat reports a rebalance.
+                mockHeartbeat
+                    .mockResolvedValueOnce(undefined)
+                    .mockRejectedValueOnce(Object.assign(new Error('rebalancing'), { type: 'REBALANCE_IN_PROGRESS' }));
+                await expect(deliver()).rejects.toThrow('rebalancing');
+                expect(mockProducerSend).not.toHaveBeenCalled();
+
+                // Redelivery: only the remaining budget is spent before dead-lettering.
+                mockHeartbeat.mockResolvedValue(undefined);
+                await expect(deliver()).resolves.toBeUndefined();
+
+                expect(onMessageAsync).toHaveBeenCalledTimes(4);
+                expect(mockProducerSend).toHaveBeenCalledWith(expect.objectContaining({ topic: 'test-topic.dlt' }));
+            });
+
+            test('evicts the least recently updated offset, not the oldest inserted, when the failure tracker is full', async () => {
+                let eachMessage;
+                const consumer = {
+                    connect: mockConsumerConnect,
+                    disconnect: mockConsumerDisconnect,
+                    subscribe: mockConsumerSubscribe,
+                    run: jestObj.fn().mockImplementation(async (args) => {
+                        eachMessage = args.eachMessage;
+                    })
+                };
+                const onMessageAsync = jestObj.fn().mockRejectedValue(new Error('slow failure'));
+                await kafkaClient.receiveMessagesAsync({
+                    consumer,
+                    topic: 'test-topic',
+                    onMessageAsync,
+                    deadLetterTopic: 'test-topic.dlt',
+                    maxRetries: 3,
+                    retryInitialDelayMs: 1
+                });
+
+                const deliver = (offset) => eachMessage({
+                    topic: 'test-topic',
+                    partition: 0,
+                    message: { key: Buffer.from('k'), value: Buffer.from('v'), headers: {}, offset },
+                    heartbeat: mockHeartbeat,
+                    pause: jestObj.fn()
+                });
+                // One handler failure, then a rebalance, so the failure count is carried over.
+                const failOnceThenRebalance = async (offset) => {
+                    mockHeartbeat
+                        .mockResolvedValueOnce(undefined)
+                        .mockRejectedValueOnce(Object.assign(new Error('rebalancing'), { type: 'REBALANCE_IN_PROGRESS' }));
+                    await expect(deliver(offset)).rejects.toThrow('rebalancing');
+                };
+
+                // Offset 0 is inserted first, then updated while the tracker is only half full (it holds
+                // 1000 entries, MAX_TRACKED_OFFSETS in kafkaClientV2.js). It now has 2 failures and is the
+                // most recently updated, even though it was inserted first.
+                await failOnceThenRebalance('0');
+                for (let offset = 1; offset <= 500; offset++) {
+                    await failOnceThenRebalance(String(offset));
+                }
+                await failOnceThenRebalance('0');
+                for (let offset = 501; offset < 1000; offset++) {
+                    await failOnceThenRebalance(String(offset));
+                }
+                // A new offset overflows the tracker and must evict offset 1, not offset 0.
+                await failOnceThenRebalance('1000');
+
+                onMessageAsync.mockClear();
+                mockHeartbeat.mockResolvedValue(undefined);
+                await expect(deliver('0')).resolves.toBeUndefined();
+
+                // 2 failures already counted, so only maxRetries - 2 retries remain: 2 attempts, not 4.
+                expect(onMessageAsync).toHaveBeenCalledTimes(2);
+                expect(mockProducerSend).toHaveBeenCalledWith(expect.objectContaining({ topic: 'test-topic.dlt' }));
+            });
         });
     });
 
