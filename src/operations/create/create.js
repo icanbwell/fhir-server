@@ -23,6 +23,9 @@ const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identif
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
+const deepcopy = require('deepcopy');
+const { validateResource } = require('../../utils/validator.util');
+const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
 
 class CreateOperation {
     /**
@@ -193,6 +196,18 @@ class CreateOperation {
         let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
             resource_incoming
         );
+        if (this.useFastSerializer && !validationOperationOutcome) {
+            validationOperationOutcome = validateResource({
+                resourceBody: resource_incoming,
+                resourceName: resourceType,
+                path
+            });
+            if (validationOperationOutcome) {
+                recordValidationFailure(validationOperationOutcome, resourceType, VALIDATION_STAGE.SCHEMA, PATH.SAVE);
+            } else {
+                resource = FhirResourceWriteSerializer.serialize({ obj: resource_incoming });
+            }
+        }
         if (!validationOperationOutcome) {
             validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
                 base_version,
@@ -209,18 +224,6 @@ class CreateOperation {
         const sizeOperationOutcome = validationOperationOutcome
             ? null
             : this.resourceValidator.validateResourceSizeSync({ resource: resource_incoming, resourceType });
-        if (this.useFastSerializer && !validationOperationOutcome && !sizeOperationOutcome) {
-            resource = FhirResourceWriteSerializer.serialize({ obj: resource_incoming });
-            validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                base_version,
-                requestInfo,
-                id: resource.id,
-                resourceType,
-                resourceToValidate: resource,
-                path,
-                resourceObj: resource
-            });
-        }
         if (validationOperationOutcome || sizeOperationOutcome) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 operationResult: [{
@@ -339,6 +342,7 @@ class CreateOperation {
 
             // Inline any externalized base64 payload so the response body matches the
             // client's request shape
+            doc = this.useFastSerializer ? deepcopy(doc) : doc;
             doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.RETRIEVE, requestInfo);
 
             // enrich resource

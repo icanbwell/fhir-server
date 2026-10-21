@@ -106,6 +106,40 @@ describe('Create with fast serializer', () => {
         expect(getResp.body.name).toStrictEqual(postResp.body.name);
     });
 
+    test('after-save handlers receive the saved resource with its internal fields', async () => {
+        const request = await createTestRequest();
+        const container = getTestContainer();
+        const processor = container.postSaveProcessor;
+        const originalAfterSave = processor.afterSaveAsync.bind(processor);
+        const seen = [];
+        processor.afterSaveAsync = async (args) => {
+            seen.push({
+                uuid: args.doc._uuid,
+                sourceAssigningAuthority: args.doc._sourceAssigningAuthority,
+                issuerUuid: args.doc.qualification?.[0]?.issuer?._uuid
+            });
+            return await originalAfterSave(args);
+        };
+        try {
+            const postResp = await request
+                .post('/4_0_0/Practitioner')
+                .send(practitionerPayload())
+                .set(getHeaders());
+            expect(postResp).toHaveStatusCode(201);
+            const id = postResp.headers['content-location'].split('/').splice(5, 1)[0];
+            await container.postRequestProcessor.waitTillDoneAsync({ requestId, timeoutInSeconds: 20 });
+            expect(seen).toStrictEqual([
+                {
+                    uuid: id,
+                    sourceAssigningAuthority: 'client',
+                    issuerUuid: 'Organization/' + generateUUIDv5('Stanford_Medical_School|client')
+                }
+            ]);
+        } finally {
+            processor.afterSaveAsync = originalAfterSave;
+        }
+    });
+
     test('empty objects in optional fields are dropped', async () => {
         const request = await createTestRequest();
         const payload = practitionerPayload();
