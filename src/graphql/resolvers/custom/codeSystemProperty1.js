@@ -1,5 +1,5 @@
 
-const { Binary } = require('../../../fhir/classes/4_0_0/resources/binary');
+const { CODE_SYSTEM_OWNER } = require('../../../utils/binaryCodeSystemOwnership');
 
 module.exports = {
     CodeSystemProperty1: {
@@ -26,13 +26,14 @@ module.exports = {
                 /**
                  * @type {Binary|null}
                  */
-                const binaryResource = await dataLoader.findResourceByReference(
-                    codeSystemProperty1,
+                const binaryResource = await dataLoader.findBinaryForCodeSystemAsync({
+                    codeSystemProperty: codeSystemProperty1,
+                    codeSystem: codeSystemProperty1[CODE_SYSTEM_OWNER],
+                    binaryReference: codeSystemProperty1.valueString,
                     args,
                     context,
-                    info,
-                    { reference: codeSystemProperty1.valueString }
-                );
+                    info
+                });
                 if (binaryResource?.data) {
                     return Buffer.from(binaryResource.data, 'base64').toString('utf8');
                 } else {

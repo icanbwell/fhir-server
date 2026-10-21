@@ -15,6 +15,7 @@ const { parseResolveInfo } = require('graphql-parse-resolve-info');
 const { getResource } = require('../operations/common/getResource');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { SearchBundleOperation } = require('../operations/search/searchBundle');
+const { isBinaryReadableViaCodeSystem, removePatientScopes } = require('../utils/binaryCodeSystemOwnership');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQL resolvers to load the data
@@ -375,6 +376,67 @@ class FhirDataSource {
                 throw e;
             }
         }
+    }
+
+    /**
+     * Reads the Binary a CodeSystem property points at (CodeSystem.concept.property.valueString =
+     * 'Binary/<id>').
+     *
+     * With ENABLE_PATIENT_SCOPED_BINARY on, Binary is patient-filtered, which would hide a
+     * CodeSystem-owned Binary (it belongs to no patient) from every patient-scoped caller. So the
+     * lookup is evaluated for this one read as if the token carried no patient/ scopes: the
+     * caller's user/ scopes gate the read and its access/ codes give the tenant filter. A token
+     * with no user/ or access/ scopes is therefore refused rather than widened. The opt-out is
+     * built here from the request itself, never from a query argument, and the result is still
+     * returned only if the Binary's securityContext is absent or exactly the parent CodeSystem
+     * (isBinaryReadableViaCodeSystem). With the flag off this is the ordinary reference lookup.
+     * @param {Resource} codeSystemProperty the CodeSystem property holding the Binary reference
+     * @param {{id?: string, _uuid?: string, _sourceId?: string}|undefined} codeSystem parent CodeSystem
+     * @param {string} binaryReference 'Binary/<id>'
+     * @param {Object} args
+     * @param {GraphQLContext} context
+     * @param {Object} info
+     * @return {Promise<null|Resource>}
+     */
+    async findBinaryForCodeSystemAsync ({ codeSystemProperty, codeSystem, binaryReference, args, context, info }) {
+        if (!this.configManager.enablePatientScopedBinary) {
+            return await this.findResourceByReference(
+                codeSystemProperty, args, context, info, { reference: binaryReference }
+            );
+        }
+        if (!codeSystem) {
+            return null;
+        }
+        const referenceObj = ResourceWithId.getResourceTypeAndIdFromReference(binaryReference);
+        if (!referenceObj || referenceObj.resourceType !== 'Binary') {
+            return null;
+        }
+        this.accessManager.verifyGraphQLReadAccess({
+            requestInfo: this.requestInfo,
+            resourceType: 'Binary',
+            operation: 'search'
+        });
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const lookupRequestInfo = Object.assign(
+            Object.create(Object.getPrototypeOf(this.requestInfo)),
+            this.requestInfo,
+            { scope: removePatientScopes(this.requestInfo.scope), isUser: false }
+        );
+        const bundle = await this.searchBundleOperation.searchBundleAsync({
+            requestInfo: lookupRequestInfo,
+            resourceType: 'Binary',
+            parsedArgs: await this.getParsedArgsAsync({
+                args: { base_version: '4_0_0', id: referenceObj.id, _bundle: '1' },
+                resourceType: 'Binary',
+                headers: lookupRequestInfo.headers,
+                requestInfo: lookupRequestInfo
+            }),
+            useAggregationPipeline: false
+        });
+        const binary = this.unBundle(bundle)[0] || null;
+        return isBinaryReadableViaCodeSystem({ binary, codeSystem }) ? binary : null;
     }
 
     /**

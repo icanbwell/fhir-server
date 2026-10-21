@@ -1,0 +1,22 @@
+{
+  "resourceType": "Binary",
+  "id": "binary-1",
+  "contentType": "text/plain",
+  "data": "aGVsbG8gd29ybGQ=",
+  "securityContext": {
+    "reference": "Patient/patient1"
+  },
+  "meta": {
+    "source": "client",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client"
+      }
+    ]
+  }
+}

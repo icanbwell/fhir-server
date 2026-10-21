@@ -6,9 +6,10 @@
  * @param {number} [params.maxRetries=3]
  * @param {number} [params.initialDelayMs=2000]
  * @param {Function} [params.onRetry] - Called before each retry with ({ attempt, maxRetries, delay, error })
+ * @param {Function} [params.shouldRetry] - Called with the error; return false to rethrow it immediately
  * @returns {Promise<*>}
  */
-async function retryWithBackoff ({ fn, maxRetries = 3, initialDelayMs = 2000, onRetry }) {
+async function retryWithBackoff ({ fn, maxRetries = 3, initialDelayMs = 2000, onRetry, shouldRetry }) {
     let delay = initialDelayMs;
     let lastError;
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -23,7 +24,7 @@ async function retryWithBackoff ({ fn, maxRetries = 3, initialDelayMs = 2000, on
             return await fn();
         } catch (err) {
             lastError = err;
-            if (attempt === maxRetries) {
+            if (attempt === maxRetries || (shouldRetry && !shouldRetry(err))) {
                 throw err;
             }
         }

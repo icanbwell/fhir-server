@@ -143,7 +143,7 @@ const {EverythingRelatedResourcesMapper} = require('./operations/everything/ever
 const {SummaryOperation} = require("./operations/summary/summary");
 const {CustomTracer} = require('./utils/customTracer');
 const {MyJwtStrategy} = require("./strategies/jwt.bearer.strategy");
-const {READ} = require('./constants').OPERATIONS;
+const {READ, DELETE} = require('./constants').OPERATIONS;
 const {AuthService} = require("./strategies/authService");
 const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
@@ -210,7 +210,9 @@ const createContainer = function () {
 
     container.register('requestSpecificCache', () => new RequestSpecificCache());
 
-    container.register('patientFilterManager', () => new PatientFilterManager());
+    container.register('patientFilterManager', (c) => new PatientFilterManager({
+        configManager: c.configManager
+    }));
 
     container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
@@ -493,25 +495,31 @@ const createContainer = function () {
         configManager: c.configManager
     }));
 
-    container.register('queryRewriterManager', (c) => new QueryRewriterManager({
-        queryRewriters: [
-            new ReferenceQueryRewriter(),
-            new ChainedSearchQueryRewriter()
-        ],
-        operationSpecificQueryRewriters: {
-            [READ]: [
-                new PatientProxyQueryRewriter({
-                    personToPatientIdsExpander: c.personToPatientIdsExpander,
-                    configManager: c.configManager,
-                    requestSpecificCache: c.requestSpecificCache
-                }),
-                new GroupMemberQueryRewriter({
-                    configManager: c.configManager,
-                    mongoGroupMemberRepository: c.mongoGroupMemberRepository
-                })
-            ]
-        }
-    }));
+    container.register('queryRewriterManager', (c) => {
+        const groupMemberQueryRewriter = new GroupMemberQueryRewriter({
+            configManager: c.configManager,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
+        });
+        return new QueryRewriterManager({
+            queryRewriters: [
+                new ReferenceQueryRewriter(),
+                new ChainedSearchQueryRewriter()
+            ],
+            operationSpecificQueryRewriters: {
+                [READ]: [
+                    new PatientProxyQueryRewriter({
+                        personToPatientIdsExpander: c.personToPatientIdsExpander,
+                        configManager: c.configManager,
+                        requestSpecificCache: c.requestSpecificCache
+                    }),
+                    groupMemberQueryRewriter
+                ],
+                // DELETE /Group?member=X must delete the same Groups GET returns, extended ones
+                // included. Only the member rewrite applies: patient-proxy expansion stays READ-only.
+                [DELETE]: [groupMemberQueryRewriter]
+            }
+        });
+    });
 
     container.register('patientScopeManager', (c) => new PatientScopeManager(
         {
@@ -928,7 +936,8 @@ const createContainer = function () {
             queryRewriterManager: c.queryRewriterManager,
             postRequestProcessor: c.postRequestProcessor,
             searchManager: c.searchManager,
-            removeHelper: c.removeHelper
+            removeHelper: c.removeHelper,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(
@@ -988,7 +997,8 @@ const createContainer = function () {
             databaseQueryFactory: c.databaseQueryFactory,
             fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
             removeHelper: c.removeHelper,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            configManager: c.configManager
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
