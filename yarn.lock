@@ -4976,7 +4976,7 @@ __metadata:
     graphql-parse-resolve-info: "npm:^4.14.1"
     graphql-schema-linter: "npm:^3.0.1"
     helmet: "npm:^8.2.0"
-    hono: "npm:^4.13.7"
+    hono: "npm:^4.13.11"
     jest: "npm:^30.5.2"
     jest-diff: "npm:^30.5.2"
     jest-extended: "npm:^7.0.0"
@@ -6453,12 +6453,12 @@ __metadata:
   linkType: hard
 
 "follow-redirects@npm:^1.16.0":
-  version: 1.16.0
-  resolution: "follow-redirects@npm:1.16.0"
+  version: 1.16.1
+  resolution: "follow-redirects@npm:1.16.1"
   peerDependenciesMeta:
     debug:
       optional: true
-  checksum: 10c0/a1e2900163e6f1b4d1ed5c221b607f41decbab65534c63fe7e287e40a5d552a6496e7d9d7d976fa4ba77b4c51c11e5e9f683f10b43011ea11e442ff128d0e181
+  checksum: 10c0/544e24ccb93b7afb5dd5a2199bd556e167b84de2af7c13b2ced08494239677359d7883bae56ae43a9ca98ac5451e75cf4834a5fadd6fa79053b9248fac5447a4
   languageName: node
   linkType: hard
 
@@ -6858,10 +6858,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hono@npm:^4.13.7":
-  version: 4.13.7
-  resolution: "hono@npm:4.13.7"
-  checksum: 10c0/29672a94a4f2be7f3f4d959ad69808dd3bbc220909ca4f9660997022ff45d48ae71e42a460e417d808809d68110196f19359aaab2b14ae6a750331d789601b5a
+"hono@npm:^4.13.11":
+  version: 4.13.11
+  resolution: "hono@npm:4.13.11"
+  checksum: 10c0/1052fbe5f45d0041828222597247fadb8283147cbf2c1ec930d525393f3bf4e2600f7190c4890c1a9cc97b6e1abd2287fc28ab37ac1988eda079f2b4deac71bb
   languageName: node
   linkType: hard
 

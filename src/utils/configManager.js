@@ -1413,6 +1413,16 @@ class ConfigManager {
     }
 
     /**
+     * Whether Binary is patient-scoped through securityContext.reference, like Task and Observation.
+     * Enable only after existing Binary resources have had securityContext backfilled, because a
+     * Binary without one is hidden from patient-scoped tokens while this is on. Default: false.
+     * @returns {boolean}
+     */
+    get enablePatientScopedBinary() {
+        return isTrue(env.ENABLE_PATIENT_SCOPED_BINARY);
+    }
+
+    /**
      * Number of GroupMember rows tombstoned and hard-deleted per RemoveHelper.deleteManyAsync call
      * when an extended Group is deleted. Bounds per-call memory and the size of the $in list;
      * batches run one after another.
