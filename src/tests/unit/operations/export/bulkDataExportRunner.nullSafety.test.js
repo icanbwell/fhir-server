@@ -29,6 +29,7 @@ const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor')
 const { BulkExportEventProducer } = require('../../../../utils/bulkExportEventProducer');
 const { StorageProviderFactory } = require('../../../../dataLayer/providers/storageProviderFactory');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
+const { GroupMemberQueryRewriter } = require('../../../../queryRewriters/rewriters/groupMemberQueryRewriter');
 const { S3MultiPartContext } = require('../../../../operations/export/script/s3MultiPartContext');
 
 function createMockInstance(ClassType) {
@@ -61,6 +62,7 @@ describe('BulkDataExportRunner - null safety bugs', () => {
             bulkExportEventProducer: createMockInstance(BulkExportEventProducer),
             storageProviderFactory: createMockInstance(StorageProviderFactory),
             mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
+            groupMemberQueryRewriter: createMockInstance(GroupMemberQueryRewriter),
             exportStatusId: 'export-123',
             patientReferenceBatchSize: 100,
             fetchResourceBatchSize: 50,

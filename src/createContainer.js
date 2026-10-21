@@ -495,31 +495,30 @@ const createContainer = function () {
         configManager: c.configManager
     }));
 
-    container.register('queryRewriterManager', (c) => {
-        const groupMemberQueryRewriter = new GroupMemberQueryRewriter({
-            configManager: c.configManager,
-            mongoGroupMemberRepository: c.mongoGroupMemberRepository
-        });
-        return new QueryRewriterManager({
-            queryRewriters: [
-                new ReferenceQueryRewriter(),
-                new ChainedSearchQueryRewriter()
+    container.register('groupMemberQueryRewriter', (c) => new GroupMemberQueryRewriter({
+        configManager: c.configManager,
+        mongoGroupMemberRepository: c.mongoGroupMemberRepository
+    }));
+
+    container.register('queryRewriterManager', (c) => new QueryRewriterManager({
+        queryRewriters: [
+            new ReferenceQueryRewriter(),
+            new ChainedSearchQueryRewriter()
+        ],
+        operationSpecificQueryRewriters: {
+            [READ]: [
+                new PatientProxyQueryRewriter({
+                    personToPatientIdsExpander: c.personToPatientIdsExpander,
+                    configManager: c.configManager,
+                    requestSpecificCache: c.requestSpecificCache
+                }),
+                c.groupMemberQueryRewriter
             ],
-            operationSpecificQueryRewriters: {
-                [READ]: [
-                    new PatientProxyQueryRewriter({
-                        personToPatientIdsExpander: c.personToPatientIdsExpander,
-                        configManager: c.configManager,
-                        requestSpecificCache: c.requestSpecificCache
-                    }),
-                    groupMemberQueryRewriter
-                ],
-                // DELETE /Group?member=X must delete the same Groups GET returns, extended ones
-                // included. Only the member rewrite applies: patient-proxy expansion stays READ-only.
-                [DELETE]: [groupMemberQueryRewriter]
-            }
-        });
-    });
+            // DELETE /Group?member=X must delete the same Groups GET returns, extended ones
+            // included. Only the member rewrite applies: patient-proxy expansion stays READ-only.
+            [DELETE]: [c.groupMemberQueryRewriter]
+        }
+    }));
 
     container.register('patientScopeManager', (c) => new PatientScopeManager(
         {

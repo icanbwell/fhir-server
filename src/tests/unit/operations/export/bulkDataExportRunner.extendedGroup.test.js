@@ -36,6 +36,7 @@ const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor')
 const { BulkExportEventProducer } = require('../../../../utils/bulkExportEventProducer');
 const { StorageProviderFactory } = require('../../../../dataLayer/providers/storageProviderFactory');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
+const { GroupMemberQueryRewriter } = require('../../../../queryRewriters/rewriters/groupMemberQueryRewriter');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -72,6 +73,7 @@ describe('BulkDataExportRunner - Mongo-native ("extended") Group roster', () => 
             bulkExportEventProducer: createMockInstance(BulkExportEventProducer),
             storageProviderFactory: createMockInstance(StorageProviderFactory),
             mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
+            groupMemberQueryRewriter: createMockInstance(GroupMemberQueryRewriter),
             exportStatusId: 'export-123',
             patientReferenceBatchSize: 2,
             fetchResourceBatchSize: 50,
@@ -236,5 +238,74 @@ describe('BulkDataExportRunner - Mongo-native ("extended") Group roster', () => 
 
         expect(result).toEqual(['Patient/123', 'Patient/456']);
         expect(pager()).not.toHaveBeenCalled();
+    });
+
+    describe('exportPatientDataAsync widens the Group member filter to extended Groups', () => {
+        let multipartContext;
+        let emptyCursor;
+
+        beforeEach(() => {
+            mocks.patientFilterManager.getPatientPropertyForResource = jest.fn(({ resourceType }) => (
+                resourceType === 'Group' ? 'member.entity.reference' : 'subject.reference'
+            ));
+            mocks.r4ArgsParser.parseArgs = jest.fn().mockReturnValue({});
+            mocks.groupMemberQueryRewriter.rewriteQueryAsync = jest.fn(async ({ query, columns }) => ({
+                query: { $or: [query, { _uuid: { $in: ['uuid-extended-group'] } }] },
+                columns
+            }));
+            emptyCursor = { hasNext: jest.fn().mockResolvedValue(false) };
+            multipartContext = { collection: { find: jest.fn().mockReturnValue(emptyCursor) } };
+        });
+
+        test('Group: the rewritten member query is the one run against Group_4_0_0', async () => {
+            await runner.exportPatientDataAsync({
+                resourceType: 'Group',
+                query: { tenant: 'bwell' },
+                patientReferences: ['Patient/p1'],
+                multipartContext
+            });
+
+            const memberFilteredQuery = {
+                tenant: 'bwell',
+                'member.entity._uuid': { $in: ['Patient/p1'] }
+            };
+            expect(mocks.groupMemberQueryRewriter.rewriteQueryAsync).toHaveBeenCalledWith({
+                base_version: '4_0_0',
+                query: memberFilteredQuery,
+                columns: new Set(),
+                resourceType: 'Group'
+            });
+            expect(multipartContext.collection.find).toHaveBeenCalledWith(
+                { $or: [memberFilteredQuery, { _uuid: { $in: ['uuid-extended-group'] } }] },
+                expect.any(Object)
+            );
+        });
+
+        test('non-Group resources do not go through the rewriter', async () => {
+            await runner.exportPatientDataAsync({
+                resourceType: 'Observation',
+                query: { tenant: 'bwell' },
+                patientReferences: ['Patient/p1'],
+                multipartContext
+            });
+
+            expect(mocks.groupMemberQueryRewriter.rewriteQueryAsync).not.toHaveBeenCalled();
+            expect(multipartContext.collection.find).toHaveBeenCalledWith(
+                { tenant: 'bwell', 'subject._uuid': { $in: ['Patient/p1'] } },
+                expect.any(Object)
+            );
+        });
+
+        test('propagates a rewriter failure', async () => {
+            mocks.groupMemberQueryRewriter.rewriteQueryAsync.mockRejectedValueOnce(new Error('lookup failed'));
+
+            await expect(runner.exportPatientDataAsync({
+                resourceType: 'Group',
+                query: {},
+                patientReferences: ['Patient/p1'],
+                multipartContext
+            })).rejects.toThrow('lookup failed');
+            expect(multipartContext.collection.find).not.toHaveBeenCalled();
+        });
     });
 });

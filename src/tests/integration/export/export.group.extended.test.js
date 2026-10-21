@@ -2,7 +2,14 @@
 // ENABLE_EXTENDED_GROUP is turned on for the suite's tests (off by default in jest).
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getTestContainer } = require('../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    createTestRequest,
+    getHeaders,
+    getHeadersJsonPatch,
+    getTestContainer
+} = require('../common');
 const { BulkDataExportRunner } = require('../../../operations/export/script/bulkDataExportRunner');
 const { MockK8sClient } = require('./mocks/k8sClient');
 const { MockS3Client } = require('./mocks/s3Client');
@@ -47,10 +54,15 @@ class CapturingS3Client extends MockS3Client {
 /**
  * Kicks off a Group export and runs the runner in-process with a fresh runner instance (the
  * container caches resolved services). Returns { request-independent handles } for polling.
+ * `kickoff` overrides the export endpoint (e.g. POST /4_0_0/Patient/$export); groupId is then unused.
  */
-async function kickOffAndRun(request, groupId, { headers, query, patientReferenceBatchSize = 1000 } = {}) {
-    let resp = await request
-        .get(`/4_0_0/Group/${groupId}/$export${query ? `?${query}` : ''}`)
+async function kickOffAndRun(
+    request,
+    groupId,
+    { headers, query, patientReferenceBatchSize = 1000, kickoff } = {}
+) {
+    const { method = 'get', path = `/4_0_0/Group/${groupId}/$export` } = kickoff || {};
+    let resp = await request[`${method}`](`${path}${query ? `?${query}` : ''}`)
         .set(headers || getHeaders())
         .expect(202);
 
@@ -85,6 +97,7 @@ async function kickOffAndRun(request, groupId, { headers, query, patientReferenc
         bulkExportEventProducer: c.bulkExportEventProducer,
         storageProviderFactory: c.storageProviderFactory,
         mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+        groupMemberQueryRewriter: c.groupMemberQueryRewriter,
         exportStatusId,
         patientReferenceBatchSize,
         uploadPartSize: 1024 * 1024,
@@ -317,5 +330,158 @@ describe('Group $export for extended (Mongo-native) Groups', () => {
         const result = await runGroupExport(request, createResp.body.id);
 
         expect(exportedResources(result, 'Patient').map(p => p.id)).toEqual(['ext-p1']);
+        const groups = exportedResources(result, 'Group');
+        expect(groups.map(g => g.id)).toEqual([createResp.body.id]);
+        expect(groups[0].member.map(m => m.entity.reference)).toEqual([
+            'Patient/ext-p1',
+            'Practitioner/doc-1'
+        ]);
     }, 60000);
+
+    describe('Group.ndjson includes extended Groups the same way as embedded Groups', () => {
+        /** Adds members to an extended Group via the real PATCH write path. */
+        async function addExtendedMembers(groupId, references, headers = getHeadersJsonPatch()) {
+            await request
+                .patch(`/4_0_0/Group/${groupId}`)
+                .send(references.map(reference => ({
+                    op: 'add', path: '/member/-', value: { entity: { reference } }
+                })))
+                .set(headers)
+                .expect(200);
+        }
+
+        async function createEmbeddedGroup(references, { tenant = 'bwell', headers = getHeaders() } = {}) {
+            const resp = await request
+                .post('/4_0_0/Group')
+                .send({
+                    resourceType: 'Group',
+                    meta: { source: 'http://export-test.com/Group', security: tagsFor(tenant) },
+                    type: 'person',
+                    actual: true,
+                    member: references.map(reference => ({ entity: { reference } }))
+                })
+                .set(headers)
+                .expect(201);
+            return resp.body.id;
+        }
+
+        const groupIdsOf = (result) => [...new Set(exportedResources(result, 'Group').map(g => g.id))].sort();
+
+        test('the exported extended Group is in Group.ndjson, without member[]', async () => {
+            await mergePatients(['ext-p1', 'ext-p2', 'ext-p3']);
+            const { groupId } = await createExtendedGroup();
+            await addExtendedMembers(groupId, ['Patient/ext-p1', 'Patient/ext-p2', 'Patient/ext-p3']);
+
+            const result = await runGroupExport(request, groupId, { patientReferenceBatchSize: 2 });
+
+            expect(result.body.errors).toHaveLength(0);
+            const groups = exportedResources(result, 'Group');
+            expect(groupIdsOf(result)).toEqual([groupId]);
+            for (const group of groups) {
+                expect(group.member).toBeUndefined();
+            }
+        }, 60000);
+
+        test('other Groups containing an exported Patient are exported, extended and embedded alike', async () => {
+            await mergePatients(['ext-p1', 'ext-p2', 'ext-other']);
+            const { groupId } = await createExtendedGroup();
+            await addExtendedMembers(groupId, ['Patient/ext-p1', 'Patient/ext-p2']);
+            // H shares ext-p1; K has no exported Patient; E is embedded and shares ext-p2
+            const { groupId: sharingExtendedId } = await createExtendedGroup();
+            await addExtendedMembers(sharingExtendedId, ['Patient/ext-p1']);
+            const { groupId: unrelatedExtendedId } = await createExtendedGroup();
+            await addExtendedMembers(unrelatedExtendedId, ['Patient/ext-other']);
+            const sharingEmbeddedId = await createEmbeddedGroup(['Patient/ext-p2']);
+
+            const result = await runGroupExport(request, groupId);
+
+            expect(groupIdsOf(result)).toEqual([groupId, sharingExtendedId, sharingEmbeddedId].sort());
+            expect(groupIdsOf(result)).not.toContain(unrelatedExtendedId);
+        }, 60000);
+
+        test('an extended Group of another tenant sharing the member row is not exported', async () => {
+            const bwellHeaders = getHeaders('user/*.* access/bwell.*');
+            await mergePatients(['ext-p1'], { headers: bwellHeaders });
+            const { groupId, groupUuid } = await createExtendedGroup({ headers: bwellHeaders });
+            await addExtendedMembers(groupId, ['Patient/ext-p1'], getHeadersJsonPatch('user/*.* access/bwell.*'));
+            const tenantBHeaders = getHeaders('user/*.* access/tenantB.*');
+            const { groupUuid: tenantBGroupUuid } = await createExtendedGroup({
+                tenant: 'tenantB', headers: tenantBHeaders
+            });
+            // Same member.entity as the bwell row, so the unfiltered reverse lookup returns tenantB's
+            // Group too; the tenant filter around it must drop it.
+            const memberCollection = fhirDb.collection(GROUP_MEMBER_COLLECTION_NAME);
+            const bwellRow = await memberCollection.findOne({ groupUuid });
+            delete bwellRow._id;
+            const tenantBRowUuid = generateUUID();
+            await memberCollection.insertOne({
+                ...bwellRow,
+                id: tenantBRowUuid,
+                _uuid: tenantBRowUuid,
+                groupUuid: tenantBGroupUuid,
+                meta: { ...bwellRow.meta, security: tagsFor('tenantB') }
+            });
+
+            const result = await runGroupExport(request, groupId, { headers: bwellHeaders });
+
+            expect(groupIdsOf(result)).toEqual([groupId]);
+        }, 60000);
+
+        test('_since applies to extended Groups: only Groups updated since are exported', async () => {
+            await mergePatients(['ext-p1']);
+            const { groupId } = await createExtendedGroup();
+            await addExtendedMembers(groupId, ['Patient/ext-p1']);
+            const { groupId: laterGroupId } = await createExtendedGroup();
+
+            await new Promise(resolve => setTimeout(resolve, 50));
+            const since = new Date().toISOString();
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            // member PATCH bumps the Group's own meta.lastUpdated; the Patient must change too,
+            // since _since also limits the exported Patients
+            await addExtendedMembers(laterGroupId, ['Patient/ext-p1']);
+            await request
+                .post('/4_0_0/Patient/$merge')
+                .send({
+                    resourceType: 'Patient',
+                    id: 'ext-p1',
+                    gender: 'female',
+                    meta: { source: 'http://test.com', security: bwellTags }
+                })
+                .set(getHeaders())
+                .expect(200);
+
+            const result = await runGroupExport(request, groupId, {
+                query: `_since=${encodeURIComponent(since)}`
+            });
+
+            expect(exportedResources(result, 'Patient').map(p => p.id)).toEqual(['ext-p1']);
+            expect(groupIdsOf(result)).toEqual([laterGroupId]);
+        }, 60000);
+
+        test('extended Group with no Patient members gets an empty Group.ndjson, as embedded does', async () => {
+            const { groupId } = await createExtendedGroup();
+            await addExtendedMembers(groupId, ['Practitioner/doc-1']);
+
+            const result = await runGroupExport(request, groupId);
+
+            expect(result.body.output.map(o => o.type)).toContain('Group');
+            expect(exportedResources(result, 'Group')).toEqual([]);
+        }, 60000);
+
+        test('Patient/$export also exports the extended Groups of the exported Patients', async () => {
+            await mergePatients(['ext-p1']);
+            const { groupId } = await createExtendedGroup();
+            await addExtendedMembers(groupId, ['Patient/ext-p1']);
+            const embeddedGroupId = await createEmbeddedGroup(['Patient/ext-p1']);
+
+            const result = await runGroupExport(request, null, {
+                kickoff: { method: 'post', path: '/4_0_0/Patient/$export' },
+                query: '_type=Group'
+            });
+
+            expect(result.body.output.map(o => o.type)).toEqual(['Group']);
+            expect(groupIdsOf(result)).toEqual([groupId, embeddedGroupId].sort());
+        }, 60000);
+    });
 });
