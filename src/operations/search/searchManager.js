@@ -1648,7 +1648,7 @@ class SearchManager {
             requestId: requestInfo.requestId,
             parsedArgs,
             operation: READ,
-            accessRequested: 'read',
+            accessRequested: 's',
             addPersonOwnerToContext: requestInfo.isUser,
             applyPatientFilter,
             actor: requestInfo.actor

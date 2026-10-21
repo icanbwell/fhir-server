@@ -220,6 +220,24 @@ describe('EverythingHelper', () => {
             expect(result).toEqual(['uuid-1', 'uuid-2']);
         });
 
+        test('builds the id lookup query with the r access codes', async () => {
+            const mockCursor = { hasNext: jest.fn().mockResolvedValue(false) };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            });
+            const requestInfo = {
+                user: 'testUser',
+                scope: 'user/Patient.r access/a.r',
+                isUser: false,
+                personIdFromJwtToken: null,
+                requestId: 'req-1'
+            };
+            await everythingHelper.fetchPatientUUID({}, requestInfo, 'Patient', '4_0_0');
+            expect(mockSearchManager.constructQueryAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: 'r' })
+            );
+        });
+
         test('returns empty array when cursor has no results', async () => {
             const mockCursor = {
                 hasNext: jest.fn().mockResolvedValue(false),

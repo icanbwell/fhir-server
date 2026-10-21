@@ -230,6 +230,29 @@ describe('PatchOperation', () => {
             expect(mocks.databaseBulkInserter.replaceOneAsync).toHaveBeenCalled();
         });
 
+        test('builds the lookup query with the u access codes', async () => {
+            const requestInfo = {
+                requestId: 'req-1',
+                body: [{ op: 'replace', path: '/status', value: 'amended' }],
+                contentTypeFromHeader: { type: fhirContentTypes.jsonPatch },
+                user: 'admin',
+                scope: 'user/*.write',
+                isUser: false,
+                personIdFromJwtToken: null,
+                path: '/Observation/obs-1'
+            };
+
+            await patchOp.patchAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Observation'
+            });
+
+            expect(mocks.searchManager.constructQueryAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: 'u' })
+            );
+        });
+
         test('throws BadRequestError when multiple resources found', async () => {
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue({
