@@ -27,6 +27,26 @@ describe('retryWithBackoff', () => {
         expect(fn).toHaveBeenCalledTimes(3);
     });
 
+    test('stops immediately and rethrows when shouldRetry returns false', async () => {
+        const fatal = new Error('fatal');
+        const fn = jestObj.fn().mockRejectedValue(fatal);
+        const onRetry = jestObj.fn();
+        await expect(
+            retryWithBackoff({ fn, maxRetries: 3, initialDelayMs: 1, onRetry, shouldRetry: () => false })
+        ).rejects.toBe(fatal);
+        expect(fn).toHaveBeenCalledTimes(1);
+        expect(onRetry).not.toHaveBeenCalled();
+    });
+
+    test('keeps retrying while shouldRetry returns true', async () => {
+        const fn = jestObj.fn()
+            .mockRejectedValueOnce(new Error('transient'))
+            .mockResolvedValue('ok');
+        const shouldRetry = jestObj.fn().mockReturnValue(true);
+        await expect(retryWithBackoff({ fn, initialDelayMs: 1, shouldRetry })).resolves.toBe('ok');
+        expect(shouldRetry).toHaveBeenCalledTimes(1);
+    });
+
     test('calls onRetry callback before each retry with correct params', async () => {
         const onRetry = jestObj.fn();
         const error = new Error('oops');

@@ -33,6 +33,7 @@ module.exports = {
         '<rootDir>/src/tests/unit/'
     ],
     setupFiles: [
+        '<rootDir>/jest/resetNockInterceptor.js',
         '<rootDir>/jest/patchClickHouseClient.js',
         '<rootDir>/jest/patchClickHouseManager.js',
         '<rootDir>/jest/setEnvVars.js'
