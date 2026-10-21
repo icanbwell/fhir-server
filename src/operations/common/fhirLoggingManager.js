@@ -26,37 +26,6 @@ class FhirLoggingManager {
     }
 
     /**
-     * Logs a FHIR operation start
-     * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
-     * @param {string} resourceType
-     * @param {number|null} startTime
-     * @param {number|null|undefined} [stopTime]
-     * @param {string} action
-     */
-    async logOperationStartAsync (
-        {
-            /** @type {FhirRequestInfo} */ requestInfo,
-            args = {},
-            resourceType,
-            startTime,
-            action
-        }
-    ) {
-        await this.internalLogOperationAsync(
-            {
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                stopTime: startTime,
-                message: 'operationStarted',
-                action
-            }
-        );
-    }
-
-    /**
      * Logs a FHIR operation
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
@@ -188,9 +157,15 @@ class FhirLoggingManager {
         /**
          * @type {string[]}
          */
-        const accessCodes = requestInfo.scope
-            ? this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope)
-            : [];
+        let accessCodes = [];
+        if (requestInfo.scope) {
+            for (const letter of ['r', 's', 'c', 'u', 'd']) {
+                accessCodes = this.scopesManager.getAccessCodesFromScopes(letter, requestInfo.user, requestInfo.scope);
+                if (accessCodes.length > 0) {
+                    break;
+                }
+            }
+        }
         /**
          * @type {string|null}
          */

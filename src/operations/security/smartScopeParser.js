@@ -128,9 +128,8 @@ function parseScopeToken (scopeToken, allowV2 = true) {
  * independently, e.g. `user/Patient.c` (create-only) yields cruds={'c'}. Matching that against
  * the composite write requirement with "any" would let a create-only grant satisfy a check that
  * actually needs update or delete capability (e.g. a merge that overwrites an existing resource,
- * or a delete-via-$graph write check) for any call site whose action isn't in
- * INTERACTION_TO_CRUDS_LETTER and so falls back to the coarse 'write' literal. Requiring the full
- * composite closes that: only a v1 'write'/'*' scope (or an explicit v2 grant of all three
+ * or a delete-via-$graph write check) for any call site that passes the coarse 'write' literal.
+ * Requiring the full composite closes that: only a v1 'write'/'*' scope (or an explicit v2 grant of all three
  * letters) satisfies it, exactly like the resourceType scope match already relies on for merge/
  * $graph today.
  * @param {Set<string>|null} cruds
@@ -186,53 +185,15 @@ function isReadOnlyAccessRequested (accessRequested) {
     return true;
 }
 
-/**
- * Maps a FHIR interaction name (the `action` value every call site already threads through to
- * ScopesValidator, historically only for logging) to the single CRUDS letter it actually
- * requires. Spec-fixed per the design doc's Architecture table; deliberately does NOT include
- * `graph` (its action name is reused for both a search-type read and a delete-driven write, so it
- * cannot be reduced to one fixed letter) nor any interaction not analyzed by the design doc
- * (import, export, exportById, validate, $access-history) -- those keep using the legacy
- * `accessRequested` ('read'/'write') a call site passes explicitly. `merge` maps to `u` (see the
- * design doc's update-as-create section), not `{c, u}`.
- */
-const INTERACTION_TO_CRUDS_LETTER = {
-    create: 'c',
-    update: 'u',
-    patch: 'u',
-    remove: 'd',
-    searchById: 'r',
-    searchByVersionId: 'r',
-    historyById: 'r',
-    history: 's',
-    search: 's',
-    searchStreaming: 's',
-    everything: 's',
-    summary: 's',
-    expand: 's',
-    merge: 'u'
-};
-
-/**
- * @param {string|undefined} interaction
- * @return {string|null} the required CRUDS letter, or null when the interaction isn't in the
- *   table and the caller should fall back to its own accessRequested value
- */
-function getInteractionCrudsLetter (interaction) {
-    return INTERACTION_TO_CRUDS_LETTER[interaction] || null;
-}
-
 module.exports = {
     SCOPE_PREFIXES,
     CRUDS_LETTERS,
     V1_SUFFIX_TO_CRUDS,
-    INTERACTION_TO_CRUDS_LETTER,
     isV1Suffix,
     isV2Suffix,
     normalizeSuffixToCruds,
     parseScopeToken,
     isCrudsRequirementSatisfied,
     getRequiredCrudsForAccessRequested,
-    isReadOnlyAccessRequested,
-    getInteractionCrudsLetter
+    isReadOnlyAccessRequested
 };
