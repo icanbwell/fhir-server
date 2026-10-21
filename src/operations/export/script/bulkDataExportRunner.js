@@ -425,7 +425,8 @@ class BulkDataExportRunner {
             scope,
             isUser: false,
             resourceType: 'ExportStatus',
-            parsedArgs: parsedArgs
+            parsedArgs: parsedArgs,
+            accessRequested: 's'
         }));
         if (searchParams.has('_since')) {
             query = this.r4SearchQueryCreator.appendAndSimplifyQuery({

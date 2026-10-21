@@ -1,0 +1,18 @@
+{
+  "resourceType": "Condition",
+  "id": "c1",
+  "meta": {
+    "source": "test",
+    "security": [
+      { "system": "https://www.icanbwell.com/access", "code": "access" },
+      { "system": "https://www.icanbwell.com/owner", "code": "owner" }
+    ]
+  },
+  "clinicalStatus": {
+    "coding": [
+      { "system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active" }
+    ]
+  },
+  "code": { "text": "test condition" },
+  "subject": { "reference": "Patient/1" }
+}

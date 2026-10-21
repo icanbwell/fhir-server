@@ -1027,6 +1027,7 @@ const createContainer = function () {
     container.register('validateOperation', (c) => new ValidateOperation(
         {
             scopesManager: c.scopesManager,
+            scopesValidator: c.scopesValidator,
             fhirLoggingManager: c.fhirLoggingManager,
             resourceValidator: c.resourceValidator,
             configManager: c.configManager,

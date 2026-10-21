@@ -1,5 +1,6 @@
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { ScopesManager } = require('../security/scopesManager');
+const { ScopesValidator } = require('../security/scopesValidator');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { getFirstElementOrNull } = require('../../utils/list.util');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
@@ -20,6 +21,7 @@ class ValidateOperation {
     /**
      * constructor
      * @param {ScopesManager} scopesManager
+     * @param {ScopesValidator} scopesValidator
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ResourceValidator} resourceValidator
      * @param {ConfigManager} configManager
@@ -29,6 +31,7 @@ class ValidateOperation {
     constructor (
         {
             scopesManager,
+            scopesValidator,
             fhirLoggingManager,
             resourceValidator,
             configManager,
@@ -41,6 +44,11 @@ class ValidateOperation {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
         /**
          * @type {FhirLoggingManager}
          */
@@ -105,7 +113,6 @@ class ValidateOperation {
             /** @type {import('../../utils/fhirRequestInfo').JwtActor|null} */
             actor
         } = requestInfo;
-        // Note: no auth check needed to call validate
 
         // We accept the resource in the two forms allowed in FHIR:
         // https://www.hl7.org/fhir/resource-operation-validate.html
@@ -119,6 +126,14 @@ class ValidateOperation {
             let resource_incoming = null;
             // if id of the resource is sent in url then use that
             if (id) {
+                await this.scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo,
+                    parsedArgs,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    accessRequested: 'r'
+                });
                 // retrieve the resource from the database
                 /**
                  * @type {boolean}
@@ -144,6 +159,7 @@ class ValidateOperation {
                         personIdFromJwtToken,
                         parsedArgs,
                         operation: READ,
+                        accessRequested: 'r',
                         actor
                     }
                 );

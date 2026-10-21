@@ -299,7 +299,26 @@ describe('EverythingOperation', () => {
                     parsedArgs,
                     resourceType: 'Practitioner',
                     action: 'everything',
-                    accessRequested: 'read'
+                    accessRequested: 'r'
+                })
+            );
+        });
+
+        test('verifies d scope before executing a DELETE', async () => {
+            const requestInfo = buildRequestInfo({ method: 'DELETE' });
+            const parsedArgs = buildParsedArgs();
+
+            await operation.everythingBundleAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType: 'Practitioner'
+            });
+
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resourceType: 'Practitioner',
+                    action: 'everything',
+                    accessRequested: 'd'
                 })
             );
         });

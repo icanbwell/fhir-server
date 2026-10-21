@@ -159,7 +159,7 @@ class CreateOperation {
                 resourceType,
                 startTime,
                 action: currentOperationName,
-                accessRequested: 'write'
+                accessRequested: 'c'
             }
         );
 
@@ -198,6 +198,7 @@ class CreateOperation {
         );
         if (!validationOperationOutcome) {
             validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                accessRequested: 'c',
                 base_version,
                 requestInfo,
                 id: resource_incoming.id,
@@ -261,12 +262,12 @@ class CreateOperation {
             // noinspection JSValidateTypes,SpellCheckingInspection
             resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
             await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                requestInfo, resource, base_version
+                requestInfo, resource, base_version, accessRequested: 'c'
             });
             // SEC-1580 F3: creating with an access tag counts as adding it - the caller must be
             // authorized for every access tag on the new resource, not just one of them
             this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
-                requestInfo, currentResource: null, updatedResource: resource
+                requestInfo, currentResource: null, updatedResource: resource, accessRequested: 'c'
             });
             /**
              * @type {Resource}
