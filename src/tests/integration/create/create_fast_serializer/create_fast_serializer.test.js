@@ -1,0 +1,152 @@
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+    getTestContainer,
+    mockHttpContext
+} = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { IdentifierSystem } = require('../../../../utils/identifierSystem');
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
+
+const practitionerPayload = () => ({
+    resourceType: 'Practitioner',
+    active: true,
+    gender: 'unknown',
+    identifier: [
+        { system: 'http://clienthealth.org', value: '4657' },
+        { system: 'http://hl7.org/fhir/sid/us-npi', value: '1679033641' }
+    ],
+    meta: {
+        source: 'client',
+        security: [
+            { system: 'https://www.icanbwell.com/access', code: 'client' },
+            { system: 'https://www.icanbwell.com/owner', code: 'client' },
+            { system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'client' }
+        ]
+    },
+    name: [{ family: 'NAJJAR  MD', given: ['SAMER S.'], use: 'usual' }],
+    qualification: [
+        {
+            code: { coding: [{ code: 'MD', system: 'http://terminology.hl7.org/ValueSet/v2-2.7-030' }] },
+            issuer: { reference: 'Organization/Stanford_Medical_School' },
+            period: { start: '1960-01-01', end: '2021-12-11' }
+        }
+    ],
+    telecom: [{ system: 'email', use: 'work', value: 'foo@foo.com' }]
+});
+
+const observationPayload = () => ({
+    resourceType: 'Observation',
+    status: 'final',
+    code: { coding: [{ system: 'http://loinc.org', code: '8480-6' }] },
+    meta: {
+        source: 'client',
+        security: [
+            { system: 'https://www.icanbwell.com/access', code: 'client' },
+            { system: 'https://www.icanbwell.com/owner', code: 'client' }
+        ]
+    }
+});
+
+describe('Create with fast serializer', () => {
+    let requestId;
+    beforeEach(async () => {
+        await commonBeforeEach();
+        requestId = mockHttpContext();
+    });
+
+    afterEach(async () => {
+        await commonAfterEach();
+    });
+
+    test('fast serializer is enabled by default', async () => {
+        await createTestRequest();
+        expect(getTestContainer().createOperation.useFastSerializer).toStrictEqual(true);
+    });
+
+    test('stored document has the same shape as before', async () => {
+        const request = await createTestRequest();
+        const postResp = await request
+            .post('/4_0_0/Practitioner')
+            .send(practitionerPayload())
+            .set(getHeaders());
+        expect(postResp).toHaveStatusCode(201);
+        const id = postResp.headers['content-location'].split('/').splice(5, 1)[0];
+
+        expect(postResp.body.id).toStrictEqual(id);
+        expect(postResp.body.meta.versionId).toStrictEqual('1');
+        expect(postResp.body.identifier.find((i) => i.system === IdentifierSystem.uuid).value).toStrictEqual(id);
+        expect(postResp.body.identifier.find((i) => i.system === IdentifierSystem.sourceId).value).toStrictEqual(id);
+        expect(postResp.body._uuid).toBeUndefined();
+
+        const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
+        const stored = await db.collection('Practitioner_4_0_0').findOne({ _uuid: id });
+        expect(stored.id).toStrictEqual(id);
+        expect(stored._sourceAssigningAuthority).toStrictEqual('client');
+        expect(stored.meta.versionId).toStrictEqual('1');
+        expect(stored.meta.lastUpdated).toBeInstanceOf(Date);
+        expect(stored.qualification[0].issuer).toStrictEqual({
+            reference: 'Organization/Stanford_Medical_School',
+            _uuid: 'Organization/' + generateUUIDv5('Stanford_Medical_School|client'),
+            _sourceId: 'Organization/Stanford_Medical_School',
+            _sourceAssigningAuthority: 'client'
+        });
+        expect(stored.qualification[0].period).toStrictEqual({ start: '1960-01-01', end: '2021-12-11' });
+
+        await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId, timeoutInSeconds: 20 });
+        const history = await db.collection('Practitioner_4_0_0_History').findOne({ 'resource._uuid': id });
+        expect(history.resource._uuid).toStrictEqual(id);
+        expect(history.resource.id).toStrictEqual(id);
+
+        const getResp = await request.get(`/4_0_0/Practitioner/${id}`).set(getHeaders());
+        expect(getResp).toHaveStatusCode(200);
+        expect(getResp.body.id).toStrictEqual(id);
+        expect(getResp.body.name).toStrictEqual(postResp.body.name);
+    });
+
+    test('empty objects in optional fields are dropped', async () => {
+        const request = await createTestRequest();
+        const payload = practitionerPayload();
+        payload.qualification[0].period = {};
+        payload.telecom.push({});
+        const postResp = await request.post('/4_0_0/Practitioner').send(payload).set(getHeaders());
+        expect(postResp).toHaveStatusCode(201);
+        const id = postResp.headers['content-location'].split('/').splice(5, 1)[0];
+        const getResp = await request.get(`/4_0_0/Practitioner/${id}`).set(getHeaders());
+        expect(getResp.body.qualification[0].period).toBeUndefined();
+        expect(getResp.body.telecom).toHaveLength(1);
+    });
+
+    test('empty object for a required field fails validation', async () => {
+        const request = await createTestRequest();
+        const payload = observationPayload();
+        payload.code = {};
+        const resp = await request.post('/4_0_0/Observation').send(payload).set(getHeaders());
+        expect(resp).toHaveStatusCode(400);
+        expect(resp.body.issue[0].details.text).toMatch(/code/);
+    });
+
+    test('invalid nested reference fails validation', async () => {
+        const request = await createTestRequest();
+        const payload = observationPayload();
+        payload.subject = {
+            reference: 'Patient/5b804b54-0ff5-5dc4-9e42-6ac45c6a5f69',
+            identifier: { value: 'CE33W8M0H2C6HW9', assigner: { reference: 'invalidReference' } }
+        };
+        const resp = await request.post('/4_0_0/Observation').send(payload).set(getHeaders());
+        expect(resp).toHaveStatusCode(400);
+        expect(resp.body.issue[0].details.text).toStrictEqual(
+            'subject.identifier.assigner.reference: invalidReference is an invalid reference'
+        );
+    });
+
+    test('unknown field fails validation', async () => {
+        const request = await createTestRequest();
+        const payload = practitionerPayload();
+        payload.notAFhirField = 'x';
+        const resp = await request.post('/4_0_0/Practitioner').send(payload).set(getHeaders());
+        expect(resp).toHaveStatusCode(400);
+    });
+});

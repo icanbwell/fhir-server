@@ -10,6 +10,7 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
@@ -21,6 +22,7 @@ const { buildContextDataForHybridStorage } = require('../../utils/contextDataBui
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
+const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 
 class CreateOperation {
     /**
@@ -44,6 +46,7 @@ class CreateOperation {
             scopesValidator,
             resourceValidator,
             databaseBulkInserter,
+            fastDatabaseBulkInserter,
             configManager,
             databaseAttachmentManager,
             base64DataManager,
@@ -76,11 +79,23 @@ class CreateOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
-        /**
-         * @type {DatabaseBulkInserter}
-         */
-        this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+
+        this.useFastSerializer = configManager.enableCreateFastSerializer;
+
+        if (this.useFastSerializer) {
+            /**
+             * @type {FastDatabaseBulkInserter}
+             */
+            this.databaseBulkInserter = fastDatabaseBulkInserter;
+            assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
+        }
+        else {
+            /**
+             * @type {DatabaseBulkInserter}
+             */
+            this.databaseBulkInserter = databaseBulkInserter;
+            assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        }
 
         /**
          * @type {ConfigManager}
@@ -169,9 +184,11 @@ class CreateOperation {
         removeUnderscoreFieldsRecursive(resource_incoming);
 
         /**
-         * @type {Resource}
+         * @type {object | Resource}
          */
-        let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
+        let resource = this.useFastSerializer
+            ? resource_incoming
+            : FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
         let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
             resource_incoming
@@ -192,6 +209,18 @@ class CreateOperation {
         const sizeOperationOutcome = validationOperationOutcome
             ? null
             : this.resourceValidator.validateResourceSizeSync({ resource: resource_incoming, resourceType });
+        if (this.useFastSerializer && !validationOperationOutcome && !sizeOperationOutcome) {
+            resource = FhirResourceWriteSerializer.serialize({ obj: resource_incoming });
+            validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                base_version,
+                requestInfo,
+                id: resource.id,
+                resourceType,
+                resourceToValidate: resource,
+                path,
+                resourceObj: resource
+            });
+        }
         if (validationOperationOutcome || sizeOperationOutcome) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 operationResult: [{
@@ -314,7 +343,7 @@ class CreateOperation {
 
             // enrich resource
             this.identifierEnrichmentProvider.enrichIdentifierList(doc);
-            doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
+            doc = FhirResourceSerializer.serialize(this.useFastSerializer ? doc : doc.toJSONInternal());
 
             return doc;
         } catch (/** @type {Error} */ e) {
