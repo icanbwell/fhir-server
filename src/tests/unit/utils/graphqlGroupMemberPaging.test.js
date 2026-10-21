@@ -3,12 +3,13 @@ const {
     getMemberPageWindow,
     sliceList,
     resolveGroupMemberAsync,
-    reserveMemberRows
+    claimExtendedMemberRead
 } = require('../../../utils/graphqlGroupMemberPaging');
-const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 
 // stands in for configManager.graphqlGroupMemberMaxCount (default 50000)
 const MAX = 1000;
+const MONGO_TIMEOUT = 120000;
+const ONE_READ_MESSAGE = 'Only one extended Group member page can be read per GraphQL request';
 
 describe('graphqlGroupMemberPaging', () => {
     describe('getMemberPageWindow', () => {
@@ -57,50 +58,30 @@ describe('graphqlGroupMemberPaging', () => {
         });
     });
 
-    describe('reserveMemberRows', () => {
-        function budgetContext(requestId = 'req-1', requestSpecificCache = new RequestSpecificCache()) {
-            return { fhirRequestInfo: { requestId }, container: { requestSpecificCache } };
-        }
-
-        test('allows page sizes adding up to the request total', () => {
-            const context = budgetContext();
-            expect(() => reserveMemberRows(context, MAX - 1, MAX)).not.toThrow();
-            expect(() => reserveMemberRows(context, 1, MAX)).not.toThrow();
+    describe('claimExtendedMemberRead', () => {
+        test('the first claim in a request succeeds', () => {
+            expect(() => claimExtendedMemberRead({})).not.toThrow();
         });
 
-        test('rejects the reservation that takes the request over the total with too-costly', () => {
-            const context = budgetContext();
-            reserveMemberRows(context, MAX, MAX);
+        test('a second claim in the same request is rejected with too-costly', () => {
+            const context = {};
+            claimExtendedMemberRead(context);
 
             let error;
             try {
-                reserveMemberRows(context, 1, MAX);
+                claimExtendedMemberRead(context);
             } catch (e) {
                 error = e;
             }
             expect(error).toBeDefined();
             expect(error.statusCode).toBe(400);
-            expect(error.message).toBe(
-                `Group members count exceeds maximum (${MAX + 1} > ${MAX})`
-            );
+            expect(error.message).toBe(ONE_READ_MESSAGE);
             expect(error.issue[0].code).toBe('too-costly');
         });
 
-        test('a rejected reservation does not use up the budget', () => {
-            const context = budgetContext();
-            reserveMemberRows(context, MAX - 400, MAX);
-            expect(() => reserveMemberRows(context, 600, MAX)).toThrow();
-            expect(() => reserveMemberRows(context, 400, MAX)).not.toThrow();
-        });
-
-        test('each request has its own budget', () => {
-            const cache = new RequestSpecificCache();
-            reserveMemberRows(budgetContext('req-1', cache), MAX, MAX);
-            expect(() => reserveMemberRows(budgetContext('req-2', cache), MAX, MAX)).not.toThrow();
-        });
-
-        test('fails closed without a request id', () => {
-            expect(() => reserveMemberRows(budgetContext(null), 1, MAX)).toThrow();
+        test('each request (context) has its own claim', () => {
+            claimExtendedMemberRead({});
+            expect(() => claimExtendedMemberRead({})).not.toThrow();
         });
     });
 
@@ -116,10 +97,9 @@ describe('graphqlGroupMemberPaging', () => {
                 getMemberPageAsync,
                 getMemberCursorAsync,
                 context: {
-                    fhirRequestInfo: { requestId: 'req-1', scope: isAdmin ? 'user/*.read admin/*.*' : 'user/*.read' },
+                    fhirRequestInfo: { scope: isAdmin ? 'user/*.read admin/*.*' : 'user/*.read' },
                     container: {
-                        requestSpecificCache: new RequestSpecificCache(),
-                        configManager: { enableExtendedGroup, graphqlGroupMemberMaxCount: MAX },
+                        configManager: { enableExtendedGroup, graphqlGroupMemberMaxCount: MAX, mongoTimeout: MONGO_TIMEOUT },
                         mongoGroupMemberRepository: { getMemberPageAsync, getMemberCursorAsync },
                         scopesValidator: { isAdminScope: () => isAdmin }
                     },
@@ -128,21 +108,22 @@ describe('graphqlGroupMemberPaging', () => {
             };
         }
 
-        test('embedded Group resolves the inline list and slices it', async () => {
+        const extendedGroup = (uuid = 'g-uuid') => ({ _uuid: uuid, _extended: true });
+
+        test('embedded Group resolves the inline list, slices it and is not limited', async () => {
             const { context, getMemberPageAsync } = buildContext();
             const parent = { _uuid: 'g-uuid', member: [{ n: 1 }, { n: 2 }, { n: 3 }] };
 
             expect(await resolveGroupMemberAsync(parent, {}, context)).toEqual(parent.member);
             expect(await resolveGroupMemberAsync(parent, { _offset: 1, _count: 1 }, context)).toEqual([{ n: 2 }]);
+            expect(await resolveGroupMemberAsync(parent, {}, context)).toEqual(parent.member);
             expect(getMemberPageAsync).not.toHaveBeenCalled();
         });
 
-        test('extended Group reads one clamped page, never the full cursor', async () => {
+        test('extended Group reads one clamped, time-limited page, never the full cursor', async () => {
             const { context, getMemberPageAsync, getMemberCursorAsync } = buildContext();
 
-            const result = await resolveGroupMemberAsync(
-                { _uuid: 'g-uuid', _extended: true }, { _offset: 5, _count: 5000000 }, context
-            );
+            const result = await resolveGroupMemberAsync(extendedGroup(), { _offset: 5, _count: 5000000 }, context);
 
             expect(result).toEqual([{ entity: { reference: 'Patient/1' } }]);
             expect(getMemberPageAsync).toHaveBeenCalledTimes(1);
@@ -150,7 +131,8 @@ describe('graphqlGroupMemberPaging', () => {
                 base_version: '4_0_0',
                 groupUuid: 'g-uuid',
                 offset: 5,
-                count: MAX
+                count: MAX,
+                maxTimeMS: MONGO_TIMEOUT
             });
             expect(getMemberCursorAsync).not.toHaveBeenCalled();
         });
@@ -158,52 +140,64 @@ describe('graphqlGroupMemberPaging', () => {
         test('extended Group with no paging args reads the maximum page size', async () => {
             const { context, getMemberPageAsync } = buildContext();
 
-            await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, {}, context);
+            await resolveGroupMemberAsync(extendedGroup(), {}, context);
 
-            expect(getMemberPageAsync).toHaveBeenCalledWith(
-                expect.objectContaining({ offset: 0, count: MAX })
-            );
+            expect(getMemberPageAsync).toHaveBeenCalledWith(expect.objectContaining({ offset: 0, count: MAX }));
         });
 
-        test.each([0, -5])('_count %p returns [] without a Mongo read (limit 0 is unlimited there)', async (count) => {
+        test.each([0, -5])('_count %p returns [] without a Mongo read and does not use up the request read', async (count) => {
             const { context, getMemberPageAsync } = buildContext();
 
-            expect(await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, { _count: count }, context))
-                .toEqual([]);
+            expect(await resolveGroupMemberAsync(extendedGroup(), { _count: count }, context)).toEqual([]);
             expect(getMemberPageAsync).not.toHaveBeenCalled();
+            await resolveGroupMemberAsync(extendedGroup(), {}, context);
+            expect(getMemberPageAsync).toHaveBeenCalledTimes(1);
         });
 
-        test('pages past the request total are rejected before reading', async () => {
+        test('a second extended read in the same request is rejected before reading', async () => {
             const { context, getMemberPageAsync } = buildContext();
-            const parent = { _uuid: 'g-uuid', _extended: true };
 
-            await resolveGroupMemberAsync(parent, { _count: MAX / 2 }, context);
-            await resolveGroupMemberAsync(parent, { _offset: MAX / 2, _count: MAX / 2 }, context);
-            await expect(resolveGroupMemberAsync(parent, { _offset: MAX, _count: 1 }, context))
-                .rejects.toThrow(`Group members count exceeds maximum (${MAX + 1} > ${MAX})`);
-            expect(getMemberPageAsync).toHaveBeenCalledTimes(2);
+            await resolveGroupMemberAsync(extendedGroup(), { _count: 10 }, context);
+            await expect(resolveGroupMemberAsync(extendedGroup(), { _offset: 10, _count: 10 }, context))
+                .rejects.toThrow(ONE_READ_MESSAGE);
+            await expect(resolveGroupMemberAsync(extendedGroup('other-uuid'), {}, context))
+                .rejects.toThrow(ONE_READ_MESSAGE);
+            expect(getMemberPageAsync).toHaveBeenCalledTimes(1);
         });
 
-        test('_count 0 reserves nothing', async () => {
-            const { context } = buildContext();
-            const parent = { _uuid: 'g-uuid', _extended: true };
+        test('concurrent resolvers of one request: only the first reads', async () => {
+            const { context, getMemberPageAsync } = buildContext();
 
-            await resolveGroupMemberAsync(parent, { _count: 0 }, context);
-            expect(() => reserveMemberRows(context, MAX, MAX)).not.toThrow();
+            const results = await Promise.allSettled([
+                resolveGroupMemberAsync(extendedGroup('a'), {}, context),
+                resolveGroupMemberAsync(extendedGroup('b'), {}, context),
+                resolveGroupMemberAsync(extendedGroup('c'), {}, context)
+            ]);
+
+            expect(results.map((r) => r.status)).toEqual(['fulfilled', 'rejected', 'rejected']);
+            expect(getMemberPageAsync).toHaveBeenCalledTimes(1);
+            expect(getMemberPageAsync).toHaveBeenCalledWith(expect.objectContaining({ groupUuid: 'a' }));
+        });
+
+        test('embedded Groups do not use up the request read', async () => {
+            const { context, getMemberPageAsync } = buildContext();
+
+            await resolveGroupMemberAsync({ _uuid: 'e', member: [{ n: 1 }] }, {}, context);
+            await resolveGroupMemberAsync(extendedGroup(), {}, context);
+            expect(getMemberPageAsync).toHaveBeenCalledTimes(1);
         });
 
         test('feature flag off: extended Group falls back to the document member (none)', async () => {
             const { context, getMemberPageAsync } = buildContext({ enableExtendedGroup: false });
 
-            expect(await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, {}, context))
-                .toBeUndefined();
+            expect(await resolveGroupMemberAsync(extendedGroup(), {}, context)).toBeUndefined();
             expect(getMemberPageAsync).not.toHaveBeenCalled();
         });
 
         test('_debug from an admin caller adds the GroupMember query to the response meta', async () => {
             const { context } = buildContext({ debugMode: true });
 
-            await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, {}, context);
+            await resolveGroupMemberAsync(extendedGroup(), {}, context);
 
             expect(context.dataApi.metaList).toHaveLength(1);
             const tags = context.dataApi.metaList[0].tag;
@@ -216,7 +210,7 @@ describe('graphqlGroupMemberPaging', () => {
         test('_debug from a non-admin caller adds no query tags', async () => {
             const { context } = buildContext({ debugMode: true, isAdmin: false });
 
-            await resolveGroupMemberAsync({ _uuid: 'g-uuid', _extended: true }, {}, context);
+            await resolveGroupMemberAsync(extendedGroup(), {}, context);
 
             expect(context.dataApi.metaList).toEqual([]);
         });

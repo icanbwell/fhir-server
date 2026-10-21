@@ -35,4 +35,21 @@ describe('MongoGroupMemberRepository.getMemberPageAsync', () => {
         ]);
         expect(page.queryItem).toEqual({ query: { groupUuid: 'g-uuid' }, collectionName: 'GroupMember_4_0_0' });
     });
+
+    test('applies maxTimeMS to the page read when given, and not otherwise', async () => {
+        const toArrayAsync = jest.fn().mockResolvedValue([]);
+        const cursor = { toArrayAsync, maxTimeMS: jest.fn() };
+        cursor.maxTimeMS.mockReturnValue(cursor);
+        const findAsync = jest.fn().mockResolvedValue(cursor);
+        const repository = Object.create(MongoGroupMemberRepository.prototype);
+        repository.databaseQueryFactory = { createQuery: () => ({ findAsync }) };
+        const params = { base_version: '4_0_0', groupUuid: 'g-uuid', offset: 4900000, count: 1 };
+
+        await repository.getMemberPageAsync({ ...params, maxTimeMS: 120000 });
+        expect(cursor.maxTimeMS).toHaveBeenCalledWith({ milliSecs: 120000 });
+
+        cursor.maxTimeMS.mockClear();
+        await repository.getMemberPageAsync(params);
+        expect(cursor.maxTimeMS).not.toHaveBeenCalled();
+    });
 });

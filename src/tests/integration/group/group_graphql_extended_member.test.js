@@ -4,8 +4,9 @@
  * An extended Group keeps its roster in GroupMember_4_0_0. GraphQL cannot stream, so:
  * - wherever an extended Group appears, Group.member(_offset, _count) serves a bounded page of the
  *   roster, read from Mongo with sort/skip/limit;
- * - GRAPHQL_GROUP_MEMBER_MAX_COUNT caps both one member field and the total of all extended
- *   Group member fields in one request; past it a field gets too-costly;
+ * - GRAPHQL_GROUP_MEMBER_MAX_COUNT is the page size when _count is omitted and the cap on _count;
+ * - one request reads at most one extended Group roster page; every further extended member field
+ *   in that request gets too-costly;
  * - embedded Groups keep resolving member from the document.
  *
  * Members are identified by period.start (a year per row) so the assertions don't depend on the
@@ -158,7 +159,13 @@ describe('GraphQL Group.member (extended storage)', () => {
         return response;
     }
 
-    const TOO_COSTLY_MESSAGE = 'Group members count exceeds maximum';
+    const ONE_READ_MESSAGE = 'Only one extended Group member page can be read per GraphQL request';
+
+    /** Asserts the response carries exactly `count` one-read-per-request too-costly errors. */
+    function expectOneReadErrors(response, count) {
+        expect(response.body.errors).toHaveLength(count);
+        response.body.errors.forEach((e) => expect(e.message).toBe(ONE_READ_MESSAGE));
+    }
 
     const entriesOf = (version, response) => response.body.data[version.field].entry || [];
     const startsOf = (resource) => (resource.member || []).map((m) => m.period.start);
@@ -183,9 +190,19 @@ describe('GraphQL Group.member (extended storage)', () => {
         test('_count above the maximum is capped at the maximum page size', async () => {
             const group = await createExtendedGroupWithRoster(OVERSIZED_ROSTER_SIZE);
 
-            const response = await graphql(version, memberQuery(version.singleId(group.id), '(_count: 5000000)'));
+            const response = await graphql(
+                version,
+                `query { ${version.field}(${version.singleId(group.id)}, _debug: true) {
+                    meta { tag { system display } }
+                    entry { resource { member(_count: 5000000) { period { start } } } }
+                } }`,
+                getGraphQLHeadersWithAdmin()
+            );
 
             expect(startsOf(entriesOf(version, response)[0].resource)).toHaveLength(GRAPHQL_GROUP_MEMBER_MAX_COUNT);
+            const queries = response.body.data[version.field].meta.tag
+                .filter((t) => t.system === 'https://www.icanbwell.com/query').map((t) => t.display).join(' ');
+            expect(queries).toContain(`.limit(${GRAPHQL_GROUP_MEMBER_MAX_COUNT})`);
         });
 
         test('_offset/_count pages are stable, disjoint and together cover the whole roster', async () => {
@@ -250,25 +267,7 @@ describe('GraphQL Group.member (extended storage)', () => {
             expect(startsOf(byId[embedded.id])).toEqual(['1999']);
         });
 
-        test('a list query within the request total: every extended Group gets its page', async () => {
-            await clearGroups();
-            const groupCount = 5;
-            for (let i = 0; i < groupCount; i++) {
-                await createExtendedGroupWithRoster(3);
-            }
-            const perGroup = GRAPHQL_GROUP_MEMBER_MAX_COUNT / groupCount;
-
-            const response = await graphql(
-                version,
-                `query { ${version.field} { entry { resource { member(_count: ${perGroup}) { period { start } } } } } }`
-            );
-
-            const entries = entriesOf(version, response);
-            expect(entries).toHaveLength(groupCount);
-            entries.forEach((e) => expect(startsOf(e.resource)).toHaveLength(3));
-        });
-
-        test('a list query over the request total: Groups past it get too-costly', async () => {
+        test('a list query with several extended Groups: only the first gets its page, the rest too-costly', async () => {
             await clearGroups();
             await createExtendedGroupWithRoster(3);
             await createExtendedGroupWithRoster(3);
@@ -276,14 +275,24 @@ describe('GraphQL Group.member (extended storage)', () => {
 
             const response = await graphqlAllowingErrors(
                 version,
-                `query { ${version.field} { entry { resource { member { period { start } } } } } }`
+                `query { ${version.field} { entry { resource { member(_count: 10) { period { start } } } } } }`
             );
 
             const entries = entriesOf(version, response);
             expect(entries).toHaveLength(3);
             expect(entries.filter((e) => Array.isArray(e.resource.member))).toHaveLength(1);
-            expect(response.body.errors).toHaveLength(2);
-            response.body.errors.forEach((e) => expect(e.message).toContain(TOO_COSTLY_MESSAGE));
+            expect(entries.filter((e) => e.resource.member === null)).toHaveLength(2);
+            expectOneReadErrors(response, 2);
+        });
+
+        test('a list query without member selected reads no roster and gets no error', async () => {
+            await clearGroups();
+            await createExtendedGroupWithRoster(3);
+            await createExtendedGroupWithRoster(3);
+
+            const response = await graphql(version, `query { ${version.field} { entry { resource { id } } } }`);
+
+            expect(entriesOf(version, response)).toHaveLength(2);
         });
 
         test('_debug from a caller without admin scope gets no GroupMember query', async () => {
@@ -313,16 +322,29 @@ describe('GraphQL Group.member (extended storage)', () => {
             expect(response.body.data.g.e[0].r.m.map((x) => x.period.start)).toEqual([yearOf(0), yearOf(1), yearOf(2)]);
         });
 
-        test('a multi-id query pages each Group within the request total', async () => {
+        test('a multi-id query: the first extended Group gets its page, the second too-costly', async () => {
             const a = await createExtendedGroupWithRoster(3);
             const b = await createExtendedGroupWithRoster(3);
-            const half = GRAPHQL_GROUP_MEMBER_MAX_COUNT / 2;
 
-            const response = await graphql(version, memberQuery(version.twoIds(a.id, b.id), `(_count: ${half})`));
+            const response = await graphqlAllowingErrors(version, memberQuery(version.twoIds(a.id, b.id)));
 
             const entries = entriesOf(version, response);
             expect(entries).toHaveLength(2);
-            entries.forEach((e) => expect(startsOf(e.resource)).toHaveLength(3));
+            expect(entries.filter((e) => Array.isArray(e.resource.member))).toHaveLength(1);
+            expectOneReadErrors(response, 1);
+        });
+
+        test('embedded Groups next to an extended one are served and do not use up the read', async () => {
+            const extended = await createExtendedGroupWithRoster(3);
+            const embedded = await createGroup({
+                member: [{ entity: { reference: 'Patient/embedded-2' }, period: { start: '1998' } }]
+            });
+
+            const response = await graphql(version, memberQuery(version.twoIds(embedded.id, extended.id)));
+
+            const byId = Object.fromEntries(entriesOf(version, response).map((e) => [e.resource.id, e.resource]));
+            expect(startsOf(byId[embedded.id])).toEqual(['1998']);
+            expect(startsOf(byId[extended.id])).toHaveLength(3);
         });
 
         test('an embedded Group is unchanged and honors _offset/_count', async () => {
@@ -398,43 +420,26 @@ describe('GraphQL Group.member (extended storage)', () => {
             expect(startsOf(entriesOf(version, response)[0].resource)).toEqual([yearOf(0), yearOf(1)]);
         });
 
-        test('aliased member fields share one row budget: page sizes within the maximum are all served', async () => {
+        test('aliased member fields on one Group: the first is served, the rest too-costly with their paths', async () => {
             const group = await createExtendedGroupWithRoster(10);
-            const half = GRAPHQL_GROUP_MEMBER_MAX_COUNT / 2;
-
-            const response = await graphql(
-                version,
-                `query { ${version.field}(${version.singleId(group.id)}) { entry { resource {
-                    m0: member(_offset: 0, _count: ${half}) { period { start } }
-                    m1: member(_offset: 3, _count: ${half}) { period { start } }
-                } } } }`
-            );
-
-            const resource = entriesOf(version, response)[0].resource;
-            expect(resource.m0).toHaveLength(10);
-            expect(resource.m1).toHaveLength(7);
-        });
-
-        test('aliased member fields over the row budget: the extra page is rejected as too-costly', async () => {
-            const group = await createExtendedGroupWithRoster(OVERSIZED_ROSTER_SIZE);
+            const aliases = Array.from({ length: 4 }, (_unused, i) =>
+                `m${i}: member(_offset: ${i * 1000000}, _count: 1) { period { start } }`).join('\n');
 
             const response = await graphqlAllowingErrors(
                 version,
-                `query { ${version.field}(${version.singleId(group.id)}) { entry { resource {
-                    m0: member(_offset: 0) { period { start } }
-                    m1: member(_offset: ${GRAPHQL_GROUP_MEMBER_MAX_COUNT}) { period { start } }
-                } } } }`
+                `query { ${version.field}(${version.singleId(group.id)}) { entry { resource { ${aliases} } } } }`
             );
 
             const resource = entriesOf(version, response)[0].resource;
-            expect(resource.m0).toHaveLength(GRAPHQL_GROUP_MEMBER_MAX_COUNT);
-            expect(resource.m1).toBeNull();
-            expect(response.body.errors).toHaveLength(1);
-            expect(response.body.errors[0].message).toContain(TOO_COSTLY_MESSAGE);
-            expect(response.body.errors[0].path).toEqual([version.field, 'entry', 0, 'resource', 'm1']);
+            expect(startsOf({ member: resource.m0 })).toEqual([yearOf(0)]);
+            ['m1', 'm2', 'm3'].forEach((key) => expect(resource[key]).toBeNull());
+            expectOneReadErrors(response, 3);
+            expect(response.body.errors.map((e) => e.path)).toEqual(
+                ['m1', 'm2', 'm3'].map((key) => [version.field, 'entry', 0, 'resource', key])
+            );
         });
 
-        test('aliased single-id root fields share the row budget', async () => {
+        test('aliased single-id root fields: only one extended Group page per request', async () => {
             const a = await createExtendedGroupWithRoster(3);
             const b = await createExtendedGroupWithRoster(3);
 
@@ -448,11 +453,10 @@ describe('GraphQL Group.member (extended storage)', () => {
 
             const served = ['a', 'b'].filter((key) => Array.isArray(response.body.data[key].entry[0].resource.member));
             expect(served).toHaveLength(1);
-            expect(response.body.errors).toHaveLength(1);
-            expect(response.body.errors[0].message).toContain(TOO_COSTLY_MESSAGE);
+            expectOneReadErrors(response, 1);
         });
 
-        test('one id matching Groups under several owners: the row budget bounds the total', async () => {
+        test('one id matching Groups under several owners: the first gets its page, the second too-costly', async () => {
             const sharedId = `shared-${version.field}`;
             await createExtendedGroupWithRoster(3, 'test-access', { id: sharedId, owner: 'owner-a' });
             await createExtendedGroupWithRoster(3, 'test-access', { id: sharedId, owner: 'owner-b' });
@@ -461,19 +465,21 @@ describe('GraphQL Group.member (extended storage)', () => {
 
             const entries = entriesOf(version, response);
             expect(entries).toHaveLength(2);
-            expect(startsOf(entries[0].resource)).toHaveLength(3);
-            expect(entries[1].resource.member).toBeNull();
-            expect(response.body.errors).toHaveLength(1);
-            expect(response.body.errors[0].message).toContain(TOO_COSTLY_MESSAGE);
+            expect(entries.filter((e) => Array.isArray(e.resource.member))).toHaveLength(1);
+            expectOneReadErrors(response, 1);
         });
 
-        test('the row budget is per request: the next request gets a full page again', async () => {
+        test('the one-read limit is per request: the next request reads the next page', async () => {
             const group = await createExtendedGroupWithRoster(OVERSIZED_ROSTER_SIZE);
 
-            for (const offset of [0, GRAPHQL_GROUP_MEMBER_MAX_COUNT]) {
-                const response = await graphql(version, memberQuery(version.singleId(group.id), `(_offset: ${offset})`));
-                expect(startsOf(entriesOf(version, response)[0].resource).length).toBeGreaterThan(0);
-            }
+            const first = await graphql(version, memberQuery(version.singleId(group.id)));
+            const second = await graphql(
+                version,
+                memberQuery(version.singleId(group.id), `(_offset: ${GRAPHQL_GROUP_MEMBER_MAX_COUNT})`)
+            );
+
+            expect(startsOf(entriesOf(version, first)[0].resource)).toHaveLength(GRAPHQL_GROUP_MEMBER_MAX_COUNT);
+            expect(startsOf(entriesOf(version, second)[0].resource)).toHaveLength(5);
         });
 
         test('tenant isolation: another tenant gets neither the Group nor its roster', async () => {

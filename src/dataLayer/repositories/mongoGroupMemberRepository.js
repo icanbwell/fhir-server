@@ -462,11 +462,13 @@ class MongoGroupMemberRepository {
      * @param {string} params.groupUuid
      * @param {number} params.offset - rows to skip
      * @param {number} params.count - rows to return
+     * @param {number} [params.maxTimeMS] server-side time limit for the read (bounds a deep skip),
+     *   omitted when not set
      * @returns {Promise<{members: Object[], queryItem: {query: Object, collectionName: string}, options: Object}>}
      * members are the Group.member objects of the rows; queryItem/options describe the Mongo query
      * that ran, for _debug output
      */
-    async getMemberPageAsync({ base_version, groupUuid, offset, count }) {
+    async getMemberPageAsync({ base_version, groupUuid, offset, count, maxTimeMS }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: GROUP_MEMBER_RESOURCE_TYPE,
             base_version
@@ -478,7 +480,10 @@ class MongoGroupMemberRepository {
             skip: offset,
             limit: count
         };
-        const cursor = await databaseQueryManager.findAsync({ query, options });
+        let cursor = await databaseQueryManager.findAsync({ query, options });
+        if (maxTimeMS) {
+            cursor = cursor.maxTimeMS({ milliSecs: maxTimeMS });
+        }
         const rows = await cursor.toArrayAsync();
         return {
             members: rows.map((row) => row.member).filter(Boolean),

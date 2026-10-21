@@ -1,7 +1,7 @@
 // Field-level pagination for Group.member per the FHIR GraphQL spec
 // (_offset / _count on a repeating element: https://build.fhir.org/graphql.html#list).
-// An extended Group keeps its roster in GroupMember_4_0_0 and gets one bounded page of it,
-// within a per-request row total. Embedded Groups resolve member from the document.
+// An extended Group keeps its roster in GroupMember_4_0_0 and gets one bounded page of it; one
+// such page per GraphQL request. Embedded Groups resolve member from the document.
 // Merged into the generated Group resolver via mergeResolvers; the generated resolver does not
 // define `member`, so this is purely additive.
 const { resolveGroupMemberAsync } = require('../../../utils/graphqlGroupMemberPaging');

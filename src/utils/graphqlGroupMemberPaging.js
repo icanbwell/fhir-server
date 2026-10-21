@@ -4,14 +4,15 @@ const { createTooCostlyError } = require('./fhirErrorFactory');
 const { BadRequestError } = require('./httpErrors');
 
 /**
- * RequestSpecificCache map holding the GroupMember rows already reserved by this request
+ * GraphQL context property set once a request has read an extended Group roster page. The context
+ * is created per request (getContext in graphqlServer.js / graphqlServerV2.js) and discarded with
+ * it, so the flag needs no cleanup.
  */
-const MEMBER_ROW_BUDGET_CACHE_NAME = 'GraphQLGroupMemberRowBudget';
-const MEMBER_ROWS_RESERVED_KEY = 'reserved';
+const EXTENDED_MEMBER_READ_CONTEXT_KEY = 'extendedGroupMemberRead';
 
 /**
  * Normalizes FHIR GraphQL list-navigation arguments for a roster page read from Mongo:
- * a missing _count and any _count above maxCount become maxCount, negatives are clamped to 0
+ * a missing _count and any _count above maxCount become maxCount, and negatives are clamped to 0
  * (an empty page; the caller must not query Mongo with it, since limit 0 is unlimited there).
  * @param {{_offset: (number|null|undefined), _count: (number|null|undefined)}} [args]
  * @param {number} maxCount - configManager.graphqlGroupMemberMaxCount
@@ -20,7 +21,7 @@ const MEMBER_ROWS_RESERVED_KEY = 'reserved';
 function getMemberPageWindow(args, maxCount) {
     const { _offset, _count } = args || {};
     const offset = _offset > 0 ? _offset : 0;
-    const count = _count == null ? maxCount : Math.min(Math.max(_count, 0), maxCount);
+    const count = Math.min(Math.max(_count ?? maxCount, 0), maxCount);
     return { offset, count };
 }
 
@@ -48,37 +49,29 @@ function sliceList(list, args) {
 }
 
 /**
- * Reserves `count` GroupMember rows against the request-wide total of maxCount, so aliased
- * `member` fields, aliased root queries and lists of extended Groups cannot add up to more than
- * maxCount rows in one request.
+ * Claims the request's single extended Group roster page read. One read per request bounds both
+ * memory (at most maxCount rows) and Mongo work (one, time-limited, skip), whatever the query
+ * shape: aliased member fields, aliased root queries and lists of extended Groups all draw from it.
  *
- * The page size is reserved before the read (not the rows it returns), so the outcome depends
- * only on the order resolvers are called in. Must be called before the resolver's first await.
- * State lives in RequestSpecificCache under the request's id, cleared when the response finishes.
- * @param {Object} context - GraphQL context ({container, fhirRequestInfo})
- * @param {number} count
- * @param {number} maxCount - configManager.graphqlGroupMemberMaxCount
- * @throws {BadRequestError} too-costly when the request's reserved rows would exceed maxCount
+ * Must be called before the resolver's first await, so concurrent resolvers of one request see it.
+ * @param {Object} context - GraphQL context
+ * @throws {BadRequestError} too-costly when the request has already read a roster page
  */
-function reserveMemberRows(context, count, maxCount) {
-    const budget = context.container.requestSpecificCache.getMap({
-        requestId: context.fhirRequestInfo?.requestId,
-        name: MEMBER_ROW_BUDGET_CACHE_NAME
-    });
-    const reserved = (budget.get(MEMBER_ROWS_RESERVED_KEY) || 0) + count;
-    if (reserved > maxCount) {
-        const { message, options } = createTooCostlyError({
-            actual: reserved,
-            limit: maxCount,
+function claimExtendedMemberRead(context) {
+    if (context[EXTENDED_MEMBER_READ_CONTEXT_KEY]) {
+        const { options } = createTooCostlyError({
+            actual: 2,
+            limit: 1,
             operation: 'GRAPHQL',
-            customGuidance: 'For GraphQL: the _count values of all extended Group member fields ' +
-                `in one request (${maxCount} each when omitted) must add up to at most ${maxCount}; ` +
-                'pass a smaller member(_count) or fetch further pages with member(_offset, _count) ' +
-                'in separate requests'
+            customGuidance: 'For GraphQL: read one extended Group member page per request; query ' +
+                'that Group alone and fetch further pages with member(_offset, _count) in separate requests'
         });
-        throw new BadRequestError({ message }, options);
+        throw new BadRequestError(
+            { message: 'Only one extended Group member page can be read per GraphQL request' },
+            options
+        );
     }
-    budget.set(MEMBER_ROWS_RESERVED_KEY, reserved);
+    context[EXTENDED_MEMBER_READ_CONTEXT_KEY] = true;
 }
 
 /**
@@ -86,9 +79,9 @@ function reserveMemberRows(context, count, maxCount) {
  *
  * - Embedded Group (or extended storage off): the inline member[] of the document, with
  *   _offset/_count sliced in memory.
- * - Extended Group, however it was reached: one page of GroupMember_4_0_0 (never the full
- *   roster), at most configManager.graphqlGroupMemberMaxCount rows, counted against the same
- *   request-wide total (reserveMemberRows). An empty page (_count <= 0) returns [] without a read.
+ * - Extended Group: one page of GroupMember_4_0_0 (never the full roster), at most
+ *   configManager.graphqlGroupMemberMaxCount rows and configManager.mongoTimeout, and only one such
+ *   page per request (claimExtendedMemberRead). An empty page (_count <= 0) returns [] without a read.
  * @param {Object} parent - the Group
  * @param {{_offset: (number|null|undefined), _count: (number|null|undefined)}} args
  * @param {Object} context - GraphQL context ({container, dataApi, fhirRequestInfo})
@@ -101,18 +94,18 @@ async function resolveGroupMemberAsync(parent, args, context) {
     if (!isExtended) {
         return sliceList(parent ? parent.member : undefined, args);
     }
-    const maxCount = configManager.graphqlGroupMemberMaxCount;
-    const { offset, count } = getMemberPageWindow(args, maxCount);
+    const { offset, count } = getMemberPageWindow(args, configManager.graphqlGroupMemberMaxCount);
     if (count === 0) {
         // Mongo treats limit 0 as no limit
         return [];
     }
-    reserveMemberRows(context, count, maxCount);
+    claimExtendedMemberRead(context);
     const page = await context.container.mongoGroupMemberRepository.getMemberPageAsync({
         base_version: '4_0_0',
         groupUuid: parent._uuid,
         offset,
-        count
+        count,
+        maxTimeMS: configManager.mongoTimeout
     });
     // same rule searchBundle applies to the bundle's own debug tags: only admin-scoped callers
     // see query internals
@@ -141,7 +134,7 @@ async function resolveGroupMemberAsync(parent, args, context) {
 
 module.exports = {
     resolveGroupMemberAsync,
-    reserveMemberRows,
+    claimExtendedMemberRead,
     getMemberPageWindow,
     sliceList
 };
