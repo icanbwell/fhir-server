@@ -196,19 +196,6 @@ class CreateOperation {
         let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
             resource_incoming
         );
-        if (this.useFastSerializer && !validationOperationOutcome) {
-            delete resource_incoming.meta?.lastUpdated;
-            validationOperationOutcome = validateResource({
-                resourceBody: resource_incoming,
-                resourceName: resourceType,
-                path
-            });
-            if (validationOperationOutcome) {
-                recordValidationFailure(validationOperationOutcome, resourceType, VALIDATION_STAGE.SCHEMA, PATH.SAVE);
-            } else {
-                resource = FhirResourceWriteSerializer.serialize({ obj: resource_incoming });
-            }
-        }
         if (!validationOperationOutcome) {
             validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
                 base_version,
@@ -219,6 +206,17 @@ class CreateOperation {
                 path,
                 resourceObj: resource
             });
+        }
+        if (this.useFastSerializer && !validationOperationOutcome) {
+            resource = FhirResourceWriteSerializer.serialize({ obj: resource_incoming });
+            validationOperationOutcome = validateResource({
+                resourceBody: resource_incoming,
+                resourceName: resourceType,
+                path
+            });
+            if (validationOperationOutcome) {
+                recordValidationFailure(validationOperationOutcome, resourceType, VALIDATION_STAGE.SCHEMA, PATH.SAVE);
+            }
         }
         // Oversized AuditEvents are rejected with 413 (payload too large) once
         // schema validation passes, rather than a generic 400 validation error.

@@ -7,6 +7,7 @@ const {
     mockHttpContext
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { assertTooCostlyOperationOutcome } = require('../../group/groupTestHelpers');
 const { IdentifierSystem } = require('../../../../utils/identifierSystem');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
@@ -194,5 +195,43 @@ describe('Create with fast serializer', () => {
         payload.notAFhirField = 'x';
         const resp = await request.post('/4_0_0/Practitioner').send(payload).set(getHeaders());
         expect(resp).toHaveStatusCode(400);
+    });
+
+    test('an oversized Group is rejected as too-costly before its member[] is schema validated', async () => {
+        const savedExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
+        const savedPromotionLimit = process.env.GROUP_MEMBER_PROMOTION_LIMIT;
+        process.env.ENABLE_EXTENDED_GROUP = '1';
+        process.env.GROUP_MEMBER_PROMOTION_LIMIT = '3';
+        try {
+            const request = await createTestRequest();
+            const resp = await request
+                .post('/4_0_0/Group')
+                .send({
+                    resourceType: 'Group',
+                    type: 'person',
+                    actual: true,
+                    notAFhirField: 'x',
+                    meta: {
+                        source: 'client',
+                        security: [
+                            { system: 'https://www.icanbwell.com/access', code: 'client' },
+                            { system: 'https://www.icanbwell.com/owner', code: 'client' }
+                        ]
+                    },
+                    member: Array.from({ length: 4 }, (_, i) => ({ entity: { reference: `Patient/oversized-${i}` } }))
+                })
+                .set(getHeaders());
+            assertTooCostlyOperationOutcome(resp, 4, 3);
+        } finally {
+            process.env.ENABLE_EXTENDED_GROUP = savedExtendedGroup;
+            if (savedExtendedGroup === undefined) {
+                delete process.env.ENABLE_EXTENDED_GROUP;
+            }
+            if (savedPromotionLimit === undefined) {
+                delete process.env.GROUP_MEMBER_PROMOTION_LIMIT;
+            } else {
+                process.env.GROUP_MEMBER_PROMOTION_LIMIT = savedPromotionLimit;
+            }
+        }
     });
 });
