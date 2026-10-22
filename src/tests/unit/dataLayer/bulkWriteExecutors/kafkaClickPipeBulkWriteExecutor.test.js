@@ -4,6 +4,7 @@ const { describe, test, beforeEach, expect, jest: jestGlobal } = require('@jest/
 const { KafkaClickPipeBulkWriteExecutor } = require('../../../../dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
 const { BulkWriteExecutor } = require('../../../../dataLayer/bulkWriteExecutors/bulkWriteExecutor');
 const { WRITE_STRATEGIES } = require('../../../../constants/clickHouseConstants');
+const { CompressionTypes } = require('kafkajs');
 
 describe('KafkaClickPipeBulkWriteExecutor', () => {
     let executor;
@@ -202,6 +203,118 @@ describe('KafkaClickPipeBulkWriteExecutor', () => {
         });
     });
 
+    describe('executeBulkAsync — compression', () => {
+        test('sends uncompressed by default', async () => {
+            await executor.executeBulkAsync({
+                resourceType: 'TestResource',
+                operations: [makeEntry()],
+                requestInfo: { requestId: 'req-comp-1' },
+                base_version: '4_0_0'
+            });
+
+            expect(mockKafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0].compression).toBe(CompressionTypes.None);
+        });
+
+        test('passes the configured compression on every chunk', async () => {
+            const zstdExecutor = new KafkaClickPipeBulkWriteExecutor({
+                kafkaClientV2: mockKafkaClientV2,
+                schemaRegistry: mockSchemaRegistry,
+                batchSize: 1,
+                compression: CompressionTypes.ZSTD
+            });
+
+            await zstdExecutor.executeBulkAsync({
+                resourceType: 'TestResource',
+                operations: [makeEntry({ id: 'r1' }), makeEntry({ id: 'r2' })],
+                requestInfo: { requestId: 'req-comp-2' },
+                base_version: '4_0_0'
+            });
+
+            const compressions = mockKafkaClientV2.sendCloudEventMessageAsync.mock.calls.map(([arg]) => arg.compression);
+            expect(compressions).toEqual([CompressionTypes.ZSTD, CompressionTypes.ZSTD]);
+        });
+    });
+
+    describe('executeBulkAsync — chunking', () => {
+        const makeEntries = (n) => Array.from({ length: n }, (_, i) => makeEntry({ id: `r${i}`, uuid: `u${i}` }));
+
+        test('defaults to chunks of 50 messages per produce call', async () => {
+            const result = await executor.executeBulkAsync({
+                resourceType: 'TestResource',
+                operations: makeEntries(120),
+                requestInfo: { requestId: 'req-chunk-1' },
+                base_version: '4_0_0'
+            });
+
+            const sizes = mockKafkaClientV2.sendCloudEventMessageAsync.mock.calls.map(([arg]) => arg.messages.length);
+            expect(sizes).toEqual([50, 50, 20]);
+            expect(result.mergeResultEntries.map((e) => e.id)).toEqual(makeEntries(120).map((e) => e.id));
+            expect(result.error).toBeNull();
+        });
+
+        test('falls back only the failing chunk and keeps the others on Kafka', async () => {
+            const mockFallbackExecutor = new BulkWriteExecutor();
+            mockFallbackExecutor.executeBulkAsync = jestGlobal.fn().mockImplementation(({ operations }) => ({
+                resourceType: 'TestResource',
+                mergeResult: null,
+                mergeResultEntries: operations.map((op) => ({ id: op.id, created: true, fromFallback: true })),
+                error: null
+            }));
+            mockKafkaClientV2.sendCloudEventMessageAsync
+                .mockResolvedValueOnce(undefined)
+                .mockRejectedValueOnce(new Error('MESSAGE_TOO_LARGE'))
+                .mockResolvedValueOnce(undefined);
+
+            const chunkedExecutor = new KafkaClickPipeBulkWriteExecutor({
+                kafkaClientV2: mockKafkaClientV2,
+                schemaRegistry: mockSchemaRegistry,
+                fallbackExecutor: mockFallbackExecutor,
+                maxRetries: 0,
+                initialRetryDelayMs: 0,
+                batchSize: 2
+            });
+
+            const result = await chunkedExecutor.executeBulkAsync({
+                resourceType: 'TestResource',
+                operations: makeEntries(5),
+                requestInfo: { requestId: 'req-chunk-2' },
+                base_version: '4_0_0'
+            });
+
+            expect(mockKafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(3);
+            expect(mockFallbackExecutor.executeBulkAsync).toHaveBeenCalledTimes(1);
+            expect(mockFallbackExecutor.executeBulkAsync.mock.calls[0][0].operations.map((o) => o.id)).toEqual(['r2', 'r3']);
+            expect(result.mergeResultEntries.map((e) => [e.id, !!e.fromFallback])).toEqual([
+                ['r0', false], ['r1', false], ['r2', true], ['r3', true], ['r4', false]
+            ]);
+            expect(result.error).toBeNull();
+        });
+
+        test('without fallback, returns the chunk error while still reporting other chunks as written', async () => {
+            mockKafkaClientV2.sendCloudEventMessageAsync
+                .mockRejectedValueOnce(new Error('Kafka unavailable'))
+                .mockResolvedValueOnce(undefined);
+
+            const chunkedExecutor = new KafkaClickPipeBulkWriteExecutor({
+                kafkaClientV2: mockKafkaClientV2,
+                schemaRegistry: mockSchemaRegistry,
+                maxRetries: 0,
+                initialRetryDelayMs: 0,
+                batchSize: 2
+            });
+
+            const result = await chunkedExecutor.executeBulkAsync({
+                resourceType: 'TestResource',
+                operations: makeEntries(3),
+                requestInfo: { requestId: 'req-chunk-3' },
+                base_version: '4_0_0'
+            });
+
+            expect(result.error).toBeInstanceOf(Error);
+            expect(result.mergeResultEntries.map((e) => !!e.issue)).toEqual([true, true, false]);
+        });
+    });
+
     describe('executeBulkAsync — no fallback', () => {
         test('returns error entries when produce fails and no fallback set', async () => {
             mockKafkaClientV2.sendCloudEventMessageAsync.mockRejectedValue(new Error('Kafka unavailable'));
@@ -244,6 +357,14 @@ describe('KafkaClickPipeBulkWriteExecutor', () => {
             expect(() => new KafkaClickPipeBulkWriteExecutor({
                 kafkaClientV2: mockKafkaClientV2,
                 schemaRegistry: null
+            })).toThrow();
+        });
+
+        test('throws when batchSize is not a positive integer', () => {
+            expect(() => new KafkaClickPipeBulkWriteExecutor({
+                kafkaClientV2: mockKafkaClientV2,
+                schemaRegistry: mockSchemaRegistry,
+                batchSize: 0
             })).toThrow();
         });
 

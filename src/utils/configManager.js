@@ -1351,6 +1351,26 @@ class ConfigManager {
     }
 
     /**
+     * Max AuditEvent messages per Kafka produce call on the ClickPipe path.
+     * Configuration: AUDIT_EVENT_CLICKPIPE_BATCH_SIZE (default 50)
+     * @return {number}
+     */
+    get auditEventClickPipeBatchSize() {
+        return env.AUDIT_EVENT_CLICKPIPE_BATCH_SIZE
+            ? parseInt(env.AUDIT_EVENT_CLICKPIPE_BATCH_SIZE)
+            : 50;
+    }
+
+    /**
+     * Kafka compression for AuditEvent messages on the ClickPipe path: none | gzip | zstd.
+     * Configuration: AUDIT_EVENT_CLICKPIPE_COMPRESSION (default zstd)
+     * @return {string}
+     */
+    get auditEventClickPipeCompression() {
+        return env.AUDIT_EVENT_CLICKPIPE_COMPRESSION || 'zstd';
+    }
+
+    /**
      * Maximum number of members allowed in Group.member for a PUT. Not used by the extended Group
      * checks, which use groupMemberPromotionLimit for both promotion and rejection.
      * @returns {number}

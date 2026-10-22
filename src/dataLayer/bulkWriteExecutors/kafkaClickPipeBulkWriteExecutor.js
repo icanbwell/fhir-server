@@ -8,6 +8,7 @@ const { BulkWriteExecutor } = require('./bulkWriteExecutor');
 const { WRITE_STRATEGIES } = require('../../constants/clickHouseConstants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { retryWithBackoff } = require('../../utils/retryWithBackoff');
+const { CompressionTypes } = require('kafkajs');
 
 /**
  * Executes bulk write operations by producing to Kafka (AWS MSK, V2 cluster) for
@@ -22,9 +23,11 @@ const { retryWithBackoff } = require('../../utils/retryWithBackoff');
  * The message body is the raw flat-row JSON (not a CloudEvent envelope) so
  * ClickPipes can map JSON keys directly to table columns.
  *
- * On Kafka failure the produce is retried with backoff, then the entire batch
- * is delegated to the fallbackExecutor (the existing MongoDB write path) —
- * mirroring how ClickHouseBulkWriteExecutor retries before falling back.
+ * Operations are produced in chunks of `batchSize` messages so a single large
+ * flush doesn't become one oversized Kafka request. On Kafka failure a chunk is
+ * retried with backoff, then that chunk alone is delegated to the
+ * fallbackExecutor (the existing MongoDB write path) — mirroring how
+ * ClickHouseBulkWriteExecutor retries before falling back.
  * Append-only: no history writes; change events controlled by
  * schema.fireChangeEvents.
  */
@@ -36,13 +39,17 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
      * @param {import('./bulkWriteExecutor').BulkWriteExecutor|null} [params.fallbackExecutor] - Executor to use if the Kafka produce fails
      * @param {number} [params.maxRetries=3] - Maximum retry attempts before fallback
      * @param {number} [params.initialRetryDelayMs=2000] - Initial delay in ms (doubles each retry)
+     * @param {number} [params.batchSize=50] - Maximum messages per Kafka produce call
+     * @param {number} [params.compression=CompressionTypes.None] - kafkajs CompressionTypes value
      */
     constructor ({
         kafkaClientV2,
         schemaRegistry,
         fallbackExecutor = null,
         maxRetries = 3,
-        initialRetryDelayMs = 2000
+        initialRetryDelayMs = 2000,
+        batchSize = 50,
+        compression = CompressionTypes.None
     }) {
         super();
         this.kafkaClientV2 = kafkaClientV2;
@@ -57,6 +64,9 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
         assertIsValid(maxRetries != null, 'maxRetries is required');
         this.initialRetryDelayMs = initialRetryDelayMs;
         assertIsValid(initialRetryDelayMs != null, 'initialRetryDelayMs is required');
+        this.batchSize = batchSize;
+        assertIsValid(Number.isInteger(batchSize) && batchSize > 0, 'batchSize must be a positive integer');
+        this.compression = compression;
     }
 
     /**
@@ -74,10 +84,9 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
     }
 
     /**
-     * Executes bulk write by producing one Kafka message per resource.
-     *
-     * All-or-nothing per batch: the produce is retried with backoff, and only once
-     * retries are exhausted is the whole batch handed to the fallback executor.
+     * Executes bulk write by producing one Kafka message per resource, in chunks
+     * of `batchSize`. Chunks are produced sequentially; results are concatenated
+     * and the first chunk error (if any) is returned.
      *
      * @param {Object} params
      * @param {string} params.resourceType
@@ -90,7 +99,45 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
      * @param {Function} params.insertOneHistoryFn - ignored (no history for append-only)
      * @returns {Promise<BulkResultEntry>}
      */
-    async executeBulkAsync ({
+    async executeBulkAsync (params) {
+        const { resourceType, operations } = params;
+        const mergeResultEntries = [];
+        let error = null;
+
+        for (let i = 0; i < operations.length; i += this.batchSize) {
+            const result = await this._executeChunkAsync({
+                ...params,
+                operations: operations.slice(i, i + this.batchSize)
+            });
+            mergeResultEntries.push(...result.mergeResultEntries);
+            error = error || result.error;
+        }
+
+        return {
+            resourceType,
+            mergeResult: null,
+            mergeResultEntries,
+            error
+        };
+    }
+
+    /**
+     * Produces one chunk. All-or-nothing per chunk: the produce is retried with
+     * backoff, and only once retries are exhausted is the chunk handed to the
+     * fallback executor.
+     *
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {BulkInsertUpdateEntry[]} params.operations
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {boolean|null} params.useHistoryCollection - ignored (no history for append-only)
+     * @param {boolean} params.maintainOrder - ignored
+     * @param {boolean} params.isAccessLogOperation - ignored
+     * @param {Function} params.insertOneHistoryFn - ignored (no history for append-only)
+     * @returns {Promise<BulkResultEntry>}
+     */
+    async _executeChunkAsync ({
         resourceType,
         operations,
         requestInfo,
@@ -123,7 +170,11 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
             });
 
             await retryWithBackoff({
-                fn: () => this.kafkaClientV2.sendCloudEventMessageAsync({ topic: schema.kafkaTopic, messages }),
+                fn: () => this.kafkaClientV2.sendCloudEventMessageAsync({
+                    topic: schema.kafkaTopic,
+                    messages,
+                    compression: this.compression
+                }),
                 maxRetries: this.maxRetries,
                 initialDelayMs: this.initialRetryDelayMs,
                 onRetry: ({ attempt, delay }) => {
