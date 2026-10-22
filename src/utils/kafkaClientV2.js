@@ -1,4 +1,11 @@
-const { Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
+const {
+    Kafka,
+    KafkaJSProtocolError,
+    KafkaJSNonRetriableError,
+    CompressionTypes,
+    CompressionCodecs
+} = require('kafkajs');
+const zstd = require('@mongodb-js/zstd');
 const { propagation, context: otelContext, trace } = require('@opentelemetry/api');
 const { assertIsValid, assertTypeEquals } = require('./assertType');
 const { logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync } = require('../operations/common/systemEventLogging');
@@ -24,6 +31,33 @@ const MAX_TRACKED_OFFSETS = 1000;
  */
 function isGroupMembershipError (error) {
     return GROUP_MEMBERSHIP_ERROR_TYPES.has(error?.type);
+}
+
+// kafkajs ships GZIP only; its ZSTD entry throws "not implemented". Reuse the
+// zstd binding already installed for MongoDB wire compression.
+CompressionCodecs[CompressionTypes.ZSTD] = () => ({
+    compress: (encoder) => zstd.compress(encoder.buffer, 3),
+    decompress: (buffer) => zstd.decompress(buffer)
+});
+
+const COMPRESSION_TYPES_BY_NAME = {
+    none: CompressionTypes.None,
+    gzip: CompressionTypes.GZIP,
+    zstd: CompressionTypes.ZSTD
+};
+
+/**
+ * @param {string} name one of none|gzip|zstd (case-insensitive)
+ * @returns {number} kafkajs CompressionTypes value
+ */
+function getKafkaCompressionType(name) {
+    const type = COMPRESSION_TYPES_BY_NAME[String(name).toLowerCase()];
+    if (type === undefined) {
+        throw new Error(
+            `Unsupported Kafka compression "${name}"; expected one of ${Object.keys(COMPRESSION_TYPES_BY_NAME).join(', ')}`
+        );
+    }
+    return type;
 }
 
 class KafkaClientV2 {
@@ -116,9 +150,10 @@ class KafkaClientV2 {
      * @param {Object} params
      * @param {string} params.topic
      * @param {import('kafkajs').Message[]} params.messages
+     * @param {number} [params.compression] kafkajs CompressionTypes value (default: none)
      * @return {Promise<void>}
      */
-    async sendCloudEventMessageAsync({ topic, messages }) {
+    async sendCloudEventMessageAsync({ topic, messages, compression }) {
         const maxRetries = parseInt(process.env.KAFKA_MAX_RETRY) || 3;
         let iteration = 1;
         let shouldRetry = false;
@@ -126,7 +161,7 @@ class KafkaClientV2 {
         let lastError = null;
         do {
             try {
-                await this.sendCloudEventMessageHelperAsync({ topic, messages });
+                await this.sendCloudEventMessageHelperAsync({ topic, messages, compression });
                 shouldRetry = false;
                 return;
             } catch (e) {
@@ -179,9 +214,10 @@ class KafkaClientV2 {
      * @param {Object} params
      * @param {string} params.topic
      * @param {import('kafkajs').Message[]} params.messages
+     * @param {number} [params.compression] kafkajs CompressionTypes value (default: none)
      * @return {Promise<void>}
      */
-    async sendCloudEventMessageHelperAsync({ topic, messages }) {
+    async sendCloudEventMessageHelperAsync({ topic, messages, compression }) {
         if (!this.producerConnected) {
             try {
                 await this.producer.connect();
@@ -213,7 +249,11 @@ class KafkaClientV2 {
                 propagation.inject(otelContext.active(), headers);
                 return { ...m, headers };
             });
-            const result = await this.producer.send({ topic, messages: messagesWithTraceContext });
+            const result = await this.producer.send({
+                topic,
+                messages: messagesWithTraceContext,
+                compression
+            });
             if (process.env.LOGLEVEL === 'DEBUG') {
                 await logTraceSystemEventAsync({
                     event: 'kafkaClientV2',
@@ -522,4 +562,4 @@ class KafkaClientV2 {
     }
 }
 
-module.exports = { KafkaClientV2 };
+module.exports = { KafkaClientV2, getKafkaCompressionType };

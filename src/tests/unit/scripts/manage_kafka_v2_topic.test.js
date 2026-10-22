@@ -26,6 +26,8 @@ function buildFakeAdmin (overrides = {}) {
         createTopics: jest.fn().mockResolvedValue(true),
         fetchTopicMetadata: jest.fn().mockResolvedValue({ topics: [] }),
         deleteTopics: jest.fn().mockResolvedValue(undefined),
+        describeConfigs: jest.fn().mockResolvedValue({ resources: [{ configEntries: [] }] }),
+        alterConfigs: jest.fn().mockResolvedValue(undefined),
         ...overrides
     };
 }
@@ -288,6 +290,24 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
                     ])
                 })]
             }));
+        });
+
+        test('routes to the max.message.bytes update when --update is set', async () => {
+            process.argv = [
+                'node', 'manage_kafka_v2_topic.js', '--topic', 'auditevents', '--update', '--max-message-bytes', '4194304'
+            ];
+            const fakeAdmin = buildFakeAdmin();
+            const { scriptModule } = loadScript(fakeAdmin);
+
+            await scriptModule.main();
+
+            expect(fakeAdmin.alterConfigs).toHaveBeenCalledWith(expect.objectContaining({
+                resources: [expect.objectContaining({
+                    name: 'fhir_server.auditevents',
+                    configEntries: [{ name: 'max.message.bytes', value: '4194304' }]
+                })]
+            }));
+            expect(fakeAdmin.createTopics).not.toHaveBeenCalled();
         });
 
         test('parameter sensitivity: --partitions overrides the default partition count', async () => {
