@@ -210,7 +210,7 @@ class CreateOperation {
         if (this.useFastSerializer && !validationOperationOutcome) {
             resource = FhirResourceWriteSerializer.serialize({ obj: resource_incoming });
             validationOperationOutcome = validateResource({
-                resourceBody: resource_incoming,
+                resourceBody: resource,
                 resourceName: resourceType,
                 path
             });
