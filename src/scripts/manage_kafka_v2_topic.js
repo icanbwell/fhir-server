@@ -25,7 +25,10 @@
  *   --describe     describe the topic's partition metadata instead of creating
  *   --delete       delete the topic instead of creating
  *   --update       update max.message.bytes on an existing topic, keeping its other overrides
- *   --partitions   number of partitions when creating (default: 30)
+ *   --grow         raise an existing topic's partition count to --partitions (required with
+ *                  --grow). Kafka cannot shrink a topic, so a lower target fails; an equal
+ *                  target is a no-op. Needs kafka-cluster:AlterTopic on the topic.
+ *   --partitions   number of partitions when creating (default: 30), or the target when growing
  *   --retention-ms retention period in ms when creating (default: 7 days)
  *   --max-message-bytes max.message.bytes when creating/updating (default: 2mb)
  *
@@ -34,6 +37,7 @@
  *   node src/scripts/manage_kafka_v2_topic.js --topic auditevents --describe
  *   node src/scripts/manage_kafka_v2_topic.js --topic auditevents --delete
  *   node src/scripts/manage_kafka_v2_topic.js --topic auditevents --update --max-message-bytes 4194304
+ *   node src/scripts/manage_kafka_v2_topic.js --topic bulk_import.events --grow --partitions 30
  */
 
 const { parseArgs } = require('node:util');
@@ -218,6 +222,67 @@ async function updateKafkaTopicMaxMessageBytes(configManager, topicName, maxMess
 }
 
 /**
+ * Raises an existing topic's partition count. Kafka cannot remove partitions, so a target below
+ * the current count is rejected, and an equal target is a no-op. Unlike describe/delete, a missing
+ * topic is an error here: growing something that does not exist should fail the run, not pass.
+ * Messages already in the topic stay on their partition; only new messages are keyed across the
+ * larger set, so grow while the consumer group has nothing in flight.
+ * @param {ConfigManager} configManager
+ * @param {string} topicName
+ * @param {number} targetPartitions
+ */
+async function growKafkaTopic(configManager, topicName, targetPartitions) {
+    const admin = await connectAdmin(configManager);
+    try {
+        const countPartitions = async () => {
+            const metadata = await admin.fetchTopicMetadata({ topics: [topicName] });
+            const topic = metadata.topics.find((t) => t.name === topicName);
+            return topic ? topic.partitions.length : 0;
+        };
+
+        const currentPartitions = await countPartitions();
+        if (currentPartitions === 0) {
+            throw new Error(`Topic ${topicName} has no partitions in metadata; refusing to grow`);
+        }
+        if (targetPartitions < currentPartitions) {
+            throw new Error(
+                `Cannot shrink ${topicName} from ${currentPartitions} to ${targetPartitions} partitions`
+            );
+        }
+        if (targetPartitions === currentPartitions) {
+            log.info('Topic already has the target partition count; nothing to do', {
+                topicName,
+                partitions: currentPartitions
+            });
+            return;
+        }
+
+        log.info('Growing Kafka topic', { topicName, currentPartitions, targetPartitions });
+        await admin.createPartitions({
+            timeout: 30_000, // 30 seconds
+            topicPartitions: [{ topic: topicName, count: targetPartitions }]
+        });
+
+        const resultingPartitions = await countPartitions();
+        if (resultingPartitions !== targetPartitions) {
+            throw new Error(
+                `Grew ${topicName} but metadata reports ${resultingPartitions} partitions, expected ${targetPartitions}`
+            );
+        }
+        log.info('Topic grown successfully', {
+            topicName,
+            previousPartitions: currentPartitions,
+            partitions: resultingPartitions
+        });
+    } catch (err) {
+        log.error('Failed to grow Kafka topic', { topicName, targetPartitions, error: err.message });
+        throw err;
+    } finally {
+        await admin.disconnect();
+    }
+}
+
+/**
  * @param {ConfigManager} configManager
  * @param {string} topicName
  */
@@ -282,6 +347,7 @@ async function main() {
             describe: { type: 'boolean', default: false },
             delete: { type: 'boolean', default: false },
             update: { type: 'boolean', default: false },
+            grow: { type: 'boolean', default: false },
             partitions: { type: 'string' },
             'retention-ms': { type: 'string' },
             'max-message-bytes': { type: 'string' }
@@ -290,7 +356,7 @@ async function main() {
 
     if (!values.topic) {
         log.error('--topic is required', {
-            usage: 'node src/scripts/manage_kafka_v2_topic.js --topic <name> [--describe | --delete | --update] [--partitions N] [--max-message-bytes N]'
+            usage: 'node src/scripts/manage_kafka_v2_topic.js --topic <name> [--describe | --delete | --update | --grow] [--partitions N] [--max-message-bytes N]'
         });
         process.exit(1);
     }
@@ -307,6 +373,13 @@ async function main() {
         1
     );
 
+    if (values.grow && values.partitions === undefined) {
+        log.error('--grow requires an explicit --partitions target', {
+            usage: 'node src/scripts/manage_kafka_v2_topic.js --topic <name> --grow --partitions N'
+        });
+        process.exit(1);
+    }
+
     const configManager = new ConfigManager();
     log.info('Script started', {
         brokers: configManager.kafkaV2Brokers,
@@ -314,7 +387,9 @@ async function main() {
         topicName
     });
 
-    if (values.delete) {
+    if (values.grow) {
+        await growKafkaTopic(configManager, topicName, numPartitions);
+    } else if (values.delete) {
         await deleteKafkaTopic(configManager, topicName);
     } else if (values.describe) {
         await describeKafkaTopic(configManager, topicName);
@@ -342,6 +417,7 @@ if (require.main === module) {
 module.exports = {
     createKafkaTopic,
     describeKafkaTopic,
+    growKafkaTopic,
     deleteKafkaTopic,
     updateKafkaTopicMaxMessageBytes,
     parseIntArg,
