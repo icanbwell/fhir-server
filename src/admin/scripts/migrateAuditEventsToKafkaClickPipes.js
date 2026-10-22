@@ -1,18 +1,20 @@
 #!/usr/bin/env node
 /**
  * Copy AuditEvent documents from MongoDB to ClickHouse via Kafka + ClickPipes,
- * oldest first, and delete each batch from MongoDB after the Kafka publish
- * succeeds.
+ * oldest first. Each Mongo batch is published in chunks of
+ * AUDIT_EVENT_CLICKPIPE_BATCH_SIZE messages with AUDIT_EVENT_CLICKPIPE_COMPRESSION
+ * (the same settings as the live write path), and each chunk is deleted from
+ * MongoDB right after its Kafka publish succeeds.
  *
  * The live MongoDB collection is itself the progress ledger — documents that
- * remain have not yet been copied. A crash between the Kafka publish and
- * the Mongo delete leaves at most one batch of duplicates in ClickHouse on
+ * remain have not yet been copied. A crash between a chunk's Kafka publish and
+ * its Mongo delete leaves at most one chunk of duplicates in ClickHouse on
  * re-run; this is accepted.
  *
- * A document that fails validation, or a batch whose Kafka publish exhausts
+ * A document that fails validation, or a chunk whose Kafka publish exhausts
  * its retries (e.g. an over-sized message), is logged with the offending
  * Mongo _id(s) and the error, then left in the source collection — the
- * migration does not abort and moves on to the next batch. These leftover
+ * migration does not abort and moves on to the next chunk. These leftover
  * documents are picked up again (and will likely fail again unless the
  * underlying cause is fixed) on the next run.
  *
@@ -36,6 +38,7 @@
 const { createContainer } = require('../../createContainer');
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
 const { KAFKA_TOPICS } = require('../../constants/clickHouseConstants');
+const { getKafkaCompressionType } = require('../../utils/kafkaClientV2');
 const { logInfo, logError, logWarn } = require('../../operations/common/logging');
 
 const USAGE = `
@@ -44,11 +47,14 @@ Usage: node src/admin/scripts/migrateAuditEventsToKafkaClickPipes.js [options]
 MongoDB and Kafka connections are read from the standard FHIR server
 environment (see src/config.js). Ensure ENABLE_EVENTS_KAFKA_V2=1, the
 appropriate KAFKA_V2_* variables, and the MONGO_*/AUDIT_EVENT_MONGO_*
-variables are set for the target environment.
+variables are set for the target environment. Kafka publish chunk size and
+compression come from AUDIT_EVENT_CLICKPIPE_BATCH_SIZE (default 50) and
+AUDIT_EVENT_CLICKPIPE_COMPRESSION (default zstd).
 
 Options:
   --collection <name>  Source collection (default: AuditEvent_4_0_0)
-  --batch-size <n>     Docs per Kafka publish + Mongo delete (default: 10000)
+  --batch-size <n>     Docs read from Mongo per batch (default: 1000); each
+                        batch is published and deleted in smaller chunks
   --start-from <date>  Only migrate AuditEvents with recorded >= this ISO
                         8601 date/time (default: migrate all, oldest first)
   --help, -h           Show this help
@@ -99,7 +105,7 @@ function parseArgs() {
     const args = process.argv.slice(2);
     const options = {
         collection: 'AuditEvent_4_0_0',
-        batchSize: 10000,
+        batchSize: 1000,
         startFrom: undefined
     };
 
@@ -155,15 +161,16 @@ function isKafkaPublishEnabled(configManager) {
  * @param {import('../../utils/kafkaClientV2').KafkaClientV2} kafkaClientV2
  * @param {string} topic
  * @param {Object[]} messages
+ * @param {number} [compression] kafkajs CompressionTypes value (default: none)
  * @returns {Promise<void>}
  */
-async function publishWithRetryAsync(kafkaClientV2, topic, messages) {
+async function publishWithRetryAsync(kafkaClientV2, topic, messages, compression) {
     const maxAttempts = 3;
     let delay = 2000;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         try {
-            await kafkaClientV2.sendCloudEventMessageAsync({ topic, messages });
+            await kafkaClientV2.sendCloudEventMessageAsync({ topic, messages, compression });
             return;
         } catch (error) {
             if (attempt === maxAttempts) {
@@ -202,11 +209,12 @@ function assertValidRow(row) {
 }
 
 /**
- * Transform docs, publish the valid rows to Kafka, then delete from Mongo
- * only the docs that were actually published. A doc that fails validation
- * (missing `_uuid` or `recorded`) is logged and excluded before publishing;
- * if the batch's Kafka publish exhausts its retries, none of the batch's
- * docs are deleted. Either way the affected doc(s) are logged with their
+ * Transform docs, then publish the valid rows to Kafka in chunks of
+ * `publishBatchSize`, deleting each chunk from Mongo once its publish
+ * succeeds. A doc that fails validation (missing `_uuid` or `recorded`) is
+ * logged and excluded before publishing; if a chunk's Kafka publish exhausts
+ * its retries, none of that chunk's docs are deleted (other chunks are
+ * unaffected). Either way the affected doc(s) are logged with their
  * Mongo _id and the error, and are simply left in Mongo — this function
  * never throws for these cases, so a bad batch does not abort the run.
  *
@@ -217,9 +225,20 @@ function assertValidRow(row) {
  * @param {string} params.topic
  * @param {AuditEventTransformer} params.transformer
  * @param {number} params.batchNo
+ * @param {number} [params.publishBatchSize=50] max messages per Kafka publish
+ * @param {number} [params.compression] kafkajs CompressionTypes value (default: none)
  * @returns {Promise<{inserted: number, deleted: number, failed: number}>}
  */
-async function processBatchAsync({ docs, collection, kafkaClientV2, topic, transformer, batchNo }) {
+async function processBatchAsync({
+    docs,
+    collection,
+    kafkaClientV2,
+    topic,
+    transformer,
+    batchNo,
+    publishBatchSize = 50,
+    compression
+}) {
     let failedCount = 0;
     const publishable = [];
     // Transform docs one at a time (rather than transformer.transformBatch, which
@@ -248,33 +267,32 @@ async function processBatchAsync({ docs, collection, kafkaClientV2, topic, trans
         }
     });
 
-    let deletableIds = publishable.map((p) => p.id);
     let publishedCount = 0;
+    let deletedCount = 0;
 
-    if (publishable.length > 0) {
+    for (let i = 0; i < publishable.length; i += publishBatchSize) {
+        const chunk = publishable.slice(i, i + publishBatchSize);
+        const chunkIds = chunk.map((p) => p.id);
         try {
-            await publishWithRetryAsync(kafkaClientV2, topic, publishable.map((p) => p.message));
-            publishedCount = publishable.length;
+            await publishWithRetryAsync(kafkaClientV2, topic, chunk.map((p) => p.message), compression);
         } catch (error) {
-            failedCount += publishable.length;
-            logError('Kafka publish failed for batch after retries; leaving AuditEvents in Mongo, not migrated', {
+            failedCount += chunk.length;
+            logError('Kafka publish failed for chunk after retries; leaving AuditEvents in Mongo, not migrated', {
                 batchNo,
-                batchSize: publishable.length,
-                auditEventIds: deletableIds,
+                chunkSize: chunk.length,
+                auditEventIds: chunkIds,
                 error: error.message
             });
-            deletableIds = [];
+            continue;
         }
-    }
+        publishedCount += chunk.length;
 
-    let deletedCount = 0;
-    if (deletableIds.length > 0) {
-        const deleteResult = await collection.deleteMany({ _id: { $in: deletableIds } });
-        deletedCount = deleteResult.deletedCount;
-        if (deletedCount !== deletableIds.length) {
+        const deleteResult = await collection.deleteMany({ _id: { $in: chunkIds } });
+        deletedCount += deleteResult.deletedCount;
+        if (deleteResult.deletedCount !== chunkIds.length) {
             logWarn('Source deleteMany returned fewer deletions than requested', {
-                requested: deletableIds.length,
-                deleted: deletedCount
+                requested: chunkIds.length,
+                deleted: deleteResult.deletedCount
             });
         }
     }
@@ -288,14 +306,19 @@ async function processBatchAsync({ docs, collection, kafkaClientV2, topic, trans
  */
 async function main() {
     const options = parseArgs();
+    const container = createContainer();
+    const publishBatchSize = container.configManager.auditEventClickPipeBatchSize;
+    const compressionName = container.configManager.auditEventClickPipeCompression;
+    const compression = getKafkaCompressionType(compressionName);
 
     logInfo('AuditEvent Migration: MongoDB -> Kafka/ClickPipes', {
         collection: options.collection,
         batchSize: options.batchSize,
+        publishBatchSize,
+        compression: compressionName,
         startFrom: options.startFrom ? options.startFrom.toISOString() : undefined
     });
 
-    const container = createContainer();
     const mongoDatabaseManager = container.mongoDatabaseManager;
     const kafkaClientV2 = container.kafkaClientV2;
     const transformer = new AuditEventTransformer();
@@ -352,7 +375,9 @@ async function main() {
                     kafkaClientV2,
                     topic,
                     transformer,
-                    batchNo
+                    batchNo,
+                    publishBatchSize,
+                    compression
                 });
                 totalInserted += result.inserted;
                 totalDeleted += result.deleted;

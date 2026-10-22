@@ -14,7 +14,7 @@
  *   KAFKA_V2_AUTH_TYPE       'iam' for MSK IAM, plus KAFKA_V2_AWS_REGION
  *
  * Usage:
- *   node src/scripts/manage_kafka_v2_topic.js --topic <name> [--describe | --delete]
+ *   node src/scripts/manage_kafka_v2_topic.js --topic <name> [--describe | --delete | --update]
  *
  * All topics are namespaced under the `fhir_server.` prefix. You may pass the
  * short name (`auditevents`) or the fully-qualified name
@@ -24,16 +24,20 @@
  *   --topic       (required) topic name to manage (prefixed with fhir_server.)
  *   --describe     describe the topic's partition metadata instead of creating
  *   --delete       delete the topic instead of creating
+ *   --update       update max.message.bytes on an existing topic, keeping its other overrides
  *   --partitions   number of partitions when creating (default: 30)
  *   --retention-ms retention period in ms when creating (default: 7 days)
+ *   --max-message-bytes max.message.bytes when creating/updating (default: 2mb)
  *
  * Examples:
  *   node src/scripts/manage_kafka_v2_topic.js --topic auditevents            # fhir_server.auditevents
  *   node src/scripts/manage_kafka_v2_topic.js --topic auditevents --describe
  *   node src/scripts/manage_kafka_v2_topic.js --topic auditevents --delete
+ *   node src/scripts/manage_kafka_v2_topic.js --topic auditevents --update --max-message-bytes 4194304
  */
 
 const { parseArgs } = require('node:util');
+const { ConfigResourceTypes, ConfigSource } = require('kafkajs');
 
 const { KafkaClientV2 } = require('../utils/kafkaClientV2');
 const { ConfigManager } = require('../utils/configManager');
@@ -112,10 +116,16 @@ async function connectAdmin(configManager) {
  * @param {number} numPartitions
  * @param {number} retentionMs
  */
-async function createKafkaTopic(configManager, topicName, numPartitions, retentionMs) {
+async function createKafkaTopic(
+    configManager,
+    topicName,
+    numPartitions,
+    retentionMs,
+    maxMessageBytes = KAFKA_MAX_MESSAGE_BYTES
+) {
     const admin = await connectAdmin(configManager);
     try {
-        log.info('Creating Kafka topic', { topicName, numPartitions, retentionMs });
+        log.info('Creating Kafka topic', { topicName, numPartitions, retentionMs, maxMessageBytes });
         const created = await admin.createTopics({
             waitForLeaders: true,
             timeout: 30_000, // 30 seconds
@@ -125,7 +135,7 @@ async function createKafkaTopic(configManager, topicName, numPartitions, retenti
                     numPartitions,
                     configEntries: [
                         { name: 'retention.ms', value: retentionMs.toString() },
-                        { name: 'max.message.bytes', value: KAFKA_MAX_MESSAGE_BYTES.toString() }
+                        { name: 'max.message.bytes', value: maxMessageBytes.toString() }
                     ]
                 }
             ]
@@ -145,6 +155,62 @@ async function createKafkaTopic(configManager, topicName, numPartitions, retenti
             retentionMs,
             error: err.message
         });
+        throw err;
+    } finally {
+        await admin.disconnect();
+    }
+}
+
+/**
+ * kafkajs only supports the non-incremental AlterConfigs API, which replaces the
+ * topic's full set of overrides — any override not sent (e.g. retention.ms) is
+ * reset to the broker default. So read the current topic-level overrides first
+ * and resend them alongside the new max.message.bytes. Broker defaults are not
+ * resent, so they are not pinned onto the topic.
+ * @param {ConfigManager} configManager
+ * @param {string} topicName
+ * @param {number} maxMessageBytes
+ */
+async function updateKafkaTopicMaxMessageBytes(configManager, topicName, maxMessageBytes) {
+    const admin = await connectAdmin(configManager);
+    try {
+        const { resources } = await admin.describeConfigs({
+            resources: [{ type: ConfigResourceTypes.TOPIC, name: topicName }],
+            includeSynonyms: false
+        });
+        const overrides = resources[0].configEntries.filter(
+            (e) => e.configSource === ConfigSource.TOPIC_CONFIG
+        );
+        const sensitive = overrides.find((e) => e.isSensitive);
+        if (sensitive) {
+            // Sensitive values come back null, so they can't be resent and would be wiped.
+            throw new Error(
+                `Topic ${topicName} has sensitive override ${sensitive.configName}; refusing to alter`
+            );
+        }
+        const previous = overrides.find((e) => e.configName === 'max.message.bytes');
+        const configEntries = overrides
+            .filter((e) => e.configName !== 'max.message.bytes')
+            .map((e) => ({ name: e.configName, value: e.configValue }));
+        configEntries.push({ name: 'max.message.bytes', value: maxMessageBytes.toString() });
+
+        log.info('Updating Kafka topic config', {
+            topicName,
+            previousMaxMessageBytes: previous ? previous.configValue : '(broker default)',
+            maxMessageBytes,
+            configEntries
+        });
+        await admin.alterConfigs({
+            validateOnly: false,
+            resources: [{ type: ConfigResourceTypes.TOPIC, name: topicName, configEntries }]
+        });
+        log.info('Topic config updated successfully', { topicName });
+    } catch (err) {
+        if (err && err.type === 'UNKNOWN_TOPIC_OR_PARTITION') {
+            log.warn('Topic does not exist', { topicName });
+            return;
+        }
+        log.error('Failed to update Kafka topic config', { topicName, error: err.message });
         throw err;
     } finally {
         await admin.disconnect();
@@ -215,14 +281,16 @@ async function main() {
             topic: { type: 'string' },
             describe: { type: 'boolean', default: false },
             delete: { type: 'boolean', default: false },
+            update: { type: 'boolean', default: false },
             partitions: { type: 'string' },
-            'retention-ms': { type: 'string' }
+            'retention-ms': { type: 'string' },
+            'max-message-bytes': { type: 'string' }
         }
     });
 
     if (!values.topic) {
         log.error('--topic is required', {
-            usage: 'node src/scripts/manage_kafka_v2_topic.js --topic <name> [--describe | --delete] [--partitions N]'
+            usage: 'node src/scripts/manage_kafka_v2_topic.js --topic <name> [--describe | --delete | --update] [--partitions N] [--max-message-bytes N]'
         });
         process.exit(1);
     }
@@ -232,6 +300,12 @@ async function main() {
     // so it has no minimum beyond being an integer.
     const numPartitions = parseIntArg(values.partitions, KAFKA_PARTITION_COUNT, 'partitions', 1);
     const retentionMs = parseIntArg(values['retention-ms'], KAFKA_RETENTION_MS, 'retention-ms', -1);
+    const maxMessageBytes = parseIntArg(
+        values['max-message-bytes'],
+        KAFKA_MAX_MESSAGE_BYTES,
+        'max-message-bytes',
+        1
+    );
 
     const configManager = new ConfigManager();
     log.info('Script started', {
@@ -244,8 +318,10 @@ async function main() {
         await deleteKafkaTopic(configManager, topicName);
     } else if (values.describe) {
         await describeKafkaTopic(configManager, topicName);
+    } else if (values.update) {
+        await updateKafkaTopicMaxMessageBytes(configManager, topicName, maxMessageBytes);
     } else {
-        await createKafkaTopic(configManager, topicName, numPartitions, retentionMs);
+        await createKafkaTopic(configManager, topicName, numPartitions, retentionMs, maxMessageBytes);
     }
 }
 
@@ -267,6 +343,7 @@ module.exports = {
     createKafkaTopic,
     describeKafkaTopic,
     deleteKafkaTopic,
+    updateKafkaTopicMaxMessageBytes,
     parseIntArg,
     applyTopicPrefix,
     main,

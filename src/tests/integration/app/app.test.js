@@ -26,9 +26,12 @@ const mockKafka = jest.fn(() => mockProducer);
 // Mocking kafkajs library
 jest.mock('kafkajs', () => {
     // Mock the Kafka class
+    const { CompressionTypes, CompressionCodecs } = jest.requireActual('kafkajs');
     return {
         __esmodule: true,
-        Kafka: mockKafka
+        Kafka: mockKafka,
+        CompressionTypes,
+        CompressionCodecs
     };
 });
 
