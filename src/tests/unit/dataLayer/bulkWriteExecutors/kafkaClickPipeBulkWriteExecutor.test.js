@@ -4,7 +4,16 @@ const { describe, test, beforeEach, expect, jest: jestGlobal } = require('@jest/
 const { KafkaClickPipeBulkWriteExecutor } = require('../../../../dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
 const { BulkWriteExecutor } = require('../../../../dataLayer/bulkWriteExecutors/bulkWriteExecutor');
 const { WRITE_STRATEGIES } = require('../../../../constants/clickHouseConstants');
-const { CompressionTypes } = require('kafkajs');
+const { CompressionTypes, KafkaJSNonRetriableError, KafkaJSConnectionError } = require('kafkajs');
+const { createErrorFromCode } = require('kafkajs/src/protocol/error');
+
+// What kafkajs actually throws for a broker rejection: the protocol error (with
+// `type`) wrapped in KafkaJSNonRetriableError as `cause`.
+const MESSAGE_TOO_LARGE_CODE = 10;
+const messageTooLargeError = () => {
+    const protocolError = createErrorFromCode(MESSAGE_TOO_LARGE_CODE);
+    return new KafkaJSNonRetriableError(protocolError, { cause: protocolError });
+};
 
 describe('KafkaClickPipeBulkWriteExecutor', () => {
     let executor;
@@ -252,7 +261,7 @@ describe('KafkaClickPipeBulkWriteExecutor', () => {
             expect(result.error).toBeNull();
         });
 
-        test('falls back only the failing chunk and keeps the others on Kafka', async () => {
+        test('falls back only the chunk rejected with MESSAGE_TOO_LARGE and keeps the others on Kafka', async () => {
             const mockFallbackExecutor = new BulkWriteExecutor();
             mockFallbackExecutor.executeBulkAsync = jestGlobal.fn().mockImplementation(({ operations }) => ({
                 resourceType: 'TestResource',
@@ -262,14 +271,15 @@ describe('KafkaClickPipeBulkWriteExecutor', () => {
             }));
             mockKafkaClientV2.sendCloudEventMessageAsync
                 .mockResolvedValueOnce(undefined)
-                .mockRejectedValueOnce(new Error('MESSAGE_TOO_LARGE'))
+                .mockRejectedValueOnce(messageTooLargeError())
                 .mockResolvedValueOnce(undefined);
 
+            // maxRetries > 0: a chunk-specific rejection must not be retried
             const chunkedExecutor = new KafkaClickPipeBulkWriteExecutor({
                 kafkaClientV2: mockKafkaClientV2,
                 schemaRegistry: mockSchemaRegistry,
                 fallbackExecutor: mockFallbackExecutor,
-                maxRetries: 0,
+                maxRetries: 3,
                 initialRetryDelayMs: 0,
                 batchSize: 2
             });
@@ -290,7 +300,77 @@ describe('KafkaClickPipeBulkWriteExecutor', () => {
             expect(result.error).toBeNull();
         });
 
-        test('without fallback, returns the chunk error while still reporting other chunks as written', async () => {
+        test('once Kafka is unavailable, remaining chunks go straight to the fallback without being produced', async () => {
+            const mockFallbackExecutor = new BulkWriteExecutor();
+            mockFallbackExecutor.executeBulkAsync = jestGlobal.fn().mockImplementation(({ operations }) => ({
+                resourceType: 'TestResource',
+                mergeResult: null,
+                mergeResultEntries: operations.map((op) => ({ id: op.id, created: true, fromFallback: true })),
+                error: null
+            }));
+            mockKafkaClientV2.sendCloudEventMessageAsync.mockRejectedValue(
+                new KafkaJSConnectionError('Connection timeout')
+            );
+
+            const chunkedExecutor = new KafkaClickPipeBulkWriteExecutor({
+                kafkaClientV2: mockKafkaClientV2,
+                schemaRegistry: mockSchemaRegistry,
+                fallbackExecutor: mockFallbackExecutor,
+                maxRetries: 2,
+                initialRetryDelayMs: 0,
+                batchSize: 2
+            });
+
+            const result = await chunkedExecutor.executeBulkAsync({
+                resourceType: 'TestResource',
+                operations: makeEntries(5),
+                requestInfo: { requestId: 'req-chunk-unavailable' },
+                base_version: '4_0_0'
+            });
+
+            // one retry cycle (initial + 2 retries) for the first chunk only
+            expect(mockKafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(3);
+            expect(mockFallbackExecutor.executeBulkAsync.mock.calls.map(([arg]) => arg.operations.map((o) => o.id))).toEqual([
+                ['r0', 'r1'], ['r2', 'r3'], ['r4']
+            ]);
+            expect(result.mergeResultEntries.every((e) => e.fromFallback)).toBe(true);
+            expect(result.error).toBeNull();
+        });
+
+        test('an extraction failure falls back that chunk only and keeps producing the rest', async () => {
+            const mockFallbackExecutor = new BulkWriteExecutor();
+            mockFallbackExecutor.executeBulkAsync = jestGlobal.fn().mockImplementation(({ operations }) => ({
+                resourceType: 'TestResource',
+                mergeResult: null,
+                mergeResultEntries: operations.map((op) => ({ id: op.id, created: true, fromFallback: true })),
+                error: null
+            }));
+            testSchema.fieldExtractor = {
+                extract: (r) => {
+                    if (r.id === 'r0') throw new Error('recorded is required');
+                    return { _uuid: r.id };
+                }
+            };
+
+            const chunkedExecutor = new KafkaClickPipeBulkWriteExecutor({
+                kafkaClientV2: mockKafkaClientV2,
+                schemaRegistry: mockSchemaRegistry,
+                fallbackExecutor: mockFallbackExecutor,
+                batchSize: 1
+            });
+
+            await chunkedExecutor.executeBulkAsync({
+                resourceType: 'TestResource',
+                operations: makeEntries(3),
+                requestInfo: { requestId: 'req-chunk-extract' },
+                base_version: '4_0_0'
+            });
+
+            expect(mockFallbackExecutor.executeBulkAsync.mock.calls.map(([arg]) => arg.operations[0].id)).toEqual(['r0']);
+            expect(mockKafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(2);
+        });
+
+        test('without fallback, Kafka unavailable marks every remaining chunk failed without producing it', async () => {
             mockKafkaClientV2.sendCloudEventMessageAsync
                 .mockRejectedValueOnce(new Error('Kafka unavailable'))
                 .mockResolvedValueOnce(undefined);
@@ -310,8 +390,9 @@ describe('KafkaClickPipeBulkWriteExecutor', () => {
                 base_version: '4_0_0'
             });
 
+            expect(mockKafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(1);
             expect(result.error).toBeInstanceOf(Error);
-            expect(result.mergeResultEntries.map((e) => !!e.issue)).toEqual([true, true, false]);
+            expect(result.mergeResultEntries.map((e) => !!e.issue)).toEqual([true, true, true]);
         });
     });
 
