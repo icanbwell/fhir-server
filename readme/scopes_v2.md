@@ -188,8 +188,9 @@ segment (`admin/*`, `admin/Patient`) is ignored, so `admin/*.s` and `admin/Patie
 The letters of all the caller's `admin/` scopes are combined. v1 `admin/*.read` grants `r` and `s`,
 `admin/*.write` grants `c`, `u` and `d`, and `admin/*.*` grants all five, so v1 tokens keep working
 unchanged. v2 letters on `admin/` scopes are read only when `ENABLE_SMART_V2_CRUDS_SCOPES` is set.
-A route with no letter in the caller's scopes returns 403 with
-`failed access check to [admin/*.<letter>]`.
+A route with no letter in the caller's scopes returns 403 with the generic message
+`user does not have access to this admin route`. The caller's scopes and the letter the route asked
+for are logged on the server, not returned.
 
 | Route | Letter | Minimum v2 `admin/` scope | Minimum v1 `admin/` scope |
 |---|---|---|---|
