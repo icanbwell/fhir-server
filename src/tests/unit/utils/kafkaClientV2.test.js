@@ -51,7 +51,9 @@ jestObj.mock('kafkajs', () => {
             config: { clientId: 'test-client' }
         })),
         KafkaJSProtocolError,
-        KafkaJSNonRetriableError
+        KafkaJSNonRetriableError,
+        CompressionTypes: jestObj.requireActual('kafkajs').CompressionTypes,
+        CompressionCodecs: jestObj.requireActual('kafkajs').CompressionCodecs
     };
 });
 
@@ -380,6 +382,19 @@ describe('KafkaClientV2', () => {
                 topic,
                 messages: messages.map((m) => ({ ...m, headers: {} }))
             });
+        });
+
+        test('passes the compression type through to producer.send', async () => {
+            kafkaClient.producerConnected = true;
+            const { CompressionTypes } = jestObj.requireActual('kafkajs');
+            await kafkaClient.sendCloudEventMessageHelperAsync({
+                topic,
+                messages,
+                compression: CompressionTypes.ZSTD
+            });
+            expect(mockProducerSend).toHaveBeenCalledWith(
+                expect.objectContaining({ compression: CompressionTypes.ZSTD })
+            );
         });
 
         test('throws RethrownError when producer connect fails', async () => {
@@ -1210,6 +1225,34 @@ describe('KafkaClientV2', () => {
             kafkaClient.producerConnected = true;
             await kafkaClient.sendCloudEventMessageHelperAsync({ topic: 'topic', messages: [] });
             expect(mockProducerSend).toHaveBeenCalledWith({ topic: 'topic', messages: [] });
+        });
+    });
+
+    describe('zstd compression codec', () => {
+        const { CompressionTypes, CompressionCodecs } = jestObj.requireActual('kafkajs');
+
+        test('replaces kafkajs\'s "not implemented" ZSTD codec with a working round-trip', async () => {
+            const codec = CompressionCodecs[CompressionTypes.ZSTD]();
+            const payload = Buffer.from(JSON.stringify({ resourceType: 'AuditEvent', id: 'a'.repeat(1000) }));
+
+            const compressed = await codec.compress({ buffer: payload });
+            expect(compressed.length).toBeLessThan(payload.length);
+            expect((await codec.decompress(compressed)).equals(payload)).toBe(true);
+        });
+    });
+
+    describe('getKafkaCompressionType', () => {
+        const { CompressionTypes } = jestObj.requireActual('kafkajs');
+        const { getKafkaCompressionType } = require('../../../utils/kafkaClientV2');
+
+        test('maps none/gzip/zstd case-insensitively', () => {
+            expect(getKafkaCompressionType('none')).toBe(CompressionTypes.None);
+            expect(getKafkaCompressionType('GZIP')).toBe(CompressionTypes.GZIP);
+            expect(getKafkaCompressionType('zstd')).toBe(CompressionTypes.ZSTD);
+        });
+
+        test('throws on an unsupported compression name', () => {
+            expect(() => getKafkaCompressionType('snappy')).toThrow('Unsupported Kafka compression "snappy"');
         });
     });
 });

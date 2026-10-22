@@ -52,6 +52,9 @@ const flushBuffer = async (fnGetContainer) => {
 async function createServer (fnGetContainer) {
     const container = fnGetContainer();
     await container.mongoDatabaseManager.connectAsync();
+    // Resolve eagerly so an invalid ClickPipe config (e.g. AUDIT_EVENT_CLICKPIPE_COMPRESSION
+    // typo) fails startup instead of the first write.
+    container.kafkaClickPipeBulkWriteExecutor;
 
     const app = createApp({ fnGetContainer });
 

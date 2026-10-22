@@ -7,11 +7,13 @@ const { describe, test, beforeEach, expect, jest } = require('@jest/globals');
 
 jest.mock('../../../utils/kafkaClientV2');
 
+const { ConfigResourceTypes, ConfigSource } = require('kafkajs');
 const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
 const {
     createKafkaTopic,
     describeKafkaTopic,
     deleteKafkaTopic,
+    updateKafkaTopicMaxMessageBytes,
     parseIntArg,
     applyTopicPrefix,
     TOPIC_PREFIX,
@@ -39,6 +41,8 @@ function mockAdmin(overrides = {}) {
         createTopics: jest.fn().mockResolvedValue(true),
         deleteTopics: jest.fn().mockResolvedValue(undefined),
         fetchTopicMetadata: jest.fn().mockResolvedValue({ topics: [] }),
+        describeConfigs: jest.fn().mockResolvedValue({ resources: [{ configEntries: [] }] }),
+        alterConfigs: jest.fn().mockResolvedValue(undefined),
         ...overrides
     };
     KafkaClientV2.mockImplementation(() => ({
@@ -171,6 +175,103 @@ describe('manage_kafka_v2_topic script', () => {
             });
 
             await expect(deleteKafkaTopic(fakeConfigManager, 'my.topic')).rejects.toThrow('broker down');
+            expect(admin.disconnect).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('updateKafkaTopicMaxMessageBytes', () => {
+        const entry = (configName, configValue, configSource, isSensitive = false) => ({
+            configName,
+            configValue,
+            configSource,
+            isSensitive
+        });
+
+        test('sets max.message.bytes while resending existing topic overrides and skipping broker defaults', async () => {
+            const admin = mockAdmin({
+                describeConfigs: jest.fn().mockResolvedValue({
+                    resources: [
+                        {
+                            configEntries: [
+                                entry('retention.ms', '604800000', ConfigSource.TOPIC_CONFIG),
+                                entry('max.message.bytes', '2097152', ConfigSource.TOPIC_CONFIG),
+                                entry('cleanup.policy', 'delete', ConfigSource.DEFAULT_CONFIG),
+                                entry('segment.bytes', '1073741824', ConfigSource.STATIC_BROKER_CONFIG)
+                            ]
+                        }
+                    ]
+                })
+            });
+
+            await updateKafkaTopicMaxMessageBytes(fakeConfigManager, 'my.topic', 4194304);
+
+            expect(admin.describeConfigs).toHaveBeenCalledWith({
+                resources: [{ type: ConfigResourceTypes.TOPIC, name: 'my.topic' }],
+                includeSynonyms: false
+            });
+            expect(admin.alterConfigs).toHaveBeenCalledWith({
+                validateOnly: false,
+                resources: [
+                    {
+                        type: ConfigResourceTypes.TOPIC,
+                        name: 'my.topic',
+                        configEntries: [
+                            { name: 'retention.ms', value: '604800000' },
+                            { name: 'max.message.bytes', value: '4194304' }
+                        ]
+                    }
+                ]
+            });
+            expect(admin.disconnect).toHaveBeenCalledTimes(1);
+        });
+
+        test('adds max.message.bytes when the topic had no override for it', async () => {
+            const admin = mockAdmin({
+                describeConfigs: jest.fn().mockResolvedValue({
+                    resources: [
+                        { configEntries: [entry('max.message.bytes', '1048588', ConfigSource.DEFAULT_CONFIG)] }
+                    ]
+                })
+            });
+
+            await updateKafkaTopicMaxMessageBytes(fakeConfigManager, 'my.topic', 4194304);
+
+            expect(admin.alterConfigs.mock.calls[0][0].resources[0].configEntries).toEqual([
+                { name: 'max.message.bytes', value: '4194304' }
+            ]);
+        });
+
+        test('refuses to alter when a sensitive override exists (its value cannot be resent)', async () => {
+            const admin = mockAdmin({
+                describeConfigs: jest.fn().mockResolvedValue({
+                    resources: [{ configEntries: [entry('some.secret', null, ConfigSource.TOPIC_CONFIG, true)] }]
+                })
+            });
+
+            await expect(
+                updateKafkaTopicMaxMessageBytes(fakeConfigManager, 'my.topic', 4194304)
+            ).rejects.toThrow('sensitive override some.secret');
+            expect(admin.alterConfigs).not.toHaveBeenCalled();
+            expect(admin.disconnect).toHaveBeenCalledTimes(1);
+        });
+
+        test('returns gracefully when the topic does not exist', async () => {
+            const err = Object.assign(new Error('nope'), { type: 'UNKNOWN_TOPIC_OR_PARTITION' });
+            const admin = mockAdmin({ describeConfigs: jest.fn().mockRejectedValue(err) });
+
+            await expect(
+                updateKafkaTopicMaxMessageBytes(fakeConfigManager, 'missing.topic', 4194304)
+            ).resolves.toBeUndefined();
+            expect(admin.alterConfigs).not.toHaveBeenCalled();
+            expect(admin.disconnect).toHaveBeenCalledTimes(1);
+        });
+
+        test('disconnects and rethrows when alterConfigs fails', async () => {
+            const admin = mockAdmin({ alterConfigs: jest.fn().mockRejectedValue(new Error('broker down')) });
+
+            await expect(
+                updateKafkaTopicMaxMessageBytes(fakeConfigManager, 'my.topic', 4194304)
+            ).rejects.toThrow('broker down');
             expect(admin.disconnect).toHaveBeenCalledTimes(1);
         });
     });
