@@ -9,6 +9,7 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ResourceMerger } = require('../common/resourceMerger');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
@@ -30,6 +31,10 @@ const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
 const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
+const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
+const deepcopy = require('deepcopy');
+const { validateResource } = require('../../utils/validator.util');
+const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
 
 /**
  * Update Operation
@@ -62,6 +67,7 @@ class UpdateOperation {
             scopesValidator,
             resourceValidator,
             databaseBulkInserter,
+            fastDatabaseBulkInserter,
             resourceMerger,
             configManager,
             databaseAttachmentManager,
@@ -102,11 +108,21 @@ class UpdateOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
-        /**
-         * @type {DatabaseBulkInserter}
-         */
-        this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        this.useFastSerializer = configManager.enableUpdateFastSerializer;
+
+        if (this.useFastSerializer) {
+            /**
+             * @type {FastDatabaseBulkInserter}
+             */
+            this.databaseBulkInserter = fastDatabaseBulkInserter;
+            assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
+        } else {
+            /**
+             * @type {DatabaseBulkInserter}
+             */
+            this.databaseBulkInserter = databaseBulkInserter;
+            assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        }
 
         /**
          * @type {ResourceMerger}
@@ -239,7 +255,9 @@ class UpdateOperation {
         /**
          * @type {Resource}
          */
-        const resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
+        let resource_incoming = this.useFastSerializer
+            ? resource_incoming_json
+            : FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
         try {
             /**
@@ -282,7 +300,9 @@ class UpdateOperation {
             /**
              * @type {[Resource] | null}
              */
-            const resources = await cursor.toObjectArrayAsync();
+            const resources = this.useFastSerializer
+                ? (await cursor.toArrayAsync()).map((r) => FhirResourceWriteSerializer.serialize({ obj: r }))
+                : await cursor.toObjectArrayAsync();
 
             if (resources.length > 1) {
                 const sourceAssigningAuthorities = resources.flatMap(
@@ -306,7 +326,7 @@ class UpdateOperation {
             /**
              * @type {OperationOutcome|null}
              */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+            let validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
                 base_version,
                 requestInfo,
                 id: resource_incoming_json.id,
@@ -316,6 +336,17 @@ class UpdateOperation {
                 resourceObj: resource_incoming,
                 currentResource: data
             });
+            if (this.useFastSerializer && !validationOperationOutcome) {
+                resource_incoming = FhirResourceWriteSerializer.serialize({ obj: resource_incoming_json });
+                validationOperationOutcome = validateResource({
+                    resourceBody: resource_incoming,
+                    resourceName: resourceType,
+                    path
+                });
+                if (validationOperationOutcome) {
+                    recordValidationFailure(validationOperationOutcome, resourceType, VALIDATION_STAGE.SCHEMA, PATH.SAVE);
+                }
+            }
             if (validationOperationOutcome) {
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     operationResult: [{
@@ -387,7 +418,8 @@ class UpdateOperation {
                         throw precondition_failed_error;
                     }
                 }
-                ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
+                const mergeMethod = this.useFastSerializer ? 'fastMergeResourceAsync' : 'mergeResourceAsync';
+                ({ updatedResource, patches } = await this.resourceMerger[mergeMethod]({
                     base_version,
                     requestInfo,
                     currentResource: foundResource,
@@ -535,6 +567,8 @@ class UpdateOperation {
                     });
                 }
 
+                // after-save handlers hold the saved doc, so build the response from a copy
+                doc = this.useFastSerializer ? deepcopy(doc) : doc;
                 // changing the attachment._file_id to attachment.data for response
                 doc = await this.databaseAttachmentManager.transformAttachments(doc, RETRIEVE);
                 doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.RETRIEVE, requestInfo);
@@ -559,7 +593,9 @@ class UpdateOperation {
                 // enrich resource
                 this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
                 [result.resource] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({ resources: [result.resource] });
-                result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
+                result.resource = FhirResourceSerializer.serialize(
+                    this.useFastSerializer ? result.resource : result.resource.toJSONInternal()
+                );
 
                 return result;
             } else {
@@ -596,7 +632,9 @@ class UpdateOperation {
                 // enrich resource
                 this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
                 [result.resource] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({ resources: [result.resource] });
-                result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
+                result.resource = FhirResourceSerializer.serialize(
+                    this.useFastSerializer ? result.resource : result.resource.toJSONInternal()
+                );
 
                 return result;
             }

@@ -884,6 +884,7 @@ const createContainer = function () {
                 bundleManager: c.bundleManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 databaseBulkInserter: c.databaseBulkInserter,
+                fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,

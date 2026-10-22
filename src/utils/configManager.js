@@ -735,6 +735,10 @@ class ConfigManager {
         return isTrueWithFallback(env.ENABLE_CREATE_FAST_SERIALIZER, true);
     }
 
+    get enableUpdateFastSerializer() {
+        return isTrueWithFallback(env.ENABLE_UPDATE_FAST_SERIALIZER, true);
+    }
+
     /**
      * returns cron expression for postRequest processes
      * @returns {string}

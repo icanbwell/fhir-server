@@ -169,6 +169,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {OperationType} operationType
      * @param {import('mongodb').AnyBulkWriteOperation} operation
      * @param {MergePatchEntry[]|null} patches
+     * @param {Object|null} [writePrecondition]
      * @private
      */
     addOperationForResourceType({
@@ -178,7 +179,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
         operationType,
         operation,
         patches,
-        contextData = null
+        contextData = null,
+        writePrecondition = null
     }) {
         assertIsValid(requestId, 'requestId is null');
         assertIsValid(resourceType, `resourceType: ${resourceType} is null`);
@@ -216,7 +218,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 operationType,
                 operation,
                 patches,
-                contextData
+                contextData,
+                writePrecondition
             })
         );
     }
@@ -280,6 +283,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @property {MergePatchEntry[]|null} patches
      * @property {boolean} isAccessLogOperation
      * @property {Object|null} contextData
+     * @property {Object|null} writePrecondition
      *
      * @param {getOperationForResourceAsyncParam}
      * @returns {BulkInsertUpdateEntry}
@@ -292,7 +296,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
         operation,
         patches,
         isAccessLogOperation = false,
-        contextData = null
+        contextData = null,
+        writePrecondition = null
     }) {
         try {
             if (!isAccessLogOperation) {
@@ -319,7 +324,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 patches,
                 isCreateOperation: operationType === 'insert' || operationType === 'insertUniqueId',
                 isUpdateOperation: operationType === 'replace' || operationType === 'merge',
-                contextData
+                contextData,
+                writePrecondition
             });
         } catch (e) {
             throw new RethrownError({
@@ -335,9 +341,10 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {string} resourceType
      * @param {Object} doc
      * @param {Object|null} contextData - Optional context data for resource-specific handling
+     * @param {boolean} [rejectIfExists] - fail with 412 instead of folding a lost create race into an update
      * @returns {Promise<void>}
      */
-    async insertOneAsync({ base_version, requestInfo, resourceType, doc, contextData = null }) {
+    async insertOneAsync({ base_version, requestInfo, resourceType, doc, contextData = null, rejectIfExists = false }) {
         try {
             if (!doc.meta) {
                 doc.meta = {};
@@ -422,7 +429,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
                         },
                         operationType: 'insertUniqueId',
                         patches: null,
-                        contextData
+                        contextData,
+                        writePrecondition: rejectIfExists ? { rejectIfExists: true } : null
                     });
                 }
             }
@@ -450,6 +458,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {boolean} [upsert]
      * @param {MergePatchEntry[]|null} [patches]
      * @param {Object|null} [contextData]
+     * @param {string[]} [ifMatchVersionIds] - normalized If-Match version ids the live doc must match
      * @returns {Promise<void>}
      */
     async replaceOneAsync({
@@ -459,7 +468,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
         doc,
         upsert = false,
         patches = null,
-        contextData = null
+        contextData = null,
+        ifMatchVersionIds = []
     }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
@@ -494,6 +504,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
             }
 
             // no previous insert or update found
+            const enforceIfMatch = ifMatchVersionIds.length > 0 && !ifMatchVersionIds.includes('*');
             this.addOperationForResourceType({
                 requestId,
                 resourceType,
@@ -501,13 +512,16 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 operationType: 'replace',
                 operation: {
                     replaceOne: {
-                        filter: { _uuid: uuid },
+                        filter: enforceIfMatch
+                            ? { $and: [{ _uuid: uuid }, { 'meta.versionId': { $in: ifMatchVersionIds } }] }
+                            : { _uuid: uuid },
                         upsert,
                         replacement: doc
                     }
                 },
                 patches,
-                contextData
+                contextData,
+                writePrecondition: ifMatchVersionIds.length > 0 ? { ifMatchVersionIds } : null
             });
         } catch (e) {
             throw new RethrownError({
