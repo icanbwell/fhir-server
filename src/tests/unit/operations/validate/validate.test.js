@@ -151,6 +151,34 @@ describe('ValidateOperation - null safety bugs', () => {
             expect(scopeOrder).toBeLessThan(queryOrder);
         });
 
+        test('a request with an id validates the stored resource with r, a body keeps the default', async () => {
+            const mockCursor = {
+                hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValue(false),
+                nextObject: jest.fn().mockResolvedValue({ toJSON: () => ({ resourceType: 'Patient', id: '1', meta: {} }) })
+            };
+            mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            });
+
+            await validateOp.validateAsync({
+                requestInfo,
+                parsedArgs: buildParsedArgs('1'),
+                resourceType: 'Patient'
+            });
+            expect(mocks.resourceValidator.validateResourceAsync).toHaveBeenLastCalledWith(
+                expect.objectContaining({ accessRequested: 'r' })
+            );
+
+            await validateOp.validateAsync({
+                requestInfo,
+                parsedArgs: buildParsedArgs(undefined),
+                resourceType: 'Patient'
+            });
+            expect(mocks.resourceValidator.validateResourceAsync).toHaveBeenLastCalledWith(
+                expect.objectContaining({ accessRequested: undefined })
+            );
+        });
+
         test('a request that fails the scope check never reads the resource', async () => {
             mocks.scopesValidator.verifyHasValidScopesAsync.mockRejectedValue(new Error('forbidden'));
 

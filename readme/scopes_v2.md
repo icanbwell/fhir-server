@@ -177,6 +177,9 @@ through `$merge` or delete, so the letters are the ones in sections 3.1 and 3.2.
 | `POST [type]/$validate` | none | none | none |
 
 - A body sent to `$validate` is neither stored nor read back, so it is not scope checked.
+- `GET [type]/[id]/$validate` of a `Person` checks each link target against the caller's tenants with
+  `r`, the letter the request was gated with, so a read-only token validates a stored `Person` whose
+  targets are in its own tenant. A body keeps the `write` set for that check.
 
 ### 3.7 Admin routes
 

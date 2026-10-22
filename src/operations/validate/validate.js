@@ -181,7 +181,8 @@ class ValidateOperation {
                             parsedArgs,
                             currentOperationName,
                             requestInfo,
-                            startTime
+                            startTime,
+                            accessRequested: 'r'
                         }
                     );
                     if (operationOutcome) {
@@ -254,6 +255,8 @@ class ValidateOperation {
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param startTime
+     * @param {string|undefined} [accessRequested] the CRUDS letter the caller was checked for, used for the
+     *  Person.link tenant check; left undefined for a body, which keeps the write default
      * @returns {Promise<OperationOutcome>}
      */
     async validateResourceAsync (
@@ -265,7 +268,8 @@ class ValidateOperation {
             parsedArgs,
             currentOperationName,
             requestInfo,
-            startTime
+            startTime,
+            accessRequested
         }
     ) {
         /**
@@ -367,6 +371,7 @@ class ValidateOperation {
                 resourceObj: resource_incoming,
                 useRemoteFhirValidatorIfAvailable: true,
                 profile: specifiedProfile,
+                accessRequested,
                 validationContext: PATH.VALIDATE
             });
         if (validationOperationOutcome) {
