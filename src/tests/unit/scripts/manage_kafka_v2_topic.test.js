@@ -210,6 +210,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
             topics: [{ name: topicName, partitions: Array.from({ length: count }, (_, i) => ({ partitionId: i })) }]
         });
         const configManager = {};
+        const noDelay = { verifyDelayMs: 0 };
 
         test('raises the partition count with createPartitions and verifies the result', async () => {
             const fetchTopicMetadata = jest.fn()
@@ -218,7 +219,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
             const fakeAdmin = buildFakeAdmin({ fetchTopicMetadata });
             const { scriptModule } = loadScript(fakeAdmin);
 
-            await scriptModule.growKafkaTopic(configManager, topicName, 30);
+            await scriptModule.growKafkaTopic(configManager, topicName, 30, noDelay);
 
             expect(fakeAdmin.createPartitions).toHaveBeenCalledWith({
                 timeout: 30_000,
@@ -233,7 +234,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
             });
             const { scriptModule } = loadScript(fakeAdmin);
 
-            await scriptModule.growKafkaTopic(configManager, topicName, 30);
+            await scriptModule.growKafkaTopic(configManager, topicName, 30, noDelay);
 
             expect(fakeAdmin.createPartitions).not.toHaveBeenCalled();
             expect(fakeAdmin.disconnect).toHaveBeenCalled();
@@ -245,7 +246,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
             });
             const { scriptModule } = loadScript(fakeAdmin);
 
-            await expect(scriptModule.growKafkaTopic(configManager, topicName, 10))
+            await expect(scriptModule.growKafkaTopic(configManager, topicName, 10, noDelay))
                 .rejects.toThrow('Cannot shrink');
             expect(fakeAdmin.createPartitions).not.toHaveBeenCalled();
             expect(fakeAdmin.disconnect).toHaveBeenCalled();
@@ -256,7 +257,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
             const fakeAdmin = buildFakeAdmin({ fetchTopicMetadata: jest.fn().mockRejectedValue(err) });
             const { scriptModule } = loadScript(fakeAdmin);
 
-            await expect(scriptModule.growKafkaTopic(configManager, topicName, 30)).rejects.toThrow('missing');
+            await expect(scriptModule.growKafkaTopic(configManager, topicName, 30, noDelay)).rejects.toThrow('missing');
             expect(fakeAdmin.createPartitions).not.toHaveBeenCalled();
         });
 
@@ -267,9 +268,24 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
             });
             const { scriptModule } = loadScript(fakeAdmin);
 
-            await expect(scriptModule.growKafkaTopic(configManager, topicName, 30))
+            await expect(scriptModule.growKafkaTopic(configManager, topicName, 30, noDelay))
                 .rejects.toThrow('Not authorized');
             expect(fakeAdmin.disconnect).toHaveBeenCalled();
+        });
+
+        test('keeps polling metadata until the brokers report the new count', async () => {
+            const fetchTopicMetadata = jest.fn()
+                .mockResolvedValueOnce(metadataWith(3))
+                .mockResolvedValueOnce(metadataWith(3))
+                .mockResolvedValueOnce(metadataWith(3))
+                .mockResolvedValueOnce(metadataWith(30));
+            const fakeAdmin = buildFakeAdmin({ fetchTopicMetadata });
+            const { scriptModule } = loadScript(fakeAdmin);
+
+            await scriptModule.growKafkaTopic(configManager, topicName, 30, noDelay);
+
+            expect(fetchTopicMetadata).toHaveBeenCalledTimes(4);
+            expect(fakeAdmin.createPartitions).toHaveBeenCalledTimes(1);
         });
 
         test('fails when metadata still reports the old count after createPartitions', async () => {
@@ -278,7 +294,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
             });
             const { scriptModule } = loadScript(fakeAdmin);
 
-            await expect(scriptModule.growKafkaTopic(configManager, topicName, 30))
+            await expect(scriptModule.growKafkaTopic(configManager, topicName, 30, noDelay))
                 .rejects.toThrow('expected 30');
         });
     });

@@ -27,7 +27,12 @@
  *   --update       update max.message.bytes on an existing topic, keeping its other overrides
  *   --grow         raise an existing topic's partition count to --partitions (required with
  *                  --grow). Kafka cannot shrink a topic, so a lower target fails; an equal
- *                  target is a no-op. Needs kafka-cluster:AlterTopic on the topic.
+ *                  target is a no-op. Needs kafka-cluster:AlterTopic on the topic. Run it while
+ *                  nothing is in flight, then restart the consumers of the topic before
+ *                  producing again: kafkajs consumers do not pick up new partitions until they
+ *                  rejoin the group, and a new partition with no committed offset starts at the
+ *                  latest offset when the consumer subscribes with fromBeginning: false (the
+ *                  bulk-import worker does), so messages written to it earlier are skipped.
  *   --partitions   number of partitions when creating (default: 30), or the target when growing
  *   --retention-ms retention period in ms when creating (default: 7 days)
  *   --max-message-bytes max.message.bytes when creating/updating (default: 2mb)
@@ -59,6 +64,9 @@ const log = {
 const KAFKA_PARTITION_COUNT = 30;
 const KAFKA_RETENTION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const KAFKA_MAX_MESSAGE_BYTES = 2 * 1024 * 1024; // 2mb
+// Metadata reads (and the pause between them) used to confirm a partition grow took effect.
+const GROW_VERIFY_ATTEMPTS = 6;
+const GROW_VERIFY_DELAY_MS = 2000;
 
 // All topics managed by this script live under a single namespace.
 const TOPIC_PREFIX = 'fhir_server.';
@@ -226,12 +234,25 @@ async function updateKafkaTopicMaxMessageBytes(configManager, topicName, maxMess
  * the current count is rejected, and an equal target is a no-op. Unlike describe/delete, a missing
  * topic is an error here: growing something that does not exist should fail the run, not pass.
  * Messages already in the topic stay on their partition; only new messages are keyed across the
- * larger set, so grow while the consumer group has nothing in flight.
+ * larger set, so grow while the consumer group has nothing in flight, and restart its consumers
+ * afterwards (see --grow above).
+ *
+ * The new count is confirmed by polling metadata: the controller applies CreatePartitions and
+ * pushes the new metadata to the other brokers asynchronously, so a single read right after the
+ * call can still return the old count even though the partitions were added.
  * @param {ConfigManager} configManager
  * @param {string} topicName
  * @param {number} targetPartitions
+ * @param {Object} [options]
+ * @param {number} [options.verifyAttempts] metadata reads before giving up on the new count
+ * @param {number} [options.verifyDelayMs] delay between those reads
  */
-async function growKafkaTopic(configManager, topicName, targetPartitions) {
+async function growKafkaTopic(
+    configManager,
+    topicName,
+    targetPartitions,
+    { verifyAttempts = GROW_VERIFY_ATTEMPTS, verifyDelayMs = GROW_VERIFY_DELAY_MS } = {}
+) {
     const admin = await connectAdmin(configManager);
     try {
         const countPartitions = async () => {
@@ -263,7 +284,11 @@ async function growKafkaTopic(configManager, topicName, targetPartitions) {
             topicPartitions: [{ topic: topicName, count: targetPartitions }]
         });
 
-        const resultingPartitions = await countPartitions();
+        let resultingPartitions = await countPartitions();
+        for (let attempt = 1; resultingPartitions < targetPartitions && attempt < verifyAttempts; attempt++) {
+            await new Promise((resolve) => setTimeout(resolve, verifyDelayMs));
+            resultingPartitions = await countPartitions();
+        }
         if (resultingPartitions !== targetPartitions) {
             throw new Error(
                 `Grew ${topicName} but metadata reports ${resultingPartitions} partitions, expected ${targetPartitions}`
@@ -274,6 +299,12 @@ async function growKafkaTopic(configManager, topicName, targetPartitions) {
             previousPartitions: currentPartitions,
             partitions: resultingPartitions
         });
+        log.warn(
+            'Restart the consumers of this topic before producing to it again: they do not pick up ' +
+                'new partitions until they rejoin the group, and a new partition starts at the latest ' +
+                'offset for a fromBeginning: false consumer',
+            { topicName }
+        );
     } catch (err) {
         log.error('Failed to grow Kafka topic', { topicName, targetPartitions, error: err.message });
         throw err;
