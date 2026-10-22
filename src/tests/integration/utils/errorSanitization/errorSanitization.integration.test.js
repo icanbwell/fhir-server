@@ -172,7 +172,8 @@ describe('Error Sanitization Integration Tests', () => {
 
             expect(resp.status).toBe(403);
             const body = JSON.stringify(resp.body);
-            expect(body).toContain('Missing scopes');
+            expect(body).toContain('user does not have access to this admin route');
+            expect(body).not.toMatch(/admin\/|access\/|user\//);
         });
     });
 

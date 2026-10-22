@@ -68,8 +68,9 @@ Explicitly out of scope:
   (`authService.js`'s own space-split, the legacy `sof-scope.middleware.js` +
   `@asymmetrik/sof-scope-checker` no-op-unless-`auth.type === 'smart'` path, and
   `scopesManager.js`/`scopesValidator.js`, the real enforcement path). Only the real enforcement
-  path gains v2 awareness; `authService.js` and `sof-scope.middleware.js` (and its other caller,
-  `src/routeHandlers/admin.js`) are left untouched.
+  path gains v2 awareness; `authService.js` and `sof-scope.middleware.js` are left untouched.
+  `src/routeHandlers/admin.js` asks each route for one CRUDS letter from the caller's `admin/`
+  scopes, and the FHIR resource-type checks inside it use letters too (see "Admin routes" below).
 - Real SMART launch context (`fhirUser`, `launch/patient` claims replacing the bwell-proprietary
   `personIdFromJwtToken`/`masterPersonIdFromJwtToken` claims) — separate future effort.
 - `.well-known/smart-configuration` capability-advertisement changes.
@@ -344,6 +345,40 @@ holding `access/tenantA.c access/tenantB.s` can start the export, the ExportStat
 tenantA only, and the exported data is tenantB's. A caller holding only `access/tenantB.s`, or only
 `access/tenantA.c`, cannot start an export at all.
 
+### Admin routes
+
+Every admin route asks for one CRUDS letter from the caller's `admin/` scopes through
+`hasAdminScopeForAction({ scope, accessRequested })`. The resource segment is ignored, and the
+letters of all the caller's `admin/` scopes are combined. v1 suffixes expand with
+`normalizeSuffixToCruds` (`read` is `r` and `s`, `write` is `c`, `u` and `d`, `*` is all five);
+v2 letters are read only when `ENABLE_SMART_V2_CRUDS_SCOPES` is on. The route letters are:
+
+| Routes | Letter |
+|---|---|
+| `searchLogResults`, `indexes`, `indexProblems`, `runMatchWithPayload`, `ExportStatus` with no id | `s` |
+| `runPersonMatch`, `getCacheKeys`, `ExportStatus/[id]` | `r` |
+| `showPersonToPersonLink` (reads the Person by id, then searches for the Persons that link to it), `runPersonOneToNMatch` (reads the Patient or Person by id, then asks the matching service for candidates) | `r` and `s` |
+| `synchronizeIndexes`, `triggerExport`, `createPersonToPersonLink`, `removePersonToPersonLink`, `removePersonToPatientLink`, `updatePatientReference`, every `PUT` route | `u` |
+| `createPersonToPatientLink` (inserts a new Person when the external Person does not exist, otherwise updates it) | `c` and `u` |
+| `invalidateCache`, every `DELETE` route not listed below | `d` |
+| `deletePatientDataGraph`, `deletePersonDataGraph` (the `$everything` DELETE graph searches related types), `deletePerson` (searches for the Persons that link to it before deleting) | `d` and `s` |
+
+Three checks inside admin routes are on FHIR resource types and use letters at both gates, in
+addition to the `admin/` letter above:
+
+| Route | Resource type | Letter at both gates |
+|---|---|---|
+| `deletePatientDataGraph`, `deletePersonDataGraph` | `Patient` | `d` |
+| `triggerExport` | `ExportStatus` | `u` |
+| `ExportStatus` update | `ExportStatus` | `u` |
+
+All three previously asked for the `write` set; a v1 `write` token carries every one of these
+letters, so v1 callers see no change from them.
+
+Every route previously asked for `read` or `write`. The letter it now asks for is inside that set,
+except for the three delete routes that need `s`: v1 `write` has no `s`, so a token holding only
+`admin/*.write` is now refused on them and needs `admin/*.read` as well, or `admin/*.*`.
+
 ## Components & data flow
 
 - **`scopesManager.js`** — `getAccessCodesFromScopes`, `getPatientScopes`, `getUserScopes` call
@@ -358,8 +393,10 @@ tenantA only, and the exported data is tenantB's. A caller holding only `access/
   letter or set, while still accepting `'read'`/`'write'` for backward compatibility.
   `scopesValidator.js`'s existing literal `accessRequested === 'read'` check (used to block writes
   via patient-scoped tokens) becomes "requested letters ⊆ `{r, s}`".
-- **`admin.js`, `sof-scope.middleware.js`** — untouched; keep using
-  `@asymmetrik/sof-scope-checker` directly for their own (v1-only) purposes.
+- **`sof-scope.middleware.js`** — untouched; keeps using `@asymmetrik/sof-scope-checker` directly
+  for its own (v1-only) purposes.
+- **`admin.js` `admin/` gate, `hasAdminScopeForAction`** — takes `accessRequested`, a CRUDS letter,
+  and each route passes its own.
 - **`securityTagManager.js`** (`getSecurityTagsFromScope`) — feeds the actual MongoDB security
   filter consumed by `searchManager.js`, `exportManager.js`, `import.js`,
   `bulkDataExportRunner.js`, and `personToPatientIdsExpander.js`, and throws `ForbiddenError` on an
@@ -421,7 +458,11 @@ subsequence rule above before the flag is enabled; see Open items.
 4. `$merge` specifically needs a regression proving `user/Patient.u access/<tag>.u` (or `.cud` on
    the access side, until that operation's access gate is migrated) can both create-via-absent-id
    and update, and that `user/Patient.c` alone (no `u`) cannot do either.
-5. Phase 3 (`securityTagManager` and its query-filter consumers) gets its own test pass, reviewed
+5. The admin routes have their own suite (`admin_v2_cruds_scopes`): the letter each route asks, v1
+   suffixes, and a v2 suffix granting nothing while the flag is off. `scopesManager.test.js` covers
+   `hasAdminScopeForAction` directly, and `adminExportManager.test.js` pins the `c` and `u` letters
+   of the export-status checks.
+6. Phase 3 (`securityTagManager` and its query-filter consumers) gets its own test pass, reviewed
    against `review.md`'s access/owner-tag checklist — this work is a named trigger in that
    document (OAuth scope/token parsing, cross-resource join on a shared identifier).
 
@@ -484,6 +525,6 @@ subsequence rule above before the flag is enabled; see Open items.
   export silently returns **zero rows with HTTP 200** instead of the expected data or a 403 — a
   silent data-loss failure, not a denial, and the only place in the whole design where this failure
   mode occurs.
-- Decide whether `admin/` ever gains CRUDS or stays v1-only (`hasAdminScopeForAction` compares the
-  suffix literally today, so it fails closed on a v2 suffix either way). Deferred out of the current
-  per-operation target table into a later pass.
+- **Admin routes that change Person or Patient data.** Except for the resource checks listed under
+  "Admin routes", such a route is guarded only by its `admin/` letter, and the resource segment of
+  an `admin/` scope is ignored.

@@ -16,6 +16,8 @@ const { FhirRequestInfoBuilder } = require('../utils/fhirRequestInfoBuilder');
 const { isTrue } = require('../utils/isTrue');
 const { ForbiddenError } = require('../utils/httpErrors');
 
+const DELETE_OPERATIONS_THAT_SEARCH = ['deletePerson', 'deletePatientDataGraph', 'deletePersonDataGraph'];
+
 /**
  * Every admin operation, read or write, calls this with its own required action. Throws (rather
  * than directly writing a response) so the enclosing handler's own catch block - which every
@@ -23,11 +25,12 @@ const { ForbiddenError } = require('../utils/httpErrors');
  * response via error.statusCode
  * @param {ScopesManager} scopesManager
  * @param {string} scope
- * @param {'read'|'write'} action
+ * @param {string} accessRequested the CRUDS letter the route needs
  */
-function assertAdminScope ({ scopesManager, scope, action }) {
-    if (!scopesManager.hasAdminScopeForAction({ scope, action })) {
-        throw new ForbiddenError('user with scopes [' + scope + '] failed access check to [admin/*.' + action + ']');
+function assertAdminScope ({ scopesManager, scope, accessRequested }) {
+    if (!scopesManager.hasAdminScopeForAction({ scope, accessRequested })) {
+        logInfo('Admin scope check failed', { scope, accessRequested });
+        throw new ForbiddenError('user does not have access to this admin route');
     }
 }
 
@@ -43,7 +46,7 @@ function assertAdminScope ({ scopesManager, scope, action }) {
  * @param {SimpleContainer} container
  * @param {import('http').IncomingMessage} req
  * @param {string} resourceType
- * @param {'read'|'write'} accessRequested
+ * @param {string} accessRequested
  */
 async function assertResourceWriteScopeAsync ({ container, req, resourceType, accessRequested }) {
     const requestInfo = FhirRequestInfoBuilder.fromRequest(req);
@@ -56,9 +59,11 @@ async function assertResourceWriteScopeAsync ({ container, req, resourceType, ac
         accessRequested
     });
     if (!success) {
+        logInfo('Admin resource scope check failed', {
+            user: requestInfo.user, scope: requestInfo.scope, resourceType, accessRequested
+        });
         throw new ForbiddenError(
-            'user with scopes [' + requestInfo.scope + '] failed access check to [' +
-            resourceType + '.' + accessRequested + ']'
+            'user ' + requestInfo.user + ' does not have access to [' + resourceType + ']'
         );
     }
 }
@@ -160,7 +165,7 @@ async function handleAdminGet (
         if (adminScopes.length > 0) {
             switch (operation) {
                 case 'searchLogResults': {
-                    assertAdminScope({ scopesManager, scope, action: 'read' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 's' });
                     logInfo('', { 'req.query': req.query });
                     const id = req.query.id;
                     if (id) {
@@ -184,7 +189,7 @@ async function handleAdminGet (
                 }
 
                 case 'showPersonToPersonLink': {
-                    assertAdminScope({ scopesManager, scope, action: 'read' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'rs' });
                     logInfo('', { 'req.query': req.query });
                     const bwellPersonId = req.query.bwellPersonId;
                     if (bwellPersonId) {
@@ -203,7 +208,7 @@ async function handleAdminGet (
                 }
 
                 case 'indexes': {
-                    assertAdminScope({ scopesManager, scope, action: 'read' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 's' });
                     return await showIndexesAsync(
                         {
                             req,
@@ -215,7 +220,7 @@ async function handleAdminGet (
                 }
 
                 case 'indexProblems': {
-                    assertAdminScope({ scopesManager, scope, action: 'read' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 's' });
                     return await showIndexesAsync(
                         {
                             req,
@@ -227,7 +232,7 @@ async function handleAdminGet (
                 }
 
                 case 'synchronizeIndexes': {
-                    assertAdminScope({ scopesManager, scope, action: 'write' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'u' });
                     return await synchronizeIndexesAsync(
                         {
                             req,
@@ -238,7 +243,7 @@ async function handleAdminGet (
                 }
 
                 case 'runPersonMatch': {
-                    assertAdminScope({ scopesManager, scope, action: 'read' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'r' });
                     logInfo('', { 'req.query': req.query });
                     const sourceId = req.query.sourceId;
                     const sourceType = req.query.sourceType;
@@ -260,13 +265,13 @@ async function handleAdminGet (
                 }
 
                 case 'ExportStatus': {
-                    assertAdminScope({ scopesManager, scope, action: 'read' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: req.params.id ? 'r' : 's' });
                     logInfo('', { 'req.query': req.query, 'req.params.id': req.params.id });
                     return res.json(await adminExportManager.getExportStatus({ req, res }))
                 }
 
                 case 'getCacheKeys': {
-                    assertAdminScope({ scopesManager, scope, action: 'read' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'r' });
                     const resourceType = req.query.resourceType;
                     const resourceId = req.query.resourceId;
                     if (resourceType && resourceId) {
@@ -298,7 +303,7 @@ async function handleAdminGet (
                 }
 
                 case 'runPersonOneToNMatch': {
-                    assertAdminScope({ scopesManager, scope, action: 'read' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'rs' });
                     logInfo('', { 'req.query': req.query });
                     const id = req.query.id;
                     const resourceType = req.query.resourceType;
@@ -327,8 +332,9 @@ async function handleAdminGet (
                 }
             }
         } else {
+            logInfo('Admin scope check failed', { scope, accessRequested: 'read' });
             return res.status(403).json({
-                message: `Missing scopes for admin/*.read in ${scope}`
+                message: 'user does not have access to this admin route'
             });
         }
     } catch (error) {
@@ -393,7 +399,7 @@ async function handleAdminPost (
         if (adminScopes.length > 0) {
             switch (operation) {
                 case 'createPersonToPersonLink': {
-                    assertAdminScope({ scopesManager, scope, action: 'write' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'u' });
                     logInfo('', { 'req.body': req.body });
                     const bwellPersonId = req.body.bwellPersonId;
                     const externalPersonId = req.body.externalPersonId;
@@ -415,7 +421,7 @@ async function handleAdminPost (
                 }
 
                 case 'removePersonToPersonLink': {
-                    assertAdminScope({ scopesManager, scope, action: 'write' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'u' });
                     logInfo('', { 'req.body': req.body });
                     const bwellPersonId = req.body.bwellPersonId;
                     const externalPersonId = req.body.externalPersonId;
@@ -437,7 +443,7 @@ async function handleAdminPost (
                 }
 
                 case 'createPersonToPatientLink': {
-                    assertAdminScope({ scopesManager, scope, action: 'write' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'cu' });
                     logInfo('', { 'req.body': req.body });
                     const externalPersonId = req.body.externalPersonId;
                     const patientId = req.body.patientId;
@@ -459,7 +465,7 @@ async function handleAdminPost (
                 }
 
                 case 'removePersonToPatientLink': {
-                    assertAdminScope({ scopesManager, scope, action: 'write' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'u' });
                     logInfo('', { 'req.body': req.body });
                     const personId = req.body.personId;
                     const patientId = req.body.patientId;
@@ -481,7 +487,7 @@ async function handleAdminPost (
                 }
 
                 case 'updatePatientReference': {
-                    assertAdminScope({ scopesManager, scope, action: 'write' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'u' });
                     logInfo('', { 'req.body': req.body });
                     const patientId = req.body.patientId;
                     const resourceType = req.body.resourceType;
@@ -504,7 +510,7 @@ async function handleAdminPost (
                     });
                 }
                 case 'triggerExport': {
-                    assertAdminScope({ scopesManager, scope, action: 'write' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'u' });
                     if (req.params.id) {
                         return res.json(await adminExportManager.triggerExportJob({ req, res }));
                     }
@@ -513,7 +519,7 @@ async function handleAdminPost (
                     }
                 }
                 case 'invalidateCache': {
-                    assertAdminScope({ scopesManager, scope, action: 'write' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 'd' });
                     const resourceType = req.body.resourceType;
                     const resourceId = req.body.resourceId;
                     const cacheKeys = req.body.cacheKeys;
@@ -552,7 +558,7 @@ async function handleAdminPost (
                 }
 
                 case 'runMatchWithPayload': {
-                    assertAdminScope({ scopesManager, scope, action: 'read' });
+                    assertAdminScope({ scopesManager, scope, accessRequested: 's' });
                     logInfo('', { operation: 'runMatchWithPayload' });
                     const parameters = req.body;
                     const personMatchManager = container.personMatchManager;
@@ -567,8 +573,9 @@ async function handleAdminPost (
                 }
             }
         } else {
+            logInfo('Admin scope check failed', { scope, accessRequested: 'read' });
             return res.status(403).json({
-                message: `Missing scopes for admin/*.read in ${scope}`
+                message: 'user does not have access to this admin route'
             });
         }
     } catch (error) {
@@ -624,7 +631,7 @@ async function handleAdminPut(
          * @type {string|undefined}
          */
         const scope = scopesManager.getScopeFromRequest({ req });
-        assertAdminScope({ scopesManager, scope, action: 'write' });
+        assertAdminScope({ scopesManager, scope, accessRequested: 'u' });
 
         switch (operation) {
             case 'ExportStatus': {
@@ -691,7 +698,11 @@ async function handleAdminDelete (
          * @type {string|undefined}
          */
         const scope = scopesManager.getScopeFromRequest({ req });
-        assertAdminScope({ scopesManager, scope, action: 'write' });
+        assertAdminScope({
+            scopesManager,
+            scope,
+            accessRequested: DELETE_OPERATIONS_THAT_SEARCH.includes(operation) ? 'ds' : 'd'
+        });
 
         switch (operation) {
             case 'deletePerson': {
@@ -720,7 +731,7 @@ async function handleAdminDelete (
                 const sync = req.query.sync;
                 if (patientId) {
                     await assertResourceWriteScopeAsync({
-                        container, req, resourceType: 'Patient', accessRequested: 'write'
+                        container, req, resourceType: 'Patient', accessRequested: 'd'
                     });
 
                     /**
@@ -768,7 +779,7 @@ async function handleAdminDelete (
                 const personId = req.query.id;
                 if (personId) {
                     await assertResourceWriteScopeAsync({
-                        container, req, resourceType: 'Patient', accessRequested: 'write'
+                        container, req, resourceType: 'Patient', accessRequested: 'd'
                     });
 
                     /**

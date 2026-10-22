@@ -566,50 +566,108 @@ describe('ScopesManager', () => {
 
     describe('hasAdminScopeForAction', () => {
         test('returns false for undefined scope', () => {
-            expect(scopesManager.hasAdminScopeForAction({ scope: undefined, action: 'write' })).toBe(false);
+            expect(scopesManager.hasAdminScopeForAction({ scope: undefined, accessRequested: 'u' })).toBe(false);
         });
 
         test('returns false when scope has no admin/ entry at all', () => {
             expect(scopesManager.hasAdminScopeForAction({
-                scope: 'user/Patient.write access/*.write', action: 'write'
+                scope: 'user/Patient.write access/*.write', accessRequested: 'u'
             })).toBe(false);
         });
 
         test('a read-only admin scope (admin/*.read) satisfies a read check but not a write check', () => {
-            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.read', action: 'read' })).toBe(true);
-            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.read', action: 'write' })).toBe(false);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.read', accessRequested: 'r' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.read', accessRequested: 'u' })).toBe(false);
         });
 
         test('a read-only, resource-scoped admin scope (admin/Patient.read) behaves the same way', () => {
-            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.read', action: 'read' })).toBe(true);
-            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.read', action: 'write' })).toBe(false);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.read', accessRequested: 'r' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.read', accessRequested: 'u' })).toBe(false);
         });
 
         test('a write-only admin scope (admin/*.write) satisfies a write check but not a read check', () => {
-            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.write', action: 'write' })).toBe(true);
-            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.write', action: 'read' })).toBe(false);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.write', accessRequested: 'u' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.write', accessRequested: 'r' })).toBe(false);
         });
 
         test('a resource-scoped admin write (admin/Patient.write) satisfies write but not read', () => {
-            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.write', action: 'write' })).toBe(true);
-            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.write', action: 'read' })).toBe(false);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.write', accessRequested: 'u' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/Patient.write', accessRequested: 'r' })).toBe(false);
         });
 
         test('the admin wildcard action (admin/*.*) satisfies both read and write checks', () => {
-            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.*', action: 'read' })).toBe(true);
-            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.*', action: 'write' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.*', accessRequested: 'r' })).toBe(true);
+            expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.*', accessRequested: 'u' })).toBe(true);
         });
 
         test('returns true when a write admin scope is mixed in with a read-only one', () => {
             expect(scopesManager.hasAdminScopeForAction({
-                scope: 'admin/Patient.read admin/AuditEvent.write', action: 'write'
+                scope: 'admin/Patient.read admin/AuditEvent.write', accessRequested: 'u'
             })).toBe(true);
         });
 
         test('does not confuse a non-admin write scope for an admin write scope', () => {
             expect(scopesManager.hasAdminScopeForAction({
-                scope: 'admin/Patient.read user/Patient.write', action: 'write'
+                scope: 'admin/Patient.read user/Patient.write', accessRequested: 'u'
             })).toBe(false);
+        });
+
+        describe('v2 CRUDS letters', () => {
+            beforeEach(() => {
+                Object.defineProperty(mockConfigManager, 'enableSmartV2CrudsScopes', {
+                    get: () => true,
+                    configurable: true
+                });
+            });
+
+            test('admin/*.rs satisfies r and s but not c, u or d', () => {
+                const scope = 'admin/*.rs';
+                expect(scopesManager.hasAdminScopeForAction({ scope, accessRequested: 'r' })).toBe(true);
+                expect(scopesManager.hasAdminScopeForAction({ scope, accessRequested: 's' })).toBe(true);
+                expect(scopesManager.hasAdminScopeForAction({ scope, accessRequested: 'c' })).toBe(false);
+                expect(scopesManager.hasAdminScopeForAction({ scope, accessRequested: 'u' })).toBe(false);
+                expect(scopesManager.hasAdminScopeForAction({ scope, accessRequested: 'd' })).toBe(false);
+            });
+
+            test('admin/*.d satisfies only d', () => {
+                expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.d', accessRequested: 'd' })).toBe(true);
+                expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.d', accessRequested: 'u' })).toBe(false);
+            });
+
+            test('letters from several admin scopes are combined', () => {
+                const scope = 'admin/Patient.c admin/AuditEvent.u';
+                expect(scopesManager.hasAdminScopeForAction({ scope, accessRequested: 'c' })).toBe(true);
+                expect(scopesManager.hasAdminScopeForAction({ scope, accessRequested: 'u' })).toBe(true);
+                expect(scopesManager.hasAdminScopeForAction({ scope, accessRequested: 'd' })).toBe(false);
+            });
+
+            test('v1 admin/*.write still satisfies c, u and d', () => {
+                ['c', 'u', 'd'].forEach(accessRequested => {
+                    expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.write', accessRequested })).toBe(true);
+                });
+            });
+
+            test('a malformed suffix grants nothing', () => {
+                expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.sr', accessRequested: 's' })).toBe(false);
+            });
+        });
+
+        describe('v2 CRUDS letters with the flag off', () => {
+            beforeEach(() => {
+                Object.defineProperty(mockConfigManager, 'enableSmartV2CrudsScopes', {
+                    get: () => false,
+                    configurable: true
+                });
+            });
+
+            test('admin/*.d grants nothing', () => {
+                expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.d', accessRequested: 'd' })).toBe(false);
+            });
+
+            test('v1 admin/*.read still satisfies r and s', () => {
+                expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.read', accessRequested: 'r' })).toBe(true);
+                expect(scopesManager.hasAdminScopeForAction({ scope: 'admin/*.read', accessRequested: 's' })).toBe(true);
+            });
         });
     });
 
