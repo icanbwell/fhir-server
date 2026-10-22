@@ -197,6 +197,7 @@ class CreateOperation {
             resource_incoming
         );
         if (this.useFastSerializer && !validationOperationOutcome) {
+            delete resource_incoming.meta?.lastUpdated;
             validationOperationOutcome = validateResource({
                 resourceBody: resource_incoming,
                 resourceName: resourceType,

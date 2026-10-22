@@ -25,6 +25,25 @@ describe('Create with fast serializer disabled', () => {
         expect(getTestContainer().createOperation.useFastSerializer).toStrictEqual(false);
     });
 
+    test('existing flow ignores a client supplied meta.lastUpdated that is not a valid instant', async () => {
+        const request = await createTestRequest();
+        const payload = {
+            resourceType: 'Observation',
+            status: 'final',
+            code: { coding: [{ system: 'http://loinc.org', code: '8480-6' }] },
+            meta: {
+                source: 'client',
+                lastUpdated: '2021-06-01',
+                security: [
+                    { system: 'https://www.icanbwell.com/access', code: 'client' },
+                    { system: 'https://www.icanbwell.com/owner', code: 'client' }
+                ]
+            }
+        };
+        const resp = await request.post('/4_0_0/Observation').send(payload).set(getHeaders());
+        expect(resp).toHaveStatusCode(201);
+    });
+
     test('existing flow accepts an empty object for a required field', async () => {
         const request = await createTestRequest();
         const payload = {

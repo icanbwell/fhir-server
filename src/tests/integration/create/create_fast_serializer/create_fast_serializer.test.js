@@ -140,6 +140,18 @@ describe('Create with fast serializer', () => {
         }
     });
 
+    test('client supplied meta.lastUpdated is ignored even when it is not a valid instant', async () => {
+        const request = await createTestRequest();
+        for (const lastUpdated of ['2021-06-01', '2021-06-01T10:00:00', 20210601]) {
+            const payload = practitionerPayload();
+            payload.meta.lastUpdated = lastUpdated;
+            const postResp = await request.post('/4_0_0/Practitioner').send(payload).set(getHeaders());
+            expect(postResp).toHaveStatusCode(201);
+            expect(postResp.body.meta.lastUpdated).not.toStrictEqual(lastUpdated);
+            expect(new Date(postResp.body.meta.lastUpdated).getFullYear()).toBeGreaterThan(2025);
+        }
+    });
+
     test('empty objects in optional fields are dropped', async () => {
         const request = await createTestRequest();
         const payload = practitionerPayload();
