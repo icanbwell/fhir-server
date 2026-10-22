@@ -509,4 +509,60 @@ describe('referenceValidator', () => {
             expect(errors).toEqual([]);
         });
     });
+
+    describe('fastValidateReferences only checks elements typed as Reference', () => {
+        test.each([
+            ['Immunization.education.reference (uri)', {
+                resourceType: 'Immunization',
+                education: [{ documentType: 'VIS', reference: 'urn:oid:2.16.840.1.113883.6.1' }]
+            }],
+            ['Immunization.education.reference as a bare file name', {
+                resourceType: 'Immunization',
+                education: [{ reference: 'hepb-vis.pdf' }]
+            }],
+            ['DetectedIssue.reference (uri) in a contained resource', {
+                resourceType: 'Observation',
+                contained: [{ resourceType: 'DetectedIssue', reference: 'urn:issue:1' }]
+            }],
+            ['DetectedIssue.reference (uri) in a Bundle entry', {
+                resourceType: 'Bundle',
+                entry: [{ resource: { resourceType: 'DetectedIssue', reference: 'issue-1' } }]
+            }]
+        ])('%s is not reported', (_name, resource) => {
+            expect(fastValidateReferences(resource, '')).toEqual([]);
+        });
+
+        test('a real Reference inside the same resource is still checked', () => {
+            const resource = {
+                resourceType: 'Immunization',
+                education: [{ reference: 'urn:oid:1.2.3' }],
+                patient: { reference: 'invalidReference' }
+            };
+            const errors = fastValidateReferences(resource, '');
+            expect(errors).toEqual(['patient.reference: invalidReference is an invalid reference']);
+        });
+
+        test('a Reference nested under a uri-bearing resource is still checked', () => {
+            const resource = {
+                resourceType: 'Bundle',
+                entry: [{
+                    resource: {
+                        resourceType: 'Observation',
+                        subject: { reference: 'invalidReference' }
+                    }
+                }]
+            };
+            const errors = fastValidateReferences(resource, '');
+            expect(errors).toEqual(['entry.0.resource.subject.reference: invalidReference is an invalid reference']);
+        });
+
+        test('a Reference nested several levels deep inside a Reference is still checked', () => {
+            const resource = {
+                resourceType: 'Observation',
+                subject: { reference: 'Patient/1', identifier: { assigner: { reference: 'invalidReference' } } }
+            };
+            const errors = fastValidateReferences(resource, '');
+            expect(errors).toEqual(['subject.identifier.assigner.reference: invalidReference is an invalid reference']);
+        });
+    });
 });

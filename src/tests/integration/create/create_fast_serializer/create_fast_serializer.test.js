@@ -234,4 +234,28 @@ describe('Create with fast serializer', () => {
             }
         }
     });
+
+    test('uri fields named reference are not treated as References', async () => {
+        const request = await createTestRequest();
+        const resp = await request
+            .post('/4_0_0/Immunization')
+            .send({
+                resourceType: 'Immunization',
+                status: 'completed',
+                vaccineCode: { coding: [{ system: 'http://hl7.org/fhir/sid/cvx', code: '08' }] },
+                patient: { reference: 'Patient/5b804b54-0ff5-5dc4-9e42-6ac45c6a5f69' },
+                occurrenceDateTime: '2021-06-01',
+                education: [{ documentType: 'VIS', reference: 'urn:oid:2.16.840.1.113883.6.1' }],
+                meta: {
+                    source: 'client',
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'client' },
+                        { system: 'https://www.icanbwell.com/owner', code: 'client' }
+                    ]
+                }
+            })
+            .set(getHeaders());
+        expect(resp).toHaveStatusCode(201);
+        expect(resp.body.education[0].reference).toStrictEqual('urn:oid:2.16.840.1.113883.6.1');
+    });
 });
