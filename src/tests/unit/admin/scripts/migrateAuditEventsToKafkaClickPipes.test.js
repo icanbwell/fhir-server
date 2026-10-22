@@ -30,6 +30,7 @@ const {
     processBatchAsync
 } = require('../../../../admin/scripts/migrateAuditEventsToKafkaClickPipes');
 const { AuditEventTransformer } = require('../../../../dataLayer/clickHouse/auditEventTransformer');
+const { CompressionTypes } = require('kafkajs');
 
 class ProcessExitSignal extends Error {
     constructor (code) {
@@ -147,6 +148,16 @@ describe('migrateAuditEventsToKafkaClickPipes.js', () => {
             expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(2);
         });
 
+        test('passes the compression type through to the Kafka client', async () => {
+            const kafkaClientV2 = { sendCloudEventMessageAsync: jestGlobal.fn().mockResolvedValue(undefined) };
+            await publishWithRetryAsync(kafkaClientV2, 'topic-a', [{ key: 'k', value: 'v' }], CompressionTypes.ZSTD);
+            expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledWith({
+                topic: 'topic-a',
+                messages: [{ key: 'k', value: 'v' }],
+                compression: CompressionTypes.ZSTD
+            });
+        });
+
         test('throws a descriptive error after exhausting all retry attempts', async () => {
             const kafkaClientV2 = {
                 sendCloudEventMessageAsync: jestGlobal.fn().mockRejectedValue(new Error('oversized message'))
@@ -249,6 +260,87 @@ describe('migrateAuditEventsToKafkaClickPipes.js', () => {
             expect(result.deleted).toBe(0);
             expect(result.failed).toBe(1);
             expect(collection.deleteMany).not.toHaveBeenCalled();
+        });
+
+        describe('chunked publishing', () => {
+            const makeDocs = (n) => Array.from({ length: n }, (_, i) => ({
+                _id: `id-${i}`,
+                _uuid: `uuid-${i}`,
+                recorded: new Date('2024-01-01T00:00:00Z')
+            }));
+            const deleteAll = () => ({
+                deleteMany: jestGlobal.fn().mockImplementation(async ({ _id: { $in: ids } }) => ({ deletedCount: ids.length }))
+            });
+
+            test('publishes in chunks of publishBatchSize with compression, deleting each chunk after its publish', async () => {
+                const callOrder = [];
+                const kafkaClientV2 = {
+                    sendCloudEventMessageAsync: jestGlobal.fn().mockImplementation(async ({ messages }) => {
+                        callOrder.push(`publish:${messages.length}`);
+                    })
+                };
+                const collection = {
+                    deleteMany: jestGlobal.fn().mockImplementation(async ({ _id: { $in: ids } }) => {
+                        callOrder.push(`delete:${ids.length}`);
+                        return { deletedCount: ids.length };
+                    })
+                };
+
+                const result = await processBatchAsync({
+                    docs: makeDocs(5),
+                    collection,
+                    kafkaClientV2,
+                    topic: 'audit-topic',
+                    transformer: new AuditEventTransformer(),
+                    batchNo: 6,
+                    publishBatchSize: 2,
+                    compression: CompressionTypes.ZSTD
+                });
+
+                expect(callOrder).toEqual(['publish:2', 'delete:2', 'publish:2', 'delete:2', 'publish:1', 'delete:1']);
+                const compressions = kafkaClientV2.sendCloudEventMessageAsync.mock.calls.map(([arg]) => arg.compression);
+                expect(compressions).toEqual([CompressionTypes.ZSTD, CompressionTypes.ZSTD, CompressionTypes.ZSTD]);
+                expect(result).toEqual({ inserted: 5, deleted: 5, failed: 0 });
+            });
+
+            test('a chunk whose publish exhausts retries stays in Mongo while the other chunks are migrated', async () => {
+                const kafkaClientV2 = {
+                    sendCloudEventMessageAsync: jestGlobal.fn().mockImplementation(async ({ messages }) => {
+                        if (messages.some((m) => m.key === 'uuid-2')) throw new Error('MESSAGE_TOO_LARGE');
+                    })
+                };
+                const collection = deleteAll();
+
+                const result = await processBatchAsync({
+                    docs: makeDocs(5),
+                    collection,
+                    kafkaClientV2,
+                    topic: 'audit-topic',
+                    transformer: new AuditEventTransformer(),
+                    batchNo: 7,
+                    publishBatchSize: 2
+                });
+
+                const deletedIds = collection.deleteMany.mock.calls.map(([q]) => q._id.$in);
+                expect(deletedIds).toEqual([['id-0', 'id-1'], ['id-4']]);
+                expect(result).toEqual({ inserted: 3, deleted: 3, failed: 2 });
+            });
+
+            test('defaults to chunks of 50', async () => {
+                const kafkaClientV2 = { sendCloudEventMessageAsync: jestGlobal.fn().mockResolvedValue(undefined) };
+
+                await processBatchAsync({
+                    docs: makeDocs(120),
+                    collection: deleteAll(),
+                    kafkaClientV2,
+                    topic: 'audit-topic',
+                    transformer: new AuditEventTransformer(),
+                    batchNo: 8
+                });
+
+                const sizes = kafkaClientV2.sendCloudEventMessageAsync.mock.calls.map(([arg]) => arg.messages.length);
+                expect(sizes).toEqual([50, 50, 20]);
+            });
         });
 
         test('empty docs array publishes nothing and deletes nothing', async () => {

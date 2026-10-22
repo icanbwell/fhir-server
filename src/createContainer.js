@@ -130,7 +130,7 @@ const {BulkImportHandler} = require('./operations/asyncJobs/bulkImport/handler')
 const {BulkImportTaskStateMachine} = require('./operations/asyncJobs/bulkImport/bulkImportTaskStateMachine');
 const {KafkaEventDispatcher} = require('./operations/common/kafkaEventDispatcher');
 const {S3NdjsonReader} = require('./operations/asyncJobs/bulkImport/s3NdjsonReader');
-const {KafkaClientV2} = require('./utils/kafkaClientV2');
+const {KafkaClientV2, getKafkaCompressionType} = require('./utils/kafkaClientV2');
 const {DummyKafkaClientV2} = require('./utils/dummyKafkaClientV2');
 const {S3Client} = require('./utils/s3Client');
 const {CLOUD_STORAGE_CLIENTS} = require('./constants');
@@ -655,15 +655,17 @@ const createContainer = function () {
     });
 
     container.register('kafkaClickPipeBulkWriteExecutor', (c) => {
-        // Only meaningful when the V2 Kafka cluster (ClickPipes source) is enabled;
-        // a DummyKafkaClientV2 would silently succeed and drop writes. When disabled
-        // this resolves to null and is filtered out of the executor arrays (no schema
-        // uses KAFKA_CLICKPIPE anyway).
-        if (!c.configManager.kafkaV2EnableEvents) return null;
+        // Same gate as the KAFKA_CLICKPIPE schema registration above: when off, no schema
+        // uses KAFKA_CLICKPIPE, so this resolves to null and is filtered out of the
+        // executor arrays. Gating here also keeps a bad ClickPipe config value from
+        // breaking every bulk inserter while the feature is disabled.
+        if (!(c.configManager.enableAuditEventClickPipe && c.configManager.kafkaV2EnableEvents)) return null;
         return new KafkaClickPipeBulkWriteExecutor({
             kafkaClientV2: c.kafkaClientV2,
             schemaRegistry: c.clickHouseSchemaRegistry,
-            fallbackExecutor: c.mongoBulkWriteExecutor
+            fallbackExecutor: c.mongoBulkWriteExecutor,
+            batchSize: c.configManager.auditEventClickPipeBatchSize,
+            compression: getKafkaCompressionType(c.configManager.auditEventClickPipeCompression)
         });
     });
 
