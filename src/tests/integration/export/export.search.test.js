@@ -97,7 +97,7 @@ describe('Export Tests', () => {
 
             expect(exportStatusResponseViaPatientScope).toHaveResponse(
                 {
-                    message: "Missing scopes for admin/*.read in patient/*.*"
+                    message: "user does not have access to this admin route"
                 }
             );
         });
@@ -208,7 +208,7 @@ describe('Export Tests', () => {
 
             expect(exportStatusResponseListViaPatientScope).toHaveResponse(
                 {
-                    message: "Missing scopes for admin/*.read in patient/*.*"
+                    message: "user does not have access to this admin route"
                 });
         });
     });
@@ -371,7 +371,7 @@ describe('Export Tests', () => {
                         {
                             severity: 'error',
                             code: 'exception',
-                            diagnostics: 'user with scopes [patient/*.*] failed access check to [admin/*.u]'
+                            diagnostics: 'user does not have access to this admin route'
                         }
                     ]
                 }

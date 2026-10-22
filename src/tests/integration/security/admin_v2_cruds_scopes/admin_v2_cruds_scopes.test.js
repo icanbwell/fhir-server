@@ -37,6 +37,7 @@ describe('admin route v2 CRUDS scope granularity Tests', () => {
         showPersonToPersonLink: (request, scope) => request.get('/admin/showPersonToPersonLink').set(getHeaders(scope)),
         runPersonMatch: (request, scope) => request.get('/admin/runPersonMatch').set(getHeaders(scope)),
         deletePatientDataGraph: (request, scope) => request.delete('/admin/deletePatientDataGraph').set(getHeaders(scope)),
+        deletePatientDataGraphById: (request, scope) => request.delete('/admin/deletePatientDataGraph?id=1').set(getHeaders(scope)),
         deletePersonDataGraph: (request, scope) => request.delete('/admin/deletePersonDataGraph').set(getHeaders(scope)),
         triggerExport: (request, scope) => request.post('/admin/triggerExport').send({}).set(getHeaders(scope)),
         deletePerson: (request, scope) => request.delete('/admin/deletePerson').set(getHeaders(scope))
@@ -104,5 +105,16 @@ describe('admin route v2 CRUDS scope granularity Tests', () => {
         const request = await createTestRequest();
         const resp = await routes.cacheInvalidate(request, 'admin/*.d user/*.* access/*.*');
         expect(resp.status).toBe(403);
+    });
+
+    test.each([
+        ['an admin letter the token lacks', 'cacheInvalidate', 'admin/*.u user/*.* access/*.*'],
+        ['a resource scope the token lacks', 'deletePatientDataGraphById', 'admin/*.ds access/*.*']
+    ])('a denial for %s does not echo the scopes or the letter back', async (name, route, scope) => {
+        const request = await createTestRequest();
+        const resp = await routes[route](request, scope);
+        expect(resp.status).toBe(403);
+        const body = JSON.stringify(resp.body);
+        expect(body).not.toMatch(/admin\/|access\/|user\/|\.ds|\.d\b|\.u\b/);
     });
 });

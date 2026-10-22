@@ -29,7 +29,8 @@ const DELETE_OPERATIONS_THAT_SEARCH = ['deletePerson', 'deletePatientDataGraph',
  */
 function assertAdminScope ({ scopesManager, scope, accessRequested }) {
     if (!scopesManager.hasAdminScopeForAction({ scope, accessRequested })) {
-        throw new ForbiddenError('user with scopes [' + scope + '] failed access check to [admin/*.' + accessRequested + ']');
+        logInfo('Admin scope check failed', { scope, accessRequested });
+        throw new ForbiddenError('user does not have access to this admin route');
     }
 }
 
@@ -58,9 +59,11 @@ async function assertResourceWriteScopeAsync ({ container, req, resourceType, ac
         accessRequested
     });
     if (!success) {
+        logInfo('Admin resource scope check failed', {
+            user: requestInfo.user, scope: requestInfo.scope, resourceType, accessRequested
+        });
         throw new ForbiddenError(
-            'user with scopes [' + requestInfo.scope + '] failed access check to [' +
-            resourceType + '.' + accessRequested + ']'
+            'user ' + requestInfo.user + ' does not have access to [' + resourceType + ']'
         );
     }
 }
@@ -329,8 +332,9 @@ async function handleAdminGet (
                 }
             }
         } else {
+            logInfo('Admin scope check failed', { scope, accessRequested: 'read' });
             return res.status(403).json({
-                message: `Missing scopes for admin/*.read in ${scope}`
+                message: 'user does not have access to this admin route'
             });
         }
     } catch (error) {
@@ -569,8 +573,9 @@ async function handleAdminPost (
                 }
             }
         } else {
+            logInfo('Admin scope check failed', { scope, accessRequested: 'read' });
             return res.status(403).json({
-                message: `Missing scopes for admin/*.read in ${scope}`
+                message: 'user does not have access to this admin route'
             });
         }
     } catch (error) {

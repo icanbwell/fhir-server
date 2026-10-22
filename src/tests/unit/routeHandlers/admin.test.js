@@ -130,7 +130,7 @@ describe('routeHandlers/admin', () => {
             await handleAdminGet(fnGetContainer, mockReq, mockRes);
             expect(mockRes.status).toHaveBeenCalledWith(403);
             expect(mockRes.json).toHaveBeenCalledWith(
-                expect.objectContaining({ message: expect.stringContaining('Missing scopes') })
+                { message: 'user does not have access to this admin route' }
             );
         });
 

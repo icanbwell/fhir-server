@@ -68,7 +68,7 @@ describe('Person Tests', () => {
                     {
                         severity: 'error',
                         code: 'exception',
-                        diagnostics: 'user with scopes [user/*.read user/*.write access/*.*] failed access check to [admin/*.ds]'
+                        diagnostics: 'user does not have access to this admin route'
                     }
                 ]
             });
