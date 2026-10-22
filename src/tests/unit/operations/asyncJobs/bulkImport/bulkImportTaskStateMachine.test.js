@@ -15,6 +15,7 @@
  */
 
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
+const { ReadPreference } = require('mongodb');
 
 jestGlobal.mock('../../../../../operations/common/logging', () => ({
     logInfo: jestGlobal.fn(),
@@ -158,8 +159,17 @@ describe('BulkImportTaskStateMachine', () => {
                             code: BULK_IMPORT_TASK.TYPE_CODE
                         }
                     }
-                }
+                },
+                options: { readPreference: ReadPreference.PRIMARY }
             });
+        });
+
+        test('reads from the primary so a lagging secondary cannot return a stale Task and drop a completed range', async () => {
+            await stateMachine.loadTaskAsync('task-xyz');
+
+            expect(findOneAsync.mock.calls[0][0].options.readPreference).toBe(
+                ReadPreference.PRIMARY
+            );
         });
 
         test('RULE 10 parameter sensitivity: the taskId argument reaches the query verbatim', async () => {
