@@ -1,4 +1,5 @@
 const patient1Resource = require('./fixtures/patient1.json');
+const personWithLinkResource = require('./fixtures/person_with_link.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeAll, afterAll, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -94,5 +95,37 @@ describe('Read and search v2 CRUDS scope granularity Tests', () => {
             const body = Array.isArray(resp.body) ? resp.body : resp.body.entry?.map((e) => e.resource) ?? [];
             expect(body.map((r) => r.id)).toEqual(ids);
         }
+    });
+
+    test.each([
+        ['r on both gates', 'user/Person.r access/access.r access/owner.r'],
+        ['v1 read on both gates', 'user/Person.read access/access.read access/owner.read']
+    ])('validate by id of a Person linking a patient of the same tenant with %s reports no tenant error', async (name, scope) => {
+        const request = await createTestRequest();
+        await request.post('/4_0_0/Patient/$merge').send(patient1Resource).set(getHeaders()).expect(200);
+        await request.post('/4_0_0/Person/$merge').send(personWithLinkResource).set(getHeaders()).expect(200);
+
+        const resp = await request.get('/4_0_0/Person/person1/$validate').set(getHeaders(scope));
+
+        expect(resp.status).toBe(200);
+        expect(JSON.stringify(resp.body)).not.toContain('belongs to a tenant');
+    });
+
+    test.each([
+        ['a plain body', (body) => body],
+        ['a Parameters body', (body) => ({ resourceType: 'Parameters', parameter: [{ name: 'resource', resource: body }] })]
+    ])('validate with %s is not scope checked, unlike validate by id', async (name, wrap) => {
+        const request = await createTestRequest();
+        await request.post('/4_0_0/Patient/$merge').send(patient1Resource).set(getHeaders()).expect(200);
+        const scope = 'access/access.r access/owner.r';
+
+        const withBody = await request
+            .post('/4_0_0/Patient/$validate')
+            .send(wrap(patient1Resource))
+            .set(getHeaders(scope));
+        expect(withBody.status).toBe(200);
+
+        const byId = await request.get('/4_0_0/Patient/1/$validate').set(getHeaders(scope));
+        expect(byId.status).toBe(403);
     });
 });
