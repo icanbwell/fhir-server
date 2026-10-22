@@ -429,8 +429,9 @@ describe('Group $export for extended (Mongo-native) Groups', () => {
 
         test('_since applies to extended Groups: only Groups updated since are exported', async () => {
             await mergePatients(['ext-p1']);
-            const { groupId } = await createExtendedGroup();
-            await addExtendedMembers(groupId, ['Patient/ext-p1']);
+            // shares ext-p1 with the exported Group but is not updated after `since`
+            const { groupId: staleGroupId } = await createExtendedGroup();
+            await addExtendedMembers(staleGroupId, ['Patient/ext-p1']);
             const { groupId: laterGroupId } = await createExtendedGroup();
 
             await new Promise(resolve => setTimeout(resolve, 50));
@@ -451,12 +452,15 @@ describe('Group $export for extended (Mongo-native) Groups', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            const result = await runGroupExport(request, groupId, {
+            // _since also filters the lookup of the exported Group itself, so export the Group
+            // updated after `since`
+            const result = await runGroupExport(request, laterGroupId, {
                 query: `_since=${encodeURIComponent(since)}`
             });
 
             expect(exportedResources(result, 'Patient').map(p => p.id)).toEqual(['ext-p1']);
             expect(groupIdsOf(result)).toEqual([laterGroupId]);
+            expect(groupIdsOf(result)).not.toContain(staleGroupId);
         }, 60000);
 
         test('extended Group with no Patient members gets an empty Group.ndjson, as embedded does', async () => {
