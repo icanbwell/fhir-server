@@ -30,6 +30,9 @@
  * the parameters patient-scope filtering needs to `constructQueryAsync`), and the file has been
  * re-enabled in `jest.config.js` now that every test in it reflects real, verified behavior.
  */
+
+process.env.ENABLE_UPDATE_FAST_SERIALIZER = '0';
+
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 
 // ============ Mocks ============
@@ -81,6 +84,7 @@ const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggin
 const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
 const { ResourceValidator } = require('../../../../operations/common/resourceValidator');
 const { DatabaseBulkInserter } = require('../../../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
 const { ResourceMerger } = require('../../../../operations/common/resourceMerger');
 const { ConfigManager } = require('../../../../utils/configManager');
 const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAttachmentManager');
@@ -148,6 +152,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
             scopesValidator: createMockInstance(ScopesValidator),
             resourceValidator: createMockInstance(ResourceValidator),
             databaseBulkInserter: createMockInstance(DatabaseBulkInserter),
+            fastDatabaseBulkInserter: createMockInstance(FastDatabaseBulkInserter),
             resourceMerger: createMockInstance(ResourceMerger),
             configManager: createMockInstance(ConfigManager),
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
