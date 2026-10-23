@@ -1,5 +1,7 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
+process.env.ENABLE_CREATE_FAST_SERIALIZER = '0';
+
 jest.mock('express-http-context', () => {
     const { jest: j } = require('@jest/globals');
     return { get: j.fn(), set: j.fn() };
@@ -54,6 +56,7 @@ const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggin
 const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
 const { ResourceValidator } = require('../../../../operations/common/resourceValidator');
 const { DatabaseBulkInserter } = require('../../../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
 const { ConfigManager } = require('../../../../utils/configManager');
 const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
@@ -77,6 +80,7 @@ describe('CreateOperation', () => {
             scopesValidator: createMockInstance(ScopesValidator),
             resourceValidator: createMockInstance(ResourceValidator),
             databaseBulkInserter: createMockInstance(DatabaseBulkInserter),
+            fastDatabaseBulkInserter: createMockInstance(FastDatabaseBulkInserter),
             configManager: createMockInstance(ConfigManager),
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
             base64DataManager: createMockInstance(Base64DataManager),

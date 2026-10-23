@@ -463,6 +463,20 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
             expect(cm2.maxIdsPerAuditEvent).toBe(50);
         });
 
+        test('auditEventClickPipeBatchSize defaults to 50 and auditEventClickPipeCompression to zstd', () => {
+            setEnv('AUDIT_EVENT_CLICKPIPE_BATCH_SIZE', undefined);
+            setEnv('AUDIT_EVENT_CLICKPIPE_COMPRESSION', undefined);
+            const cm = new ConfigManager();
+            expect(cm.auditEventClickPipeBatchSize).toBe(50);
+            expect(cm.auditEventClickPipeCompression).toBe('zstd');
+
+            setEnv('AUDIT_EVENT_CLICKPIPE_BATCH_SIZE', '25');
+            setEnv('AUDIT_EVENT_CLICKPIPE_COMPRESSION', 'gzip');
+            const cm2 = new ConfigManager();
+            expect(cm2.auditEventClickPipeBatchSize).toBe(25);
+            expect(cm2.auditEventClickPipeCompression).toBe('gzip');
+        });
+
         test('cacheExpiryTime falls back to DEFAULT_CACHE_EXPIRY_TIME and parses an override', () => {
             setEnv('CACHE_EXPIRY_TIME', undefined);
             expect(new ConfigManager().cacheExpiryTime).toBe(DEFAULT_CACHE_EXPIRY_TIME);

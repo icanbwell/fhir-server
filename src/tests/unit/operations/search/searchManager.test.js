@@ -398,6 +398,33 @@ describe('SearchManager', () => {
         });
     });
 
+    describe('fetchResourcesByArgsAsync', () => {
+        it('builds its query with the s access codes', async () => {
+            const constructQueryAsync = jest.fn().mockResolvedValue({ query: {} });
+            searchManager.constructQueryAsync = constructQueryAsync;
+            const cursor = {
+                maxTimeMS: () => cursor,
+                getCollection: () => 'Patient_4_0_0',
+                hasNext: async () => false
+            };
+            mockDatabaseQueryFactory.createQuery = () => ({ findAsync: async () => cursor });
+            mockConfigManager.mongoTimeout = 1000;
+
+            await searchManager.fetchResourcesByArgsAsync({
+                base_version: '4_0_0',
+                requestInfo: { user: 'u', scope: 'user/Patient.s access/a.s' },
+                resourceType: 'Patient',
+                parsedArgs: {},
+                explain: false,
+                debug: false
+            });
+
+            expect(constructQueryAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: 's' })
+            );
+        });
+    });
+
     describe('handleCountOption', () => {
         it('sets limit and skip', () => {
             const result = searchManager.handleCountOption({ parsedArgs: { _count: '10', _getpagesoffset: '2' }, options: {}, isStreaming: false });

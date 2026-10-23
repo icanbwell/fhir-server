@@ -268,7 +268,7 @@ class UpdateOperation {
                         personIdFromJwtToken,
                         parsedArgs,
                         operation: WRITE,
-                        accessRequested: 'write'
+                        accessRequested: 'u'
                     })
                 );
             }

@@ -731,6 +731,10 @@ class ConfigManager {
         return isTrueWithFallback(env.LOG_UPDATED_MERGE_VALIDATION_ERRORS, true);
     }
 
+    get enableCreateFastSerializer() {
+        return isTrueWithFallback(env.ENABLE_CREATE_FAST_SERIALIZER, true);
+    }
+
     /**
      * returns cron expression for postRequest processes
      * @returns {string}
@@ -1348,6 +1352,26 @@ class ConfigManager {
      */
     get enableAuditEventClickPipe() {
         return isTrue(env.ENABLE_AUDIT_EVENT_CLICKPIPE);
+    }
+
+    /**
+     * Max AuditEvent messages per Kafka produce call on the ClickPipe path.
+     * Configuration: AUDIT_EVENT_CLICKPIPE_BATCH_SIZE (default 50)
+     * @return {number}
+     */
+    get auditEventClickPipeBatchSize() {
+        return env.AUDIT_EVENT_CLICKPIPE_BATCH_SIZE
+            ? parseInt(env.AUDIT_EVENT_CLICKPIPE_BATCH_SIZE)
+            : 50;
+    }
+
+    /**
+     * Kafka compression for AuditEvent messages on the ClickPipe path: none | gzip | zstd.
+     * Configuration: AUDIT_EVENT_CLICKPIPE_COMPRESSION (default zstd)
+     * @return {string}
+     */
+    get auditEventClickPipeCompression() {
+        return env.AUDIT_EVENT_CLICKPIPE_COMPRESSION || 'zstd';
     }
 
     /**
