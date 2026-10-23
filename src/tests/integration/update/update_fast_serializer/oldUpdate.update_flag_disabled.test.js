@@ -105,7 +105,9 @@ describe('Update with fast serializer disabled', () => {
         const request = await createTestRequest();
         const container = getTestContainer();
         const postResp = await request.post('/4_0_0/Practitioner').send(practitionerPayload()).set(getHeaders());
+        expect(postResp).toHaveStatusCode(201);
         const id = postResp.body.id;
+        await container.postRequestProcessor.waitTillDoneAsync({ requestId, timeoutInSeconds: 20 });
         const db = await container.mongoDatabaseManager.getClientDbAsync();
         const collection = db.collection('Practitioner_4_0_0');
 
