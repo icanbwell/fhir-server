@@ -4,7 +4,7 @@
   "outcomeDesc": "Success",
   "agent": {
     "altId": "imran",
-    "networkAddress": "::ffff:127.0.0.1",
+    "networkAddress": "127.0.0.1",
     "scopes": "user/*.read user/*.write access/*.*"
   },
   "details": {
