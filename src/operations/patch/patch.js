@@ -10,6 +10,7 @@ const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { fhirContentTypes } = require('../../utils/contentTypes');
@@ -36,6 +37,12 @@ const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identif
 const { validatePatchDoesNotTargetInternalFields } = require('./validators/patchInternalFieldsValidator');
 const { promoteExistingGroupIfNeeded } = require('../../utils/groupPromotion');
 const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
+const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
+const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
+const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
+const { validateResource } = require('../../utils/validator.util');
+const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
+const deepcopy = require('deepcopy');
 
 class PatchOperation {
     /**
@@ -65,6 +72,7 @@ class PatchOperation {
             fhirLoggingManager,
             scopesValidator,
             databaseBulkInserter,
+            fastDatabaseBulkInserter,
             databaseAttachmentManager,
             base64DataManager,
             configManager,
@@ -102,11 +110,21 @@ class PatchOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
-        /**
-         * @type {DatabaseBulkInserter}
-         */
-        this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        this.useFastSerializer = configManager.enablePatchFastSerializer;
+
+        if (this.useFastSerializer) {
+            /**
+             * @type {FastDatabaseBulkInserter}
+             */
+            this.databaseBulkInserter = fastDatabaseBulkInserter;
+            assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
+        } else {
+            /**
+             * @type {DatabaseBulkInserter}
+             */
+            this.databaseBulkInserter = databaseBulkInserter;
+            assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        }
         /**
          * @type {DatabaseAttachmentManager}
          */
@@ -327,7 +345,9 @@ class PatchOperation {
             /**
              * @type {[Resource] | null}
              */
-            const resources = await cursor.toObjectArrayAsync();
+            const resources = this.useFastSerializer
+                ? (await cursor.toArrayAsync()).map((r) => FhirResourceWriteSerializer.serialize({ obj: r }))
+                : await cursor.toObjectArrayAsync();
 
             if (resources.length > 1) {
                 const sourceAssigningAuthorities = resources.flatMap(
@@ -421,7 +441,7 @@ class PatchOperation {
             }
             // ====================================================================
 
-            const originalResource = foundResource.clone();
+            const originalResource = this.useFastSerializer ? deepcopy(foundResource) : foundResource.clone();
             foundResource = await this.databaseAttachmentManager.transformAttachments(
                 foundResource, RETRIEVE, effectivePatchContent
             );
@@ -439,13 +459,19 @@ class PatchOperation {
             /**
              * @type {Object}
              */
-            const resource_incoming = this.resourceMerger.applyPatch({
-                currentResource: foundResource, patchContent: effectivePatchContent
-            });
+            const resource_incoming = this.useFastSerializer
+                ? this.resourceMerger.fastApplyPatch({
+                    currentResource: deepcopy(foundResource), patchContent: effectivePatchContent
+                })
+                : this.resourceMerger.applyPatch({
+                    currentResource: foundResource, patchContent: effectivePatchContent
+                });
             /**
              * @type {Resource}
              */
-            let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
+            let resource = this.useFastSerializer
+                ? resource_incoming
+                : FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
             // DCON-4841: this must run whenever foundResource has metadata, not just when a
             // meta.source happens to be present -- overWriteNonWritableFields is what reverts any
@@ -477,17 +503,34 @@ class PatchOperation {
             let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
                 resource_incoming
             );
+            const resourceToValidate = this.useFastSerializer ? deepcopy(resource) : resource;
+            if (this.useFastSerializer) {
+                removeUnderscoreFieldsRecursive(resourceToValidate);
+            }
             if (!validationOperationOutcome) {
                 validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
                     base_version,
                     requestInfo,
                     id: resource.id,
                     resourceType: resource.resourceType,
-                    resourceToValidate: resource,
+                    resourceToValidate,
                     path,
                     resourceObj: resource,
                     currentResource: foundResource
                 });
+            }
+            if (this.useFastSerializer && !validationOperationOutcome) {
+                FhirResourceWriteSerializer.serialize({ obj: resourceToValidate });
+                validationOperationOutcome = validateResource({
+                    resourceBody: resourceToValidate,
+                    resourceName: resourceType,
+                    path
+                });
+                if (validationOperationOutcome) {
+                    recordValidationFailure(validationOperationOutcome, resourceType, VALIDATION_STAGE.SCHEMA, PATH.SAVE);
+                } else {
+                    FhirResourceWriteSerializer.serialize({ obj: resource });
+                }
             }
             if (validationOperationOutcome) {
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
@@ -507,10 +550,22 @@ class PatchOperation {
             dateColumnHandler.setFlag(true);
             foundResource = await dateColumnHandler.preSaveAsync({ resource: foundResource });
 
-            const appliedPatchContent = this.resourceMerger.compareObjects({
-                currentObject: foundResource.toJSON(),
-                mergedObject: resource.toJSON()
-            });
+            let appliedPatchContent;
+            if (this.useFastSerializer) {
+                const mergedObject = deepcopy(resource);
+                await dateColumnHandler.preSaveAsync({ resource: mergedObject });
+                FhirResourceWriteNormalizeSerializer.serialize({ obj: foundResource });
+                FhirResourceWriteNormalizeSerializer.serialize({ obj: mergedObject });
+                appliedPatchContent = this.resourceMerger.compareObjects({
+                    currentObject: foundResource,
+                    mergedObject
+                });
+            } else {
+                appliedPatchContent = this.resourceMerger.compareObjects({
+                    currentObject: foundResource.toJSON(),
+                    mergedObject: resource.toJSON()
+                });
+            }
 
             // hasPendingMemberWrites forces entry even when the non-member ops alone produced no
             // diff (appliedPatchContent.length === 0) -- true for every extended-regime
@@ -523,7 +578,7 @@ class PatchOperation {
             // resolved that above, so an all-none member patch still correctly skips the bump
             // here even when it's the only thing in the request.
             if (appliedPatchContent.length > 0 || hasPendingMemberWrites) {
-                this.resourceMerger.updateMeta({
+                this.resourceMerger[this.useFastSerializer ? 'fastUpdateMeta' : 'updateMeta']({
                     patched_resource_incoming: resource,
                     currentResource: foundResource,
                     original_source: foundResource.meta?.source,
@@ -623,6 +678,8 @@ class PatchOperation {
                 action: currentOperationName
             });
 
+            // after-save handlers hold the saved doc, so build the response from a copy
+            resource = this.useFastSerializer ? deepcopy(resource) : resource;
             // converting attachment._file_id to attachment.data for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
             resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE, requestInfo);
@@ -630,7 +687,7 @@ class PatchOperation {
             // enrich resource
             this.identifierEnrichmentProvider.enrichIdentifierList(resource);
             [resource] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({ resources: [resource] });
-            resource = FhirResourceSerializer.serialize(resource.toJSONInternal());
+            resource = FhirResourceSerializer.serialize(this.useFastSerializer ? resource : resource.toJSONInternal());
 
             return {
                 id: resource.id,
