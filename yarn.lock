@@ -5,12 +5,26 @@ __metadata:
   version: 9
   cacheKey: 10c0
 
-"@apollo/cache-control-types@npm:^1.0.3":
+"@apollo/cache-control-types@npm:^1.0.2, @apollo/cache-control-types@npm:^1.0.3":
   version: 1.0.3
   resolution: "@apollo/cache-control-types@npm:1.0.3"
   peerDependencies:
     graphql: 14.x || 15.x || 16.x
   checksum: 10c0/b49a9e99c7d5af6dfe12b775eb6374c8a54894e17ffa882b3d85f4501ca19ee413bdcc1a787a4b44dcc2903ce2c28f19b69116f338f88670c4f6f2e10a0bc498
+  languageName: node
+  linkType: hard
+
+"@apollo/federation-internals@npm:2.14.3":
+  version: 2.14.3
+  resolution: "@apollo/federation-internals@npm:2.14.3"
+  dependencies:
+    "@types/uuid": "npm:^9.0.0"
+    chalk: "npm:^4.1.0"
+    js-levenshtein: "npm:^1.1.6"
+    uuid: "npm:^9.0.0"
+  peerDependencies:
+    graphql: ^16.5.0
+  checksum: 10c0/3ea104554e694d55f21143471d277e3adac87f8d791724a0462b31f83dc69a1afd3e449dd71148fc8830ce544247f2d6fd7f98603209c6cf39c3e47bf470a6ef
   languageName: node
   linkType: hard
 
@@ -81,15 +95,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/subgraph@npm:^2.14.0":
-  version: 2.15.1
-  resolution: "@apollo/subgraph@npm:2.15.1"
+"@apollo/subgraph@npm:2.14.3":
+  version: 2.14.3
+  resolution: "@apollo/subgraph@npm:2.14.3"
   dependencies:
-    "@apollo/cache-control-types": "npm:^1.0.3"
-    "@graphql-tools/utils": "npm:^12.0.0"
+    "@apollo/cache-control-types": "npm:^1.0.2"
+    "@apollo/federation-internals": "npm:2.14.3"
   peerDependencies:
-    graphql: ^16.11.0
-  checksum: 10c0/e360809d2778d01ec3c751c73d43dd549a833a5ca031892f322f9fbb4fed2c0567ec774b79fcfa164e488168155befe460b19ecd48b8db2fb9f00d1aded19e54
+    graphql: ^16.5.0
+  checksum: 10c0/58073fbbd1c16d544b2b4d44867042aeb1d9fa1d42fe412f6d185a7b255c3aae241f7ec7405f1c808a5bdd8573bc60cf272f4db65ff21656d7bcffac15239761
   languageName: node
   linkType: hard
 
@@ -1200,7 +1214,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/utils@npm:^12.0.0, @graphql-tools/utils@npm:^12.1.0":
+"@graphql-tools/utils@npm:^12.1.0":
   version: 12.1.0
   resolution: "@graphql-tools/utils@npm:12.1.0"
   dependencies:
@@ -3962,6 +3976,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/uuid@npm:^9.0.0":
+  version: 9.0.8
+  resolution: "@types/uuid@npm:9.0.8"
+  checksum: 10c0/b411b93054cb1d4361919579ef3508a1f12bf15b5fdd97337d3d351bece6c921b52b6daeef89b62340fd73fd60da407878432a1af777f40648cbe53a01723489
+  languageName: node
+  linkType: hard
+
 "@types/webidl-conversions@npm:*":
   version: 7.0.3
   resolution: "@types/webidl-conversions@npm:7.0.3"
@@ -4866,7 +4887,7 @@ __metadata:
   resolution: "bwell-fhir-server@workspace:."
   dependencies:
     "@apollo/server": "npm:5.5.1"
-    "@apollo/subgraph": "npm:^2.14.0"
+    "@apollo/subgraph": "npm:2.14.3"
     "@as-integrations/express5": "npm:^1.1.2"
     "@aws-sdk/client-s3": "npm:^3.1053.0"
     "@aws-sdk/lib-storage": "npm:^3.1053.0"
@@ -5108,7 +5129,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^4.1.2":
+"chalk@npm:^4.1.0, chalk@npm:^4.1.2":
   version: 4.1.2
   resolution: "chalk@npm:4.1.2"
   dependencies:
@@ -7707,6 +7728,13 @@ __metadata:
   version: 6.2.13
   resolution: "jose@npm:6.2.13"
   checksum: 10c0/a7a175057fd42e129200026320d535deba5c869e764bdb130d4aecb7cc2a22c07eab2bf9fc848188b45b89d95f8e0ba4ce01a8259a4fa45c84bec34f66f2918e
+  languageName: node
+  linkType: hard
+
+"js-levenshtein@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "js-levenshtein@npm:1.1.6"
+  checksum: 10c0/14045735325ea1fd87f434a74b11d8a14380f090f154747e613529c7cff68b5ee607f5230fa40665d5fb6125a3791f4c223f73b9feca754f989b059f5c05864f
   languageName: node
   linkType: hard
 
