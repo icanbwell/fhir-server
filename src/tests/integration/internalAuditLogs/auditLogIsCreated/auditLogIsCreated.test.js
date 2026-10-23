@@ -8,6 +8,8 @@ const observation = require('./fixtures/Observation/observation1.json');
 const consent = require('./fixtures/Consent/consent1.json');
 
 // expected
+// Expected remote address is 127.0.0.1: supertest 7.3+ binds the test server to IPv4 loopback only,
+// so req.socket.remoteAddress has no ::ffff: prefix. Test-only; production listen is unchanged.
 const expectedSinglePractitionerResource = require('./fixtures/expected/expected_single_practitioner.json');
 const expectedAuditEvents1 = require('./fixtures/expected/expected_audit_events_1.json');
 const expectedAuditEvents2 = require('./fixtures/expected/expected_audit_events_2.json');
