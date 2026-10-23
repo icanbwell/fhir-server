@@ -67,6 +67,7 @@ async function main() {
                 bulkExportEventProducer: c.bulkExportEventProducer,
                 storageProviderFactory: c.storageProviderFactory,
                 mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+                groupMemberQueryRewriter: c.groupMemberQueryRewriter,
                 exportStatusId,
                 patientReferenceBatchSize,
                 fetchResourceBatchSize,

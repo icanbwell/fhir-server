@@ -4,7 +4,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { RESOURCE_TYPE_SCOPE_NAMESPACES } = require('../../constants');
-const { parseScopeToken, getRequiredCrudsForAccessRequested, isCrudsRequirementSatisfied, isV2Suffix } = require('./smartScopeParser');
+const { parseScopeToken, getRequiredCrudsForAccessRequested, isCrudsRequirementSatisfied, isV2Suffix, normalizeSuffixToCruds } = require('./smartScopeParser');
 const { logInfo } = require('../common/logging');
 
 class ScopesManager {
@@ -391,19 +391,27 @@ class ScopesManager {
     }
 
     /**
-     * Returns whether scope contains an admin/ scope whose action segment is the given action or
-     * the wildcard '*'. getAdminScopes() alone (used to gate admin routes generally) never looks
-     * at the action segment, so an admin/*.read-only caller passes that check identically to one
-     * holding admin/*.write.
+     * Returns whether the admin/ scopes together grant the CRUDS letter the route needs. The
+     * resource segment is ignored. v1 suffixes (read, write, *) expand to their letters; v2 letters
+     * are honoured only when ENABLE_SMART_V2_CRUDS_SCOPES is on. getAdminScopes() alone (used to
+     * gate admin routes generally) never looks at the suffix.
      * @param {string|undefined} scope
-     * @param {'read'|'write'} action
+     * @param {string} accessRequested
      * @return {boolean}
      */
-    hasAdminScopeForAction ({ scope, action }) {
-        return this.getAdminScopes({ scope }).some((adminScope) => {
-            const scopeAction = adminScope.split('.')[1];
-            return scopeAction === '*' || scopeAction === action;
-        });
+    hasAdminScopeForAction ({ scope, accessRequested }) {
+        const required = getRequiredCrudsForAccessRequested(accessRequested);
+        const granted = new Set();
+        for (const adminScope of this.getAdminScopes({ scope })) {
+            const cruds = normalizeSuffixToCruds(
+                adminScope.split('.')[1],
+                this.configManager.enableSmartV2CrudsScopes
+            );
+            if (cruds) {
+                cruds.forEach(letter => granted.add(letter));
+            }
+        }
+        return isCrudsRequirementSatisfied(granted, required);
     }
 
     /**
