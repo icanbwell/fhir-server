@@ -1,6 +1,8 @@
 // test file
 const observationResource = require('./fixtures/observation.json');
 // expected
+// Expected remote address is 127.0.0.1: supertest 7.3+ binds the test server to IPv4 loopback only,
+// so req.socket.remoteAddress has no ::ffff: prefix. Test-only; production listen is unchanged.
 const accessLogs5 = require('./fixtures/access-logs5.json');
 
 const {

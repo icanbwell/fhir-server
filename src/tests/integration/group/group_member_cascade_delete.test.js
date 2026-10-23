@@ -276,6 +276,10 @@ describe('Group cascade delete (extended storage)', () => {
 
     test('deleting an embedded Group takes the normal path: no cascade and no GroupMember history', async () => {
         const created = await createGroup({ extended: false });
+        // Let the create's queued history insert flush first. All requests in this test share one
+        // requestId, so the DELETE would otherwise re-flush the same entry and hit E11000 on
+        // Group_4_0_0_History._id (flaky 500).
+        await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId });
         const groupUuid = await groupUuidOf(created.id);
 
         const response = await deleteGroup(created.id);

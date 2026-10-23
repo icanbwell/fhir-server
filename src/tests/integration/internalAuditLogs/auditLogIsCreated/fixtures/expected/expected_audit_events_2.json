@@ -10,7 +10,7 @@
         "altId": "imran",
         "network": {
           "type": "2",
-          "address": "::ffff:127.0.0.1"
+          "address": "127.0.0.1"
         },
         "requestor": true
       }
@@ -90,7 +90,7 @@
         "altId": "imran",
         "network": {
           "type": "2",
-          "address": "::ffff:127.0.0.1"
+          "address": "127.0.0.1"
         },
         "requestor": true
       }
