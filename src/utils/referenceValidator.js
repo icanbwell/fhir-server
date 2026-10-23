@@ -3,6 +3,7 @@
  */
 
 const { REGEX } = require("../constants");
+const fieldTypes = require('../fhir/fhir-generated.field-types.json');
 
 /**
  * Validate if the provided reference object is valid or not
@@ -64,14 +65,22 @@ function validateReferences (resourceObj, path) {
     return errors;
 }
 
+const URI_REFERENCE_ELEMENTS = new Set(
+    Object.entries(fieldTypes)
+        .filter(([key, value]) => key.endsWith('.reference') && value.code === 'uri')
+        .map(([key]) => key.slice(0, -'.reference'.length))
+);
 
 /**
  * Validate if the references in a resource object/array are valid or not
+ * uri elements that happen to be named reference (Immunization.education.reference,
+ * DetectedIssue.reference) are not References and are skipped
  * @param {Object} resourceObj
  * @param {string} path
+ * @param {string} [elementName]
  * @returns {*[]}
  */
-function fastValidateReferences (resourceObj, path) {
+function fastValidateReferences (resourceObj, path, elementName = resourceObj?.resourceType) {
     const errors = [];
     if (!resourceObj || typeof resourceObj !== 'object') {
         return errors;
@@ -81,13 +90,18 @@ function fastValidateReferences (resourceObj, path) {
     for (const [key, value] of entries) {
         if (typeof value === 'object' && value !== null) {
             const newPath = path ? `${path}.${key}` : `${key}`;
-            if (Object.prototype.hasOwnProperty.call(value, 'reference') && typeof value.reference === 'string') {
+            const valueName = value.resourceType || (Array.isArray(resourceObj) ? elementName : `${elementName}.${key}`);
+            if (
+                Object.prototype.hasOwnProperty.call(value, 'reference') &&
+                typeof value.reference === 'string' &&
+                !URI_REFERENCE_ELEMENTS.has(valueName)
+            ) {
                 const err = checkReferenceValue(value, newPath);
                 if (err) {
                     errors.push(err);
                 }
             }
-            const objErrors = fastValidateReferences(value, newPath);
+            const objErrors = fastValidateReferences(value, newPath, valueName);
             errors.push(...objErrors);
         }
     }

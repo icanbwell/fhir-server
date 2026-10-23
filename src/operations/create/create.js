@@ -10,6 +10,7 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
@@ -21,6 +22,10 @@ const { buildContextDataForHybridStorage } = require('../../utils/contextDataBui
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
+const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
+const deepcopy = require('deepcopy');
+const { validateResource } = require('../../utils/validator.util');
+const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
 
 class CreateOperation {
     /**
@@ -44,6 +49,7 @@ class CreateOperation {
             scopesValidator,
             resourceValidator,
             databaseBulkInserter,
+            fastDatabaseBulkInserter,
             configManager,
             databaseAttachmentManager,
             base64DataManager,
@@ -76,11 +82,23 @@ class CreateOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
-        /**
-         * @type {DatabaseBulkInserter}
-         */
-        this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+
+        this.useFastSerializer = configManager.enableCreateFastSerializer;
+
+        if (this.useFastSerializer) {
+            /**
+             * @type {FastDatabaseBulkInserter}
+             */
+            this.databaseBulkInserter = fastDatabaseBulkInserter;
+            assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
+        }
+        else {
+            /**
+             * @type {DatabaseBulkInserter}
+             */
+            this.databaseBulkInserter = databaseBulkInserter;
+            assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        }
 
         /**
          * @type {ConfigManager}
@@ -169,9 +187,11 @@ class CreateOperation {
         removeUnderscoreFieldsRecursive(resource_incoming);
 
         /**
-         * @type {Resource}
+         * @type {object | Resource}
          */
-        let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
+        let resource = this.useFastSerializer
+            ? resource_incoming
+            : FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
         let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
             resource_incoming
@@ -186,6 +206,17 @@ class CreateOperation {
                 path,
                 resourceObj: resource
             });
+        }
+        if (this.useFastSerializer && !validationOperationOutcome) {
+            resource = FhirResourceWriteSerializer.serialize({ obj: resource_incoming });
+            validationOperationOutcome = validateResource({
+                resourceBody: resource,
+                resourceName: resourceType,
+                path
+            });
+            if (validationOperationOutcome) {
+                recordValidationFailure(validationOperationOutcome, resourceType, VALIDATION_STAGE.SCHEMA, PATH.SAVE);
+            }
         }
         // Oversized AuditEvents are rejected with 413 (payload too large) once
         // schema validation passes, rather than a generic 400 validation error.
@@ -310,11 +341,12 @@ class CreateOperation {
 
             // Inline any externalized base64 payload so the response body matches the
             // client's request shape
+            doc = this.useFastSerializer ? deepcopy(doc) : doc;
             doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.RETRIEVE, requestInfo);
 
             // enrich resource
             this.identifierEnrichmentProvider.enrichIdentifierList(doc);
-            doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
+            doc = FhirResourceSerializer.serialize(this.useFastSerializer ? doc : doc.toJSONInternal());
 
             return doc;
         } catch (/** @type {Error} */ e) {
