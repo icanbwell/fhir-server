@@ -467,6 +467,17 @@ class BulkImportHandler {
             return;
         }
 
+        // The orchestrator reads this topic from the beginning when its group has no committed
+        // offset, so a replayed TaskCreated must not re-publish ranges for a Task that was
+        // already picked up, failed or finished.
+        if (task.status !== 'requested') {
+            logInfo('Skipping TaskCreated for a Task that is no longer requested', {
+                taskId,
+                status: task.status
+            });
+            return;
+        }
+
         recordImportOperationTriggered();
 
         let inputsWithSizes;
