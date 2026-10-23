@@ -30,9 +30,10 @@
  *                  target is a no-op. Needs kafka-cluster:AlterTopic on the topic. Run it while
  *                  nothing is in flight, then restart the consumers of the topic before
  *                  producing again: kafkajs consumers do not pick up new partitions until they
- *                  rejoin the group, and a new partition with no committed offset starts at the
- *                  latest offset when the consumer subscribes with fromBeginning: false (the
- *                  bulk-import worker does), so messages written to it earlier are skipped.
+ *                  rejoin the group. A consumer that subscribes with fromBeginning: false starts a
+ *                  new partition (no committed offset) at the latest offset and skips messages
+ *                  written to it earlier; the bulk-import worker subscribes with
+ *                  fromBeginning: true, so it does not.
  *   --partitions   number of partitions when creating (default: 30), or the target when growing
  *   --retention-ms retention period in ms when creating (default: 7 days)
  *   --max-message-bytes max.message.bytes when creating/updating (default: 2mb)
@@ -301,8 +302,8 @@ async function growKafkaTopic(
         });
         log.warn(
             'Restart the consumers of this topic before producing to it again: they do not pick up ' +
-                'new partitions until they rejoin the group, and a new partition starts at the latest ' +
-                'offset for a fromBeginning: false consumer',
+                'new partitions until they rejoin the group. A fromBeginning: false consumer also ' +
+                'starts a new partition at its latest offset and skips earlier messages',
             { topicName }
         );
     } catch (err) {
