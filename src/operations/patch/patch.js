@@ -466,7 +466,7 @@ class PatchOperation {
              */
             const resource_incoming = this.useFastSerializer
                 ? this.resourceMerger.fastApplyPatch({
-                    currentResource: deepcopy(foundResource), patchContent: effectivePatchContent
+                    currentResource: deepcopy(foundResource), patchContent: deepcopy(effectivePatchContent)
                 })
                 : this.resourceMerger.applyPatch({
                     currentResource: foundResource, patchContent: effectivePatchContent

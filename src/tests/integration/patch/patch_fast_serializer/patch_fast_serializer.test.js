@@ -118,6 +118,29 @@ describe('Patch with fast serializer', () => {
         expect(history[1].resource.name[0].family).toStrictEqual('PATCHED');
     });
 
+    test('history records the patch operations as the client sent them', async () => {
+        const request = await createTestRequest();
+        const id = await create(request, 'Observation', observationPayload());
+        const operations = [
+            { op: 'add', path: '/performer', value: [{ reference: 'Practitioner/some-practitioner' }] }
+        ];
+
+        const patchResp = await patch(request, 'Observation', id, JSON.parse(JSON.stringify(operations)));
+        expect(patchResp).toHaveStatusCode(200);
+        await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId, timeoutInSeconds: 20 });
+
+        const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
+        const readHistoryRow = async () => await db
+            .collection('Observation_4_0_0_History')
+            .findOne({ 'resource._uuid': id, 'resource.meta.versionId': '2' });
+        let row = await readHistoryRow();
+        for (let attempt = 0; attempt < 20 && !row; attempt++) {
+            await new Promise((resolve) => setTimeout(resolve, 250));
+            row = await readHistoryRow();
+        }
+        expect(row.response.outcome.issue.map((i) => JSON.parse(i.diagnostics))).toStrictEqual(operations);
+    });
+
     test('after-save handlers receive the saved resource with its internal fields', async () => {
         const request = await createTestRequest();
         const container = getTestContainer();
