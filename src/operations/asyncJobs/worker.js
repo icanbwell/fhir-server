@@ -9,7 +9,7 @@ initStandaloneEntrypointSentry();
 const http = require('http');
 const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');
-const { logInfo, logError } = require('../common/logging');
+const { logInfo, logError, logWarn } = require('../common/logging');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 
 /**
@@ -33,6 +33,54 @@ function getJobs(container) {
             deadLetterTopic: `${configManager.kafkaBulkImportEventTopic}.dlt`
         }
     ];
+}
+
+/**
+ * Logs the partitions this consumer owns after every group join (initial join and each
+ * rebalance), with each partition's committed offset (-1 = none, so the consumer starts at
+ * its fromBeginning position). Without it there is no way to tell from the logs which
+ * partitions a worker reads or where it starts. A failed offset lookup is logged and never
+ * affects consumption.
+ * @param {Object} params
+ * @param {import('../../utils/kafkaClientV2').KafkaClientV2} params.kafkaClientV2
+ * @param {{ topic: string, groupId: string, label: string }} params.job
+ * @param {{ payload: { memberId?: string, isLeader?: boolean, memberAssignment?: Object<string, number[]> } }} params.event
+ * @returns {Promise<void>}
+ */
+async function logPartitionAssignmentAsync({ kafkaClientV2, job, event }) {
+    const partitions = [...(event.payload.memberAssignment?.[job.topic] ?? [])].sort((a, b) => a - b);
+    const details = {
+        label: job.label,
+        topic: job.topic,
+        groupId: job.groupId,
+        memberId: event.payload.memberId,
+        isLeader: event.payload.isLeader,
+        partitions
+    };
+    let admin;
+    try {
+        admin = kafkaClientV2.createAdminClient();
+        await admin.connect();
+        const [topicOffsets] = await admin.fetchOffsets({ groupId: job.groupId, topics: [job.topic] });
+        const committedOffsets = {};
+        for (const { partition, offset } of topicOffsets?.partitions ?? []) {
+            if (partitions.includes(partition)) {
+                committedOffsets[partition] = offset;
+            }
+        }
+        logInfo('Async job worker partitions assigned', {
+            ...details,
+            committedOffsets,
+            partitionsWithoutCommit: partitions.filter((p) => committedOffsets[p] === '-1')
+        });
+    } catch (e) {
+        logWarn('Async job worker partitions assigned (committed offsets unavailable)', {
+            ...details,
+            error: e.message
+        });
+    } finally {
+        await admin?.disconnect().catch(() => {});
+    }
 }
 
 async function main() {
@@ -96,6 +144,14 @@ async function main() {
                 maxRetries: 3,
                 deadLetterTopic: job.deadLetterTopic
             });
+
+            // waitForConsumerToJoinGroupAsync only reports the first join; this logs every one,
+            // so rebalances (e.g. a scale-out) show which partitions each pod took over.
+            if (consumer) {
+                consumer.on(consumer.events.GROUP_JOIN, (event) =>
+                    logPartitionAssignmentAsync({ kafkaClientV2, job, event })
+                );
+            }
 
             // kafkaClientV2's own CRASH listener (registered inside waitForConsumerToJoinGroupAsync)
             // only rejects the join promise above, which is a no-op once already resolved — so a
