@@ -628,7 +628,9 @@ class ResourceMerger {
             );
         }
 
-        let patched_resource_incoming = this.fastApplyPatch({ currentResource: deepcopy(currentResource), patchContent });
+        let patched_resource_incoming = this.fastApplyPatch({
+            currentResource: deepcopy(currentResource), patchContent: deepcopy(patchContent)
+        });
 
         let base64Patches = [];
         if (base64DataManager) {
