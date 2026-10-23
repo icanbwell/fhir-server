@@ -824,6 +824,33 @@ class BulkImportHandler {
         } = eventData;
         const rangeStartTimeMs = Date.now();
 
+        // The worker reads this topic from the beginning when its group has no committed
+        // offset, so a range for a Task that is already finished (or whose completion is
+        // already recorded) can be redelivered. Re-reading it would merge old NDJSON over
+        // newer data and re-insert ClickHouse-routed rows, so skip it here.
+        const task = await this.bulkImportTaskStateMachine.loadTaskAsync(taskId);
+        if (!task) {
+            logError('Task not found for bulk import range', { taskId, filepath, rangeIndex });
+            return;
+        }
+        if (task.status === 'completed' || task.status === 'failed') {
+            logInfo('Skipping bulk import range for a Task that is already finished', {
+                taskId,
+                filepath,
+                rangeIndex,
+                status: task.status
+            });
+            return;
+        }
+        if (this.bulkImportTaskStateMachine.isRangeRecorded(task, { filepath, rangeIndex })) {
+            logInfo('Skipping bulk import range that is already recorded on the Task', {
+                taskId,
+                filepath,
+                rangeIndex
+            });
+            return;
+        }
+
         logInfo('Processing bulk import range', {
             taskId,
             filepath,

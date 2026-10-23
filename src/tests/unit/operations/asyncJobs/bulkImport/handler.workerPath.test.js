@@ -118,6 +118,7 @@ describe('BulkImportHandler — worker path', () => {
             },
             bulkImportTaskStateMachine: {
                 loadTaskAsync: jestGlobal.fn().mockResolvedValue({ id: 'task-1', status: 'requested' }),
+                isRangeRecorded: jestGlobal.fn().mockReturnValue(false),
                 handleRangeStartedAsync: jestGlobal.fn().mockResolvedValue(undefined),
                 handleRangeCompletedAsync: jestGlobal.fn().mockResolvedValue(undefined),
                 handleRangeFailedAsync: jestGlobal.fn().mockResolvedValue(undefined),
@@ -645,6 +646,51 @@ describe('BulkImportHandler — worker path', () => {
             expect(deps.fastDatabaseBulkInserter.executeAsync).toHaveBeenCalled();
             expect(deps.auditLogger.flushAsync).toHaveBeenCalledTimes(1);
             expect(deps.requestSpecificCache.clearAsync).toHaveBeenCalledTimes(1);
+        });
+
+        describe('replayed range messages are a no-op', () => {
+            const expectNothingRead = () => {
+                expect(deps.s3NdjsonReader.readNdjsonAsync).not.toHaveBeenCalled();
+                expect(deps.mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
+                expect(deps.bulkImportEventProducer.publishRangeProgressEventAsync).not.toHaveBeenCalled();
+            };
+
+            test.each(['completed', 'failed'])('skips a range whose Task is already %s', async (status) => {
+                deps.bulkImportTaskStateMachine.loadTaskAsync.mockResolvedValue({ id: 'task-1', status });
+
+                await handler.handleImportRangeRequestedAsync(rangeMessage());
+
+                expectNothingRead();
+            });
+
+            test('skips a range already recorded on the Task', async () => {
+                deps.bulkImportTaskStateMachine.isRangeRecorded.mockReturnValue(true);
+
+                await handler.handleImportRangeRequestedAsync(rangeMessage());
+
+                expectNothingRead();
+            });
+
+            test('skips a range whose Task no longer exists', async () => {
+                deps.bulkImportTaskStateMachine.loadTaskAsync.mockResolvedValue(null);
+
+                await handler.handleImportRangeRequestedAsync(rangeMessage());
+
+                expectNothingRead();
+            });
+
+            test('still processes a range of an in-progress Task that has not recorded it', async () => {
+                deps.bulkImportTaskStateMachine.loadTaskAsync.mockResolvedValue({
+                    id: 'task-1', status: 'in-progress'
+                });
+                deps.s3NdjsonReader.readNdjsonAsync.mockImplementation(ndjsonLines([
+                    makeLine({ lineNumber: 1, byteOffset: 0, resource: makePatient({ id: 'p1', owner: 'client-a' }) })
+                ]));
+
+                await handler.handleImportRangeRequestedAsync(rangeMessage());
+
+                expect(deps.mergeManager.mergeResourceAsync).toHaveBeenCalledTimes(1);
+            });
         });
 
         test('SECURITY: the resource\'s own security tags reach mergeManager unchanged', async () => {
