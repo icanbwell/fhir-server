@@ -151,7 +151,7 @@ describe('asyncJobs/worker', () => {
                 expect.objectContaining({
                     consumer: mockConsumer,
                     topic: 'test-topic',
-                    fromBeginning: false
+                    fromBeginning: true
                 })
             );
         });

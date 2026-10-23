@@ -18,7 +18,7 @@ const { getCircularReplacer } = require('../../utils/getCircularReplacer');
  * async job's worker-side consumer means adding another entry to `jobs` below, not a new
  * entrypoint file.
  * @param {import('../../utils/simpleContainer').SimpleContainer} container
- * @returns {Array<{ topic: string, groupId: string, dispatcher: { handleMessageAsync: function }, label: string, deadLetterTopic: string }>}
+ * @returns {Array<{ topic: string, groupId: string, fromBeginning?: boolean, dispatcher: { handleMessageAsync: function }, label: string, deadLetterTopic: string }>}
  */
 function getJobs(container) {
     const { configManager } = container;
@@ -28,6 +28,11 @@ function getJobs(container) {
             groupId: configManager.bulkImportConsumerGroupId,
             dispatcher: container.bulkImportWorkerDispatcher,
             label: 'bulk-import-worker',
+            // fromBeginning: true so a partition with no committed offset (every new one after
+            // the topic is grown) is read from its first message instead of its latest, which
+            // silently drops ranges published before this consumer joined. Partitions that have
+            // a committed offset are unaffected. Re-reading a range is a safe no-op.
+            fromBeginning: true,
             // A message still failing after 3 retries goes here instead of blocking the
             // partition forever — see kafkaClientV2.receiveMessagesAsync's deadLetterTopic option.
             deadLetterTopic: `${configManager.kafkaBulkImportEventTopic}.dlt`
@@ -89,7 +94,7 @@ async function main() {
             kafkaClientV2.receiveMessagesAsync({
                 consumer,
                 topic: job.topic,
-                fromBeginning: false,
+                fromBeginning: job.fromBeginning ?? false,
                 onMessageAsync: async (message) => {
                     await job.dispatcher.handleMessageAsync(message);
                 },
