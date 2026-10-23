@@ -28,6 +28,11 @@ function getJobs(container) {
             groupId: configManager.bulkImportOrchestratorGroupId,
             dispatcher: container.bulkImportOrchestratorDispatcher,
             label: 'bulk-import-orchestrator',
+            // fromBeginning: true so a TaskCreated published to a partition with no committed
+            // offset before this consumer joined it is not skipped (the Task would sit at
+            // 'requested' forever). Replay is safe: handleTaskCreatedAsync ignores any Task
+            // that is no longer 'requested'.
+            fromBeginning: true,
             // A message still failing after 3 retries goes here instead of blocking the
             // partition forever — see kafkaClientV2.receiveMessagesAsync's deadLetterTopic option.
             deadLetterTopic: `${configManager.kafkaBulkImportTaskCreatedTopic}.dlt`
