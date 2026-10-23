@@ -79,7 +79,9 @@ async function logPartitionAssignmentAsync({ kafkaClientV2, job, event }) {
             error: e.message
         });
     } finally {
-        await admin?.disconnect().catch(() => {});
+        await admin?.disconnect().catch((e) => {
+            logWarn('Async job worker admin disconnect failed', { error: e.message });
+        });
     }
 }
 
