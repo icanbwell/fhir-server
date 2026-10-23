@@ -450,7 +450,12 @@ class PatchOperation {
             );
 
             // Validate the patch
-            const errors = validate(effectivePatchContent, foundResource);
+            const errors = validate(
+                effectivePatchContent,
+                this.useFastSerializer
+                    ? FhirResourceWriteNormalizeSerializer.serialize({ obj: deepcopy(foundResource) })
+                    : foundResource
+            );
             if (errors) {
                 const error = Array.isArray(errors) && errors.length && errors.find(e => !!e) ? errors.find(e => !!e) : errors;
                 throw new BadRequestError(error);

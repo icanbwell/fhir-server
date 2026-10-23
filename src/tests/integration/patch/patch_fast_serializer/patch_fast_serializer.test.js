@@ -231,4 +231,19 @@ describe('Patch with fast serializer', () => {
             'subject.identifier.assigner.reference: invalidReference is an invalid reference'
         );
     });
+
+    test.each([
+        ['an unresolvable path', [{ op: 'replace', path: '/texts/div', value: 'empty' }], /OPERATION_PATH_UNRESOLVABLE/],
+        ['a failed test operation', [{ op: 'test', path: '/status', value: 'amended' }], /TEST_OPERATION_FAILED/],
+        ['an unresolvable move source', [{ op: 'move', from: '/nothing', path: '/status' }], /OPERATION_FROM_UNRESOLVABLE/]
+    ])('patch error for %s does not expose internal fields', async (_name, operations, expectedError) => {
+        const request = await createTestRequest();
+        const id = await create(request, 'Observation', observationPayload());
+        const patchResp = await patch(request, 'Observation', id, operations);
+        expect(patchResp).toHaveStatusCode(400);
+        const text = patchResp.body.issue[0].details.text;
+        expect(text).toMatch(expectedError);
+        expect(text).toMatch(/"resourceType": "Observation"/);
+        expect(text).not.toMatch(/"_(uuid|access|sourceId|sourceAssigningAuthority)"/);
+    });
 });
