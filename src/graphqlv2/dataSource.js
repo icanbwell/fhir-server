@@ -24,6 +24,7 @@ const { ParsedArgsItem } = require('../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../operations/query/queryParameterValue');
 const { searchParameterQueries } = require('../searchParameters/searchParameters');
 const { mongoQueryAndOptionsStringify } = require('../utils/mongoQueryStringify');
+const { MONGO_GROUP_EXTENDED_FIELD } = require('../utils/mongoGroupExtendedTag');
 const { OperationAccessManager } = require('../utils/operationAccessManager');
 
 /**
@@ -624,6 +625,9 @@ class FhirDataSource {
             projection.add('extension');
         } else if (resourceType === 'SubscriptionTopic') {
             projection.add('identifier');
+        } else if (resourceType === 'Group') {
+            // Group.member decides between the inline list and the GroupMember_4_0_0 roster by it
+            projection.add(MONGO_GROUP_EXTENDED_FIELD);
         }
         return projection;
     }

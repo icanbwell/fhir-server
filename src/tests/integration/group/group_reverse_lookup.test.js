@@ -18,6 +18,7 @@ const {
     getHeaders,
     getHeadersJsonPatch,
     getGraphQLHeaders,
+    getGraphQLHeadersWithAdmin,
     getHeadersWithCustomPayload,
     getHeadersWithAdmin
 } = require('../common');
@@ -441,6 +442,36 @@ describe('Group member reverse lookup', () => {
 
             expect(new Set(ids)).toEqual(new Set([embedded.id, extended.id]));
             expect(ids).toHaveLength(2);
+        });
+
+        test('_debug lists the GroupMember_4_0_0 lookup of the member filter in the response meta', async () => {
+            const reference = `Patient/graphql-debug-${endpoint.endsWith('v2') ? 'v2' : 'v1'}`;
+            const extended = await createGroup();
+            await markGroupExtended(extended.id);
+            await addExtendedMember(extended.id, reference);
+
+            const response = await request
+                .post(endpoint)
+                .send({
+                    operationName: null,
+                    variables: { reference },
+                    query: `query ($reference: String) { ${queryField}(member: { value: $reference }, _debug: true) {
+                        meta { tag { system display code } }
+                        entry { resource { id } }
+                    } }`
+                })
+                .set(getGraphQLHeadersWithAdmin());
+
+            expect(response.status).toBe(200);
+            expect(response.body.errors).toBeUndefined();
+            const tags = response.body.data[queryField].meta.tag;
+            const collections = tags
+                .filter((t) => t.system === 'https://www.icanbwell.com/queryCollection')
+                .map((t) => t.code)
+                .join('|');
+            expect(collections).toContain('Group_4_0_0');
+            expect(collections).toContain('GroupMember_4_0_0');
+            expect(response.body.data[queryField].entry.map((e) => e.resource.id)).toContain(extended.id);
         });
 
         test('does not return the extended Group when the feature flag is off', async () => {
