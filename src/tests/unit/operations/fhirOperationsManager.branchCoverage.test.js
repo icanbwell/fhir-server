@@ -217,7 +217,10 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
             exportOperation: { exportAsync: jest.fn().mockResolvedValue({ resourceType: 'Parameters' }) },
             exportByIdOperation: { exportByIdAsync: jest.fn().mockResolvedValue({ resourceType: 'Parameters' }) },
             importOperation: { importAsync: jest.fn().mockResolvedValue({ resourceType: 'Task' }) },
-            accessHistoryOperation: { accessHistoryAsync: jest.fn().mockResolvedValue({ entries: [] }) }
+            accessHistoryOperation: {
+                accessHistoryAsync: jest.fn().mockResolvedValue({ entries: [] }),
+                validateIds: jest.fn()
+            }
         };
 
         const r4ArgsParser = {
@@ -763,6 +766,18 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
                 resourceType: 'Person'
             });
             expect(result).toEqual({ entries: [] });
+        });
+
+        test('accessHistory validates the raw id before query rewriting can expand a proxy id', async () => {
+            const { BadRequestError } = require('../../../utils/httpErrors');
+            ops.accessHistoryOperation.validateIds.mockImplementationOnce(() => {
+                throw new BadRequestError(new Error('Proxy patient id is not allowed for $access-history'));
+            });
+            await expect(manager.accessHistory(
+                [], { req: makeReq({ query: { id: 'person.per1' } }), res: {} }, 'Person'
+            )).rejects.toThrow('Proxy patient id is not allowed for $access-history');
+            expect(ops.accessHistoryOperation.validateIds).toHaveBeenCalledWith('person.per1');
+            expect(ops.accessHistoryOperation.accessHistoryAsync).not.toHaveBeenCalled();
         });
 
         test('getRequestInfo builds the request info from the raw request exactly once per operation call', async () => {
