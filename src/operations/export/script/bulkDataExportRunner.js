@@ -40,6 +40,7 @@ const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer
 const { StorageProviderFactory } = require('../../../dataLayer/providers/storageProviderFactory');
 const { hasExternalStorageMemberTag } = require('../../../utils/clickHouseGroupPreSave');
 const { MongoGroupMemberRepository } = require('../../../dataLayer/repositories/mongoGroupMemberRepository');
+const { GroupMemberQueryRewriter } = require('../../../queryRewriters/rewriters/groupMemberQueryRewriter');
 const { isExtendedGroup } = require('../../../utils/mongoGroupExtendedTag');
 const { isTrue } = require('../../../utils/isTrue');
 
@@ -89,6 +90,7 @@ class BulkDataExportRunner {
      * @property {BulkExportEventProducer} bulkExportEventProducer
      * @property {StorageProviderFactory} storageProviderFactory
      * @property {MongoGroupMemberRepository} mongoGroupMemberRepository
+     * @property {GroupMemberQueryRewriter} groupMemberQueryRewriter
      * @property {string} exportStatusId
      * @property {number} patientReferenceBatchSize
      * @property {number} fetchResourceBatchSize
@@ -115,6 +117,7 @@ class BulkDataExportRunner {
         bulkExportEventProducer,
         storageProviderFactory,
         mongoGroupMemberRepository,
+        groupMemberQueryRewriter,
         exportStatusId,
         patientReferenceBatchSize,
         fetchResourceBatchSize,
@@ -249,6 +252,12 @@ class BulkDataExportRunner {
          */
         this.mongoGroupMemberRepository = mongoGroupMemberRepository;
         assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
+
+        /**
+         * @type {GroupMemberQueryRewriter}
+         */
+        this.groupMemberQueryRewriter = groupMemberQueryRewriter;
+        assertTypeEquals(groupMemberQueryRewriter, GroupMemberQueryRewriter);
 
         /**
          * @type {string}
@@ -1050,12 +1059,23 @@ class BulkDataExportRunner {
         multipartContext,
         elementsProjection = null
     }) {
-        const resourceQuery = this.addPatientFiltersToQuery({
+        let resourceQuery = this.addPatientFiltersToQuery({
             patientReferences,
             query: deepcopy(query),
             resourceType
         });
         try {
+            if (resourceType === 'Group') {
+                // An extended Group has no inline member[], so the member filter alone misses it.
+                // Widen it with the extended Groups whose GroupMember_4_0_0 rows match, the same
+                // way search does; the tenant and _since filters stay ANDed around both branches.
+                ({ query: resourceQuery } = await this.groupMemberQueryRewriter.rewriteQueryAsync({
+                    base_version: '4_0_0',
+                    query: resourceQuery,
+                    columns: new Set(),
+                    resourceType
+                }));
+            }
             logDebug(`Exporting ${resourceType} resources with query: ${JSON.stringify(resourceQuery)}`);
 
             // generate parsed args for enriching the resource

@@ -87,6 +87,7 @@ describe('Export DocumentReference GridFS Hydration Tests', () => {
             bulkExportEventProducer: c.bulkExportEventProducer,
             storageProviderFactory: c.storageProviderFactory,
             mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+            groupMemberQueryRewriter: c.groupMemberQueryRewriter,
             exportStatusId,
             patientReferenceBatchSize: 1000,
             uploadPartSize: 1024 * 1024,
