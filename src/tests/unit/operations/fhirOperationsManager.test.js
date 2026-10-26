@@ -250,7 +250,8 @@ describe('FhirOperationsManager', () => {
             verifyNotProxyPatientId: jest.fn()
         };
         mockAccessHistoryOperation = {
-            accessHistoryAsync: jest.fn().mockResolvedValue({})
+            accessHistoryAsync: jest.fn().mockResolvedValue({}),
+            validateIds: jest.fn()
         };
         mockCustomTracer = {
             trace: jest.fn().mockImplementation(({ func }) => func())
