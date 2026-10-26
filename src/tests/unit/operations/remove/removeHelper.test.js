@@ -12,10 +12,14 @@ const { ResourceLocatorFactory } = require('../../../../operations/common/resour
 const { DatabaseQueryFactory } = require('../../../../dataLayer/databaseQueryFactory');
 const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAttachmentManager');
 const { DatabaseBulkInserter } = require('../../../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
+const { ConfigManager } = require('../../../../utils/configManager');
 const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
 const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor');
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../../../constants');
+const Resource = require('../../../../fhir/classes/4_0_0/resources/resource');
+const Patient = require('../../../../fhir/classes/4_0_0/resources/patient');
 
 /**
  * Helper to create a mock that passes assertTypeEquals
@@ -32,6 +36,8 @@ describe('RemoveHelper', () => {
     let mockDatabaseQueryFactory;
     let mockDatabaseAttachmentManager;
     let mockDatabaseBulkInserter;
+    let mockFastDatabaseBulkInserter;
+    let mockConfigManager;
     let mockPostRequestProcessor;
     let mockPostSaveProcessor;
     let mockBase64DataManager;
@@ -61,6 +67,17 @@ describe('RemoveHelper', () => {
             executeHistoryAsync: jest.fn().mockResolvedValue(undefined)
         });
 
+        mockFastDatabaseBulkInserter = createMockInstance(FastDatabaseBulkInserter, {
+            insertOneHistoryAsync: jest.fn().mockResolvedValue(undefined),
+            executeHistoryAsync: jest.fn().mockResolvedValue(undefined)
+        });
+
+        mockConfigManager = createMockInstance(ConfigManager, {});
+        Object.defineProperty(mockConfigManager, 'enableRemoveFastSerializer', {
+            get: () => true,
+            configurable: true
+        });
+
         mockPostRequestProcessor = createMockInstance(PostRequestProcessor, {
             add: jest.fn()
         });
@@ -82,7 +99,9 @@ describe('RemoveHelper', () => {
             databaseBulkInserter: mockDatabaseBulkInserter,
             postRequestProcessor: mockPostRequestProcessor,
             postSaveProcessor: mockPostSaveProcessor,
-            base64DataManager: mockBase64DataManager
+            base64DataManager: mockBase64DataManager,
+            fastDatabaseBulkInserter: mockFastDatabaseBulkInserter,
+            configManager: mockConfigManager
         });
     });
 
@@ -99,7 +118,9 @@ describe('RemoveHelper', () => {
                 databaseBulkInserter: mockDatabaseBulkInserter,
                 postRequestProcessor: mockPostRequestProcessor,
                 postSaveProcessor: mockPostSaveProcessor,
-                base64DataManager: mockBase64DataManager
+                base64DataManager: mockBase64DataManager,
+                fastDatabaseBulkInserter: mockFastDatabaseBulkInserter,
+                configManager: mockConfigManager
             })).toThrow();
         });
 
@@ -111,7 +132,9 @@ describe('RemoveHelper', () => {
                 databaseBulkInserter: {},
                 postRequestProcessor: mockPostRequestProcessor,
                 postSaveProcessor: mockPostSaveProcessor,
-                base64DataManager: mockBase64DataManager
+                base64DataManager: mockBase64DataManager,
+                fastDatabaseBulkInserter: mockFastDatabaseBulkInserter,
+                configManager: mockConfigManager
             })).toThrow();
         });
     });
@@ -136,7 +159,7 @@ describe('RemoveHelper', () => {
 
                 expect(result).toBe(0);
                 expect(mockDatabaseAttachmentManager.transformAttachments).not.toHaveBeenCalled();
-                expect(mockDatabaseBulkInserter.insertOneHistoryAsync).not.toHaveBeenCalled();
+                expect(mockFastDatabaseBulkInserter.insertOneHistoryAsync).not.toHaveBeenCalled();
             });
 
             test('should still call executeHistoryAsync even with empty resources', async () => {
@@ -148,7 +171,7 @@ describe('RemoveHelper', () => {
                     resources: []
                 });
 
-                expect(mockDatabaseBulkInserter.executeHistoryAsync).toHaveBeenCalledWith({
+                expect(mockFastDatabaseBulkInserter.executeHistoryAsync).toHaveBeenCalledWith({
                     requestInfo: baseRequestInfo,
                     base_version: '4_0_0'
                 });
@@ -174,7 +197,7 @@ describe('RemoveHelper', () => {
 
                 expect(result).toBe(1);
                 expect(mockDatabaseAttachmentManager.transformAttachments).toHaveBeenCalledTimes(1);
-                expect(mockDatabaseBulkInserter.insertOneHistoryAsync).toHaveBeenCalledTimes(1);
+                expect(mockFastDatabaseBulkInserter.insertOneHistoryAsync).toHaveBeenCalledTimes(1);
             });
 
             test('should set meta.lastUpdated on the resource', async () => {
@@ -239,7 +262,7 @@ describe('RemoveHelper', () => {
 
                 expect(result).toBe(3);
                 expect(mockDatabaseAttachmentManager.transformAttachments).toHaveBeenCalledTimes(3);
-                expect(mockDatabaseBulkInserter.insertOneHistoryAsync).toHaveBeenCalledTimes(3);
+                expect(mockFastDatabaseBulkInserter.insertOneHistoryAsync).toHaveBeenCalledTimes(3);
             });
 
             test('should build query with all UUIDs', async () => {
@@ -280,7 +303,7 @@ describe('RemoveHelper', () => {
                 });
 
                 expect(result).toBe(1);
-                expect(mockDatabaseBulkInserter.insertOneHistoryAsync).toHaveBeenCalledTimes(1);
+                expect(mockFastDatabaseBulkInserter.insertOneHistoryAsync).toHaveBeenCalledTimes(1);
             });
 
             test('should throw if resource has no _uuid', async () => {
@@ -474,7 +497,7 @@ describe('RemoveHelper', () => {
             test('still writes history before deleting and stamps the time', async () => {
                 httpContext.get.mockReturnValue(undefined);
                 const order = [];
-                mockDatabaseBulkInserter.executeHistoryAsync.mockImplementation(async () => { order.push('history'); });
+                mockFastDatabaseBulkInserter.executeHistoryAsync.mockImplementation(async () => { order.push('history'); });
                 mockCollection.deleteMany.mockImplementation(async () => { order.push('delete'); return { deletedCount: 2 }; });
                 const resources = makeResources();
                 const before = Date.now();
@@ -518,6 +541,193 @@ describe('RemoveHelper', () => {
                     resources
                 })).rejects.toThrow(/Error in deleteManyAsync/);
             });
+        });
+    });
+
+    describe('constructor (fast serializer dependencies)', () => {
+        const baseDeps = () => ({
+            resourceLocatorFactory: mockResourceLocatorFactory,
+            databaseQueryFactory: mockDatabaseQueryFactory,
+            databaseAttachmentManager: mockDatabaseAttachmentManager,
+            databaseBulkInserter: mockDatabaseBulkInserter,
+            postRequestProcessor: mockPostRequestProcessor,
+            postSaveProcessor: mockPostSaveProcessor,
+            base64DataManager: mockBase64DataManager,
+            fastDatabaseBulkInserter: mockFastDatabaseBulkInserter,
+            configManager: mockConfigManager
+        });
+
+        test('reads ENABLE_REMOVE_FAST_SERIALIZER into useFastSerializer', () => {
+            expect(removeHelper.useFastSerializer).toBe(true);
+        });
+
+        test('throws if fastDatabaseBulkInserter is null', () => {
+            expect(() => new RemoveHelper({ ...baseDeps(), fastDatabaseBulkInserter: null })).toThrow();
+        });
+
+        test('throws if configManager is null', () => {
+            expect(() => new RemoveHelper({ ...baseDeps(), configManager: null })).toThrow();
+        });
+    });
+
+    describe('deleteManyAsync history write (ENABLE_REMOVE_FAST_SERIALIZER on)', () => {
+        const requestInfo = { requestId: 'fast-request-1' };
+        const params = { requestInfo, resourceType: 'Patient', base_version: '4_0_0' };
+        const makePlainPatient = () => ({
+            resourceType: 'Patient',
+            id: 'p-1',
+            _uuid: 'u-1',
+            _sourceAssigningAuthority: 'a',
+            meta: { versionId: '1', lastUpdated: null },
+            identifier: []
+        });
+
+        beforeEach(() => {
+            httpContext.get.mockReturnValue(undefined);
+            mockCollection.deleteMany.mockResolvedValue({ deletedCount: 1 });
+        });
+
+        test('uses the fast inserter for every resource and flushes it before the delete', async () => {
+            mockCollection.deleteMany.mockResolvedValue({ deletedCount: 2 });
+            const resources = [makePlainPatient(), { ...makePlainPatient(), id: 'p-2', _uuid: 'u-2' }];
+
+            await removeHelper.deleteManyAsync({ ...params, resources });
+
+            expect(mockFastDatabaseBulkInserter.insertOneHistoryAsync).toHaveBeenCalledTimes(2);
+            expect(mockDatabaseBulkInserter.insertOneHistoryAsync).not.toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.executeHistoryAsync).not.toHaveBeenCalled();
+            expect(mockFastDatabaseBulkInserter.executeHistoryAsync).toHaveBeenCalledTimes(1);
+            expect(mockFastDatabaseBulkInserter.executeHistoryAsync).toHaveBeenCalledWith({
+                requestInfo,
+                base_version: '4_0_0'
+            });
+            expect(mockFastDatabaseBulkInserter.executeHistoryAsync.mock.invocationCallOrder[0])
+                .toBeLessThan(mockCollection.deleteMany.mock.invocationCallOrder[0]);
+        });
+
+        test('passes resourceType, base_version and requestInfo, without skipResourceAssertion', async () => {
+            await removeHelper.deleteManyAsync({ ...params, resources: [makePlainPatient()] });
+
+            const args = mockFastDatabaseBulkInserter.insertOneHistoryAsync.mock.calls[0][0];
+            expect(args.requestInfo).toBe(requestInfo);
+            expect(args.base_version).toBe('4_0_0');
+            expect(args.resourceType).toBe('Patient');
+            expect('skipResourceAssertion' in args).toBe(false);
+        });
+
+        test('passes a plain snapshot for a Resource instance', async () => {
+            const patient = new Patient({
+                id: 'p-1',
+                meta: { versionId: '1' },
+                identifier: [{ system: 'http://example.com/mrn', value: 'mrn-1' }],
+                _uuid: 'u-1',
+                _sourceAssigningAuthority: 'a'
+            });
+
+            await removeHelper.deleteManyAsync({ ...params, resources: [patient] });
+
+            const doc = mockFastDatabaseBulkInserter.insertOneHistoryAsync.mock.calls[0][0].doc;
+            expect(doc).not.toBeInstanceOf(Resource);
+            expect(doc).toStrictEqual(patient.toJSONInternal());
+        });
+
+        test('does not pass the caller\'s object', async () => {
+            const resource = makePlainPatient();
+
+            await removeHelper.deleteManyAsync({ ...params, resources: [resource] });
+
+            const doc = mockFastDatabaseBulkInserter.insertOneHistoryAsync.mock.calls[0][0].doc;
+            expect(doc).not.toBe(resource);
+            expect(doc.meta).not.toBe(resource.meta);
+            expect(doc).toStrictEqual(resource);
+        });
+
+        test('caller\'s object is unchanged when the inserter mutates the snapshot', async () => {
+            // The real fast inserter write-serializes the doc in place (drops empties/unknown keys).
+            mockFastDatabaseBulkInserter.insertOneHistoryAsync.mockImplementation(async ({ doc }) => {
+                delete doc.identifier;
+                delete doc.meta;
+            });
+            const resource = makePlainPatient();
+
+            await removeHelper.deleteManyAsync({ ...params, resources: [resource] });
+
+            expect(resource.identifier).toStrictEqual([]);
+            expect(resource.meta.lastUpdated).toBeInstanceOf(Date);
+        });
+
+        test('snapshot is taken after the base64 and attachment transforms', async () => {
+            mockDatabaseAttachmentManager.transformAttachments.mockImplementation(async (resource) => {
+                resource.content = [{ attachment: { _file_id: 'file-1' } }];
+            });
+            mockBase64DataManager.transformAsync.mockImplementation(async (resource) => {
+                resource._blobMeta = { hash: 'h' };
+            });
+
+            await removeHelper.deleteManyAsync({ ...params, resources: [makePlainPatient()] });
+
+            const doc = mockFastDatabaseBulkInserter.insertOneHistoryAsync.mock.calls[0][0].doc;
+            expect(doc._blobMeta.hash).toBe('h');
+            expect(doc.content[0].attachment._file_id).toBe('file-1');
+        });
+
+        test('snapshot carries the stamped meta.lastUpdated', async () => {
+            const before = Date.now();
+
+            await removeHelper.deleteManyAsync({ ...params, resources: [makePlainPatient()] });
+
+            const doc = mockFastDatabaseBulkInserter.insertOneHistoryAsync.mock.calls[0][0].doc;
+            expect(doc.meta.lastUpdated).toBeInstanceOf(Date);
+            expect(doc.meta.lastUpdated.getTime()).toBeGreaterThanOrEqual(before);
+        });
+
+        test('preserveLastUpdated keeps the caller\'s Date in the snapshot', async () => {
+            const groupLastUpdated = new Date('2026-01-01T00:00:00.000Z');
+            const resource = { ...makePlainPatient(), meta: { versionId: '4', lastUpdated: groupLastUpdated } };
+
+            await removeHelper.deleteManyAsync({
+                ...params,
+                resourceType: 'GroupMember',
+                resources: [resource],
+                preserveLastUpdated: true
+            });
+
+            const doc = mockFastDatabaseBulkInserter.insertOneHistoryAsync.mock.calls[0][0].doc;
+            expect(doc.meta.lastUpdated).toStrictEqual(groupLastUpdated);
+            expect(resource.meta.lastUpdated).toBe(groupLastUpdated);
+        });
+
+        test('post-save receives the original resource objects', async () => {
+            const resource = makePlainPatient();
+
+            await removeHelper.deleteManyAsync({ ...params, resources: [resource] });
+            const { fnTask } = mockPostRequestProcessor.add.mock.calls[0][0];
+            await fnTask();
+
+            expect(mockPostSaveProcessor.afterSaveAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ eventType: 'D', resourceType: 'Patient' })
+            );
+            expect(mockPostSaveProcessor.afterSaveAsync.mock.calls[0][0].doc).toBe(resource);
+        });
+
+        test('live-object cleanup uses the original resource after the delete', async () => {
+            mockBase64DataManager.getLiveObjectRefsOrResourceLastUpdated.mockReturnValue(
+                new Map([['/data', '2026-01-01T00:00:00.000Z']])
+            );
+
+            await removeHelper.deleteManyAsync({ ...params, resources: [makePlainPatient()] });
+
+            expect(mockBase64DataManager.deleteLiveObjectAsync).toHaveBeenCalledWith('Patient', 'u-1', '2026-01-01T00:00:00.000Z');
+            expect(mockBase64DataManager.deleteLiveObjectAsync.mock.invocationCallOrder[0])
+                .toBeGreaterThan(mockCollection.deleteMany.mock.invocationCallOrder[0]);
+        });
+
+        test('a failed history flush aborts the delete', async () => {
+            mockFastDatabaseBulkInserter.executeHistoryAsync.mockRejectedValue(new Error('history write failed'));
+
+            await expect(removeHelper.deleteManyAsync({ ...params, resources: [makePlainPatient()] }))
+                .rejects.toThrow(/Error in deleteManyAsync/);
+            expect(mockCollection.deleteMany).not.toHaveBeenCalled();
         });
     });
 });

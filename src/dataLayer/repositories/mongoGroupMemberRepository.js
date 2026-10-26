@@ -47,8 +47,8 @@ const CASCADE_MAX_NO_PROGRESS_PASSES = 10;
  * any of them fails.
  *
  * A PATCH remove hard-deletes the GroupMember document instead of a soft inactive:true flag, via
- * RemoveHelper.deleteManyAsync() (history-then-delete), wired to the databaseBulkInserter
- * since RemoveHelper isn't Fast-compatible. The tombstone is identified purely by the history
+ * RemoveHelper.deleteManyAsync() (history-then-delete), which writes the history entry through
+ * FastDatabaseBulkInserter when ENABLE_REMOVE_FAST_SERIALIZER is on. The tombstone is identified purely by the history
  * entry's request.method being 'DELETE' -- there is no operation field on GroupMember itself.
  */
 class MongoGroupMemberRepository {
