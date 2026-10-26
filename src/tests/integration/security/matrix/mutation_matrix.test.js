@@ -218,24 +218,6 @@ describe('MUTATION MATRIX — visibility follows a change immediately', () => {
                 expect([403, 404]).toContain(asB.status);
             }
         });
-
-        test.skip('changeSourceAssigningAuthority runner does not widen access', () => {
-            // TODO: drive the runner via createTestContainer. Seed records owned by
-            // tenantA, run the authority change, then assert tenantB still cannot read
-            // them and that owner/access tags are unchanged except as intended.
-        });
-
-        test.skip('fixPersonLinks runner does not create a cross-tenant link', () => {
-            // TODO: as above. Seed a broken link, run the fixer, assert the repaired
-            // link does not point across an owner boundary and that $everything for
-            // each tenant is unchanged.
-        });
-
-        test.skip('removeDuplicatePersonLink runner does not merge two different people', () => {
-            // TODO: seed two persons with identical demographics and different owners,
-            // run the de-duplicator, assert neither one's patients become reachable
-            // from the other.
-        });
     });
 
     // -----------------------------------------------------------------------

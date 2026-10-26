@@ -38,7 +38,7 @@ let mockOnMessageAsync;
 const mockConsumer = {
     id: 'mock-consumer',
     on: jestObj.fn(),
-    events: { CRASH: 'consumer.crash' }
+    events: { CRASH: 'consumer.crash', GROUP_JOIN: 'consumer.group_join' }
 };
 const mockKafkaClientV2 = {
     createConsumerAsync: jestObj.fn().mockResolvedValue(mockConsumer),
@@ -46,7 +46,8 @@ const mockKafkaClientV2 = {
     receiveMessagesAsync: jestObj.fn().mockImplementation(({ onMessageAsync }) => {
         mockOnMessageAsync = onMessageAsync;
     }),
-    removeConsumerAsync: jestObj.fn().mockResolvedValue(undefined)
+    removeConsumerAsync: jestObj.fn().mockResolvedValue(undefined),
+    createAdminClient: jestObj.fn()
 };
 const mockConfigManager = {
     kafkaBulkImportEventTopic: 'test-topic',
@@ -76,7 +77,8 @@ jestObj.mock('../../../../winstonInit', () => ({
 // Mock logging
 jestObj.mock('../../../../operations/common/logging', () => ({
     logInfo: jestObj.fn(),
-    logError: jestObj.fn()
+    logError: jestObj.fn(),
+    logWarn: jestObj.fn()
 }));
 
 // Mock getCircularReplacer
@@ -85,7 +87,7 @@ jestObj.mock('../../../../utils/getCircularReplacer', () => ({
 }));
 
 const http = require('http');
-const { logInfo, logError } = require('../../../../operations/common/logging');
+const { logInfo, logError, logWarn } = require('../../../../operations/common/logging');
 
 describe('asyncJobs/worker', () => {
     let processExitSpy;
@@ -115,6 +117,70 @@ describe('asyncJobs/worker', () => {
     afterEach(() => {
         processExitSpy.mockRestore();
         process.on = originalProcessOn;
+    });
+
+    describe('partition assignment logging', () => {
+        const joinEvent = {
+            payload: { memberId: 'member-1', isLeader: false, memberAssignment: { 'test-topic': [7, 2, 5] } }
+        };
+
+        const startWorkerAndGetJoinHandler = async () => {
+            jestObj.isolateModules(() => {
+                require('../../../../operations/asyncJobs/worker');
+            });
+            await new Promise(resolve => setImmediate(resolve));
+            const call = mockConsumer.on.mock.calls.find(([name]) => name === 'consumer.group_join');
+            return call[1];
+        };
+
+        test('logs assigned partitions with committed offsets and flags uncommitted ones', async () => {
+            const mockAdmin = {
+                connect: jestObj.fn().mockResolvedValue(undefined),
+                disconnect: jestObj.fn().mockResolvedValue(undefined),
+                fetchOffsets: jestObj.fn().mockResolvedValue([{
+                    topic: 'test-topic',
+                    partitions: [
+                        { partition: 2, offset: '14' },
+                        { partition: 5, offset: '-1' },
+                        { partition: 7, offset: '-1' },
+                        { partition: 9, offset: '3' }
+                    ]
+                }])
+            };
+            mockKafkaClientV2.createAdminClient.mockReturnValue(mockAdmin);
+
+            const onJoin = await startWorkerAndGetJoinHandler();
+            await onJoin(joinEvent);
+
+            expect(mockAdmin.fetchOffsets).toHaveBeenCalledWith({
+                groupId: 'test-group-id',
+                topics: ['test-topic']
+            });
+            expect(logInfo).toHaveBeenCalledWith('Async job worker partitions assigned', expect.objectContaining({
+                partitions: [2, 5, 7],
+                committedOffsets: { 2: '14', 5: '-1', 7: '-1' },
+                partitionsWithoutCommit: [5, 7]
+            }));
+            expect(mockAdmin.disconnect).toHaveBeenCalled();
+        });
+
+        test('still logs the assignment when the offset lookup fails', async () => {
+            const mockAdmin = {
+                connect: jestObj.fn().mockRejectedValue(new Error('broker down')),
+                disconnect: jestObj.fn().mockResolvedValue(undefined),
+                fetchOffsets: jestObj.fn()
+            };
+            mockKafkaClientV2.createAdminClient.mockReturnValue(mockAdmin);
+
+            const onJoin = await startWorkerAndGetJoinHandler();
+            await expect(onJoin(joinEvent)).resolves.toBeUndefined();
+
+            expect(logWarn).toHaveBeenCalledWith(
+                'Async job worker partitions assigned (committed offsets unavailable)',
+                expect.objectContaining({ partitions: [2, 5, 7], error: 'broker down' })
+            );
+            expect(mockAdmin.disconnect).toHaveBeenCalled();
+        });
     });
 
     describe('main function execution', () => {
@@ -151,7 +217,7 @@ describe('asyncJobs/worker', () => {
                 expect.objectContaining({
                     consumer: mockConsumer,
                     topic: 'test-topic',
-                    fromBeginning: false
+                    fromBeginning: true
                 })
             );
         });

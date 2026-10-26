@@ -3,7 +3,7 @@
 ## Prerequisites
 
 1. Docker Desktop: https://docs.docker.com/desktop/mac/install/
-2. Node.js >= 24.19 (see `.nvmrc`)
+2. Node.js >= 24.22.1 (see `.nvmrc`)
 3. [Corepack](https://nodejs.org/api/corepack.html) (ships with Node 16+)
 
 ## Local Development Setup
@@ -232,7 +232,7 @@ nano src/admin/scripts/.env
 
 #### 8. Run the admin script e.g.,
 ```shell
-node --max-old-space-size=1609600 src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000
+node src/admin/scripts/migrateBinaryDataToCloudStorage.js --batchSize=1000 --concurrency=10 --count=100 --dryRun
 ```
 
 ### Getting latest from Github

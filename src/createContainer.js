@@ -1011,6 +1011,7 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             databaseBulkInserter: c.databaseBulkInserter,
+            fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
             base64DataManager: c.base64DataManager,
             configManager: c.configManager,

@@ -25,7 +25,6 @@ module.exports = {
         // full transform fix is open-ended (unknown how many more ESM deps sit behind it) and this
         // file has never run under any wired jest config before this PR.
         '<rootDir>/src/tests/unit/admin/adminExportManagerRequestInfo.test.js',
-        '<rootDir>/src/tests/unit/admin/runners/updateCollectionsRunner.test.js',
         '<rootDir>/src/tests/unit/dataLayer/base64DataManager.test.js',
         '<rootDir>/src/tests/unit/dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor.bugs.test.js',
         '<rootDir>/src/tests/unit/dataLayer/databaseBulkLoader.test.js',

@@ -32,7 +32,7 @@ const expectedPutAdditionalProperty = require('./fixtures/expectedPut/additional
 const expectedPatchInvalidEnumValue = require('./fixtures/expectedPatch/invalidEnumValue.json');
 const expectedPatchRemoveRequiredField = require('./fixtures/expectedPatch/removeRequiredField.json');
 const expectedPatchInvalidFieldType = require('./fixtures/expectedPatch/invalidFieldType.json');
-const expectedPatchAdditionalPropertyDropped = require('./fixtures/expectedPatch/additionalPropertyDropped.json');
+const expectedPatchAdditionalProperty = require('./fixtures/expectedPatch/additionalProperty.json');
 
 const {
     commonBeforeEach,
@@ -320,19 +320,17 @@ describe('Resource Validation Tests', () => {
             expect(resp).toHaveResponse(expectedPatchInvalidFieldType);
         });
 
-        test('patching in an unknown property is silently dropped (no error)', async () => {
+        test('patching in an unknown property is rejected', async () => {
             const request = await createTestRequest();
             await seedObservation(request);
 
-            // unlike create/PUT/$merge, PATCH does not reject additional properties --
-            // the unknown field is dropped when the patched resource is reconstructed
             const resp = await request
                 .patch('/4_0_0/Observation/observation-validation-test')
                 .send([{ op: 'add', path: '/notAFhirField', value: 'some value' }])
                 .set(getHeadersJsonPatch());
 
-            expect(resp).toHaveStatusCode(200);
-            expect(resp).toHaveResponse(expectedPatchAdditionalPropertyDropped);
+            expect(resp).toHaveStatusCode(400);
+            expect(resp).toHaveResponse(expectedPatchAdditionalProperty);
         });
     });
 
