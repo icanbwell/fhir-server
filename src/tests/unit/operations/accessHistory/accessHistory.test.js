@@ -95,6 +95,34 @@ describe('AccessHistoryOperation', () => {
         });
     };
 
+    describe('validateIds', () => {
+        test('returns the id list for a single id', () => {
+            expect(operation.validateIds('p1')).toEqual(['p1']);
+        });
+
+        test('rejects multiple comma-separated ids', () => {
+            expect(() => operation.validateIds('p1,p2')).toThrow(
+                'Multiple IDs are not allowed for $access-history'
+            );
+        });
+
+        test('rejects multiple ids passed as an array', () => {
+            expect(() => operation.validateIds(['p1', 'p2'])).toThrow(
+                'Multiple IDs are not allowed for $access-history'
+            );
+        });
+
+        test('rejects a single proxy patient id with the proxy message', () => {
+            expect(() => operation.validateIds('person.p1')).toThrow(
+                'Proxy patient id is not allowed for $access-history'
+            );
+        });
+
+        test('rejects a missing id', () => {
+            expect(() => operation.validateIds(undefined)).toThrow('id is required for $access-history');
+        });
+    });
+
     describe('accessHistoryAsync', () => {
         const baseRequestInfo = {
             isUser: false,
