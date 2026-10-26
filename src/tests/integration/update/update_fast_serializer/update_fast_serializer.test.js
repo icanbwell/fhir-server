@@ -123,6 +123,39 @@ describe('Update with fast serializer', () => {
         expect(getResp.body.name[0].family).toStrictEqual('UPDATED');
     });
 
+    test('history records the patch operations as the client sent them', async () => {
+        const request = await createTestRequest();
+        const id = await createPractitioner(request);
+
+        const payload = practitionerPayload();
+        payload.id = id;
+        payload.qualification.push({
+            code: { coding: [{ code: 'DO', system: 'http://terminology.hl7.org/ValueSet/v2-2.7-030' }] },
+            issuer: { reference: 'Organization/Other_Medical_School' }
+        });
+        const putResp = await request.put(`/4_0_0/Practitioner/${id}`).send(payload).set(getHeaders());
+        expect(putResp).toHaveStatusCode(200);
+        await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId, timeoutInSeconds: 20 });
+
+        const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
+        const readHistoryRow = async () => await db
+            .collection('Practitioner_4_0_0_History')
+            .findOne({ 'resource._uuid': id, 'resource.meta.versionId': '2' });
+        let row = await readHistoryRow();
+        for (let attempt = 0; attempt < 20 && !row; attempt++) {
+            await new Promise((resolve) => setTimeout(resolve, 250));
+            row = await readHistoryRow();
+        }
+        const operations = row.response.outcome.issue.map((i) => JSON.parse(i.diagnostics));
+        expect(operations).toHaveLength(1);
+        expect(operations[0]).toMatchObject({
+            op: 'add',
+            path: '/qualification/1',
+            value: { issuer: { reference: 'Organization/Other_Medical_School' } }
+        });
+        expect(JSON.stringify(operations)).not.toMatch(/"_(uuid|access|sourceId|sourceAssigningAuthority)"/);
+    });
+
     test('after-save handlers receive the saved resource with its internal fields', async () => {
         const request = await createTestRequest();
         const container = getTestContainer();

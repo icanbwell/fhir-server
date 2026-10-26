@@ -197,13 +197,10 @@ class BulkImportTaskStateMachine {
             return;
         }
 
-        const rangeEntryId = this.buildRangeOutputEntryId({ filepath, rangeIndex });
-        const alreadyRecorded = (task.output || []).some((o) =>
-            typeof o.id === 'string' && (o.id === rangeEntryId || o.id.startsWith(`${rangeEntryId}-`))
-        );
-        if (alreadyRecorded) {
+        if (this.isRangeRecorded(task, { filepath, rangeIndex })) {
             return;
         }
+        const rangeEntryId = this.buildRangeOutputEntryId({ filepath, rangeIndex });
 
         const newOutputs = [];
         if (resultUri) {
@@ -224,6 +221,21 @@ class BulkImportTaskStateMachine {
         if (this.countCompletedRanges(updated) >= taskTotalRanges) {
             await this.updateTaskStatusAsync(updated, 'completed');
         }
+    }
+
+    /**
+     * Whether this range's completion is already recorded on the Task.
+     * @param {Object} task
+     * @param {Object} params
+     * @param {string} params.filepath
+     * @param {number} params.rangeIndex
+     * @returns {boolean}
+     */
+    isRangeRecorded(task, { filepath, rangeIndex }) {
+        const rangeEntryId = this.buildRangeOutputEntryId({ filepath, rangeIndex });
+        return (task.output || []).some((o) =>
+            typeof o.id === 'string' && (o.id === rangeEntryId || o.id.startsWith(`${rangeEntryId}-`))
+        );
     }
 
     /**
