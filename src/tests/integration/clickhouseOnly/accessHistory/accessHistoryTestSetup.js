@@ -77,7 +77,7 @@ async function insertAggRows(rows) {
                     {agent_requestor_who:String} AS agent_requestor_who,
                     {entity_resource_type:String} AS entity_resource_type,
                     toDate({recorded_date:String}) AS recorded_date,
-                    countState() AS access_count,
+                    uniqExactState({uuid:String}, toDateTime64({last_accessed:String}, 3, 'UTC')) AS access_count,
                     maxState(toDateTime64({last_accessed:String}, 3, 'UTC')) AS last_accessed,
                     groupUniqArrayState({purpose:String}) AS purpose_of_events
             `,
@@ -86,6 +86,7 @@ async function insertAggRows(rows) {
                 agent_requestor_who: row.agent_requestor_who,
                 entity_resource_type: row.entity_resource_type,
                 recorded_date: row.recorded_date,
+                uuid: row.uuid || `uuid-${Date.now()}-${Math.random().toString(36).slice(2)}`,
                 last_accessed: row.last_accessed,
                 purpose: row.purpose || ''
             }

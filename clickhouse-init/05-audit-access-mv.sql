@@ -14,7 +14,7 @@
 -- TTL: 13 months (access history retention window)
 --
 -- Columns use AggregateFunction types — query with -Merge combinators:
---   access_count      → countMerge(access_count)
+--   access_count      → uniqExactMerge(access_count)
 --   last_accessed     → maxMerge(last_accessed)
 --   purpose_of_events → groupUniqArrayMerge(purpose_of_events)
 --
@@ -31,8 +31,10 @@ CREATE TABLE IF NOT EXISTS fhir.AUDIT_ACCESS_AGG (
     entity_resource_type LowCardinality(String),
     -- UTC day on which the access occurred
     recorded_date        Date,
-    -- Number of times this agent accessed this entity on this day
-    access_count         AggregateFunction(count),
+    -- Distinct AuditEvents, keyed by (_uuid, recorded), in which this agent accessed this
+    -- entity on this day. A set rather than a counter so the same event arriving again in a
+    -- later insert (Kafka rebalance replay, produce/insert retry) is not counted twice.
+    access_count         AggregateFunction(uniqExact, String, DateTime64(3, 'UTC')),
     -- Most recent access timestamp for this agent + entity + day
     last_accessed        AggregateFunction(max, DateTime64(3, 'UTC')),
     -- Distinct set of purposeOfEvent codes ('system|code' format)
@@ -67,7 +69,9 @@ SELECT
     agent_requestor_who,
     splitByChar('/', entity_ref)[1] AS entity_resource_type,
     toDate(recorded) AS recorded_date,
-    countState() AS access_count,
+    -- Not countState(): arrayJoin below expands a row per purpose code, and duplicate events
+    -- from separate inserts would each add 1. Both repeat the same (_uuid, recorded).
+    uniqExactState(_uuid, recorded) AS access_count,
     maxState(recorded) AS last_accessed,
     groupUniqArrayState(
         arrayJoin(

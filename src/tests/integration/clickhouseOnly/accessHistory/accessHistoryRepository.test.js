@@ -302,6 +302,78 @@ describe('AccessHistoryClickHouseRepository', () => {
             expect(rows.length).toBe(1);
             expect(Number(rows[0].access_count)).toBe(1);
         });
+
+        test('counts the same AuditEvent once when it is inserted again in a later insert', async () => {
+            // insertAuditEvents issues one INSERT per event, so this is two separate blocks,
+            // like a Kafka rebalance replay or a retried insert landing after the original.
+            const duplicate = {
+                uuid: 'uuid-replayed-event',
+                recorded: recordedDaysAgo(3),
+                agent_requestor_who: 'Practitioner/dr-replay',
+                entity_what: ['Patient/patient-replay'],
+                purpose_of_event: []
+            };
+            await insertAuditEvents([duplicate, { ...duplicate }]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Patient/patient-replay']
+            });
+
+            expect(rows.length).toBe(1);
+            expect(Number(rows[0].access_count)).toBe(1);
+        });
+
+        test('counts an AuditEvent with multiple purposeOfEvent codes once', async () => {
+            await insertAuditEvents([
+                {
+                    recorded: recordedDaysAgo(3),
+                    agent_requestor_who: 'Practitioner/dr-multi-purpose',
+                    entity_what: ['Patient/patient-multi-purpose'],
+                    purpose_of_event: [
+                        { system: 'http://healthit.gov/nhin/purposeofuse', code: 'TREATMENT' },
+                        { system: 'http://healthit.gov/nhin/purposeofuse', code: 'OPERATIONS' }
+                    ]
+                }
+            ]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Patient/patient-multi-purpose']
+            });
+
+            expect(rows.length).toBe(1);
+            expect(Number(rows[0].access_count)).toBe(1);
+            expect(rows[0].purposes).toEqual(expect.arrayContaining([
+                'http://healthit.gov/nhin/purposeofuse|TREATMENT',
+                'http://healthit.gov/nhin/purposeofuse|OPERATIONS'
+            ]));
+        });
+
+        test('counts distinct AuditEvents recorded at the same time separately', async () => {
+            const recorded = recordedDaysAgo(3);
+            await insertAuditEvents([
+                {
+                    uuid: 'uuid-same-time-1',
+                    recorded,
+                    agent_requestor_who: 'Practitioner/dr-same-time',
+                    entity_what: ['Patient/patient-same-time'],
+                    purpose_of_event: []
+                },
+                {
+                    uuid: 'uuid-same-time-2',
+                    recorded,
+                    agent_requestor_who: 'Practitioner/dr-same-time',
+                    entity_what: ['Patient/patient-same-time'],
+                    purpose_of_event: []
+                }
+            ]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Patient/patient-same-time']
+            });
+
+            expect(rows.length).toBe(1);
+            expect(Number(rows[0].access_count)).toBe(2);
+        });
     });
 });
 

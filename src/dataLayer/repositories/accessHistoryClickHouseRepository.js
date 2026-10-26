@@ -23,7 +23,7 @@ class AccessHistoryClickHouseRepository {
             SELECT
                 agent_requestor_who AS accessor_uuid,
                 entity_resource_type,
-                countMerge(access_count) AS access_count,
+                uniqExactMerge(access_count) AS access_count,
                 maxMerge(last_accessed) AS last_accessed,
                 groupUniqArrayMerge(purpose_of_events) AS purposes
             FROM ${TABLES.AUDIT_ACCESS_AGG}
