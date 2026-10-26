@@ -76,7 +76,7 @@ async function insertAggRows(rows) {
                     {entity_ref:String} AS entity_ref,
                     {agent_requestor_who:String} AS agent_requestor_who,
                     {entity_resource_type:String} AS entity_resource_type,
-                    toDateTime({recorded_month:String}) AS recorded_month,
+                    toDate({recorded_date:String}) AS recorded_date,
                     countState() AS access_count,
                     maxState(toDateTime64({last_accessed:String}, 3, 'UTC')) AS last_accessed,
                     groupUniqArrayState({purpose:String}) AS purpose_of_events
@@ -85,7 +85,7 @@ async function insertAggRows(rows) {
                 entity_ref: row.entity_ref,
                 agent_requestor_who: row.agent_requestor_who,
                 entity_resource_type: row.entity_resource_type,
-                recorded_month: row.recorded_month,
+                recorded_date: row.recorded_date,
                 last_accessed: row.last_accessed,
                 purpose: row.purpose || ''
             }

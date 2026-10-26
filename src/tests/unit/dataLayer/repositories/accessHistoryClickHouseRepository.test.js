@@ -77,6 +77,14 @@ describe('AccessHistoryClickHouseRepository', () => {
             expect(callArgs.query).toContain('INTERVAL 90 DAY');
         });
 
+        test('filters the window at day granularity, not by month', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([]);
+            await repo.getAccessHistoryAsync({ entityRefs: ['Patient/1'] });
+            const { query } = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
+            expect(query).toContain("recorded_date >= toDate(now('UTC') - INTERVAL 90 DAY)");
+            expect(query).not.toContain('toStartOfMonth');
+        });
+
         test('returns rows from queryAsync', async () => {
             const mockRows = [
                 { accessor_uuid: 'u1', entity_resource_type: 'Patient', access_count: 3 },
