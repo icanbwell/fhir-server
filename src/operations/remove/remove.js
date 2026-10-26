@@ -136,6 +136,10 @@ class RemoveOperation {
             useAccessIndex
         } = requestInfo;
 
+        // an id that is dropped below must not turn a search-based delete into a single-instance delete
+        const idWasDropped = [parsedArgs.get('id'), parsedArgs.get('_id')].some(
+            a => a && (!a.queryParameterValue || a.queryParameterValue.value === '0')
+        );
         if (parsedArgs.get('id') &&
             (
                 !parsedArgs.get('id').queryParameterValue ||
@@ -153,7 +157,7 @@ class RemoveOperation {
             parsedArgs.remove('_id');
         }
 
-        const isSearchBasedDelete = parsedArgs.parsedArgItems.some(
+        const isSearchBasedDelete = idWasDropped || parsedArgs.parsedArgItems.some(
             a => !NON_SEARCH_QUERY_PARAMS.includes(a.queryParameter)
         );
         const accessRequested = isSearchBasedDelete ? 'ds' : 'd';
