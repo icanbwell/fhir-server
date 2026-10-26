@@ -1,4 +1,5 @@
 const moment = require('moment-timezone');
+const { ReadPreference } = require('mongodb');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
 const { FastDatabaseBulkInserter } = require('../../../dataLayer/fastDatabaseBulkInserter');
@@ -73,6 +74,10 @@ class BulkImportTaskStateMachine {
     /**
      * Loads a bulk-import Task by id. Restricts the query to Tasks carrying the bulk-import
      * code so a message with an arbitrary taskId cannot mutate a non-import Task.
+     *
+     * Reads from the primary: every range completion is a read-modify-write of Task.output, and
+     * a secondary that has not yet replicated the previous completion hands back a stale Task,
+     * so the next write drops that completion's output entry.
      * @param {string} taskId
      * @returns {Promise<Object|null>}
      */
@@ -90,7 +95,8 @@ class BulkImportTaskStateMachine {
                         code: BULK_IMPORT_TASK.TYPE_CODE
                     }
                 }
-            }
+            },
+            options: { readPreference: ReadPreference.PRIMARY }
         });
     }
 
@@ -191,13 +197,10 @@ class BulkImportTaskStateMachine {
             return;
         }
 
-        const rangeEntryId = this.buildRangeOutputEntryId({ filepath, rangeIndex });
-        const alreadyRecorded = (task.output || []).some((o) =>
-            typeof o.id === 'string' && (o.id === rangeEntryId || o.id.startsWith(`${rangeEntryId}-`))
-        );
-        if (alreadyRecorded) {
+        if (this.isRangeRecorded(task, { filepath, rangeIndex })) {
             return;
         }
+        const rangeEntryId = this.buildRangeOutputEntryId({ filepath, rangeIndex });
 
         const newOutputs = [];
         if (resultUri) {
@@ -218,6 +221,21 @@ class BulkImportTaskStateMachine {
         if (this.countCompletedRanges(updated) >= taskTotalRanges) {
             await this.updateTaskStatusAsync(updated, 'completed');
         }
+    }
+
+    /**
+     * Whether this range's completion is already recorded on the Task.
+     * @param {Object} task
+     * @param {Object} params
+     * @param {string} params.filepath
+     * @param {number} params.rangeIndex
+     * @returns {boolean}
+     */
+    isRangeRecorded(task, { filepath, rangeIndex }) {
+        const rangeEntryId = this.buildRangeOutputEntryId({ filepath, rangeIndex });
+        return (task.output || []).some((o) =>
+            typeof o.id === 'string' && (o.id === rangeEntryId || o.id.startsWith(`${rangeEntryId}-`))
+        );
     }
 
     /**

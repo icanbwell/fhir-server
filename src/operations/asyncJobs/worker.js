@@ -9,7 +9,7 @@ initStandaloneEntrypointSentry();
 const http = require('http');
 const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');
-const { logInfo, logError } = require('../common/logging');
+const { logInfo, logError, logWarn } = require('../common/logging');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 
 /**
@@ -18,7 +18,7 @@ const { getCircularReplacer } = require('../../utils/getCircularReplacer');
  * async job's worker-side consumer means adding another entry to `jobs` below, not a new
  * entrypoint file.
  * @param {import('../../utils/simpleContainer').SimpleContainer} container
- * @returns {Array<{ topic: string, groupId: string, dispatcher: { handleMessageAsync: function }, label: string, deadLetterTopic: string }>}
+ * @returns {Array<{ topic: string, groupId: string, fromBeginning?: boolean, dispatcher: { handleMessageAsync: function }, label: string, deadLetterTopic: string }>}
  */
 function getJobs(container) {
     const { configManager } = container;
@@ -28,11 +28,66 @@ function getJobs(container) {
             groupId: configManager.bulkImportConsumerGroupId,
             dispatcher: container.bulkImportWorkerDispatcher,
             label: 'bulk-import-worker',
+            // fromBeginning: true so a partition with no committed offset (every new one after
+            // the topic is grown) is read from its first message instead of its latest, which
+            // silently drops ranges published before this consumer joined. Partitions that have
+            // a committed offset are unaffected. Re-reading a range is a safe no-op.
+            fromBeginning: true,
             // A message still failing after 3 retries goes here instead of blocking the
             // partition forever — see kafkaClientV2.receiveMessagesAsync's deadLetterTopic option.
             deadLetterTopic: `${configManager.kafkaBulkImportEventTopic}.dlt`
         }
     ];
+}
+
+/**
+ * Logs the partitions this consumer owns after every group join (initial join and each
+ * rebalance), with each partition's committed offset (-1 = none, so the consumer starts at
+ * its fromBeginning position). Without it there is no way to tell from the logs which
+ * partitions a worker reads or where it starts. A failed offset lookup is logged and never
+ * affects consumption.
+ * @param {Object} params
+ * @param {import('../../utils/kafkaClientV2').KafkaClientV2} params.kafkaClientV2
+ * @param {{ topic: string, groupId: string, label: string }} params.job
+ * @param {{ payload: { memberId?: string, isLeader?: boolean, memberAssignment?: Object<string, number[]> } }} params.event
+ * @returns {Promise<void>}
+ */
+async function logPartitionAssignmentAsync({ kafkaClientV2, job, event }) {
+    const partitions = [...(event.payload.memberAssignment?.[job.topic] ?? [])].sort((a, b) => a - b);
+    const details = {
+        label: job.label,
+        topic: job.topic,
+        groupId: job.groupId,
+        memberId: event.payload.memberId,
+        isLeader: event.payload.isLeader,
+        partitions
+    };
+    let admin;
+    try {
+        admin = kafkaClientV2.createAdminClient();
+        await admin.connect();
+        const [topicOffsets] = await admin.fetchOffsets({ groupId: job.groupId, topics: [job.topic] });
+        const committedOffsets = {};
+        for (const { partition, offset } of topicOffsets?.partitions ?? []) {
+            if (partitions.includes(partition)) {
+                committedOffsets[partition] = offset;
+            }
+        }
+        logInfo('Async job worker partitions assigned', {
+            ...details,
+            committedOffsets,
+            partitionsWithoutCommit: partitions.filter((p) => committedOffsets[p] === '-1')
+        });
+    } catch (e) {
+        logWarn('Async job worker partitions assigned (committed offsets unavailable)', {
+            ...details,
+            error: e.message
+        });
+    } finally {
+        await admin?.disconnect().catch((e) => {
+            logWarn('Async job worker admin disconnect failed', { error: e.message });
+        });
+    }
 }
 
 async function main() {
@@ -89,13 +144,21 @@ async function main() {
             kafkaClientV2.receiveMessagesAsync({
                 consumer,
                 topic: job.topic,
-                fromBeginning: false,
+                fromBeginning: job.fromBeginning ?? false,
                 onMessageAsync: async (message) => {
                     await job.dispatcher.handleMessageAsync(message);
                 },
                 maxRetries: 3,
                 deadLetterTopic: job.deadLetterTopic
             });
+
+            // waitForConsumerToJoinGroupAsync only reports the first join; this logs every one,
+            // so rebalances (e.g. a scale-out) show which partitions each pod took over.
+            if (consumer) {
+                consumer.on(consumer.events.GROUP_JOIN, (event) =>
+                    logPartitionAssignmentAsync({ kafkaClientV2, job, event })
+                );
+            }
 
             // kafkaClientV2's own CRASH listener (registered inside waitForConsumerToJoinGroupAsync)
             // only rejects the join promise above, which is a no-op once already resolved — so a

@@ -29,6 +29,7 @@ const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor')
 const { BulkExportEventProducer } = require('../../../../utils/bulkExportEventProducer');
 const { StorageProviderFactory } = require('../../../../dataLayer/providers/storageProviderFactory');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
+const { GroupMemberQueryRewriter } = require('../../../../queryRewriters/rewriters/groupMemberQueryRewriter');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 
 function createMockInstance(ClassType) {
@@ -68,6 +69,7 @@ describe('BulkDataExportRunner - Cross-Tenant PHI Leakage', () => {
             bulkExportEventProducer: createMockInstance(BulkExportEventProducer),
             storageProviderFactory: createMockInstance(StorageProviderFactory),
             mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
+            groupMemberQueryRewriter: createMockInstance(GroupMemberQueryRewriter),
             exportStatusId: 'export-status-uuid-tenant-a',
             patientReferenceBatchSize: 100,
             fetchResourceBatchSize: 50,

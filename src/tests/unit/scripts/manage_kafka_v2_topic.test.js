@@ -28,6 +28,7 @@ function buildFakeAdmin (overrides = {}) {
         deleteTopics: jest.fn().mockResolvedValue(undefined),
         describeConfigs: jest.fn().mockResolvedValue({ resources: [{ configEntries: [] }] }),
         alterConfigs: jest.fn().mockResolvedValue(undefined),
+        createPartitions: jest.fn().mockResolvedValue(true),
         ...overrides
     };
 }
@@ -203,6 +204,101 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
         });
     });
 
+    describe('growKafkaTopic', () => {
+        const topicName = 'fhir_server.bulk_import.events';
+        const metadataWith = (count) => ({
+            topics: [{ name: topicName, partitions: Array.from({ length: count }, (_, i) => ({ partitionId: i })) }]
+        });
+        const configManager = {};
+        const noDelay = { verifyDelayMs: 0 };
+
+        test('raises the partition count with createPartitions and verifies the result', async () => {
+            const fetchTopicMetadata = jest.fn()
+                .mockResolvedValueOnce(metadataWith(3))
+                .mockResolvedValueOnce(metadataWith(30));
+            const fakeAdmin = buildFakeAdmin({ fetchTopicMetadata });
+            const { scriptModule } = loadScript(fakeAdmin);
+
+            await scriptModule.growKafkaTopic(configManager, topicName, 30, noDelay);
+
+            expect(fakeAdmin.createPartitions).toHaveBeenCalledWith({
+                timeout: 30_000,
+                topicPartitions: [{ topic: topicName, count: 30 }]
+            });
+            expect(fakeAdmin.disconnect).toHaveBeenCalled();
+        });
+
+        test('is a no-op when the topic already has the target count', async () => {
+            const fakeAdmin = buildFakeAdmin({
+                fetchTopicMetadata: jest.fn().mockResolvedValue(metadataWith(30))
+            });
+            const { scriptModule } = loadScript(fakeAdmin);
+
+            await scriptModule.growKafkaTopic(configManager, topicName, 30, noDelay);
+
+            expect(fakeAdmin.createPartitions).not.toHaveBeenCalled();
+            expect(fakeAdmin.disconnect).toHaveBeenCalled();
+        });
+
+        test('refuses to shrink: Kafka cannot remove partitions', async () => {
+            const fakeAdmin = buildFakeAdmin({
+                fetchTopicMetadata: jest.fn().mockResolvedValue(metadataWith(30))
+            });
+            const { scriptModule } = loadScript(fakeAdmin);
+
+            await expect(scriptModule.growKafkaTopic(configManager, topicName, 10, noDelay))
+                .rejects.toThrow('Cannot shrink');
+            expect(fakeAdmin.createPartitions).not.toHaveBeenCalled();
+            expect(fakeAdmin.disconnect).toHaveBeenCalled();
+        });
+
+        test('fails (rather than passing quietly) when the topic does not exist', async () => {
+            const err = Object.assign(new Error('missing'), { type: 'UNKNOWN_TOPIC_OR_PARTITION' });
+            const fakeAdmin = buildFakeAdmin({ fetchTopicMetadata: jest.fn().mockRejectedValue(err) });
+            const { scriptModule } = loadScript(fakeAdmin);
+
+            await expect(scriptModule.growKafkaTopic(configManager, topicName, 30, noDelay)).rejects.toThrow('missing');
+            expect(fakeAdmin.createPartitions).not.toHaveBeenCalled();
+        });
+
+        test('rethrows broker errors (e.g. missing AlterTopic) and still disconnects', async () => {
+            const fakeAdmin = buildFakeAdmin({
+                fetchTopicMetadata: jest.fn().mockResolvedValue(metadataWith(3)),
+                createPartitions: jest.fn().mockRejectedValue(new Error('Not authorized'))
+            });
+            const { scriptModule } = loadScript(fakeAdmin);
+
+            await expect(scriptModule.growKafkaTopic(configManager, topicName, 30, noDelay))
+                .rejects.toThrow('Not authorized');
+            expect(fakeAdmin.disconnect).toHaveBeenCalled();
+        });
+
+        test('keeps polling metadata until the brokers report the new count', async () => {
+            const fetchTopicMetadata = jest.fn()
+                .mockResolvedValueOnce(metadataWith(3))
+                .mockResolvedValueOnce(metadataWith(3))
+                .mockResolvedValueOnce(metadataWith(3))
+                .mockResolvedValueOnce(metadataWith(30));
+            const fakeAdmin = buildFakeAdmin({ fetchTopicMetadata });
+            const { scriptModule } = loadScript(fakeAdmin);
+
+            await scriptModule.growKafkaTopic(configManager, topicName, 30, noDelay);
+
+            expect(fetchTopicMetadata).toHaveBeenCalledTimes(4);
+            expect(fakeAdmin.createPartitions).toHaveBeenCalledTimes(1);
+        });
+
+        test('fails when metadata still reports the old count after createPartitions', async () => {
+            const fakeAdmin = buildFakeAdmin({
+                fetchTopicMetadata: jest.fn().mockResolvedValue(metadataWith(3))
+            });
+            const { scriptModule } = loadScript(fakeAdmin);
+
+            await expect(scriptModule.growKafkaTopic(configManager, topicName, 30, noDelay))
+                .rejects.toThrow('expected 30');
+        });
+    });
+
     describe('deleteKafkaTopic', () => {
         test('deletes the topic and disconnects', async () => {
             const fakeAdmin = buildFakeAdmin();
@@ -308,6 +404,38 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
                 })]
             }));
             expect(fakeAdmin.createTopics).not.toHaveBeenCalled();
+        });
+
+        test('routes to growKafkaTopic with the prefixed topic and the --partitions target when --grow is set', async () => {
+            process.argv = [
+                'node', 'manage_kafka_v2_topic.js', '--topic', 'bulk_import.events', '--grow', '--partitions', '30'
+            ];
+            const fakeAdmin = buildFakeAdmin({
+                fetchTopicMetadata: jest.fn()
+                    .mockResolvedValueOnce({ topics: [{ name: 'fhir_server.bulk_import.events', partitions: [{}, {}, {}] }] })
+                    .mockResolvedValueOnce({
+                        topics: [{ name: 'fhir_server.bulk_import.events', partitions: Array.from({ length: 30 }, () => ({})) }]
+                    })
+            });
+            const { scriptModule } = loadScript(fakeAdmin);
+
+            await scriptModule.main();
+
+            expect(fakeAdmin.createPartitions).toHaveBeenCalledWith(expect.objectContaining({
+                topicPartitions: [{ topic: 'fhir_server.bulk_import.events', count: 30 }]
+            }));
+            expect(fakeAdmin.createTopics).not.toHaveBeenCalled();
+        });
+
+        test('exits 1 when --grow is given without an explicit --partitions target', async () => {
+            process.argv = ['node', 'manage_kafka_v2_topic.js', '--topic', 'bulk_import.events', '--grow'];
+            const fakeAdmin = buildFakeAdmin();
+            const { scriptModule } = loadScript(fakeAdmin);
+            const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => { throw new Error('__exit__'); });
+
+            await expect(scriptModule.main()).rejects.toThrow('__exit__');
+            expect(exitSpy).toHaveBeenCalledWith(1);
+            expect(fakeAdmin.createPartitions).not.toHaveBeenCalled();
         });
 
         test('parameter sensitivity: --partitions overrides the default partition count', async () => {

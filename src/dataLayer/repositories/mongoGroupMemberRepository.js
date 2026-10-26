@@ -5,7 +5,7 @@ const { RemoveHelper } = require('../../operations/remove/removeHelper');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
 const { generateUUIDv5 } = require('../../utils/uid.util');
-const { GROUP_MEMBER_RESOURCE_TYPE } = require('../../constants');
+const { GROUP_MEMBER_RESOURCE_TYPE, GROUP_MEMBER_COLLECTION_NAME } = require('../../constants');
 const { resolveMemberWrite } = require('../../operations/common/resolveMemberWrite');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { logError, logInfo } = require('../../operations/common/logging');
@@ -450,6 +450,46 @@ class MongoGroupMemberRepository {
         return await databaseQueryManager.findAsync({
             query: { groupUuid }
         });
+    }
+
+    /**
+     * Reads one page of a Group's roster, ordered by _uuid (index groupUuid_1__uuid_1). Mongo
+     * applies sort/skip/limit, so at most `count` rows are ever materialized, however large the
+     * roster is.
+     *
+     * @param {Object} params
+     * @param {string} params.base_version
+     * @param {string} params.groupUuid
+     * @param {number} params.offset - rows to skip
+     * @param {number} params.count - rows to return
+     * @param {number} [params.maxTimeMS] server-side time limit for the read (bounds a deep skip),
+     *   omitted when not set
+     * @returns {Promise<{members: Object[], queryItem: {query: Object, collectionName: string}, options: Object}>}
+     * members are the Group.member objects of the rows; queryItem/options describe the Mongo query
+     * that ran, for _debug output
+     */
+    async getMemberPageAsync({ base_version, groupUuid, offset, count, maxTimeMS }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: GROUP_MEMBER_RESOURCE_TYPE,
+            base_version
+        });
+        const query = { groupUuid };
+        const options = {
+            projection: { member: 1, _uuid: 1, _id: 0 },
+            sort: { _uuid: 1 },
+            skip: offset,
+            limit: count
+        };
+        let cursor = await databaseQueryManager.findAsync({ query, options });
+        if (maxTimeMS) {
+            cursor = cursor.maxTimeMS({ milliSecs: maxTimeMS });
+        }
+        const rows = await cursor.toArrayAsync();
+        return {
+            members: rows.map((row) => row.member).filter(Boolean),
+            queryItem: { query, collectionName: GROUP_MEMBER_COLLECTION_NAME },
+            options
+        };
     }
 
     /**

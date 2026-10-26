@@ -74047,7 +74047,7 @@ type Group implements DomainResource & Resource
   characteristic: [GroupCharacteristic]
 
   """Identifies the resource instances that are members of the group."""
-  member: [GroupMember]
+  member(_offset: Int, _count: Int): [GroupMember]
 }
 
 type GroupBundleEntry {

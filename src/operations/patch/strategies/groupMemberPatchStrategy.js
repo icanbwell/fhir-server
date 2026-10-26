@@ -5,6 +5,8 @@ const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elem
 const { buildContextDataForHybridStorage, USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
 const { isTrue } = require('../../../utils/isTrue');
 const { enrichMemberReferences } = require('../../../utils/referenceEnricher');
+const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
+const deepcopy = require('deepcopy');
 
 /**
  * Strategy for handling Group.member PATCH operations
@@ -55,6 +57,7 @@ class GroupMemberPatchStrategy {
         this.configManager = configManager;
         this.resourceMerger = resourceMerger;
         this.databaseBulkInserter = databaseBulkInserter;
+        this.useFastSerializer = configManager.enablePatchFastSerializer;
         this.mongoGroupMemberRepository = mongoGroupMemberRepository;
     }
 
@@ -251,8 +254,10 @@ class GroupMemberPatchStrategy {
         // 4. Update Group metadata in MongoDB FIRST (increment versionId, update lastUpdated)
         // IMPORTANT: Write MongoDB first, then ClickHouse (matches CREATE/UPDATE pattern)
         // Different write orders = different failure modes = unpredictable behavior
-        const updatedResource = foundResource.clone ? foundResource.clone() : { ...foundResource };
-        this.resourceMerger.updateMeta({
+        const updatedResource = this.useFastSerializer
+            ? deepcopy(foundResource)
+            : (foundResource.clone ? foundResource.clone() : { ...foundResource });
+        this.resourceMerger[this.useFastSerializer ? 'fastUpdateMeta' : 'updateMeta']({
             patched_resource_incoming: updatedResource,
             currentResource: foundResource,
             original_source: foundResource.meta?.source,
@@ -334,7 +339,7 @@ class GroupMemberPatchStrategy {
             created: false,
             updated: true,
             resource_version: updatedResource.meta.versionId,
-            resource: updatedResource
+            resource: this.useFastSerializer ? FhirResourceSerializer.serialize(deepcopy(updatedResource)) : updatedResource
         };
     }
 

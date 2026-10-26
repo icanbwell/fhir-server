@@ -29,6 +29,7 @@ const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor')
 const { BulkExportEventProducer } = require('../../../../utils/bulkExportEventProducer');
 const { StorageProviderFactory } = require('../../../../dataLayer/providers/storageProviderFactory');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
+const { GroupMemberQueryRewriter } = require('../../../../queryRewriters/rewriters/groupMemberQueryRewriter');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -62,6 +63,7 @@ describe('BulkDataExportRunner', () => {
             bulkExportEventProducer: createMockInstance(BulkExportEventProducer),
             storageProviderFactory: createMockInstance(StorageProviderFactory),
             mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
+            groupMemberQueryRewriter: createMockInstance(GroupMemberQueryRewriter),
             exportStatusId: 'export-123',
             patientReferenceBatchSize: 100,
             fetchResourceBatchSize: 50,

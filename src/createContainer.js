@@ -495,31 +495,30 @@ const createContainer = function () {
         configManager: c.configManager
     }));
 
-    container.register('queryRewriterManager', (c) => {
-        const groupMemberQueryRewriter = new GroupMemberQueryRewriter({
-            configManager: c.configManager,
-            mongoGroupMemberRepository: c.mongoGroupMemberRepository
-        });
-        return new QueryRewriterManager({
-            queryRewriters: [
-                new ReferenceQueryRewriter(),
-                new ChainedSearchQueryRewriter()
+    container.register('groupMemberQueryRewriter', (c) => new GroupMemberQueryRewriter({
+        configManager: c.configManager,
+        mongoGroupMemberRepository: c.mongoGroupMemberRepository
+    }));
+
+    container.register('queryRewriterManager', (c) => new QueryRewriterManager({
+        queryRewriters: [
+            new ReferenceQueryRewriter(),
+            new ChainedSearchQueryRewriter()
+        ],
+        operationSpecificQueryRewriters: {
+            [READ]: [
+                new PatientProxyQueryRewriter({
+                    personToPatientIdsExpander: c.personToPatientIdsExpander,
+                    configManager: c.configManager,
+                    requestSpecificCache: c.requestSpecificCache
+                }),
+                c.groupMemberQueryRewriter
             ],
-            operationSpecificQueryRewriters: {
-                [READ]: [
-                    new PatientProxyQueryRewriter({
-                        personToPatientIdsExpander: c.personToPatientIdsExpander,
-                        configManager: c.configManager,
-                        requestSpecificCache: c.requestSpecificCache
-                    }),
-                    groupMemberQueryRewriter
-                ],
-                // DELETE /Group?member=X must delete the same Groups GET returns, extended ones
-                // included. Only the member rewrite applies: patient-proxy expansion stays READ-only.
-                [DELETE]: [groupMemberQueryRewriter]
-            }
-        });
-    });
+            // DELETE /Group?member=X must delete the same Groups GET returns, extended ones
+            // included. Only the member rewrite applies: patient-proxy expansion stays READ-only.
+            [DELETE]: [c.groupMemberQueryRewriter]
+        }
+    }));
 
     container.register('patientScopeManager', (c) => new PatientScopeManager(
         {
@@ -866,6 +865,7 @@ const createContainer = function () {
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
                 databaseBulkInserter: c.databaseBulkInserter,
+                fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
@@ -884,6 +884,7 @@ const createContainer = function () {
                 bundleManager: c.bundleManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 databaseBulkInserter: c.databaseBulkInserter,
+                fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
@@ -1010,6 +1011,7 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             databaseBulkInserter: c.databaseBulkInserter,
+            fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
             base64DataManager: c.base64DataManager,
             configManager: c.configManager,

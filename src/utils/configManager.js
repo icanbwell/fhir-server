@@ -731,6 +731,18 @@ class ConfigManager {
         return isTrueWithFallback(env.LOG_UPDATED_MERGE_VALIDATION_ERRORS, true);
     }
 
+    get enableCreateFastSerializer() {
+        return isTrueWithFallback(env.ENABLE_CREATE_FAST_SERIALIZER, true);
+    }
+
+    get enableUpdateFastSerializer() {
+        return isTrueWithFallback(env.ENABLE_UPDATE_FAST_SERIALIZER, true);
+    }
+
+    get enablePatchFastSerializer() {
+        return isTrueWithFallback(env.ENABLE_PATCH_FAST_SERIALIZER, true);
+    }
+
     /**
      * returns cron expression for postRequest processes
      * @returns {string}
@@ -1399,6 +1411,17 @@ class ConfigManager {
      */
     get groupPatchOperationsLimit() {
         return parseInt(env.GROUP_PATCH_OPERATIONS_LIMIT || '10000', 10);
+    }
+
+    /**
+     * Maximum GroupMember rows GraphQL Group.member reads for an extended Group: the page size when
+     * _count is omitted and the cap on _count. A request reads at most one such page. Embedded
+     * Groups are not limited by it.
+     * Default: 50000. Can be overridden via GRAPHQL_GROUP_MEMBER_MAX_COUNT environment variable
+     * @returns {number}
+     */
+    get graphqlGroupMemberMaxCount() {
+        return parseInt(env.GRAPHQL_GROUP_MEMBER_MAX_COUNT || '50000', 10);
     }
 
     /**

@@ -402,6 +402,35 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
             expect(metrics.importOperationsTriggeredCounter.add).not.toHaveBeenCalled();
         });
 
+        test.each(['in-progress', 'completed', 'failed'])(
+            'skips a replayed TaskCreated for a Task that is already %s',
+            async (status) => {
+                const publishImportEventsAsync = jestGlobal.fn().mockResolvedValue(1);
+                const stateMachine = createMockStateMachine({
+                    loadTaskAsync: jestGlobal.fn().mockResolvedValue(createMockTask({ status }))
+                });
+                handler = createHandler({}, {
+                    bulkImportEventProducer: { publishImportEventsAsync },
+                    bulkImportTaskStateMachine: stateMachine
+                });
+
+                await handler.handleMessageAsync({
+                    key: 'task-replayed',
+                    value: createTaskCreatedMessage({ taskId: 'task-replayed' }),
+                    headers: []
+                });
+
+                expect(logInfo).toHaveBeenCalledWith(
+                    'Skipping TaskCreated for a Task that is no longer requested',
+                    { taskId: 'task-replayed', status }
+                );
+                expect(mockSend).not.toHaveBeenCalled();
+                expect(publishImportEventsAsync).not.toHaveBeenCalled();
+                expect(stateMachine.updateTaskStatusAsync).not.toHaveBeenCalled();
+                expect(metrics.importOperationsTriggeredCounter.add).not.toHaveBeenCalled();
+            }
+        );
+
         test('marks the Task failed and does not publish when S3 validation fails', async () => {
             mockSend.mockRejectedValue(Object.assign(new Error('NotFound'), { name: 'NotFound' }));
             const publishImportEventsAsync = jestGlobal.fn().mockResolvedValue(1);
