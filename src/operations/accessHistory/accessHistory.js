@@ -59,15 +59,13 @@ class AccessHistoryOperation {
     }
 
     /**
-     * @param {Object} params
-     * @param {import('../common/fhirRequestInfo').FhirRequestInfo} params.requestInfo
-     * @param {import('../query/parsedArgs').ParsedArgs} params.parsedArgs
-     * @param {string} params.resourceType
-     * @returns {Promise<Object>}
+     * Must also be called on the raw request id before query rewriting: PatientProxyQueryRewriter
+     * expands a person.<id> into the Person's linked Patient ids, which would otherwise be
+     * reported as "multiple IDs" instead of as a proxy patient id.
+     * @param {string|string[]} id
+     * @returns {string[]}
      */
-    async accessHistoryAsync({ requestInfo, parsedArgs, resourceType }) {
-        const id = parsedArgs.id;
-        const base_version = parsedArgs.base_version;
+    validateIds(id) {
         assertIsValid(id, 'id is required for $access-history');
 
         const idList = Array.isArray(id) ? id : id.split(',');
@@ -77,6 +75,20 @@ class AccessHistoryOperation {
         if (idList.some((i) => i.includes(PERSON_PROXY_PREFIX))) {
             throw new BadRequestError(new Error('Proxy patient id is not allowed for $access-history'));
         }
+        return idList;
+    }
+
+    /**
+     * @param {Object} params
+     * @param {import('../common/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {import('../query/parsedArgs').ParsedArgs} params.parsedArgs
+     * @param {string} params.resourceType
+     * @returns {Promise<Object>}
+     */
+    async accessHistoryAsync({ requestInfo, parsedArgs, resourceType }) {
+        const id = parsedArgs.id;
+        const base_version = parsedArgs.base_version;
+        const idList = this.validateIds(id);
 
         const startTime = Date.now();
         await this._verifyAccessToResourceTypesAsync({
