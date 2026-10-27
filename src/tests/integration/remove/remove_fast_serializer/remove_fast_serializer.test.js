@@ -83,11 +83,6 @@ describe('Remove with fast serializer', () => {
             .toArray();
     };
 
-    test('fast serializer is enabled by default', async () => {
-        await createTestRequest();
-        expect(getTestContainer().removeHelper.useFastSerializer).toStrictEqual(true);
-    });
-
     test('DELETE by id writes a DELETE history entry', async () => {
         const request = await createTestRequest();
         const startTime = Date.now();

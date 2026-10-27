@@ -1,8 +1,8 @@
 'use strict';
 
 /**
- * DCON-6113: RemoveHelper writes DELETE history through FastDatabaseBulkInserter when
- * ENABLE_REMOVE_FAST_SERIALIZER is on. These tests pin that both inserters build the same history
+ * RemoveHelper writes DELETE history through FastDatabaseBulkInserter instead of
+ * DatabaseBulkInserter. These tests pin that both inserters build the same history
  * document from the inputs RemoveHelper hands them -- the legacy one from the caller's resource
  * as-is, the fast one from the plain snapshot RemoveHelper takes -- and the cases where they
  * differ on purpose.

@@ -11,9 +11,7 @@ const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
 const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
 const { DatabaseQueryFactory } = require('../../../../dataLayer/databaseQueryFactory');
 const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAttachmentManager');
-const { DatabaseBulkInserter } = require('../../../../dataLayer/databaseBulkInserter');
 const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
-const { ConfigManager } = require('../../../../utils/configManager');
 const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
 const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor');
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
@@ -35,9 +33,7 @@ describe('RemoveHelper', () => {
     let mockResourceLocatorFactory;
     let mockDatabaseQueryFactory;
     let mockDatabaseAttachmentManager;
-    let mockDatabaseBulkInserter;
     let mockFastDatabaseBulkInserter;
-    let mockConfigManager;
     let mockPostRequestProcessor;
     let mockPostSaveProcessor;
     let mockBase64DataManager;
@@ -62,20 +58,9 @@ describe('RemoveHelper', () => {
             transformAttachments: jest.fn().mockResolvedValue(undefined)
         });
 
-        mockDatabaseBulkInserter = createMockInstance(DatabaseBulkInserter, {
-            insertOneHistoryAsync: jest.fn().mockResolvedValue(undefined),
-            executeHistoryAsync: jest.fn().mockResolvedValue(undefined)
-        });
-
         mockFastDatabaseBulkInserter = createMockInstance(FastDatabaseBulkInserter, {
             insertOneHistoryAsync: jest.fn().mockResolvedValue(undefined),
             executeHistoryAsync: jest.fn().mockResolvedValue(undefined)
-        });
-
-        mockConfigManager = createMockInstance(ConfigManager, {});
-        Object.defineProperty(mockConfigManager, 'enableRemoveFastSerializer', {
-            get: () => true,
-            configurable: true
         });
 
         mockPostRequestProcessor = createMockInstance(PostRequestProcessor, {
@@ -96,12 +81,10 @@ describe('RemoveHelper', () => {
             resourceLocatorFactory: mockResourceLocatorFactory,
             databaseQueryFactory: mockDatabaseQueryFactory,
             databaseAttachmentManager: mockDatabaseAttachmentManager,
-            databaseBulkInserter: mockDatabaseBulkInserter,
             postRequestProcessor: mockPostRequestProcessor,
             postSaveProcessor: mockPostSaveProcessor,
             base64DataManager: mockBase64DataManager,
-            fastDatabaseBulkInserter: mockFastDatabaseBulkInserter,
-            configManager: mockConfigManager
+            fastDatabaseBulkInserter: mockFastDatabaseBulkInserter
         });
     });
 
@@ -115,26 +98,34 @@ describe('RemoveHelper', () => {
                 resourceLocatorFactory: null,
                 databaseQueryFactory: mockDatabaseQueryFactory,
                 databaseAttachmentManager: mockDatabaseAttachmentManager,
-                databaseBulkInserter: mockDatabaseBulkInserter,
-                postRequestProcessor: mockPostRequestProcessor,
+                    postRequestProcessor: mockPostRequestProcessor,
                 postSaveProcessor: mockPostSaveProcessor,
                 base64DataManager: mockBase64DataManager,
-                fastDatabaseBulkInserter: mockFastDatabaseBulkInserter,
-                configManager: mockConfigManager
+                fastDatabaseBulkInserter: mockFastDatabaseBulkInserter
             })).toThrow();
         });
 
-        test('should throw if databaseBulkInserter is wrong type', () => {
+        test('should throw if fastDatabaseBulkInserter is wrong type', () => {
             expect(() => new RemoveHelper({
                 resourceLocatorFactory: mockResourceLocatorFactory,
                 databaseQueryFactory: mockDatabaseQueryFactory,
                 databaseAttachmentManager: mockDatabaseAttachmentManager,
-                databaseBulkInserter: {},
                 postRequestProcessor: mockPostRequestProcessor,
                 postSaveProcessor: mockPostSaveProcessor,
                 base64DataManager: mockBase64DataManager,
-                fastDatabaseBulkInserter: mockFastDatabaseBulkInserter,
-                configManager: mockConfigManager
+                fastDatabaseBulkInserter: {}
+            })).toThrow();
+        });
+
+        test('should throw if fastDatabaseBulkInserter is null', () => {
+            expect(() => new RemoveHelper({
+                resourceLocatorFactory: mockResourceLocatorFactory,
+                databaseQueryFactory: mockDatabaseQueryFactory,
+                databaseAttachmentManager: mockDatabaseAttachmentManager,
+                postRequestProcessor: mockPostRequestProcessor,
+                postSaveProcessor: mockPostSaveProcessor,
+                base64DataManager: mockBase64DataManager,
+                fastDatabaseBulkInserter: null
             })).toThrow();
         });
     });
@@ -544,33 +535,7 @@ describe('RemoveHelper', () => {
         });
     });
 
-    describe('constructor (fast serializer dependencies)', () => {
-        const baseDeps = () => ({
-            resourceLocatorFactory: mockResourceLocatorFactory,
-            databaseQueryFactory: mockDatabaseQueryFactory,
-            databaseAttachmentManager: mockDatabaseAttachmentManager,
-            databaseBulkInserter: mockDatabaseBulkInserter,
-            postRequestProcessor: mockPostRequestProcessor,
-            postSaveProcessor: mockPostSaveProcessor,
-            base64DataManager: mockBase64DataManager,
-            fastDatabaseBulkInserter: mockFastDatabaseBulkInserter,
-            configManager: mockConfigManager
-        });
-
-        test('reads ENABLE_REMOVE_FAST_SERIALIZER into useFastSerializer', () => {
-            expect(removeHelper.useFastSerializer).toBe(true);
-        });
-
-        test('throws if fastDatabaseBulkInserter is null', () => {
-            expect(() => new RemoveHelper({ ...baseDeps(), fastDatabaseBulkInserter: null })).toThrow();
-        });
-
-        test('throws if configManager is null', () => {
-            expect(() => new RemoveHelper({ ...baseDeps(), configManager: null })).toThrow();
-        });
-    });
-
-    describe('deleteManyAsync history write (ENABLE_REMOVE_FAST_SERIALIZER on)', () => {
+    describe('deleteManyAsync history write', () => {
         const requestInfo = { requestId: 'fast-request-1' };
         const params = { requestInfo, resourceType: 'Patient', base_version: '4_0_0' };
         const makePlainPatient = () => ({
@@ -594,8 +559,6 @@ describe('RemoveHelper', () => {
             await removeHelper.deleteManyAsync({ ...params, resources });
 
             expect(mockFastDatabaseBulkInserter.insertOneHistoryAsync).toHaveBeenCalledTimes(2);
-            expect(mockDatabaseBulkInserter.insertOneHistoryAsync).not.toHaveBeenCalled();
-            expect(mockDatabaseBulkInserter.executeHistoryAsync).not.toHaveBeenCalled();
             expect(mockFastDatabaseBulkInserter.executeHistoryAsync).toHaveBeenCalledTimes(1);
             expect(mockFastDatabaseBulkInserter.executeHistoryAsync).toHaveBeenCalledWith({
                 requestInfo,

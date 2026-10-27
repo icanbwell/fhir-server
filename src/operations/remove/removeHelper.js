@@ -6,9 +6,7 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { RethrownError } = require('../../utils/rethrownError');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
-const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
-const { ConfigManager } = require('../../utils/configManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { DELETE } = require('../../constants').GRIDFS;
@@ -23,22 +21,18 @@ class RemoveHelper {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {Base64DataManager} base64DataManager
      * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
-     * @param {ConfigManager} configManager
      */
     constructor({
         resourceLocatorFactory,
         databaseQueryFactory,
         databaseAttachmentManager,
-        databaseBulkInserter,
         postRequestProcessor,
         postSaveProcessor,
         base64DataManager,
-        fastDatabaseBulkInserter,
-        configManager
+        fastDatabaseBulkInserter
     }) {
         /**
          * @type {ResourceLocatorFactory}
@@ -57,12 +51,6 @@ class RemoveHelper {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
-
-        /**
-         * @type {DatabaseBulkInserter}
-         */
-        this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
 
         /**
          * @type {PostRequestProcessor}
@@ -87,18 +75,6 @@ class RemoveHelper {
          */
         this.fastDatabaseBulkInserter = fastDatabaseBulkInserter;
         assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
-
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * Write DELETE history through FastDatabaseBulkInserter (ENABLE_REMOVE_FAST_SERIALIZER)
-         * @type {boolean}
-         */
-        this.useFastSerializer = configManager.enableRemoveFastSerializer;
     }
 
     /**
@@ -173,22 +149,12 @@ class RemoveHelper {
                 liveObjectRefsByResource.push({
                     resource, liveRefs
                 });
-                if (this.useFastSerializer) {
-                    await this.fastDatabaseBulkInserter.insertOneHistoryAsync({
-                        requestInfo,
-                        base_version,
-                        resourceType,
-                        doc: resource instanceof Resource ? resource.toJSONInternal() : deepcopy(resource)
-                    });
-                } else {
-                    await this.databaseBulkInserter.insertOneHistoryAsync({
-                        requestInfo,
-                        base_version,
-                        resourceType,
-                        doc: resource,
-                        skipResourceAssertion: true
-                    });
-                }
+                await this.fastDatabaseBulkInserter.insertOneHistoryAsync({
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    doc: resource instanceof Resource ? resource.toJSONInternal() : deepcopy(resource)
+                });
 
                 deletionResult.push({
                     id: resource.id,
@@ -202,10 +168,7 @@ class RemoveHelper {
             }
 
             // Add history before deletion
-            const historyBulkInserter = this.useFastSerializer
-                ? this.fastDatabaseBulkInserter
-                : this.databaseBulkInserter;
-            await historyBulkInserter.executeHistoryAsync({
+            await this.fastDatabaseBulkInserter.executeHistoryAsync({
                 requestInfo,
                 base_version
             });
