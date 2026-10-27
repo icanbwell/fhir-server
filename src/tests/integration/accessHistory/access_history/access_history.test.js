@@ -626,6 +626,37 @@ describe('Person $access-history Tests', () => {
         expect(resp.body.issue[0].details.text).toBe('Proxy patient id is not allowed for $access-history');
     });
 
+    test('$access-history excludes accesses older than windowDays even when their month overlaps the window', async () => {
+        const request = sharedRequest;
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const personUuid = resp.body.uuid;
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const entityRef = `Patient/${resp.body.uuid}`;
+
+        await insertAuditEvents([
+            { recorded: daysAgo(80), entity_what: [entityRef], agent_requestor_who: 'Practitioner/in-window' },
+            { recorded: daysAgo(100), entity_what: [entityRef], agent_requestor_who: 'Practitioner/100-days-ago' },
+            { recorded: daysAgo(200), entity_what: [entityRef], agent_requestor_who: 'Practitioner/200-days-ago' }
+        ]);
+
+        resp = await request
+            .get(`/4_0_0/Person/${personUuid}/$access-history`)
+            .set(getHeaders());
+
+        expect(resp.status).toBe(200);
+        expect(summarizeAccessors(resp.body).map((a) => a.reference)).toEqual(['Practitioner/in-window']);
+    });
+
     test('$access-history returns 403 when Person read scope is missing', async () => {
         const request = sharedRequest;
 

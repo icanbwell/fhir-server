@@ -11,7 +11,7 @@ const {
 } = require('./accessHistoryTestSetup');
 
 // getAccessHistoryAsync only returns rows within a rolling 90-day window
-// (recorded_month >= toStartOfMonth(now() - INTERVAL 90 DAY)), so test dates must be
+// (recorded_date >= toDate(now('UTC') - INTERVAL 90 DAY)), so test dates must be
 // computed relative to the actual run time rather than hardcoded, or they silently
 // fall out of the window as real time passes.
 function formatClickHouseDateTime(date) {
@@ -30,6 +30,10 @@ function recordedAt({ monthsAgo = 0, day, hour = 0, minute = 0 }) {
     return formatClickHouseDateTime(
         new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - monthsAgo, day, hour, minute, 0, 0))
     );
+}
+
+function recordedDaysAgo(days) {
+    return formatClickHouseDateTime(new Date(Date.now() - days * 24 * 60 * 60 * 1000));
 }
 
 describe('AccessHistoryClickHouseRepository', () => {
@@ -191,6 +195,112 @@ describe('AccessHistoryClickHouseRepository', () => {
             expect(accessors).toContain('Practitioner/dr-jones');
             expect(accessors).toContain('Practitioner/dr-wilson');
             expect(accessors).toContain('Practitioner/dr-house');
+        });
+
+        test('excludes accesses older than the window even when their month overlaps it', async () => {
+            await insertAuditEvents([
+                {
+                    recorded: recordedDaysAgo(80),
+                    agent_requestor_who: 'Practitioner/dr-in-window',
+                    entity_what: ['Patient/patient-window'],
+                    purpose_of_event: []
+                },
+                {
+                    recorded: recordedDaysAgo(100),
+                    agent_requestor_who: 'Practitioner/dr-100-days',
+                    entity_what: ['Patient/patient-window'],
+                    purpose_of_event: []
+                },
+                {
+                    recorded: recordedDaysAgo(200),
+                    agent_requestor_who: 'Practitioner/dr-200-days',
+                    entity_what: ['Patient/patient-window'],
+                    purpose_of_event: []
+                }
+            ]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Patient/patient-window']
+            });
+
+            expect(rows.map(r => r.accessor_uuid)).toEqual(['Practitioner/dr-in-window']);
+        });
+
+        test('excludes accesses just outside the window that share a month with in-window ones', async () => {
+            await insertAuditEvents([
+                {
+                    recorded: recordedDaysAgo(88),
+                    agent_requestor_who: 'Practitioner/dr-cutoff',
+                    entity_what: ['Patient/patient-cutoff'],
+                    purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'TREATMENT' }]
+                },
+                {
+                    recorded: recordedDaysAgo(92),
+                    agent_requestor_who: 'Practitioner/dr-cutoff',
+                    entity_what: ['Patient/patient-cutoff'],
+                    purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'OPERATIONS' }]
+                }
+            ]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Patient/patient-cutoff']
+            });
+
+            expect(rows.length).toBe(1);
+            expect(Number(rows[0].access_count)).toBe(1);
+            expect(rows[0].purposes).toEqual(['http://healthit.gov/nhin/purposeofuse|TREATMENT']);
+        });
+
+        test('merges boundary-month and whole-month accesses into one row per accessor', async () => {
+            await insertAuditEvents([
+                {
+                    recorded: recordedDaysAgo(1),
+                    agent_requestor_who: 'Practitioner/dr-merge',
+                    entity_what: ['Patient/patient-merge'],
+                    purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'TREATMENT' }]
+                },
+                {
+                    recorded: recordedDaysAgo(89),
+                    agent_requestor_who: 'Practitioner/dr-merge',
+                    entity_what: ['Patient/patient-merge'],
+                    purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'OPERATIONS' }]
+                }
+            ]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Patient/patient-merge']
+            });
+
+            expect(rows.length).toBe(1);
+            expect(Number(rows[0].access_count)).toBe(2);
+            expect([...rows[0].purposes].sort()).toEqual([
+                'http://healthit.gov/nhin/purposeofuse|OPERATIONS',
+                'http://healthit.gov/nhin/purposeofuse|TREATMENT'
+            ]);
+        });
+
+        test('does not count out-of-window accesses by an accessor that also has in-window accesses', async () => {
+            await insertAuditEvents([
+                {
+                    recorded: recordedDaysAgo(5),
+                    agent_requestor_who: 'Practitioner/dr-mixed',
+                    entity_what: ['Patient/patient-mixed'],
+                    purpose_of_event: []
+                },
+                {
+                    recorded: recordedDaysAgo(95),
+                    agent_requestor_who: 'Practitioner/dr-mixed',
+                    entity_what: ['Patient/patient-mixed'],
+                    purpose_of_event: []
+                }
+            ]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Patient/patient-mixed']
+            });
+
+            expect(rows.length).toBe(1);
+            expect(Number(rows[0].access_count)).toBe(1);
         });
     });
 });
