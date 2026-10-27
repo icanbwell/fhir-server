@@ -128,6 +128,42 @@ describe('RemoveOperation', () => {
             expect(result).toEqual({ deleted: 0 });
         });
 
+        describe('access letter', () => {
+            const item = (queryParameter, value, modifiers = []) => ({
+                queryParameter,
+                queryParameterValue: { value },
+                modifiers,
+                clone: () => item(queryParameter, value, modifiers)
+            });
+
+            test.each([
+                { name: 'a plain id', items: [item('_id', '1')], expected: 'd' },
+                { name: 'a plain id with a non-search parameter', items: [item('_id', '1'), item('_format', 'json')], expected: 'd' },
+                { name: 'an id with another search parameter', items: [item('_id', '1'), item('gender', 'male')], expected: 'ds' },
+                { name: 'an id of 0', items: [item('_id', '0')], expected: 'ds' },
+                { name: 'an id of 0 with a non-search parameter', items: [item('id', '0'), item('_format', 'json')], expected: 'ds' },
+                { name: 'no id', items: [], expected: 'ds' },
+                { name: 'only non-search parameters', items: [item('_format', 'json')], expected: 'ds' },
+                { name: 'a lone excluded id', items: [item('_id', '1', ['not'])], expected: 'ds' },
+                { name: 'a search parameter', items: [item('gender', 'male')], expected: 'ds' }
+            ])('asks $expected for $name', async ({ items, expected }) => {
+                mockSearchManager.constructQueryAsync.mockResolvedValue({ query: {} });
+
+                await removeOperation.removeAsync({
+                    requestInfo: createRequestInfo(),
+                    parsedArgs: createParsedArgs(items),
+                    resourceType: 'Patient'
+                });
+
+                expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                    expect.objectContaining({ accessRequested: expected })
+                );
+                expect(mockSearchManager.constructQueryAsync).toHaveBeenCalledWith(
+                    expect.objectContaining({ accessRequested: expected })
+                );
+            });
+        });
+
         test('should delete resources and return count', async () => {
             const mockCursor = {
                 hasNext: jest.fn()
