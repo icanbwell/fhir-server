@@ -348,6 +348,50 @@ describe('AccessHistoryClickHouseRepository', () => {
             ]));
         });
 
+        test('counts an AuditEvent once per entity it read, including when it is replayed', async () => {
+            const multiEntity = {
+                uuid: 'uuid-multi-entity',
+                recorded: recordedDaysAgo(3),
+                agent_requestor_who: 'Practitioner/dr-multi-entity',
+                entity_what: ['Observation/obs-me-1', 'Observation/obs-me-2'],
+                purpose_of_event: []
+            };
+            await insertAuditEvents([multiEntity, { ...multiEntity }]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Observation/obs-me-1', 'Observation/obs-me-2']
+            });
+
+            expect(rows.length).toBe(1);
+            expect(Number(rows[0].access_count)).toBe(2);
+        });
+
+        test('totals do not depend on how entityRefs are split into batches', async () => {
+            await insertAuditEvents([
+                {
+                    uuid: 'uuid-batch-split',
+                    recorded: recordedDaysAgo(3),
+                    agent_requestor_who: 'Practitioner/dr-batch',
+                    entity_what: ['Observation/obs-b-1', 'Observation/obs-b-2', 'Observation/obs-b-3'],
+                    purpose_of_event: []
+                }
+            ]);
+            const refs = ['Observation/obs-b-1', 'Observation/obs-b-2', 'Observation/obs-b-3'];
+
+            const sumCounts = async (batches) => {
+                let total = 0;
+                for (const batch of batches) {
+                    const { rows } = await repository.getAccessHistoryAsync({ entityRefs: batch });
+                    total += rows.reduce((acc, r) => acc + Number(r.access_count), 0);
+                }
+                return total;
+            };
+
+            expect(await sumCounts([refs])).toBe(3);
+            expect(await sumCounts([refs.slice(0, 2), refs.slice(2)])).toBe(3);
+            expect(await sumCounts(refs.map(r => [r]))).toBe(3);
+        });
+
         test('counts distinct AuditEvents recorded at the same time separately', async () => {
             const recorded = recordedDaysAgo(3);
             await insertAuditEvents([
