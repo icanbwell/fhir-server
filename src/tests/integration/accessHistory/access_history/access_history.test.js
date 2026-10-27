@@ -588,6 +588,7 @@ describe('Person $access-history Tests', () => {
             .set(getHeaders());
 
         expect(resp.status).toBe(400);
+        expect(resp.body.issue[0].details.text).toBe('Multiple IDs are not allowed for $access-history');
     });
 
     test('$access-history returns 400 when id contains proxy patient prefix', async () => {
@@ -598,6 +599,31 @@ describe('Person $access-history Tests', () => {
             .set(getHeaders());
 
         expect(resp.status).toBe(400);
+        expect(resp.body.issue[0].details.text).toBe('Proxy patient id is not allowed for $access-history');
+    });
+
+    test('$access-history returns the proxy patient 400 for a proxy id of a Person with linked patients', async () => {
+        const request = sharedRequest;
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const personUuid = resp.body.uuid;
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get(`/4_0_0/Person/person.${personUuid}/$access-history`)
+            .set(getHeaders());
+
+        expect(resp.status).toBe(400);
+        expect(resp.body.issue[0].details.text).toBe('Proxy patient id is not allowed for $access-history');
     });
 
     test('$access-history excludes accesses older than windowDays even when their month overlaps the window', async () => {
