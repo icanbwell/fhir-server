@@ -7,6 +7,7 @@ const {
     teardownAccessHistoryTests,
     cleanupBetweenTests,
     insertAuditEvents,
+    insertAggRows,
     getClickHouseManager
 } = require('./accessHistoryTestSetup');
 
@@ -30,6 +31,16 @@ function recordedAt({ monthsAgo = 0, day, hour = 0, minute = 0 }) {
     return formatClickHouseDateTime(
         new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - monthsAgo, day, hour, minute, 0, 0))
     );
+}
+
+/**
+ * @param {number} daysAgo
+ * @param {string} time - 'HH:mm:ss.SSS'
+ * @returns {string} UTC timestamp on the calendar day `daysAgo` days before today
+ */
+function recordedAtTime(daysAgo, time) {
+    const day = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
+    return `${formatClickHouseDateTime(day).slice(0, 10)} ${time}`;
 }
 
 function recordedDaysAgo(days) {
@@ -390,6 +401,93 @@ describe('AccessHistoryClickHouseRepository', () => {
             expect(await sumCounts([refs])).toBe(3);
             expect(await sumCounts([refs.slice(0, 2), refs.slice(2)])).toBe(3);
             expect(await sumCounts(refs.map(r => [r]))).toBe(3);
+        });
+
+        test('counts a replay whose recorded differs as a separate read', async () => {
+            // Identity is (_uuid, recorded). A true replay re-sends the same row, so recorded
+            // matches; a copy whose recorded was regenerated is indistinguishable from a new read.
+            const original = {
+                uuid: 'uuid-recorded-differs',
+                recorded: recordedAtTime(3, '10:00:00.000'),
+                agent_requestor_who: 'Practitioner/dr-recorded-differs',
+                entity_what: ['Observation/obs-recorded-differs'],
+                purpose_of_event: []
+            };
+            await insertAuditEvents([original, { ...original, recorded: recordedAtTime(3, '10:00:00.001') }]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Observation/obs-recorded-differs']
+            });
+
+            expect(rows.length).toBe(1);
+            expect(Number(rows[0].access_count)).toBe(2);
+        });
+
+        test('counts a replay of an event recorded just before UTC midnight once', async () => {
+            // The day bucket comes from recorded, not insert time, so a replay that arrives
+            // after midnight still lands in the original day's row.
+            const lateEvent = {
+                uuid: 'uuid-before-midnight',
+                recorded: recordedAtTime(4, '23:59:59.999'),
+                agent_requestor_who: 'Practitioner/dr-midnight',
+                entity_what: ['Observation/obs-midnight'],
+                purpose_of_event: []
+            };
+            await insertAuditEvents([lateEvent, { ...lateEvent }]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Observation/obs-midnight']
+            });
+            const buckets = await getClickHouseManager().queryAsync({
+                query: `SELECT DISTINCT toString(recorded_date) AS d FROM fhir.AUDIT_ACCESS_AGG
+                        WHERE entity_ref = 'Observation/obs-midnight'`
+            });
+
+            expect(Number(rows[0].access_count)).toBe(1);
+            expect(buckets.map(b => b.d)).toEqual([lateEvent.recorded.slice(0, 10)]);
+        });
+
+        test('counts copies whose recorded falls on either side of UTC midnight as two reads', async () => {
+            const copy = {
+                uuid: 'uuid-across-midnight',
+                agent_requestor_who: 'Practitioner/dr-across-midnight',
+                entity_what: ['Observation/obs-across-midnight'],
+                purpose_of_event: []
+            };
+            await insertAuditEvents([
+                { ...copy, recorded: recordedAtTime(4, '23:59:59.999') },
+                { ...copy, recorded: recordedAtTime(3, '00:00:00.000') }
+            ]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Observation/obs-across-midnight']
+            });
+
+            expect(rows.length).toBe(1);
+            expect(Number(rows[0].access_count)).toBe(2);
+        });
+
+        test('insertAggRows models a replay with the same (uuid, recorded) and a repeat with a new uuid', async () => {
+            const recorded = recordedAtTime(3, '09:00:00.000');
+            const read = { entity_ref: 'Observation/obs-agg-rows', agent_requestor_who: 'Practitioner/dr-agg-rows' };
+            await insertAggRows([
+                { ...read, uuid: 'uuid-agg-1', recorded },
+                { ...read, uuid: 'uuid-agg-1', recorded },
+                { ...read, uuid: 'uuid-agg-2', recorded }
+            ]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Observation/obs-agg-rows']
+            });
+
+            expect(rows.length).toBe(1);
+            expect(Number(rows[0].access_count)).toBe(2);
+        });
+
+        test('insertAggRows rejects rows without an AuditEvent identity', async () => {
+            await expect(insertAggRows([
+                { entity_ref: 'Observation/obs-agg-rows', agent_requestor_who: 'Practitioner/dr-agg-rows' }
+            ])).rejects.toThrow('uuid and recorded are required');
         });
 
         test('counts distinct AuditEvents recorded at the same time separately', async () => {

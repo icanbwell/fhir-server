@@ -12,6 +12,10 @@ class AccessHistoryClickHouseRepository {
 
     /**
      * Queries the AUDIT_ACCESS_AGG table for access history of one or more entities.
+     *
+     * access_count is the number of resource reads: one per distinct (AuditEvent, entity_ref)
+     * in entityRefs. An AuditEvent that read N of the requested resources counts N times;
+     * replayed copies of the same AuditEvent (same _uuid and recorded) count once.
      * @param {Object} params
      * @param {string[]} params.entityRefs - e.g. ['Patient/123', 'Patient/456']
      * @returns {Promise<{rows: Object[]}>}

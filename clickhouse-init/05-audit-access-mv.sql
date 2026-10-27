@@ -15,6 +15,11 @@
 --
 -- Columns use AggregateFunction types — query with -Merge combinators:
 --   access_count      → uniqExactMerge(access_count)
+--
+-- access_count semantics: one per resource read, i.e. per distinct (AuditEvent, entity_ref).
+-- An AuditEvent whose entity[] lists N resources lands in N rows (one per entity_ref), so a
+-- roll-up across entities counts it N times. Within one entity_ref, copies of the same
+-- AuditEvent (same _uuid and recorded) count once.
 --   last_accessed     → maxMerge(last_accessed)
 --   purpose_of_events → groupUniqArrayMerge(purpose_of_events)
 --
@@ -31,9 +36,10 @@ CREATE TABLE IF NOT EXISTS fhir.AUDIT_ACCESS_AGG (
     entity_resource_type LowCardinality(String),
     -- UTC day on which the access occurred
     recorded_date        Date,
-    -- Distinct AuditEvents, keyed by (_uuid, recorded), in which this agent accessed this
-    -- entity on this day. A set rather than a counter so the same event arriving again in a
-    -- later insert (Kafka rebalance replay, produce/insert retry) is not counted twice.
+    -- Reads of this entity by this agent on this day: the set of distinct AuditEvents, keyed
+    -- by (_uuid, recorded), whose entity[] includes this entity_ref. A set rather than a
+    -- counter so the same AuditEvent arriving again in a later insert (Kafka rebalance
+    -- replay, produce/insert retry) is not counted twice.
     access_count         AggregateFunction(uniqExact, String, DateTime64(3, 'UTC')),
     -- Most recent access timestamp for this agent + entity + day
     last_accessed        AggregateFunction(max, DateTime64(3, 'UTC')),
