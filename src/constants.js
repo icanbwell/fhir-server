@@ -177,6 +177,10 @@ module.exports = {
         'base_version', 'id', '_id', '_format', '_pretty', '_bundle', '_prefer', '_keepOldUI',
         '_explain', '_debug', '_streamResponse', 'streamResponse'
     ],
+    RESULT_SHAPING_QUERY_PARAMS: [
+        '_elements', '_count', '_total', '_sort', '_isGraphQLRequest', '_useAccessIndex',
+        '_setIndexHint', '_cursorBatchSize', '_getpagesoffset'
+    ],
     SPECIFIED_QUERY_PARAMS: [
         '_explain', '_debug', 'contained', '_hash_references', 'base_version', '_elements',
         '_useAccessIndex', 'active', '_source', '_id', 'onset-date', '_lastUpdated',

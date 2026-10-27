@@ -113,6 +113,7 @@ describe('SearchStreamingOperation', () => {
         const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
         mockParsedArgs = Object.create(ParsedArgs.prototype);
         mockParsedArgs.base_version = '4_0_0';
+        mockParsedArgs.parsedArgItems = [];
         mockParsedArgs._useAccessIndex = false;
         mockParsedArgs._explain = false;
         mockParsedArgs._debug = false;
@@ -644,6 +645,40 @@ describe('SearchStreamingOperation', () => {
             });
 
             expect(mockSearchManager.validateAuditEventQueryParameters).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('access letter', () => {
+        test.each([
+            { label: 'an id lookup', items: [{ queryParameter: 'id' }], letter: 'r' },
+            {
+                label: 'an id lookup with result shaping',
+                items: [{ queryParameter: '_id' }, { queryParameter: '_elements' }],
+                letter: 'r'
+            },
+            { label: 'a search by another parameter', items: [{ queryParameter: 'name' }], letter: 's' },
+            {
+                label: 'an id lookup combined with another parameter',
+                items: [{ queryParameter: 'id' }, { queryParameter: 'name' }],
+                letter: 's'
+            },
+            { label: 'a request with no parameters', items: [], letter: 's' }
+        ])('asks $letter at the scope check and the tenant filter for $label', async ({ items, letter }) => {
+            mockParsedArgs.parsedArgItems = items;
+
+            await searchStreamingOp.searchStreamingAsync({
+                requestInfo: makeRequestInfo(),
+                res: mockRes,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: letter })
+            );
+            expect(mockSearchManager.constructQueryAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: letter })
+            );
         });
     });
 });
