@@ -489,4 +489,33 @@ describe('ParsedArgs', () => {
             expect(json.headers).toBeUndefined();
         });
     });
+    describe('isRequestById', () => {
+        const build = (...items) => new ParsedArgs({
+            base_version: '4_0_0',
+            parsedArgItems: items.map(([queryParameter, modifiers]) => createMockParsedArgsItem({
+                queryParameter,
+                modifiers
+            }))
+        });
+
+        test.each([
+            ['_id only', [['_id']], true],
+            ['id only', [['id']], true],
+            ['_id with formatting parameters', [['_id'], ['_format'], ['_explain']], true],
+            ['_id with result-shaping parameters', [['_id'], ['_elements'], ['_count'], ['_isGraphQLRequest']], true],
+            ['_id with another search parameter', [['_id'], ['gender']], false],
+            ['_id with an include parameter', [['_id'], ['_include']], false],
+            ['_id with a modifier', [['_id', [':not']]], false],
+            ['_id with a :not id exclusion', [['_id'], ['_id', [':not']]], true],
+            ['id with a :not _id exclusion', [['id'], ['_id', [':not']]], true],
+            ['_id with a :not exclusion and another search parameter', [['_id'], ['_id', [':not']], ['gender']], false],
+            ['_id with a different modifier', [['_id'], ['_id', [':missing']]], false],
+            ['_id with a combined modifier', [['_id'], ['_id', [':not', ':exact']]], false],
+            ['no id', [['_format']], false],
+            ['another search parameter only', [['gender']], false],
+            ['no parameters', [], false]
+        ])('%s', (name, items, expected) => {
+            expect(build(...items).isRequestById()).toBe(expected);
+        });
+    });
 });

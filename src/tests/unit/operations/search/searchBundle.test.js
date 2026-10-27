@@ -89,6 +89,7 @@ describe('SearchBundleOperation', () => {
         beforeEach(() => {
             mockParsedArgs = Object.create(ParsedArgs.prototype);
             mockParsedArgs.base_version = '4_0_0';
+            mockParsedArgs.parsedArgItems = [];
             mockParsedArgs._useAccessIndex = undefined;
             mockParsedArgs._explain = undefined;
             mockParsedArgs._debug = undefined;
@@ -109,6 +110,56 @@ describe('SearchBundleOperation', () => {
                 externalReqUrlPrefix: undefined,
                 headers: {}
             };
+        });
+
+        describe('scope letter requested', () => {
+            beforeEach(() => {
+                mockSearchManager.constructQueryAsync.mockResolvedValue({ query: {}, columns: new Set() });
+                mockResourceLocatorFactory.createResourceLocator.mockReturnValue({
+                    getCollectionName: () => 'Patient_4_0_0'
+                });
+                mockSearchManager.getCursorForQueryAsync.mockResolvedValue({
+                    columns: new Set(),
+                    originalQuery: {},
+                    originalOptions: [{}],
+                    resources: [],
+                    total_count: 0,
+                    indexHint: null,
+                    cursorBatchSize: 100,
+                    cursor: null
+                });
+                mockBundleManager.createRawBundle.mockReturnValue({ resourceType: 'Bundle', entry: [] });
+            });
+
+            it('requests r when the request is by id', async () => {
+                mockParsedArgs.isRequestById = jest.fn().mockReturnValue(true);
+
+                await searchBundleOp.searchBundleAsync({
+                    requestInfo: mockRequestInfo,
+                    parsedArgs: mockParsedArgs,
+                    resourceType: 'Patient',
+                    useAggregationPipeline: false
+                });
+
+                expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                    expect.objectContaining({ accessRequested: 'r' })
+                );
+            });
+
+            it('requests s for any other search', async () => {
+                mockParsedArgs.isRequestById = jest.fn().mockReturnValue(false);
+
+                await searchBundleOp.searchBundleAsync({
+                    requestInfo: mockRequestInfo,
+                    parsedArgs: mockParsedArgs,
+                    resourceType: 'Patient',
+                    useAggregationPipeline: false
+                });
+
+                expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                    expect.objectContaining({ accessRequested: 's' })
+                );
+            });
         });
 
         // DCON-4808: _explain/_debug/_setIndexHint expose Mongo query plans, collection
