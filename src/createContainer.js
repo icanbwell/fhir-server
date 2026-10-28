@@ -889,7 +889,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                searchManager: c.searchManager,
+                sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+                uuidColumnHandler: c.uuidColumnHandler,
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider,
                 groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider

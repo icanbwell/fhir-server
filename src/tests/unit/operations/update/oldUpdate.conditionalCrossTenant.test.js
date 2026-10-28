@@ -90,10 +90,13 @@ const { ConfigManager } = require('../../../../utils/configManager');
 const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
 const { SearchManager } = require('../../../../operations/search/searchManager');
+const { SourceAssigningAuthorityColumnHandler } = require('../../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const { UuidColumnHandler } = require('../../../../preSaveHandlers/handlers/uuidColumnHandler');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { QueryRewriterManager } = require('../../../../queryRewriters/queryRewriterManager');
 const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
@@ -103,6 +106,8 @@ const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositori
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
 }
+
+const ownerTag = (code) => [{ system: SecurityTagSystem.owner, code }];
 
 /**
  * Creates a mock Patient resource belonging to a specific tenant.
@@ -157,7 +162,6 @@ describe('Conditional Update — Cross-Tenant Security', () => {
             configManager: createMockInstance(ConfigManager),
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
             base64DataManager: createMockInstance(Base64DataManager),
-            searchManager: createMockInstance(SearchManager),
             postSaveHandlerFactory: createMockInstance(
                 require('../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory
             ),
@@ -190,11 +194,14 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         });
 
         Object.defineProperty(mocks.configManager, 'useAccessIndex', { get: () => false });
+        Object.defineProperty(mocks.configManager, 'preSaveCodingIdUpdateResources', { get: () => [] });
+        mocks.sourceAssigningAuthorityColumnHandler = new SourceAssigningAuthorityColumnHandler({ configManager: mocks.configManager });
+        mocks.uuidColumnHandler = new UuidColumnHandler();
 
         updateOp = new UpdateOperation(mocks);
     });
 
-    test('constructQueryAsync must include security tag filter when patient scope targets resource via conditional search', async () => {
+    test('a patient-scoped caller cannot update a resource owned by another tenant', async () => {
         /**
          * Scenario: User from tenant_b has patient/Patient.write scope.
          * They issue a conditional update targeting a Patient by identifier
@@ -213,21 +220,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
             identifier: [{ system: 'http://hl7.org/fhir/sid/us-ssn', value: '123-45-6789' }]
         });
 
-        // The search query built by constructQueryAsync should NOT match tenant_a
-        // resources when the requesting user belongs to tenant_b.
-        // We capture what query was passed to constructQueryAsync to verify it includes
-        // security tag constraints.
-        let capturedQueryArgs = null;
-        mocks.searchManager.constructQueryAsync = jestGlobal.fn().mockImplementation(async (args) => {
-            capturedQueryArgs = args;
-            // Return a query that matches the tenant_a patient (simulating the bug)
-            return {
-                query: { 'identifier.value': '123-45-6789' },
-                columns: new Set()
-            };
-        });
-
-        // Database returns the tenant_a patient (because query had no security tag filter)
+        // Database returns the tenant_a patient
         mocks.databaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
             findAsync: jestGlobal.fn().mockResolvedValue({
                 toObjectArrayAsync: jestGlobal.fn().mockResolvedValue([tenantAPatient])
@@ -261,7 +254,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
                 resourceType: 'Patient',
                 identifier: [{ system: 'http://hl7.org/fhir/sid/us-ssn', value: '123-45-6789' }],
                 name: [{ family: 'Hacked' }],
-                meta: { source: 'urn:evil' }
+                meta: { source: 'urn:evil', security: ownerTag('tenant_a') }
             },
             requestId: 'req-cross-tenant-1',
             isUser: true,
@@ -271,6 +264,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
 
         const mockParsedArgs = createMockInstance(ParsedArgs);
         mockParsedArgs.base_version = '4_0_0';
+        mockParsedArgs.getOriginal = jestGlobal.fn();
         mockParsedArgs.id = 'patient-in-tenant-a';
         mockParsedArgs._useAccessIndex = false;
         mockParsedArgs.getRawArgs = jestGlobal.fn().mockReturnValue({
@@ -288,35 +282,12 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         ).rejects.toThrow(/no write access|forbidden|access denied/i);
     });
 
-    test('conditional update delegates query construction to searchManager.constructQueryAsync ' +
-        'with the parameters needed for patient-scope filtering to apply', async () => {
-        /**
-         * NOTE ON THIS TEST'S HISTORY: this test originally asserted that the *query object*
-         * `constructQueryAsync` returns must literally contain an access/owner tag string. That
-         * premise is wrong: by design (see docs/resource-authorization.md §5), the patient-scope
-         * branch of query construction does NOT filter by security tag at all -- it restricts by
-         * the caller's own resolved patient-id set instead (verified for real, not mocked, in
-         * `src/tests/unit/resourceAuthorization/05_patientScopeAndLinkExpansion.test.js` and
-         * `src/tests/unit/resourceAuthorization/12_knownGap_conditionalWriteCrossTenant.test.js`).
-         * Because `searchManager` is mocked in this file (appropriately -- UpdateOperation's own
-         * unit tests shouldn't re-verify SearchManager's internals), the old assertion checked the
-         * test's own fabricated mock return value, which can never reflect real behavior. This
-         * version instead verifies the thing this test file *can* meaningfully check: that
-         * `updateAsync` calls `constructQueryAsync` with the parameters the real patient-scope
-         * filter needs (`personIdFromJwtToken`, `accessRequested: 'u'`, the caller's `scope`)
-         * so that filtering can actually apply downstream.
-         */
-        mocks.searchManager.constructQueryAsync = jestGlobal.fn().mockResolvedValue({
-            query: { 'identifier.value': '999-88-7777' },
-            columns: new Set()
-        });
-
+    test('update looks the target up by the uuid derived from the id and the body owner tag', async () => {
         // Return empty so update creates new resource (no cross-tenant match)
-        mocks.databaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-            findAsync: jestGlobal.fn().mockResolvedValue({
-                toObjectArrayAsync: jestGlobal.fn().mockResolvedValue([])
-            })
+        const findAsync = jestGlobal.fn().mockResolvedValue({
+            toObjectArrayAsync: jestGlobal.fn().mockResolvedValue([])
         });
+        mocks.databaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({ findAsync });
         mocks.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes =
             jestGlobal.fn().mockResolvedValue(undefined);
         mocks.scopesValidator.isAccessTagChangeAllowedByAccessScopes = jestGlobal.fn();
@@ -329,7 +300,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
                 id: 'new-patient',
                 resourceType: 'Patient',
                 identifier: [{ system: 'http://hl7.org/fhir/sid/us-ssn', value: '999-88-7777' }],
-                meta: { source: 'urn:test' }
+                meta: { source: 'urn:test', security: ownerTag('tenant_b') }
             },
             requestId: 'req-cross-tenant-2',
             isUser: true,
@@ -339,6 +310,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
 
         const mockParsedArgs = createMockInstance(ParsedArgs);
         mockParsedArgs.base_version = '4_0_0';
+        mockParsedArgs.getOriginal = jestGlobal.fn();
         mockParsedArgs.id = 'new-patient';
         mockParsedArgs._useAccessIndex = false;
         mockParsedArgs.getRawArgs = jestGlobal.fn().mockReturnValue({
@@ -351,12 +323,9 @@ describe('Conditional Update — Cross-Tenant Security', () => {
             resourceType: 'Patient'
         });
 
-        expect(mocks.searchManager.constructQueryAsync).toHaveBeenCalled();
-        const callArgs = mocks.searchManager.constructQueryAsync.mock.calls[0][0];
-        expect(callArgs.personIdFromJwtToken).toBe('person-tenant-b');
-        expect(callArgs.accessRequested).toBe('u');
-        expect(callArgs.scope).toBe('patient/Patient.write access/tenant_b.*');
-        expect(callArgs.isUser).toBe(true);
+        expect(findAsync.mock.calls[0][0].query).toEqual({
+            _uuid: generateUUIDv5('new-patient|tenant_b')
+        });
     });
 
     test('conditional update must not allow overwriting resource from different tenant via identifier match', async () => {
@@ -372,12 +341,6 @@ describe('Conditional Update — Cross-Tenant Security', () => {
             access: 'tenant_a',
             identifier: [{ system: 'http://hl7.org/fhir/sid/us-ssn', value: '111-22-3333' }],
             name: [{ family: 'Victim', given: ['Alice'] }]
-        });
-
-        // constructQueryAsync returns query that matches across tenants (the bug)
-        mocks.searchManager.constructQueryAsync = jestGlobal.fn().mockResolvedValue({
-            query: { 'identifier.value': '111-22-3333' },
-            columns: new Set()
         });
 
         // Database returns the cross-tenant resource
@@ -421,7 +384,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
                 resourceType: 'Patient',
                 identifier: [{ system: 'http://hl7.org/fhir/sid/us-ssn', value: '111-22-3333' }],
                 name: [{ family: 'Hacked' }],
-                meta: { source: 'urn:evil' }
+                meta: { source: 'urn:evil', security: ownerTag('tenant_a') }
             },
             requestId: 'req-attack-1',
             isUser: true,
@@ -431,6 +394,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
 
         const mockParsedArgs = createMockInstance(ParsedArgs);
         mockParsedArgs.base_version = '4_0_0';
+        mockParsedArgs.getOriginal = jestGlobal.fn();
         mockParsedArgs.id = 'victim-patient';
         mockParsedArgs._useAccessIndex = false;
         mockParsedArgs.getRawArgs = jestGlobal.fn().mockReturnValue({
@@ -465,11 +429,6 @@ describe('Conditional Update — Cross-Tenant Security', () => {
             birthDate: '1985-03-15'
         });
 
-        mocks.searchManager.constructQueryAsync = jestGlobal.fn().mockResolvedValue({
-            query: { 'name.family': 'Doe', birthDate: '1985-03-15' },
-            columns: new Set()
-        });
-
         mocks.databaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
             findAsync: jestGlobal.fn().mockResolvedValue({
                 toObjectArrayAsync: jestGlobal.fn().mockResolvedValue([tenantAPatient])
@@ -499,7 +458,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
                 resourceType: 'Patient',
                 name: [{ family: 'Doe', given: ['John'] }],
                 birthDate: '1985-03-15',
-                meta: { source: 'urn:attacker' }
+                meta: { source: 'urn:attacker', security: ownerTag('tenant_a') }
             },
             requestId: 'req-demo-attack',
             isUser: true,
@@ -509,6 +468,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
 
         const mockParsedArgs = createMockInstance(ParsedArgs);
         mockParsedArgs.base_version = '4_0_0';
+        mockParsedArgs.getOriginal = jestGlobal.fn();
         mockParsedArgs.id = 'john-doe-tenant-a';
         mockParsedArgs._useAccessIndex = false;
         mockParsedArgs.getRawArgs = jestGlobal.fn().mockReturnValue({

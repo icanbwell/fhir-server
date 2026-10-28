@@ -51,14 +51,19 @@ const { ResourceMerger } = require('../../../../operations/common/resourceMerger
 const { ConfigManager } = require('../../../../utils/configManager');
 const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
-const { SearchManager } = require('../../../../operations/search/searchManager');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+const { SourceAssigningAuthorityColumnHandler } = require('../../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const { UuidColumnHandler } = require('../../../../preSaveHandlers/handlers/uuidColumnHandler');
+const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
 }
+
+const ownerSecurity = [{ system: SecurityTagSystem.owner, code: 'bwell' }];
 
 describe('UpdateOperation', () => {
     let updateOp;
@@ -79,7 +84,6 @@ describe('UpdateOperation', () => {
             configManager: createMockInstance(ConfigManager),
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
             base64DataManager: createMockInstance(Base64DataManager),
-            searchManager: createMockInstance(SearchManager),
             postSaveHandlerFactory: createMockInstance(
                 require('../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory
             ),
@@ -93,7 +97,6 @@ describe('UpdateOperation', () => {
         mocks.scopesValidator.isAccessTagChangeAllowedByAccessScopes = jest.fn();
         mocks.resourceValidator.validateResourceAsync = jest.fn().mockResolvedValue(null);
         mocks.resourceValidator.validateResourceMetaSync = jest.fn().mockReturnValue(null);
-        mocks.searchManager.constructQueryAsync = jest.fn().mockResolvedValue({ query: { _sourceId: 'test-id' } });
         mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
             findAsync: jest.fn().mockResolvedValue({
                 toObjectArrayAsync: jest.fn().mockResolvedValue([])
@@ -119,11 +122,15 @@ describe('UpdateOperation', () => {
         mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jest.fn(({ resources }) => Promise.resolve(resources));
 
         Object.defineProperty(mocks.configManager, 'useAccessIndex', { get: () => false });
+        Object.defineProperty(mocks.configManager, 'preSaveCodingIdUpdateResources', { get: () => [] });
+        mocks.sourceAssigningAuthorityColumnHandler = new SourceAssigningAuthorityColumnHandler({ configManager: mocks.configManager });
+        mocks.uuidColumnHandler = new UuidColumnHandler();
 
         mockParsedArgs = createMockInstance(ParsedArgs);
         mockParsedArgs.base_version = '4_0_0';
         mockParsedArgs.id = 'test-id';
         mockParsedArgs._useAccessIndex = false;
+        mockParsedArgs.getOriginal = jest.fn().mockReturnValue(undefined);
         mockParsedArgs.getRawArgs = jest.fn().mockReturnValue({});
 
         updateOp = new UpdateOperation(mocks);
@@ -156,7 +163,7 @@ describe('UpdateOperation', () => {
                 user: 'admin',
                 scope: 'user/*.write',
                 path: '/Patient/test-id',
-                body: { id: 'test-id', resourceType: 'Patient', meta: { source: 'urn:test' } },
+                body: { id: 'test-id', resourceType: 'Patient', meta: { source: 'urn:test', security: ownerSecurity } },
                 requestId: 'req-1',
                 isUser: false,
                 personIdFromJwtToken: null,
@@ -189,7 +196,7 @@ describe('UpdateOperation', () => {
                 body: {
                     id: 'test-id',
                     resourceType: 'Patient',
-                    meta: { source: 'urn:test' },
+                    meta: { source: 'urn:test', security: ownerSecurity },
                     _uuid: 'attacker-supplied-uuid',
                     photo: [{ _file_id: 'attacker-chosen-gridfs-id', contentType: 'image/png' }]
                 },
@@ -255,7 +262,7 @@ describe('UpdateOperation', () => {
                 user: 'admin',
                 scope: 'user/*.write',
                 path: '/Patient/test-id',
-                body: { id: 'test-id', resourceType: 'Patient', name: [{ family: 'Smith' }] },
+                body: { id: 'test-id', resourceType: 'Patient', meta: { security: ownerSecurity }, name: [{ family: 'Smith' }] },
                 requestId: 'req-1',
                 isUser: false,
                 personIdFromJwtToken: null,
@@ -272,35 +279,105 @@ describe('UpdateOperation', () => {
             expect(mocks.databaseBulkInserter.replaceOneAsync).toHaveBeenCalled();
         });
 
-        test('throws BadRequestError when multiple resources found', async () => {
-            const resources = [
-                { id: 'test-id', _uuid: 'uuid-1', meta: { security: [{ system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'src1' }] } },
-                { id: 'test-id', _uuid: 'uuid-2', meta: { security: [{ system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'src2' }] } }
-            ];
-            mocks.databaseQueryFactory.createQuery.mockReturnValue({
-                findAsync: jest.fn().mockResolvedValue({
-                    toObjectArrayAsync: jest.fn().mockResolvedValue(resources)
-                })
+        test('looks the existing resource up by the uuid derived from id and owner tag', async () => {
+            const findAsync = jest.fn().mockResolvedValue({
+                toObjectArrayAsync: jest.fn().mockResolvedValue([])
+            });
+            mocks.databaseQueryFactory.createQuery.mockReturnValue({ findAsync });
+
+            await updateOp.updateAsync({
+                requestInfo: {
+                    user: 'admin',
+                    scope: 'user/*.write',
+                    path: '/Patient/test-id',
+                    body: { id: 'test-id', resourceType: 'Patient', meta: { security: ownerSecurity } },
+                    requestId: 'req-1',
+                    isUser: false,
+                    personIdFromJwtToken: null,
+                    headers: {}
+                },
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
             });
 
-            const requestInfo = {
-                user: 'admin',
-                scope: 'user/*.write',
-                path: '/Patient/test-id',
-                body: { id: 'test-id', resourceType: 'Patient' },
-                requestId: 'req-1',
-                isUser: false,
-                personIdFromJwtToken: null,
-                headers: {}
-            };
+            expect(findAsync.mock.calls[0][0].query).toEqual({ _uuid: generateUUIDv5('test-id|bwell') });
+        });
+
+        test('looks the resource up by the uuid derived from the body owner when the id authority matches it', async () => {
+            const findAsync = jest.fn().mockResolvedValue({
+                toObjectArrayAsync: jest.fn().mockResolvedValue([])
+            });
+            mocks.databaseQueryFactory.createQuery.mockReturnValue({ findAsync });
+            mockParsedArgs.getOriginal.mockReturnValue({ queryParameterValue: { value: 'test-id|bwell' } });
+
+            await updateOp.updateAsync({
+                requestInfo: {
+                    user: 'admin',
+                    scope: 'user/*.write',
+                    path: '/Patient/test-id',
+                    body: { id: 'test-id', resourceType: 'Patient', meta: { security: ownerSecurity } },
+                    requestId: 'req-1',
+                    isUser: false,
+                    personIdFromJwtToken: null,
+                    headers: {}
+                },
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            expect(findAsync.mock.calls[0][0].query).toEqual({ _uuid: generateUUIDv5('test-id|bwell') });
+        });
+
+        test('throws BadRequestError without querying when the id authority differs from the body owner', async () => {
+            mockParsedArgs.getOriginal.mockReturnValue({ queryParameterValue: { value: 'test-id|client' } });
 
             await expect(
                 updateOp.updateAsync({
-                    requestInfo,
+                    requestInfo: {
+                        user: 'admin',
+                        scope: 'user/*.write',
+                        path: '/Patient/test-id',
+                        body: { id: 'test-id', resourceType: 'Patient', meta: { security: ownerSecurity } },
+                        requestId: 'req-1',
+                        isUser: false,
+                        personIdFromJwtToken: null,
+                        headers: {}
+                    },
                     parsedArgs: mockParsedArgs,
                     resourceType: 'Patient'
                 })
-            ).rejects.toThrow(/Multiple resources found/);
+            ).rejects.toMatchObject({ statusCode: 400, message: expect.stringContaining('does not match') });
+            expect(mocks.databaseQueryFactory.createQuery).not.toHaveBeenCalled();
+        });
+
+        test('throws NotValidatedError without querying when the meta tags are invalid for a non-uuid id', async () => {
+            const operationOutcome = {
+                resourceType: 'OperationOutcome',
+                issue: [{ severity: 'error', code: 'invalid', details: { text: 'missing owner tag' } }]
+            };
+            mocks.resourceValidator.validateResourceMetaSync.mockReturnValue(operationOutcome);
+
+            await expect(
+                updateOp.updateAsync({
+                    requestInfo: {
+                        user: 'admin',
+                        scope: 'user/*.write',
+                        path: '/Patient/test-id',
+                        body: { id: 'test-id', resourceType: 'Patient' },
+                        requestId: 'req-1',
+                        isUser: false,
+                        personIdFromJwtToken: null,
+                        headers: {}
+                    },
+                    parsedArgs: mockParsedArgs,
+                    resourceType: 'Patient'
+                })
+            ).rejects.toMatchObject({
+                message: 'Validation Failed',
+                statusCode: 400,
+                issue: operationOutcome.issue
+            });
+            expect(mocks.databaseQueryFactory.createQuery).not.toHaveBeenCalled();
         });
 
         test('throws PreconditionFailedError on If-Match version mismatch', async () => {
@@ -322,7 +399,7 @@ describe('UpdateOperation', () => {
                 user: 'admin',
                 scope: 'user/*.write',
                 path: '/Patient/test-id',
-                body: { id: 'test-id', resourceType: 'Patient' },
+                body: { id: 'test-id', resourceType: 'Patient', meta: { security: ownerSecurity } },
                 requestId: 'req-1',
                 isUser: false,
                 personIdFromJwtToken: null,
@@ -362,7 +439,7 @@ describe('UpdateOperation', () => {
                 user: 'admin',
                 scope: 'user/*.write',
                 path: '/Patient/test-id',
-                body: { id: 'test-id', resourceType: 'Patient' },
+                body: { id: 'test-id', resourceType: 'Patient', meta: { security: ownerSecurity } },
                 requestId: 'req-1',
                 isUser: false,
                 personIdFromJwtToken: null,
