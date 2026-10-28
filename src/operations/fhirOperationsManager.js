@@ -1380,6 +1380,7 @@ class FhirOperationsManager {
         this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'accessHistory' });
 
         let combined_args = get_all_args(req, args);
+        this.accessHistoryOperation.validateIds(combined_args.id);
         const parsedArgs = await this.getParsedArgsAsync({
             args: combined_args,
             resourceType,

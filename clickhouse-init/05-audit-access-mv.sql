@@ -3,16 +3,23 @@
 -- ===========================================================================
 -- Pre-aggregated view of AuditEvent access patterns per entity and requesting agent.
 -- Supports "who accessed what resource and when" queries for Access History.
--- One logical row per (entity_ref, agent_requestor_who, entity_resource_type, recorded_month)
+-- One logical row per (entity_ref, agent_requestor_who, entity_resource_type, recorded_date)
 -- after background merges complete.
 --
 -- Source: fhir.AuditEvent_4_0_0 (via AUDIT_ACCESS_MV)
 -- Engine: AggregatingMergeTree (merges partial aggregate states on background compaction)
--- Partition: Monthly by recorded_month (aligns with AuditEvent source partitioning)
+-- Granularity: daily, so the rolling ACCESS_HISTORY_WINDOW_DAYS window can be applied at day
+--   precision (a monthly bucket would pull in up to a month of accesses older than the window)
+-- Partition: Monthly by recorded_date (aligns with AuditEvent source partitioning)
 -- TTL: 13 months (access history retention window)
 --
 -- Columns use AggregateFunction types — query with -Merge combinators:
---   access_count      → countMerge(access_count)
+--   access_count      → uniqExactMerge(access_count)
+--
+-- access_count semantics: one per resource read, i.e. per distinct (AuditEvent, entity_ref).
+-- An AuditEvent whose entity[] lists N resources lands in N rows (one per entity_ref), so a
+-- roll-up across entities counts it N times. Within one entity_ref, copies of the same
+-- AuditEvent (same _uuid and recorded) count once.
 --   last_accessed     → maxMerge(last_accessed)
 --   purpose_of_events → groupUniqArrayMerge(purpose_of_events)
 --
@@ -27,26 +34,29 @@ CREATE TABLE IF NOT EXISTS fhir.AUDIT_ACCESS_AGG (
     agent_requestor_who  String,
     -- FHIR resource type extracted from entity_ref (e.g. 'Patient', 'Observation')
     entity_resource_type LowCardinality(String),
-    -- First day of the month in which the access occurred
-    recorded_month       DateTime,
-    -- Number of times this agent accessed this entity in this month
-    access_count         AggregateFunction(count),
-    -- Most recent access timestamp for this agent + entity + month
+    -- UTC day on which the access occurred
+    recorded_date        Date,
+    -- Reads of this entity by this agent on this day: the set of distinct AuditEvents, keyed
+    -- by (_uuid, recorded), whose entity[] includes this entity_ref. A set rather than a
+    -- counter so the same AuditEvent arriving again in a later insert (Kafka rebalance
+    -- replay, produce/insert retry) is not counted twice.
+    access_count         AggregateFunction(uniqExact, String, DateTime64(3, 'UTC')),
+    -- Most recent access timestamp for this agent + entity + day
     last_accessed        AggregateFunction(max, DateTime64(3, 'UTC')),
     -- Distinct set of purposeOfEvent codes ('system|code' format)
     purpose_of_events    AggregateFunction(groupUniqArray, String)
 )
 ENGINE = AggregatingMergeTree()
-ORDER BY (entity_ref, agent_requestor_who, entity_resource_type, recorded_month)
-PARTITION BY toYYYYMM(recorded_month)
-TTL recorded_month + INTERVAL 13 MONTH;
+ORDER BY (entity_ref, agent_requestor_who, entity_resource_type, recorded_date)
+PARTITION BY toYYYYMM(recorded_date)
+TTL recorded_date + INTERVAL 13 MONTH;
 
 -- ===========================================================================
 -- MV: fhir.AUDIT_ACCESS_MV (Populates AUDIT_ACCESS_AGG from AuditEvent inserts)
 -- ===========================================================================
 -- Triggers synchronously on every INSERT into fhir.AuditEvent_4_0_0.
 -- Explodes entity_what array (one row per referenced entity) and aggregates
--- access counts, last access time, and purpose-of-event codes per month.
+-- access counts, last access time, and purpose-of-event codes per day.
 --
 -- Filters:
 --   - Excludes events with no requestor agent (agent_requestor_who = '')
@@ -64,8 +74,10 @@ SELECT
     entity_ref,
     agent_requestor_who,
     splitByChar('/', entity_ref)[1] AS entity_resource_type,
-    toStartOfMonth(recorded) AS recorded_month,
-    countState() AS access_count,
+    toDate(recorded) AS recorded_date,
+    -- Not countState(): arrayJoin below expands a row per purpose code, and duplicate events
+    -- from separate inserts would each add 1. Both repeat the same (_uuid, recorded).
+    uniqExactState(_uuid, recorded) AS access_count,
     maxState(recorded) AS last_accessed,
     groupUniqArrayState(
         arrayJoin(
@@ -79,4 +91,4 @@ SELECT
 FROM fhir.AuditEvent_4_0_0
 ARRAY JOIN entity_what AS entity_ref
 WHERE agent_requestor_who != ''
-GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month;
+GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_date;

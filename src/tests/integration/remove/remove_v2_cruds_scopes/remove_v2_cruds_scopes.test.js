@@ -40,7 +40,11 @@ describe('Remove v2 CRUDS scope granularity Tests', () => {
         ['delete by id with rs grant is denied', '/4_0_0/Patient/1', 'user/*.rs access/access.rs access/owner.rs', 403, 'expected_denied_by_id', 200],
         ['delete by search with d-only grant is denied', '/4_0_0/Patient?gender=male', 'user/*.d access/access.d access/owner.d', 403, 'expected_denied_search', 200],
         ['delete by search with s missing on the access gate is denied', '/4_0_0/Patient?gender=male', 'user/*.ds access/access.d access/owner.d', 403, 'expected_denied_search_access_gate', 200],
-        ['delete by search with d and s grant succeeds', '/4_0_0/Patient?gender=male', 'user/*.ds access/access.ds access/owner.ds', 200, 'expected_deleted_one', 404]
+        ['delete by search with d and s grant succeeds', '/4_0_0/Patient?gender=male', 'user/*.ds access/access.ds access/owner.ds', 200, 'expected_deleted_one', 404],
+        ['delete with an empty _id and d-only grant is denied', '/4_0_0/Patient?_id=', 'user/*.d access/access.d access/owner.d', 403, 'expected_denied_search', 200],
+        ['delete with an _id of 0 and d-only grant is denied', '/4_0_0/Patient?_id=0', 'user/*.d access/access.d access/owner.d', 403, 'expected_denied_search', 200],
+        ['delete with an empty _id and d and s grant succeeds', '/4_0_0/Patient?_id=', 'user/*.ds access/access.ds access/owner.ds', 200, 'expected_deleted_one', 404],
+        ['delete with only an excluded _id and d-only grant is denied', '/4_0_0/Patient?_id:not=2', 'user/*.d access/access.d access/owner.d', 403, 'expected_denied_search', 200]
     ];
 
     test.each(cases)('%s', async (name, url, scope, status, expectedName, statusAfter) => {

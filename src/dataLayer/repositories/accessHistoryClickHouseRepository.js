@@ -12,6 +12,10 @@ class AccessHistoryClickHouseRepository {
 
     /**
      * Queries the AUDIT_ACCESS_AGG table for access history of one or more entities.
+     *
+     * access_count is the number of resource reads: one per distinct (AuditEvent, entity_ref)
+     * in entityRefs. An AuditEvent that read N of the requested resources counts N times;
+     * replayed copies of the same AuditEvent (same _uuid and recorded) count once.
      * @param {Object} params
      * @param {string[]} params.entityRefs - e.g. ['Patient/123', 'Patient/456']
      * @returns {Promise<{rows: Object[]}>}
@@ -19,16 +23,29 @@ class AccessHistoryClickHouseRepository {
     async getAccessHistoryAsync({ entityRefs }) {
         assertIsValid(Array.isArray(entityRefs) && entityRefs.length > 0, 'entityRefs must be a non-empty array');
 
+        // Distinct events are counted per entity_ref, then summed. Merging the event sets
+        // across entity_refs instead would count an event that read N refs once per query,
+        // and the caller sums over entityRefs batches, so totals would depend on batch size.
         const query = `
             SELECT
-                agent_requestor_who AS accessor_uuid,
+                accessor_uuid,
                 entity_resource_type,
-                countMerge(access_count) AS access_count,
-                maxMerge(last_accessed) AS last_accessed,
-                groupUniqArrayMerge(purpose_of_events) AS purposes
-            FROM ${TABLES.AUDIT_ACCESS_AGG}
-            WHERE entity_ref IN {entity_refs:Array(String)}
-            AND recorded_month >= toStartOfMonth(now() - INTERVAL ${ACCESS_HISTORY_WINDOW_DAYS} DAY)
+                sum(ref_access_count) AS access_count,
+                max(ref_last_accessed) AS last_accessed,
+                groupUniqArrayArray(ref_purposes) AS purposes
+            FROM (
+                SELECT
+                    agent_requestor_who AS accessor_uuid,
+                    entity_resource_type,
+                    entity_ref,
+                    uniqExactMerge(access_count) AS ref_access_count,
+                    maxMerge(last_accessed) AS ref_last_accessed,
+                    groupUniqArrayMerge(purpose_of_events) AS ref_purposes
+                FROM ${TABLES.AUDIT_ACCESS_AGG}
+                WHERE entity_ref IN {entity_refs:Array(String)}
+                AND recorded_date >= toDate(now('UTC') - INTERVAL ${ACCESS_HISTORY_WINDOW_DAYS} DAY)
+                GROUP BY accessor_uuid, entity_resource_type, entity_ref
+            )
             GROUP BY accessor_uuid, entity_resource_type
             ORDER BY last_accessed DESC
         `;
