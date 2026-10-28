@@ -296,7 +296,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         }
     });
 
-    test('PATCH /data sanitizes patch diagnostics with <data_value> placeholder', async () => {
+    test('PATCH /data writes history without a response block', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const liveClient = container.base64FieldCloudStorageClient;
@@ -324,28 +324,16 @@ describe('Binary base64 S3 offload — write paths', () => {
         const docAfterPatch = await readBinaryFromMongo(container, id);
         expect(liveClient.uploadedData[liveKeyOf(docAfterPatch)]).toBe(ALT_LARGE_DATA);
 
-        // History entry's diagnostics should carry the patch shape but with `<data_value>` substituted.
+        // New history rows carry no `response` block (DCON-6272), so no patch diagnostics exist.
         const historyDocs = await readBinaryHistoryFromMongo(container);
         const matchedSnapshots = historyDocs.filter(d => d.resource && d.resource._uuid === mongoDocAfterCreate._uuid);
-        const patchEntries = matchedSnapshots
-            .map(d => d.response && d.response.outcome && d.response.outcome.issue)
-            .filter(Array.isArray)
-            .flat();
-        const dataPatchDiagnostics = patchEntries
-            .map(issue => issue.diagnostics)
-            .filter(Boolean)
-            .map(s => {
-                try { return JSON.parse(s); } catch (e) { return null; }
-            })
-            .filter(p => p && p.path === '/data');
-
-        expect(dataPatchDiagnostics.length).toBeGreaterThan(0);
-        for (const patch of dataPatchDiagnostics) {
-            expect(patch.value).toBe('<data_value>');
+        expect(matchedSnapshots.length).toBeGreaterThan(0);
+        for (const d of matchedSnapshots) {
+            expect(d.response).toBeUndefined();
         }
     });
 
-    test('PATCH /data below threshold leaves patch diagnostics with the real value (never externalized)', async () => {
+    test('PATCH /data below threshold writes history without a response block', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const liveClient = container.base64FieldCloudStorageClient;
@@ -375,25 +363,12 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(docAfterPatch._blobMeta).toBeUndefined();
         expect(Object.keys(liveClient.uploadedData)).toHaveLength(0);
 
-        // History entry's diagnostics must keep the real value — sanitizing it to `<data_value>`
-        // would be wrong here since the bytes were never externalized to the history bucket.
+        // New history rows carry no `response` block (DCON-6272), so no patch diagnostics exist.
         const historyDocs = await readBinaryHistoryFromMongo(container);
         const matchedSnapshots = historyDocs.filter(d => d.resource && d.resource._uuid === mongoDocAfterCreate._uuid);
-        const patchEntries = matchedSnapshots
-            .map(d => d.response && d.response.outcome && d.response.outcome.issue)
-            .filter(Array.isArray)
-            .flat();
-        const dataPatchDiagnostics = patchEntries
-            .map(issue => issue.diagnostics)
-            .filter(Boolean)
-            .map(s => {
-                try { return JSON.parse(s); } catch (e) { return null; }
-            })
-            .filter(p => p && p.path === '/data');
-
-        expect(dataPatchDiagnostics.length).toBeGreaterThan(0);
-        for (const patch of dataPatchDiagnostics) {
-            expect(patch.value).toBe(ALT_SMALL_DATA);
+        expect(matchedSnapshots.length).toBeGreaterThan(0);
+        for (const d of matchedSnapshots) {
+            expect(d.response).toBeUndefined();
         }
     });
 
@@ -585,21 +560,10 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(mongoDocAfterPatch.data).toBeUndefined();
         expect(mongoDocAfterPatch._blobMeta).toBeUndefined();
 
-        // History diagnostic for the `remove` op must NOT have a fabricated `value` field —
-        // RFC 6902 `remove` ops have no `value`, so the sanitizer must leave them alone.
+        // History rows no longer carry patch diagnostics (DCON-6272).
         const historyDocs = await readBinaryHistoryFromMongo(container);
-        const removeDiagnostics = historyDocs
-            .filter(d => d.resource && d.resource._uuid === mongoDocAfterCreate._uuid)
-            .map(d => d.response && d.response.outcome && d.response.outcome.issue)
-            .filter(Array.isArray)
-            .flat()
-            .map(issue => issue.diagnostics)
-            .filter(Boolean)
-            .map(s => { try { return JSON.parse(s); } catch (e) { return null; } })
-            .filter(p => p && p.op === 'remove' && p.path === '/data');
-        expect(removeDiagnostics.length).toBeGreaterThan(0);
-        for (const patch of removeDiagnostics) {
-            expect('value' in patch).toBe(false);
+        for (const d of historyDocs.filter(h => h.resource && h.resource._uuid === mongoDocAfterCreate._uuid)) {
+            expect(d.response).toBeUndefined();
         }
     });
 
@@ -1583,15 +1547,10 @@ describe('Binary base64 S3 offload — write paths', () => {
 
             const historyDocs = await readBinaryHistoryFromMongo(container);
             const matched = historyDocs.filter(d => d.resource && d.resource._uuid === doc._uuid);
-            const diagnosticsPatches = matched
-                .map(d => d.response && d.response.outcome && d.response.outcome.issue)
-                .filter(Array.isArray)
-                .flat()
-                .map(issue => issue.diagnostics)
-                .filter(Boolean)
-                .map(s => { try { return JSON.parse(s); } catch (e) { return null; } })
-                .filter(Boolean);
-            expect(diagnosticsPatches.some(p => p.path === '/data' && p.op === 'remove')).toBe(true);
+            expect(matched.length).toBeGreaterThan(0);
+            for (const d of matched) {
+                expect(d.response).toBeUndefined();
+            }
         } finally {
             downloadSpy.mockRestore();
         }

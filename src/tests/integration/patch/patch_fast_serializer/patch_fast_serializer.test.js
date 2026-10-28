@@ -118,7 +118,7 @@ describe('Patch with fast serializer', () => {
         expect(history[1].resource.name[0].family).toStrictEqual('PATCHED');
     });
 
-    test('history records the patch operations as the client sent them', async () => {
+    test('history row for a patch carries no response block', async () => {
         const request = await createTestRequest();
         const id = await create(request, 'Observation', observationPayload());
         const operations = [
@@ -138,7 +138,8 @@ describe('Patch with fast serializer', () => {
             await new Promise((resolve) => setTimeout(resolve, 250));
             row = await readHistoryRow();
         }
-        expect(row.response.outcome.issue.map((i) => JSON.parse(i.diagnostics))).toStrictEqual(operations);
+        expect(row.resource.meta.versionId).toBe('2');
+        expect(row.response).toBeUndefined();
     });
 
     test('after-save handlers receive the saved resource with its internal fields', async () => {

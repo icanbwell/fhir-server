@@ -75,14 +75,9 @@ describe('Update with fast serializer disabled', () => {
             await new Promise((resolve) => setTimeout(resolve, 250));
             row = await readHistoryRow();
         }
-        const operations = row.response.outcome.issue.map((i) => JSON.parse(i.diagnostics));
-        expect(operations).toHaveLength(1);
-        expect(operations[0]).toMatchObject({
-            op: 'add',
-            path: '/qualification/1',
-            value: { issuer: { reference: 'Organization/Other_Medical_School' } }
-        });
-        expect(JSON.stringify(operations)).not.toMatch(/"_(uuid|access|sourceId|sourceAssigningAuthority)"/);
+        // history rows no longer carry the per-version patch list (DCON-6272)
+        expect(row.resource.meta.versionId).toBe('2');
+        expect(row.response).toBeUndefined();
     });
 
     test('existing flow ignores a client supplied meta.lastUpdated that is not a valid instant', async () => {
