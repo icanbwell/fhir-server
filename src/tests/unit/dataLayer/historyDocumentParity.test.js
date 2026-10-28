@@ -99,7 +99,16 @@ async function buildBothHistoryDocs(resourceType, legacyInput, fastInput = legac
         inserter.getHistoryOperationsByResourceTypeMap({ requestId: REQUEST_ID })
             .get(resourceType)[0].operation.insertOne.document;
 
-    return { legacyDoc: queuedDocument(legacyInserter), fastDoc: queuedDocument(fastInserter) };
+    const legacyDoc = queuedDocument(legacyInserter);
+    const fastDoc = queuedDocument(fastInserter);
+    // each inserter stamps its own `_recorded` when it queues the entry, so the two instants
+    // differ by however long the calls took; both must carry one, the exact value is per call
+    expect(legacyDoc._recorded).toBeInstanceOf(Date);
+    expect(fastDoc._recorded).toBeInstanceOf(Date);
+    delete legacyDoc._recorded;
+    delete fastDoc._recorded;
+
+    return { legacyDoc, fastDoc };
 }
 
 function patientDoc(overrides = {}) {
