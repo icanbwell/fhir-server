@@ -183,6 +183,8 @@ describe('Binary history resource S3 read test', () => {
         binaryHistoryEntries.forEach((entry) => {
             entry._id = null;
             entry.resource.meta.lastUpdated = null;
+            expect(entry.recorded).toBeInstanceOf(Date);
+            delete entry.recorded;
         });
 
         expect(binaryHistoryEntries).toEqual(expectedBinaryHistoryWithS3Path);
@@ -318,6 +320,8 @@ describe('Binary history resource S3 read test', () => {
         binaryHistoryEntries.forEach((entry) => {
             entry._id = null;
             entry.resource.meta.lastUpdated = null;
+            expect(entry.recorded).toBeInstanceOf(Date);
+            delete entry.recorded;
         });
 
         expect(binaryHistoryEntries).toEqual(expectedBinaryHistory);
