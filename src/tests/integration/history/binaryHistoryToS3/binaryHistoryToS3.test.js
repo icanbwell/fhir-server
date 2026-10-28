@@ -194,6 +194,7 @@ describe('Binary history resource S3 read test', () => {
         Object.keys(expectedBinaryHistoryS3Data).forEach(key => {
             expectedBinaryHistoryS3Data[key].resource.meta.lastUpdated = expect.any(String);
             expectedBinaryHistoryS3Data[key]._id = expect.any(String);
+            expectedBinaryHistoryS3Data[key]._recorded = expect.any(String);
         });
 
         let filePaths = expectedBinaryHistoryWithS3Path.map((item) => `Binary_4_0_0_History/${item?.resource?._uuid}/${item._ref}.json`)
