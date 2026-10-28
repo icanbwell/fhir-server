@@ -82,7 +82,23 @@ class ClickHouseClientManager {
                     response: true   // Enable gzip compression for queries
                 },
                 keep_alive: {
-                    enabled: true
+                    enabled: true,
+                    // Discard idle keep-alive sockets before reuse so we never hand a
+                    // request to a socket the server has already closed. Must be below
+                    // the server keep_alive_timeout (3s pre-23.11, 10s after).
+                    idle_socket_ttl: this.configManager.clickHouseIdleSocketTtl
+                },
+                clickhouse_settings: {
+                    // Opt-in only. The server default http_headers_progress_interval_ms
+                    // is 100ms, so enabling this without a larger interval can overflow
+                    // Node's 16KB header limit (HPE_HEADER_OVERFLOW) on long queries.
+                    ...(this.configManager.clickHouseSendProgressInHttpHeaders
+                        ? {
+                            send_progress_in_http_headers: 1,
+                            http_headers_progress_interval_ms:
+                                String(this.configManager.clickHouseHttpHeadersProgressIntervalMs)
+                        }
+                        : {})
                 }
             });
 
@@ -130,12 +146,14 @@ class ClickHouseClientManager {
      * @returns {Promise<boolean>}
      */
     async pingAsync() {
-        try {
-            if (!this.client) {
-                return false;
-            }
+        if (!this.client) {
+            return false;
+        }
 
-            const resultSet = await this.client.query({
+        /** @type {import('@clickhouse/client').ResultSet|null} */
+        let resultSet = null;
+        try {
+            resultSet = await this.client.query({
                 query: 'SELECT 1 AS ping',
                 format: 'JSONEachRow'
             });
@@ -149,6 +167,12 @@ class ClickHouseClientManager {
         } catch (error) {
             logError('ClickHouse ping failed', { error: error.message, stack: error.stack });
             return false;
+        } finally {
+            // Always destroy the response stream so a partially-read socket is not
+            // left dangling. Safe no-op once json()/text() has drained it.
+            if (resultSet) {
+                resultSet.close();
+            }
         }
     }
 
@@ -178,6 +202,8 @@ class ClickHouseClientManager {
                 'db.clickhouse.format': format
             }
         }, async (span) => {
+            /** @type {import('@clickhouse/client').ResultSet|null} */
+            let resultSet = null;
             try {
                 const client = await this.getClientAsync();
 
@@ -186,7 +212,7 @@ class ClickHouseClientManager {
                     hasParams: Object.keys(query_params).length > 0
                 });
 
-                const resultSet = await client.query({
+                resultSet = await client.query({
                     query,
                     query_params,
                     format,
@@ -236,6 +262,14 @@ class ClickHouseClientManager {
                     error,
                     args: { query: queryPreview }
                 });
+            } finally {
+                // Always destroy the response stream, including early-return and
+                // error paths, so a partially-read socket is never left un-drained
+                // (root cause of ECONNRESET/EPIPE under load). Safe no-op
+                // once json() has fully consumed the stream.
+                if (resultSet) {
+                    resultSet.close();
+                }
             }
         });
     }
@@ -340,14 +374,25 @@ class ClickHouseClientManager {
             const results = [];
 
             for (const querySpec of queries) {
-                const resultSet = await client.query({
-                    query: querySpec.query,
-                    query_params: querySpec.query_params || {},
-                    format: 'JSONEachRow'
-                });
+                /** @type {import('@clickhouse/client').ResultSet|null} */
+                let resultSet = null;
+                try {
+                    resultSet = await client.query({
+                        query: querySpec.query,
+                        query_params: querySpec.query_params || {},
+                        format: 'JSONEachRow'
+                    });
 
-                const result = await resultSet.json();
-                results.push(result);
+                    const result = await resultSet.json();
+                    results.push(result);
+                } finally {
+                    // Destroy each statement's response stream before moving on (or on
+                    // error), so an aborted batch never leaves an un-drained socket.
+                    // Safe no-op once json() has consumed the stream.
+                    if (resultSet) {
+                        resultSet.close();
+                    }
+                }
             }
 
             return results;
