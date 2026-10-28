@@ -207,7 +207,8 @@ class BaseHistoryOperationProcessor {
 
         // SEC-1580 SAE-1: see ScopesManager.hasHistoryAccess for why a tenant-scoped access
         // code is never sufficient to read history.
-        if (!this.scopesManager.hasHistoryAccess({ resourceType, scope })) {
+        const accessRequested = currentOperationName === 'historyById' ? 'r' : 's';
+        if (!this.scopesManager.hasHistoryAccess({ resourceType, scope, accessRequested })) {
             const forbiddenError = new ForbiddenError(
                 `user ${user} with scopes [${scope}] failed access check to ${resourceType}'s ` +
                     'history: history access requires a non-tenant-specific access scope (access/*.read or access/*.*)'
@@ -229,7 +230,7 @@ class BaseHistoryOperationProcessor {
             resourceType,
             startTime,
             action: currentOperationName,
-            accessRequested: 'read'
+            accessRequested
         });
 
         // Common search params
@@ -259,6 +260,7 @@ class BaseHistoryOperationProcessor {
             parsedArgs,
             useHistoryTable: true,
             operation: READ,
+            accessRequested,
             actor
         });
 

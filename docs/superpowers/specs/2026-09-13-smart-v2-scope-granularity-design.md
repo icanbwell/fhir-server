@@ -6,7 +6,7 @@ Per the SMART App Launch "Scopes and Launch Context" spec
 (https://build.fhir.org/ig/HL7/smart-app-launch/scopes-and-launch-context.html), v2 scopes replace
 the coarse v1 `read`/`write`/`*` suffix with a combination of the letters `c` (create), `r` (read/
 vread), `u` (update/patch), `d` (delete), and `s` (search-type/system-level history), e.g.
-`patient/Observation.rs` or `user/*.cruds`. This server currently only understands v1 grammar.
+`patient/Observation.rs` or `user/*.cruds`. Before this work the server only understood v1 grammar.
 
 The spec constrains the suffix to an **in-order** subsequence of the literal string `cruds` —
 `.rs` is valid, `.sr` is not — and explicitly permits (without requiring) a server to reject
@@ -15,7 +15,7 @@ interactions MAY be ignored, replaced with server default scopes, or rejected."*
 rejects them (see Backward compatibility rule below) rather than silently reordering or ignoring
 them, since a silent reorder risks granting more than the caller asked for.
 
-Today's enforcement path is strictly binary:
+Before this work the enforcement path was strictly binary:
 
 - `src/operations/security/scopesManager.js`'s `parseScopes` just splits the scope string on
   spaces — a "parsed scope" is the raw string. `getAccessCodesFromScopes(action, ...)` (only
@@ -28,13 +28,13 @@ Today's enforcement path is strictly binary:
   external library that only understands v1 grammar and throws on any other action string.
 - Every call site across `src/operations/**` (`create.js`, `update.js`, `patch.js`, `remove.js`,
   `searchById.js`, `searchByVersionId.js`, `history.js`, `searchBundle.js`, `everything.js`, etc.)
-  already knows its specific FHIR interaction and threads it through as an `action` parameter to
-  `verifyHasValidScopesAsync`/`hasValidScopesAsync` — but today that value is used **only for
-  logging**, never for the scope decision. The binary `accessRequested` passed alongside it is
+  already knew its specific FHIR interaction and threaded it through as an `action` parameter to
+  `verifyHasValidScopesAsync`/`hasValidScopesAsync` — but that value was used **only for
+  logging**, never for the scope decision. The binary `accessRequested` passed alongside it was
   hardcoded per call site.
 
-This is the lever for v2 support: the granular interaction name already reaches the enforcement
-layer, it's just discarded.
+That was the lever for v2 support. Every call site now passes its own CRUDS letter as
+`accessRequested`, and `action` is still used for logging only.
 
 Throughout this document, "resource gate" means the `patient/` vs (`user/` ∪ `system/`) check for
 whether a caller may touch a given resourceType + interaction at all; "access gate" means the
@@ -69,8 +69,8 @@ Explicitly out of scope:
   `@asymmetrik/sof-scope-checker` no-op-unless-`auth.type === 'smart'` path, and
   `scopesManager.js`/`scopesValidator.js`, the real enforcement path). Only the real enforcement
   path gains v2 awareness; `authService.js` and `sof-scope.middleware.js` are left untouched.
-  `src/routeHandlers/admin.js` asks each route for one CRUDS letter from the caller's `admin/`
-  scopes, and the FHIR resource-type checks inside it use letters too (see "Admin routes" below).
+  `src/routeHandlers/admin.js` asks each route for one letter from the caller's `admin/` scopes,
+  and the FHIR resource-type checks inside it use letters too (see "Admin routes" below).
 - Real SMART launch context (`fhirUser`, `launch/patient` claims replacing the bwell-proprietary
   `personIdFromJwtToken`/`masterPersonIdFromJwtToken` claims) — separate future effort.
 - `.well-known/smart-configuration` capability-advertisement changes.
@@ -96,26 +96,31 @@ v1 suffixes are normalized into the same shape (spec-fixed mapping, not invented
 | `write`   | `{c, u, d}` |
 | `*`       | `{c, r, u, d, s}` |
 
-A second lookup table maps every FHIR interaction name already flowing through call sites today to
-its required CRUDS letter(s), extended here with the operations analyzed since the original pass:
+The table below gives the CRUDS letter(s) each FHIR interaction requires, extended here with the
+operations analyzed since the original pass. It is a specification, not a lookup in the code: every
+call site passes its own letter as `accessRequested`.
 
 | Interaction                                   | Required letter | Notes |
 |------------------------------------------------|------------------|-------|
 | `create`                                       | `c`              | type-level create, POST, server-assigned id |
 | `update`, `patch`                              | `u`              | see "`u` covers update-as-create" below |
 | `remove`                                       | `d` for a delete addressed only by `id`/`_id`; `d` **and** `s` when any other search parameter is present | see "DELETE behavior" below |
-| `searchById` (instance read), vread            | `r`              | |
-| instance-level `_history`                      | `r`              | |
-| type/system-level `history`                    | `s`              | |
-| `searchBundle` | `r` when the only search parameter is `id` or `_id`, `s` otherwise | the same by-id rule as `remove`; result-shaping and formatting parameters (`_elements`, `_count`, `_total`, `_sort` and similar) do not turn a by-id request into a search |
-| `searchStreaming`, `everything`, `summary`, `expand` | `s` | |
+| `searchById` (instance read), vread            | `r`              | vread also needs an `access/*` scope granting `r` |
+| instance-level `_history`                      | `r`              | also needs an `access/*` scope granting `r` |
+| type/system-level `history`                    | `s`              | also needs an `access/*` scope granting `s` |
+| `searchBundle`, `searchStreaming` | `r` when the only search parameter is `id` or `_id`, `s` otherwise | the same by-id rule as `remove`; `_format`, `_pretty`, `_explain` and similar formatting or debug parameters do not make a request a search, and `id`/`_id` with a modifier does |
+| `everything` | `r` on the root, which is always addressed by id; `s` on every related type; DELETE asks `d` on the root before it starts | related types the caller cannot search are left out. DELETE then runs through `graph` (DELETE), which asks `d` on the root and on every deleted resource |
+| `summary` | `r` on the root Patient, then `s` on each type in the summary graph | both are always addressed by id; the data comes from an internal `$graph` whose links are all reverse links, so a type without `s` is left out; the Composition-only option also searches `Composition` with `s` |
+| `expand` | `r` | always addressed by id; currently switched off in the route handler |
 | `graph` — each resolution step, including the root | `r` if the step resolves one instance by reference/id, `s` if it searches a type (forward reference vs. reverse/child search) | not a single fixed letter; evaluated per step, same rule for the root call as for every child link. For DELETE see the next row |
 | `graph` (DELETE)                               | `d` on the root and on every resource deleted; forward-reference steps are satisfied by `d` (in place of `r`); reverse/child search steps still require `s` | see "DELETE behavior" below |
-| GraphQL v1 and v2                              | the letter of the operation it resolves through | queries resolve through `searchBundle` (`r` by id, `s` otherwise) and mutations through `$merge` and delete; see "GraphQL v1 and v2" below |
 | `$merge`                                       | `u`              | see "`u` covers update-as-create" below |
 | `$import`                                      | `u` on `Task` at the resource gate and `u` on the `access/` tenant codes | request-time gate; `u`, not `c`, because every imported resource is written as a merge (`u`), and the tenant codes copied onto the Task are those granting `u`. Each imported resource is then checked separately in the import worker, as `$merge` does: `u` on its resource type and `u` on its access tags |
 | `$export`                                      | `c` on `Task` at the resource gate, plus at least one `access/` tenant code granting `c` and at least one granting `s` | creating the export job is gated like any other create; the tenant codes stamped on the ExportStatus are those granting `c`, and a caller with no tenant code granting `c`, or none granting `s`, is rejected. The runner's tenant filter for the exported data uses every tenant code granting `s`, including ones not stamped on the ExportStatus (see "`$export` behavior"); status polling (`$export/<id>`) is an instance read and uses `r` on the ExportStatus access tag; the runner includes a resource type only if a `user/`/`system/` scope grants `s` on it — types without it are dropped silently, as before |
 | `$access-history`                              | `r` on the target type, `s` on `AuditEvent`, `r` on `Patient`, `s` on every patient-linked type, `r` on every accessor type | every resource type the operation reads is checked, and any missing letter is a 403 — see "`$access-history`" below |
+| `validate` with an id                          | `r`              | reads the stored resource; a body sent without an id is not scope checked |
+| GraphQL v1 and v2                              | the letter of the operation it resolves through | queries resolve through search (`r` by id, `s` otherwise) and mutations through `$merge` and delete; see "GraphQL" below |
+| admin routes                                   | `d` on `Patient` for the delete-patient-data routes, `c` on `ExportStatus` to trigger a job, `u` on `ExportStatus` to update one | the `admin/` gate asks one letter per route; see "Admin routes" below |
 
 ### `u` covers update-as-create — resolves the `$merge` / PUT inconsistency
 
@@ -347,6 +352,78 @@ holding `access/tenantA.c access/tenantB.s` can start the export, the ExportStat
 tenantA only, and the exported data is tenantB's. A caller holding only `access/tenantB.s`, or only
 `access/tenantA.c`, cannot start an export at all.
 
+### Create, update and patch
+
+These operations already asked the resource gate for their own letter, but the access gate, the
+tenant query filter, the per-resource tag check and the access-tag-change check still used the
+coarse `write` set (`c`, `u` and `d`) or `read` (`r`). All of them now use the letter of the
+operation: `c` for create, `u` for update, patch and update-as-create.
+
+| Grant | Operation | Before | Now |
+|---|---|---|---|
+| v1 `read` + `write`, or v1 `*` | any of these | allowed | allowed |
+| v2 `user/Patient.c` + `access/<tag>.c` | create | rejected (access gate needs `c`, `u`, `d`) | allowed |
+| v2 `user/Patient.u` + `access/<tag>.u` | update, patch, update-as-create | rejected (access gate needs `c`, `u`, `d`) | allowed |
+| v2 `u` on one gate and `c` on the other | update, patch | rejected | rejected |
+
+v1 tokens see no change: v1 `write` carries every letter of the old set.
+
+The `Person.link` tenant check (a `Person` write that adds a link must point at a tenant the caller
+holds) used the `write` set to find the caller's tenant codes. It now uses the letter of the write:
+`c` for create, `u` for update, patch and `$merge`. `$validate` and the other callers that pass no
+letter keep the `write` set. A v2 token such as `access/<tag>.u` previously found no codes and had
+the link rejected as belonging to another tenant.
+
+### Read, search and history
+
+Search, streaming search, instance read, vread and every `_history` used the `read` literal (`r`) at
+the access gate and for the tenant query filter, whatever the resource gate asked. They now use the
+same letter at both gates: `r` for a request addressed by `id` or `_id` alone (optionally with
+formatting, debug or result-shaping parameters, see `RESULT_SHAPING_QUERY_PARAMS`), `s` otherwise.
+`_include`, `_revinclude`, any other parameter, and an `id`/`_id` with a modifier make a request a
+search. The `access/*` scope that vread and `_history` require must grant the same letter: `r` for
+vread and instance history, `s` for type-level history. `hasHistoryAccess` takes the letter.
+
+| Grant | Operation | Before | Now |
+|---|---|---|---|
+| v2 `user/Patient.s` + `access/<tag>.r` | search by a parameter | allowed | rejected (access gate needs `s`) |
+| v2 `user/Patient.s` + `access/<tag>.s` | search by a parameter | rejected | allowed |
+| v2 `user/Patient.r` + `access/<tag>.r` | `?_id=` | rejected (resource gate needed `s`) | allowed |
+| v2 `user/Patient.s` + `access/<tag>.s` | `?_id=` | allowed at the resource gate, rejected at the access gate | rejected (needs `r`) |
+| v2 `user/Patient.s` + `access/*.s` | type-level `_history` | rejected (`access/*` had to grant `r`) | allowed |
+| v2 `user/Patient.s` + `access/*.r` | type-level `_history` | allowed | rejected (`access/*` must grant `s`) |
+| v2 `user/Patient.r` + `access/*.s` | instance `_history`, vread | rejected | rejected (`access/*` must grant `r`) |
+| v1 anything | search, read, vread, `_history` | as before | as before (`read` carries `r` and `s`) |
+
+### `$everything`
+
+The root is always addressed by id, so it asks `r`; the related types are searched, so they ask
+`s`. A DELETE asks `d` on the root before it starts: the root is not searched, and `s` is only needed
+on the related types reached through reverse links. A related type without its letter is skipped, as
+in `graph` (DELETE).
+
+| Grant | Operation | Before | Now |
+|---|---|---|---|
+| v2 `user/Patient.r` + `access/<tag>.rs`, with `s` on the related type | `$everything` GET | rejected (resource gate needed `s`) | allowed |
+| v2 `user/Patient.s` + `access/<tag>.r` | `$everything` GET | allowed | rejected (the root needs `r` at the resource gate) |
+| v1 `write`-only | `$everything` DELETE | rejected (the check asked for `s`) | deletes the root and its forward-reference children |
+| v1 `read` + `write` | `$everything` DELETE | allowed | allowed |
+
+`$expand` is also always addressed by id and asks `r`. `$summary` asks `r` on the root Patient and runs an
+internal `$graph` over the summary graph, so each type in it needs `s`; a type without it is left out of the result.
+
+### `$validate`
+
+`GET [type]/[id]/$validate` reads the stored resource, so it asks `r` at both gates before the read,
+and its tenant filter uses `r`. A body sent to `$validate` reads nothing stored and is not scope
+checked.
+
+| Grant | Operation | Before | Now |
+|---|---|---|---|
+| v1 `access/<tag>.read` alone | validate by id | allowed | **rejected** — `read` on the resource type is now required |
+| v1 `user/<Type>.read` + `access/<tag>.read` | validate by id | allowed | allowed |
+| any | validate with a body | allowed | allowed |
+
 ### GraphQL v1 and v2
 
 GraphQL has no scope check of its own. Queries run through `searchBundle`, so they ask `r` for a
@@ -364,14 +441,6 @@ with `remove`, `remove`:
 The resolver used to pass its own arguments (`patientId`, `practitionerId`, `remove`) through to the
 lookups and to the delete. They became parsed items, so the lookups counted as searches (`s`) and
 the delete as a search-based delete (`ds`). The resolver now passes only `id` (and `base_version`).
-
-| Grant | Query | Result |
-|---|---|---|
-| v2 `user/Patient.r` + `access/<tag>.r` | lookup by id | the resource is returned |
-| v2 `user/Patient.s` + `access/<tag>.s` | lookup by id | nothing |
-| v2 `user/Patient.s` + `access/<tag>.s` | search by another parameter | the resource is returned |
-| v2 `user/Patient.r` + `access/<tag>.r` | search by another parameter | nothing |
-| v1 `read` | either | as before (`read` carries `r` and `s`) |
 
 ### Admin routes
 
@@ -391,8 +460,11 @@ v2 letters are read only when `ENABLE_SMART_V2_CRUDS_SCOPES` is on. The route le
 | `invalidateCache`, every `DELETE` route not listed below | `d` |
 | `deletePatientDataGraph`, `deletePersonDataGraph` (the `$everything` DELETE graph searches related types), `deletePerson` (searches for the Persons that link to it before deleting) | `d` and `s` |
 
-Three checks inside admin routes are on FHIR resource types and use letters at both gates, in
-addition to the `admin/` letter above:
+Every route previously asked for `read` or `write`. The letter it now asks for is inside that set, except
+for the three delete routes that need `s`: v1 `write` has no `s`, so a token holding only `admin/*.write`
+is now refused on them and needs `admin/*.read` as well, or `admin/*.*`.
+
+FHIR resource types and use letters:
 
 | Route | Resource type | Letter at both gates |
 |---|---|---|
@@ -401,42 +473,43 @@ addition to the `admin/` letter above:
 | `ExportStatus` update | `ExportStatus` | `u` |
 
 All three previously asked for the `write` set; a v1 `write` token carries every one of these
-letters, so v1 callers see no change from them.
+letters, so v1 callers see no change.
 
-Every route previously asked for `read` or `write`. The letter it now asks for is inside that set,
-except for the three delete routes that need `s`: v1 `write` has no `s`, so a token holding only
-`admin/*.write` is now refused on them and needs `admin/*.read` as well, or `admin/*.*`.
+### Bulk export runner
+
+The runner builds the tenant filter it applies to every exported type with `s`, the same letter the
+request required. It previously used the default `r`, so a token such as `access/tenantA.c
+access/tenantB.s` found no tenant codes and the export failed.
+
+The Person lookup in `PersonToPatientIdsExpander` resolves a Person by id, so it asks for `r`, and
+the patient-data-view lookup (`fetchResourcesByArgsAsync`) searches, so it asks for `s`.
 
 ## Components & data flow
 
-- **`scopesManager.js`** — `getAccessCodesFromScopes`, `getPatientScopes`, `getUserScopes` call
-  into `smartScopeParser` instead of doing raw `.`-split / prefix-filtering inline. A new
-  `getSystemScopes` function (mirroring `getUserScopes`) is added for the `system/` prefix, which
-  has no existing equivalent today (no `system/` handling exists anywhere in `src/` currently).
-  Public function signatures for the pre-existing functions are unchanged.
-- **`scopesValidator.js`** — stops delegating to `@asymmetrik/sof-scope-checker` for
-  `patient/`/`user/`/`access/` checks; the parser decides both v1 and v2 cases directly (the
-  library hard-throws on any non-`read`/`write`/`*` action, so it cannot even pass through v2
-  requests safely as a fallback). `isScopesValidAsync`'s `accessRequested` grows to accept a CRUDS
-  letter or set, while still accepting `'read'`/`'write'` for backward compatibility.
-  `scopesValidator.js`'s existing literal `accessRequested === 'read'` check (used to block writes
-  via patient-scoped tokens) becomes "requested letters ⊆ `{r, s}`".
-- **`sof-scope.middleware.js`** — untouched; keeps using `@asymmetrik/sof-scope-checker` directly
-  for its own (v1-only) purposes.
-- **`admin.js` `admin/` gate, `hasAdminScopeForAction`** — takes `accessRequested`, a CRUDS letter,
-  and each route passes its own.
-- **`securityTagManager.js`** (`getSecurityTagsFromScope`) — feeds the actual MongoDB security
-  filter consumed by `searchManager.js`, `exportManager.js`, `import.js`,
-  `bulkDataExportRunner.js`, and `personToPatientIdsExpander.js`, and throws `ForbiddenError` on an
-  empty result. Because a wrong action→letter mapping here changes *which documents come back*
-  (not just allow/deny), this component is deliberately deferred to its own phase (see Phasing)
-  rather than changed in the same pass as the gate-only logic above.
+- **`smartScopeParser.js`** — pure module that parses a scope string and normalizes v1 suffixes to
+  CRUDS sets. `isV2Suffix` enforces the in-order subsequence rule. `getRequiredCrudsForAccessRequested`
+  turns an `accessRequested` value (`read`, `write`, one letter or an in-order combination such as
+  `ds`) into the set of letters that must all be satisfied.
+- **`scopesManager.js`** — `getAccessCodesFromScopes`, `getPatientScopes`, `getUserScopes` and the new
+  `getSystemScopes` call into `smartScopeParser` instead of doing raw `.`-split / prefix-filtering.
+  `hasHistoryAccess` takes the letter that the `access/*` scope must grant.
+- **`scopesValidator.js`** — no longer delegates to `@asymmetrik/sof-scope-checker`; the parser decides
+  both v1 and v2 cases. `isScopesValidAsync` takes the letter in `accessRequested` and uses it for
+  both the resource gate and the access gate; `action` is only for logging. The patient-scope write
+  restriction is "requested letters ⊆ `{r, s}`". The coarse `write` literal is still the default of
+  the access-tag helpers, but every caller passes a letter.
+- **`securityTagManager.js`** (`getSecurityTagsFromScope`) — feeds the MongoDB security filter used by
+  `searchManager.js`, `exportManager.js`, `import.js`, `bulkDataExportRunner.js` and
+  `personToPatientIdsExpander.js`, and throws `ForbiddenError` on an empty result. It takes the same
+  letter as the gates. `constructQueryAsync` still defaults to `r` when a caller omits it; every
+  caller now passes one.
+- **`ParsedArgs.isRequestById`** — decides whether `searchBundle` and `searchStreaming` ask `r` or `s`.
 - **Call sites** (`create.js`, `update.js`, `patch.js`, `remove.js`, `searchById.js`,
-  `searchByVersionId.js`, `history.js`, `searchBundle.js`, etc.) — each changes to pass its true
-  interaction-specific CRUDS requirement (via the lookup table) instead of the collapsed
-  `'read'`/`'write'` literal it hardcodes today. Mechanical, one call site at a time. **As of this
-  revision, each call site's migration also updates its own `getAccessCodesFromScopes` call to
-  require the matching granular set in the same change — see Phasing.**
+  `searchByVersionId.js`, `history.js`, `searchBundle.js`, `searchStreaming.js`, `everything*.js`,
+  `summary.js`, `expand.js`, `graph*.js`, `merge*.js`, `import.js`, `export*.js`, `accessHistory.js`,
+  `validate.js`, `adminExportManager.js`, `admin.js`) — each passes its own CRUDS requirement and
+  updates its own `getAccessCodesFromScopes` and tenant-filter calls in the same change.
+- **`admin.js` `admin/` gate, `hasAdminScopeForAction`** — takes `accessRequested`, a CRUDS letter, and each route passes its own.
 
 ## Backward compatibility rule
 
@@ -446,121 +519,99 @@ clients). A suffix is v1 iff it is exactly `read`, `write`, or `*`; v2 iff it is
 duplicate-free, **in-order** subsequence of the literal string `cruds` — i.e. its letters are drawn
 from `{c, r, u, d, s}` and appear in that relative order (`rs` and `cud` are valid; `sr` and `duc`
 are not). Requiring a subsequence subsumes the duplicate check for free, since `cruds` itself has
-no repeated letters. Anything else is malformed.
+no repeated letters. Anything else is malformed. `isV2Suffix` enforces this today.
 
-**Follow-up needed on already-merged code:** Phase 1 (`smartScopeParser.js`'s `isV2Suffix`) is
-live behind the flag today but currently checks only letter uniqueness and set-membership, not
-ordering — `.sr`, `.duc`, `.usc` all currently parse as valid. This must be tightened to the
-subsequence rule above before the flag is enabled; see Open items.
+v1 suffixes are converted to letters regardless of `ENABLE_SMART_V2_CRUDS_SCOPES`. That is why an
+operation that starts asking for a letter can change the result for a v1 token even with the flag
+off. The v1 differences are listed per operation above and in `readme/scopes_v2.md`.
 
 ## Error handling
 
 - A malformed v2 suffix causes that single scope string to be dropped from the granted-scope set;
   it is not fatal to the rest of the token's other (valid) scopes.
-- `hasHistoryAccess`'s literal requirement that the resolved access-code list contain `'*'` is
-  preserved exactly as-is — CRUDS granularity must not change this function's behavior. Regression
-  tests pin that e.g. `access/tenantA.rs` does **not** satisfy `hasHistoryAccess` merely because
-  `r`/`s` are present, while `access/*.rs` does; only the wildcard access code counts. This guard
-  covers `_history` and vread only; it never applied to `$access-history`.
+- `hasHistoryAccess`'s requirement that the resolved access-code list contain `'*'` is preserved:
+  CRUDS granularity decides which letter the `*` code must grant, not whether it must be `*`.
+  Regression tests pin that e.g. `access/tenantA.rs` does **not** satisfy `hasHistoryAccess` merely
+  because `r`/`s` are present, while `access/*.rs` does. This guard covers `_history` and vread only;
+  it never applied to `$access-history`.
 - An empty resulting CRUDS set after all filtering produces the same `ForbiddenError` behavior as
   today's empty-access-code case.
+- A denied `$everything` or `$graph` is returned as HTTP 200 with a Bundle holding one
+  `OperationOutcome`, a denied GraphQL request as 200 with an `errors` array, and a denied `$merge` as
+  200 with the rejected resource's `operationOutcome`. Other operations return 403 (see Open items).
 
 ## Testing strategy
 
-1. New isolated unit tests for `smartScopeParser.js`: v1→CRUDS normalization table, v2 grammar
-   detection (valid combinations, duplicates, unknown letters, empty suffix, **out-of-order
-   letters**), all four prefixes.
-   `system/` cases specifically assert tenant isolation is preserved (a `system/Patient.rs` token
-   without a matching `access/<tag>` scope still sees an empty/`ForbiddenError` result, same as
-   `user/`/`patient/` today) and that it is *not* granted the `admin/`-style full-bypass behavior.
-2. Characterization tests captured **before** any production code changes, run against the
-   existing `scopesManager.test.js`, `scopesManager.crossTenant.test.js`,
-   `scopesManager.writeBypass.test.js`, `scopesValidator.test.js`, and
-   `resourceAuthorization/03_scopesAndAuditEventGate.test.js` (the one test that exercises the real,
-   unmocked `@asymmetrik/sof-scope-checker`) — a fixed matrix of (scope, action) pairs, diffed after
-   each phase to prove v1-only behavior is unchanged.
-3. Per-operation migration adds new test cases exercising genuinely granular actions on **both**
-   gates together (e.g. a token with `user/Patient.r` but not `.s` must still pass `searchById` —
-   instance read — but fail a type-level search; and `access/tenantA.r` must pass a read but fail a
-   write for that same operation, once that operation's access gate is migrated).
-4. `$merge` specifically needs a regression proving `user/Patient.u access/<tag>.u` (or `.cud` on
-   the access side, until that operation's access gate is migrated) can both create-via-absent-id
-   and update, and that `user/Patient.c` alone (no `u`) cannot do either.
-5. The admin routes have their own suite (`admin_v2_cruds_scopes`): the letter each route asks, v1
-   suffixes, and a v2 suffix granting nothing while the flag is off. `scopesManager.test.js` covers
-   `hasAdminScopeForAction` directly, and `adminExportManager.test.js` pins the `c` and `u` letters
-   of the export-status checks.
-6. GraphQL v1 and v2 have their own suites (`graphql_v2_cruds_scopes`): lookup by id and search by
-   another parameter with `r`-only and `s`-only grants on both gates, and the
-   `updateGeneralPractitioner` mutation with and without `remove`. `parsedArgs.test.js` pins
-   `isRequestById`, and `searchBundle.test.js` pins the letter `searchBundle` asks.
-7. Phase 3 (`securityTagManager` and its query-filter consumers) gets its own test pass, reviewed
-   against `review.md`'s access/owner-tag checklist — this work is a named trigger in that
-   document (OAuth scope/token parsing, cross-resource join on a shared identifier).
+1. Isolated unit tests for `smartScopeParser.js`: v1→CRUDS normalization table, v2 grammar detection
+   (valid combinations, duplicates, unknown letters, empty suffix, out-of-order letters), all four
+   prefixes, and `system/` tenant isolation.
+2. Characterization tests over `scopesManager` and `scopesValidator` prove v1-only behavior is
+   unchanged except where this document lists a difference.
+3. Per-operation integration tests exercise genuinely granular grants on **both** gates together:
+   `write_v2_cruds_scopes` (create, update, patch, `Person.link`), `read_v2_cruds_scopes` (read,
+   search, `$summary`, history, vread, `$validate`), `everything_v2_cruds_scopes` (GET and DELETE) and
+   `graphql_v2_cruds_scopes` (v1 and v2 queries, `updateGeneralPractitioner`), `summary_v2_cruds_scopes`
+   (summary types need `s` on both gates) and `admin_v2_cruds_scopes`
+   (every admin route letter, v1 suffixes, flag off), alongside the existing
+   `$graph`, `$merge`, `$import`, `$export` and `$access-history` suites.
+4. Unit tests pin the letter each operation passes (`everything`, `searchBundle`, `validate`,
+   `adminExportManager`, `bulkDataExportRunner`, `scopesManager.hasHistoryAccess`,
+   `scopesManager.hasAdminScopeForAction`) and
+   `ParsedArgs.isRequestById`.
+5. Foreign-tenant cases pin the tenant filter: a token with the right letter for another tenant gets
+   an empty search, a 404 on a read or patch, and a 403 on a create, update or history, including on a
+   streamed search and in GraphQL.
+6. The query-filter path (`securityTagManager` and its consumers) was reviewed against `review.md`'s
+   access/owner-tag checklist, since it changes which documents come back.
 
 ## Phasing / rollout
 
-1. **Parser + v1 normalization.** Land `smartScopeParser.js`, wire it into `scopesManager.js`/
-   `scopesValidator.js` internals with zero behavior change — every existing caller still passes
-   `'read'`/`'write'` literals. Characterization tests prove no regression. **Status: complete and
-   merged behind the flag, except the ordering-enforcement gap noted above.**
-2. **Per-operation gate migration (resource gate + access gate together).** For each operation,
-   thread its real per-interaction CRUDS requirement through `scopesValidator`'s resource gate
-   **and** update that same operation's `getAccessCodesFromScopes` call site to require the
-   matching granular set, in the same change. This replaces the earlier plan of doing all resource
-   gates first and all access gates in one later big-bang pass: migrating only the resource-gate
-   half leaves that operation in a broken state where no newly-issued narrow scope combination
-   actually works (a narrow `access/<tag>` scope is rejected by the still-coarse access gate even
-   though the resource gate would allow it) — see the worked example under Open items. The 13
-   interactions already given a granular resource-gate letter under the original plan predate this
-   policy and currently sit in exactly that broken state; they need a follow-up pass to close their
-   own access-gate half before they can be considered done under this revised policy.
-3. **Query-filter path.** Extend `securityTagManager.js` and its downstream consumers
-   (`searchManager.js`, `exportManager.js`, `import.js`, `bulkDataExportRunner.js`,
-   `personToPatientIdsExpander.js`) to use granular CRUDS instead of binary read/write for building
-   the actual Mongo filter. Deliberately kept as its own separate, later, individually-reviewed
-   phase — unlike step 2's access-gate existence check, this changes *which documents* are
-   returned or writable, not just allow/deny, so it gets its own PR and explicit `review.md` pass
-   given the tenant-isolation blast radius.
+1. **Parser + v1 normalization.** Complete. Merged behind the flag.
+2. **Per-operation gate migration (resource gate + access gate together).** Complete for every
+   operation in the Architecture table, including the access-gate half that earlier steps had left on
+   the coarse set. Each operation changed its resource gate, access gate, tenant filter and per-resource
+   tag check in one change, so no operation sat in a state where a narrow `access/<tag>` scope was
+   rejected by a still-coarse access gate.
+3. **Query-filter path.** Complete: `securityTagManager.js`, `searchManager.js`, `exportManager.js`,
+   `import.js`, `bulkDataExportRunner.js`, `personToPatientIdsExpander.js`, the `Person.link` tenant
+   check in `resourceValidator.js` and the per-resource tag checks in `scopesManager.js` use the
+   granular letter. `fhirLoggingManager` records the first tenant code the token grants for any letter,
+   so a search-only or write-only token is still logged with its tenant.
+4. **Not started.** Making `accessRequested` a required parameter of `constructQueryAsync` and the
+   access-tag helpers, and a deployed end-to-end suite.
 
-## Open items / verify during implementation
+## Open items
 
-- Audit live IdP (Keycloak, and any production identity provider) client scope configurations for
-  any string that would newly parse as "valid v2 grammar" under this design — enabling v2 parsing
-  is a one-way loosening for any such string, since today it is inert (grants nothing) under the
-  binary checker.
-- Confirm whether any backend-service (client-credentials) client currently authenticates against
-  this server at all today — `system/` scopes are meaningless without a token flow that issues
-  them, and `authService.js`'s token/claims parsing is explicitly untouched by this design (see
-  Out of scope). If no such flow exists yet, `system/` support lands inert until one does, which is
-  acceptable but should be called out to reviewers.
-- **Ordering enforcement.** `isV2Suffix` needs the in-order-subsequence fix described under
-  Backward compatibility rule before the flag can be enabled — today `.sr`/`.duc`/`.usc` parse as
-  valid, contrary to this design.
-- **Worked example of why per-operation migration must include the access gate:** a token with
-  `user/Patient.c` (resource gate: pass, `c` satisfies `c`) paired with `access/tenantA.c` would,
-  under a resource-gate-only migration, still fail — the access gate, unmigrated, would demand the
-  full coarse `{c,u,d}` composite regardless of what the resource gate just decided. Under this
-  revision's combined-phase policy, once `create` is migrated, both sides ask for `c` and this
-  succeeds.
-- **`bulkDataExportRunner.getRequestedResourceAsync`** (fixed: it now resolves types through
-  `ScopesManager.getResourceTypesWithAccess` and requires `s`; the note below describes the
-  behavior before the fix) decided which resource types a bulk export
-  may include by splitting the scope string and comparing the suffix literally
-  (`accessType === '*' || accessType === 'read'`) instead of calling `parseScopeToken`. Found
-  during the 2026-09-25 documentation review; not yet folded into a fix plan, and deliberately kept
-  out of the wiki's polished narrative since `$export`'s request-time gate is being redesigned
-  anyway (see the Architecture table above — `c` on `Task` plus `s` per requested type). Whoever
-  picks up the `$export` migration must either fix this literal comparison as part
-  of that work, or confirm the redesign replaces this code path outright. Until fixed, a valid v2
-  read grant (e.g. `user/Patient.rs`) matches neither literal once the flag is on, and that caller's
-  export silently returns **zero rows with HTTP 200** instead of the expected data or a 403 — a
-  silent data-loss failure, not a denial, and the only place in the whole design where this failure
-  mode occurs.
+Accepted as they are:
+
+- **Export status polling.** A job is stamped with the tenant codes granting `c`, and the status check
+  needs `r` on a stamped code, so a token such as `access/tenantA.cs` can start an export but not poll
+  it. This is expected.
+- **Defaults.** `constructQueryAsync` defaults to `r` and the access-tag helpers default to the `write`
+  set when a caller omits the letter. Every caller passes one.
+- **`$validate` with a body** is not scope checked, and a body that adds a `Person` link still runs the
+  target-tenant check with the `write` set, whose error text reveals whether the target exists.
+- **`updateGeneralPractitioner(remove: true)`** (GraphQL v1) deletes the Patient and writes it back
+  without a transaction.
+
+Open:
+
 - **Admin routes that change Person or Patient data.** Except for the resource checks listed under
   "Admin routes", such a route is guarded only by its `admin/` letter, and the resource segment of
   an `admin/` scope is ignored.
-- **`updateGeneralPractitioner(remove: true)`** (GraphQL v1) deletes the Patient and writes it back
-  without a transaction.
+- **Denied requests that return 200.** A denied `$merge` (per-resource `operationOutcome`),
+  `$everything`, `$graph` and GraphQL request returns 200; read, search, history, create, update,
+  patch, delete, `$summary`, `$validate`, `$access-history`, `$import` and `$export` return 403.
+  Whether `$everything`, `$graph` and `$merge` should return 403 is undecided.
+- **`$expand`** is switched off in the route handler (it returns `{}` with 200 without reading or
+  checking anything). `ExpandOperation` asks `r` at both gates and is ready for when it is enabled.
 - **GraphQL.** A new GraphQL argument that is not in the by-id list turns a by-id lookup into a search
   that needs `s`.
+- **End-to-end coverage.** No deployed-environment suite exercises v2 scopes across all operations.
+- **Before enabling the flag.** Audit the identity provider's client scope strings for any value that
+  would newly parse as a valid v2 suffix; enabling v2 parsing is a one-way loosening of what is
+  honored. Confirm whether any backend-service (client-credentials) client will present `system/`
+  scopes — `authService.js`'s token and claims parsing is untouched, so without such a flow `system/`
+  lands inert.
+- **Out of scope here:** real SMART launch context (`fhirUser`, `launch/patient`),
+  `.well-known/smart-configuration`, and the `?param=value` scope constraint syntax.

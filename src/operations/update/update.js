@@ -219,7 +219,7 @@ class UpdateOperation {
                 resourceType,
                 startTime,
                 action: currentOperationName,
-                accessRequested: 'write'
+                accessRequested: 'u'
             }
         );
 
@@ -327,6 +327,7 @@ class UpdateOperation {
              * @type {OperationOutcome|null}
              */
             let validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                accessRequested: 'u',
                 base_version,
                 requestInfo,
                 id: resource_incoming_json.id,
@@ -391,7 +392,7 @@ class UpdateOperation {
                 // found an existing resource
                 foundResource = data;
                 await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                    requestInfo, resource: foundResource, base_version
+                    requestInfo, resource: foundResource, base_version, accessRequested: 'u'
                 });
                 // Extended Group's member[] doesn't exist on the live document -- a submitted
                 // member must go through PATCH instead (design doc §5.1). Unconditional on
@@ -485,7 +486,7 @@ class UpdateOperation {
                     // access tags the merge (smartMerge: false, so a full replace) took from the incoming
                     // body still need to be validated before the merged doc is persisted
                     this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
-                        requestInfo, currentResource: foundResource, updatedResource: doc
+                        requestInfo, currentResource: foundResource, updatedResource: doc, accessRequested: 'u'
                     });
 
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
@@ -507,12 +508,12 @@ class UpdateOperation {
                     doc.meta.versionId = '1';
                     doc.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                        resource: doc, requestInfo, base_version
+                        resource: doc, requestInfo, base_version, accessRequested: 'u'
                     });
                     // SEC-1580 F3: this is a create-via-PUT, so the "old" access tag set is empty and
                     // every access tag on doc counts as an addition the caller must be authorized for
                     this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
-                        requestInfo, currentResource: null, updatedResource: doc
+                        requestInfo, currentResource: null, updatedResource: doc, accessRequested: 'u'
                     });
 
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);

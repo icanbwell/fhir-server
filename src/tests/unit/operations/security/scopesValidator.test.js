@@ -264,12 +264,12 @@ describe('ScopesValidator', () => {
             const requestInfo = {user: 'testUser', scope: 'user/Patient.r access/client.*'};
 
             const passResult = await scopesValidator.isScopesValidAsync({
-                requestInfo, resourceType: 'Patient', accessRequested: 'read', action: 'searchById'
+                requestInfo, resourceType: 'Patient', accessRequested: 'r', action: 'searchById'
             });
             expect(passResult).toBeUndefined();
 
             const failResult = await scopesValidator.isScopesValidAsync({
-                requestInfo, resourceType: 'Patient', accessRequested: 'read', action: 'search'
+                requestInfo, resourceType: 'Patient', accessRequested: 's', action: 'search'
             });
             expect(failResult).toBeInstanceOf(ServerError);
             expect(failResult.statusCode).toBe(403);
@@ -283,12 +283,12 @@ describe('ScopesValidator', () => {
             const requestInfo = {user: 'testUser', scope: 'user/Patient.s access/client.*'};
 
             const passResult = await scopesValidator.isScopesValidAsync({
-                requestInfo, resourceType: 'Patient', accessRequested: 'read', action: 'search'
+                requestInfo, resourceType: 'Patient', accessRequested: 's', action: 'search'
             });
             expect(passResult).toBeUndefined();
 
             const failResult = await scopesValidator.isScopesValidAsync({
-                requestInfo, resourceType: 'Patient', accessRequested: 'read', action: 'searchById'
+                requestInfo, resourceType: 'Patient', accessRequested: 'r', action: 'searchById'
             });
             expect(failResult).toBeInstanceOf(ServerError);
             expect(failResult.statusCode).toBe(403);
@@ -302,13 +302,13 @@ describe('ScopesValidator', () => {
             const requestInfo = {user: 'testUser', scope: 'user/Patient.c access/client.*'};
 
             const createResult = await scopesValidator.isScopesValidAsync({
-                requestInfo, resourceType: 'Patient', accessRequested: 'write', action: 'create'
+                requestInfo, resourceType: 'Patient', accessRequested: 'c', action: 'create'
             });
             expect(createResult).toBeUndefined();
 
-            for (const action of ['update', 'patch', 'remove']) {
+            for (const [action, letter] of [['update', 'u'], ['patch', 'u'], ['remove', 'd']]) {
                 const result = await scopesValidator.isScopesValidAsync({
-                    requestInfo, resourceType: 'Patient', accessRequested: 'write', action
+                    requestInfo, resourceType: 'Patient', accessRequested: letter, action
                 });
                 expect(result).toBeInstanceOf(ServerError);
             }
@@ -390,7 +390,7 @@ describe('ScopesValidator', () => {
         // An action not in the granular lookup table (e.g. 'graph', whose action name is reused
         // for both a search-type read and a delete-driven write) falls back to accessRequested
         // exactly as before -- v1 read/write scopes still work for it.
-        test('an action outside the granular table falls back to accessRequested', async () => {
+        test('a legacy read literal is evaluated as r and s', async () => {
             mockScopesManager.getResourceTypeScopes.mockReturnValue(['user/Patient.read']);
             const requestInfo = {user: 'testUser', scope: 'user/Patient.read access/client.*'};
 
@@ -410,7 +410,7 @@ describe('ScopesValidator', () => {
             const requestInfo = {user: 'testUser', scope: 'patient/Observation.read user/Patient.s'};
 
             const result = await scopesValidator.isScopesValidAsync({
-                requestInfo, resourceType: 'Patient', accessRequested: 'read', action: 'everything'
+                requestInfo, resourceType: 'Patient', accessRequested: 's', action: 'everything'
             });
             expect(result).toBeUndefined();
         });
@@ -426,7 +426,7 @@ describe('ScopesValidator', () => {
             const requestInfo = {user: 'testUser', scope: 'patient/Observation.read user/Patient.c'};
 
             const result = await scopesValidator.isScopesValidAsync({
-                requestInfo, resourceType: 'Patient', accessRequested: 'write', action: 'create'
+                requestInfo, resourceType: 'Patient', accessRequested: 'c', action: 'create'
             });
             expect(result).toBeInstanceOf(ServerError);
             expect(result.message).toContain('Write not allowed');
