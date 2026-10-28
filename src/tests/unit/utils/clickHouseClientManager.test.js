@@ -90,7 +90,8 @@ describe('ClickHouseClientManager', () => {
 
             // Make ping succeed
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue([{ ping: 1 }])
+                json: jest.fn().mockResolvedValue([{ ping: 1 }]),
+                close: jest.fn()
             });
 
             // Two concurrent calls when client is null
@@ -118,7 +119,8 @@ describe('ClickHouseClientManager', () => {
 
             // resultSet.json() could return null in some edge cases
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue(null)
+                json: jest.fn().mockResolvedValue(null),
+                close: jest.fn()
             });
 
             // Should handle null result gracefully and return empty array
@@ -132,7 +134,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue(undefined)
+                json: jest.fn().mockResolvedValue(undefined),
+                close: jest.fn()
             });
 
             // Should handle undefined result gracefully and return empty array
@@ -145,7 +148,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue([{ id: 1 }, { id: 2 }])
+                json: jest.fn().mockResolvedValue([{ id: 1 }, { id: 2 }]),
+                close: jest.fn()
             });
 
             const result = await manager.queryAsync({ query: 'SELECT id FROM table' });
@@ -157,7 +161,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue({ data: [{ id: 1 }] })
+                json: jest.fn().mockResolvedValue({ data: [{ id: 1 }] }),
+                close: jest.fn()
             });
 
             const result = await manager.queryAsync({ query: 'SELECT id FROM table' });
@@ -170,7 +175,8 @@ describe('ClickHouseClientManager', () => {
 
             // Object without .data field - falls to `result.data || []` which is `undefined || []`
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue({ meta: 'info' })
+                json: jest.fn().mockResolvedValue({ meta: 'info' }),
+                close: jest.fn()
             });
 
             const result = await manager.queryAsync({ query: 'SELECT 1' });
@@ -185,7 +191,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue(null)
+                json: jest.fn().mockResolvedValue(null),
+                close: jest.fn()
             });
 
             // pingAsync should always return a boolean value
@@ -203,7 +210,8 @@ describe('ClickHouseClientManager', () => {
             manager.client = { query: mockQuery, insert: mockInsert, close: mockClose };
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue([{ ping: 1 }])
+                json: jest.fn().mockResolvedValue([{ ping: 1 }]),
+                close: jest.fn()
             });
 
             const result = await manager.pingAsync();
@@ -337,8 +345,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery
-                .mockResolvedValueOnce({ json: jest.fn().mockResolvedValue([{ a: 1 }]) })
-                .mockResolvedValueOnce({ json: jest.fn().mockResolvedValue([{ b: 2 }]) });
+                .mockResolvedValueOnce({ json: jest.fn().mockResolvedValue([{ a: 1 }]), close: jest.fn() })
+                .mockResolvedValueOnce({ json: jest.fn().mockResolvedValue([{ b: 2 }]), close: jest.fn() });
 
             const results = await manager.executeBatchAsync([
                 { query: 'SELECT 1 AS a' },
@@ -354,7 +362,7 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery
-                .mockResolvedValueOnce({ json: jest.fn().mockResolvedValue([{ a: 1 }]) })
+                .mockResolvedValueOnce({ json: jest.fn().mockResolvedValue([{ a: 1 }]), close: jest.fn() })
                 .mockRejectedValueOnce(new Error('Query timeout'));
 
             await expect(
@@ -372,7 +380,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue([{ 1: 1 }])
+                json: jest.fn().mockResolvedValue([{ 1: 1 }]),
+                close: jest.fn()
             });
 
             const result = await manager.tableExistsAsync('test_table');
@@ -384,7 +393,8 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue([])
+                json: jest.fn().mockResolvedValue([]),
+                close: jest.fn()
             });
 
             const result = await manager.tableExistsAsync('nonexistent_table');
@@ -400,5 +410,118 @@ describe('ClickHouseClientManager', () => {
             const result = await manager.tableExistsAsync('protected_table');
             expect(result).toBe(false);
         });
+    });
+});
+
+/**
+ * Unit coverage for the response-stream draining invariant on the ClickHouse client.
+ *
+ * The client library reuses keep-alive sockets. A result set whose body is never fully
+ * read (or read then left open) can strand a socket that the server later half-closes,
+ * which surfaces as intermittent ECONNRESET/EPIPE under load. The manager therefore closes
+ * the result set in a finally block on every read path, including the error path. These
+ * tests assert that invariant directly (mocking only the client boundary).
+ */
+describe('ClickHouseClientManager drains the response stream', () => {
+    process.env.LOGLEVEL = 'SILENT';
+
+    /** Build a manager with a pre-injected fake client so no real connection is made. */
+    function makeManager(client) {
+        const manager = new ClickHouseClientManager({ configManager: {} });
+        manager.client = client;
+        manager.isConnected = true;
+        return manager;
+    }
+
+    /** A fake @clickhouse/client ResultSet with a close() spy. */
+    function makeResultSet(jsonImpl) {
+        return {
+            json: jsonImpl || jest.fn(async () => []),
+            text: jest.fn(async () => ''),
+            close: jest.fn()
+        };
+    }
+
+    test('queryAsync closes the result set after a successful read', async () => {
+        const resultSet = makeResultSet(jest.fn(async () => [{ n: 1 }]));
+        const client = { query: jest.fn(async () => resultSet) };
+        const manager = makeManager(client);
+
+        const rows = await manager.queryAsync({ query: 'SELECT 1 AS n' });
+
+        expect(rows).toEqual([{ n: 1 }]);
+        expect(resultSet.close).toHaveBeenCalledTimes(1);
+    });
+
+    test('queryAsync still closes the result set when reading the body throws', async () => {
+        const resultSet = makeResultSet(jest.fn(async () => {
+            throw new Error('stream read failed');
+        }));
+        const client = { query: jest.fn(async () => resultSet) };
+        const manager = makeManager(client);
+
+        await expect(manager.queryAsync({ query: 'SELECT 1' })).rejects.toThrow();
+
+        // The un-drained socket that used to cause ECONNRESET/EPIPE is closed in finally.
+        expect(resultSet.close).toHaveBeenCalledTimes(1);
+    });
+
+    test('pingAsync closes the result set on success', async () => {
+        const resultSet = makeResultSet(jest.fn(async () => [{ ping: 1 }]));
+        const client = { query: jest.fn(async () => resultSet) };
+        const manager = makeManager(client);
+
+        const ok = await manager.pingAsync();
+
+        expect(ok).toBe(true);
+        expect(resultSet.close).toHaveBeenCalledTimes(1);
+    });
+
+    test('executeBatchAsync closes every result set on success', async () => {
+        const rs1 = makeResultSet(jest.fn(async () => [{ a: 1 }]));
+        const rs2 = makeResultSet(jest.fn(async () => [{ b: 2 }]));
+        const query = jest.fn().mockResolvedValueOnce(rs1).mockResolvedValueOnce(rs2);
+        const manager = makeManager({ query });
+
+        const results = await manager.executeBatchAsync([
+            { query: 'SELECT 1 AS a' },
+            { query: 'SELECT 2 AS b' }
+        ]);
+
+        expect(results).toEqual([[{ a: 1 }], [{ b: 2 }]]);
+        expect(rs1.close).toHaveBeenCalledTimes(1);
+        expect(rs2.close).toHaveBeenCalledTimes(1);
+    });
+
+    test('executeBatchAsync still closes result sets when a mid-batch query throws', async () => {
+        const rs1 = makeResultSet(jest.fn(async () => [{ a: 1 }]));
+        const rs2 = makeResultSet(jest.fn(async () => {
+            throw new Error('second statement failed');
+        }));
+        const query = jest.fn().mockResolvedValueOnce(rs1).mockResolvedValueOnce(rs2);
+        const manager = makeManager({ query });
+
+        await expect(manager.executeBatchAsync([
+            { query: 'SELECT 1 AS a' },
+            { query: 'SELECT 2 AS b' }
+        ])).rejects.toThrow();
+
+        // An aborted batch must not strand a partially-read socket: the completed
+        // statement and the failing one both drain in their finally blocks.
+        expect(rs1.close).toHaveBeenCalledTimes(1);
+        expect(rs2.close).toHaveBeenCalledTimes(1);
+    });
+
+    test('pingAsync returns false and still closes the result set when the read throws', async () => {
+        const resultSet = makeResultSet(jest.fn(async () => {
+            throw new Error('ping read failed');
+        }));
+        const client = { query: jest.fn(async () => resultSet) };
+        const manager = makeManager(client);
+
+        const ok = await manager.pingAsync();
+
+        expect(ok).toBe(false);
+        expect(resultSet.close).toHaveBeenCalledTimes(1);
     });
 });

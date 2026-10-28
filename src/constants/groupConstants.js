@@ -67,7 +67,12 @@ const DEFAULT_CLICKHOUSE = {
     USERNAME: 'default',
     PASSWORD: '',
     REQUEST_TIMEOUT_MS: 180000, // 3 minutes
-    MAX_CONNECTIONS: 100 // Matches MongoDB pattern; see CONNECTION POOL SIZING above
+    MAX_CONNECTIONS: 100, // Matches MongoDB pattern; see CONNECTION POOL SIZING above
+    // Idle keep-alive sockets older than this are discarded before reuse. Kept
+    // comfortably below REQUEST_TIMEOUT_MS so a socket the server may have already
+    // closed is never reused for a new request (root cause of ECONNRESET/EPIPE
+    // under sustained load).
+    IDLE_SOCKET_TTL_MS: 30000 // 30 seconds
 };
 
 module.exports = {
