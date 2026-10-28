@@ -35,19 +35,6 @@
             "request": {
                 "method": "PUT",
                 "url": "/4_0_0/Binary/binary-history-list"
-            },
-            "response": {
-                "status": "200",
-                "outcome": {
-                    "resourceType": "OperationOutcome",
-                    "issue": [
-                        {
-                            "severity": "information",
-                            "code": "informational",
-                            "diagnostics": "{\"op\":\"replace\",\"path\":\"/data\",\"value\":\"__ALT_LARGE_DATA__\"}"
-                        }
-                    ]
-                }
             }
         },
         {

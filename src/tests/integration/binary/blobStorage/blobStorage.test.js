@@ -562,7 +562,9 @@ describe('Binary base64 S3 offload — write paths', () => {
 
         // History rows no longer carry patch diagnostics (DCON-6272).
         const historyDocs = await readBinaryHistoryFromMongo(container);
-        for (const d of historyDocs.filter(h => h.resource && h.resource._uuid === mongoDocAfterCreate._uuid)) {
+        const matchedSnapshots = historyDocs.filter(h => h.resource && h.resource._uuid === mongoDocAfterCreate._uuid);
+        expect(matchedSnapshots.length).toBeGreaterThan(0);
+        for (const d of matchedSnapshots) {
             expect(d.response).toBeUndefined();
         }
     });

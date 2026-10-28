@@ -178,19 +178,6 @@
       "request": {
         "method": "POST",
         "url": "/4_0_0/Observation/77253a67-f7a1-454d-aaba-56009ba897b4-2"
-      },
-      "response": {
-        "status": "200",
-        "outcome": {
-          "resourceType": "OperationOutcome",
-          "issue": [
-            {
-              "severity": "information",
-              "code": "informational",
-              "diagnostics": "{\"op\":\"replace\",\"path\":\"/performer/0/reference\",\"value\":\"Practitioner/abc|testClient\"}"
-            }
-          ]
-        }
       }
     },
     {
