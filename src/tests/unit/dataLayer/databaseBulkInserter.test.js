@@ -108,6 +108,32 @@ describe('DatabaseBulkInserter', () => {
         inserter = createDatabaseBulkInserter({ requestSpecificCache });
     });
 
+    describe('insertOneHistoryAsync recorded', () => {
+        test('stamps recorded as a Date at creation with millisecond precision', async () => {
+            const doc = createMockResource();
+            const requestInfo = createMockFhirRequestInfo();
+            const before = Date.now();
+            await inserter.insertOneHistoryAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', doc });
+            const after = Date.now();
+            const entry = inserter.getHistoryOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient')[0];
+            const { recorded } = entry.operation.insertOne.document;
+            expect(recorded).toBeInstanceOf(Date);
+            expect(recorded.getTime()).toBeGreaterThanOrEqual(before);
+            expect(recorded.getTime()).toBeLessThanOrEqual(after);
+            expect(recorded.toISOString()).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+        });
+
+        test('recorded is fixed at creation and not changed by later reads of the operation', async () => {
+            const doc = createMockResource();
+            const requestInfo = createMockFhirRequestInfo();
+            await inserter.insertOneHistoryAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', doc });
+            const map = () => inserter.getHistoryOperationsByResourceTypeMap({ requestId: requestInfo.requestId });
+            const first = map().get('Patient')[0].operation.insertOne.document.recorded.getTime();
+            await new Promise((resolve) => setTimeout(resolve, 5));
+            expect(map().get('Patient')[0].operation.insertOne.document.recorded.getTime()).toBe(first);
+        });
+    });
+
     describe('insertOneAsync', () => {
         test('creates insertUniqueId updateOne for non-AuditEvent', async () => {
             const doc = createMockResource({ id: 'p1', _uuid: 'u1', resourceType: 'Patient' });

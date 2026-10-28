@@ -558,6 +558,9 @@ class FastDatabaseBulkInserter extends EventEmitter {
 
             FhirResourceWriteSerializer.serialize({obj: historyResource, SerializerClass: BundleEntryWriteSerializer});
 
+            // stamped once here (Mongo Date, ms precision) so retries of this bulk op reuse the same value
+            historyResource.recorded = new Date();
+
             await this.base64DataManager.transformHistoryAsync(historyResource, requestInfo);
 
             this.addHistoryOperationForResourceType({

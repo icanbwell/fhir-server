@@ -126,6 +126,34 @@ describe('FastDatabaseBulkInserter', () => {
         });
     });
 
+    describe('insertOneHistoryAsync recorded', () => {
+        test('stamps recorded as a Date at creation and keeps it on the stored operation', async () => {
+            const doc = { resourceType: 'Patient', id: 'p1', _uuid: 'u1', _sourceAssigningAuthority: 'a', meta: { versionId: '1' } };
+            const requestInfo = createMockFhirRequestInfo();
+            const before = Date.now();
+            await inserter.insertOneHistoryAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', doc });
+            const after = Date.now();
+            const entry = inserter.getHistoryOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient')[0];
+            const { recorded } = entry.operation.insertOne.document;
+            expect(recorded).toBeInstanceOf(Date);
+            expect(recorded.getTime()).toBeGreaterThanOrEqual(before);
+            expect(recorded.getTime()).toBeLessThanOrEqual(after);
+            // millisecond precision survives ISO serialization
+            expect(new Date(recorded.toISOString()).getTime()).toBe(recorded.getTime());
+            expect(recorded.toISOString()).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+        });
+
+        test('recorded is fixed at creation and not changed by later reads of the operation', async () => {
+            const doc = { resourceType: 'Patient', id: 'p1', _uuid: 'u1', _sourceAssigningAuthority: 'a', meta: { versionId: '1' } };
+            const requestInfo = createMockFhirRequestInfo();
+            await inserter.insertOneHistoryAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', doc });
+            const map = () => inserter.getHistoryOperationsByResourceTypeMap({ requestId: requestInfo.requestId });
+            const first = map().get('Patient')[0].operation.insertOne.document.recorded.getTime();
+            await new Promise((resolve) => setTimeout(resolve, 5));
+            expect(map().get('Patient')[0].operation.insertOne.document.recorded.getTime()).toBe(first);
+        });
+    });
+
     describe('mergeOneAsync', () => {
         test('creates replaceOne with $and filter when previousVersionId > 0', async () => {
             const requestInfo = createMockFhirRequestInfo();
