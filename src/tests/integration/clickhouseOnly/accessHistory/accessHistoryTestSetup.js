@@ -67,8 +67,19 @@ async function cleanupBetweenTests() {
     }
 }
 
+/**
+ * Writes aggregate rows directly, bypassing AUDIT_ACCESS_MV. Each row is one read of
+ * entity_ref by agent_requestor_who in the AuditEvent identified by (uuid, recorded):
+ * reuse a (uuid, recorded) pair to model a replayed copy, use a new uuid to model a
+ * repeated access.
+ * @param {{entity_ref: string, agent_requestor_who: string, uuid: string, recorded: string,
+ *   entity_resource_type?: string, purpose?: string}[]} rows - recorded is 'YYYY-MM-DD HH:mm:ss.SSS' UTC
+ */
 async function insertAggRows(rows) {
     for (const row of rows) {
+        if (!row.uuid || !row.recorded) {
+            throw new Error('insertAggRows: uuid and recorded are required to identify the AuditEvent');
+        }
         await sharedClickHouseManager.queryAsync({
             query: `
                 INSERT INTO ${TABLES.AUDIT_ACCESS_AGG}
@@ -76,22 +87,25 @@ async function insertAggRows(rows) {
                     {entity_ref:String} AS entity_ref,
                     {agent_requestor_who:String} AS agent_requestor_who,
                     {entity_resource_type:String} AS entity_resource_type,
-                    toDate({recorded_date:String}) AS recorded_date,
-                    countState() AS access_count,
-                    maxState(toDateTime64({last_accessed:String}, 3, 'UTC')) AS last_accessed,
+                    toDate(toDateTime64({recorded:String}, 3, 'UTC')) AS recorded_date,
+                    uniqExactState({uuid:String}, toDateTime64({recorded:String}, 3, 'UTC')) AS access_count,
+                    maxState(toDateTime64({recorded:String}, 3, 'UTC')) AS last_accessed,
                     groupUniqArrayState({purpose:String}) AS purpose_of_events
             `,
             query_params: {
                 entity_ref: row.entity_ref,
                 agent_requestor_who: row.agent_requestor_who,
-                entity_resource_type: row.entity_resource_type,
-                recorded_date: row.recorded_date,
-                last_accessed: row.last_accessed,
+                entity_resource_type: row.entity_resource_type || row.entity_ref.split('/')[0],
+                uuid: row.uuid,
+                recorded: row.recorded,
                 purpose: row.purpose || ''
             }
         });
     }
 }
+
+// Deterministic fallback ids for events that don't set id/uuid: each call is a new AuditEvent.
+let auditEventSequence = 0;
 
 async function insertAuditEvents(events) {
     for (const event of events) {
@@ -105,7 +119,8 @@ async function insertAuditEvents(events) {
             .join(', ');
         const entityExpr = `[${entityItems}]`;
 
-        const id = event.id || `audit-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const sequence = ++auditEventSequence;
+        const id = event.id || `audit-${sequence}`;
 
         await sharedClickHouseManager.queryAsync({
             query: `
@@ -128,7 +143,7 @@ async function insertAuditEvents(events) {
             `,
             query_params: {
                 id,
-                uuid: event.uuid || `uuid-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                uuid: event.uuid || `uuid-${sequence}`,
                 recorded: event.recorded,
                 action: event.action || 'R',
                 agent_who: event.agent_requestor_who,
