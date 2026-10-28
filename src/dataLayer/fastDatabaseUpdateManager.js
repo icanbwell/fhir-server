@@ -125,9 +125,9 @@ class FastDatabaseUpdateManager {
     async updateOneAsync({ doc, requestInfo }) {
         try {
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
-            const collection = await this.resourceLocator.getCollectionForResourceAsync(doc);
-            await collection.replaceOne({ _uuid: doc._uuid }, doc);
+            const preSavedDoc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
+            const collection = await this.resourceLocator.getCollectionForResourceAsync(preSavedDoc);
+            await collection.replaceOne({ _uuid: { $eq: preSavedDoc._uuid } }, preSavedDoc);
         } catch (e) {
             throw new RethrownError({
                 error: e,
