@@ -121,6 +121,40 @@ describe('RedisClient', () => {
             expect(client.invalidateCacheKeysBatchSize).toBe(500);
         });
 
+        test('uses Redis Cloud settings and no credentials provider when VALKEY_HOST is not set', () => {
+            delete process.env.VALKEY_HOST;
+            createClient.mockClear();
+            let NewRedisClient;
+            jestObj.isolateModules(() => {
+                ({ RedisClient: NewRedisClient } = require('../../../utils/redisClient'));
+            });
+            new NewRedisClient();
+            const config = createClient.mock.calls[0][0];
+            expect(config.socket.host).toBe('localhost');
+            expect(config.socket.port).toBe(6380);
+            expect(config.credentialsProvider).toBeUndefined();
+        });
+
+        test('connects to AWS Valkey over TLS with an IAM credentials provider when VALKEY_HOST is set', () => {
+            process.env.VALKEY_HOST = 'dev-use1-cache-fhir-server-fi04rw.serverless.use1.cache.amazonaws.com';
+            process.env.VALKEY_IAM_USERNAME = 'dev-use1-fhir-server-app';
+            process.env.REDIS_USERNAME = 'default';
+            process.env.REDIS_PASSWORD = 'redis-cloud-password';
+            createClient.mockClear();
+            let NewRedisClient;
+            jestObj.isolateModules(() => {
+                ({ RedisClient: NewRedisClient } = require('../../../utils/redisClient'));
+            });
+            new NewRedisClient();
+            const config = createClient.mock.calls[0][0];
+            expect(config.socket.host).toBe(process.env.VALKEY_HOST);
+            expect(config.socket.port).toBe(6379);
+            expect(config.socket.tls).toBe(true);
+            expect(config.credentialsProvider.type).toBe('async-credentials-provider');
+            expect(config.username).toBeUndefined();
+            expect(config.password).toBeUndefined();
+        });
+
         test('registers error event handler', () => {
             expect(mockOn).toHaveBeenCalledWith('error', expect.any(Function));
         });
