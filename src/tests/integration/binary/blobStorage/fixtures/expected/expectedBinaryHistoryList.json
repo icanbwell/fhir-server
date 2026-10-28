@@ -35,6 +35,10 @@
             "request": {
                 "method": "PUT",
                 "url": "/4_0_0/Binary/binary-history-list"
+            },
+            "response": {
+                "status": "200 OK",
+                "etag": "W/\"2\""
             }
         },
         {
@@ -69,6 +73,10 @@
             "request": {
                 "method": "PUT",
                 "url": "/4_0_0/Binary/binary-history-list"
+            },
+            "response": {
+                "status": "200 OK",
+                "etag": "W/\"1\""
             }
         }
     ]

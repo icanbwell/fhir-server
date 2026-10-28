@@ -6,6 +6,10 @@
         "method": "POST",
         "url": "/4_0_0/CodeSystem/medline-loinc-labs"
       },
+      "response": {
+          "status": "201 Created",
+          "etag": "W/\"2\""
+      },
       "resource": {
         "caseSensitive": true,
         "concept": [
@@ -420,6 +424,10 @@
       "request": {
         "method": "POST",
         "url": "/4_0_0/CodeSystem/medline-loinc-labs"
+      },
+      "response": {
+          "status": "201 Created",
+          "etag": "W/\"1\""
       },
       "resource": {
         "content": "fragment",

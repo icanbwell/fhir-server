@@ -6,6 +6,10 @@
         "method": "POST",
         "url": "/4_0_0/Patient/00100000000"
       },
+      "response": {
+          "status": "201 Created",
+          "etag": "W/\"2\""
+      },
       "resource": {
         "birthDate": "2015-01-01",
         "gender": "female",
@@ -61,6 +65,10 @@
         "request": {
           "method": "POST",
           "url": "/4_0_0/Patient/00100000000"
+        },
+        "response": {
+            "status": "201 Created",
+            "etag": "W/\"1\""
         },
         "resource": {
           "birthDate": "2017-01-01",

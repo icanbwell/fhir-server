@@ -178,6 +178,10 @@
       "request": {
         "method": "POST",
         "url": "/4_0_0/Observation/77253a67-f7a1-454d-aaba-56009ba897b4-2"
+      },
+      "response": {
+          "status": "201 Created",
+          "etag": "W/\"2\""
       }
     },
     {
@@ -357,6 +361,10 @@
       "request": {
         "method": "POST",
         "url": "/4_0_0/Observation/77253a67-f7a1-454d-aaba-56009ba897b4-2"
+      },
+      "response": {
+          "status": "201 Created",
+          "etag": "W/\"1\""
       }
     }
   ],
