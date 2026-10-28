@@ -20,6 +20,7 @@ jest.mock('../../../../utils/metrics', () => {
 
 const { ValidateOperation } = require('../../../../operations/validate/validate');
 const { ScopesManager } = require('../../../../operations/security/scopesManager');
+const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
 const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggingManager');
 const { ResourceValidator } = require('../../../../operations/common/resourceValidator');
 const { ConfigManager } = require('../../../../utils/configManager');
@@ -38,6 +39,7 @@ describe('ValidateOperation - null safety bugs', () => {
     beforeEach(() => {
         mocks = {
             scopesManager: createMockInstance(ScopesManager),
+            scopesValidator: createMockInstance(ScopesValidator),
             fhirLoggingManager: createMockInstance(FhirLoggingManager),
             resourceValidator: createMockInstance(ResourceValidator),
             configManager: createMockInstance(ConfigManager),
@@ -46,6 +48,7 @@ describe('ValidateOperation - null safety bugs', () => {
         };
 
         // Setup mock methods
+        mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
         mocks.fhirLoggingManager.logOperationSuccessAsync = jest.fn().mockResolvedValue(undefined);
         mocks.fhirLoggingManager.logOperationFailureAsync = jest.fn().mockResolvedValue(undefined);
         mocks.resourceValidator.validateResourceAsync = jest.fn().mockResolvedValue(null);
@@ -98,6 +101,106 @@ describe('ValidateOperation - null safety bugs', () => {
             // Should return an OperationOutcome (e.g., "resource not found") instead of null
             expect(result).not.toBeNull();
             expect(result.resourceType).toBe('OperationOutcome');
+        });
+    });
+
+    describe('validateAsync - scope letters', () => {
+        const buildParsedArgs = (id) => {
+            const parsedArgs = createMockInstance(ParsedArgs);
+            parsedArgs.id = id;
+            parsedArgs.resource = undefined;
+            parsedArgs.base_version = '4_0_0';
+            parsedArgs._useAccessIndex = false;
+            parsedArgs.profile = undefined;
+            parsedArgs.getRawArgs = jest.fn().mockReturnValue({});
+            return parsedArgs;
+        };
+        const requestInfo = {
+            isUser: false,
+            personIdFromJwtToken: null,
+            user: 'admin',
+            scope: 'user/*.*',
+            path: '/4_0_0/Patient/$validate',
+            body: { resourceType: 'Patient', id: '1' }
+        };
+
+        test('a request with an id checks r at both gates before reading the resource', async () => {
+            const mockCursor = { hasNext: jest.fn().mockResolvedValue(false), nextObject: jest.fn() };
+            mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            });
+
+            await validateOp.validateAsync({
+                requestInfo,
+                parsedArgs: buildParsedArgs('1'),
+                resourceType: 'Patient'
+            });
+
+            expect(mocks.scopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resourceType: 'Patient',
+                    action: 'validate',
+                    accessRequested: 'r'
+                })
+            );
+            expect(mocks.searchManager.constructQueryAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: 'r' })
+            );
+            const scopeOrder = mocks.scopesValidator.verifyHasValidScopesAsync.mock.invocationCallOrder[0];
+            const queryOrder = mocks.searchManager.constructQueryAsync.mock.invocationCallOrder[0];
+            expect(scopeOrder).toBeLessThan(queryOrder);
+        });
+
+        test('a request with an id validates the stored resource with r, a body keeps the default', async () => {
+            const mockCursor = {
+                hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValue(false),
+                nextObject: jest.fn().mockResolvedValue({ toJSON: () => ({ resourceType: 'Patient', id: '1', meta: {} }) })
+            };
+            mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue(mockCursor)
+            });
+
+            await validateOp.validateAsync({
+                requestInfo,
+                parsedArgs: buildParsedArgs('1'),
+                resourceType: 'Patient'
+            });
+            expect(mocks.resourceValidator.validateResourceAsync).toHaveBeenLastCalledWith(
+                expect.objectContaining({ accessRequested: 'r' })
+            );
+
+            await validateOp.validateAsync({
+                requestInfo,
+                parsedArgs: buildParsedArgs(undefined),
+                resourceType: 'Patient'
+            });
+            expect(mocks.resourceValidator.validateResourceAsync).toHaveBeenLastCalledWith(
+                expect.objectContaining({ accessRequested: undefined })
+            );
+        });
+
+        test('a request that fails the scope check never reads the resource', async () => {
+            mocks.scopesValidator.verifyHasValidScopesAsync.mockRejectedValue(new Error('forbidden'));
+
+            await expect(
+                validateOp.validateAsync({
+                    requestInfo,
+                    parsedArgs: buildParsedArgs('1'),
+                    resourceType: 'Patient'
+                })
+            ).rejects.toThrow('forbidden');
+            expect(mocks.searchManager.constructQueryAsync).not.toHaveBeenCalled();
+        });
+
+        test('a request with only a body does not read the stored resource or check scopes', async () => {
+            await validateOp.validateAsync({
+                requestInfo,
+                parsedArgs: buildParsedArgs(undefined),
+                resourceType: 'Patient'
+            });
+
+            expect(mocks.scopesValidator.verifyHasValidScopesAsync).not.toHaveBeenCalled();
+            expect(mocks.searchManager.constructQueryAsync).not.toHaveBeenCalled();
         });
     });
 

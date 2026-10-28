@@ -54,6 +54,10 @@
           }
         ],
         "resourceType": "Patient"
+      },
+      "response": {
+        "status": "201 Created",
+        "etag": "W/\"1\""
       }
     }
   ],

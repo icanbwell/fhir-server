@@ -124,7 +124,7 @@ describe('ExpandOperation', () => {
                     parsedArgs: mockParsedArgs,
                     resourceType: 'ValueSet',
                     action: 'expand',
-                    accessRequested: 'read'
+                    accessRequested: 'r'
                 })
             );
         });

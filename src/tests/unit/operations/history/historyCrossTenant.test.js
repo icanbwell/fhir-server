@@ -423,7 +423,7 @@ describe('History Operation - Cross-Tenant Data Exposure', () => {
                 expect.objectContaining({
                     requestInfo: expect.objectContaining({ scope: WILDCARD_ACCESS_SCOPE }),
                     resourceType: 'Patient',
-                    accessRequested: 'read'
+                    accessRequested: 's'
                 })
             );
 

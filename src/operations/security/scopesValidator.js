@@ -14,8 +14,7 @@ const {
     getRequiredCrudsForAccessRequested,
     isCrudsRequirementSatisfied,
     isReadOnlyAccessRequested,
-    isV2Suffix,
-    getInteractionCrudsLetter
+    isV2Suffix
 } = require('./smartScopeParser');
 
 class ScopesValidator {
@@ -108,12 +107,11 @@ class ScopesValidator {
      * Central scope validation — checks delegated actor consent + standard scopes.
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
-     * @param {("read"|"write")} accessRequested
-     * @param {string} [action] the FHIR interaction being performed (e.g. 'create', 'searchById').
-     *  When it names a single-letter CRUDS requirement (see smartScopeParser's
-     *  INTERACTION_TO_CRUDS_LETTER), that granular requirement is used for the resourceType scope
-     *  match instead of the coarser accessRequested; accessRequested is always used, unchanged,
-     *  for the access/ tenant-code check below (deferred to a later phase - see design doc).
+     * @param {string} accessRequested a CRUDS letter or an in-order letter combination such as
+     *  'ds', used for both the resourceType scope match and the access/ tenant-code check; the
+     *  legacy 'read' and 'write' literals are still accepted
+     * @param {string} [action] the FHIR interaction being performed (e.g. 'create', 'searchById'),
+     *  used for logging only
      * @param {string} [base_version] the FHIR version of the resource being requested,
      *  used to scope the delegated-actor consent check to the correct version
      * @returns {Promise<ForbiddenError|undefined>}
@@ -137,13 +135,6 @@ class ScopesValidator {
             const {user, scope} = requestInfo;
             let errorMessage, forbiddenError;
 
-            // The granular per-interaction requirement, when known, gates the resourceType scope
-            // match; accessRequested itself is untouched and still flows to the access/ tenant
-            // check below.
-            const resourceTypeAccessRequested = isV2Suffix(accessRequested)
-                ? accessRequested
-                : getInteractionCrudsLetter(action) || accessRequested;
-
             // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
             if (scope) {
                 /**
@@ -158,7 +149,7 @@ class ScopesValidator {
                 if (accessViaPatientScopes) {
                     scopes = this.scopesManager.getPatientScopes({scope});
                     ({error, success} = this.evaluateResourceTypeScopeMatch({
-                        scopes, resourceType, accessRequested: resourceTypeAccessRequested
+                        scopes, resourceType, accessRequested
                     }));
                 } else {
                     // `user/` and SMART on FHIR v2 `system/` are evaluated TOGETHER here,
@@ -172,9 +163,9 @@ class ScopesValidator {
                     // if patient scopes are present then only a read-type interaction is allowed
                     // against non-patient resources -- 'read-type' now covers granular read/search
                     // letters (r, s), not just the legacy 'read' literal.
-                    if (!this.scopesManager.hasPatientScope({scope}) || isReadOnlyAccessRequested(resourceTypeAccessRequested)) {
+                    if (!this.scopesManager.hasPatientScope({scope}) || isReadOnlyAccessRequested(accessRequested)) {
                         ({error, success} = this.evaluateResourceTypeScopeMatch({
-                            scopes, resourceType, accessRequested: resourceTypeAccessRequested
+                            scopes, resourceType, accessRequested
                         }));
                     } else {
                         error = 'Write not allowed using user scopes if patient scope is present';

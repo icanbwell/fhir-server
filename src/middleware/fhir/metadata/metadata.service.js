@@ -9,7 +9,11 @@ const errors = require('../utils/error.utils.js');
  */
 
 const getStatementGenerators = base_version => {
+    const SUPPORTED_VERSIONS = ['1_0_2', '2_0_0', '3_0_1', '4_0_0', '4_0_1'];
     if (base_version) {
+        if (SUPPORTED_VERSIONS.indexOf(base_version) === -1) {
+            throw errors.internal('Unsupported FHIR specification version requested.');
+        }
         return require(`./capability.${base_version}`);
     } else {
         return require('./capability.4_0_0');

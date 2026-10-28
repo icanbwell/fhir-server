@@ -216,6 +216,7 @@ class MergeManager {
 
             if (!validationOperationOutcome) {
                 validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                    accessRequested: 'u',
                     base_version,
                     requestInfo,
                     id: patched_resource_incoming.id,
@@ -277,6 +278,7 @@ class MergeManager {
          * @type {Object|null}
          */
         const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+            accessRequested: 'u',
             base_version,
             requestInfo,
             id: resourceToMerge.id,

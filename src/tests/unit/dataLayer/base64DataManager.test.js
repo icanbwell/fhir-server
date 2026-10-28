@@ -555,6 +555,45 @@ describe('Base64DataManager', () => {
             const parsed = JSON.parse(historyEntry.response.outcome.issue[0].diagnostics);
             expect(parsed.value).toBe('alreadyReal');
         });
+
+        test.each([
+            ['no response key', {}],
+            ['null response', { response: null }],
+            ['response without outcome', { response: { status: '200' } }]
+        ])('handles a new-format history row with %s', (_label, responseFields) => {
+            const historyEntry = {
+                resource: { resourceType: 'Binary', data: 'realBase64Content' },
+                ...responseFields
+            };
+            const before = JSON.stringify(historyEntry);
+
+            expect(() => manager.rehydrateHistoryDiagnostics(historyEntry)).not.toThrow();
+            expect(JSON.stringify(historyEntry)).toBe(before);
+        });
+
+        test('a history read mixing old rows (with response) and new rows (without) rehydrates only the old ones', () => {
+            const oldRow = {
+                resource: { resourceType: 'Binary', data: 'oldBase64Content' },
+                response: {
+                    status: '200',
+                    outcome: {
+                        issue: [
+                            {
+                                diagnostics: JSON.stringify({ op: 'replace', path: '/data', value: BINARY_DATA_VALUE_PLACEHOLDER })
+                            }
+                        ]
+                    }
+                }
+            };
+            const newRow = { resource: { resourceType: 'Binary', data: 'newBase64Content' } };
+            const rows = [oldRow, newRow];
+
+            rows.forEach(row => manager.rehydrateHistoryDiagnostics(row));
+
+            expect(JSON.parse(rows[0].response.outcome.issue[0].diagnostics).value).toBe('oldBase64Content');
+            expect(rows[1]).not.toHaveProperty('response');
+            expect(rows[1].resource.data).toBe('newBase64Content');
+        });
     });
 
     describe('CACHE TEST - request-scoped stash behavior', () => {
