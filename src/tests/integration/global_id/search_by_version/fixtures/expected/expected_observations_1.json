@@ -92,6 +92,10 @@
           "reference": "Patient/person.90000000-0000-0000-0000-000000000003"
         },
         "valueBoolean": false
+      },
+      "response": {
+        "status": "201 Created",
+        "etag": "W/\"1\""
       }
     }
   ],

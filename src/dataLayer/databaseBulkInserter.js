@@ -9,7 +9,6 @@ const { ResourceManager } = require('../operations/common/resourceManager');
 const { PostRequestProcessor } = require('../utils/postRequestProcessor');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
-const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const { RethrownError } = require('../utils/rethrownError');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
@@ -20,10 +19,7 @@ const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { ConfigManager } = require('../utils/configManager');
 const { Base64DataManager } = require('./base64DataManager');
-const { getCircularReplacer } = require('../utils/getCircularReplacer');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
-const BundleResponse = require('../fhir/classes/4_0_0/backbone_elements/bundleResponse');
-const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
@@ -466,22 +462,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     id: userRequestId,
                     method,
                     url: `/${base_version}/${resourceType}/${doc.id}`
-                }),
-                response: patches
-                    ? new BundleResponse({
-                          status: '200',
-                          outcome: new OperationOutcome({
-                              issue: patches.map(
-                                  (p) =>
-                                      new OperationOutcomeIssue({
-                                          severity: 'information',
-                                          code: 'informational',
-                                          diagnostics: JSON.stringify(p, getCircularReplacer())
-                                      })
-                              )
-                          })
-                      })
-                    : null
+                })
             }).toJSONInternal();
 
             await this.base64DataManager.transformHistoryAsync(historyDocument, requestInfo);

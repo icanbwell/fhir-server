@@ -92,6 +92,13 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
+            // bdl-4: entry.response is mandatory in history bundles (synthesized on read)
+            expect(resp.body.entry.length).toBeGreaterThan(0);
+            for (const entry of resp.body.entry) {
+                expect(entry.response).toBeDefined();
+                expect(typeof entry.response.status).toBe('string');
+            }
+
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedHistorySinglePatientMultipleChanges);
         });

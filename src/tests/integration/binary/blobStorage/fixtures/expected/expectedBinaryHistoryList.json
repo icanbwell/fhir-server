@@ -37,17 +37,8 @@
                 "url": "/4_0_0/Binary/binary-history-list"
             },
             "response": {
-                "status": "200",
-                "outcome": {
-                    "resourceType": "OperationOutcome",
-                    "issue": [
-                        {
-                            "severity": "information",
-                            "code": "informational",
-                            "diagnostics": "{\"op\":\"replace\",\"path\":\"/data\",\"value\":\"__ALT_LARGE_DATA__\"}"
-                        }
-                    ]
-                }
+                "status": "200 OK",
+                "etag": "W/\"2\""
             }
         },
         {
@@ -82,6 +73,10 @@
             "request": {
                 "method": "PUT",
                 "url": "/4_0_0/Binary/binary-history-list"
+            },
+            "response": {
+                "status": "200 OK",
+                "etag": "W/\"1\""
             }
         }
     ]

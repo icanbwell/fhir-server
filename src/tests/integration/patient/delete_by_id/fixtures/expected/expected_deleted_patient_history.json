@@ -66,6 +66,10 @@
                 "id": "54b052c7-ce3d-4580-90f9-6f800b6c34e5",
                 "method": "DELETE",
                 "url": "/4_0_0/Patient/2"
+            },
+            "response": {
+                "status": "204 No Content",
+                "etag": "W/\"1\""
             }
         },
         {
@@ -124,6 +128,10 @@
                 "id": "89dbb394-4cd1-4419-b32e-7e7160d15f95",
                 "method": "POST",
                 "url": "/4_0_0/Patient/2"
+            },
+            "response": {
+                "status": "201 Created",
+                "etag": "W/\"1\""
             }
         }
     ]
