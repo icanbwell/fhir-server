@@ -466,7 +466,7 @@ class DatabaseBulkInserter extends EventEmitter {
             }).toJSONInternal();
 
             // stamped once here (Mongo Date, ms precision) so retries of this bulk op reuse the same value
-            historyDocument.recorded = new Date();
+            historyDocument._recorded = new Date();
 
             await this.base64DataManager.transformHistoryAsync(historyDocument, requestInfo);
 

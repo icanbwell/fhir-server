@@ -108,29 +108,29 @@ describe('DatabaseBulkInserter', () => {
         inserter = createDatabaseBulkInserter({ requestSpecificCache });
     });
 
-    describe('insertOneHistoryAsync recorded', () => {
-        test('stamps recorded as a Date at creation with millisecond precision', async () => {
+    describe('insertOneHistoryAsync _recorded', () => {
+        test('stamps _recorded as a Date at creation with millisecond precision', async () => {
             const doc = createMockResource();
             const requestInfo = createMockFhirRequestInfo();
             const before = Date.now();
             await inserter.insertOneHistoryAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', doc });
             const after = Date.now();
             const entry = inserter.getHistoryOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient')[0];
-            const { recorded } = entry.operation.insertOne.document;
-            expect(recorded).toBeInstanceOf(Date);
-            expect(recorded.getTime()).toBeGreaterThanOrEqual(before);
-            expect(recorded.getTime()).toBeLessThanOrEqual(after);
-            expect(recorded.toISOString()).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+            const { _recorded } = entry.operation.insertOne.document;
+            expect(_recorded).toBeInstanceOf(Date);
+            expect(_recorded.getTime()).toBeGreaterThanOrEqual(before);
+            expect(_recorded.getTime()).toBeLessThanOrEqual(after);
+            expect(_recorded.toISOString()).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
         });
 
-        test('recorded is fixed at creation and not changed by later reads of the operation', async () => {
+        test('_recorded is fixed at creation and not changed by later reads of the operation', async () => {
             const doc = createMockResource();
             const requestInfo = createMockFhirRequestInfo();
             await inserter.insertOneHistoryAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', doc });
             const map = () => inserter.getHistoryOperationsByResourceTypeMap({ requestId: requestInfo.requestId });
-            const first = map().get('Patient')[0].operation.insertOne.document.recorded.getTime();
+            const first = map().get('Patient')[0].operation.insertOne.document._recorded.getTime();
             await new Promise((resolve) => setTimeout(resolve, 5));
-            expect(map().get('Patient')[0].operation.insertOne.document.recorded.getTime()).toBe(first);
+            expect(map().get('Patient')[0].operation.insertOne.document._recorded.getTime()).toBe(first);
         });
     });
 

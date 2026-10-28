@@ -644,13 +644,13 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
             expect(cm.dataSharingAccessCodes).toEqual([CONSENT_CATEGORY.DATA_SHARING_ACCESS.CODE]);
         });
 
-        test('cloudStorageHistoryResources defaults to [Binary] and historyResourceMongodbFields to the metadata paths plus recorded', () => {
+        test('cloudStorageHistoryResources defaults to [Binary] and historyResourceMongodbFields to the metadata paths plus _recorded', () => {
             setEnv('CLOUD_STORAGE_HISTORY_RESOURCES', undefined);
             setEnv('HISTORY_RESOURCE_MONGODB_FIELDS', undefined);
             const cm = new ConfigManager();
             expect(cm.cloudStorageHistoryResources).toEqual(['Binary']);
             expect(cm.historyResourceMongodbFields).toEqual([
-                'id', 'resource._uuid', 'resource._sourceId', 'resource.meta', 'recorded'
+                'id', 'resource._uuid', 'resource._sourceId', 'resource.meta', '_recorded'
             ]);
         });
 

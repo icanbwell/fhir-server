@@ -893,7 +893,7 @@ class ConfigManager {
                 'resource._uuid',
                 'resource._sourceId',
                 'resource.meta',
-                'recorded'
+                '_recorded'
             ]
         );
     }

@@ -402,8 +402,8 @@ class DatabaseUpdateManager {
                 }
             )
         }).toJSONInternal();
-        // same ms-precision stamp the bulk inserters set, so every history row carries `recorded`
-        historyDocument.recorded = new Date();
+        // same ms-precision stamp the bulk inserters set, so every history row carries `_recorded`
+        historyDocument._recorded = new Date();
         await historyCollection.insertOne(historyDocument);
     }
 }

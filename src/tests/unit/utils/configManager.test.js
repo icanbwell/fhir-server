@@ -66,20 +66,20 @@ describe('ConfigManager', () => {
     });
 
     describe('historyResourceMongodbFields', () => {
-        test('default keeps recorded so cloud-storage migration does not strip it', () => {
+        test('default keeps _recorded so cloud-storage migration does not strip it', () => {
             setEnv('HISTORY_RESOURCE_MONGODB_FIELDS', undefined);
             expect(new ConfigManager().historyResourceMongodbFields).toEqual([
                 'id',
                 'resource._uuid',
                 'resource._sourceId',
                 'resource.meta',
-                'recorded'
+                '_recorded'
             ]);
         });
 
         test('env override replaces the default list', () => {
-            setEnv('HISTORY_RESOURCE_MONGODB_FIELDS', 'id, recorded');
-            expect(new ConfigManager().historyResourceMongodbFields).toEqual(['id', 'recorded']);
+            setEnv('HISTORY_RESOURCE_MONGODB_FIELDS', 'id, _recorded');
+            expect(new ConfigManager().historyResourceMongodbFields).toEqual(['id', '_recorded']);
         });
     });
 
