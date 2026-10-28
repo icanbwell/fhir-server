@@ -391,7 +391,7 @@ class DatabaseUpdateManager {
         doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
         const historyCollectionName = this.resourceLocator.getHistoryCollectionNameForResource(doc);
         const historyCollection = await this.resourceLocator.getCollectionByNameAsync(historyCollectionName);
-        await historyCollection.insertOne(new BundleEntry({
+        const historyDocument = new BundleEntry({
             id: doc.id,
             resource: doc.toJSONInternal(),
             request: new BundleRequest(
@@ -401,7 +401,10 @@ class DatabaseUpdateManager {
                     url: `${this._base_version}/${doc.resourceType}/${doc._uuid}`
                 }
             )
-        }).toJSONInternal());
+        }).toJSONInternal();
+        // same ms-precision stamp the bulk inserters set, so every history row carries `recorded`
+        historyDocument.recorded = new Date();
+        await historyCollection.insertOne(historyDocument);
     }
 }
 
