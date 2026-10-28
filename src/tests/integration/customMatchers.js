@@ -55,6 +55,16 @@ function cleanRequestId (request) {
 }
 
 /**
+ * cleans volatile fields from a bundle entry response
+ * @param {Object} response
+ */
+function cleanResponse (response) {
+    if (response && response.lastModified) {
+        delete response.lastModified;
+    }
+}
+
+/**
  * compares two bundles
  * @param {Object} body
  * @param {Object} expected
@@ -81,6 +91,7 @@ function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = fal
     if (body.entry) {
         body.entry.forEach((element) => {
             cleanRequestId(element.request);
+            cleanResponse(element.response);
             cleanMeta(element.resource);
             if (fnCleanResource) {
                 fnCleanResource(element.resource);
@@ -117,6 +128,7 @@ function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = fal
     if (expected.entry) {
         expected.entry.forEach((element) => {
             cleanRequestId(element.request);
+            cleanResponse(element.response);
             cleanMeta(element.resource);
             delete element.resource.$schema;
             if (fnCleanResource) {

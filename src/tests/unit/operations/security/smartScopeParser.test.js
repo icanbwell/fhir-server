@@ -6,9 +6,7 @@ const {
     parseScopeToken,
     getRequiredCrudsForAccessRequested,
     isCrudsRequirementSatisfied,
-    isReadOnlyAccessRequested,
-    getInteractionCrudsLetter,
-    INTERACTION_TO_CRUDS_LETTER
+    isReadOnlyAccessRequested
 } = require('../../../../operations/security/smartScopeParser');
 
 describe('smartScopeParser', () => {
@@ -208,9 +206,7 @@ describe('smartScopeParser', () => {
         // legacy 'write' fallback) and must be satisfied in FULL, not by any single letter.
         // Holding only 'c' (create) must not satisfy a requirement that also asks for 'u'/'d' --
         // otherwise a create-only v2 grant would pass a write-composite check meant to gate an
-        // update/delete-capable operation (e.g. merge, or $graph's delete branch), both of which
-        // fall back to the coarse 'write' literal because their action name isn't in
-        // INTERACTION_TO_CRUDS_LETTER.
+        // update/delete-capable operation that passes the coarse 'write' literal.
         test('does NOT satisfy a composite requirement when only one of its letters is present', () => {
             expect(isCrudsRequirementSatisfied(new Set(['c']), new Set(['c', 'u', 'd']))).toBe(false);
             expect(isCrudsRequirementSatisfied(new Set(['u']), new Set(['c', 'u', 'd']))).toBe(false);
@@ -257,23 +253,6 @@ describe('smartScopeParser', () => {
 
         test('an unrecognized value is not read-only', () => {
             expect(isReadOnlyAccessRequested('bogus')).toBe(false);
-        });
-    });
-
-    describe('getInteractionCrudsLetter', () => {
-        test.each(Object.entries(INTERACTION_TO_CRUDS_LETTER))(
-            '%s maps to %s', (interaction, letter) => {
-                expect(getInteractionCrudsLetter(interaction)).toBe(letter);
-            }
-        );
-
-        test('an interaction not in the table returns null (caller falls back to accessRequested)', () => {
-            expect(getInteractionCrudsLetter('graph')).toBeNull();
-            expect(getInteractionCrudsLetter(undefined)).toBeNull();
-        });
-
-        test('merge maps to u, not c', () => {
-            expect(getInteractionCrudsLetter('merge')).toBe('u');
         });
     });
 });

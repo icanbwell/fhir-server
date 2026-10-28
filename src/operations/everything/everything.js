@@ -198,7 +198,7 @@ class EverythingOperation {
             resourceType,
             startTime,
             action: currentOperationName,
-            accessRequested: 'read'
+            accessRequested: requestMethod === 'delete' ? 'd' : 'r'
         });
 
         const masterPersonId = requestInfo.masterPersonIdFromJwtToken;

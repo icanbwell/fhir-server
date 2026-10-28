@@ -231,7 +231,7 @@ class SummaryOperation {
             resourceType,
             startTime,
             action: currentOperationName,
-            accessRequested: 'read'
+            accessRequested: 'r'
         });
 
         try {

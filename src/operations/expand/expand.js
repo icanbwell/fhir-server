@@ -107,7 +107,7 @@ class ExpandOperation {
             resourceType,
             startTime,
             action: currentOperationName,
-            accessRequested: 'read'
+            accessRequested: 'r'
         });
 
         // Common search params
@@ -138,7 +138,7 @@ class ExpandOperation {
 
         if (resource) {
             if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                resource, user, scope
+                resource, user, scope, accessRequested: 'r'
             }))) {
                 const forbiddenError = new ForbiddenError(
                     'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +

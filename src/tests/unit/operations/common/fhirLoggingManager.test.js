@@ -185,26 +185,6 @@ describe('FhirLoggingManager', () => {
         });
     });
 
-    describe('logOperationStartAsync', () => {
-        test('should log operation start with stopTime equal to startTime', async () => {
-            const startTime = Date.now();
-
-            await fhirLoggingManager.logOperationStartAsync({
-                requestInfo: createRequestInfo(),
-                args: {},
-                resourceType: 'Patient',
-                startTime,
-                action: 'search'
-            });
-
-            const logEntry = mockLogger.info.mock.calls[0][0];
-            expect(logEntry.message).toBe('operationStarted');
-            // duration should be 0 since stopTime = startTime
-            const durationDetail = logEntry.entity[0].detail.find(d => d.type === 'duration');
-            expect(durationDetail.valuePositiveInt).toBe(0);
-        });
-    });
-
     describe('internalLogOperationAsync edge cases', () => {
         test('BUG: when scope is null, getAccessCodesFromScopes is not called but firstAccessCode stays null', async () => {
             await fhirLoggingManager.logOperationSuccessAsync({
@@ -293,6 +273,27 @@ describe('FhirLoggingManager', () => {
 
             const logEntry = mockLogger.info.mock.calls[0][0];
             expect(logEntry.agent[0].type.text).toBe('bwell');
+        });
+
+        test.each([
+            ['a search-only grant', { s: ['tenant-s'] }, 'tenant-s'],
+            ['a write-only grant', { c: ['tenant-c'], u: ['tenant-c'] }, 'tenant-c'],
+            ['a read grant before a write grant', { r: ['tenant-r'], u: ['tenant-u'] }, 'tenant-r']
+        ])('labels the agent from %s on the access scope', async (name, codesByLetter, expected) => {
+            mockScopesManager.getAccessCodesFromScopes.mockImplementation(
+                (letter) => codesByLetter[letter] || []
+            );
+
+            await fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo: createRequestInfo(),
+                args: {},
+                resourceType: 'Patient',
+                startTime: Date.now(),
+                action: 'read'
+            });
+
+            const logEntry = mockLogger.info.mock.calls[0][0];
+            expect(logEntry.agent[0].type.text).toBe(expected);
         });
 
         test('should handle empty access codes array', async () => {
