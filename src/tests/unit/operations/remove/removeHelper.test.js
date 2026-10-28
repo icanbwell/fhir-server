@@ -16,8 +16,6 @@ const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor
 const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor');
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../../../constants');
-const Resource = require('../../../../fhir/classes/4_0_0/resources/resource');
-const Patient = require('../../../../fhir/classes/4_0_0/resources/patient');
 
 /**
  * Helper to create a mock that passes assertTypeEquals
@@ -576,22 +574,6 @@ describe('RemoveHelper', () => {
             expect(args.base_version).toBe('4_0_0');
             expect(args.resourceType).toBe('Patient');
             expect('skipResourceAssertion' in args).toBe(false);
-        });
-
-        test('passes a plain snapshot for a Resource instance', async () => {
-            const patient = new Patient({
-                id: 'p-1',
-                meta: { versionId: '1' },
-                identifier: [{ system: 'http://example.com/mrn', value: 'mrn-1' }],
-                _uuid: 'u-1',
-                _sourceAssigningAuthority: 'a'
-            });
-
-            await removeHelper.deleteManyAsync({ ...params, resources: [patient] });
-
-            const doc = mockFastDatabaseBulkInserter.insertOneHistoryAsync.mock.calls[0][0].doc;
-            expect(doc).not.toBeInstanceOf(Resource);
-            expect(doc).toStrictEqual(patient.toJSONInternal());
         });
 
         test('does not pass the caller\'s object', async () => {

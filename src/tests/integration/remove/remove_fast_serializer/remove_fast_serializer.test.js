@@ -165,7 +165,7 @@ describe('Remove with fast serializer', () => {
         expect(history[0].resource.gender).toStrictEqual('male');
     });
 
-    test('post-save still receives the full resource, not the serialized snapshot', async () => {
+    test('post-save receives the stored plain document, not the serialized snapshot', async () => {
         const request = await createTestRequest();
         const uuid = '9b2f2d3e-1c1b-5b6a-9e8f-000000000002';
         const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
@@ -179,8 +179,9 @@ describe('Remove with fast serializer', () => {
         expect(deleteCalls).toHaveLength(1);
         const { doc } = deleteCalls[0][0];
         expect(doc._uuid).toStrictEqual(uuid);
-        // The fast serializer drops text: {}; the caller's object must still hold it.
-        expect(doc.toJSONInternal().text).toStrictEqual({});
+        // DELETE reads the plain document; the fast serializer drops text: {} only from its copy.
+        expect(typeof doc.toJSONInternal).toBe('undefined');
+        expect(doc.text).toStrictEqual({});
         afterSaveSpy.mockRestore();
     });
 });

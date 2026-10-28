@@ -1168,14 +1168,18 @@ describe('AdminPersonPatientLinkManager', () => {
     });
 
     describe('deletePersonAsync', () => {
+        // The Person to delete is read raw: findAsync({ ..., options: { limit: 1 } }) then next().
+        const personCursorFor = (person) => ({ next: jestGlobal.fn().mockResolvedValue(person) });
+        const findAsyncFor = ({ linksCursor, person }) => jestGlobal.fn(({ options } = {}) =>
+            Promise.resolve(options && options.limit === 1 ? personCursorFor(person) : linksCursor));
+
         test('returns 0 deleted count when person not found', async () => {
             const mockCursor = {
                 hasNext: jestGlobal.fn().mockResolvedValue(false),
                 nextObject: jestGlobal.fn()
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null),
-                findAsync: jestGlobal.fn().mockResolvedValue(mockCursor)
+                findAsync: findAsyncFor({ linksCursor: mockCursor, person: null })
             });
 
             const result = await manager.deletePersonAsync({
@@ -1198,8 +1202,7 @@ describe('AdminPersonPatientLinkManager', () => {
                 nextObject: jestGlobal.fn()
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(personToDelete),
-                findAsync: jestGlobal.fn().mockResolvedValue(mockCursor)
+                findAsync: findAsyncFor({ linksCursor: mockCursor, person: personToDelete })
             });
             mockRemoveHelper.deleteManyAsync = jestGlobal.fn().mockResolvedValue(1);
 
@@ -1242,13 +1245,10 @@ describe('AdminPersonPatientLinkManager', () => {
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
                 findOneAsync: jestGlobal.fn((query) => {
                     callCount++;
-                    if (callCount <= 2) {
-                        // First call for removePersonToPersonLinkAsync, second for deletePersonAsync find
-                        return Promise.resolve(callCount === 1 ? parentPerson : personToDelete);
-                    }
-                    return Promise.resolve(personToDelete);
+                    // removePersonToPersonLinkAsync looks up the parent Person
+                    return Promise.resolve(callCount === 1 ? parentPerson : personToDelete);
                 }),
-                findAsync: jestGlobal.fn().mockResolvedValue(mockCursor)
+                findAsync: findAsyncFor({ linksCursor: mockCursor, person: personToDelete })
             });
             mockRemoveHelper.deleteManyAsync = jestGlobal.fn().mockResolvedValue(1);
 
@@ -1269,8 +1269,7 @@ describe('AdminPersonPatientLinkManager', () => {
                 nextObject: jestGlobal.fn()
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null),
-                findAsync: jestGlobal.fn().mockResolvedValue(mockCursor)
+                findAsync: findAsyncFor({ linksCursor: mockCursor, person: null })
             });
 
             const result = await manager.deletePersonAsync({
@@ -1293,8 +1292,7 @@ describe('AdminPersonPatientLinkManager', () => {
                 nextObject: jestGlobal.fn()
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(personToDelete),
-                findAsync: jestGlobal.fn().mockResolvedValue(mockCursor)
+                findAsync: findAsyncFor({ linksCursor: mockCursor, person: personToDelete })
             });
             mockRemoveHelper.deleteManyAsync = jestGlobal.fn().mockResolvedValue(1);
 

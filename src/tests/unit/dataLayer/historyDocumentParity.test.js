@@ -2,10 +2,11 @@
 
 /**
  * RemoveHelper writes DELETE history through FastDatabaseBulkInserter instead of
- * DatabaseBulkInserter. These tests pin that both inserters build the same history
- * document from the inputs RemoveHelper hands them -- the legacy one from the caller's resource
- * as-is, the fast one from the plain snapshot RemoveHelper takes -- and the cases where they
- * differ on purpose.
+ * DatabaseBulkInserter, and DELETE callers now read plain documents instead of FHIR class
+ * instances. These tests pin that both inserters build the same history document from what each
+ * path hands them -- the legacy one from the caller's resource as-is (a class instance for DELETE
+ * by id and the admin Person delete), the fast one from a deep copy of the plain document -- and
+ * the cases where they differ on purpose.
  */
 
 const { describe, test, beforeEach, afterEach, expect, jest } = require('@jest/globals');
@@ -25,20 +26,11 @@ const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
 const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
 const { CustomTracer } = require('../../../utils/customTracer');
 const BaseSerializer = require('../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
-const Resource = require('../../../fhir/classes/4_0_0/resources/resource');
 const Patient = require('../../../fhir/classes/4_0_0/resources/patient');
 
 const BASE_VERSION = '4_0_0';
 const REQUEST_ID = 'parity-request';
 
-/**
- * Same rule RemoveHelper uses for the fast path.
- * @param {Resource|Object} resource
- * @returns {Object}
- */
-function toRemoveHistorySnapshot(resource) {
-    return resource instanceof Resource ? resource.toJSONInternal() : deepcopy(resource);
-}
 
 function createPrototypedMock(RealClass) {
     return Object.create(RealClass.prototype);
@@ -77,13 +69,14 @@ function createDeps() {
 }
 
 /**
- * Queues `input` on both inserters the way RemoveHelper does and returns the two queued history
- * documents.
+ * Queues `legacyInput` on the legacy inserter and a deep copy of `fastInput` on the fast one, the
+ * way each RemoveHelper path does, and returns the two queued history documents.
  * @param {string} resourceType
- * @param {Resource|Object} input
+ * @param {Object} legacyInput - what the legacy path received (a class instance or a plain doc)
+ * @param {Object} [fastInput] - the plain document the fast path receives; defaults to legacyInput
  * @returns {Promise<{legacyDoc: Object, fastDoc: Object}>}
  */
-async function buildBothHistoryDocs(resourceType, input) {
+async function buildBothHistoryDocs(resourceType, legacyInput, fastInput = legacyInput) {
     const legacyInserter = new DatabaseBulkInserter(createDeps());
     const fastInserter = new FastDatabaseBulkInserter(createDeps());
     const requestInfo = createRequestInfo();
@@ -92,14 +85,14 @@ async function buildBothHistoryDocs(resourceType, input) {
         requestInfo,
         base_version: BASE_VERSION,
         resourceType,
-        doc: input,
+        doc: legacyInput,
         skipResourceAssertion: true
     });
     await fastInserter.insertOneHistoryAsync({
         requestInfo,
         base_version: BASE_VERSION,
         resourceType,
-        doc: toRemoveHistorySnapshot(input)
+        doc: deepcopy(fastInput)
     });
 
     const queuedDocument = (inserter) =>
@@ -146,8 +139,10 @@ describe('DELETE history document parity: DatabaseBulkInserter vs FastDatabaseBu
         BaseSerializer.setConfigManager(previousSerializerConfig);
     });
 
-    test('Patient Resource instance with meta.security, identifier and internal fields', async () => {
-        const { legacyDoc, fastDoc } = await buildBothHistoryDocs('Patient', new Patient(patientDoc()));
+    test('Patient read as a class instance (legacy) vs as a plain doc (fast)', async () => {
+        const { legacyDoc, fastDoc } = await buildBothHistoryDocs(
+            'Patient', new Patient(patientDoc()), patientDoc()
+        );
 
         expect(fastDoc).toStrictEqual(legacyDoc);
         expect(fastDoc.resource._uuid).toBe('11111111-1111-5111-9111-111111111111');
@@ -294,14 +289,10 @@ describe('DELETE history document parity: DatabaseBulkInserter vs FastDatabaseBu
     test('input is not mutated', async () => {
         const plainInput = patientDoc({ _id: '6530f0f0f0f0f0f0f0f0f0f0', identifier: [], notAFhirField: 'x' });
         const plainBefore = deepcopy(plainInput);
-        const instanceInput = new Patient(patientDoc());
-        const instanceBefore = deepcopy(instanceInput.toJSONInternal());
 
-        await buildBothHistoryDocs('Patient', plainInput);
-        await buildBothHistoryDocs('Patient', instanceInput);
+        await buildBothHistoryDocs('Patient', deepcopy(plainInput), plainInput);
 
         expect(plainInput).toStrictEqual(plainBefore);
-        expect(instanceInput.toJSONInternal()).toStrictEqual(instanceBefore);
     });
 
     test('history envelope', async () => {

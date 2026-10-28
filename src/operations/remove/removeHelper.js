@@ -7,7 +7,6 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { DELETE } = require('../../constants').GRIDFS;
 const httpContext = require('express-http-context');
@@ -84,7 +83,7 @@ class RemoveHelper {
      * @property {import('mongodb').DeleteOptions} options
      * @property {string} resourceType
      * @property {string} base_version
-     * @property {Resource} resources
+     * @property {Object[]} resources - plain resource documents as read from Mongo
      * @property {boolean} [preserveLastUpdated] - Skip stamping resource.meta.lastUpdated with the
      *   current time before writing history, keeping whatever the caller already set it to. Default
      *   (false) is correct for a real, standalone resource deletion, where "now" is genuinely the
@@ -153,7 +152,7 @@ class RemoveHelper {
                     requestInfo,
                     base_version,
                     resourceType,
-                    doc: resource instanceof Resource ? resource.toJSONInternal() : deepcopy(resource)
+                    doc: deepcopy(resource)
                 });
 
                 deletionResult.push({
