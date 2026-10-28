@@ -200,6 +200,12 @@ class AdminExportManager {
                 throw new NotFoundError(`ExportStatus resoure with id ${exportStatusId} doesn't exists`);
             }
 
+            // Verify the caller's access/ tenant scopes cover THIS specific resource, not just the
+            // ExportStatus resource type, to prevent cross-tenant read/modify (IDOR).
+            this.scopesValidator.isAccessToResourceAllowedByAccessScopes({
+                requestInfo, resource: exportStatusResource, accessRequested: 'write'
+            });
+
             const exportResource = FhirResourceCreator.createByResourceType(req.body, resourceType);
 
             let { updatedResource } = await this.resourceMerger.mergeResourceAsync({
@@ -212,6 +218,11 @@ class AdminExportManager {
             });
 
             if (updatedResource) {
+                // Prevent the merged body from re-tagging the resource into tenants the caller
+                // is not itself authorized for (SEC-1580 F2/F3).
+                this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                    requestInfo, currentResource: exportStatusResource, updatedResource
+                });
                 await this.databaseExportManager.updateExportStatusAsync({
                     exportStatusResource: updatedResource
                 });
