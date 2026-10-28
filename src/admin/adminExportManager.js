@@ -6,7 +6,6 @@ const { FhirOperationsManager } = require('../operations/fhirOperationsManager')
 const { REQUEST_ID_TYPE, REQUEST_ID_HEADER } = require('../constants');
 const { generateUUID } = require('../utils/uid.util');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
-const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { DatabaseExportManager } = require('../dataLayer/databaseExportManager');
 const { ConfigManager } = require('../utils/configManager');
@@ -14,12 +13,16 @@ const { K8sClient } = require('../utils/k8sClient');
 const { get_all_args } = require('../../src/operations/common/get_all_args');
 const { ExportManager } = require('../operations/export/exportManager');
 const { ScopesValidator } = require('../operations/security/scopesValidator');
-const { NotFoundError } = require("../utils/httpErrors");
+const { NotFoundError, NotValidatedError } = require('../utils/httpErrors');
+const { ResourceValidator } = require('../operations/common/resourceValidator');
 const { WRITE } = require('../constants').OPERATIONS;
 const { logError } = require('../operations/common/logging');
 const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../utils/bulkExportEventProducer');
 const { FhirResourceSerializer } = require('../fhir/fhirResourceSerializer');
+const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
+const { FhirResourceWriteNormalizeSerializer } = require('../fhir/fhirResourceWriteNormalizeSerializer');
+const deepcopy = require('deepcopy');
 
 class AdminExportManager {
     /**
@@ -34,6 +37,7 @@ class AdminExportManager {
      * @property {ScopesValidator} scopesValidator
      * @property {PostSaveProcessor} postSaveProcessor
      * @property {BulkExportEventProducer} bulkExportEventProducer
+     * @property {ResourceValidator} resourceValidator
      */
     constructor({
         postRequestProcessor,
@@ -46,7 +50,8 @@ class AdminExportManager {
         exportManager,
         scopesValidator,
         postSaveProcessor,
-        bulkExportEventProducer
+        bulkExportEventProducer,
+        resourceValidator
     }) {
         /**
         *  @type {PostRequestProcessor}
@@ -105,6 +110,12 @@ class AdminExportManager {
          */
         this.bulkExportEventProducer = bulkExportEventProducer;
         assertTypeEquals(bulkExportEventProducer, BulkExportEventProducer);
+
+        /**
+         * @type {ResourceValidator}
+         */
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
     }
 
     /**
@@ -206,9 +217,16 @@ class AdminExportManager {
                 requestInfo, resource: exportStatusResource, accessRequested: 'write'
             });
 
-            const exportResource = FhirResourceCreator.createByResourceType(req.body, resourceType);
+            const exportResource = FhirResourceWriteSerializer.serialize({
+                obj: { ...req.body, resourceType, request: exportStatusResource.request }
+            });
 
-            let { updatedResource } = await this.resourceMerger.mergeResourceAsync({
+            const validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(exportResource);
+            if (validationOperationOutcome) {
+                throw new NotValidatedError(validationOperationOutcome);
+            }
+
+            let { updatedResource } = await this.resourceMerger.fastMergeResourceAsync({
                 base_version: VERSIONS['4_0_0'],
                 requestInfo: requestInfo,
                 currentResource: exportStatusResource,
@@ -239,9 +257,9 @@ class AdminExportManager {
                     resource: updatedResource,
                     requestId: req.id
                 });
-                return updatedResource;
+                return FhirResourceWriteNormalizeSerializer.serialize({ obj: deepcopy(updatedResource) });
             }
-            return exportResource
+            return FhirResourceWriteNormalizeSerializer.serialize({ obj: exportResource });
         }
         catch (error) {
             logError(`Error in updateExportStatus`, {

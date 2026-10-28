@@ -3,7 +3,6 @@ const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { KafkaClient } = require('./kafkaClient');
 const { RethrownError } = require('./rethrownError');
 const { ConfigManager } = require('./configManager');
-const ExportStatus = require('../fhir/classes/4_0_0/custom_resources/exportStatus');
 const { BULK_EXPORT_EVENT_STATUS_MAP } = require('../constants');
 
 /**
@@ -39,7 +38,7 @@ class BulkExportEventProducer {
 
     /**
      * Creates bulk export event message
-     * @param {ExportStatus} resource
+     * @param {Object} resource
      * @param {string} eventType
      * @return {object}
      * @private
@@ -63,7 +62,7 @@ class BulkExportEventProducer {
 
     /**
      * Produces kafka events for bulk export
-     * @param {ExportStatus} resource
+     * @param {Object} resource
      * @param {string} requestId
      * @param {string} eventType
      * @return {Promise<void>}

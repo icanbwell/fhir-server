@@ -1417,7 +1417,8 @@ const createContainer = function () {
         exportManager: c.exportManager,
         scopesValidator: c.scopesValidator,
         postSaveProcessor: c.postSaveProcessor,
-        bulkExportEventProducer: c.bulkExportEventProducer
+        bulkExportEventProducer: c.bulkExportEventProducer,
+        resourceValidator: c.resourceValidator
     }));
 
     container.register('historyResourceCloudStorageClient', (c) => {

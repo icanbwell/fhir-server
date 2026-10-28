@@ -12,7 +12,7 @@ jestObj.mock('../../../../../fhir/classes/4_0_0/complex_types', () => ({
 }));
 
 jestObj.mock('../../../../../fhir/classes/4_0_0/custom_resources', () => ({
-    exportstatus: class ExportStatus { constructor(data) { Object.assign(this, data); } }
+    groupmember: class GroupMember { constructor(data) { Object.assign(this, data); } }
 }));
 
 jestObj.mock('../../../../../middleware/fhir/utils/constants', () => ({
@@ -36,7 +36,7 @@ describe('schema.utils', () => {
         });
 
         test('resolves custom resource schema', () => {
-            const Schema = resolveSchema('4_0_0', 'ExportStatus');
+            const Schema = resolveSchema('4_0_0', 'GroupMember');
             expect(Schema).toBeDefined();
         });
 
