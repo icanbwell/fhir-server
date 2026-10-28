@@ -1490,8 +1490,9 @@ class ConfigManager {
      * Keep-alive sockets idle longer than this are discarded before reuse instead
      * of being handed to a new request, preventing reuse of a socket the server
      * has already closed (a primary cause of intermittent ECONNRESET/EPIPE under
-     * sustained load). Must stay comfortably below clickHouseRequestTimeout.
-     * Default: 30000ms (30 seconds).
+     * sustained load). Must stay below the ClickHouse server keep_alive_timeout
+     * (3s pre-23.11, 10s after). Passed as keep_alive.idle_socket_ttl.
+     * Default: 2500ms.
      * @returns {number}
      */
     get clickHouseIdleSocketTtl() {
@@ -1503,13 +1504,29 @@ class ConfigManager {
      * operations. This keeps the underlying socket alive (periodic header writes)
      * so long queries/inserts are not torn down mid-flight, avoiding "socket was
      * closed or ended before the response was fully read" / ECONNRESET warnings.
-     * Default: true. Set CLICKHOUSE_SEND_PROGRESS_IN_HTTP_HEADERS=false to disable.
+     * Default: false (opt-in) because the server default progress interval (100ms)
+     * can overflow Node's 16KB header limit on long queries.
+     * Set CLICKHOUSE_SEND_PROGRESS_IN_HTTP_HEADERS=true to enable.
      * @returns {boolean}
      */
     get clickHouseSendProgressInHttpHeaders() {
-        return env.CLICKHOUSE_SEND_PROGRESS_IN_HTTP_HEADERS === undefined
-            ? true
-            : isTrue(env.CLICKHOUSE_SEND_PROGRESS_IN_HTTP_HEADERS);
+        return isTrue(env.CLICKHOUSE_SEND_PROGRESS_IN_HTTP_HEADERS);
+    }
+
+    /**
+     * http_headers_progress_interval_ms applied when progress headers are enabled.
+     * Keep >= 10000 to avoid HPE_HEADER_OVERFLOW. Default: 30000ms.
+     * @returns {number}
+     */
+    get clickHouseHttpHeadersProgressIntervalMs() {
+        return Math.max(
+            10000,
+            parseInt(
+                env.CLICKHOUSE_HTTP_HEADERS_PROGRESS_INTERVAL_MS ||
+                    String(DEFAULT_CLICKHOUSE.HTTP_HEADERS_PROGRESS_INTERVAL_MS),
+                10
+            )
+        );
     }
 
     get accessHistoryBatchSize() {

@@ -68,11 +68,14 @@ const DEFAULT_CLICKHOUSE = {
     PASSWORD: '',
     REQUEST_TIMEOUT_MS: 180000, // 3 minutes
     MAX_CONNECTIONS: 100, // Matches MongoDB pattern; see CONNECTION POOL SIZING above
-    // Idle keep-alive sockets older than this are discarded before reuse. Kept
-    // comfortably below REQUEST_TIMEOUT_MS so a socket the server may have already
-    // closed is never reused for a new request (root cause of ECONNRESET/EPIPE
-    // under sustained load).
-    IDLE_SOCKET_TTL_MS: 30000 // 30 seconds
+    // Idle keep-alive sockets older than this are discarded before reuse. Must stay
+    // below the ClickHouse server keep_alive_timeout (3s pre-23.11, 10s after) so a
+    // socket the server may have already closed is never reused (root cause of
+    // ECONNRESET/EPIPE under sustained load). Matches the client library default.
+    IDLE_SOCKET_TTL_MS: 2500, // 2.5 seconds
+    // Only used when send_progress_in_http_headers is opted in. Server default (100ms)
+    // overflows Node's 16KB header limit on long queries, so use a coarse interval.
+    HTTP_HEADERS_PROGRESS_INTERVAL_MS: 30000 // 30 seconds
 };
 
 module.exports = {

@@ -77,24 +77,28 @@ class ClickHouseClientManager {
                 password: this.configManager.clickHousePassword,
                 request_timeout: this.configManager.clickHouseRequestTimeout,
                 max_open_connections: this.configManager.clickHouseMaxConnections,
-                // Discard idle keep-alive sockets before they are reused so we never
-                // hand a request to a socket the server has already closed. Kept well
-                // below request_timeout. Primary mitigation for intermittent
-                // ECONNRESET/EPIPE under sustained load.
-                idle_socket_ttl_ms: this.configManager.clickHouseIdleSocketTtl,
                 compression: {
                     request: true,   // Enable gzip compression for inserts (70-90% smaller payload)
                     response: true   // Enable gzip compression for queries
                 },
                 keep_alive: {
-                    enabled: true
+                    enabled: true,
+                    // Discard idle keep-alive sockets before reuse so we never hand a
+                    // request to a socket the server has already closed. Must be below
+                    // the server keep_alive_timeout (3s pre-23.11, 10s after).
+                    idle_socket_ttl: this.configManager.clickHouseIdleSocketTtl
                 },
                 clickhouse_settings: {
-                    // Emit progress in HTTP headers during long ops so the socket keeps
-                    // producing bytes and is not torn down mid-response, avoiding the
-                    // "socket was closed or ended before the response was fully read"
-                    // warnings.
-                    send_progress_in_http_headers: this.configManager.clickHouseSendProgressInHttpHeaders ? 1 : 0
+                    // Opt-in only. The server default http_headers_progress_interval_ms
+                    // is 100ms, so enabling this without a larger interval can overflow
+                    // Node's 16KB header limit (HPE_HEADER_OVERFLOW) on long queries.
+                    ...(this.configManager.clickHouseSendProgressInHttpHeaders
+                        ? {
+                            send_progress_in_http_headers: 1,
+                            http_headers_progress_interval_ms:
+                                String(this.configManager.clickHouseHttpHeadersProgressIntervalMs)
+                        }
+                        : {})
                 }
             });
 

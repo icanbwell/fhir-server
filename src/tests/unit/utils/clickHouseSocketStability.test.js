@@ -24,8 +24,9 @@ function stubConfig(overrides = {}) {
         clickHousePassword: '',
         clickHouseRequestTimeout: 180000,
         clickHouseMaxConnections: 100,
-        clickHouseIdleSocketTtl: 30000,
-        clickHouseSendProgressInHttpHeaders: true,
+        clickHouseIdleSocketTtl: 2500,
+        clickHouseSendProgressInHttpHeaders: false,
+        clickHouseHttpHeadersProgressIntervalMs: 30000,
         ...overrides
     };
 }
@@ -53,34 +54,40 @@ describe('ClickHouseClientManager passes socket-stability settings to createClie
         return { ClickHouseClientManager, createClientMock };
     }
 
-    test('sets idle_socket_ttl_ms and enables send_progress_in_http_headers by default', async () => {
+    test('sets keep_alive.idle_socket_ttl and leaves progress headers off by default', async () => {
         const { ClickHouseClientManager, createClientMock } = loadManagerWithMockedCreateClient();
         const manager = new ClickHouseClientManager({ configManager: stubConfig() });
 
         await manager.getClientAsync();
 
         expect(createClientMock).toHaveBeenCalledWith(expect.objectContaining({
-            idle_socket_ttl_ms: 30000,
-            clickhouse_settings: expect.objectContaining({ send_progress_in_http_headers: 1 })
+            keep_alive: { enabled: true, idle_socket_ttl: 2500 }
         }));
+        const options = createClientMock.mock.calls[0][0];
+        expect(options).not.toHaveProperty('idle_socket_ttl_ms');
+        expect(options.clickhouse_settings).not.toHaveProperty('send_progress_in_http_headers');
+        expect(options.clickhouse_settings).not.toHaveProperty('http_headers_progress_interval_ms');
     });
 
-    test('disables send_progress_in_http_headers when the config flag is false', async () => {
+    test('enables progress headers with a coarse interval when opted in', async () => {
         const { ClickHouseClientManager, createClientMock } = loadManagerWithMockedCreateClient();
         const manager = new ClickHouseClientManager({
-            configManager: stubConfig({ clickHouseSendProgressInHttpHeaders: false })
+            configManager: stubConfig({ clickHouseSendProgressInHttpHeaders: true })
         });
 
         await manager.getClientAsync();
 
         expect(createClientMock).toHaveBeenCalledWith(expect.objectContaining({
-            clickhouse_settings: expect.objectContaining({ send_progress_in_http_headers: 0 })
+            clickhouse_settings: {
+                send_progress_in_http_headers: 1,
+                http_headers_progress_interval_ms: '30000'
+            }
         }));
     });
 });
 
 describe('ConfigManager socket-stability getters', () => {
-    const ENV_KEYS = ['CLICKHOUSE_IDLE_SOCKET_TTL_MS', 'CLICKHOUSE_SEND_PROGRESS_IN_HTTP_HEADERS'];
+    const ENV_KEYS = ['CLICKHOUSE_IDLE_SOCKET_TTL_MS', 'CLICKHOUSE_SEND_PROGRESS_IN_HTTP_HEADERS', 'CLICKHOUSE_HTTP_HEADERS_PROGRESS_INTERVAL_MS'];
     let saved;
 
     beforeEach(() => {
@@ -101,8 +108,8 @@ describe('ConfigManager socket-stability getters', () => {
         }
     });
 
-    test('clickHouseIdleSocketTtl defaults to 30000', () => {
-        expect(new ConfigManager().clickHouseIdleSocketTtl).toBe(30000);
+    test('clickHouseIdleSocketTtl defaults to 2500', () => {
+        expect(new ConfigManager().clickHouseIdleSocketTtl).toBe(2500);
     });
 
     test('clickHouseIdleSocketTtl honors the env override', () => {
@@ -111,7 +118,7 @@ describe('ConfigManager socket-stability getters', () => {
     });
 
     test.each([
-        ['unset (default on)', undefined, true],
+        ['unset (default off)', undefined, false],
         ['true', 'true', true],
         ['1', '1', true],
         ['false', 'false', false],
@@ -123,5 +130,11 @@ describe('ConfigManager socket-stability getters', () => {
             process.env.CLICKHOUSE_SEND_PROGRESS_IN_HTTP_HEADERS = envValue;
         }
         expect(new ConfigManager().clickHouseSendProgressInHttpHeaders).toBe(expected);
+    });
+
+    test('clickHouseHttpHeadersProgressIntervalMs defaults to 30000 and is floored at 10000', () => {
+        expect(new ConfigManager().clickHouseHttpHeadersProgressIntervalMs).toBe(30000);
+        process.env.CLICKHOUSE_HTTP_HEADERS_PROGRESS_INTERVAL_MS = '100';
+        expect(new ConfigManager().clickHouseHttpHeadersProgressIntervalMs).toBe(10000);
     });
 });
