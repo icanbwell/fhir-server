@@ -77,6 +77,50 @@ describe('PUT resolves the target by id plus owner/sourceAssigningAuthority', ()
     });
 
     test.each([
+        ['an object instead of an array', (b) => { b.meta.security = { system: SecurityTagSystem.owner, code: 'client' }; }],
+        ['a null entry', (b) => { b.meta.security = [null, ...b.meta.security]; }],
+        ['a non-string code', (b) => { b.meta.security[0].code = 123; }]
+    ])('a malformed meta.security with %s is rejected with 400', async (_name, malform) => {
+        const request = await createTestRequest();
+        await request
+            .post('/4_0_0/ActivityDefinition/$merge')
+            .send(clientResource)
+            .set(allAccessHeaders)
+            .expect(200);
+
+        const body = deepcopy(clientResource);
+        malform(body);
+        await request
+            .put('/4_0_0/ActivityDefinition/sameid')
+            .send(body)
+            .set(allAccessHeaders)
+            .expect(400);
+    });
+
+    test('a body without meta.source still updates the existing resource', async () => {
+        const request = await createTestRequest();
+        await request
+            .post('/4_0_0/ActivityDefinition/$merge')
+            .send(clientResource)
+            .set(allAccessHeaders)
+            .expect(200);
+
+        const body = deepcopy(clientResource);
+        body.name = 'UPDATED-WITHOUT-SOURCE';
+        delete body.meta.source;
+        await request
+            .put('/4_0_0/ActivityDefinition/sameid')
+            .send(body)
+            .set(allAccessHeaders)
+            .expect(200);
+
+        const resources = await searchById(request, 'sameid');
+        expect(resources).toHaveLength(1);
+        expect(resources[0].name).toBe('UPDATED-WITHOUT-SOURCE');
+        expect(resources[0].meta.source).toBe(clientResource.meta.source);
+    });
+
+    test.each([
         ['no meta', (b) => { delete b.meta; }],
         ['no security', (b) => { delete b.meta.security; }],
         ['empty security', (b) => { b.meta.security = []; }],

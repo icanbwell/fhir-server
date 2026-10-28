@@ -523,6 +523,43 @@ class ResourceValidator {
         });
     }
 
+    /**
+     * Validates that the resource has an owner or sourceAssigningAuthority tag, which is what
+     * the uuid of a resource with a non-uuid id is derived from
+     * @param {Resource|Object} resource
+     * @returns {OperationOutcome|null}
+     */
+    validateResourceHasAuthorityTagSync (resource) {
+        const security = resource?.meta?.security;
+        const hasAuthorityTag = Array.isArray(security) && security.some(
+            (tag) => tag?.system === SecurityTagSystem.owner ||
+                tag?.system === SecurityTagSystem.sourceAssigningAuthority
+        );
+        return hasAuthorityTag ? null : this.buildMissingOwnerTagOutcome(resource);
+    }
+
+    /**
+     * @param {Resource|Object} resource
+     * @returns {OperationOutcome}
+     */
+    buildMissingOwnerTagOutcome (resource) {
+        const outcome = new OperationOutcome({
+            issue: [
+                new OperationOutcomeIssue({
+                    severity: 'error',
+                    code: 'invalid',
+                    details: new CodeableConcept({
+                        text: `Resource ${resource.resourceType}/${resource.id}` +
+                            ' is missing a security access tag with system: ' +
+                            `${SecurityTagSystem.owner}`
+                    })
+                })
+            ]
+        });
+        recordValidationFailure(outcome, resource.resourceType, VALIDATION_STAGE.META, PATH.SAVE);
+        return outcome;
+    }
+
     validateResourceMetaSync (resource) {
         const resourceType = resource && resource.resourceType;
         // Check if meta & meta.source exists in resource
@@ -543,21 +580,7 @@ class ResourceValidator {
         }
         // Check owner tag is present inside the resource.
         if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
-            const outcome = new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({
-                            text: `Resource ${resource.resourceType}/${resource.id}` +
-                                ' is missing a security access tag with system: ' +
-                                `${SecurityTagSystem.owner}`
-                        })
-                    })
-                ]
-            });
-            recordValidationFailure(outcome, resourceType, VALIDATION_STAGE.META, PATH.SAVE);
-            return outcome;
+            return this.buildMissingOwnerTagOutcome(resource);
         }
         // Check if multiple owner tags are present inside the resource.
         if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resource)) {

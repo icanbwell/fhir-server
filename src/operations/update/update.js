@@ -181,11 +181,11 @@ class UpdateOperation {
     }
 
     /**
-     * throws a NotValidatedError if the resource's meta tags are invalid
+     * throws a NotValidatedError if the validation of the resource's meta tags failed
      * @param {Resource|Object} resource
+     * @param {OperationOutcome|null} validationOperationOutcome
      */
-    assertResourceMetaIsValid (resource) {
-        const validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(resource);
+    throwIfMetaNotValid (resource, validationOperationOutcome) {
         if (validationOperationOutcome) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 operationResult: [{
@@ -286,13 +286,16 @@ class UpdateOperation {
         try {
             let targetUuid = rawId;
             if (!isUuid(rawId)) {
-                this.assertResourceMetaIsValid(resource_incoming_json);
+                this.throwIfMetaNotValid(
+                    resource_incoming_json,
+                    this.resourceValidator.validateResourceHasAuthorityTagSync(resource_incoming_json)
+                );
                 const resourceForUuid = await this.uuidColumnHandler.preSaveAsync({
                     resource: await this.sourceAssigningAuthorityColumnHandler.preSaveAsync({
                         resource: {
                             id: rawId,
                             resourceType,
-                            meta: { security: [...resource_incoming_json.meta.security] }
+                            meta: { security: resource_incoming_json.meta.security.filter(Boolean) }
                         }
                     })
                 });
@@ -455,7 +458,7 @@ class UpdateOperation {
             }
             if (doc) {
                 // Validating resource meta tags
-                this.assertResourceMetaIsValid(doc);
+                this.throwIfMetaNotValid(doc, this.resourceValidator.validateResourceMetaSync(doc));
                 // Update attachments after all validations
                 doc = await this.databaseAttachmentManager.transformAttachments(doc);
                 // TODO: remove alwaysCreateNew when this operation is updated to be version aware

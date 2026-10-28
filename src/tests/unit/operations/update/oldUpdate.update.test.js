@@ -97,6 +97,7 @@ describe('UpdateOperation', () => {
         mocks.scopesValidator.isAccessTagChangeAllowedByAccessScopes = jest.fn();
         mocks.resourceValidator.validateResourceAsync = jest.fn().mockResolvedValue(null);
         mocks.resourceValidator.validateResourceMetaSync = jest.fn().mockReturnValue(null);
+        mocks.resourceValidator.validateResourceHasAuthorityTagSync = jest.fn().mockReturnValue(null);
         mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
             findAsync: jest.fn().mockResolvedValue({
                 toObjectArrayAsync: jest.fn().mockResolvedValue([])
@@ -355,7 +356,7 @@ describe('UpdateOperation', () => {
                 resourceType: 'OperationOutcome',
                 issue: [{ severity: 'error', code: 'invalid', details: { text: 'missing owner tag' } }]
             };
-            mocks.resourceValidator.validateResourceMetaSync.mockReturnValue(operationOutcome);
+            mocks.resourceValidator.validateResourceHasAuthorityTagSync.mockReturnValue(operationOutcome);
 
             await expect(
                 updateOp.updateAsync({

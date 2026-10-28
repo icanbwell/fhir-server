@@ -173,6 +173,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         mocks.scopesValidator.verifyHasValidScopesAsync = jestGlobal.fn().mockResolvedValue(undefined);
         mocks.resourceValidator.validateResourceAsync = jestGlobal.fn().mockResolvedValue(null);
         mocks.resourceValidator.validateResourceMetaSync = jestGlobal.fn().mockReturnValue(null);
+        mocks.resourceValidator.validateResourceHasAuthorityTagSync = jestGlobal.fn().mockReturnValue(null);
         mocks.databaseAttachmentManager.transformAttachments = jestGlobal.fn((doc) => Promise.resolve(doc));
         mocks.base64DataManager.transformAsync = jestGlobal.fn((doc) => Promise.resolve(doc));
         mocks.fhirLoggingManager.logOperationSuccessAsync = jestGlobal.fn().mockResolvedValue(undefined);
