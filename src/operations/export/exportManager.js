@@ -1,5 +1,4 @@
-const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { SecurityTagManager } = require('../common/securityTagManager');
 const { assertTypeEquals } = require('../../utils/assertType');
@@ -71,10 +70,10 @@ class ExportManager {
 
         // Create ExportStatus resource
         /**
-         * @type {import('../../fhir/classes/4_0_0/custom_resources/exportStatus')}
+         * @type {Object}
          */
-        const exportStatusResource = FhirResourceCreator.createByResourceType(
-            {
+        const exportStatusResource = FhirResourceWriteSerializer.serialize({
+            obj: {
                 id: generateUUID(),
                 resourceType: 'ExportStatus',
                 meta: {
@@ -109,9 +108,8 @@ class ExportManager {
                 request: `${host.startsWith('localhost') ? 'http://' : 'https://'}${host}${originalUrl}`,
                 output: [],
                 errors: []
-            },
-            'ExportStatus'
-        );
+            }
+        });
 
         // Copy access tags from scope
         const accessCodesFromScopes = this.securityTagManager.getSecurityTagsFromScope({
@@ -121,12 +119,10 @@ class ExportManager {
         });
 
         accessCodesFromScopes.forEach((code) => {
-            exportStatusResource.meta.security.push(
-                new Coding({
-                    system: SecurityTagSystem.access,
-                    code: code
-                })
-            );
+            exportStatusResource.meta.security.push({
+                system: SecurityTagSystem.access,
+                code: code
+            });
         });
 
         await this.preSaveManager.preSaveAsync({

@@ -6,6 +6,12 @@ class ExportStatusEntrySerializer extends BaseSerializer {
         type: null,
         url: null
     };
+
+    allPropertyToSerializerMap = {
+        id: null,
+        type: null,
+        url: null
+    };
 }
 
 module.exports = new ExportStatusEntrySerializer();

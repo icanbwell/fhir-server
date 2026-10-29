@@ -62,6 +62,7 @@
           "source": "https://www.icanbwell.com/fhir-server"
         },
         "status": "on-hold",
+        "request": "http://localhost:3000/4_0_0/Patient/$export?_type=Patient",
         "requiresAccessToken": false,
         "scope": "user/*.read user/*.write access/*.*",
         "user": "imran",
@@ -89,6 +90,7 @@
           "source": "https://www.icanbwell.com/fhir-server"
         },
         "status": "accepted",
+        "request": "http://localhost:3000/4_0_0/Patient/$export?_type=Patient",
         "requiresAccessToken": false,
         "scope": "user/*.read user/*.write access/*.*",
         "user": "imran",

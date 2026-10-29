@@ -60,7 +60,7 @@ class ExportStatusSerialzer {
             return FhirResourceSerializer.serializeArray(value, Extension);
         },
         status: null,
-        requestUrl: null,
+        request: null,
         requiresAccessToken: null,
         scope: null,
         user: null,

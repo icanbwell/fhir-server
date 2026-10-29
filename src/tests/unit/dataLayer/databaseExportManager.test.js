@@ -26,6 +26,9 @@ jestObj.mock('moment-timezone', () => {
 const { DatabaseExportManager } = require('../../../dataLayer/databaseExportManager');
 const { isUuid } = require('../../../utils/uid.util');
 const { assertIsValid } = require('../../../utils/assertType');
+const BaseSerializer = require('../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+
+BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
 describe('DatabaseExportManager', () => {
     let manager;
@@ -37,7 +40,7 @@ describe('DatabaseExportManager', () => {
 
     beforeEach(() => {
         mockDatabaseQueryManager = {
-            findOneAsync: jestObj.fn().mockResolvedValue(null)
+            fastFindOneAsync: jestObj.fn().mockResolvedValue(null)
         };
 
         mockDatabaseUpdateManager = {
@@ -50,7 +53,7 @@ describe('DatabaseExportManager', () => {
         };
 
         mockDatabaseUpdateFactory = {
-            createDatabaseUpdateManager: jestObj.fn().mockReturnValue(mockDatabaseUpdateManager)
+            createFastDatabaseUpdateManager: jestObj.fn().mockReturnValue(mockDatabaseUpdateManager)
         };
 
         mockPostSaveProcessor = {
@@ -95,7 +98,7 @@ describe('DatabaseExportManager', () => {
         test('queries by _uuid when exportStatusId is a uuid', async () => {
             isUuid.mockReturnValue(true);
             await manager.getExportStatusResourceWithId({ exportStatusId: 'some-uuid' });
-            expect(mockDatabaseQueryManager.findOneAsync).toHaveBeenCalledWith({
+            expect(mockDatabaseQueryManager.fastFindOneAsync).toHaveBeenCalledWith({
                 query: { _uuid: 'some-uuid' }
             });
         });
@@ -103,14 +106,14 @@ describe('DatabaseExportManager', () => {
         test('queries by _sourceId when exportStatusId is not a uuid', async () => {
             isUuid.mockReturnValue(false);
             await manager.getExportStatusResourceWithId({ exportStatusId: 'some-source-id' });
-            expect(mockDatabaseQueryManager.findOneAsync).toHaveBeenCalledWith({
+            expect(mockDatabaseQueryManager.fastFindOneAsync).toHaveBeenCalledWith({
                 query: { _sourceId: 'some-source-id' }
             });
         });
 
         test('returns the found resource', async () => {
             const mockResource = { id: 'export-1', resourceType: 'ExportStatus' };
-            mockDatabaseQueryManager.findOneAsync.mockResolvedValue(mockResource);
+            mockDatabaseQueryManager.fastFindOneAsync.mockResolvedValue(mockResource);
             isUuid.mockReturnValue(false);
 
             const result = await manager.getExportStatusResourceWithId({ exportStatusId: 'export-1' });
@@ -118,16 +121,16 @@ describe('DatabaseExportManager', () => {
         });
 
         test('returns null when no resource found', async () => {
-            mockDatabaseQueryManager.findOneAsync.mockResolvedValue(null);
+            mockDatabaseQueryManager.fastFindOneAsync.mockResolvedValue(null);
             isUuid.mockReturnValue(false);
 
             const result = await manager.getExportStatusResourceWithId({ exportStatusId: 'missing' });
             expect(result).toBeNull();
         });
 
-        test('throws RethrownError when findOneAsync fails', async () => {
+        test('throws RethrownError when fastFindOneAsync fails', async () => {
             isUuid.mockReturnValue(false);
-            mockDatabaseQueryManager.findOneAsync.mockRejectedValue(new Error('DB error'));
+            mockDatabaseQueryManager.fastFindOneAsync.mockRejectedValue(new Error('DB error'));
 
             await expect(
                 manager.getExportStatusResourceWithId({ exportStatusId: 'test-id' })
@@ -141,7 +144,11 @@ describe('DatabaseExportManager', () => {
         beforeEach(() => {
             mockExportStatusResource = {
                 id: 'export-1',
-                meta: { lastUpdated: null, version: null }
+                resourceType: 'ExportStatus',
+                status: 'accepted',
+                request: 'https://example.com/4_0_0/$export',
+                _uuid: 'export-1',
+                meta: { lastUpdated: null }
             };
         });
 
@@ -153,32 +160,33 @@ describe('DatabaseExportManager', () => {
             expect(mockExportStatusResource.meta.lastUpdated).toBeInstanceOf(Date);
         });
 
-        test('sets meta.version to "1"', async () => {
-            await manager.insertExportStatusAsync({
-                exportStatusResource: mockExportStatusResource,
-                requestId: 'req-1'
-            });
-            expect(mockExportStatusResource.meta.version).toBe('1');
-        });
-
         test('creates database update manager with ExportStatus and base_version 4_0_0', async () => {
             await manager.insertExportStatusAsync({
                 exportStatusResource: mockExportStatusResource,
                 requestId: 'req-1'
             });
-            expect(mockDatabaseUpdateFactory.createDatabaseUpdateManager).toHaveBeenCalledWith({
+            expect(mockDatabaseUpdateFactory.createFastDatabaseUpdateManager).toHaveBeenCalledWith({
                 resourceType: 'ExportStatus',
                 base_version: '4_0_0'
             });
         });
 
-        test('calls insertOneAsync with the export status resource', async () => {
+        test('inserts a serialized copy that keeps request and internal fields and has empty output and errors arrays', async () => {
             await manager.insertExportStatusAsync({
                 exportStatusResource: mockExportStatusResource,
                 requestId: 'req-1'
             });
-            expect(mockDatabaseUpdateManager.insertOneAsync).toHaveBeenCalledWith({
-                doc: mockExportStatusResource
+            const { doc } = mockDatabaseUpdateManager.insertOneAsync.mock.calls[0][0];
+            expect(doc).not.toBe(mockExportStatusResource);
+            expect(doc).toStrictEqual({
+                id: 'export-1',
+                resourceType: 'ExportStatus',
+                status: 'accepted',
+                request: 'https://example.com/4_0_0/$export',
+                _uuid: 'export-1',
+                meta: { lastUpdated: mockExportStatusResource.meta.lastUpdated },
+                output: [],
+                errors: []
             });
         });
 
@@ -224,6 +232,10 @@ describe('DatabaseExportManager', () => {
         beforeEach(() => {
             mockExportStatusResource = {
                 id: 'export-1',
+                resourceType: 'ExportStatus',
+                status: 'in-progress',
+                request: 'https://example.com/4_0_0/$export',
+                _uuid: 'export-1',
                 meta: { lastUpdated: null, versionId: '2' }
             };
         });
@@ -246,19 +258,25 @@ describe('DatabaseExportManager', () => {
             await manager.updateExportStatusAsync({
                 exportStatusResource: mockExportStatusResource
             });
-            expect(mockDatabaseUpdateFactory.createDatabaseUpdateManager).toHaveBeenCalledWith({
+            expect(mockDatabaseUpdateFactory.createFastDatabaseUpdateManager).toHaveBeenCalledWith({
                 resourceType: 'ExportStatus',
                 base_version: '4_0_0'
             });
         });
 
-        test('calls updateOneAsync with the export status resource', async () => {
+        test('updates with a serialized copy and leaves the caller resource untouched', async () => {
+            mockExportStatusResource.output = [{ type: 'Patient', url: 's3://bucket/Patient.ndjson' }];
             await manager.updateExportStatusAsync({
                 exportStatusResource: mockExportStatusResource
             });
-            expect(mockDatabaseUpdateManager.updateOneAsync).toHaveBeenCalledWith({
-                doc: mockExportStatusResource
-            });
+            const { doc } = mockDatabaseUpdateManager.updateOneAsync.mock.calls[0][0];
+            expect(doc).not.toBe(mockExportStatusResource);
+            expect(doc.request).toStrictEqual('https://example.com/4_0_0/$export');
+            expect(doc._uuid).toStrictEqual('export-1');
+            expect(doc.meta.versionId).toStrictEqual('3');
+            expect(doc.output).toStrictEqual([{ type: 'Patient', url: 's3://bucket/Patient.ndjson' }]);
+            expect(doc.errors).toStrictEqual([]);
+            expect(mockExportStatusResource.errors).toBeUndefined();
         });
 
         test('throws RethrownError when updateOneAsync fails', async () => {

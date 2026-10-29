@@ -29,6 +29,7 @@
       }
     ],
     "status": "accepted",
+    "request": "http://localhost:3000/4_0_0/Patient/$export?_type=Patient",
     "requiresAccessToken": false,
     "scope": "user/*.read user/*.write access/*.*",
     "user": "imran",

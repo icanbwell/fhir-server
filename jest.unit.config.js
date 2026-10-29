@@ -17,7 +17,6 @@ module.exports = {
     // A Docker daemon is required either way: globalSetup starts a ClickHouse testcontainer.
     // Remove an entry once its bug is fixed (and reviewed, for security ones).
     testPathIgnorePatterns: [
-        '<rootDir>/src/tests/unit/admin/adminExportManager.test.js',
         // adminExportManagerRequestInfo.test.js: unresolved ESM-transform gap, not a logic bug -
         // it transitively requires @icanbwell/fhirpatientsummary, which is `"type": "module"` and
         // ships an unbundled `import` for luxon/html-minifier-terser that this config's

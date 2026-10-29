@@ -32,6 +32,7 @@ const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { AtlasSearchQueryBuilder, ATLAS_SEARCH_INDEX_NAME } = require('./atlasSearchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { getResource } = require('../../operations/common/getResource');
+const { getSerializer } = require('../../fhir/baseFhirResourceSerializer');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { PatientScopeManager } = require('../security/patientScopeManager');
 const { PatientQueryCreator } = require('../common/patientQueryCreator');
@@ -831,7 +832,9 @@ class SearchManager {
             /**
              * @type {string[]}
              */
-            const allowedProperties = Object.getOwnPropertyNames(new Resource({}));
+            const allowedProperties = Resource
+                ? Object.getOwnPropertyNames(new Resource({}))
+                : Object.keys(getSerializer(VERSIONS['4_0_0'], resourceType).allPropertyToSerializerMap);
             for (const property of properties_to_return_list) {
                 if (allowedProperties.includes(property)) {
                     projection[`${property}`] = 1;

@@ -1,5 +1,6 @@
 const moment = require('moment-timezone');
-const ExportStatus = require('../fhir/classes/4_0_0/custom_resources/exportStatus');
+const deepcopy = require('deepcopy');
+const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 const { DatabaseQueryFactory } = require('./databaseQueryFactory');
 const { RethrownError } = require('../utils/rethrownError');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
@@ -41,7 +42,7 @@ class DatabaseExportManager {
      * @property {string} [exportStatusId]
      *
      * @param {GetExportStatusResourceWithIdParams}
-     * @returns {Promise<import('../fhir/classes/4_0_0/custom_resources/exportStatus')|null>}
+     * @returns {Promise<Object|null>}
      */
     async getExportStatusResourceWithId({ exportStatusId }) {
         assertIsValid(exportStatusId, 'exportStatusId is required');
@@ -52,9 +53,9 @@ class DatabaseExportManager {
             });
 
             /**
-             * @type {import('../fhir/classes/4_0_0/resources/resource')|null}
+             * @type {Object|null}
              */
-            const resource = await databaseQueryManager.findOneAsync({
+            const resource = await databaseQueryManager.fastFindOneAsync({
                 query: { [isUuid(exportStatusId) ? '_uuid' : '_sourceId']: exportStatusId }
             });
 
@@ -70,24 +71,23 @@ class DatabaseExportManager {
 
     /**
      * @typedef {Object} InsertExportStatusAsyncParams
-     * @property {import('../fhir/classes/4_0_0/custom_resources/exportStatus')} exportStatusResource
+     * @property {Object} exportStatusResource
      * @property {string} requestId
      *
      * @param {InsertExportStatusAsyncParams}
      */
     async insertExportStatusAsync({ exportStatusResource, requestId }) {
-        assertTypeEquals(exportStatusResource, ExportStatus);
         try {
-            // Update meta.lastUpdated
             exportStatusResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-            exportStatusResource.meta.version = '1';
 
-            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+            const databaseUpdateManager = this.databaseUpdateFactory.createFastDatabaseUpdateManager({
                 resourceType: 'ExportStatus',
                 base_version: '4_0_0'
             });
 
-            await databaseUpdateManager.insertOneAsync({ doc: exportStatusResource });
+            await databaseUpdateManager.insertOneAsync({
+                doc: FhirResourceWriteSerializer.serialize({ obj: deepcopy(exportStatusResource) })
+            });
             await this.postSaveProcessor.afterSaveAsync({
                 requestId,
                 eventType: 'C',
@@ -105,23 +105,23 @@ class DatabaseExportManager {
 
     /**
      * @typedef {Object} UpdateExportStatusAsyncParams
-     * @property {import('../fhir/classes/4_0_0/custom_resources/exportStatus')} exportStatusResource
+     * @property {Object} exportStatusResource
      *
      * @param {UpdateExportStatusAsyncParams}
      */
     async updateExportStatusAsync({ exportStatusResource }) {
-        assertTypeEquals(exportStatusResource, ExportStatus);
         try {
-            // Update meta.lastUpdated
             exportStatusResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
             exportStatusResource.meta.versionId = `${parseInt(exportStatusResource.meta.versionId) + 1}`;
 
-            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+            const databaseUpdateManager = this.databaseUpdateFactory.createFastDatabaseUpdateManager({
                 resourceType: 'ExportStatus',
                 base_version: '4_0_0'
             });
 
-            await databaseUpdateManager.updateOneAsync({ doc: exportStatusResource });
+            await databaseUpdateManager.updateOneAsync({
+                doc: FhirResourceWriteSerializer.serialize({ obj: deepcopy(exportStatusResource) })
+            });
         } catch (err) {
             throw new RethrownError({
                 message: `Error in updateExportStatusAsync: ${err.message}`,

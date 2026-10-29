@@ -25,8 +25,6 @@ jestObj.mock('../../../utils/rethrownError', () => ({
     }
 }));
 
-jestObj.mock('../../../fhir/classes/4_0_0/custom_resources/exportStatus', () => class ExportStatus {});
-
 jestObj.mock('../../../constants', () => ({
     BULK_EXPORT_EVENT_STATUS_MAP: {
         completed: 'BulkExportCompleted',
