@@ -272,7 +272,7 @@ class MyFHIRServer {
                     // logger.error(e);
                     // Get an operation outcome for this instance
                     const OperationOutcome = resolveSchema(
-                        isValidBaseVersion ? base : VERSIONS['4_0_1'],
+                        isValidBaseVersion ? base : VERSIONS['4_0_0'],
                         'operationoutcome'
                     );
                     res1.status(500).json(
@@ -293,7 +293,7 @@ class MyFHIRServer {
         // Nothing has responded by now, respond with 404
         this.app.use(function fhirNotFoundHandler(req, res) {
             // get base from URL instead of params since it might not be forwarded
-            const base = req.url.split('/')[1] || VERSIONS['4_0_1'];
+            const base = req.url.split('/')[1] || VERSIONS['4_0_0'];
 
             let OperationOutcome;
             if (Object.keys(VERSIONS).includes(base)) {

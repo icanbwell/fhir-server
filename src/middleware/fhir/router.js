@@ -98,7 +98,7 @@ class FhirRouter {
             const {
                 base_version
             } = req.params;
-            const fhirVersion = VERSIONS[base_version] || VERSIONS['4_0_1']; // fallback to r4 for custom baseUrl
+            const fhirVersion = VERSIONS[base_version] || VERSIONS['4_0_0']; // fallback to r4 for custom baseUrl
 
             const controller = this.controllerUtils.getController(fhirVersion, lowercaseKey); // Invoke the correct interaction on our controller
 

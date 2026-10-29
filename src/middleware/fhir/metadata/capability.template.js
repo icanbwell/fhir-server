@@ -2,9 +2,6 @@ const {
     getSearchParams
 } = require('../utils/conformance.utils');
 
-const {
-    resolveSchema
-} = require('../utils/schema.utils');
 /**
  * @name exports
  * @summary Conformance statement
@@ -13,10 +10,9 @@ const {
 module.exports = {
     resource: (baseVersion, key) => {
         const searchParams = getSearchParams(key, baseVersion);
-        const Resource = resolveSchema(baseVersion, key); // Return our conformance statement
 
         return {
-            type: Resource.resourceType,
+            type: key,
             profile: {
                 reference: `http://hl7.org/fhir/${key}.html`
             },

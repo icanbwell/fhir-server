@@ -200,7 +200,7 @@ describe('FhirRouter', () => {
 
             await middleware(req, res, next);
 
-            // Should still work - falls back to VERSIONS['4_0_1']
+            // Should still work - falls back to VERSIONS['4_0_0']
             expect(mockControllerUtils.getController).toHaveBeenCalled();
         });
 
@@ -235,13 +235,13 @@ describe('FhirRouter', () => {
 
             await middleware(req, res, next);
 
-            // VERSIONS[undefined] => undefined, so fallback to VERSIONS['4_0_1']
+            // VERSIONS[undefined] => undefined, so fallback to VERSIONS['4_0_0']
             expect(mockControllerUtils.getController).toHaveBeenCalled();
         });
 
         test('BUG: controller is undefined when getController returns undefined - crashes with TypeError', async () => {
             // BUG: ControllerUtils.getController only handles '4_0_0' in its switch.
-            // The fallback version VERSIONS['4_0_1'] = '4_0_1' is NOT handled,
+            // The fallback version VERSIONS['4_0_0'] is handled,
             // so getController returns undefined.
             // Then `controller[interaction]` at line 119 throws:
             //   TypeError: Cannot read properties of undefined (reading 'search')
@@ -249,7 +249,7 @@ describe('FhirRouter', () => {
             mockControllerUtils.getController.mockReturnValue(undefined);
 
             const middleware = router.loadController('patient', 'search', {}, 'Patient');
-            const req = { params: { base_version: 'custom' } }; // triggers fallback to 4_0_1
+            const req = { params: { base_version: 'custom' } }; // triggers fallback to 4_0_0
             const res = {};
             const next = jest.fn();
 

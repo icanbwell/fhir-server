@@ -54,11 +54,8 @@ describe('middleware/fhir/utils/constants', () => {
     });
 
     describe('VERSIONS', () => {
-        test('supports FHIR versions 1.0.2 through 4.0.1', () => {
-            expect(VERSIONS['1_0_2']).toBe('1_0_2');
-            expect(VERSIONS['3_0_1']).toBe('3_0_1');
-            expect(VERSIONS['4_0_0']).toBe('4_0_0');
-            expect(VERSIONS['4_0_1']).toBe('4_0_1');
+        test('only supports FHIR version 4.0.0', () => {
+            expect(VERSIONS).toStrictEqual({ '4_0_0': '4_0_0' });
         });
 
         test('version keys match their values', () => {
