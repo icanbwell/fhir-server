@@ -8,7 +8,6 @@ const expectedActivityDefinitionResources = require('./fixtures/expected/expecte
 const expectedActivityDefinition5Resource = require('./fixtures/expected/expected_ActivityDefinition5.json');
 const expectedActivityDefinitionClientResources = require('./fixtures/expected/expected_ActivityDefinitionClient.json');
 const expectedActivityDefinitionBwellResources = require('./fixtures/expected/expected_ActivityDefinitionBwell.json');
-const expectedErrorWithMultipleDocuments = require('./fixtures/expected/expected_error_with_multiple_documents.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
@@ -134,7 +133,7 @@ describe('ActivityDefinition Tests', () => {
             expect(resp).toHaveResponse(expectedActivityDefinitionBwellResources);
         });
 
-        test('put_response throws validation error when multiple documents with same id are present when accessed from same scopes', async () => {
+        test('put_response resolves by the body owner when multiple documents with same id are present when accessed from same scopes', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -158,13 +157,9 @@ describe('ActivityDefinition Tests', () => {
                 .put('/4_0_0/ActivityDefinition/sameid')
                 .send(activitydefinition5Data)
                 .set(allAccessHeaders)
-                .expect(400);
+                .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments, (resource) => {
-                if (resource.issue.length > 0) {
-                    delete resource.issue[0].diagnostics;
-                }
-            });
+            expect(resp).toHaveResponse(expectedActivityDefinition5Resource);
 
             resp = await request
                 .put('/4_0_0/ActivityDefinition/sameid|client')
