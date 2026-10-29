@@ -97,6 +97,39 @@ describe('PUT resolves the target by id plus owner/sourceAssigningAuthority', ()
             .expect(400);
     });
 
+    test('a caller without access to the stored resource gets 403 without the stored patient reference', async () => {
+        const request = await createTestRequest();
+        const observation = {
+            resourceType: 'Observation',
+            id: 'obs-leak',
+            status: 'final',
+            code: { text: 'test' },
+            subject: { reference: 'Patient/stored-patient' },
+            meta: {
+                source: 'bwell',
+                security: [
+                    { system: SecurityTagSystem.owner, code: 'bwell' },
+                    { system: SecurityTagSystem.access, code: 'bwell' }
+                ]
+            }
+        };
+        await request
+            .post('/4_0_0/Observation/$merge')
+            .send(observation)
+            .set(allAccessHeaders)
+            .expect(200);
+
+        const body = deepcopy(observation);
+        body.subject.reference = 'Patient/other-patient';
+        const resp = await request
+            .put('/4_0_0/Observation/obs-leak')
+            .send(body)
+            .set(getHeaders('user/*.read user/*.write access/client.*'));
+
+        expect(resp.status).toBe(403);
+        expect(JSON.stringify(resp.body)).not.toContain('stored-patient');
+    });
+
     test('a body without meta.source still updates the existing resource', async () => {
         const request = await createTestRequest();
         await request

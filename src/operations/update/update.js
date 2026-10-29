@@ -326,6 +326,11 @@ class UpdateOperation {
              * @type {Resource | null}
              */
             const data = resources[0];
+            if (data && data.meta) {
+                await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                    requestInfo, resource: data, base_version, accessRequested: 'u'
+                });
+            }
             /**
              * @type {OperationOutcome|null}
              */
@@ -394,9 +399,6 @@ class UpdateOperation {
             if (data && data.meta) {
                 // found an existing resource
                 foundResource = data;
-                await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                    requestInfo, resource: foundResource, base_version, accessRequested: 'u'
-                });
                 // Extended Group's member[] doesn't exist on the live document -- a submitted
                 // member must go through PATCH instead (design doc §5.1). Unconditional on
                 // ENABLE_EXTENDED_GROUP (see rejectMemberOnExtendedGroupWrite's own docstring for
