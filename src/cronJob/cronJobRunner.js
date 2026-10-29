@@ -146,7 +146,7 @@ class CronJobRunner {
             const exportStatusCursor = await databaseQueryManager.findAsync(query);
 
             while (await exportStatusCursor.hasNext()) {
-                const exportStatusResource = await exportStatusCursor.nextObject();
+                const exportStatusResource = await exportStatusCursor.next();
                 logInfo(
                     `Triggering k8 job for ExportStatus resource with id: ${exportStatusResource._uuid}`,
                     { exportStatusId: exportStatusResource._uuid }
@@ -201,7 +201,7 @@ class CronJobRunner {
 
             // Setting status to 'entered-in-error' for the above fetched resources
             while (await exportStatusCursor.hasNext()) {
-                const exportStatusResource = await exportStatusCursor.nextObject();
+                const exportStatusResource = await exportStatusCursor.next();
                 logInfo(
                     `ExportStatus resource marked as entered-in-error with Id: ${exportStatusResource._uuid}`,
                     { exportStatusId: exportStatusResource._uuid }

@@ -68,6 +68,10 @@
           "reference": "Patient/person.14aacd66e74844e48d97571e85009508"
         },
         "valueBoolean": true
+      },
+      "response": {
+        "status": "200 OK",
+        "etag": "W/\"2\""
       }
     }
   ],

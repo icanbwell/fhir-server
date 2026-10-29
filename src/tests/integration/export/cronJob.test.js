@@ -98,7 +98,7 @@ describe('Cron Job Tests', () => {
             });
 
             // Fetch resources with status updated to 'entered-in-error'
-            const exportStatusCursor = await databaseQueryManager.findOneAsync({
+            const exportStatusCursor = await databaseQueryManager.fastFindOneAsync({
                 query: { status: 'entered-in-error' }
             });
 

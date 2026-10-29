@@ -116,6 +116,27 @@ class FastDatabaseUpdateManager {
     }
 
     /**
+     * Replaces the stored resource that has the same _uuid
+     * @param {Object} params
+     * @param {Object} params.doc
+     * @param {FhirRequestInfo} [params.requestInfo]
+     * @return {Promise<void>}
+     */
+    async updateOneAsync({ doc, requestInfo }) {
+        try {
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+            const preSavedDoc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
+            const collection = await this.resourceLocator.getCollectionForResourceAsync(preSavedDoc);
+            await collection.replaceOne({ _uuid: { $eq: preSavedDoc._uuid } }, preSavedDoc);
+        } catch (e) {
+            throw new RethrownError({
+                error: e,
+                args: { doc }
+            });
+        }
+    }
+
+    /**
      * Inserts a resource into the database
      * Return value of null means no replacement was necessary since the data in the db is the same
      * @param {string} base_version

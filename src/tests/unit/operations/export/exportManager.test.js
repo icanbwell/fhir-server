@@ -18,15 +18,6 @@ jestObj.mock('../../../../utils/uid.util', () => ({
     generateUUID: jestObj.fn(() => 'test-uuid-1234')
 }));
 
-jestObj.mock('../../../../fhir/fhirResourceCreator', () => ({
-    FhirResourceCreator: {
-        createByResourceType: jestObj.fn((data, resourceType) => ({
-            ...data,
-            resourceType
-        }))
-    }
-}));
-
 jestObj.mock('../../../../preSaveHandlers/preSaveOptions', () => ({
     PreSaveOptions: {
         fromRequestInfo: jestObj.fn((requestInfo) => ({ requestInfo }))
@@ -41,6 +32,9 @@ const { ExportManager } = require('../../../../operations/export/exportManager')
 const { SecurityTagManager } = require('../../../../operations/common/securityTagManager');
 const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
 const { K8sClient } = require('../../../../utils/k8sClient');
+const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+
+BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -283,7 +277,7 @@ describe('ExportManager', () => {
                 requestInfo: makeRequestInfo({ headers: {} }),
                 args: {}
             });
-            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            const ext = result.extension?.find(e => e.id === 'useExternalStorage');
             expect(ext).toBeUndefined();
         });
 
@@ -292,7 +286,7 @@ describe('ExportManager', () => {
                 requestInfo: makeRequestInfo({ headers: { useexternalstorage: 'false' } }),
                 args: {}
             });
-            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            const ext = result.extension?.find(e => e.id === 'useExternalStorage');
             expect(ext).toBeUndefined();
         });
 
@@ -301,7 +295,7 @@ describe('ExportManager', () => {
                 requestInfo: makeRequestInfo({ headers: { useexternalstorage: '0' } }),
                 args: {}
             });
-            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            const ext = result.extension?.find(e => e.id === 'useExternalStorage');
             expect(ext).toBeUndefined();
         });
 
@@ -310,7 +304,7 @@ describe('ExportManager', () => {
                 requestInfo: makeRequestInfo({ headers: {} }),
                 args: { useExternalStorage: 'true' }  // Attacker tries query param
             });
-            const ext = result.extension.find(e => e.id === 'useExternalStorage');
+            const ext = result.extension?.find(e => e.id === 'useExternalStorage');
             expect(ext).toBeUndefined();  // Should be filtered out by ignoredParams
         });
 

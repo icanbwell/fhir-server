@@ -126,16 +126,17 @@ class ResourceValidator {
      * @property {string} user
      * @property {string} scope
      * @property {string} base_version
+     * @property {string} [accessRequested]
      *
      * @param {ValidateNewPersonLinkTargetsParams}
      * @returns {Promise<OperationOutcome|null>}
      */
-    async validateNewPersonLinkTargetsBelongToCallersTenant ({ currentValue, newValue, user, scope, base_version, resourceObj = null }) {
+    async validateNewPersonLinkTargetsBelongToCallersTenant ({ currentValue, newValue, user, scope, base_version, resourceObj = null, accessRequested = 'write' }) {
         const addedReferences = (newValue || []).filter(ref => !(currentValue || []).includes(ref));
         if (addedReferences.length === 0) {
             return null;
         }
-        const accessCodes = this.scopesManager.getAccessCodesFromScopes('write', user, scope);
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes(accessRequested, user, scope);
         if (accessCodes.includes('*')) {
             return null;
         }
@@ -277,7 +278,7 @@ class ResourceValidator {
      * @param {ValidatePatientReferenceParams}
      * @returns {Promise<OperationOutcome | null>}
      */
-    async validatePatientReference ({ currentResource, resourceToValidateJson, isUser, user, scope, base_version, resourceObj = null }) {
+    async validatePatientReference ({ currentResource, resourceToValidateJson, isUser, user, scope, base_version, resourceObj = null, accessRequested = 'write' }) {
         if (!currentResource) {
             // DCON-4844: mergeInsertAsync/create.js never pass a currentResource (there's nothing
             // to diff a brand-new resource against), so this is the only place a non-user caller
@@ -296,7 +297,7 @@ class ResourceValidator {
                 obj: resourceToValidateJson, path: newLinkValue
             });
             return await this.validateNewPersonLinkTargetsBelongToCallersTenant({
-                currentValue: undefined, newValue, user, scope, base_version, resourceObj
+                currentValue: undefined, newValue, user, scope, base_version, resourceObj, accessRequested
             });
         }
         // For Patient resource, check for id field is ignored as id field cannot be updated and is ignored later
@@ -332,7 +333,7 @@ class ResourceValidator {
                     // tenant's Person/Patient -- see validateNewPersonLinkTargetsBelongToCallersTenant
                     if (currentResource.resourceType === 'Person') {
                         const crossTenantLinkOutcome = await this.validateNewPersonLinkTargetsBelongToCallersTenant({
-                            currentValue, newValue, user, scope, base_version, resourceObj
+                            currentValue, newValue, user, scope, base_version, resourceObj, accessRequested
                         });
                         if (crossTenantLinkOutcome) {
                             return crossTenantLinkOutcome;
@@ -392,6 +393,8 @@ class ResourceValidator {
      * @property {boolean|undefined} useRemoteFhirValidatorIfAvailable
      * @property {string|undefined} profile
      * @property {Resource|undefined} currentResource
+     * @property {string|undefined} accessRequested - the CRUDS letter of the write being validated,
+     *   used for the Person.link tenant check; defaults to the legacy 'write'
      * @property {string|undefined} validationContext - PATH.SAVE (default) or PATH.VALIDATE.
      *   Distinguishes save-time (POST/PUT/$merge) from validate-time ($validate)
      *   in the fhir_validation_failure_total metric.
@@ -411,6 +414,7 @@ class ResourceValidator {
             useRemoteFhirValidatorIfAvailable = false,
             profile,
             currentResource,
+            accessRequested = 'write',
             validationContext
         }
     ) {
@@ -471,7 +475,8 @@ class ResourceValidator {
                 user,
                 scope,
                 base_version,
-                resourceObj
+                resourceObj,
+                accessRequested
             });
             if (validationOperationOutcome) {
                 validationStage = VALIDATION_STAGE.REFERENCE;
@@ -523,6 +528,43 @@ class ResourceValidator {
         });
     }
 
+    /**
+     * Validates that the resource has an owner or sourceAssigningAuthority tag, which is what
+     * the uuid of a resource with a non-uuid id is derived from
+     * @param {Resource|Object} resource
+     * @returns {OperationOutcome|null}
+     */
+    validateResourceHasAuthorityTagSync (resource) {
+        const security = resource?.meta?.security;
+        const hasAuthorityTag = Array.isArray(security) && security.some(
+            (tag) => tag?.system === SecurityTagSystem.owner ||
+                tag?.system === SecurityTagSystem.sourceAssigningAuthority
+        );
+        return hasAuthorityTag ? null : this.buildMissingOwnerTagOutcome(resource);
+    }
+
+    /**
+     * @param {Resource|Object} resource
+     * @returns {OperationOutcome}
+     */
+    buildMissingOwnerTagOutcome (resource) {
+        const outcome = new OperationOutcome({
+            issue: [
+                new OperationOutcomeIssue({
+                    severity: 'error',
+                    code: 'invalid',
+                    details: new CodeableConcept({
+                        text: `Resource ${resource.resourceType}/${resource.id}` +
+                            ' is missing a security access tag with system: ' +
+                            `${SecurityTagSystem.owner}`
+                    })
+                })
+            ]
+        });
+        recordValidationFailure(outcome, resource.resourceType, VALIDATION_STAGE.META, PATH.SAVE);
+        return outcome;
+    }
+
     validateResourceMetaSync (resource) {
         const resourceType = resource && resource.resourceType;
         // Check if meta & meta.source exists in resource
@@ -543,21 +585,7 @@ class ResourceValidator {
         }
         // Check owner tag is present inside the resource.
         if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
-            const outcome = new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({
-                            text: `Resource ${resource.resourceType}/${resource.id}` +
-                                ' is missing a security access tag with system: ' +
-                                `${SecurityTagSystem.owner}`
-                        })
-                    })
-                ]
-            });
-            recordValidationFailure(outcome, resourceType, VALIDATION_STAGE.META, PATH.SAVE);
-            return outcome;
+            return this.buildMissingOwnerTagOutcome(resource);
         }
         // Check if multiple owner tags are present inside the resource.
         if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resource)) {

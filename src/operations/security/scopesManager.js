@@ -560,14 +560,15 @@ class ScopesManager {
      * @typedef {Object} HasHistoryAccessParams
      * @property {string} resourceType
      * @property {string} scope
+     * @property {string} [accessRequested]
      *
      * @param {HasHistoryAccessParams}
      * @return {boolean}
      */
-    hasHistoryAccess ({ resourceType, scope }) {
+    hasHistoryAccess ({ resourceType, scope, accessRequested = 'read' }) {
         assertIsValid(resourceType, 'resourceType is required');
 
-        const accessCodes = this.getAccessCodesFromScopes('read', '', scope);
+        const accessCodes = this.getAccessCodesFromScopes(accessRequested, '', scope);
         return accessCodes.includes('*');
     }
 }

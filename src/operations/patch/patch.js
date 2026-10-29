@@ -271,7 +271,7 @@ class PatchOperation {
             resourceType,
             startTime,
             action: currentOperationName,
-            accessRequested: 'write'
+            accessRequested: 'u'
         });
 
         try {
@@ -372,7 +372,7 @@ class PatchOperation {
             }
 
             await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                requestInfo, resource: foundResource, base_version
+                requestInfo, resource: foundResource, base_version, accessRequested: 'u'
             });
 
             // ============ EXECUTE GROUP MEMBER OPERATIONS (AFTER VALIDATION) ============
@@ -499,7 +499,7 @@ class PatchOperation {
             // are explicit adds/removes/replaces (not an append-only smart merge), so a code missing from
             // the patched resource is a real removal
             this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
-                requestInfo, currentResource: originalResource, updatedResource: resource
+                requestInfo, currentResource: originalResource, updatedResource: resource, accessRequested: 'u'
             });
 
             /**
@@ -514,6 +514,7 @@ class PatchOperation {
             }
             if (!validationOperationOutcome) {
                 validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                    accessRequested: 'u',
                     base_version,
                     requestInfo,
                     id: resource.id,

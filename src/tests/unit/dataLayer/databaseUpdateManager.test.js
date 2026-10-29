@@ -425,6 +425,19 @@ describe('DatabaseUpdateManager', () => {
             expect(manager._mockCollection.insertOne).toHaveBeenCalledTimes(1);
         });
 
+        test('stamps _recorded as a Date on the history document', async () => {
+            const requestInfo = createMockFhirRequestInfo({ requestId: 'req-123', method: 'POST' });
+            const doc = createMockResource({ id: 'p1', _uuid: 'u1', versionId: '1' });
+            const before = Date.now();
+
+            await manager.postSaveAsync({ requestInfo, doc });
+
+            const inserted = manager._mockCollection.insertOne.mock.calls[0][0];
+            expect(inserted._recorded).toBeInstanceOf(Date);
+            expect(inserted._recorded.getTime()).toBeGreaterThanOrEqual(before);
+            expect(inserted._recorded.getTime()).toBeLessThanOrEqual(Date.now());
+        });
+
         test('calls preSaveManager before saving history', async () => {
             const requestInfo = createMockFhirRequestInfo();
             const doc = createMockResource({ id: 'p2', _uuid: 'u2', versionId: '1' });

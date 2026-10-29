@@ -170,7 +170,7 @@ describe('CronJobRunner', () => {
         let index = 0;
         return {
             hasNext: jestGlobal.fn().mockImplementation(async () => index < items.length),
-            nextObject: jestGlobal.fn().mockImplementation(async () => items[index++])
+            next: jestGlobal.fn().mockImplementation(async () => items[index++])
         };
     }
 

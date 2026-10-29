@@ -1,7 +1,6 @@
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 
-const ExportStatusEntry = require('../../../fhir/classes/4_0_0/custom_resources/exportStatusEntry');
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
@@ -208,7 +207,7 @@ class BulkDataExportRunner {
         this.fetchResourceBatchSize = fetchResourceBatchSize;
 
         /**
-         * @type {import('../../../fhir/classes/4_0_0/custom_resources/exportStatus')|null}
+         * @type {Object|null}
          */
         this.exportStatusResource = null;
 
@@ -425,7 +424,8 @@ class BulkDataExportRunner {
             scope,
             isUser: false,
             resourceType: 'ExportStatus',
-            parsedArgs: parsedArgs
+            parsedArgs: parsedArgs,
+            accessRequested: 's'
         }));
         if (searchParams.has('_since')) {
             query = this.r4SearchQueryCreator.appendAndSimplifyQuery({
@@ -526,10 +526,10 @@ class BulkDataExportRunner {
 
                 // Add errors to ExportStatus resource and update in database
                 this.exportStatusResource.errors.push(
-                    new ExportStatusEntry({
+                    {
                         type: 'OperationOutcome',
                         url: this.s3Client.getPublicFilePath(filePath)
-                    })
+                    }
                 );
             }
         }
@@ -914,10 +914,10 @@ class BulkDataExportRunner {
                 const emptyFilePath = `${this.baseS3Folder}/${resourceType}.ndjson`;
                 await this.s3Client.uploadEmptyFileAsync({ filePath: emptyFilePath });
                 this.exportStatusResource.output.push(
-                    new ExportStatusEntry({
+                    {
                         type: resourceType,
                         url: this.s3Client.getPublicFilePath(emptyFilePath)
-                    })
+                    }
                 );
                 return;
             }
@@ -1010,10 +1010,10 @@ class BulkDataExportRunner {
 
             // add filename to ExportStatus resource
             this.exportStatusResource.output.push(
-                new ExportStatusEntry({
+                {
                     type: resourceType,
                     url: this.s3Client.getPublicFilePath(multipartContext.resourceFilePath)
-                })
+                }
             );
 
             logInfo(`Finished exporting ${resourceType} resource`);
@@ -1283,10 +1283,10 @@ class BulkDataExportRunner {
 
             // add filename to ExportStatus resource
             this.exportStatusResource.output.push(
-                new ExportStatusEntry({
+                {
                     type: resourceType,
                     url: this.s3Client.getPublicFilePath(filePath)
-                })
+                }
             );
 
             logInfo(`Finished exporting ${resourceType} resource`);

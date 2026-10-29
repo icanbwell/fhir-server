@@ -1319,7 +1319,7 @@ class EverythingHelper {
 
         let isQueryById = !!parsedArgs.get('id') || !!parsedArgs.get('_id');
 
-        if (await this.scopesValidator.hasValidScopesAsync({ requestInfo, parsedArgs, resourceType, action: 'everything', accessRequested: 'read' })) {
+        if (await this.scopesValidator.hasValidScopesAsync({ requestInfo, parsedArgs, resourceType, action: 'everything', accessRequested: 'r' })) {
             // get top level resource
             const {
                 /** @type {import('mongodb').Document}**/

@@ -889,7 +889,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                searchManager: c.searchManager,
+                sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+                uuidColumnHandler: c.uuidColumnHandler,
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider,
                 groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
@@ -1027,6 +1028,7 @@ const createContainer = function () {
     container.register('validateOperation', (c) => new ValidateOperation(
         {
             scopesManager: c.scopesManager,
+            scopesValidator: c.scopesValidator,
             fhirLoggingManager: c.fhirLoggingManager,
             resourceValidator: c.resourceValidator,
             configManager: c.configManager,
@@ -1416,7 +1418,8 @@ const createContainer = function () {
         exportManager: c.exportManager,
         scopesValidator: c.scopesValidator,
         postSaveProcessor: c.postSaveProcessor,
-        bulkExportEventProducer: c.bulkExportEventProducer
+        bulkExportEventProducer: c.bulkExportEventProducer,
+        resourceValidator: c.resourceValidator
     }));
 
     container.register('historyResourceCloudStorageClient', (c) => {

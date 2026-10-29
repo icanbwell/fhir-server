@@ -6,6 +6,10 @@
         "method": "POST",
         "url": "/4_0_0/Patient/00100000000"
       },
+      "response": {
+          "status": "201 Created",
+          "etag": "W/\"2\""
+      },
       "resource": {
         "birthDate": "2015-01-01",
         "gender": "female",
@@ -54,26 +58,17 @@
           }
         ],
         "resourceType": "Patient"
-      },
-          "response": {
-              "status": "200",
-              "outcome": {
-                  "resourceType": "OperationOutcome",
-                  "issue": [
-                      {
-                          "severity": "information",
-                          "code": "informational",
-                          "diagnostics": "{\"op\":\"replace\",\"path\":\"/birthDate\",\"value\":\"2015-01-01\"}"
-                      }
-                  ]
-              }
-          }
+      }
       },
       {
         "id": "5b8e2400-af14-56e1-9518-1d18625afe93",
         "request": {
           "method": "POST",
           "url": "/4_0_0/Patient/00100000000"
+        },
+        "response": {
+            "status": "201 Created",
+            "etag": "W/\"1\""
         },
         "resource": {
           "birthDate": "2017-01-01",

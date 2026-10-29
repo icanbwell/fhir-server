@@ -8,10 +8,7 @@ const CodeSystemConcept = require('../../../../fhir/classes/4_0_0/backbone_eleme
 const CodeSystemProperty1 = require('../../../../fhir/classes/4_0_0/backbone_elements/codeSystemProperty1');
 const BundleEntry = require('../../../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../../../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const BundleResponse = require('../../../../fhir/classes/4_0_0/backbone_elements/bundleResponse');
-const OperationOutcome = require('../../../../fhir/classes/4_0_0/resources/operationOutcome');
 const Coding = require('../../../../fhir/classes/4_0_0/complex_types/coding');
-const OperationOutcomeIssue = require('../../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { DatabaseBulkInserter } = require('../../../../dataLayer/databaseBulkInserter');
 
@@ -464,28 +461,6 @@ describe('databaseBulkInserter Tests', () => {
                                 }
                             )
                         ]
-                    }),
-                    response: new BundleResponse({
-                        outcome: new OperationOutcome({
-                            issue: [
-                                new OperationOutcomeIssue(
-                                    {
-                                        code: 'informational',
-                                        diagnostics: '{"op":"add","path":"/concept/2","value":{"id":"6665-3","code":"6665-3","property":[{"code":"medline_plus","valueString":"3"}]}}',
-                                        severity: 'information'
-                                    }
-                                ),
-                                new OperationOutcomeIssue(
-                                    {
-                                        code: 'informational',
-                                        diagnostics: '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"e7f9d7f5-f443-4aa6-aaa8-90bbb676f252"}]}',
-                                        severity: 'information'
-                                    }
-                                )
-                            ],
-                            resourceType: 'OperationOutcome'
-                        }),
-                        status: '200'
                     })
                 }
             );
@@ -493,7 +468,6 @@ describe('databaseBulkInserter Tests', () => {
             const actualCodeSystemHistoryEntry = new BundleEntry(actualCodeSystemHistoryEntries[0]);
             actualCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
             expectedCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
-            expectedCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics = actualCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics;
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
         });
         test('execAsync works on CodeSystem with concurrency', async () => {
@@ -898,28 +872,6 @@ describe('databaseBulkInserter Tests', () => {
                                 }
                             )
                         ]
-                    }),
-                    response: new BundleResponse({
-                        outcome: new OperationOutcome({
-                            issue: [
-                                new OperationOutcomeIssue(
-                                    {
-                                        code: 'informational',
-                                        diagnostics: '{"op":"add","path":"/concept/2","value":{"id":"6665-3","code":"6665-3","property":[{"code":"medline_plus","valueString":"3"}]}}',
-                                        severity: 'information'
-                                    }
-                                ),
-                                new OperationOutcomeIssue(
-                                    {
-                                        code: 'informational',
-                                        diagnostics: '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"f67ac4cf-d135-46ac-b23d-a16289a61074"}]}',
-                                        severity: 'information'
-                                    }
-                                )
-                            ],
-                            resourceType: 'OperationOutcome'
-                        }),
-                        status: '200'
                     })
                 }
             );
@@ -927,7 +879,6 @@ describe('databaseBulkInserter Tests', () => {
             const actualCodeSystemHistoryEntry = new BundleEntry(actualCodeSystemHistoryEntries[0]);
             actualCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
             expectedCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
-            expectedCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics = actualCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics;
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
         });
         test('execAsync works on CodeSystem with multiple inserts and replace on same id', async () => {

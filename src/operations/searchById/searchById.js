@@ -160,7 +160,7 @@ class SearchByIdOperation {
             resourceType,
             startTime,
             action: currentOperationName,
-            accessRequested: 'read'
+            accessRequested: 'r'
         });
 
         // check if required filters for AuditEvent are passed
@@ -200,6 +200,7 @@ class SearchByIdOperation {
                 personIdFromJwtToken,
                 parsedArgs,
                 operation: READ,
+                accessRequested: 'r',
                 requestId,
                 actor
             });

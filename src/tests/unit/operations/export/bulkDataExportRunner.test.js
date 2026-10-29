@@ -335,6 +335,19 @@ describe('BulkDataExportRunner', () => {
             expect(result).toBeDefined();
         });
 
+        test('builds the tenant filter with the s letter', async () => {
+            const searchParams = new URLSearchParams();
+            searchParams.set('base_version', '4_0_0');
+            await runner.getQueryForExport({
+                user: 'admin',
+                scope: 'user/*.*',
+                searchParams
+            });
+            expect(mocks.searchManager.constructQueryAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ accessRequested: 's' })
+            );
+        });
+
         test('adds _since filter when param present', async () => {
             const searchParams = new URLSearchParams();
             searchParams.set('base_version', '4_0_0');

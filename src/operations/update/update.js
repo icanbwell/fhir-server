@@ -10,7 +10,6 @@ const { ScopesValidator } = require('../security/scopesValidator');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
-const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ResourceMerger } = require('../common/resourceMerger');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { logInfo } = require('../common/logging');
@@ -20,11 +19,11 @@ const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../dataLayer/base64DataManager');
-const { isTrue } = require('../../utils/isTrue');
-const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { isUuid } = require('../../utils/uid.util');
+const { SourceAssigningAuthorityColumnHandler } = require('../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const { UuidColumnHandler } = require('../../preSaveHandlers/handlers/uuidColumnHandler');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
@@ -53,7 +52,8 @@ class UpdateOperation {
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
-     * @param {SearchManager} searchManager
+     * @param {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
+     * @param {UuidColumnHandler} uuidColumnHandler
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
@@ -72,7 +72,8 @@ class UpdateOperation {
             configManager,
             databaseAttachmentManager,
             base64DataManager,
-            searchManager,
+            sourceAssigningAuthorityColumnHandler,
+            uuidColumnHandler,
             postSaveHandlerFactory,
             identifierEnrichmentProvider,
             groupExtendedTagEnrichmentProvider
@@ -149,10 +150,16 @@ class UpdateOperation {
         assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
-         * @type {SearchManager}
+         * @type {SourceAssigningAuthorityColumnHandler}
          */
-        this.searchManager = searchManager;
-        assertTypeEquals(searchManager, SearchManager);
+        this.sourceAssigningAuthorityColumnHandler = sourceAssigningAuthorityColumnHandler;
+        assertTypeEquals(sourceAssigningAuthorityColumnHandler, SourceAssigningAuthorityColumnHandler);
+
+        /**
+         * @type {UuidColumnHandler}
+         */
+        this.uuidColumnHandler = uuidColumnHandler;
+        assertTypeEquals(uuidColumnHandler, UuidColumnHandler);
 
         /**
          * @type {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory}
@@ -171,6 +178,28 @@ class UpdateOperation {
          */
         this.groupExtendedTagEnrichmentProvider = groupExtendedTagEnrichmentProvider;
         assertTypeEquals(groupExtendedTagEnrichmentProvider, GroupExtendedTagEnrichmentProvider);
+    }
+
+    /**
+     * throws a NotValidatedError if the validation of the resource's meta tags failed
+     * @param {Resource|Object} resource
+     * @param {OperationOutcome|null} validationOperationOutcome
+     */
+    throwIfMetaNotValid (resource, validationOperationOutcome) {
+        if (validationOperationOutcome) {
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                operationResult: [{
+                    id: resource.id,
+                    uuid: resource._uuid,
+                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    resourceType: resource.resourceType,
+                    operationOutcome: validationOperationOutcome,
+                    created: false,
+                    updated: false
+                }]
+            });
+            throw new NotValidatedError(validationOperationOutcome);
+        }
     }
 
     /**
@@ -196,20 +225,12 @@ class UpdateOperation {
          */
         const startTime = Date.now();
         const {
-            /** @type {string | null} */
-            user,
-            /** @type {string | null} */
-            scope,
             /** @type {string} */
             path,
             /** @type {Object} */
             body,
             /** @type {string|null} */
-            requestId,
-            /** @type {boolean | null} */
-            isUser,
-            /** @type {string} */
-            personIdFromJwtToken
+            requestId
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -219,7 +240,7 @@ class UpdateOperation {
                 resourceType,
                 startTime,
                 action: currentOperationName,
-                accessRequested: 'write'
+                accessRequested: 'u'
             }
         );
 
@@ -230,7 +251,10 @@ class UpdateOperation {
         const resource_incoming_json = body;
         const { base_version, id } = parsedArgs;
 
-        const { id: rawId } = IdParser.parse(id);
+        const originalIdParsedArg = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
+        const { id: rawId, sourceAssigningAuthority: urlAuthority } = IdParser.parse(
+            originalIdParsedArg?.queryParameterValue?.value ?? id
+        );
         resource_incoming_json.id = rawId;
 
         // For resources with mongo-with-clickhouse dual-write storage, track if externally-stored fields present
@@ -260,36 +284,30 @@ class UpdateOperation {
             : FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
         try {
-            /**
-             * @type {import('mongodb').Document}
-             */
-            let query;
-            if (isUuid(rawId)) {
-                query = { _uuid: rawId };
-            } else {
-                /**
-                 * @type {boolean}
-                 */
-                const useAccessIndex =
-                    this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex);
-
-                /**
-                 * @type {{base_version, columns: Set, query: import('mongodb').Document}}
-                 */
-                (
-                    { query } = await this.searchManager.constructQueryAsync({
-                        user,
-                        scope,
-                        isUser,
-                        resourceType,
-                        useAccessIndex,
-                        personIdFromJwtToken,
-                        parsedArgs,
-                        operation: WRITE,
-                        accessRequested: 'u'
-                    })
+            let targetUuid = rawId;
+            if (!isUuid(rawId)) {
+                this.throwIfMetaNotValid(
+                    resource_incoming_json,
+                    this.resourceValidator.validateResourceHasAuthorityTagSync(resource_incoming_json)
                 );
+                const resourceForUuid = await this.uuidColumnHandler.preSaveAsync({
+                    resource: await this.sourceAssigningAuthorityColumnHandler.preSaveAsync({
+                        resource: {
+                            id: rawId,
+                            resourceType,
+                            meta: { security: resource_incoming_json.meta.security.filter(Boolean) }
+                        }
+                    })
+                });
+                if (urlAuthority && urlAuthority !== resourceForUuid._sourceAssigningAuthority) {
+                    throw new BadRequestError(new Error(
+                        `The sourceAssigningAuthority in the id (${rawId}|${urlAuthority}) does not match ` +
+                        `the owner/sourceAssigningAuthority tag of the resource (${resourceForUuid._sourceAssigningAuthority})`
+                    ));
+                }
+                targetUuid = resourceForUuid._uuid;
             }
+            const query = { _uuid: targetUuid };
 
             // Get current record
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
@@ -304,29 +322,20 @@ class UpdateOperation {
                 ? (await cursor.toArrayAsync()).map((r) => FhirResourceWriteSerializer.serialize({ obj: r }))
                 : await cursor.toObjectArrayAsync();
 
-            if (resources.length > 1) {
-                const sourceAssigningAuthorities = resources.flatMap(
-                    r => r.meta && r.meta.security
-                        ? r.meta.security
-                            .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
-                            .map(tag => tag.code)
-                        : []
-                ).sort();
-                throw new BadRequestError(new Error(
-                    `Multiple resources found with id ${id}.  ` +
-                    'Please either specify the owner/sourceAssigningAuthority tag: ' +
-                    sourceAssigningAuthorities.map(sa => `${id}|${sa}`).join(' or ') +
-                    ' OR use uuid to query.'
-                ));
-            }
             /**
              * @type {Resource | null}
              */
             const data = resources[0];
+            if (data && data.meta) {
+                await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                    requestInfo, resource: data, base_version, accessRequested: 'u'
+                });
+            }
             /**
              * @type {OperationOutcome|null}
              */
             let validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                accessRequested: 'u',
                 base_version,
                 requestInfo,
                 id: resource_incoming_json.id,
@@ -390,9 +399,6 @@ class UpdateOperation {
             if (data && data.meta) {
                 // found an existing resource
                 foundResource = data;
-                await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                    requestInfo, resource: foundResource, base_version
-                });
                 // Extended Group's member[] doesn't exist on the live document -- a submitted
                 // member must go through PATCH instead (design doc §5.1). Unconditional on
                 // ENABLE_EXTENDED_GROUP (see rejectMemberOnExtendedGroupWrite's own docstring for
@@ -455,26 +461,7 @@ class UpdateOperation {
             }
             if (doc) {
                 // Validating resource meta tags
-                /**
-                 * @type {OperationOutcome|null}
-                 */
-                const validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
-                    doc
-                );
-                if (validationOperationOutcome) {
-                    httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                        operationResult: [{
-                            id: doc.id,
-                            uuid: doc._uuid,
-                            sourceAssigningAuthority: doc._sourceAssigningAuthority,
-                            resourceType: doc.resourceType,
-                            operationOutcome: validationOperationOutcome,
-                            created: false,
-                            updated: false
-                        }]
-                    });
-                    throw new NotValidatedError(validationOperationOutcome);
-                }
+                this.throwIfMetaNotValid(doc, this.resourceValidator.validateResourceMetaSync(doc));
                 // Update attachments after all validations
                 doc = await this.databaseAttachmentManager.transformAttachments(doc);
                 // TODO: remove alwaysCreateNew when this operation is updated to be version aware
@@ -485,7 +472,7 @@ class UpdateOperation {
                     // access tags the merge (smartMerge: false, so a full replace) took from the incoming
                     // body still need to be validated before the merged doc is persisted
                     this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
-                        requestInfo, currentResource: foundResource, updatedResource: doc
+                        requestInfo, currentResource: foundResource, updatedResource: doc, accessRequested: 'u'
                     });
 
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
@@ -507,12 +494,12 @@ class UpdateOperation {
                     doc.meta.versionId = '1';
                     doc.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                        resource: doc, requestInfo, base_version
+                        resource: doc, requestInfo, base_version, accessRequested: 'u'
                     });
                     // SEC-1580 F3: this is a create-via-PUT, so the "old" access tag set is empty and
                     // every access tag on doc counts as an addition the caller must be authorized for
                     this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
-                        requestInfo, currentResource: null, updatedResource: doc
+                        requestInfo, currentResource: null, updatedResource: doc, accessRequested: 'u'
                     });
 
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);

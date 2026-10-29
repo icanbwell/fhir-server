@@ -118,6 +118,10 @@
         "id": "152b59e0-9502-4ccd-bdf9-d6ca96ec804a",
         "method": "PUT",
         "url": "/4_0_0/Observation/007ae95f-1ce4-43af-a881-7eeff3fd264f"
+      },
+      "response": {
+        "status": "200 OK",
+        "etag": "W/\"1\""
       }
     }
   ]
