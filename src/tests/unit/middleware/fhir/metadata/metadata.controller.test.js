@@ -1,12 +1,5 @@
 const { describe, test, expect, jest: jestObj, beforeEach } = require('@jest/globals');
 
-// Mock the constants module
-jestObj.mock('../../../../../constants', () => ({
-    VERSIONS: {
-        '4_0_0': '4_0_0'
-    }
-}));
-
 // Mock the service module
 jestObj.mock('../../../../../middleware/fhir/metadata/metadata.service.js', () => ({
     generateCapabilityStatement: jestObj.fn()
