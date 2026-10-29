@@ -20,9 +20,6 @@ jest.mock('../../../../middleware/fhir/utils/params.utils', () => ({
 jest.mock('../../../../middleware/fhir/utils/getArgs.utils', () => ({
     getArgsMiddleware: jest.fn(() => (req, res, next) => next())
 }));
-jest.mock('../../../../middleware/fhir/base/base.config', () => ({
-    routes: []
-}));
 jest.mock('../../../../middleware/fhir/utils/hyphen-to-camel.utils', () => jest.fn((str) => str.replace(/-([a-z])/g, (g) => g[1].toUpperCase())));
 
 // Mock the controller.utils to prevent deep dependency chain

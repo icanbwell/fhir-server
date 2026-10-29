@@ -19,8 +19,6 @@ const {
     routes
 } = require('./route.config');
 
-const { routes: baseRoutes } = require('./base/base.config');
-
 const hyphenToCamelcase = require('./utils/hyphen-to-camel.utils');
 
 const { getArgsMiddleware } = require('./utils/getArgs.utils');
@@ -438,34 +436,6 @@ class FhirRouter {
         }
     }
 
-    enableBaseRoute (app, config, corsDefaults) {
-        for (const currentRoute of baseRoutes) {
-            const versionValidationConfiguration = {
-                versions: this.getAllConfiguredVersions(config.profiles)
-            };
-            const corsOptions = Object.assign({}, corsDefaults, {
-                methods: [currentRoute.type.toUpperCase()]
-            }); // Enable cors with preflight
-
-            currentRoute.args = [routeArgs.BASE];
-
-            app.options(currentRoute.path, cors(corsOptions)); // Enable base route
-
-            app[currentRoute.type](
-                currentRoute.path,
-                cors(corsOptions),
-                versionValidationMiddleware(versionValidationConfiguration),
-                getArgsMiddleware(),
-                authenticationMiddleware(config),
-                currentRoute.controller(
-                    {
-                        config
-                    }
-                )
-            );
-        }
-    }
-
     /**
      * Sets up the routes for FHIR resources
      * @param options
@@ -484,9 +454,7 @@ class FhirRouter {
         this.enableMetadataRoute(app, config, corsDefaults);
         this.enableExportRoutes(app, config, corsDefaults);
         this.enableImportRoutes(app, config, corsDefaults);
-        this.enableResourceRoutes(app, config, corsDefaults); // Enable all routes, operations base: Batch and Transactions
-
-        this.enableBaseRoute(app, config, corsDefaults);
+        this.enableResourceRoutes(app, config, corsDefaults);
     }
 }
 
