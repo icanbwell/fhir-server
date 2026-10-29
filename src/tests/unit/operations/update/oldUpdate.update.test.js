@@ -457,5 +457,85 @@ describe('UpdateOperation', () => {
             expect(result.updated).toBe(false);
             expect(mocks.databaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
         });
+
+        const existingResource = {
+            id: 'test-id',
+            _uuid: 'uuid-1',
+            _sourceAssigningAuthority: 'bwell',
+            resourceType: 'Patient',
+            meta: { versionId: '1', lastUpdated: new Date(), security: [], source: 'urn:test' },
+            toJSON: () => ({}),
+            toJSONInternal: () => ({}),
+            clone: function() { return { ...this }; }
+        };
+
+        const buildRequestInfo = () => ({
+            user: 'admin',
+            scope: 'user/*.write',
+            path: '/Patient/test-id',
+            body: { id: 'test-id', resourceType: 'Patient', meta: { source: 'urn:test', security: ownerSecurity }, name: [{ family: 'Smith' }] },
+            requestId: 'req-1',
+            isUser: false,
+            personIdFromJwtToken: null,
+            headers: {}
+        });
+
+        const runQueuedAuditTasksAsync = async () => {
+            for (const [{ fnTask }] of mocks.postRequestProcessor.add.mock.calls) {
+                await fnTask();
+            }
+        };
+
+        test.each([
+            ['id not found -> create', false, { created: true, updated: false }, 'create'],
+            ['id found -> update', true, { created: false, updated: true }, 'update']
+        ])('%s', async (_name, resourceExists, mergeFlags, expectedOperation) => {
+            if (resourceExists) {
+                mocks.databaseQueryFactory.createQuery.mockReturnValue({
+                    findAsync: jest.fn().mockResolvedValue({
+                        toObjectArrayAsync: jest.fn().mockResolvedValue([existingResource])
+                    })
+                });
+                mocks.resourceMerger.mergeResourceAsync.mockResolvedValue({
+                    updatedResource: {
+                        ...existingResource,
+                        meta: { ...existingResource.meta, versionId: '2' }
+                    },
+                    patches: [{ op: 'replace', path: '/name' }]
+                });
+            }
+            mocks.databaseBulkInserter.executeAsync.mockResolvedValue([{
+                ...mergeFlags, id: 'test-id', uuid: 'uuid-1',
+                resourceType: 'Patient', sourceAssigningAuthority: 'bwell'
+            }]);
+
+            await updateOp.updateAsync({
+                requestInfo: buildRequestInfo(),
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+            await runQueuedAuditTasksAsync();
+
+            expect(mocks.auditLogger.logAuditEntryAsync).toHaveBeenCalledTimes(1);
+            expect(mocks.auditLogger.logAuditEntryAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ operation: expectedOperation, resourceType: 'Patient' })
+            );
+        });
+
+        test('no audit entry when the write is neither created nor updated (request fails)', async () => {
+            mocks.databaseBulkInserter.executeAsync.mockResolvedValue([{
+                created: false, updated: false, id: 'test-id', uuid: 'uuid-1',
+                resourceType: 'Patient', sourceAssigningAuthority: 'bwell', issue: { code: 'exception' }
+            }]);
+
+            await expect(updateOp.updateAsync({
+                requestInfo: buildRequestInfo(),
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            })).rejects.toThrow();
+
+            expect(mocks.postRequestProcessor.add).not.toHaveBeenCalled();
+            expect(mocks.auditLogger.logAuditEntryAsync).not.toHaveBeenCalled();
+        });
     });
 });
