@@ -69,6 +69,7 @@ const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/i
 const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const { fhirContentTypes } = require('../../../../utils/contentTypes');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
+const { AuditLogger } = require('../../../../utils/auditLogger');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -99,7 +100,8 @@ describe('PatchOperation', () => {
             ),
             identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
             groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
-            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
+            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
+            auditLogger: createMockInstance(AuditLogger)
         };
 
         // Setup mocks
@@ -133,6 +135,7 @@ describe('PatchOperation', () => {
         mocks.preSaveManager.preSaveAsync = jest.fn(({ resource }) => Promise.resolve(resource));
         mocks.resourceMerger.applyPatch = jest.fn(({ currentResource }) => ({
             ...currentResource.toJSON(),
+            _uuid: currentResource._uuid,
             status: 'amended'
         }));
         mocks.resourceMerger.overWriteNonWritableFields = jest.fn();
@@ -146,6 +149,7 @@ describe('PatchOperation', () => {
         mocks.fhirLoggingManager.logOperationSuccessAsync = jest.fn().mockResolvedValue(undefined);
         mocks.fhirLoggingManager.logOperationFailureAsync = jest.fn().mockResolvedValue(undefined);
         mocks.postRequestProcessor.add = jest.fn();
+        mocks.auditLogger.logAuditEntryAsync = jest.fn().mockResolvedValue(undefined);
         mocks.postSaveHandlerFactory.getHandlers = jest.fn().mockReturnValue([]);
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jest.fn();
         mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jest.fn(({ resources }) => Promise.resolve(resources));
@@ -309,6 +313,81 @@ describe('PatchOperation', () => {
 
             expect(mocks.databaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
             expect(result.updated).toBe(true);
+        });
+
+        const buildRequestInfo = () => ({
+            requestId: 'req-1',
+            body: [{ op: 'replace', path: '/status', value: 'amended' }],
+            contentTypeFromHeader: { type: fhirContentTypes.jsonPatch },
+            user: 'admin',
+            scope: 'user/*.write',
+            isUser: false,
+            personIdFromJwtToken: null,
+            path: '/Observation/obs-1'
+        });
+
+        const runQueuedAuditTasksAsync = async () => {
+            for (const [{ fnTask }] of mocks.postRequestProcessor.add.mock.calls) {
+                await fnTask();
+            }
+        };
+
+        test('audits a successful patch as an update of the resource uuid', async () => {
+            const requestInfo = buildRequestInfo();
+            mockParsedArgs.getRawArgs.mockReturnValue({ base_version: '4_0_0', id: 'obs-1' });
+
+            await patchOp.patchAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Observation'
+            });
+            await runQueuedAuditTasksAsync();
+
+            expect(mocks.auditLogger.logAuditEntryAsync).toHaveBeenCalledTimes(1);
+            expect(mocks.auditLogger.logAuditEntryAsync).toHaveBeenCalledWith({
+                requestInfo,
+                base_version: '4_0_0',
+                resourceType: 'Observation',
+                operation: 'update',
+                args: { base_version: '4_0_0', id: 'obs-1' },
+                ids: ['uuid-obs-1']
+            });
+        });
+
+        test('does not put the patch body in the audit call', async () => {
+            await patchOp.patchAsync({
+                requestInfo: buildRequestInfo(),
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Observation'
+            });
+            await runQueuedAuditTasksAsync();
+
+            const [auditCall] = mocks.auditLogger.logAuditEntryAsync.mock.calls[0];
+            expect(JSON.stringify(auditCall.args)).not.toContain('amended');
+        });
+
+        test.each([
+            [
+                'patch produces no change',
+                () => mocks.resourceMerger.compareObjects.mockReturnValue([])
+            ],
+            [
+                'write is neither created nor updated',
+                () => mocks.databaseBulkInserter.executeAsync.mockResolvedValue([{
+                    created: false, updated: false, issue: { code: 'exception' }
+                }])
+            ]
+        ])('does not audit when %s', async (_name, arrange) => {
+            arrange();
+
+            await patchOp.patchAsync({
+                requestInfo: buildRequestInfo(),
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Observation'
+            }).catch(() => undefined);
+            await runQueuedAuditTasksAsync();
+
+            expect(mocks.auditLogger.logAuditEntryAsync).not.toHaveBeenCalled();
         });
     });
 });

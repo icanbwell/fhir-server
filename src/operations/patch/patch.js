@@ -5,6 +5,7 @@ const { validate } = require('fast-json-patch');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { AuditLogger } = require('../../utils/auditLogger');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
@@ -63,6 +64,7 @@ class PatchOperation {
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
      * @param {import('../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} mongoGroupMemberRepository
+     * @param {AuditLogger} auditLogger
      */
     constructor (
         {
@@ -82,7 +84,8 @@ class PatchOperation {
             postSaveHandlerFactory,
             identifierEnrichmentProvider,
             groupExtendedTagEnrichmentProvider,
-            mongoGroupMemberRepository
+            mongoGroupMemberRepository,
+            auditLogger
         }
     ) {
         /**
@@ -172,6 +175,11 @@ class PatchOperation {
          */
         this.mongoGroupMemberRepository = mongoGroupMemberRepository;
         assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
 
         /**
          * Strategy for handling resource-specific PATCH operations
@@ -674,6 +682,24 @@ class PatchOperation {
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     operationResult: mergeResults
                 });
+
+                if (resourceType !== 'AuditEvent') {
+                    const resourceUuid = resource._uuid;
+                    this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            // log modification to audit logs
+                            await this.auditLogger.logAuditEntryAsync({
+                                requestInfo,
+                                base_version,
+                                resourceType,
+                                operation: 'update',
+                                args: parsedArgs.getRawArgs(),
+                                ids: [resourceUuid]
+                            });
+                        }
+                    });
+                }
             }
 
             await this.fhirLoggingManager.logOperationSuccessAsync({

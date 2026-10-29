@@ -1022,7 +1022,8 @@ const createContainer = function () {
             postSaveHandlerFactory: c.postSaveHandlerFactory,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
-            mongoGroupMemberRepository: c.mongoGroupMemberRepository
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+            auditLogger: c.auditLogger
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
