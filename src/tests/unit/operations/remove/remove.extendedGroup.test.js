@@ -46,14 +46,14 @@ describe('RemoveOperation -- extended Group cascade', () => {
 
     function mockFind(resources) {
         const hasNext = jest.fn();
-        const nextObject = jest.fn();
+        const next = jest.fn();
         for (const resource of resources) {
             hasNext.mockResolvedValueOnce(true);
-            nextObject.mockResolvedValueOnce(resource);
+            next.mockResolvedValueOnce(resource);
         }
         hasNext.mockResolvedValueOnce(false);
         mockDatabaseQueryFactory.createQuery.mockReturnValue({
-            findAsync: jest.fn().mockResolvedValue({ hasNext, nextObject })
+            findAsync: jest.fn().mockResolvedValue({ hasNext, next })
         });
     }
 

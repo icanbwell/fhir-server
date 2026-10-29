@@ -206,7 +206,7 @@ class RemoveOperation {
             let resourceArrayToDelete = [];
 
             while (await cursor.hasNext()) {
-                const resource = await cursor.nextObject();
+                const resource = await cursor.next();
 
                 // isAccessToResourceAllowedByAccessAndPatientScopes will throw forbidden error so wrap this under try catch
                 try {

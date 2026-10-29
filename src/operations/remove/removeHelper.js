@@ -1,11 +1,12 @@
 const moment = require('moment');
+const deepcopy = require('deepcopy');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { RethrownError } = require('../../utils/rethrownError');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
-const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { DELETE } = require('../../constants').GRIDFS;
 const httpContext = require('express-http-context');
@@ -19,18 +20,18 @@ class RemoveHelper {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {Base64DataManager} base64DataManager
+     * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      */
     constructor({
         resourceLocatorFactory,
         databaseQueryFactory,
         databaseAttachmentManager,
-        databaseBulkInserter,
         postRequestProcessor,
         postSaveProcessor,
-        base64DataManager
+        base64DataManager,
+        fastDatabaseBulkInserter
     }) {
         /**
          * @type {ResourceLocatorFactory}
@@ -51,12 +52,6 @@ class RemoveHelper {
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
-         * @type {DatabaseBulkInserter}
-         */
-        this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-
-        /**
          * @type {PostRequestProcessor}
          */
         this.postRequestProcessor = postRequestProcessor;
@@ -73,6 +68,12 @@ class RemoveHelper {
          */
         this.base64DataManager = base64DataManager;
         assertTypeEquals(base64DataManager, Base64DataManager);
+
+        /**
+         * @type {FastDatabaseBulkInserter}
+         */
+        this.fastDatabaseBulkInserter = fastDatabaseBulkInserter;
+        assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
     }
 
     /**
@@ -82,7 +83,7 @@ class RemoveHelper {
      * @property {import('mongodb').DeleteOptions} options
      * @property {string} resourceType
      * @property {string} base_version
-     * @property {Resource} resources
+     * @property {Object[]} resources - plain resource documents as read from Mongo
      * @property {boolean} [preserveLastUpdated] - Skip stamping resource.meta.lastUpdated with the
      *   current time before writing history, keeping whatever the caller already set it to. Default
      *   (false) is correct for a real, standalone resource deletion, where "now" is genuinely the
@@ -147,12 +148,11 @@ class RemoveHelper {
                 liveObjectRefsByResource.push({
                     resource, liveRefs
                 });
-                await this.databaseBulkInserter.insertOneHistoryAsync({
+                await this.fastDatabaseBulkInserter.insertOneHistoryAsync({
                     requestInfo,
                     base_version,
                     resourceType,
-                    doc: resource,
-                    skipResourceAssertion: true
+                    doc: deepcopy(resource)
                 });
 
                 deletionResult.push({
@@ -167,10 +167,10 @@ class RemoveHelper {
             }
 
             // Add history before deletion
-            await this.databaseBulkInserter.executeHistoryAsync({
+            await this.fastDatabaseBulkInserter.executeHistoryAsync({
                 requestInfo,
                 base_version
-            })
+            });
 
             query = {
                 _uuid: { $in: uuidList }

@@ -548,7 +548,7 @@ describe('Conditional Delete — Cross-Tenant Security', () => {
         mocks.databaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
             findAsync: jestGlobal.fn().mockResolvedValue({
                 hasNext: jestGlobal.fn().mockImplementation(async () => cursorIndex < cursorResources.length),
-                nextObject: jestGlobal.fn().mockImplementation(async () => cursorResources[cursorIndex++])
+                next: jestGlobal.fn().mockImplementation(async () => cursorResources[cursorIndex++])
             })
         });
 
@@ -630,7 +630,7 @@ describe('Conditional Delete — Cross-Tenant Security', () => {
         mocks.databaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
             findAsync: jestGlobal.fn().mockResolvedValue({
                 hasNext: jestGlobal.fn().mockResolvedValue(false),
-                nextObject: jestGlobal.fn().mockResolvedValue(null)
+                next: jestGlobal.fn().mockResolvedValue(null)
             })
         });
         mocks.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes =
