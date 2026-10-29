@@ -9,20 +9,14 @@ jestObj.mock('moment-timezone', () => {
     return jestObj.fn(() => mockMoment);
 });
 
-jestObj.mock('../../../../../middleware/fhir/utils/schema.utils', () => ({
-    resolveSchema: jestObj.fn()
-}));
-
 const { makeStatement, securityStatement } = require('../../../../../middleware/fhir/metadata/capability.4_0_0');
-const { resolveSchema } = require('../../../../../middleware/fhir/utils/schema.utils');
+const BaseSerializer = require('../../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+
+BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
 describe('capability.4_0_0', () => {
     beforeEach(() => {
         jestObj.clearAllMocks();
-        // Mock resolveSchema to return a constructor that stores properties
-        resolveSchema.mockReturnValue(function (props) {
-            Object.assign(this, props);
-        });
     });
 
     describe('makeStatement', () => {
@@ -94,11 +88,20 @@ describe('capability.4_0_0', () => {
             expect(result.rest).toEqual([resources]);
         });
 
-        test('resolves CapabilityStatement schema for version 4_0_0', () => {
-            const resources = { mode: 'server', resource: [] };
-            makeStatement(resources);
+        test('returns a plain CapabilityStatement resource', () => {
+            const result = makeStatement({ mode: 'server', resource: [{ type: 'Patient' }] });
 
-            expect(resolveSchema).toHaveBeenCalledWith('4_0_0', 'capabilitystatement');
+            expect(result.resourceType).toBe('CapabilityStatement');
+            expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
+        });
+
+        test('drops fields that are not part of the capability statement', () => {
+            const result = makeStatement({
+                mode: 'server',
+                resource: [{ type: 'Patient', searchParam: [{ name: 'name', type: 'string', versions: '4_0_0' }] }]
+            });
+
+            expect(result.rest[0].resource[0].searchParam).toStrictEqual([{ name: 'name', type: 'string' }]);
         });
     });
 

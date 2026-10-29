@@ -456,7 +456,7 @@ describe('MyFHIRServer', () => {
                 };
 
                 // url.split('/')[1] is '' when url is '', or undefined when url is '/'
-                // The code does: `const base = req.url.split('/')[1] || VERSIONS['4_0_1']`
+                // The code does: `const base = req.url.split('/')[1] || VERSIONS['4_0_0']`
                 notFoundHandler(req, res);
 
                 expect(res.status).toHaveBeenCalledWith(404);

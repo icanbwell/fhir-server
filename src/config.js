@@ -312,7 +312,7 @@ const fhirServerConfig = {
     // Example:
     // Account: {
     //      service: './src/services/account/account.service.js',
-    //      versions: [ VERSIONS['4_0_0'], VERSIONS['3_0_1'], VERSIONS['1_0_2'] ]
+    //      versions: [ VERSIONS['4_0_0'] ]
     // },
     //
     profiles

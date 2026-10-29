@@ -3,21 +3,17 @@ const generateInteractions = require('./metadata.interactions.js');
 const conformanceTemplate = require('./capability.template.js');
 
 const errors = require('../utils/error.utils.js');
+const { VERSIONS } = require('../utils/constants.js');
 
 /**
  * Load the correct statement generators for the right version
  */
 
 const getStatementGenerators = base_version => {
-    const SUPPORTED_VERSIONS = ['1_0_2', '2_0_0', '3_0_1', '4_0_0', '4_0_1'];
-    if (base_version) {
-        if (SUPPORTED_VERSIONS.indexOf(base_version) === -1) {
-            throw errors.internal('Unsupported FHIR specification version requested.');
-        }
-        return require(`./capability.${base_version}`);
-    } else {
-        return require('./capability.4_0_0');
+    if (base_version && base_version !== VERSIONS['4_0_0']) {
+        throw errors.internal('Unsupported FHIR specification version requested.');
     }
+    return require('./capability.4_0_0');
 };
 /**
  * @function generateCapabilityStatement

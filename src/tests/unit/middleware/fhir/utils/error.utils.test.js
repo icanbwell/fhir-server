@@ -130,16 +130,16 @@ describe('error.utils', () => {
             expect(resolveSchema).toHaveBeenCalledWith('4_0_0', 'OperationOutcome');
         });
 
-        test('falls back to 3_0_1 when base_version is invalid', () => {
+        test('falls back to 4_0_0 when base_version is invalid', () => {
             unauthorized('msg', 'invalid_version');
 
-            expect(resolveSchema).toHaveBeenCalledWith('3_0_1', 'OperationOutcome');
+            expect(resolveSchema).toHaveBeenCalledWith('4_0_0', 'OperationOutcome');
         });
 
-        test('falls back to 3_0_1 when base_version is null', () => {
+        test('falls back to 4_0_0 when base_version is null', () => {
             unauthorized('msg', null);
 
-            expect(resolveSchema).toHaveBeenCalledWith('3_0_1', 'OperationOutcome');
+            expect(resolveSchema).toHaveBeenCalledWith('4_0_0', 'OperationOutcome');
         });
     });
 
@@ -387,16 +387,16 @@ describe('error.utils', () => {
     });
 
     describe('version fallback behavior', () => {
-        test('falls back to 3_0_1 when baseVersion is undefined', () => {
+        test('falls back to 4_0_0 when baseVersion is undefined', () => {
             unauthorized('msg', undefined);
 
-            expect(resolveSchema).toHaveBeenCalledWith('3_0_1', 'OperationOutcome');
+            expect(resolveSchema).toHaveBeenCalledWith('4_0_0', 'OperationOutcome');
         });
 
-        test('falls back to 3_0_1 when baseVersion is empty string', () => {
+        test('falls back to 4_0_0 when baseVersion is empty string', () => {
             unauthorized('msg', '');
 
-            expect(resolveSchema).toHaveBeenCalledWith('3_0_1', 'OperationOutcome');
+            expect(resolveSchema).toHaveBeenCalledWith('4_0_0', 'OperationOutcome');
         });
 
         test('uses provided baseVersion when it exists in VERSIONS', () => {

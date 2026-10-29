@@ -3,7 +3,6 @@ const { describe, test, expect, jest: jestObj, beforeEach } = require('@jest/glo
 // Mock the constants module
 jestObj.mock('../../../../../constants', () => ({
     VERSIONS: {
-        '4_0_1': '4_0_1',
         '4_0_0': '4_0_0'
     }
 }));
@@ -52,7 +51,7 @@ describe('metadata.controller', () => {
             await middleware(req, res, next);
 
             expect(service.generateCapabilityStatement).toHaveBeenCalledWith({
-                fhirVersion: '4_0_1',
+                fhirVersion: '4_0_0',
                 profiles,
                 security,
                 statementGenerator

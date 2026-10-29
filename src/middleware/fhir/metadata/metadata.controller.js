@@ -19,7 +19,7 @@ module.exports.getCapabilityStatement = ({
             base_version: fhirVersion
         } = req.sanitized_args;
         return service.generateCapabilityStatement({
-            fhirVersion: fhirVersion || VERSIONS['4_0_1'],
+            fhirVersion: fhirVersion || VERSIONS['4_0_0'],
             profiles,
             security,
             statementGenerator

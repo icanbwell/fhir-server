@@ -1,34 +1,26 @@
 const moment = require('moment-timezone');
-
-const {
-    resolveSchema
-} = require('../utils/schema.utils');
-/**
- * @description Construct a resource with base_version/uscore path
- */
-
-const getCapabilityStatementResource = () => {
-    return resolveSchema('4_0_0', 'capabilitystatement');
-};
+const { FhirResourceWriteNormalizeSerializer } = require('../../../fhir/fhirResourceWriteNormalizeSerializer');
 
 module.exports.makeStatement = function (resources) {
-    const CapabilityStatement = getCapabilityStatementResource();
-    return new CapabilityStatement({
-        status: 'active',
-        date: moment().tz('America/New_York').format(),
-        publisher: 'Not provided',
-        kind: 'instance',
-        software: {
-            name: 'FHIR Server',
-            version: '1.4.0'
-        },
-        implementation: {
-            description: 'FHIR Test Server (R4)'
-        },
-        fhirVersion: '4.0.0',
-        acceptUnknown: 'extensions',
-        format: ['application/fhir+json'],
-        rest: [resources]
+    return FhirResourceWriteNormalizeSerializer.serialize({
+        obj: {
+            resourceType: 'CapabilityStatement',
+            status: 'active',
+            date: moment().tz('America/New_York').format(),
+            publisher: 'Not provided',
+            kind: 'instance',
+            software: {
+                name: 'FHIR Server',
+                version: '1.4.0'
+            },
+            implementation: {
+                description: 'FHIR Test Server (R4)'
+            },
+            fhirVersion: '4.0.0',
+            acceptUnknown: 'extensions',
+            format: ['application/fhir+json'],
+            rest: [resources]
+        }
     });
 };
 /**

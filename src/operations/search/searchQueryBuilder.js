@@ -1,7 +1,4 @@
-const { buildStu3SearchQuery } = require('../query/stu3');
-const { buildDstu2SearchQuery } = require('../query/dstu2');
 const { assertTypeEquals } = require('../../utils/assertType');
-const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { R4SearchQueryCreator } = require('../query/r4');
 
 class SearchQueryBuilder {
@@ -35,19 +32,13 @@ class SearchQueryBuilder {
         /** @type {Set<string>} */
         let columns;
         try {
-            if (base_version === VERSIONS['3_0_1']) {
-                query = buildStu3SearchQuery(parsedArgs);
-            } else if (base_version === VERSIONS['1_0_2']) {
-                query = buildDstu2SearchQuery(parsedArgs);
-            } else {
-                ({ query, columns } = this.r4SearchQueryCreator.buildR4SearchQuery({
-                    resourceType,
-                    parsedArgs,
-                    useHistoryTable,
-                    operation,
-                    isUser
-                }));
-            }
+            ({ query, columns } = this.r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType,
+                parsedArgs,
+                useHistoryTable,
+                operation,
+                isUser
+            }));
 
             return { query, columns };
         } catch (e) {

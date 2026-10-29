@@ -12,7 +12,7 @@ const Narrative = require('../../../fhir/classes/4_0_0/complex_types/narrative')
 
 const getErrorConstructor = baseVersion => {
     if (!baseVersion || !Object.prototype.hasOwnProperty.call(VERSIONS, baseVersion)) {
-        return resolveSchema(VERSIONS['3_0_1'], 'OperationOutcome');
+        return resolveSchema(VERSIONS['4_0_0'], 'OperationOutcome');
     } else {
         return resolveSchema(baseVersion, 'OperationOutcome');
     }
@@ -146,7 +146,7 @@ const deleted = (message, base_version) => {
  * @function customError
  * @description Take a custom error from user implementation and return an operation outcome
  * @param {Error<statusCode, code, severity, message>} err - error or custom error object
- * @param {String} base_version - dstu2 or stu3
+ * @param {String} base_version - FHIR version
  * @return {OperationOutcome}
  */
 

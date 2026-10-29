@@ -52,14 +52,6 @@ describe('FhirResponseWriter', () => {
     });
 
     describe('getContentType', () => {
-        test('should return application/json+fhir for version 1_0_2', () => {
-            expect(writer.getContentType('1_0_2')).toBe('application/json+fhir');
-        });
-
-        test('should return application/fhir+json for version 3_0_1', () => {
-            expect(writer.getContentType('3_0_1')).toBe('application/fhir+json');
-        });
-
         test('should return application/fhir+json for version 4_0_0', () => {
             expect(writer.getContentType('4_0_0')).toBe('application/fhir+json');
         });
