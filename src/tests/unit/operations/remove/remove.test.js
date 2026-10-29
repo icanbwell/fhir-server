@@ -169,7 +169,7 @@ describe('RemoveOperation', () => {
                 hasNext: jest.fn()
                     .mockResolvedValueOnce(true)
                     .mockResolvedValueOnce(false),
-                nextObject: jest.fn().mockResolvedValueOnce({
+                next: jest.fn().mockResolvedValueOnce({
                     _uuid: 'uuid-1',
                     id: 'patient-1',
                     resourceType: 'Patient'
@@ -200,7 +200,7 @@ describe('RemoveOperation', () => {
         test('should not add audit event task for AuditEvent resourceType', async () => {
             const mockCursor = {
                 hasNext: jest.fn().mockResolvedValueOnce(false),
-                nextObject: jest.fn()
+                next: jest.fn()
             };
 
             mockDatabaseQueryFactory.createQuery.mockReturnValue({
@@ -223,7 +223,7 @@ describe('RemoveOperation', () => {
                 hasNext: jest.fn()
                     .mockResolvedValueOnce(true)
                     .mockResolvedValueOnce(false),
-                nextObject: jest.fn().mockResolvedValueOnce({
+                next: jest.fn().mockResolvedValueOnce({
                     _uuid: 'uuid-1',
                     id: 'patient-1',
                     resourceType: 'Patient'
@@ -255,7 +255,7 @@ describe('RemoveOperation', () => {
                     .mockResolvedValueOnce(true)
                     .mockResolvedValueOnce(true)
                     .mockResolvedValueOnce(false),
-                nextObject: jest.fn()
+                next: jest.fn()
                     .mockResolvedValueOnce({
                         _uuid: 'uuid-1',
                         id: 'patient-1',
@@ -316,7 +316,7 @@ describe('RemoveOperation', () => {
                 hasNext: jest.fn()
                     .mockResolvedValueOnce(true)
                     .mockResolvedValueOnce(false),
-                nextObject: jest.fn().mockResolvedValueOnce({
+                next: jest.fn().mockResolvedValueOnce({
                     _uuid: 'uuid-1',
                     id: 'patient-1',
                     resourceType: 'Patient'
@@ -341,12 +341,12 @@ describe('RemoveOperation', () => {
         });
 
         test('BUG: accessing resource._uuid when resource from cursor could be null', async () => {
-            // If cursor.nextObject() returns null, accessing ._uuid and .resourceType will fail
+            // If cursor.next() returns null, accessing ._uuid and .resourceType will fail
             const mockCursor = {
                 hasNext: jest.fn()
                     .mockResolvedValueOnce(true)
                     .mockResolvedValueOnce(false),
-                nextObject: jest.fn().mockResolvedValueOnce(null)
+                next: jest.fn().mockResolvedValueOnce(null)
             };
 
             mockDatabaseQueryFactory.createQuery.mockReturnValue({
@@ -369,7 +369,7 @@ describe('RemoveOperation', () => {
                 hasNext: jest.fn()
                     .mockResolvedValueOnce(true)
                     .mockResolvedValueOnce(false),
-                nextObject: jest.fn().mockResolvedValueOnce({
+                next: jest.fn().mockResolvedValueOnce({
                     _uuid: 'uuid-1'
                     // Missing id and resourceType
                 })

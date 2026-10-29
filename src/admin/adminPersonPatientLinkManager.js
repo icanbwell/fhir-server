@@ -719,7 +719,7 @@ class AdminPersonPatientLinkManager {
             parentPersonResponses.push(removePersonResult);
         }
 
-        const personToDelete = await databaseQueryManager.findOneAsync({
+        const personToDelete = await databaseQueryManager.fastFindOneAsync({
             query: { [isUuid(personId) ? '_uuid' : 'id']: personId }
         });
 

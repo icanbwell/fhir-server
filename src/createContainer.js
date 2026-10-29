@@ -920,7 +920,7 @@ const createContainer = function () {
     }));
 
     container.register('removeHelper', c => new RemoveHelper({
-        databaseBulkInserter: c.databaseBulkInserter,
+        fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
         resourceLocatorFactory: c.resourceLocatorFactory,
         databaseQueryFactory: c.databaseQueryFactory,
         databaseAttachmentManager: c.databaseAttachmentManager,
