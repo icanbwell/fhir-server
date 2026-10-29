@@ -473,7 +473,7 @@ describe('UpdateOperation', () => {
             user: 'admin',
             scope: 'user/*.write',
             path: '/Patient/test-id',
-            body: { id: 'test-id', resourceType: 'Patient', meta: { source: 'urn:test' }, name: [{ family: 'Smith' }] },
+            body: { id: 'test-id', resourceType: 'Patient', meta: { source: 'urn:test', security: ownerSecurity }, name: [{ family: 'Smith' }] },
             requestId: 'req-1',
             isUser: false,
             personIdFromJwtToken: null,
