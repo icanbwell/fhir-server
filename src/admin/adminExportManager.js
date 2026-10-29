@@ -218,7 +218,14 @@ class AdminExportManager {
             });
 
             const exportResource = FhirResourceWriteSerializer.serialize({
-                obj: { ...req.body, resourceType, request: exportStatusResource.request }
+                obj: {
+                    ...req.body,
+                    resourceType,
+                    request: exportStatusResource.request,
+                    ...(req.body?.meta && {
+                        meta: { ...req.body.meta, source: req.body.meta.source ?? exportStatusResource.meta?.source }
+                    })
+                }
             });
 
             const validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(exportResource);
@@ -245,7 +252,7 @@ class AdminExportManager {
                     exportStatusResource: updatedResource
                 });
                 this.postRequestProcessor.add({
-                    requestId: req.id,
+                    requestId: requestInfo.requestId,
                     fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
                         requestId: req.id,
                         eventType: 'U',

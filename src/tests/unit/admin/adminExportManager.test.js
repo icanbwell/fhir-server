@@ -1,6 +1,6 @@
 /**
  * Unit tests for AdminExportManager
- * Focuses on: cache key mismatch, null safety, serialize return value bug
+ * Focuses on: update validation and authorization, serializer use, request id handling
  */
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 
@@ -25,7 +25,7 @@ jestGlobal.mock('../../../dataLayer/databaseExportManager', () => {
 
 jestGlobal.mock('../../../operations/common/resourceMerger', () => {
     class ResourceMerger {
-        async mergeResourceAsync() { return { updatedResource: null }; }
+        async fastMergeResourceAsync() { return { updatedResource: null }; }
     }
     return { ResourceMerger };
 });
@@ -45,8 +45,17 @@ jestGlobal.mock('../../../operations/export/exportManager', () => {
 jestGlobal.mock('../../../operations/security/scopesValidator', () => {
     class ScopesValidator {
         async verifyHasValidScopesAsync() { return; }
+        isAccessToResourceAllowedByAccessScopes() { return true; }
+        isAccessTagChangeAllowedByAccessScopes() { return true; }
     }
     return { ScopesValidator };
+});
+
+jestGlobal.mock('../../../operations/common/resourceValidator', () => {
+    class ResourceValidator {
+        validateResourceMetaSync() { return null; }
+    }
+    return { ResourceValidator };
 });
 
 jestGlobal.mock('../../../dataLayer/postSaveProcessor', () => {
@@ -82,17 +91,7 @@ jestGlobal.mock('../../../operations/common/logging', () => ({
 
 jestGlobal.mock('../../../fhir/fhirResourceSerializer', () => ({
     FhirResourceSerializer: {
-        serialize: jestGlobal.fn((obj) => {
-            // Return a serialized version (different object) to test if caller uses it
-            if (obj) return { ...obj, _serialized: true };
-            return obj;
-        })
-    }
-}));
-
-jestGlobal.mock('../../../fhir/fhirResourceCreator', () => ({
-    FhirResourceCreator: {
-        createByResourceType: jestGlobal.fn((body, type) => ({ ...body, resourceType: type }))
+        serialize: jestGlobal.fn((obj) => obj)
     }
 }));
 
@@ -119,7 +118,10 @@ const { ScopesValidator } = require('../../../operations/security/scopesValidato
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
-const { REQUEST_ID_TYPE } = require('../../../constants');
+const { ResourceValidator } = require('../../../operations/common/resourceValidator');
+const BaseSerializer = require('../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+
+BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -138,6 +140,7 @@ describe('AdminExportManager', () => {
     let mockScopesValidator;
     let mockPostSaveProcessor;
     let mockBulkExportEventProducer;
+    let mockResourceValidator;
 
     beforeEach(() => {
         jestGlobal.clearAllMocks();
@@ -171,7 +174,7 @@ describe('AdminExportManager', () => {
         mockDatabaseExportManager.updateExportStatusAsync = jestGlobal.fn().mockResolvedValue(undefined);
 
         mockResourceMerger = createMockInstance(ResourceMerger);
-        mockResourceMerger.mergeResourceAsync = jestGlobal.fn().mockResolvedValue({ updatedResource: null });
+        mockResourceMerger.fastMergeResourceAsync = jestGlobal.fn().mockResolvedValue({ updatedResource: null });
 
         mockConfigManager = createMockInstance(ConfigManager);
         mockK8sClient = createMockInstance(K8sClient);
@@ -181,6 +184,11 @@ describe('AdminExportManager', () => {
 
         mockScopesValidator = createMockInstance(ScopesValidator);
         mockScopesValidator.verifyHasValidScopesAsync = jestGlobal.fn().mockResolvedValue(undefined);
+        mockScopesValidator.isAccessToResourceAllowedByAccessScopes = jestGlobal.fn().mockReturnValue(true);
+        mockScopesValidator.isAccessTagChangeAllowedByAccessScopes = jestGlobal.fn().mockReturnValue(true);
+
+        mockResourceValidator = createMockInstance(ResourceValidator);
+        mockResourceValidator.validateResourceMetaSync = jestGlobal.fn().mockReturnValue(null);
 
         mockPostSaveProcessor = createMockInstance(PostSaveProcessor);
         mockPostSaveProcessor.afterSaveAsync = jestGlobal.fn().mockResolvedValue(undefined);
@@ -199,7 +207,8 @@ describe('AdminExportManager', () => {
             exportManager: mockExportManager,
             scopesValidator: mockScopesValidator,
             postSaveProcessor: mockPostSaveProcessor,
-            bulkExportEventProducer: mockBulkExportEventProducer
+            bulkExportEventProducer: mockBulkExportEventProducer,
+            resourceValidator: mockResourceValidator
         });
     });
 
@@ -246,88 +255,28 @@ describe('AdminExportManager', () => {
             expect(mockFhirOperationsManager.search).toHaveBeenCalled();
         });
 
-        test('BUG: serialize return value is discarded - returned resource is not serialized', async () => {
-            // This test demonstrates that FhirResourceSerializer.serialize() return value
-            // is ignored on lines 133-134 of adminExportManager.js
+        test('serializes the found resource in place and returns it', async () => {
             httpContext.get.mockReturnValue('system-req-id');
-            const mockResource = {
-                resourceType: 'ExportStatus',
-                id: 'test-1',
-                status: 'completed'
-            };
+            const mockResource = { resourceType: 'ExportStatus', id: 'test-1', status: 'completed' };
             mockFhirOperationsManager.searchById.mockResolvedValue(mockResource);
+            const req = { id: 'user-req-123', header: jestGlobal.fn(), params: { id: 'export-1' } };
 
-            const req = {
-                id: 'user-req-123',
-                header: jestGlobal.fn(),
-                params: { id: 'export-1' }
-            };
-            const res = {};
+            const result = await manager.getExportStatus({ req, res: {} });
 
-            const result = await manager.getExportStatus({ req, res });
-
-            // FhirResourceSerializer.serialize was called
             expect(FhirResourceSerializer.serialize).toHaveBeenCalledWith(mockResource);
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // The result should be the serialized version (serialize return value should be used)
-            expect(result._serialized).toBe(true);
+            expect(result).toBe(mockResource);
         });
 
-        test('BUG: serialize return value is discarded for bundle search', async () => {
+        test('serializes the search bundle in place and returns it', async () => {
             httpContext.get.mockReturnValue('system-req-id');
-            const mockBundle = {
-                resourceType: 'Bundle',
-                entry: [{ resource: { id: '1' } }]
-            };
+            const mockBundle = { resourceType: 'Bundle', entry: [{ resource: { id: '1' } }] };
             mockFhirOperationsManager.search.mockResolvedValue(mockBundle);
+            const req = { id: 'user-req-123', header: jestGlobal.fn(), params: {} };
 
-            const req = {
-                id: 'user-req-123',
-                header: jestGlobal.fn(),
-                params: {}
-            };
-            const res = {};
-
-            const result = await manager.getExportStatus({ req, res });
+            const result = await manager.getExportStatus({ req, res: {} });
 
             expect(FhirResourceSerializer.serialize).toHaveBeenCalledWith(mockBundle);
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // The result should be the serialized version (serialize return value should be used)
-            expect(result._serialized).toBe(true);
-        });
-
-        test('BUG: finally block uses different httpContext key than what was set', async () => {
-            // The code sets: httpContext.set('requestId', req.id)
-            // But reads: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
-            // which is 'systemGeneratedRequestId' - a DIFFERENT key
-            // If middleware hasn't set this key, requestId will be undefined
-
-            // Simulate the scenario where SYSTEM_GENERATED_REQUEST_ID was never set
-            httpContext.get.mockImplementation((key) => {
-                if (key === REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID) {
-                    return undefined; // NOT set by adminExportManager
-                }
-                return null;
-            });
-
-            const req = {
-                id: 'user-req-123',
-                header: jestGlobal.fn(),
-                params: { id: 'export-1' }
-            };
-            const res = {};
-
-            await manager.getExportStatus({ req, res });
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // The finally block should use the correct requestId (the one that was set)
-            expect(mockPostRequestProcessor.executeAsync).toHaveBeenCalledWith({
-                requestId: 'user-req-123'
-            });
-            expect(mockRequestSpecificCache.clearAsync).toHaveBeenCalledWith({
-                requestId: 'user-req-123'
-            });
+            expect(result).toBe(mockBundle);
         });
 
         test('generates UUID when req.id is not provided and no header', async () => {
@@ -411,11 +360,11 @@ describe('AdminExportManager', () => {
             );
         });
 
-        test('returns exportResource when mergeResourceAsync returns null updatedResource', async () => {
+        test('returns exportResource when the merge returns null updatedResource', async () => {
             httpContext.get.mockReturnValue('system-req-id');
             const existingResource = { resourceType: 'ExportStatus', id: 'export-1', status: 'in-progress' };
             mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
-            mockResourceMerger.mergeResourceAsync.mockResolvedValue({ updatedResource: null });
+            mockResourceMerger.fastMergeResourceAsync.mockResolvedValue({ updatedResource: null });
 
             const req = {
                 id: 'user-req-123',
@@ -430,7 +379,7 @@ describe('AdminExportManager', () => {
 
             const result = await manager.updateExportStatus({ req, res });
 
-            // When updatedResource is null/falsy, returns the exportResource (from FhirResourceCreator)
+            // When updatedResource is null/falsy, returns the exportResource (normalized request body)
             expect(result.resourceType).toBe('ExportStatus');
             expect(mockDatabaseExportManager.updateExportStatusAsync).not.toHaveBeenCalled();
         });
@@ -440,7 +389,7 @@ describe('AdminExportManager', () => {
             const existingResource = { resourceType: 'ExportStatus', id: 'export-1', status: 'in-progress' };
             const updatedResource = { resourceType: 'ExportStatus', id: 'export-1', status: 'completed' };
             mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
-            mockResourceMerger.mergeResourceAsync.mockResolvedValue({ updatedResource });
+            mockResourceMerger.fastMergeResourceAsync.mockResolvedValue({ updatedResource });
 
             const req = {
                 id: 'user-req-123',
@@ -455,7 +404,14 @@ describe('AdminExportManager', () => {
 
             const result = await manager.updateExportStatus({ req, res });
 
-            expect(result).toBe(updatedResource);
+            expect(result).toStrictEqual({
+                resourceType: 'ExportStatus',
+                id: 'export-1',
+                status: 'completed',
+                output: [],
+                errors: []
+            });
+            expect(result).not.toBe(updatedResource);
             expect(mockDatabaseExportManager.updateExportStatusAsync).toHaveBeenCalledWith({
                 exportStatusResource: updatedResource
             });
@@ -466,41 +422,6 @@ describe('AdminExportManager', () => {
             });
         });
 
-        test('BUG: finally block uses wrong httpContext key for cache cleanup', async () => {
-            // Same bug as getExportStatus - uses SYSTEM_GENERATED_REQUEST_ID key
-            httpContext.get.mockImplementation((key) => {
-                if (key === REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID) {
-                    return undefined;
-                }
-                return null;
-            });
-
-            const existingResource = { resourceType: 'ExportStatus', id: 'export-1' };
-            mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
-            mockResourceMerger.mergeResourceAsync.mockResolvedValue({ updatedResource: null });
-
-            const req = {
-                id: 'user-req-123',
-                header: jestGlobal.fn(),
-                params: { id: 'export-1' },
-                headers: {},
-                body: { resourceType: 'ExportStatus' },
-                sanitized_args: {},
-                query: {}
-            };
-            const res = {};
-
-            await manager.updateExportStatus({ req, res });
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // Should use the correct requestId (the one that was set) for cleanup
-            expect(mockPostRequestProcessor.executeAsync).toHaveBeenCalledWith({
-                requestId: 'user-req-123'
-            });
-            expect(mockRequestSpecificCache.clearAsync).toHaveBeenCalledWith({
-                requestId: 'user-req-123'
-            });
-        });
     });
 
     describe('triggerExportJob', () => {
@@ -547,12 +468,7 @@ describe('AdminExportManager', () => {
             expect(result).toEqual({ status: 'triggered' });
         });
 
-        test('BUG: triggerExportJob has no finally block for cache cleanup', async () => {
-            // Unlike getExportStatus and updateExportStatus, triggerExportJob
-            // does NOT have a finally block to call postRequestProcessor.executeAsync
-            // or requestSpecificCache.clearAsync. This means tasks added to
-            // the post-request queue during this operation will never execute,
-            // and cached data will never be cleaned up.
+        test('triggerExportJob cleans up the post-request queue and cache in a finally block', async () => {
             httpContext.get.mockReturnValue('system-req-id');
             const existingResource = { resourceType: 'ExportStatus', id: 'export-1' };
             mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
@@ -569,8 +485,6 @@ describe('AdminExportManager', () => {
 
             await manager.triggerExportJob({ req, res });
 
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // Should have a finally block that performs cleanup like other methods
             expect(mockPostRequestProcessor.executeAsync).toHaveBeenCalled();
             expect(mockRequestSpecificCache.clearAsync).toHaveBeenCalled();
         });
@@ -703,12 +617,12 @@ describe('AdminExportManager', () => {
             );
         });
 
-        test('calls postRequestProcessor.add with fnTask that invokes postSaveProcessor', async () => {
+        test('queues the after-save task under the request id the post-request queue is executed for', async () => {
             httpContext.get.mockReturnValue('system-req-id');
             const existingResource = { resourceType: 'ExportStatus', id: 'export-1', status: 'in-progress' };
             const updatedResource = { resourceType: 'ExportStatus', id: 'export-1', status: 'completed' };
             mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
-            mockResourceMerger.mergeResourceAsync.mockResolvedValue({ updatedResource });
+            mockResourceMerger.fastMergeResourceAsync.mockResolvedValue({ updatedResource });
 
             const req = {
                 id: 'user-req-123',
@@ -725,7 +639,7 @@ describe('AdminExportManager', () => {
 
             // Verify the fnTask is a function
             const addCall = mockPostRequestProcessor.add.mock.calls[0][0];
-            expect(addCall.requestId).toBe('user-req-123');
+            expect(addCall.requestId).toBe('req-1');
             expect(typeof addCall.fnTask).toBe('function');
 
             // Execute the fnTask and verify it calls postSaveProcessor
@@ -738,11 +652,11 @@ describe('AdminExportManager', () => {
             });
         });
 
-        test('calls mergeResourceAsync with correct parameters', async () => {
+        test('calls fastMergeResourceAsync with correct parameters', async () => {
             httpContext.get.mockReturnValue('system-req-id');
             const existingResource = { resourceType: 'ExportStatus', id: 'export-1' };
             mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
-            mockResourceMerger.mergeResourceAsync.mockResolvedValue({ updatedResource: null });
+            mockResourceMerger.fastMergeResourceAsync.mockResolvedValue({ updatedResource: null });
 
             const req = {
                 id: 'user-req-123',
@@ -757,7 +671,7 @@ describe('AdminExportManager', () => {
 
             await manager.updateExportStatus({ req, res });
 
-            expect(mockResourceMerger.mergeResourceAsync).toHaveBeenCalledWith({
+            expect(mockResourceMerger.fastMergeResourceAsync).toHaveBeenCalledWith({
                 base_version: '4_0_0',
                 requestInfo: { requestId: 'req-1' },
                 currentResource: existingResource,
@@ -767,12 +681,124 @@ describe('AdminExportManager', () => {
             });
         });
 
+        test('rejects a body that fails meta validation without merging or saving', async () => {
+            httpContext.get.mockReturnValue('system-req-id');
+            mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(
+                { resourceType: 'ExportStatus', id: 'export-1' }
+            );
+            mockResourceValidator.validateResourceMetaSync.mockReturnValue({ resourceType: 'OperationOutcome' });
+            const req = {
+                id: 'user-req-123',
+                header: jestGlobal.fn(),
+                params: { id: 'export-1' },
+                headers: {},
+                body: { resourceType: 'ExportStatus', status: 'completed' },
+                sanitized_args: {},
+                query: {}
+            };
+
+            await expect(manager.updateExportStatus({ req, res: {} })).rejects.toMatchObject({
+                message: 'Validation Failed',
+                statusCode: 400
+            });
+
+            expect(mockResourceMerger.fastMergeResourceAsync).not.toHaveBeenCalled();
+            expect(mockDatabaseExportManager.updateExportStatusAsync).not.toHaveBeenCalled();
+        });
+
+        test('checks the caller can write the stored resource before merging', async () => {
+            httpContext.get.mockReturnValue('system-req-id');
+            const existingResource = { resourceType: 'ExportStatus', id: 'export-1' };
+            mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
+            mockScopesValidator.isAccessToResourceAllowedByAccessScopes.mockImplementation(() => {
+                throw new Error('Forbidden');
+            });
+            const req = {
+                id: 'user-req-123',
+                header: jestGlobal.fn(),
+                params: { id: 'export-1' },
+                headers: {},
+                body: { resourceType: 'ExportStatus', status: 'completed' },
+                sanitized_args: {},
+                query: {}
+            };
+
+            await expect(manager.updateExportStatus({ req, res: {} })).rejects.toThrow('Forbidden');
+
+            expect(mockScopesValidator.isAccessToResourceAllowedByAccessScopes).toHaveBeenCalledWith({
+                requestInfo: { requestId: 'req-1' },
+                resource: existingResource,
+                accessRequested: 'write'
+            });
+            expect(mockResourceMerger.fastMergeResourceAsync).not.toHaveBeenCalled();
+        });
+
+        test('checks the merged resource does not re-tag the access tags before saving', async () => {
+            httpContext.get.mockReturnValue('system-req-id');
+            const existingResource = { resourceType: 'ExportStatus', id: 'export-1' };
+            const updatedResource = { resourceType: 'ExportStatus', id: 'export-1', status: 'completed' };
+            mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
+            mockResourceMerger.fastMergeResourceAsync.mockResolvedValue({ updatedResource });
+            mockScopesValidator.isAccessTagChangeAllowedByAccessScopes.mockImplementation(() => {
+                throw new Error('Tag change forbidden');
+            });
+            const req = {
+                id: 'user-req-123',
+                header: jestGlobal.fn(),
+                params: { id: 'export-1' },
+                headers: {},
+                body: { resourceType: 'ExportStatus', status: 'completed' },
+                sanitized_args: {},
+                query: {}
+            };
+
+            await expect(manager.updateExportStatus({ req, res: {} })).rejects.toThrow('Tag change forbidden');
+
+            expect(mockScopesValidator.isAccessTagChangeAllowedByAccessScopes).toHaveBeenCalledWith({
+                requestInfo: { requestId: 'req-1' },
+                currentResource: existingResource,
+                updatedResource
+            });
+            expect(mockDatabaseExportManager.updateExportStatusAsync).not.toHaveBeenCalled();
+        });
+
+        test('merges a body that cannot change request and defaults meta.source to the stored one', async () => {
+            httpContext.get.mockReturnValue('system-req-id');
+            const existingResource = {
+                resourceType: 'ExportStatus',
+                id: 'export-1',
+                request: 'https://example.com/4_0_0/$export',
+                meta: { source: 'https://example.com/source' }
+            };
+            mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
+            const req = {
+                id: 'user-req-123',
+                header: jestGlobal.fn(),
+                params: { id: 'export-1' },
+                headers: {},
+                body: {
+                    resourceType: 'ExportStatus',
+                    request: 'https://attacker.example.com/',
+                    meta: { security: [{ system: 'https://www.icanbwell.com/owner', code: 'bwell' }] }
+                },
+                sanitized_args: {},
+                query: {}
+            };
+
+            await manager.updateExportStatus({ req, res: {} });
+
+            const { resourceToMerge } = mockResourceMerger.fastMergeResourceAsync.mock.calls[0][0];
+            expect(resourceToMerge.request).toStrictEqual('https://example.com/4_0_0/$export');
+            expect(resourceToMerge.meta.source).toStrictEqual('https://example.com/source');
+            expect(mockResourceValidator.validateResourceMetaSync).toHaveBeenCalledWith(resourceToMerge);
+        });
+
         test('rethrows error from databaseExportManager.updateExportStatusAsync', async () => {
             httpContext.get.mockReturnValue('system-req-id');
             const existingResource = { resourceType: 'ExportStatus', id: 'export-1' };
             const updatedResource = { resourceType: 'ExportStatus', id: 'export-1', status: 'completed' };
             mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
-            mockResourceMerger.mergeResourceAsync.mockResolvedValue({ updatedResource });
+            mockResourceMerger.fastMergeResourceAsync.mockResolvedValue({ updatedResource });
             mockDatabaseExportManager.updateExportStatusAsync.mockRejectedValue(
                 new Error('Database write failed')
             );

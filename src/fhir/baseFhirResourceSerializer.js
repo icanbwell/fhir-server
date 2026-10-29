@@ -171,5 +171,6 @@ class BaseFhirResourceSerializer {
 }
 
 module.exports = {
-    BaseFhirResourceSerializer
+    BaseFhirResourceSerializer,
+    getSerializer
 };
