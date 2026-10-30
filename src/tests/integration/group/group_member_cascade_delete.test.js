@@ -75,6 +75,8 @@ describe('Group cascade delete (extended storage)', () => {
             ? await request.put(`/4_0_0/Group/${id}`).send({ ...body, id }).set(getHeaders())
             : await request.post('/4_0_0/Group').send(body).set(getHeaders());
         expect([200, 201]).toContain(response.status);
+        // see addMembers: let this write's post-request history flush finish before the next request
+        await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId });
         if (extended) {
             await markGroupExtended(response.body.id);
         }
@@ -89,8 +91,12 @@ describe('Group cascade delete (extended storage)', () => {
                 .send([{ op: 'add', path: '/member/-', value: { entity: { reference: `Patient/${prefix}-${i}` } } }])
                 .set(getHeadersJsonPatch());
             expect(lastResponse.status).toBe(200);
+            // mockHttpContext() gives every request in this test the same requestId, so they share one
+            // pending-history map and each write flushes its history in a post-request task. Wait after
+            // every PATCH: if the next one starts while that task is in flight, its history entry can
+            // be cleared with the map before it is ever written, and the vread then misses that version.
+            await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId });
         }
-        await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId });
         return lastResponse.body;
     }
 

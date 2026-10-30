@@ -63,6 +63,21 @@ make searchParameters
 - Custom matchers in `src/tests/customMatchers.js`: `toHaveResponse`, `toHaveMongoQuery`, etc. Use `toHaveMongoQuery` before `toHaveResponse` as it modifies the result
 - Global setup/teardown: `src/tests/jestGlobalSetup.js` / `src/tests/jestGlobalTeardown.js`
 - Test container overrides: `src/tests/createTestContainer.js`
+- **Shared request id in integration tests.** `mockHttpContext()` pins one `systemGeneratedRequestId`
+  for every request in a test, so they all share one request-scoped cache (`RequestSpecificCache`),
+  including the pending-history map used by `DatabaseBulkInserter` / `FastDatabaseBulkInserter`.
+  A write flushes its history in a post-request task that runs after the response is sent. If the
+  test's next request starts while that task is still in flight, it works on the same map: a history
+  entry is written twice (`E11000` on `<Resource>_4_0_0_History._id`, seen as a 500 on DELETE) or
+  is cleared before it is written (a version missing from `_history`/vread). Real requests each get
+  their own id, so this only affects tests. When a test calls `mockHttpContext()`:
+  - `await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId })` after every
+    write request, including between back-to-back writes in a loop, before the next write/DELETE or
+    any read of history. Do this in shared helpers (e.g. `mergeResource`) rather than per call site.
+  - `waitTillDoneAsync` returns as soon as the queue is empty and does not wait for a task that is
+    still running if it was the last one queued (`waitTillAllRequestsDoneAsync` has the same gap).
+    To assert on a post-request side effect (e.g. a history collection or document), poll for the
+    condition instead of asserting right after the wait.
 
 ## Architecture
 
