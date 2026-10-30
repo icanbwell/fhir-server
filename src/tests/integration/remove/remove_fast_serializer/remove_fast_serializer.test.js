@@ -72,6 +72,11 @@ describe('Remove with fast serializer', () => {
             .set(getHeaders());
         expect(resp).toHaveStatusCode(200);
         expect(resp.body.created).toBe(true);
+        // mockHttpContext() gives every request in this test the same requestId, so they share one
+        // pending-history map. $merge flushes its history in a post-request task; the DELETE that
+        // follows flushes the same map inline. If that task is still in flight, the merge's history
+        // entry is written twice (E11000 duplicate _id -> 500). Let the task finish first.
+        await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId, timeoutInSeconds: 20 });
     };
 
     const readDeleteHistory = async (resourceType, filter = {}) => {
