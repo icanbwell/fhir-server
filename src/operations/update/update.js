@@ -536,6 +536,7 @@ class UpdateOperation {
 
                 if (resourceType !== 'AuditEvent') {
                     const resourceUuid = doc._uuid;
+                    const auditOperation = mergeResults[0].created ? 'create' : 'update';
                     this.postRequestProcessor.add({
                         requestId,
                         fnTask: async () => {
@@ -545,7 +546,7 @@ class UpdateOperation {
                                     requestInfo,
                                     base_version,
                                     resourceType,
-                                    operation: currentOperationName,
+                                    operation: auditOperation,
                                     args: parsedArgs.getRawArgs(),
                                     ids: [resourceUuid]
                                 }
