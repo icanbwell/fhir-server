@@ -21,6 +21,11 @@ const { DatabaseUpdateFactory } = require('../../../../dataLayer/databaseUpdateF
 const { DatabaseQueryFactory } = require('../../../../dataLayer/databaseQueryFactory');
 const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor');
 const { KafkaClientV2 } = require('../../../../utils/kafkaClientV2');
+const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
+const { BULK_IMPORT_TASK } = require('../../../../constants');
+
+BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: ['Task'] });
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -261,7 +266,7 @@ describe('ImportOperation - null safety and error handling', () => {
     describe('markTaskFailedAsync - task not found', () => {
         test('returns gracefully when task does not exist', async () => {
             const mockDatabaseQueryManager = {
-                findOneAsync: jest.fn().mockResolvedValue(null)
+                fastFindOneAsync: jest.fn().mockResolvedValue(null)
             };
             mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
 
@@ -269,6 +274,149 @@ describe('ImportOperation - null safety and error handling', () => {
             await expect(
                 importOp.markTaskFailedAsync('nonexistent-task', 'some reason')
             ).resolves.toBeUndefined();
+        });
+    });
+
+    // ========== createTaskAsync / importAsync - plain Task document ==========
+    describe('importAsync - Task document handed to the data layer', () => {
+        const requestInfo = {
+            requestId: 'req-1',
+            scope: 'user/*.*',
+            user: 'admin'
+        };
+        const args = {
+            base_version: '4_0_0',
+            resource: {
+                resourceType: 'Parameters',
+                id: 'job-doc',
+                parameter: [
+                    { name: 'input', valueUri: 's3://my-bucket/a.ndjson' },
+                    { name: 'input', valueUri: 's3://my-bucket/b.ndjson' }
+                ]
+            }
+        };
+        let insertOneAsync;
+
+        beforeEach(() => {
+            insertOneAsync = jest.fn(async ({ doc }) => {
+                doc._uuid = 'uuid-1';
+                doc._id = 'mongo-object-id';
+                doc.meta.versionId = '1';
+                return doc;
+            });
+            mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
+                fastFindOneAsync: jest.fn().mockResolvedValue(null)
+            });
+            mocks.databaseUpdateFactory.createFastDatabaseUpdateManager = jest.fn().mockReturnValue({
+                insertOneAsync
+            });
+        });
+
+        test('inserts a plain Task owned by the bwell tenant with the bulk-import code and inputs', async () => {
+            await importOp.importAsync({ requestInfo, args });
+
+            expect(mocks.databaseUpdateFactory.createFastDatabaseUpdateManager).toHaveBeenCalledWith({
+                resourceType: 'Task',
+                base_version: '4_0_0'
+            });
+            const { doc } = insertOneAsync.mock.calls[0][0];
+            expect(Object.getPrototypeOf(doc)).toBe(Object.prototype);
+            expect(doc).toMatchObject({
+                resourceType: 'Task',
+                id: 'job-doc',
+                status: 'requested',
+                intent: 'order',
+                input: [
+                    { type: { text: 'url' }, valueUri: 's3://my-bucket/a.ndjson' },
+                    { type: { text: 'url' }, valueUri: 's3://my-bucket/b.ndjson' }
+                ]
+            });
+            expect(doc.code.coding).toEqual([
+                expect.objectContaining({
+                    system: BULK_IMPORT_TASK.TYPE_SYSTEM,
+                    code: BULK_IMPORT_TASK.TYPE_CODE,
+                    id: expect.any(String)
+                })
+            ]);
+            expect(doc.meta.security.map((c) => [c.system, c.code])).toEqual([
+                [SecurityTagSystem.owner, 'bwell'],
+                [SecurityTagSystem.sourceAssigningAuthority, 'bwell'],
+                [SecurityTagSystem.access, 'bwell']
+            ]);
+            expect(doc.meta.source).toBe('bwell');
+            expect(doc.authoredOn).toBeInstanceOf(Date);
+            expect(doc.meta.lastUpdated).toBeInstanceOf(Date);
+        });
+
+        test('responds with the saved Task without internal fields and serializes dates as ISO strings', async () => {
+            const response = await importOp.importAsync({ requestInfo, args });
+
+            expect(response).toMatchObject({
+                resourceType: 'Task',
+                id: 'job-doc',
+                status: 'requested',
+                meta: expect.objectContaining({ versionId: '1', source: 'bwell' })
+            });
+            expect(response).not.toHaveProperty('_id');
+            expect(response).not.toHaveProperty('_uuid');
+            const wire = JSON.parse(JSON.stringify(response));
+            expect(wire.authoredOn).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+            expect(wire.meta.lastUpdated).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+        });
+
+        test('hands the post-save handlers the saved doc, untouched by response serialization', async () => {
+            await importOp.importAsync({ requestInfo, args });
+
+            const { doc, eventType, resourceType } = mocks.postSaveProcessor.afterSaveAsync.mock.calls[0][0];
+            expect(eventType).toBe('C');
+            expect(resourceType).toBe('Task');
+            expect(doc._uuid).toBe('uuid-1');
+            expect(doc.authoredOn).toBeInstanceOf(Date);
+            expect(doc.meta.lastUpdated).toBeInstanceOf(Date);
+        });
+
+        test('rejects a duplicate id raised by the unique _uuid index as a BadRequest', async () => {
+            insertOneAsync.mockRejectedValue(Object.assign(new Error('dup'), { nested: { code: 11000 } }));
+
+            await expect(importOp.importAsync({ requestInfo, args })).rejects.toThrow(
+                'An import Task with id "job-doc" already exists'
+            );
+            expect(mocks.postSaveProcessor.afterSaveAsync).not.toHaveBeenCalled();
+        });
+    });
+
+    // ========== markTaskFailedAsync - task found ==========
+    describe('markTaskFailedAsync - task found', () => {
+        test('replaces the stored Task with a failed copy and leaves the loaded document untouched', async () => {
+            const before = new Date('2026-01-01T00:00:00.000Z');
+            const loaded = {
+                resourceType: 'Task',
+                id: 'job-1',
+                status: 'requested',
+                meta: { lastUpdated: before },
+                _uuid: 'uuid-1'
+            };
+            const updateOneAsync = jest.fn().mockResolvedValue(undefined);
+            mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
+                fastFindOneAsync: jest.fn().mockResolvedValue(loaded)
+            });
+            mocks.databaseUpdateFactory.createFastDatabaseUpdateManager = jest.fn().mockReturnValue({
+                updateOneAsync
+            });
+
+            await importOp.markTaskFailedAsync('job-1', 'kafka down');
+
+            const { doc } = updateOneAsync.mock.calls[0][0];
+            expect(doc).toMatchObject({
+                id: 'job-1',
+                status: 'failed',
+                statusReason: { text: 'kafka down' },
+                _uuid: 'uuid-1'
+            });
+            expect(doc.meta.lastUpdated.getTime()).toBeGreaterThan(before.getTime());
+            expect(loaded.status).toBe('requested');
+            expect(loaded.statusReason).toBeUndefined();
+            expect(loaded.meta.lastUpdated).toBe(before);
         });
     });
 
@@ -282,14 +430,14 @@ describe('ImportOperation - null safety and error handling', () => {
             importOp = new ImportOperation(mocks);
 
             const mockDatabaseQueryManager = {
-                findOneAsync: jest.fn().mockResolvedValue(null)
+                fastFindOneAsync: jest.fn().mockResolvedValue(null)
             };
             const mockDatabaseUpdateManager = {
-                insertOneAsync: jest.fn().mockResolvedValue(undefined),
+                insertOneAsync: jest.fn(async ({ doc }) => doc),
                 updateOneAsync: jest.fn().mockResolvedValue(undefined)
             };
             mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
-            mocks.databaseUpdateFactory.createDatabaseUpdateManager = jest.fn().mockReturnValue(mockDatabaseUpdateManager);
+            mocks.databaseUpdateFactory.createFastDatabaseUpdateManager = jest.fn().mockReturnValue(mockDatabaseUpdateManager);
             mocks.kafkaClientV2.sendCloudEventMessageAsync = jest.fn().mockRejectedValue(
                 new Error('Kafka connection timeout')
             );
@@ -330,14 +478,14 @@ describe('ImportOperation - null safety and error handling', () => {
             importOp = new ImportOperation(mocks);
 
             const mockDatabaseQueryManager = {
-                findOneAsync: jest.fn().mockResolvedValue(null)
+                fastFindOneAsync: jest.fn().mockResolvedValue(null)
             };
             const mockDatabaseUpdateManager = {
-                insertOneAsync: jest.fn().mockResolvedValue(undefined),
+                insertOneAsync: jest.fn(async ({ doc }) => doc),
                 updateOneAsync: jest.fn().mockResolvedValue(undefined)
             };
             mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue(mockDatabaseQueryManager);
-            mocks.databaseUpdateFactory.createDatabaseUpdateManager = jest.fn().mockReturnValue(mockDatabaseUpdateManager);
+            mocks.databaseUpdateFactory.createFastDatabaseUpdateManager = jest.fn().mockReturnValue(mockDatabaseUpdateManager);
             mocks.kafkaClientV2.sendCloudEventMessageAsync = jest.fn().mockResolvedValue(undefined);
 
             const requestInfo = {

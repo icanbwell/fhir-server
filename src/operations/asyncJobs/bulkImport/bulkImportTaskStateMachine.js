@@ -1,4 +1,5 @@
 const moment = require('moment-timezone');
+const deepcopy = require('deepcopy');
 const { ReadPreference } = require('mongodb');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
@@ -86,7 +87,7 @@ class BulkImportTaskStateMachine {
             resourceType: 'Task',
             base_version: '4_0_0'
         });
-        return databaseQueryManager.findOneAsync({
+        return databaseQueryManager.fastFindOneAsync({
             query: {
                 id: taskId,
                 'code.coding': {
@@ -103,15 +104,15 @@ class BulkImportTaskStateMachine {
     /**
      * Writes an updated Task through the merge flow (mergeManager.mergeResourceAsync),
      * which handles FHIR validation, proper upsert semantics, and pre/post-save processing.
-     * @param {Object} task - cloned Task resource with updated fields already applied
+     * @param {Object} task - copied Task resource with updated fields already applied
      * @returns {Promise<void>}
      */
     async writeTaskAsync(task) {
         const requestInfo = this.buildOrchestratorRequestInfo();
         // mergeResourceAsync validates against the FHIR JSON schema, which expects date/dateTime
-        // fields as ISO strings, not Date objects. Serialize via toJSONInternal + JSON roundtrip
-        // to convert all Date values to strings before the validator sees them.
-        const taskJson = JSON.parse(JSON.stringify(task.toJSONInternal()));
+        // fields as ISO strings, not Date objects. A JSON roundtrip converts all Date values to
+        // strings before the validator sees them.
+        const taskJson = JSON.parse(JSON.stringify(task));
         const result = await this.mergeManager.mergeResourceAsync({
             resourceToMerge: taskJson,
             resourceType: 'Task',
@@ -141,7 +142,7 @@ class BulkImportTaskStateMachine {
      * @returns {Promise<void>}
      */
     async updateTaskStatusAsync(task, status, statusReason) {
-        const updated = task.clone();
+        const updated = deepcopy(task);
         updated.status = status;
         updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         if (statusReason) {
@@ -213,7 +214,7 @@ class BulkImportTaskStateMachine {
             newOutputs.push({ id: rangeEntryId, type: { text: 'empty' } });
         }
 
-        const updated = task.clone();
+        const updated = deepcopy(task);
         updated.output = [...(updated.output || []), ...newOutputs];
         updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         await this.writeTaskAsync(updated);
