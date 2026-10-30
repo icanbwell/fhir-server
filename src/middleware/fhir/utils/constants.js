@@ -64,7 +64,6 @@ exports.INTERACTIONS = {
     OPERATIONS_POST: 'operationsPost',
     OPERATIONS_GET: 'operationsGet',
     OPERATIONS_DELETE: 'operationsDelete',
-    OPERATIONS_PUT: 'operationsPut',
     EXPAND_BY_ID: 'expandById'
 };
 /**

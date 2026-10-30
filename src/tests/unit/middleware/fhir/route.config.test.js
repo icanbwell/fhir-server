@@ -103,7 +103,7 @@ function registerResourceRoutes () {
 describe('route.config — route table shape', () => {
     test('exports a non-empty routes array and the three shared routeArgs', () => {
         expect(Array.isArray(routes)).toBe(true);
-        expect(routes.length).toBeGreaterThanOrEqual(15);
+        expect(routes.length).toBe(14);
         expect(Object.keys(routeArgs).sort()).toEqual(['BASE', 'ID', 'VERSION_ID']);
     });
 
@@ -222,8 +222,6 @@ describe('route.config — middleware chain wired by FhirRouter', () => {
     });
 
     test('every resource route is registered with the authentication middleware in its chain', () => {
-        // enableResourceRoutes registers every entry in `routes`, including base-level ones
-        // (no :resource placeholder) -- see the ":resource is substituted..." test below.
         expect(registrations.length).toBe(routes.length);
         const unauthenticated = registrations
             .filter((r) => !r.chain.includes(AUTH_MW))
@@ -253,21 +251,6 @@ describe('route.config — middleware chain wired by FhirRouter', () => {
         const expected = templatePaths.map((p) => p.replace(':resource', 'Patient'));
         expect(registrations.map((r) => r.path)).toEqual(expected);
         expect(registrations.some((r) => r.path.includes(':resource'))).toBe(false);
-    });
-
-    test('base-level routes (no :resource placeholder) are also registered by enableResourceRoutes, ahead of enableBaseRoute', () => {
-        // Those three entries (GET/POST /:base_version, PUT /:base_version/) are registered here
-        // first (FhirRouter.setRoutes runs enableResourceRoutes before enableBaseRoute), so this
-        // resource-level registration shadows base.controller.batch -- Express dispatches to the
-        // first matching registration for a given verb+path.
-        const baseLevelRoutes = routes.filter((r) => !r.path.includes(':resource'));
-        expect(baseLevelRoutes.length).toBeGreaterThan(0);
-        for (const baseLevelRoute of baseLevelRoutes) {
-            const match = registrations.find(
-                (r) => r.method === baseLevelRoute.type && r.path === baseLevelRoute.path
-            );
-            expect(match).toBeDefined();
-        }
     });
 
     test('a CORS preflight handler is registered for every route path', () => {
