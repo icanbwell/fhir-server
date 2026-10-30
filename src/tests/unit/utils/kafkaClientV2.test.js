@@ -64,7 +64,8 @@ jestObj.mock('../../../operations/common/systemEventLogging', () => ({
 }));
 
 jestObj.mock('../../../operations/common/logging', () => ({
-    logError: jestObj.fn()
+    logError: jestObj.fn(),
+    logWarn: jestObj.fn()
 }));
 
 jestObj.mock('../../../utils/rethrownError', () => ({
@@ -101,7 +102,7 @@ const { W3CTraceContextPropagator } = require('@opentelemetry/core');
 propagation.setGlobalPropagator(new W3CTraceContextPropagator());
 const { recordKafkaRetryExhausted } = require('../../../utils/metrics');
 const { logTraceSystemEventAsync, logSystemErrorAsync, logSystemEventAsync } = require('../../../operations/common/systemEventLogging');
-const { logError } = require('../../../operations/common/logging');
+const { logError, logWarn } = require('../../../operations/common/logging');
 
 describe('KafkaClientV2', () => {
     let kafkaClient;
@@ -131,7 +132,10 @@ describe('KafkaClientV2', () => {
             kafkaV2ClientId: 'test-client-v2',
             kafkaV2Brokers: ['broker1:9092', 'broker2:9092'],
             kafkaV2UseSsl: true,
-            kafkaV2AwsRegion: 'us-east-1'
+            kafkaV2AwsRegion: 'us-east-1',
+            kafkaConsumerSessionTimeoutMs: 31000,
+            kafkaConsumerHeartbeatIntervalMs: 3000,
+            kafkaConsumerRebalanceTimeoutMs: 301000
         };
 
         kafkaClient = new KafkaClientV2({ configManager: mockConfigManagerInstance });
@@ -1169,6 +1173,98 @@ describe('KafkaClientV2', () => {
                 expect(onMessageAsync).toHaveBeenCalledTimes(2);
                 expect(mockProducerSend).toHaveBeenCalledWith(expect.objectContaining({ topic: 'test-topic.dlt' }));
             });
+
+            describe('background heartbeat while a handler is running', () => {
+                // kafkajs only heartbeats before and after eachMessage, so a handler running longer
+                // than the session timeout (a bulk import range takes up to a few minutes) got its
+                // member evicted and the whole fetched batch redelivered.
+                beforeEach(() => {
+                    jestObj.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] });
+                });
+
+                afterEach(() => {
+                    jestObj.useRealTimers();
+                });
+
+                // A handler that stays pending until the test settles it.
+                const startSlowHandler = (options = {}) => {
+                    let settle;
+                    const onMessageAsync = jestObj.fn(() => new Promise((resolve, reject) => {
+                        settle = { resolve, reject };
+                    }));
+                    const received = kafkaClient.receiveMessagesAsync({
+                        consumer: makeConsumer(),
+                        topic: 'test-topic',
+                        onMessageAsync,
+                        retryInitialDelayMs: 1,
+                        ...options
+                    });
+                    return {
+                        received,
+                        onMessageAsync,
+                        finish: () => settle.resolve(),
+                        fail: (error) => settle.reject(error)
+                    };
+                };
+
+                test.each([
+                    // The dead-letter path also heartbeats once before its first attempt.
+                    ['with a dead-letter topic', { deadLetterTopic: 'test-topic.dlt' }, 4],
+                    ['without a dead-letter topic', {}, 3]
+                ])('keeps heartbeating every interval until the handler finishes, %s', async (_name, options, expectedHeartbeats) => {
+                    const { received, finish } = startSlowHandler(options);
+
+                    // Ticks at 3000, 6000 and 9000 ms of the 3000 ms interval.
+                    await jestObj.advanceTimersByTimeAsync(10000);
+                    expect(mockHeartbeat).toHaveBeenCalledTimes(expectedHeartbeats);
+
+                    finish();
+                    await received;
+                    mockHeartbeat.mockClear();
+                    await jestObj.advanceTimersByTimeAsync(10000);
+                    expect(mockHeartbeat).not.toHaveBeenCalled();
+                });
+
+                test('stops heartbeating and rethrows when the handler throws', async () => {
+                    const { received, fail } = startSlowHandler();
+
+                    await jestObj.advanceTimersByTimeAsync(4000);
+                    expect(mockHeartbeat).toHaveBeenCalledTimes(1);
+
+                    fail(new Error('boom'));
+                    await expect(received).rejects.toThrow('boom');
+                    mockHeartbeat.mockClear();
+                    await jestObj.advanceTimersByTimeAsync(10000);
+                    expect(mockHeartbeat).not.toHaveBeenCalled();
+                });
+
+                test.each([
+                    ['a group-membership error', Object.assign(new Error('The coordinator is not aware of this member'), { type: 'UNKNOWN_MEMBER_ID' })],
+                    ['a generic error', new Error('socket closed')]
+                ])('does not fail the handler and warns once when a background heartbeat fails with %s', async (_name, heartbeatError) => {
+                    // A throw inside a bulk import range is reported as ImportRangeFailed and fails
+                    // the whole Task, so a failed heartbeat must never reach the handler.
+                    mockHeartbeat.mockRejectedValue(heartbeatError);
+                    const { received, finish, onMessageAsync } = startSlowHandler();
+
+                    await jestObj.advanceTimersByTimeAsync(10000);
+                    finish();
+
+                    await expect(received).resolves.toBeUndefined();
+                    expect(onMessageAsync).toHaveBeenCalledTimes(1);
+                    expect(mockHeartbeat).toHaveBeenCalledTimes(3);
+                    expect(logWarn).toHaveBeenCalledTimes(1);
+                    expect(logWarn).toHaveBeenCalledWith(
+                        expect.any(String),
+                        expect.objectContaining({
+                            topic: 'test-topic',
+                            partition: 0,
+                            errorType: heartbeatError.type,
+                            error: heartbeatError.message
+                        })
+                    );
+                });
+            });
         });
     });
 
@@ -1185,6 +1281,16 @@ describe('KafkaClientV2', () => {
             const consumer = await kafkaClient.createConsumerAsync({ groupId: 'my-group' });
             expect(consumer).toBeDefined();
             expect(consumer.connect).toBeDefined();
+        });
+
+        test('passes the configured session, rebalance and heartbeat timeouts to the consumer', async () => {
+            await kafkaClient.createConsumerAsync({ groupId: 'my-group' });
+            expect(kafkaClient.client.consumer).toHaveBeenCalledWith({
+                groupId: 'my-group',
+                sessionTimeout: 31000,
+                rebalanceTimeout: 301000,
+                heartbeatInterval: 3000
+            });
         });
     });
 

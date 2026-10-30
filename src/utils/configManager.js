@@ -1722,6 +1722,50 @@ class ConfigManager {
         return env.KAFKA_BULK_IMPORT_RANGE_PROGRESS_TOPIC || 'fhir_server.bulk_import.processing.events';
     }
 
+    // ── Kafka v2 consumer group timeouts ────────────────────────────────────
+
+    /**
+     * Milliseconds the broker waits for a heartbeat before it evicts a consumer-group member.
+     * Matches the kafkajs default.
+     * @return {number}
+     */
+    get kafkaConsumerSessionTimeoutMs() {
+        const parsed = parseInt(env.KAFKA_CONSUMER_SESSION_TIMEOUT_MS, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 30000;
+    }
+
+    /**
+     * Milliseconds between consumer heartbeats, including the ones sent in the background while
+     * a message handler is running. Matches the kafkajs default.
+     * @return {number}
+     */
+    get kafkaConsumerHeartbeatIntervalMs() {
+        const parsed = parseInt(env.KAFKA_CONSUMER_HEARTBEAT_INTERVAL_MS, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 3000;
+    }
+
+    /**
+     * Milliseconds the broker waits for each member to rejoin during a rebalance before it
+     * evicts that member. A member busy in a message handler cannot rejoin until the handler
+     * returns, so this must exceed the longest handler (a bulk import range takes up to a few
+     * minutes). The kafkajs default is 60000.
+     * @return {number}
+     */
+    get kafkaConsumerRebalanceTimeoutMs() {
+        const parsed = parseInt(env.KAFKA_CONSUMER_REBALANCE_TIMEOUT_MS, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 300000;
+    }
+
+    /**
+     * Milliseconds an async job entrypoint waits for its consumers to join the group at startup
+     * before it exits. A join can take up to the rebalance timeout, so this is that plus 30 s.
+     * @return {number}
+     */
+    get kafkaConsumerJoinTimeoutMs() {
+        const parsed = parseInt(env.KAFKA_CONSUMER_JOIN_TIMEOUT_MS, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 330000;
+    }
+
     // ── Kafka v2 (new MSK cluster) ──────────────────────────────────────────
 
     /**

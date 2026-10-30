@@ -527,4 +527,34 @@ describe('ConfigManager', () => {
             }
         );
     });
+
+    // ========== Kafka consumer group timeouts ==========
+    describe('kafka consumer group timeouts', () => {
+        // The session and heartbeat defaults match kafkajs's. The rebalance default is above
+        // kafkajs's 60000 so a member busy in a bulk import range can rejoin, and the join
+        // timeout is that plus 30 s.
+        describe.each([
+            ['kafkaConsumerSessionTimeoutMs', 'KAFKA_CONSUMER_SESSION_TIMEOUT_MS', 30000],
+            ['kafkaConsumerHeartbeatIntervalMs', 'KAFKA_CONSUMER_HEARTBEAT_INTERVAL_MS', 3000],
+            ['kafkaConsumerRebalanceTimeoutMs', 'KAFKA_CONSUMER_REBALANCE_TIMEOUT_MS', 300000],
+            ['kafkaConsumerJoinTimeoutMs', 'KAFKA_CONSUMER_JOIN_TIMEOUT_MS', 330000]
+        ])('%s', (getter, envKey, defaultValue) => {
+            test(`defaults to ${defaultValue} when unset or empty`, () => {
+                setEnv(envKey, undefined);
+                expect(new ConfigManager()[getter]).toBe(defaultValue);
+                setEnv(envKey, '');
+                expect(new ConfigManager()[getter]).toBe(defaultValue);
+            });
+
+            test('uses a positive integer from the environment', () => {
+                setEnv(envKey, '45000');
+                expect(new ConfigManager()[getter]).toBe(45000);
+            });
+
+            test.each(['0', '-5', 'abc'])(`falls back to ${defaultValue} for %p`, (value) => {
+                setEnv(envKey, value);
+                expect(new ConfigManager()[getter]).toBe(defaultValue);
+            });
+        });
+    });
 });
