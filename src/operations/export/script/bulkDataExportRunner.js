@@ -1,8 +1,7 @@
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 
-const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const { buildOperationOutcome } = require('../../../utils/operationOutcomeBuilder');
 const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
 const { DatabaseExportManager } = require('../../../dataLayer/databaseExportManager');
@@ -499,16 +498,11 @@ class BulkDataExportRunner {
                     return true;
                 }
 
-                const operationOutcome = new OperationOutcome({
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'forbidden',
-                            details: { text: `Cannot access ${resource} with scope ${scope}` },
-                            diagnostics: `Cannot access ${resource} with scope ${scope}`
-                        })
-                    ]
+                const operationOutcome = buildOperationOutcome({
+                    severity: 'error',
+                    code: 'forbidden',
+                    details: { text: `Cannot access ${resource} with scope ${scope}` },
+                    diagnostics: `Cannot access ${resource} with scope ${scope}`
                 });
                 errors += `${JSON.stringify(operationOutcome)}\n`;
 

@@ -1,8 +1,5 @@
 const { removeNull } = require('../../utils/nullRemover');
-const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
-const Extension = require('../../fhir/classes/4_0_0/complex_types/extension');
+const { buildOperationOutcome } = require('../../utils/operationOutcomeBuilder');
 
 // Byte offset rather than a decimal line number: bulk import splits large files into
 // byte ranges processed independently, and a within-range line counter resets to 1 for
@@ -110,7 +107,7 @@ class MergeResultEntry {
             if (!extensions.some((e) => e.url === SOURCE_BYTE_OFFSET_EXTENSION_URL)) {
                 issue.extension = [
                     ...extensions,
-                    new Extension({ url: SOURCE_BYTE_OFFSET_EXTENSION_URL, valueInteger: sourceByteOffset })
+                    { url: SOURCE_BYTE_OFFSET_EXTENSION_URL, valueInteger: sourceByteOffset }
                 ];
             }
         }
@@ -129,28 +126,18 @@ class MergeResultEntry {
         /**
          * @type {OperationOutcome}
          */
-        const operationOutcome = new OperationOutcome({
-            resourceType: 'OperationOutcome',
-            issue: [
-                new OperationOutcomeIssue({
-                    severity: 'error',
-                    code: 'exception',
-                    details: new CodeableConcept({
-                        text: error.message
-                    }),
-                    diagnostics: error.message,
-                    expression: [
-                        resource.resourceType
-                    ],
-                    extension: sourceByteOffset === undefined
-                        ? undefined
-                        : [
-                            new Extension({
-                                url: SOURCE_BYTE_OFFSET_EXTENSION_URL,
-                                valueInteger: sourceByteOffset
-                            })
-                        ]
-                })
+        const operationOutcome = buildOperationOutcome({
+            ...(sourceByteOffset !== undefined && {
+                extension: [{ url: SOURCE_BYTE_OFFSET_EXTENSION_URL, valueInteger: sourceByteOffset }]
+            }),
+            severity: 'error',
+            code: 'exception',
+            details: {
+                text: error.message
+            },
+            diagnostics: error.message,
+            expression: [
+                resource.resourceType
             ]
         });
         const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;

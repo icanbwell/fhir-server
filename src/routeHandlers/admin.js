@@ -4,8 +4,7 @@
 const httpContext = require('express-http-context');
 const { AdminLogManager } = require('../admin/adminLogManager');
 const { FhirResponseStreamer } = require('../utils/fhirResponseStreamer');
-const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const { buildOperationOutcome } = require('../utils/operationOutcomeBuilder');
 const { assertIsValid } = require('../utils/assertType');
 const { generateUUID } = require('../utils/uid.util');
 const { logInfo } = require('../operations/common/logging');
@@ -285,14 +284,10 @@ async function handleAdminGet (
                         } catch (error) {
                             logError(`Error retrieving cache for ${resourceType}/${resourceId}`, error);
                             const statusCode = error.statusCode || 500;
-                            const operationOutcome = new OperationOutcome({
-                                issue: [
-                                    new OperationOutcomeIssue({
-                                        severity: 'error',
-                                        code: 'exception',
-                                        diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
-                                    })
-                                ]
+                            const operationOutcome = buildOperationOutcome({
+                                severity: 'error',
+                                code: 'exception',
+                                diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
                             });
                             return res.status(statusCode).json(operationOutcome);
                         }
@@ -344,14 +339,10 @@ async function handleAdminGet (
             source: 'handleAdminGet'
         });
         const statusCode = error.statusCode || 500;
-        const operationOutcome = new OperationOutcome({
-            issue: [
-                new OperationOutcomeIssue({
-                    severity: 'error',
-                    code: 'exception',
-                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
-                })
-            ]
+        const operationOutcome = buildOperationOutcome({
+            severity: 'error',
+            code: 'exception',
+            diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
         });
         return res.status(statusCode).json(operationOutcome);
     }
@@ -544,14 +535,10 @@ async function handleAdminPost (
                     } catch (error) {
                         logError(`Error invalidating cache`, error);
                         const statusCode = error.statusCode || 500;
-                        const operationOutcome = new OperationOutcome({
-                            issue: [
-                                new OperationOutcomeIssue({
-                                    severity: 'error',
-                                    code: 'exception',
-                                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
-                                })
-                            ]
+                        const operationOutcome = buildOperationOutcome({
+                            severity: 'error',
+                            code: 'exception',
+                            diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
                         });
                         return res.status(statusCode).json(operationOutcome);
                     }
@@ -585,14 +572,10 @@ async function handleAdminPost (
             source: 'handleAdminPost'
         });
         const statusCode = error.statusCode || 500;
-        const operationOutcome = new OperationOutcome({
-            issue: [
-                new OperationOutcomeIssue({
-                    severity: 'error',
-                    code: 'exception',
-                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
-                })
-            ]
+        const operationOutcome = buildOperationOutcome({
+            severity: 'error',
+            code: 'exception',
+            diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
         });
         return res.status(statusCode).json(operationOutcome);
     }
@@ -655,14 +638,10 @@ async function handleAdminPut(
             source: 'handleAdminPut'
         });
         const statusCode = error.statusCode || 500;
-        const operationOutcome = new OperationOutcome({
-            issue: [
-                new OperationOutcomeIssue({
-                    severity: 'error',
-                    code: 'exception',
-                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
-                })
-            ]
+        const operationOutcome = buildOperationOutcome({
+            severity: 'error',
+            code: 'exception',
+            diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
         });
         return res.status(statusCode).json(operationOutcome);
     }
@@ -821,14 +800,10 @@ async function handleAdminDelete (
             source: 'handleAdminDelete'
         });
         const statusCode = error.statusCode || 500;
-        const operationOutcome = new OperationOutcome({
-            issue: [
-                new OperationOutcomeIssue({
-                    severity: 'error',
-                    code: 'exception',
-                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
-                })
-            ]
+        const operationOutcome = buildOperationOutcome({
+            severity: 'error',
+            code: 'exception',
+            diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
         });
         return res.status(statusCode).json(operationOutcome);
     }

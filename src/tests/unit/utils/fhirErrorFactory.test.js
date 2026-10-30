@@ -1,6 +1,5 @@
 const { describe, test, expect } = require('@jest/globals');
 const { createTooCostlyError, GUIDANCE } = require('../../../utils/fhirErrorFactory');
-const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 
 describe('fhirErrorFactory', () => {
     describe('createTooCostlyError', () => {
@@ -20,7 +19,6 @@ describe('fhirErrorFactory', () => {
             expect(options.issue.length).toBe(1);
 
             const issue = options.issue[0];
-            expect(issue).toBeInstanceOf(OperationOutcomeIssue);
             expect(issue.severity).toBe('error');
             expect(issue.code).toBe('too-costly');
             expect(issue.diagnostics).toContain('50001');
