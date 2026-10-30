@@ -126,7 +126,7 @@ describe('BulkImportHandler — worker path', () => {
             },
             databaseQueryFactory: {
                 createQuery: jestGlobal.fn(() => ({
-                    findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                    fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
                 }))
             },
             fastDatabaseBulkInserter: {
@@ -404,14 +404,14 @@ describe('BulkImportHandler — worker path', () => {
         });
 
         test('ANDs the caller\'s owner tag onto the query so a match cannot come from another tenant', async () => {
-            const findOneAsync = jestGlobal.fn().mockResolvedValue(null);
-            deps.databaseQueryFactory.createQuery.mockReturnValue({ findOneAsync });
+            const fastFindOneAsync = jestGlobal.fn().mockResolvedValue(null);
+            deps.databaseQueryFactory.createQuery.mockReturnValue({ fastFindOneAsync });
 
             await handler.findExistingResourceForIfNoneExistAsync({
                 resourceType: 'Patient', ifNoneExist: 'identifier=sys%7C1', ownerCode: 'client-a'
             });
 
-            const { query } = findOneAsync.mock.calls[0][0];
+            const { query } = fastFindOneAsync.mock.calls[0][0];
             expect(query.$and).toHaveLength(2);
             expect(query.$and[1]).toEqual({
                 'meta.security': {
@@ -422,7 +422,7 @@ describe('BulkImportHandler — worker path', () => {
 
         test('parses with strict search-parameter handling so a mistyped param cannot fail open', async () => {
             deps.databaseQueryFactory.createQuery.mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
             });
 
             await handler.findExistingResourceForIfNoneExistAsync({
@@ -438,8 +438,8 @@ describe('BulkImportHandler — worker path', () => {
         });
 
         test('RULE 10 sensitivity: a different ownerCode produces a different scoped query', async () => {
-            const findOneAsync = jestGlobal.fn().mockResolvedValue(null);
-            deps.databaseQueryFactory.createQuery.mockReturnValue({ findOneAsync });
+            const fastFindOneAsync = jestGlobal.fn().mockResolvedValue(null);
+            deps.databaseQueryFactory.createQuery.mockReturnValue({ fastFindOneAsync });
 
             await handler.findExistingResourceForIfNoneExistAsync({
                 resourceType: 'Patient', ifNoneExist: 'identifier=sys%7C1', ownerCode: 'client-a'
@@ -448,8 +448,8 @@ describe('BulkImportHandler — worker path', () => {
                 resourceType: 'Patient', ifNoneExist: 'identifier=sys%7C1', ownerCode: 'client-b'
             });
 
-            expect(findOneAsync.mock.calls[0][0].query.$and[1]['meta.security'].$elemMatch.code).toBe('client-a');
-            expect(findOneAsync.mock.calls[1][0].query.$and[1]['meta.security'].$elemMatch.code).toBe('client-b');
+            expect(fastFindOneAsync.mock.calls[0][0].query.$and[1]['meta.security'].$elemMatch.code).toBe('client-a');
+            expect(fastFindOneAsync.mock.calls[1][0].query.$and[1]['meta.security'].$elemMatch.code).toBe('client-b');
         });
     });
 
@@ -806,7 +806,7 @@ describe('BulkImportHandler — worker path', () => {
 
         test('an ifNoneExist match skips the resource entirely (no merge, no attachment transform)', async () => {
             deps.databaseQueryFactory.createQuery.mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue({ resourceType: 'Patient', id: 'existing' })
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue({ resourceType: 'Patient', id: 'existing' })
             });
             deps.s3NdjsonReader.readNdjsonAsync.mockImplementation(ndjsonLines([
                 makeLine({

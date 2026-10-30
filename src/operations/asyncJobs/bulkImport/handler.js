@@ -336,7 +336,7 @@ class BulkImportHandler {
             resourceType,
             base_version
         });
-        return databaseQueryManager.findOneAsync({ query: scopedQuery });
+        return databaseQueryManager.fastFindOneAsync({ query: scopedQuery });
     }
 
     // ── TaskCreated (orchestrator side, topic fhir_server.bulk_import.requested) ───────────
