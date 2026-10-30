@@ -1758,12 +1758,25 @@ class ConfigManager {
 
     /**
      * Milliseconds an async job entrypoint waits for its consumers to join the group at startup
-     * before it exits. A join can take up to the rebalance timeout, so this is that plus 30 s.
+     * before it exits. A join can take up to the rebalance timeout, so unless set explicitly this
+     * is the rebalance timeout plus 30 s.
      * @return {number}
      */
     get kafkaConsumerJoinTimeoutMs() {
         const parsed = parseInt(env.KAFKA_CONSUMER_JOIN_TIMEOUT_MS, 10);
-        return Number.isFinite(parsed) && parsed > 0 ? parsed : 330000;
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : this.kafkaConsumerRebalanceTimeoutMs + 30000;
+    }
+
+    /**
+     * Milliseconds a consumer keeps heartbeating in the background while one message is being
+     * processed. After that the heartbeats stop and an error is logged, so a handler that never
+     * returns loses its partition after the session timeout instead of holding it forever. Must
+     * exceed the longest legitimate message (a bulk import range takes up to a few minutes).
+     * @return {number}
+     */
+    get kafkaConsumerMaxProcessingTimeMs() {
+        const parsed = parseInt(env.KAFKA_CONSUMER_MAX_PROCESSING_TIME_MS, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 600000;
     }
 
     // ── Kafka v2 (new MSK cluster) ──────────────────────────────────────────

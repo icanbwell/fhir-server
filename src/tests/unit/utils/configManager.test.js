@@ -537,7 +537,8 @@ describe('ConfigManager', () => {
             ['kafkaConsumerSessionTimeoutMs', 'KAFKA_CONSUMER_SESSION_TIMEOUT_MS', 30000],
             ['kafkaConsumerHeartbeatIntervalMs', 'KAFKA_CONSUMER_HEARTBEAT_INTERVAL_MS', 3000],
             ['kafkaConsumerRebalanceTimeoutMs', 'KAFKA_CONSUMER_REBALANCE_TIMEOUT_MS', 300000],
-            ['kafkaConsumerJoinTimeoutMs', 'KAFKA_CONSUMER_JOIN_TIMEOUT_MS', 330000]
+            ['kafkaConsumerJoinTimeoutMs', 'KAFKA_CONSUMER_JOIN_TIMEOUT_MS', 330000],
+            ['kafkaConsumerMaxProcessingTimeMs', 'KAFKA_CONSUMER_MAX_PROCESSING_TIME_MS', 600000]
         ])('%s', (getter, envKey, defaultValue) => {
             test(`defaults to ${defaultValue} when unset or empty`, () => {
                 setEnv(envKey, undefined);
@@ -554,6 +555,20 @@ describe('ConfigManager', () => {
             test.each(['0', '-5', 'abc'])(`falls back to ${defaultValue} for %p`, (value) => {
                 setEnv(envKey, value);
                 expect(new ConfigManager()[getter]).toBe(defaultValue);
+            });
+        });
+
+        describe('kafkaConsumerJoinTimeoutMs follows the rebalance timeout', () => {
+            test('defaults to the rebalance timeout plus 30 s when an operator raises the rebalance timeout', () => {
+                setEnv('KAFKA_CONSUMER_JOIN_TIMEOUT_MS', undefined);
+                setEnv('KAFKA_CONSUMER_REBALANCE_TIMEOUT_MS', '600000');
+                expect(new ConfigManager().kafkaConsumerJoinTimeoutMs).toBe(630000);
+            });
+
+            test('an explicit join timeout wins over the rebalance timeout', () => {
+                setEnv('KAFKA_CONSUMER_REBALANCE_TIMEOUT_MS', '600000');
+                setEnv('KAFKA_CONSUMER_JOIN_TIMEOUT_MS', '45000');
+                expect(new ConfigManager().kafkaConsumerJoinTimeoutMs).toBe(45000);
             });
         });
     });

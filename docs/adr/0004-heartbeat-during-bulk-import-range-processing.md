@@ -6,10 +6,9 @@ Proposed (DCON-5984)
 
 ## Context
 
-A prod `$import` of 56 files (2,052,058 resources, Task `93e7097e3584466aa0fb6512b232e278`, 2026-10-28)
-took about 29 hours. `fhir-server-worker` members were repeatedly evicted from the
-`fhir-bulk-import-consumer` group: kafkajs logged `The coordinator is not aware of this member` and
-OffsetCommit failed with the same error. The batch each evicted member had fetched was redelivered and
+A prod `$import` of 56 files (about 2 million resources) took about 29 hours. Bulk import worker members
+were repeatedly evicted from the `fhir-bulk-import-consumer` group: kafkajs logged
+`The coordinator is not aware of this member` and OffsetCommit failed with the same error. The batch each evicted member had fetched was redelivered and
 its ranges were processed again (170 range runs for 56 files). The orchestrator also exited with
 `Timeout bulk-import-range-progress`.
 
@@ -57,11 +56,18 @@ Option A.
 - `createConsumerAsync` passes `sessionTimeout` (30000), `heartbeatInterval` (3000) and
   `rebalanceTimeout` (300000), each overridable with `KAFKA_CONSUMER_SESSION_TIMEOUT_MS`,
   `KAFKA_CONSUMER_HEARTBEAT_INTERVAL_MS` and `KAFKA_CONSUMER_REBALANCE_TIMEOUT_MS`.
-- `receiveMessagesAsync` sends a heartbeat on that interval while a message is processed. kafkajs sends at
-  most one request per heartbeat interval, so extra ticks cost nothing. A failed background heartbeat is
-  logged once per message and is never thrown into the handler. After an eviction the heartbeat kafkajs
-  sends when the handler returns still throws, so the message is redelivered as before.
-- The join wait is `KAFKA_CONSUMER_JOIN_TIMEOUT_MS` (default 330000, the rebalance timeout plus 30 s).
+- `receiveMessagesAsync` sends a heartbeat while a message is processed, on a timer that ticks at a third
+  of the heartbeat interval. kafkajs only sends once a full interval has passed since the previous heartbeat
+  finished, so ticking at the interval itself would alternately send and skip. Extra ticks cost nothing. A
+  failed background heartbeat is logged once per message and is never thrown into the handler. After an
+  eviction the heartbeat kafkajs sends when the handler returns still throws, so the message is redelivered
+  as before.
+- Background heartbeats stop after `KAFKA_CONSUMER_MAX_PROCESSING_TIME_MS` (default 600000, the equivalent of
+  `max.poll.interval.ms`) and an error is logged. The broker then evicts the member after the session
+  timeout and the message is redelivered. The default is well above the longest bulk import range seen
+  (under 2 minutes) and must stay above the longest legitimate message.
+- The join wait is `KAFKA_CONSUMER_JOIN_TIMEOUT_MS`. Unless set, it is the rebalance timeout plus 30 s
+  (330000 by default), so raising the rebalance timeout raises it too.
 
 ## Consequences
 
@@ -70,9 +76,13 @@ Option A.
 - A rebalance (for example a KEDA scale step) can now hold the whole group for up to the longest
   in-flight range, up to `rebalanceTimeout`, instead of evicting the busy member. Throughput during a
   rebalance drops, but no work is repeated. Scale-up policy is a separate follow-up.
-- A handler stuck forever now keeps its member alive, because it still heartbeats. Handler duration is
-  bounded by the handler's own timeouts, not by the session timeout.
+- A handler that never returns keeps its member alive for at most the maximum processing time (10 minutes
+  by default), then the partition is released and an error is logged. Before the ceiling it holds the
+  partition, and a message that takes longer than the ceiling is redelivered while the first handler may
+  still be running; bulk import ranges are idempotent upserts, so that is safe.
 - A pod that dies still loses its session after `sessionTimeout`, unchanged.
-- Rollback: set the four environment variables back to 30000, 3000, 60000 and 30000.
+- Rollback: revert the change. Setting `KAFKA_CONSUMER_REBALANCE_TIMEOUT_MS` to 60000 and
+  `KAFKA_CONSUMER_JOIN_TIMEOUT_MS` to 30000 restores the old timeouts only; the background heartbeat is not
+  switchable.
 - Not addressed here: the worker's skip check only sees a range after the orchestrator has applied its
   `ImportRangeCompleted`, so a redelivery after completion still reprocesses that range.
