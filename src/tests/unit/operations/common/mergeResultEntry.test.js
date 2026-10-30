@@ -288,4 +288,63 @@ describe('MergeResultEntry', () => {
             expect(result.operationOutcome.issue[0].extension).toBeUndefined();
         });
     });
+
+    describe('withSourceByteOffset', () => {
+        const SOURCE_BYTE_OFFSET_URL = 'https://www.icanbwell.com/source-byte-offset';
+        const otherExtension = { url: 'https://example.com/other', valueString: 'kept' };
+
+        test('records the offset and adds the extension to both the issue and the operationOutcome issue', () => {
+            const issue = { severity: 'error', code: 'exception' };
+            const operationOutcome = { resourceType: 'OperationOutcome', issue: [{ severity: 'error' }] };
+            const entry = new MergeResultEntry({ id: 'p1', resourceType: 'Patient', issue, operationOutcome });
+
+            const result = entry.withSourceByteOffset(300);
+
+            expect(result).toBe(entry);
+            expect(entry.sourceByteOffset).toBe(300);
+            expect(issue.extension).toEqual([{ url: SOURCE_BYTE_OFFSET_URL, valueInteger: 300 }]);
+            expect(operationOutcome.issue[0].extension).toEqual([{ url: SOURCE_BYTE_OFFSET_URL, valueInteger: 300 }]);
+        });
+
+        test('serializes the extension as a plain url/valueInteger pair', () => {
+            const entry = new MergeResultEntry({
+                id: 'p1',
+                resourceType: 'Patient',
+                operationOutcome: { resourceType: 'OperationOutcome', issue: [{ severity: 'error' }] }
+            });
+
+            entry.withSourceByteOffset(0);
+
+            expect(JSON.parse(JSON.stringify(entry.operationOutcome.issue[0].extension))).toEqual([
+                { url: SOURCE_BYTE_OFFSET_URL, valueInteger: 0 }
+            ]);
+        });
+
+        test('keeps existing extensions and does not add the offset extension twice', () => {
+            const issue = { severity: 'error', extension: [otherExtension] };
+            const entry = new MergeResultEntry({ id: 'p1', resourceType: 'Patient', issue });
+
+            entry.withSourceByteOffset(100).withSourceByteOffset(100);
+
+            expect(issue.extension).toEqual([otherExtension, { url: SOURCE_BYTE_OFFSET_URL, valueInteger: 100 }]);
+        });
+
+        test.each([[undefined], [null]])('is a no-op when the offset is %s', (offset) => {
+            const issue = { severity: 'error' };
+            const entry = new MergeResultEntry({ id: 'p1', resourceType: 'Patient', issue });
+
+            const result = entry.withSourceByteOffset(offset);
+
+            expect(result).toBe(entry);
+            expect(entry.sourceByteOffset).toBeUndefined();
+            expect(issue.extension).toBeUndefined();
+        });
+
+        test('works for an entry that has no issue at all', () => {
+            const entry = new MergeResultEntry({ id: 'p1', resourceType: 'Patient', created: true });
+
+            expect(() => entry.withSourceByteOffset(42)).not.toThrow();
+            expect(entry.sourceByteOffset).toBe(42);
+        });
+    });
 });
