@@ -1,5 +1,4 @@
 const { convertErrorToOperationOutcome } = require('../../../utils/convertErrorToOperationOutcome');
-const { getCircularReplacer } = require('../../../utils/getCircularReplacer');
 const { FhirResourceWriterBase } = require('./fhirResourceWriterBase');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -57,7 +56,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
         try {
             if (chunk !== null && chunk !== undefined) {
                 FhirResourceSerializer.serialize(chunk);
-                const resourceJson = JSON.stringify(chunk, getCircularReplacer());
+                const resourceJson = JSON.stringify(chunk);
                 if (this.configManager.logStreamSteps) {
                     logInfo(`FhirResourceWriter _transform ${chunk.id}`, {});
                 }

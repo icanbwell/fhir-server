@@ -12,10 +12,6 @@ jestObj.mock('../../../../../operations/common/logging', () => ({
     logError: jestObj.fn()
 }));
 
-jestObj.mock('../../../../../utils/getCircularReplacer', () => ({
-    getCircularReplacer: jestObj.fn().mockReturnValue(undefined)
-}));
-
 jestObj.mock('../../../../../operations/common/sentry', () => ({
     captureException: jestObj.fn()
 }));
@@ -37,6 +33,7 @@ jestObj.mock('../../../../../utils/configManager', () => ({
 const { ObjectSerializedFhirResourceNdJsonWriter } = require('../../../../../operations/streaming/resourceWriters/objectSerializedFhirResourceNdJsonWriter');
 const { convertErrorToOperationOutcome } = require('../../../../../utils/convertErrorToOperationOutcome');
 const { captureException } = require('../../../../../operations/common/sentry');
+const { MergeResultEntry } = require('../../../../../operations/common/mergeResultEntry');
 
 describe('ObjectSerializedFhirResourceNdJsonWriter', () => {
     let writer;
@@ -91,6 +88,51 @@ describe('ObjectSerializedFhirResourceNdJsonWriter', () => {
                     '{"id":"test-123"}\n',
                     'utf8'
                 );
+                done();
+            });
+        });
+
+        test('emits an object that appears twice in the chunk in both places', (done) => {
+            const issue = { severity: 'error', code: 'exception', diagnostics: 'boom' };
+            const chunk = {
+                id: 'shared-1',
+                toJSON: () => ({
+                    issue,
+                    operationOutcome: { resourceType: 'OperationOutcome', issue: [issue] }
+                })
+            };
+
+            writer._transform(chunk, 'utf8', () => {
+                const parsed = JSON.parse(pushSpy.mock.calls[0][0]);
+                expect(parsed.issue).toEqual(issue);
+                expect(parsed.operationOutcome.issue).toEqual([issue]);
+                done();
+            });
+        });
+
+        test('keeps issue on a failed merge entry whose issue is the first operationOutcome issue', (done) => {
+            const entry = MergeResultEntry.createFromError({
+                error: new Error('boom'),
+                resource: { resourceType: 'Patient', id: 'p1', _uuid: 'u1', _sourceAssigningAuthority: 'a1' }
+            });
+
+            writer._transform(entry, 'utf8', () => {
+                const parsed = JSON.parse(pushSpy.mock.calls[0][0]);
+                expect(parsed.issue).toMatchObject({ severity: 'error', code: 'exception', diagnostics: 'boom' });
+                expect(parsed.operationOutcome.issue[0]).toEqual(parsed.issue);
+                done();
+            });
+        });
+
+        test('reports a circular chunk as an OperationOutcome instead of truncating it', (done) => {
+            const body = { resourceType: 'Patient', id: 'loop-1' };
+            body.self = body;
+            const chunk = { id: 'loop-1', toJSON: () => body };
+
+            writer._transform(chunk, 'utf8', () => {
+                expect(pushSpy).not.toHaveBeenCalled();
+                expect(captureException).toHaveBeenCalled();
+                expect(writeOperationOutcomeSpy).toHaveBeenCalled();
                 done();
             });
         });

@@ -1,4 +1,3 @@
-const deepcopy = require('deepcopy');
 const { removeNull } = require('../../utils/nullRemover');
 const { buildOperationOutcome } = require('../../utils/operationOutcomeBuilder');
 
@@ -78,7 +77,7 @@ class MergeResultEntry {
         return removeNull(
             {
                 operationOutcome: this.operationOutcome,
-                issue: this.issue ? deepcopy(this.issue) : this.issue,
+                issue: this.issue,
                 created: this.created,
                 id: this.id,
                 uuid: this._uuid,

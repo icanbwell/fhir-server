@@ -3,7 +3,6 @@
 const { describe, test, expect, beforeEach, jest: jestObj } = require('@jest/globals');
 
 const { MergeResultEntry } = require('../../../../operations/common/mergeResultEntry');
-const { getCircularReplacer } = require('../../../../utils/getCircularReplacer');
 
 describe('MergeResultEntry', () => {
     describe('constructor', () => {
@@ -147,53 +146,6 @@ describe('MergeResultEntry', () => {
             const json = entry.toJSON();
             expect(json.created).toBe(false);
             expect(json.updated).toBe(false);
-        });
-    });
-
-    describe('toJSON with the streaming writer\'s circular replacer', () => {
-        test('keeps issue, with its nested details, when issue is the same object as operationOutcome.issue[0]', () => {
-            const issue = {
-                severity: 'error',
-                code: 'forbidden',
-                details: { text: 'no access' },
-                diagnostics: 'no access'
-            };
-            const entry = new MergeResultEntry({
-                id: 'p1',
-                resourceType: 'Person',
-                created: false,
-                updated: false,
-                issue,
-                operationOutcome: { resourceType: 'OperationOutcome', issue: [issue] }
-            });
-
-            const streamed = JSON.parse(JSON.stringify(entry.toJSON(), getCircularReplacer()));
-
-            expect(streamed.issue).toEqual(issue);
-            expect(streamed.operationOutcome.issue).toEqual([issue]);
-        });
-
-        test('keeps issue for an entry built by createFromError', () => {
-            const entry = MergeResultEntry.createFromError({
-                error: new Error('boom'),
-                resource: { resourceType: 'Patient', id: 'p1', _uuid: 'u1', _sourceAssigningAuthority: 'a1' },
-                sourceByteOffset: 12
-            });
-
-            const streamed = JSON.parse(JSON.stringify(entry.toJSON(), getCircularReplacer()));
-
-            expect(streamed.issue).toEqual(streamed.operationOutcome.issue[0]);
-            expect(streamed.issue.details).toEqual({ text: 'boom' });
-        });
-
-        test('does not change the entry itself', () => {
-            const issue = { severity: 'error', code: 'forbidden' };
-            const entry = new MergeResultEntry({ id: 'p1', issue, operationOutcome: { issue: [issue] } });
-
-            entry.toJSON();
-
-            expect(entry.issue).toBe(issue);
-            expect(entry.operationOutcome.issue[0]).toBe(issue);
         });
     });
 
