@@ -51,7 +51,8 @@ const mockKafkaClientV2 = {
 };
 const mockConfigManager = {
     kafkaBulkImportEventTopic: 'test-topic',
-    bulkImportConsumerGroupId: 'test-group-id'
+    bulkImportConsumerGroupId: 'test-group-id',
+    kafkaConsumerJoinTimeoutMs: 123456
 };
 
 jestObj.mock('../../../../createContainer', () => ({
@@ -222,7 +223,7 @@ describe('asyncJobs/worker', () => {
             );
         });
 
-        test('waits for consumer to join group with 30s timeout', async () => {
+        test('waits for consumer to join group for the configured join timeout', async () => {
             jestObj.isolateModules(() => {
                 require('../../../../operations/asyncJobs/worker');
             });
@@ -231,7 +232,7 @@ describe('asyncJobs/worker', () => {
 
             expect(mockKafkaClientV2.waitForConsumerToJoinGroupAsync).toHaveBeenCalledWith(
                 mockConsumer,
-                { maxWait: 30000, label: 'bulk-import-worker' }
+                { maxWait: 123456, label: 'bulk-import-worker' }
             );
         });
 

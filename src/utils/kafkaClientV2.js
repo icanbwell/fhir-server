@@ -9,7 +9,7 @@ const zstd = require('@mongodb-js/zstd');
 const { propagation, context: otelContext, trace } = require('@opentelemetry/api');
 const { assertIsValid, assertTypeEquals } = require('./assertType');
 const { logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync } = require('../operations/common/systemEventLogging');
-const { logError } = require('../operations/common/logging');
+const { logError, logWarn } = require('../operations/common/logging');
 const { RethrownError } = require('./rethrownError');
 const { ConfigManager } = require('./configManager');
 const { recordKafkaRetryExhausted } = require('./metrics');
@@ -31,6 +31,67 @@ const MAX_TRACKED_OFFSETS = 1000;
  */
 function isGroupMembershipError (error) {
     return GROUP_MEMBERSHIP_ERROR_TYPES.has(error?.type);
+}
+
+/**
+ * Runs fn while sending a consumer heartbeat every intervalMs. kafkajs only heartbeats before
+ * and after eachMessage, so a handler running longer than the session timeout (a bulk import
+ * range takes up to a few minutes) would otherwise get its member evicted and its whole fetched
+ * batch redelivered. kafkajs sends at most one request per heartbeat interval, so extra ticks are
+ * free.
+ *
+ * A failed background heartbeat is reported once and never thrown into fn: an error inside a
+ * bulk import range is reported as ImportRangeFailed, which fails the whole Task. After an
+ * eviction the heartbeat kafkajs sends once eachMessage returns still throws, so the message is
+ * redelivered as before.
+ *
+ * Heartbeats stop after maxProcessingMs, so a handler that never returns loses its partition
+ * after the session timeout instead of holding it forever (like Kafka's max.poll.interval.ms).
+ * @param {Object} params
+ * @param {function(): Promise<void>} params.heartbeat
+ * @param {number} params.intervalMs the consumer's heartbeat interval
+ * @param {number} params.maxProcessingMs
+ * @param {function(Error): void} params.onHeartbeatError called at most once
+ * @param {function(): void} params.onMaxProcessingExceeded called at most once
+ * @param {function(): Promise<T>} params.fn
+ * @returns {Promise<T>}
+ * @template T
+ */
+async function withBackgroundHeartbeatAsync({
+    heartbeat,
+    intervalMs,
+    maxProcessingMs,
+    onHeartbeatError,
+    onMaxProcessingExceeded,
+    fn
+}) {
+    let errorReported = false;
+    // kafkajs sends a heartbeat only once heartbeatInterval has passed since the previous one
+    // finished, so a tick every interval would alternately send and skip. Ticking at a third of
+    // the interval keeps the gap between sent heartbeats under about 1.4 intervals.
+    const timer = setInterval(async () => {
+        try {
+            await heartbeat();
+        } catch (e) {
+            if (!errorReported) {
+                errorReported = true;
+                onHeartbeatError(e);
+            }
+        }
+    }, Math.max(1, Math.floor(intervalMs / 3)));
+    const ceiling = setTimeout(() => {
+        clearInterval(timer);
+        onMaxProcessingExceeded();
+    }, maxProcessingMs);
+    // Never keep the process alive just for these timers.
+    timer.unref();
+    ceiling.unref();
+    try {
+        return await fn();
+    } finally {
+        clearInterval(timer);
+        clearTimeout(ceiling);
+    }
 }
 
 // kafkajs ships GZIP only; its ZSTD entry throws "not implemented". Reuse the
@@ -400,7 +461,7 @@ class KafkaClientV2 {
                             headerEntries.map(({ key, value }) => [key, value])
                         ));
 
-                    await otelContext.with(extractedContext, async () => {
+                    const processMessageAsync = () => otelContext.with(extractedContext, async () => {
                         // Without a deadLetterTopic, behave exactly as before: a failure
                         // propagates straight out of eachMessage, no retry, no DLT.
                         if (!deadLetterTopic) {
@@ -482,6 +543,29 @@ class KafkaClientV2 {
                             await this.sendToDeadLetterTopicAsync({ deadLetterTopic, message: parsedMessage, error: finalError });
                         }
                     });
+
+                    await withBackgroundHeartbeatAsync({
+                        heartbeat,
+                        intervalMs: this.configManager.kafkaConsumerHeartbeatIntervalMs,
+                        maxProcessingMs: this.configManager.kafkaConsumerMaxProcessingTimeMs,
+                        onHeartbeatError: (e) => logWarn('Background consumer heartbeat failed while processing a message', {
+                            topic: t,
+                            partition,
+                            offset: message.offset,
+                            errorType: e?.type,
+                            error: e?.message
+                        }),
+                        onMaxProcessingExceeded: () => logError(
+                            'Message processing exceeded the maximum processing time; background heartbeats stopped so the partition can be reassigned',
+                            {
+                                topic: t,
+                                partition,
+                                offset: message.offset,
+                                maxProcessingMs: this.configManager.kafkaConsumerMaxProcessingTimeMs
+                            }
+                        ),
+                        fn: processMessageAsync
+                    });
                 }
             });
         } catch (e) {
@@ -549,7 +633,12 @@ class KafkaClientV2 {
      * @returns {Promise<import('kafkajs').Consumer>}
      */
     async createConsumerAsync({ groupId }) {
-        return this.client.consumer({ groupId });
+        return this.client.consumer({
+            groupId,
+            sessionTimeout: this.configManager.kafkaConsumerSessionTimeoutMs,
+            rebalanceTimeout: this.configManager.kafkaConsumerRebalanceTimeoutMs,
+            heartbeatInterval: this.configManager.kafkaConsumerHeartbeatIntervalMs
+        });
     }
 
     /**
