@@ -2,8 +2,7 @@ const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const superagent = require('superagent');
 const { ConfigManager } = require('../utils/configManager');
-const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const { buildOperationOutcome } = require('../utils/operationOutcomeBuilder');
 const { logInfo } = require('../operations/common/logging');
 const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
 const { isUuid, generateUUID } = require('../utils/uid.util');
@@ -146,56 +145,32 @@ class PersonMatchManager {
         }
 
         if (source.length === 0) {
-            return new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'not-found',
-                                diagnostics: `Resource with type: ${sourceType} and id: ${sourceId} was not found`
-                            }
-                        )
-                    ]
-                }
-            ).toJSON();
+            return buildOperationOutcome({
+                severity: 'error',
+                code: 'not-found',
+                diagnostics: `Resource with type: ${sourceType} and id: ${sourceId} was not found`
+            });
         }
         if (target.length === 0) {
-            return new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'not-found',
-                                diagnostics: `Resource with type: ${targetType} and id: ${targetId} was not found`
-                            }
-                        )
-                    ]
-                }
-            ).toJSON();
+            return buildOperationOutcome({
+                severity: 'error',
+                code: 'not-found',
+                diagnostics: `Resource with type: ${targetType} and id: ${targetId} was not found`
+            });
         }
         if (source.length > 1) {
-            return new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'info',
-                                diagnostics: `Multiple resources with type: ${sourceType} and id: ${sourceId} found`
-                            }
-                        )
-                    ]
-                }
-            ).toJSON();
+            return buildOperationOutcome({
+                severity: 'error',
+                code: 'info',
+                diagnostics: `Multiple resources with type: ${sourceType} and id: ${sourceId} found`
+            });
         }
         if (target.length > 1) {
-            return new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'info',
-                                diagnostics: `Multiple resources with type: ${targetType} and id: ${targetId} found`
-                            }
-                        )
-                    ]
-                }
-            ).toJSON();
+            return buildOperationOutcome({
+                severity: 'error',
+                code: 'info',
+                diagnostics: `Multiple resources with type: ${targetType} and id: ${targetId} found`
+            });
         }
 
         // Convert Date object to string
@@ -271,16 +246,11 @@ class PersonMatchManager {
                 : json;
         } catch (error) {
             if (error.timeout) {
-                return new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'timeout',
-                                diagnostics: `Request timeout out while sending request to personMatchingService for source: ${source[0]}, target: ${target[0]}`
-                            }
-                        )
-                    ]
-                }).toJSON();
+                return buildOperationOutcome({
+                    severity: 'error',
+                    code: 'timeout',
+                    diagnostics: `Request timeout out while sending request to personMatchingService for source: ${source[0]}, target: ${target[0]}`
+                });
             }
             throw error;
         } finally {
@@ -337,27 +307,19 @@ class PersonMatchManager {
         }
 
         if (resourceType !== 'Patient' && resourceType !== 'Person') {
-            return new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        diagnostics: `resourceType must be "Patient" or "Person", got "${resourceType}"`
-                    })
-                ]
-            }).toJSON();
+            return buildOperationOutcome({
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: `resourceType must be "Patient" or "Person", got "${resourceType}"`
+            });
         }
 
         if (matchResourceType && matchResourceType !== 'Patient' && matchResourceType !== 'Person') {
-            return new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        diagnostics: `matchResourceType must be "Patient" or "Person", got "${matchResourceType}"`
-                    })
-                ]
-            }).toJSON();
+            return buildOperationOutcome({
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: `matchResourceType must be "Patient" or "Person", got "${matchResourceType}"`
+            });
         }
 
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
@@ -375,26 +337,18 @@ class PersonMatchManager {
         }
 
         if (resources.length === 0) {
-            return new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'not-found',
-                        diagnostics: `Resource with type: ${resourceType} and id: ${id} was not found`
-                    })
-                ]
-            }).toJSON();
+            return buildOperationOutcome({
+                severity: 'error',
+                code: 'not-found',
+                diagnostics: `Resource with type: ${resourceType} and id: ${id} was not found`
+            });
         }
         if (resources.length > 1) {
-            return new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'info',
-                        diagnostics: `Multiple resources with type: ${resourceType} and id: ${id} found`
-                    })
-                ]
-            }).toJSON();
+            return buildOperationOutcome({
+                severity: 'error',
+                code: 'info',
+                diagnostics: `Multiple resources with type: ${resourceType} and id: ${id} found`
+            });
         }
 
         const resourceUuid = resources[0]._uuid;
@@ -453,15 +407,11 @@ class PersonMatchManager {
                 : res.body;
         } catch (error) {
             if (error.timeout) {
-                return new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'timeout',
-                            diagnostics: `Request timed out while sending request to person-matching service for 1:N match on ${resourceType}/${id}`
-                        })
-                    ]
-                }).toJSON();
+                return buildOperationOutcome({
+                    severity: 'error',
+                    code: 'timeout',
+                    diagnostics: `Request timed out while sending request to person-matching service for 1:N match on ${resourceType}/${id}`
+                });
             }
             throw error;
         } finally {
@@ -479,27 +429,19 @@ class PersonMatchManager {
      */
     async runMatchWithPayloadAsync ({ parameters }) {
         if (!parameters || parameters.resourceType !== 'Parameters') {
-            return new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        diagnostics: 'resourceType must be "Parameters"'
-                    })
-                ]
-            }).toJSON();
+            return buildOperationOutcome({
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: 'resourceType must be "Parameters"'
+            });
         }
 
         if (!parameters.parameter || !Array.isArray(parameters.parameter) || parameters.parameter.length === 0) {
-            return new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        diagnostics: 'parameter must be a non-empty array'
-                    })
-                ]
-            }).toJSON();
+            return buildOperationOutcome({
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: 'parameter must be a non-empty array'
+            });
         }
 
         const url = this.configManager.personMatchingServiceUrl;
@@ -522,15 +464,11 @@ class PersonMatchManager {
             return res.body;
         } catch (error) {
             if (error.timeout) {
-                return new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'timeout',
-                            diagnostics: 'Request timed out while sending Parameters payload to person-matching service'
-                        })
-                    ]
-                }).toJSON();
+                return buildOperationOutcome({
+                    severity: 'error',
+                    code: 'timeout',
+                    diagnostics: 'Request timed out while sending Parameters payload to person-matching service'
+                });
             }
             throw error;
         }

@@ -6,10 +6,7 @@ const { NdjsonParser } = require('./ndJsonParser');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { BundleManager } = require('../common/bundleManager');
-const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
-const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
+const { buildOperationOutcomeFromIssues } = require('../../utils/operationOutcomeBuilder');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { MergeResultEntry } = require('../common/mergeResultEntry');
 const { QueryItem } = require('../graph/queryItem');
@@ -298,44 +295,31 @@ class MergeOperation {
                  * @type {OperationOutcome[]}
                  */
                 const operationOutcomes = mergeResults.map(m => {
-                        return m.issue ? new OperationOutcome({
-                            id: m.id,
-                            resourceType: m.resourceType,
-                            issue: [
-                                new OperationOutcomeIssue({
-                                    severity: 'information',
-                                    code: 'informational',
-                                    details: new CodeableConcept(
-                                        { text: 'OK' }
-                                    )
-                                })]
-                        }) : new OperationOutcome({
-                            id: m.id,
-                            resourceType: m.resourceType,
-                            issue: [
-                                new OperationOutcomeIssue({
-                                        severity: 'information',
-                                        code: 'informational',
-                                        details: new CodeableConcept({
-                                            coding: [
-                                                new Coding({
-                                                    // https://hl7.org/fhir/http.html#update
-                                                    // The server SHALL return either a 200 OK HTTP status code if the
-                                                    // resource was updated, or a 201 Created status code if the
-                                                    // resource was created
-                                                    system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
-                                                    code: m.created ? '201' : m.updated ? '200' : '304',
-                                                    display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified'
-                                                })
-                                            ]
-                                        }),
-                                        expression: [
-                                            `${m.resourceType}/${m.id}`
-                                        ]
-                                    }
-                                )
-                            ]
-                        });
+                        if (m.issue) {
+                            return buildOperationOutcomeFromIssues([m.issue], m.id);
+                        }
+                        return buildOperationOutcomeFromIssues([
+                            {
+                                severity: 'information',
+                                code: 'informational',
+                                details: {
+                                    coding: [
+                                        {
+                                            // https://hl7.org/fhir/http.html#update
+                                            // The server SHALL return either a 200 OK HTTP status code if the
+                                            // resource was updated, or a 201 Created status code if the
+                                            // resource was created
+                                            system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
+                                            code: m.created ? '201' : m.updated ? '200' : '304',
+                                            display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified'
+                                        }
+                                    ]
+                                },
+                                expression: [
+                                    `${m.resourceType}/${m.id}`
+                                ]
+                            }
+                        ], m.id);
                     }
                 );
                 /**

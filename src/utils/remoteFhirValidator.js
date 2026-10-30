@@ -1,7 +1,5 @@
 const { assertIsValid, assertTypeEquals } = require('./assertType');
-const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
+const { buildOperationOutcome } = require('./operationOutcomeBuilder');
 const { ConfigManager } = require('./configManager');
 const { logInfo, logError } = require('../operations/common/logging');
 const request = require('superagent');
@@ -117,17 +115,13 @@ class RemoteFhirValidator {
      */
     async validateResourceAsync ({ resourceBody, resourceName, path, profile }) {
         if (resourceBody.resourceType !== resourceName) {
-            return new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({
-                            text: `Validation failed for data posted to ${path} for resource ${resourceBody.resourceType}.` +
-                                ' ResourceType does not match the endpoint you are posting to.'
-                        })
-                    })
-                ]
+            return buildOperationOutcome({
+                severity: 'error',
+                code: 'invalid',
+                details: {
+                    text: `Validation failed for data posted to ${path} for resource ${resourceBody.resourceType}.` +
+                        ' ResourceType does not match the endpoint you are posting to.'
+                }
             });
         }
         const fhirValidationUrl = this.configManager.fhirValidationUrl;

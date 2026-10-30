@@ -30,7 +30,6 @@ const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumn
 const httpContext = require('express-http-context');
 const { PATCH_PATHS, PATCH_OPERATIONS } = require('../../constants/groupConstants');
 const { createTooCostlyError } = require('../../utils/fhirErrorFactory');
-const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { GroupMemberPatchStrategy } = require('./strategies/groupMemberPatchStrategy');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');

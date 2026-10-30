@@ -1,6 +1,4 @@
-const CodeableConcept = require('../../../fhir/classes/4_0_0/complex_types/codeableConcept');
-const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const { buildOperationOutcomeFromIssues } = require('../../../utils/operationOutcomeBuilder');
 const { BaseValidator } = require('./baseValidator');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
 
@@ -29,20 +27,15 @@ class ParametersResourceValidator extends BaseValidator {
                  * @type {OperationOutcome}
                  */
                 const validationOperationOutcome = [
-                    new OperationOutcome({
-                        id: 'validationfail',
-                        resourceType: 'OperationOutcome',
-                        issue: [
-                            new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'structure',
-                                details: new CodeableConcept({
-                                    text: 'Invalid parameter list'
-                                })
+                    buildOperationOutcomeFromIssues([
+                        {
+                            severity: 'error',
+                            code: 'structure',
+                            details: {
+                                text: 'Invalid parameter list'
                             }
-                            )
-                        ]
-                    })
+                        }
+                    ], 'validationfail')
                 ];
                 return { validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true };
             }
@@ -56,19 +49,15 @@ class ParametersResourceValidator extends BaseValidator {
                  * @type {OperationOutcome}
                  */
                 const validationOperationOutcome = [
-                    new OperationOutcome({
-                        id: 'validationfail',
-                        resourceType: 'OperationOutcome',
-                        issue: [
-                            new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'structure',
-                                details: new CodeableConcept({
-                                    text: 'Invalid parameter list'
-                                })
-                            })
-                        ]
-                    })
+                    buildOperationOutcomeFromIssues([
+                        {
+                            severity: 'error',
+                            code: 'structure',
+                            details: {
+                                text: 'Invalid parameter list'
+                            }
+                        }
+                    ], 'validationfail')
                 ];
                 return { validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true };
             }
@@ -80,24 +69,21 @@ class ParametersResourceValidator extends BaseValidator {
             // Filtering out Parameters resources if any present inside 'parameter' field of input Parameter resource
             incomingResources?.forEach(p => {
                 if (p?.resourceType === 'Parameters') {
-                    const operationOutcomeIssue = new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'structure',
-                        details: new CodeableConcept({
-                        text: 'Invalid resource type: Parameters'
-                        })
-                    });
-                    const operationOutcome = new OperationOutcome({
-                        id: 'validationfail',
-                        resourceType: 'OperationOutcome',
-                        issue: [operationOutcomeIssue]
-                    })
+                    const operationOutcome = buildOperationOutcomeFromIssues([
+                        {
+                            severity: 'error',
+                            code: 'structure',
+                            details: {
+                                text: 'Invalid resource type: Parameters'
+                            }
+                        }
+                    ], 'validationfail');
                     errors.push(new MergeResultEntry(
                         {
                             id: p.id,
                             created: false,
                             updated: false,
-                            issue: operationOutcomeIssue,
+                            issue: operationOutcome.issue[0],
                             operationOutcome: operationOutcome,
                             resourceType: p.resourceType
                         }

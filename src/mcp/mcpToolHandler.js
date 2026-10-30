@@ -17,9 +17,7 @@ const { QueryParameterValue } = require('../operations/query/queryParameterValue
 const { searchParameterQueries } = require('../searchParameters/searchParameters');
 const { logError } = require('../operations/common/logging');
 const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
-const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
+const { buildOperationOutcome } = require('../utils/operationOutcomeBuilder');
 
 /**
  * Mongo server error code for "operation exceeded time limit" (MaxTimeMSExpired). Walks
@@ -259,16 +257,10 @@ class McpToolHandler {
             // at "Internal Server Error") has no way to tell a timeout apart from an actual server
             // fault short of trawling server-side logs (see DCON-5311).
             if (isMongoTimeoutError(err)) {
-                const operationOutcome = new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'timeout',
-                            details: new CodeableConcept({
-                                text: 'The search timed out. Try narrowing your search criteria.'
-                            })
-                        })
-                    ]
+                const operationOutcome = buildOperationOutcome({
+                    severity: 'error',
+                    code: 'timeout',
+                    details: { text: 'The search timed out. Try narrowing your search criteria.' }
                 });
                 return { isError: true, content: [{ type: 'text', text: JSON.stringify(operationOutcome) }] };
             }
