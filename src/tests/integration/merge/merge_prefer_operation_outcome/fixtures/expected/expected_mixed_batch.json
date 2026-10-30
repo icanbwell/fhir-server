@@ -1,0 +1,48 @@
+{
+  "resourceType": "Bundle",
+  "type": "batch-response",
+  "total": 2,
+  "entry": [
+    {
+      "id": "prefer-bad",
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "id": "prefer-bad",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "invalid",
+            "details": {
+              "text": "Unable to create/update resource. Missing either metadata or metadata source."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "prefer-1",
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "id": "prefer-1",
+        "issue": [
+          {
+            "severity": "information",
+            "code": "informational",
+            "details": {
+              "coding": [
+                {
+                  "system": "https://www.rfc-editor.org/rfc/rfc9110.html",
+                  "code": "201",
+                  "display": "Created"
+                }
+              ]
+            },
+            "expression": [
+              "Patient/prefer-1"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "resourceType": "Patient",
+  "id": "prefer-1",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "access"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "owner"
+      }
+    ]
+  },
+  "birthDate": "not-a-date"
+}
