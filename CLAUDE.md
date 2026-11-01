@@ -138,6 +138,7 @@ All dependency wiring is in `src/createContainer.js` (~130+ services registered 
 - Node >= 24.22.1 (see `.nvmrc`)
 - CommonJS modules (`require`/`module.exports`)
 - Logging via Winston: use `logInfo`, `logDebug`, `logError`, `logWarn` from `src/operations/common/logging.js`
+- No Jira IDs (e.g. `DCON-1234`) in code, comments, tests, docs or specs/plans. The ticket belongs in the commit message and PR only.
 
 ## Package Management
 

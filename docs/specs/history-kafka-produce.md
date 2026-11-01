@@ -1,7 +1,5 @@
 # Parallel history produce to Kafka
 
-Jira: DCON-6288 (epic DCON-6267, TDD DCON-6271, `_recorded` DCON-6274)
-
 ## Goal
 
 Produce each history record to Kafka topic `fhir_server.resource-history.events`, one resource type

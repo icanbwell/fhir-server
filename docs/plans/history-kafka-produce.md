@@ -1,6 +1,6 @@
 # Plan: parallel history produce to Kafka
 
-Spec: `docs/specs/history-kafka-produce.md`. Jira: DCON-6288.
+Spec: `docs/specs/history-kafka-produce.md`.
 
 ## Steps
 
