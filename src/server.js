@@ -32,8 +32,6 @@ const flushBuffer = async (fnGetContainer) => {
      */
     const postSaveProcessor = container.postSaveProcessor;
     await postSaveProcessor.flushAsync();
-    // background history Kafka produces (delete flush) are not in the post-request queue
-    await container.historyKafkaProducer.flushAsync();
     /**
      * @type {import('./utils/auditLogger').AuditLogger}
      */
