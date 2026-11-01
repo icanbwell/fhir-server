@@ -26,7 +26,6 @@ Spec: `docs/specs/history-kafka-produce.md`.
 
 ## Risks and follow-ups
 
-- Confirm `ce_type`, the partition key (tenant prefix) with EA; update the
-  TDD for the flag names.
+- Confirm `ce_type` and the partition key (tenant prefix) with EA.
 - A produce timeout or Kafka outage holds the post-request task open (not the client response).
 - Phase 3 (Kafka-primary, MongoDB fallback replay) is out of scope.

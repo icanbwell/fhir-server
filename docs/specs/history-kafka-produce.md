@@ -71,7 +71,6 @@ replay job.
   write.
 - PHI: payload is the history document (PHI, same as MongoDB); logs and metric labels never
   carry it.
-- Flag names differ from the TDD (`ENABLE_HISTORY_KAFKA`, `CLICKHOUSE_HISTORY_RESOURCES`).
 
 ## Testing
 
