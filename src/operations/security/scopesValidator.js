@@ -158,7 +158,7 @@ class ScopesValidator {
                     // the access/ tenant gate that follows must apply identically to both,
                     // otherwise a `patient/*.* system/*.*` token would be a write path that the
                     // equivalent `patient/*.* user/*.*` token is not. See review.md §2 and
-                    // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1.
+                    // docs/plans/smart-v2-system-scope-design.md §1.
                     scopes = this.scopesManager.getResourceTypeScopes({scope});
                     // if patient scopes are present then only a read-type interaction is allowed
                     // against non-patient resources -- 'read-type' now covers granular read/search

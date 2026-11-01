@@ -1547,8 +1547,8 @@ class ConfigManager {
      * scope token with a v2 suffix (e.g. `user/Patient.rs`, `access/tenantA.c`) parses as
      * invalid until this is enabled, exactly matching this server's original behavior of
      * only recognizing the legacy `read`/`write`/`*` suffixes. Recognizing v2 grammar is a
-     * one-way loosening of what scope strings are honored (see docs/superpowers/specs/
-     * 2026-09-13-smart-v2-scope-granularity-design.md, "Open items") -- turn on only once every
+     * one-way loosening of what scope strings are honored (see docs/specs/
+     * smart-v2-scope-granularity-design.md, "Open items") -- turn on only once every
      * phase of that design has shipped and live IdP client scope configurations have been
      * audited for strings that would newly parse as valid v2 grammar.
      */

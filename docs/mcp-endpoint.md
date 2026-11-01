@@ -6,8 +6,8 @@ server's data without a parallel, drift-prone reimplementation of search, filter
 control.
 
 For the design rationale, the auth gaps found and fixed during implementation, and the resolved
-open questions, see `docs/superpowers/specs/2026-08-05-mcp-endpoint-design.md` and
-`docs/superpowers/plans/2026-08-05-mcp-endpoint.md`. This doc describes the shipped surface as it
+open questions, see `docs/specs/mcp-endpoint-design.md` and
+`docs/plans/mcp-endpoint.md`. This doc describes the shipped surface as it
 exists in code today.
 
 Per `CLAUDE.md`'s security-sensitive-changes rule, this endpoint touches resource search/read —
@@ -260,7 +260,7 @@ per-request/stateless by construction; there is no separate stateful transport m
   access-tag tenant isolation and the `access/*` wildcard bypass (§1, §7), delegated-actor consent
   gate and sensitivity denylist (§6c, §10 steps 3-5), hidden-tag default exclusion (§8), confidentiality-`R`
   exclusion for patient-scoped callers (§9), and the `AuditEvent` required-filters gate (§3). See
-  `docs/superpowers/plans/2026-08-14-mcp-resource-authorization-test-coverage.md` for why other
+  `docs/plans/mcp-resource-authorization-test-coverage.md` for why other
   sections of that doc (§2, §4, §6a, §6b, admin/debug params) don't need their own MCP-level test.
 - `src/tests/integration/mcp/dedicated_tools/` — per-tool coverage for all 31 generated dedicated tools.
 - `src/tests/unit/mcp/mcpToolHandler.test.js` — unit coverage for `McpToolHandler`, including

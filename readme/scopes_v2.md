@@ -4,7 +4,7 @@ This page explains the SMART App Launch v2 scope grammar the server understands,
 the v1 `read` / `write` / `*` grammar, what each operation requires in v1 and in v2, the smallest
 scope set that makes each operation work, and where v1 callers see a different result than before.
 The full design is in
-[docs/superpowers/specs/2026-09-13-smart-v2-scope-granularity-design.md](../docs/superpowers/specs/2026-09-13-smart-v2-scope-granularity-design.md).
+[docs/specs/smart-v2-scope-granularity-design.md](../docs/specs/smart-v2-scope-granularity-design.md).
 
 ## 1. The grammar
 

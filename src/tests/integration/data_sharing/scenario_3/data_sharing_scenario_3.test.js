@@ -122,7 +122,7 @@ describe('Data sharing test cases for different scenarios', () => {
         // Same DCON-2773 behavior change as above: plain search no longer varies with consent
         // state, so both the pre- and post-revoke reads now return client-only data. Revocation
         // itself is meaningfully testable only via $everything (see Phase 2, task 2.1 of
-        // docs/superpowers/plans/2026-08-04-security-review-test-coverage.md).
+        // docs/plans/security-review-test-coverage.md).
         test('Ref of master person: Get Client patient & proa patient data, consent provided, and later consent revoked.', async () => {
             const request = await createTestRequest((c) => {
                 return c;

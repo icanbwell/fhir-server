@@ -8,7 +8,7 @@
  * these tests exist to prove /mcp's OWN wiring (arg parsing, tool schemas, McpToolHandler) reaches
  * that shared code correctly, the same class of regression resource-authorization.md's §12
  * documents once happening for GraphQL (OperationAccessManager.verifyGraphQLReadAccess missing
- * from GraphQL's entry points). See docs/superpowers/plans/2026-08-14-mcp-resource-authorization-test-coverage.md
+ * from GraphQL's entry points). See docs/plans/mcp-resource-authorization-test-coverage.md
  * for the full gap analysis, including which mechanisms are deliberately NOT re-tested here.
  */
 const { describe, test, expect, beforeEach, afterEach, jest } = require('@jest/globals');

@@ -391,7 +391,7 @@ describe('Resource Authorization §3 — Scopes (SMART on FHIR)', () => {
 
             // Named so a future refactor that turns system/ into a sibling branch (rather than
             // union'd into the existing `else` with `user/`) trips on this test. See
-            // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1/§2.
+            // docs/plans/smart-v2-system-scope-design.md §1/§2.
             test('patient/ + system/ cannot WRITE a non-patient-filterable type (same as patient/ + user/)', async () => {
                 mockPatientFilterManager.canAccessResourceWithPatientScope.mockReturnValue(false);
 

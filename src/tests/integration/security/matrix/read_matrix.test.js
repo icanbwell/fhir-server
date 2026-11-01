@@ -29,7 +29,7 @@ const CALLER = {
     wildcard: { label: 'wildcard access/*.* (ground truth)',  headers: () => sysHeaders('user/*.read access/*.*') },
     // SMART on FHIR v2 backend-services callers. `system/` must behave exactly like `user/` at
     // the resource-type gate (they are unioned in the same branch, unconditionally -- see
-    // docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1/§2).
+    // docs/plans/smart-v2-system-scope-design.md §1/§2).
     tenantASystem:  { label: 'backend service, tenanta, read-only (system/)', headers: () => sysHeaders('system/*.read access/tenanta.*') },
     wildcardSystem: { label: 'backend service, wildcard access (system/)',    headers: () => sysHeaders('system/*.read access/*.*') }
 };

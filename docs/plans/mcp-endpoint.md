@@ -48,7 +48,7 @@ following the existing `generatorScripts/` convention.
 - Per `CLAUDE.md`'s security-sensitive-changes rule: this touches resource search/read. Before the
   implementation PR is reviewed/approved, `review.md` at the repo root must be read and the diff
   adversarially reviewed against it (Task 10 calls this out again at the point it matters).
-- This plan's design doc is `docs/superpowers/specs/2026-08-05-mcp-endpoint-design.md` — all six open
+- This plan's design doc is `docs/specs/mcp-endpoint-design.md` — all six open
   questions in its final section are resolved (see the design doc's "Resolved (confirmed by user on
   2026-08-05)" section and this plan's own Self-Review section below for the final decisions).
 - `McpToolHandler` (Task 6) must apply the same patient data-connection-view-control (consent-based)
@@ -1487,7 +1487,7 @@ git commit -m "Add /mcp integration tests: dedicated tool, generic tool, scope e
 
 ## Self-Review
 
-**Spec coverage** (against `docs/superpowers/specs/2026-08-05-mcp-endpoint-design.md`):
+**Spec coverage** (against `docs/specs/mcp-endpoint-design.md`):
 - §3 Architecture (McpServer/McpToolHandler split, httpContext bridging) → Tasks 6, 8, 9. ✓
 - §4 Code generation (Jinja2, curated list, generated barrel) → Tasks 2, 3. ✓
 - §5 Auth & scope enforcement (reuse passport, `FhirRequestInfoBuilder`, CMS-partner-user block,
@@ -1569,7 +1569,7 @@ been questioned before implementation started.
 
 ---
 
-**Plan complete and saved to `docs/superpowers/plans/2026-08-05-mcp-endpoint.md`.**
+**Plan complete and saved to `docs/plans/mcp-endpoint.md`.**
 
 Per the user's explicit instruction ("write the plan but don't implement"), **implementation is
 intentionally paused here.** All open questions are now resolved (see above). Execution options are:
