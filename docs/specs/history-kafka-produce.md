@@ -67,8 +67,7 @@ replay job.
 ## Constraints
 
 - Tenancy: no new query path; the produce reuses documents already built for the MongoDB history
-  write. Tenant is not in the partition key (the ticket specifies `resourceType:_uuid`); the org
-  Kafka standard prefers `tenant:<id>:<entity>:<id>`, so this needs EA/TDD confirmation.
+  write.
 - PHI: payload is the history document (PHI, same as MongoDB); logs and metric labels never
   carry it.
 - Event contract: `ce_type` `ResourceHistoryRecorded` is new. No AsyncAPI contract for events
