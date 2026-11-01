@@ -17,9 +17,10 @@ Spec: `docs/specs/history-kafka-produce.md`.
 6. Hook: call it after the history write in both inserters (queued post-request for the inline
    delete flush; skipped when the write errored) and after `insertOne` in
    `DatabaseUpdateManager.postSaveAsync`.
-7. Tests: unit and integration as listed in the spec.
-8. Verify: unit suites, related integration suites, lint; check the diff against `review.md`.
-9. Rollout (not yet done): in dev set `KAFKA_HISTORY_RESOURCES` to one synthetic type, write /
+7. Contract: `src/dataLayer/historyKafkaProducer.asyncapi.yaml` describes the event.
+8. Tests: unit and integration as listed in the spec.
+9. Verify: unit suites, related integration suites, lint; check the diff against `review.md`.
+10. Rollout (not yet done): in dev set `KAFKA_HISTORY_RESOURCES` to one synthetic type, write /
    update / delete, consume the topic and confirm events, headers, compression and size; then empty
    the list and confirm no new events. Widen one type at a time while watching the metrics.
 

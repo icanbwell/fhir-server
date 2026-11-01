@@ -38,6 +38,7 @@ replay job.
   (OID namespace). Deterministic: replays of one version keep the id; versions written in the same
   millisecond differ.
 - Trace context is injected into headers by `KafkaClientV2`.
+- Contract: `src/dataLayer/historyKafkaProducer.asyncapi.yaml` (update it with any change to the event).
 
 ## Hook points (every writer of history rows)
 
@@ -70,9 +71,6 @@ replay job.
   write.
 - PHI: payload is the history document (PHI, same as MongoDB); logs and metric labels never
   carry it.
-- Event contract: `ce_type` `ResourceHistoryRecorded` is new. No AsyncAPI contract for events
-  exists in this repo (only `src/operations/export/asyncapi.yaml`), so it must be recorded in the
-  TDD/AsyncAPI.
 - Flag names differ from the TDD (`ENABLE_HISTORY_KAFKA`, `CLICKHOUSE_HISTORY_RESOURCES`).
 
 ## Testing
