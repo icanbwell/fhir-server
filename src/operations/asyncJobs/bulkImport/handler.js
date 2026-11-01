@@ -405,7 +405,8 @@ class BulkImportHandler {
         const maxBytes = this.configManager.bulkImportMaxFileSizeGb * 1024 * 1024 * 1024;
 
         // mapLimit keeps results in input order and rejects with the first error.
-        return mapLimit(targets, this.configManager.bulkImportHeadS3Concurrency, async ({ url, bucket, key }) => {
+        const concurrency = this.configManager.bulkImportHeadS3Concurrency;
+        return mapLimit(targets, concurrency, async ({ url, bucket, key }) => {
             let fileSize;
             try {
                 const response = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));

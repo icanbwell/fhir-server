@@ -1652,8 +1652,12 @@ class ConfigManager {
      * @return {number}
      */
     get asyncJobConsumerJoinTimeoutMs() {
-        const parsed = parseInt(env.ASYNC_JOB_CONSUMER_JOIN_TIMEOUT_MS, 10);
-        return Number.isFinite(parsed) && parsed > 0 ? parsed : 120000;
+        const raw = env.ASYNC_JOB_CONSUMER_JOIN_TIMEOUT_MS;
+        // Digits only ('120s' must not parse as 120 ms), above the rebalance timeout, and within
+        // the largest delay setTimeout honors (anything larger fires after 1 ms, so every replica
+        // would give up on the join immediately).
+        const parsed = /^\d+$/.test(raw ?? '') ? Number(raw) : NaN;
+        return parsed > 60000 && parsed <= 2147483647 ? parsed : 120000;
     }
 
     /**
