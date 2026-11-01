@@ -3,7 +3,7 @@
 //
 // `system/` is unioned with `user/` at the resource-type/action gate,
 // unconditionally (see
-// docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1/§2). Every
+// docs/plans/smart-v2-system-scope.md §1/§2). Every
 // group below pins one way that union must NOT widen access beyond what an
 // equivalent `user/` caller already gets. Each negative is paired, where
 // practical, with a positive control proving the withheld resource is reachable

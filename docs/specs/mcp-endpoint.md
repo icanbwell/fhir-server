@@ -118,7 +118,7 @@ Express app (src/app.js)
 ## 4. Code generation
 
 New generator, following the existing Jinja2 convention. Finalized in the implementation plan (see
-`docs/superpowers/plans/2026-08-05-mcp-endpoint.md` Task 2) after this section's first draft turned
+`docs/plans/mcp-endpoint.md` Task 2) after this section's first draft turned
 out to be inaccurate in two ways once actually written: (1) it isn't necessary to consume
 `generate_resource_fields_type.get_resources_fields_data()` at all — REST/GraphQL query args are
 always flat strings regardless of the FHIR type, so every generated field is simply

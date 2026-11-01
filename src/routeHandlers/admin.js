@@ -42,7 +42,7 @@ function assertAdminScope ({ scopesManager, scope, accessRequested }) {
  * delegated-actor consent gate all apply here exactly as they do on every FHIR route - closing
  * the divergence where e.g. a patient/*.* token, or (once SMART v2 system/ scope support is
  * enabled) an unscoped system/*.* token, could satisfy this gate on its own. See
- * docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §4.1.
+ * docs/plans/smart-v2-system-scope.md §4.1.
  * @param {SimpleContainer} container
  * @param {import('http').IncomingMessage} req
  * @param {string} resourceType

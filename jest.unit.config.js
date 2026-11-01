@@ -7,8 +7,8 @@ module.exports = {
     // is fixed (security findings also need adversarial review against review.md); excluded here
     // so a documented-but-unfixed bug doesn't fail CI. Note: entries below do NOT all point at a
     // single external tracker - `BUG_REPORT.md`/`fhir-server-security-bugs.csv`, previously cited
-    // here for the whole list, do not exist in this repo (see docs/superpowers/plans/
-    // 2026-08-04-security-review-test-coverage.md's Global Constraints). Before removing an entry,
+    // here for the whole list, do not exist in this repo (see docs/plans/
+    // security-review-test-coverage.md's Global Constraints). Before removing an entry,
     // confirm it passes against current `main` - some bugs get fixed without their quarantine entry
     // being removed. Naming the path alone does NOT bypass this list (jest reports "No tests
     // found"); override the list and keep the path BEFORE the flag, since --testPathIgnorePatterns
