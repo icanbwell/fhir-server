@@ -1384,6 +1384,35 @@ class ConfigManager {
     }
 
     /**
+     * Topic that history events are produced to.
+     * Configuration: KAFKA_HISTORY_EVENTS_TOPIC (default fhir_server.resource-history.events)
+     * @return {string}
+     */
+    get kafkaHistoryEventsTopic() {
+        return env.KAFKA_HISTORY_EVENTS_TOPIC || 'fhir_server.resource-history.events';
+    }
+
+    /**
+     * Resource types whose history records are also produced to Kafka (parallel write).
+     * Empty (default) turns the feature off. It never replaces the MongoDB history write,
+     * and requires the V2 Kafka cluster (ENABLE_EVENTS_KAFKA_V2).
+     * Configuration: KAFKA_HISTORY_RESOURCES=Observation,Condition
+     * @return {string[]}
+     */
+    get kafkaHistoryResources() {
+        return this._parseCommaSeparatedList(env.KAFKA_HISTORY_RESOURCES, []).filter(Boolean);
+    }
+
+    /**
+     * Max history messages per Kafka produce call.
+     * Configuration: HISTORY_KAFKA_BATCH_SIZE (default 50)
+     * @return {number}
+     */
+    get historyKafkaBatchSize() {
+        return env.HISTORY_KAFKA_BATCH_SIZE ? parseInt(env.HISTORY_KAFKA_BATCH_SIZE) : 50;
+    }
+
+    /**
      * Maximum number of members allowed in Group.member for a PUT. Not used by the extended Group
      * checks, which use groupMemberPromotionLimit for both promotion and rejection.
      * @returns {number}

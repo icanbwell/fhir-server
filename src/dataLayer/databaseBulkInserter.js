@@ -43,6 +43,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {PostSaveProcessor} postSaveProcessor
      * @param {import('./base64DataManager').Base64DataManager} base64DataManager
      * @param {BulkWriteExecutor[]} bulkWriteExecutors
+     * @param {HistoryKafkaProducer|null} [historyKafkaProducer] optional parallel history produce to Kafka
      */
     constructor ({
                     resourceManager,
@@ -55,7 +56,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     configManager,
                     postSaveProcessor,
                     base64DataManager,
-                    bulkWriteExecutors
+                    bulkWriteExecutors,
+                    historyKafkaProducer = null
                 }) {
         super();
 
@@ -123,6 +125,7 @@ class DatabaseBulkInserter extends EventEmitter {
         /**
          * @type {BulkWriteExecutor[]}
          */
+        this.historyKafkaProducer = historyKafkaProducer;
         this.bulkWriteExecutors = bulkWriteExecutors || [];
         assertIsValid(Array.isArray(this.bulkWriteExecutors), 'bulkWriteExecutors must be an array');
         for (const executor of this.bulkWriteExecutors) {
@@ -952,11 +955,18 @@ class DatabaseBulkInserter extends EventEmitter {
                 `No BulkWriteExecutor registered for resourceType=${resourceType}. Available: ${available}`
             );
         }
-        return executor.executeBulkAsync({
+        const result = await executor.executeBulkAsync({
             resourceType, operations, requestInfo, base_version,
             useHistoryCollection, maintainOrder, isAccessLogOperation,
             insertOneHistoryFn: this.insertOneHistoryAsync.bind(this)
         });
+        // Parallel history produce: only after the history write above, never replaces it, never throws.
+        if (useHistoryCollection === true && this.historyKafkaProducer) {
+            await this.historyKafkaProducer.produceAsync({
+                resourceType, operations, requestId: requestInfo.requestId
+            });
+        }
+        return result;
     }
 
     /**
