@@ -18,8 +18,9 @@ Spec: `docs/specs/history-kafka-produce.md`.
 5. Wire it: register `historyKafkaProducer` in `src/createContainer.js`; inject into
    `DatabaseBulkInserter`, `FastDatabaseBulkInserter` and (via `DatabaseUpdateFactory`)
    `DatabaseUpdateManager`.
-6. Hook: call it after the history write in both inserters (queued post-request for the inline
-   delete flush; skipped when the write errored) and after `insertOne` in
+6. Hook: call it after the history write in both inserters (background produce for the inline
+   delete flush, drained by `flushAsync()` on shutdown; skipped when the write errored or the type
+   is not enabled) and after `insertOne` in
    `DatabaseUpdateManager.postSaveAsync`.
 7. Contract: `src/dataLayer/historyKafkaProducer.asyncapi.yaml`, aligned with the event
    standard (`content-type`, `ce_source` as a URI, required `traceparent`).

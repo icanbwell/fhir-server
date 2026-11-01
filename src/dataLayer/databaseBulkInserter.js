@@ -938,7 +938,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {BulkInsertUpdateEntry[]} operations
      * @param {boolean} maintainOrder
      * @param {boolean} isAccessLogOperation
-     * @param {boolean} [deferHistoryProduce] queue the history Kafka produce post-request instead of awaiting it
+     * @param {boolean} [deferHistoryProduce] run the history Kafka produce in the background instead of awaiting it
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeAsync ({
@@ -967,14 +967,14 @@ class DatabaseBulkInserter extends EventEmitter {
         });
         // Parallel history produce: only after a successful history write (a size-rejected write returns
         // `error` and writes nothing), never replaces it, never throws. When the history flush runs inline
-        // in a request (delete), the produce is queued post-request so Kafka latency never delays it.
-        if (useHistoryCollection === true && this.historyKafkaProducer && !result?.error) {
-            const requestId = requestInfo.requestId;
-            const produceAsync = () => this.historyKafkaProducer.produceAsync({ resourceType, operations, requestId });
+        // in a request (delete), the produce runs in the background so Kafka latency never delays it.
+        if (useHistoryCollection === true && this.historyKafkaProducer && !result?.error &&
+            this.historyKafkaProducer.isEnabledFor(resourceType)) {
+            const produceParams = { resourceType, operations, requestId: requestInfo.requestId };
             if (deferHistoryProduce) {
-                this.postRequestProcessor.add({ requestId, fnTask: produceAsync });
+                this.historyKafkaProducer.produceInBackground(produceParams);
             } else {
-                await produceAsync();
+                await this.historyKafkaProducer.produceAsync(produceParams);
             }
         }
         return result;

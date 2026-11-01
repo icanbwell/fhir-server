@@ -21,14 +21,15 @@ describe.each([
             })
         };
         const historyKafkaProducer = {
+            isEnabledFor: jest.fn(() => true),
             produceAsync: jest.fn(async () => {
                 order.push('kafka');
-            })
+            }),
+            produceInBackground: jest.fn()
         };
         const inserter = Object.create(InserterClass.prototype);
-        const postRequestProcessor = { add: jest.fn() };
-        Object.assign(inserter, { bulkWriteExecutors: [executor], historyKafkaProducer, postRequestProcessor });
-        return { inserter, executor, historyKafkaProducer, order, postRequestProcessor };
+        Object.assign(inserter, { bulkWriteExecutors: [executor], historyKafkaProducer });
+        return { inserter, executor, historyKafkaProducer, order };
     };
     const call = (inserter, useHistoryCollection, extra = {}) => inserter.performBulkForResourceTypeAsync({
         ...extra,
@@ -63,17 +64,22 @@ describe.each([
         expect(historyKafkaProducer.produceAsync).not.toHaveBeenCalled();
     });
 
-    test('deferHistoryProduce queues the produce post-request instead of awaiting it', async () => {
-        const { inserter, historyKafkaProducer, postRequestProcessor } = build();
+    test('deferHistoryProduce runs the produce in the background instead of awaiting it', async () => {
+        const { inserter, historyKafkaProducer } = build();
         await call(inserter, true, { deferHistoryProduce: true });
         expect(historyKafkaProducer.produceAsync).not.toHaveBeenCalled();
-        expect(postRequestProcessor.add).toHaveBeenCalledTimes(1);
-        const { requestId, fnTask } = postRequestProcessor.add.mock.calls[0][0];
-        expect(requestId).toBe('r1');
-        await fnTask();
-        expect(historyKafkaProducer.produceAsync).toHaveBeenCalledWith({
+        expect(historyKafkaProducer.produceInBackground).toHaveBeenCalledWith({
             resourceType: 'Observation', operations: [{ uuid: 'u1' }], requestId: 'r1'
         });
+    });
+
+    test.each([[false], [true]])('nothing is produced or queued for a type that is not enabled (defer=%s)', async (defer) => {
+        const { inserter, historyKafkaProducer } = build();
+        historyKafkaProducer.isEnabledFor.mockReturnValue(false);
+        await call(inserter, true, { deferHistoryProduce: defer });
+        expect(historyKafkaProducer.isEnabledFor).toHaveBeenCalledWith('Observation');
+        expect(historyKafkaProducer.produceAsync).not.toHaveBeenCalled();
+        expect(historyKafkaProducer.produceInBackground).not.toHaveBeenCalled();
     });
 
     test('works without a producer configured', async () => {

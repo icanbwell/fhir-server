@@ -48,6 +48,8 @@ class HistoryKafkaProducer {
         this.maxRetries = maxRetries;
         this.initialRetryDelayMs = initialRetryDelayMs;
         this._produceTimeoutMsOverride = produceTimeoutMs;
+        /** @type {Set<Promise<void>>} background produces still in flight */
+        this._pending = new Set();
     }
 
     /**
@@ -57,6 +59,26 @@ class HistoryKafkaProducer {
     isEnabledFor (resourceType) {
         return this.configManager.kafkaV2EnableEvents &&
             this.configManager.kafkaHistoryResources.includes(resourceType);
+    }
+
+    /**
+     * Starts a produce without making the caller wait for it (used when the history flush runs inline in a
+     * request, e.g. delete). It is tracked so flushAsync can wait for it on shutdown, and it does not depend
+     * on any request-scoped queue being drained (admin routes never drain it). Never throws.
+     * @param {Object} params same as produceAsync
+     * @returns {void}
+     */
+    produceInBackground (params) {
+        const pending = this.produceAsync(params).finally(() => this._pending.delete(pending));
+        this._pending.add(pending);
+    }
+
+    /**
+     * Waits for the background produces still in flight. Never throws.
+     * @returns {Promise<void>}
+     */
+    async flushAsync () {
+        await Promise.allSettled([...this._pending]);
     }
 
     /**
@@ -86,6 +108,7 @@ class HistoryKafkaProducer {
             }
         } catch (err) {
             // Logged without the resource: payloads and ids are PHI-adjacent.
+            metrics.recordHistoryKafkaProduce(resourceType, operations?.length || 1, false, 0);
             logError('HistoryKafkaProducer: unexpected failure', { resourceType, requestId, error: err.message });
         }
     }

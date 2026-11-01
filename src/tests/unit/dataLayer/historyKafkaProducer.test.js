@@ -226,6 +226,38 @@ describe('HistoryKafkaProducer', () => {
         expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(1);
     });
 
+    test('produceInBackground does not block the caller and flushAsync waits for it', async () => {
+        let release;
+        kafkaClientV2.sendCloudEventMessageAsync.mockReturnValue(new Promise((resolve) => { release = resolve; }));
+        producer.produceInBackground({ resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1' });
+
+        let flushed = false;
+        const flushing = producer.flushAsync().then(() => { flushed = true; });
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        expect(flushed).toBe(false); // still in flight
+
+        release();
+        await flushing;
+        expect(flushed).toBe(true);
+        expect(recordSpy).toHaveBeenCalledWith('Observation', 1, true, expect.any(Number));
+        expect(producer._pending.size).toBe(0);
+    });
+
+    test('produceInBackground is a no-op for a type that is not listed', async () => {
+        producer.produceInBackground({ resourceType: 'Condition', operations: [historyOperation('Condition', 'u1')], requestId: 'r1' });
+        await producer.flushAsync();
+        expect(kafkaClientV2.sendCloudEventMessageAsync).not.toHaveBeenCalled();
+    });
+
+    test('an unexpected failure is counted, not only logged', async () => {
+        setEnv({ KAFKA_PRODUCER_COMPRESSION: 'not-a-codec' });
+        await expect(producer.produceAsync({
+            resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1'
+        })).resolves.toBeUndefined();
+        expect(recordSpy).toHaveBeenCalledWith('Observation', 1, false, expect.any(Number));
+        expect(kafkaClientV2.sendCloudEventMessageAsync).not.toHaveBeenCalled();
+    });
+
     test('success is counted', async () => {
         await producer.produceAsync({ resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1' });
         expect(recordSpy).toHaveBeenCalledWith('Observation', 1, true, expect.any(Number));

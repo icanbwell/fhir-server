@@ -13,7 +13,8 @@ replay job.
   off; a listed type produces; unlisted types behave as today. No separate kill switch.
 - Requires the V2 Kafka cluster (`ENABLE_EVENTS_KAFKA_V2`); the disabled client would drop events.
 - The MongoDB history write is never replaced, skipped or delayed. The produce runs after it, in
-  the same post-request task, and only when the write reported no error.
+  the same post-request task (or in the background for the inline delete flush), and only when the
+  write reported no error.
 - Flags are read from the environment per call: changing the list is a config rollout, not a code
   change. There is no live reload without that rollout.
 - A produce failure never fails the FHIR write and leaves MongoDB history in place.
@@ -46,9 +47,10 @@ replay job.
 ## Hook points (every writer of history rows)
 
 - `DatabaseBulkInserter` and `FastDatabaseBulkInserter`, in `performBulkForResourceTypeAsync`, when
-  `useHistoryCollection === true`. When the flush runs inline in a request (delete, via
-  `executeHistoryAsync`) the produce is queued on `postRequestProcessor`, so Kafka latency never
-  delays the request.
+  `useHistoryCollection === true`, only for types in the allowlist. When the flush runs inline in a
+  request (delete, via `executeHistoryAsync`) the produce runs in the background (tracked by
+  `HistoryKafkaProducer`, never awaited by the request) and is drained by `flushAsync()` during
+  graceful shutdown, so Kafka latency never delays the request and no produce is lost on SIGTERM.
 - `DatabaseUpdateManager.postSaveAsync` (admin Person/Patient link/unlink), which writes history
   directly.
 
@@ -78,7 +80,8 @@ replay job.
 ## Testing
 
 - Unit: producer (allowlist off/one/two types, batching, retries, timeout, chunk isolation,
-  `ce_id`, batch-size validation) and the hook on both inserters (order, defer, skip on error).
+  `ce_id`, batch-size validation) and the hook on both inserters (order, background defer, skip on error, skip when not enabled),
+  `produceInBackground`/`flushAsync`.
 - Integration (`src/tests/integration/dataLayer/databaseBulkInserter/historyKafkaProduce.test.js`):
   flag off, one type, two types, Kafka down, and the `postSaveAsync` writer; synthetic data only.
 - Not done: dev-environment verification (consume the topic; confirm events, headers, compression,
