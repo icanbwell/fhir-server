@@ -16,6 +16,9 @@ remove), OAuth scope/token parsing, request-scoped caching, or any cross-resourc
 shared identifier — read `review.md` at the repo root and adversarially review the diff against
 it.
 
+Path-scoped guidance lives in `.claude/rules/` (generated code, tests, security-sensitive paths);
+slash commands `/test` and `/security-review-diff` are in `.claude/commands/`.
+
 ## Essential Commands
 
 ```bash

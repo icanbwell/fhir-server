@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fhir-server-stack",
+      "runtimeExecutable": "make",
+      "runtimeArgs": ["up"],
+      "port": 3000
+    }
+  ]
+}
