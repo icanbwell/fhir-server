@@ -110,7 +110,7 @@ class MergeResultEntry {
             if (!extensions.some((e) => e.url === SOURCE_BYTE_OFFSET_EXTENSION_URL)) {
                 issue.extension = [
                     ...extensions,
-                    new Extension({ url: SOURCE_BYTE_OFFSET_EXTENSION_URL, valueInteger: sourceByteOffset })
+                    { url: SOURCE_BYTE_OFFSET_EXTENSION_URL, valueInteger: sourceByteOffset }
                 ];
             }
         }

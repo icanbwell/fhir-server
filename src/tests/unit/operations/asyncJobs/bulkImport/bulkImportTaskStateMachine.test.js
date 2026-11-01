@@ -38,8 +38,7 @@ const { BULK_IMPORT_TASK } = require('../../../../../constants');
 const { logError } = require('../../../../../operations/common/logging');
 
 /**
- * A Task resource double with the clone()/toJSONInternal() contract the state machine relies on.
- * clone() returns a deep-enough copy so mutation isolation is observable.
+ * A plain Task document as returned by fastFindOneAsync.
  * @param {Object} [overrides]
  */
 function makeTask (overrides = {}) {
@@ -57,29 +56,11 @@ function makeTask (overrides = {}) {
     if (task.output) {
         task.output = task.output.map((o) => ({ ...o }));
     }
-    task.clone = () => makeTask({
-        resourceType: task.resourceType,
-        id: task.id,
-        status: task.status,
-        code: task.code,
-        meta: { ...task.meta },
-        output: task.output,
-        statusReason: task.statusReason ? { ...task.statusReason } : undefined
-    });
-    task.toJSONInternal = () => ({
-        resourceType: task.resourceType,
-        id: task.id,
-        status: task.status,
-        code: task.code,
-        meta: task.meta,
-        output: task.output,
-        statusReason: task.statusReason
-    });
     return task;
 }
 
 describe('BulkImportTaskStateMachine', () => {
-    let findOneAsync;
+    let fastFindOneAsync;
     let databaseQueryFactory;
     let fastDatabaseBulkInserter;
     let mergeManager;
@@ -88,9 +69,9 @@ describe('BulkImportTaskStateMachine', () => {
     beforeEach(() => {
         jestGlobal.clearAllMocks();
 
-        findOneAsync = jestGlobal.fn().mockResolvedValue(makeTask());
+        fastFindOneAsync = jestGlobal.fn().mockResolvedValue(makeTask());
         databaseQueryFactory = {
-            createQuery: jestGlobal.fn(() => ({ findOneAsync }))
+            createQuery: jestGlobal.fn(() => ({ fastFindOneAsync }))
         };
         fastDatabaseBulkInserter = {
             executeAsync: jestGlobal.fn().mockResolvedValue(undefined)
@@ -150,7 +131,7 @@ describe('BulkImportTaskStateMachine', () => {
                 resourceType: 'Task',
                 base_version: '4_0_0'
             });
-            expect(findOneAsync).toHaveBeenCalledWith({
+            expect(fastFindOneAsync).toHaveBeenCalledWith({
                 query: {
                     id: 'task-xyz',
                     'code.coding': {
@@ -167,7 +148,7 @@ describe('BulkImportTaskStateMachine', () => {
         test('reads from the primary so a lagging secondary cannot return a stale Task and drop a completed range', async () => {
             await stateMachine.loadTaskAsync('task-xyz');
 
-            expect(findOneAsync.mock.calls[0][0].options.readPreference).toBe(
+            expect(fastFindOneAsync.mock.calls[0][0].options.readPreference).toBe(
                 ReadPreference.PRIMARY
             );
         });
@@ -176,12 +157,12 @@ describe('BulkImportTaskStateMachine', () => {
             await stateMachine.loadTaskAsync('task-A');
             await stateMachine.loadTaskAsync('task-B');
 
-            expect(findOneAsync.mock.calls[0][0].query.id).toBe('task-A');
-            expect(findOneAsync.mock.calls[1][0].query.id).toBe('task-B');
+            expect(fastFindOneAsync.mock.calls[0][0].query.id).toBe('task-A');
+            expect(fastFindOneAsync.mock.calls[1][0].query.id).toBe('task-B');
         });
 
         test('returns null when no matching bulk-import Task exists', async () => {
-            findOneAsync.mockResolvedValue(null);
+            fastFindOneAsync.mockResolvedValue(null);
             await expect(stateMachine.loadTaskAsync('nope')).resolves.toBeNull();
         });
     });
@@ -236,7 +217,7 @@ describe('BulkImportTaskStateMachine', () => {
     // updateTaskStatusAsync
     // ========================================================================================
     describe('updateTaskStatusAsync', () => {
-        test('writes a clone with the new status and a refreshed meta.lastUpdated', async () => {
+        test('writes a copy with the new status and a refreshed meta.lastUpdated', async () => {
             const task = makeTask({ status: 'requested' });
             const before = task.meta.lastUpdated;
 

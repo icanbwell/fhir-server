@@ -65,8 +65,7 @@ function createMockConfigManager(overrides = {}) {
 }
 
 /**
- * Creates a mock Task resource with a working clone() (needed by
- * BulkImportTaskStateMachine.updateTaskStatusAsync).
+ * Creates a mock Task document, shaped like what fastFindOneAsync returns.
  * @param {Object} [overrides]
  */
 function createMockTask(overrides = {}) {
@@ -78,7 +77,6 @@ function createMockTask(overrides = {}) {
         meta: { lastUpdated: '2026-01-01T00:00:00.000Z' },
         ...overrides
     };
-    task.clone = jestGlobal.fn(() => createMockTask({ ...task, clone: undefined }));
     return task;
 }
 
@@ -115,7 +113,7 @@ function createHandler(configOverrides = {}, depsOverrides = {}) {
         bulkImportTaskStateMachine: createMockStateMachine(),
         databaseQueryFactory: {
             createQuery: jestGlobal.fn(() => ({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(createMockTask())
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(createMockTask())
             }))
         },
         fastDatabaseBulkInserter: {},
