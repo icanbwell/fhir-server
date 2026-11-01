@@ -29,14 +29,3 @@ Spec: `docs/specs/history-kafka-produce.md`.
 10. [not done] Rollout: in dev set `KAFKA_HISTORY_RESOURCES` to one synthetic type, write / update /
     delete, consume the topic and confirm events, headers, compression and size; then empty the list
     and confirm no new events. Widen one type at a time while watching the metrics.
-
-## Risks and follow-ups
-
-- Confirm `ce_type` and the partition key (tenant prefix) with EA.
-- Contract gaps against the event standard: no `servers` / security scheme (V2 cluster hosts and auth
-  not confirmed), and the payload is the stored history document, not the standard's
-  `managingOrganization` / person-id data wrapper.
-- `traceparent` is marked required but is injected only when a trace is active; confirm it is present
-  on events produced from the post-request task.
-- A produce timeout or Kafka outage holds the post-request task open (not the client response).
-- Phase 3 (Kafka-primary, MongoDB fallback replay) is out of scope.
