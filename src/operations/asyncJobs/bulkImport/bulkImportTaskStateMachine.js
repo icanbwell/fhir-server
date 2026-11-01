@@ -120,7 +120,7 @@ class BulkImportTaskStateMachine {
      * Writes an updated Task through the merge flow (mergeManager.mergeResourceAsync),
      * which handles FHIR validation, proper upsert semantics, and pre/post-save processing.
      * @param {Object} task - copied Task resource with updated fields already applied
-     * @returns {Promise<void>}
+     * @returns {Promise<boolean>} true when the write reached the database
      */
     async writeTaskAsync(task) {
         const requestInfo = this.buildOrchestratorRequestInfo();
@@ -139,14 +139,24 @@ class BulkImportTaskStateMachine {
                 taskId: task.id,
                 error: result.issue?.[0]?.diagnostics
             });
-            return;
+            return false;
         }
         // mergeResourceAsync buffers the write in FastDatabaseBulkInserter;
         // flush it now so the Task is persisted before this call returns.
-        await this.fastDatabaseBulkInserter.executeAsync({
+        const flushResults = await this.fastDatabaseBulkInserter.executeAsync({
             requestInfo,
             base_version: '4_0_0'
         });
+        // The flush reports a rejected write as a result entry with an issue, not a throw.
+        const rejected = (flushResults || []).find((r) => r && r.issue);
+        if (rejected) {
+            logError('Task write was rejected during orchestrator flush', {
+                taskId: task.id,
+                error: rejected.issue.diagnostics || rejected.issue.code
+            });
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -154,7 +164,7 @@ class BulkImportTaskStateMachine {
      * @param {Object} task
      * @param {string} status
      * @param {string} [statusReason]
-     * @returns {Promise<void>}
+     * @returns {Promise<boolean>} true when the write reached the database
      */
     async updateTaskStatusAsync(task, status, statusReason) {
         const updated = deepcopy(task);
@@ -166,20 +176,51 @@ class BulkImportTaskStateMachine {
             }
             updated.statusReason.text = statusReason;
         }
-        await this.writeTaskAsync(updated);
+        return this.writeTaskAsync(updated);
     }
 
     /**
      * Flips a Task from 'requested' to 'in-progress' the first time any range reports
-     * having started. No-op if the Task is already past 'requested'.
+     * having started. Any later start report (a redelivered or duplicate range run) is also a
+     * chance to finalize a Task whose last completion was recorded but never counted.
      * @param {Object} task
+     * @param {Object} [params]
+     * @param {number} [params.taskTotalRanges]
      * @returns {Promise<void>}
      */
-    async handleRangeStartedAsync(task) {
-        if (task.status !== 'requested') {
+    async handleRangeStartedAsync(task, { taskTotalRanges } = {}) {
+        if (task.status === 'requested') {
+            await this.updateTaskStatusAsync(task, 'in-progress');
             return;
         }
-        await this.updateTaskStatusAsync(task, 'in-progress');
+        await this.finalizeIfCompleteAsync(task, taskTotalRanges);
+    }
+
+    /**
+     * Flips a non-terminal Task to 'completed' when every range is recorded on it. Runs on
+     * every range-progress event, not only the one that appends the last entry: two
+     * orchestrator processes handling completions for the same Task (a rebalance leaves the
+     * evicted member finishing its in-flight handler) can each persist an entry that the other
+     * never sees, so the handler that appended the last entry may count one short.
+     * @param {Object} task - as read from the primary
+     * @param {number|undefined} taskTotalRanges
+     * @returns {Promise<boolean>} true when this call completed the Task
+     */
+    async finalizeIfCompleteAsync(task, taskTotalRanges) {
+        if (task.status === 'completed' || task.status === 'failed') {
+            return false;
+        }
+        if (!Number.isInteger(taskTotalRanges) || taskTotalRanges <= 0) {
+            return false;
+        }
+        if (this.countCompletedRanges(task) < taskTotalRanges) {
+            return false;
+        }
+        const persisted = await this.updateTaskStatusAsync(task, 'completed');
+        if (persisted) {
+            recordImportTaskFinished(IMPORT_TASK_STATUS.COMPLETED, taskDurationSeconds(task));
+        }
+        return persisted;
     }
 
     /**
@@ -194,8 +235,10 @@ class BulkImportTaskStateMachine {
         if (task.status === 'completed' || task.status === 'failed') {
             return;
         }
-        await this.updateTaskStatusAsync(task, 'failed', errorMessage);
-        recordImportTaskFinished(IMPORT_TASK_STATUS.FAILED, taskDurationSeconds(task));
+        const persisted = await this.updateTaskStatusAsync(task, 'failed', errorMessage);
+        if (persisted) {
+            recordImportTaskFinished(IMPORT_TASK_STATUS.FAILED, taskDurationSeconds(task));
+        }
     }
 
     /**
@@ -217,6 +260,9 @@ class BulkImportTaskStateMachine {
         }
 
         if (this.isRangeRecorded(task, { filepath, rangeIndex })) {
+            // Redelivered report: nothing to append, but the Task may be sitting with every
+            // range recorded and no status flip (see finalizeIfCompleteAsync).
+            await this.finalizeIfCompleteAsync(task, taskTotalRanges);
             return;
         }
         const rangeEntryId = this.buildRangeOutputEntryId({ filepath, rangeIndex });
@@ -235,22 +281,26 @@ class BulkImportTaskStateMachine {
         const updated = deepcopy(task);
         updated.output = [...(updated.output || []), ...newOutputs];
         updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-        await this.writeTaskAsync(updated);
+        if (!(await this.writeTaskAsync(updated))) {
+            // Not persisted: let the message retry rather than count an entry that isn't there.
+            throw new Error(`Bulk import range completion was not persisted on Task ${task.id}`);
+        }
+
+        // Count what is in the database, not the copy this process wrote: $merge unions
+        // Task.output by entry id, so a concurrent writer's entries are present on the
+        // persisted document but absent from `updated`.
+        const persisted = (await this.loadTaskAsync(task.id)) || updated;
 
         // One line per recorded range so a stalled import is visible: an in-progress Task
         // with no progress line for N minutes is the alert.
-        const completedRanges = this.countCompletedRanges(updated);
         logInfo('Bulk import task progress', {
             taskId: task.id,
-            status: task.status,
-            completedRanges,
+            status: persisted.status,
+            completedRanges: this.countCompletedRanges(persisted),
             taskTotalRanges
         });
 
-        if (task.status !== 'failed' && completedRanges >= taskTotalRanges) {
-            await this.updateTaskStatusAsync(updated, 'completed');
-            recordImportTaskFinished(IMPORT_TASK_STATUS.COMPLETED, taskDurationSeconds(task));
-        }
+        await this.finalizeIfCompleteAsync(persisted, taskTotalRanges);
     }
 
     /**

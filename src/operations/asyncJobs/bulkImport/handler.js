@@ -557,7 +557,7 @@ class BulkImportHandler {
 
         switch (type) {
             case 'ImportRangeStarted':
-                return this.bulkImportTaskStateMachine.handleRangeStartedAsync(task);
+                return this.bulkImportTaskStateMachine.handleRangeStartedAsync(task, eventData);
             case 'ImportRangeCompleted':
                 return this.bulkImportTaskStateMachine.handleRangeCompletedAsync(task, eventData);
             case 'ImportRangeFailed':

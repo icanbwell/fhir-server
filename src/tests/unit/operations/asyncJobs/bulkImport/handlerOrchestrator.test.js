@@ -501,7 +501,10 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
                     headers: []
                 });
 
-                expect(stateMachine.handleRangeStartedAsync).toHaveBeenCalledWith(task);
+                expect(stateMachine.handleRangeStartedAsync).toHaveBeenCalledWith(
+                    task,
+                    expect.objectContaining({ taskId: expect.any(String) })
+                );
             });
 
             test('logs and returns if the Task cannot be found', async () => {
