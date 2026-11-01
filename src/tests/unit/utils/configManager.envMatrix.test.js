@@ -466,7 +466,6 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
         test('auditEventClickPipeBatchSize defaults to 50 and kafkaProducerCompression to zstd', () => {
             setEnv('AUDIT_EVENT_CLICKPIPE_BATCH_SIZE', undefined);
             setEnv('KAFKA_PRODUCER_COMPRESSION', undefined);
-            setEnv('AUDIT_EVENT_CLICKPIPE_COMPRESSION', undefined);
             const cm = new ConfigManager();
             expect(cm.auditEventClickPipeBatchSize).toBe(50);
             expect(cm.kafkaProducerCompression).toBe('zstd');
@@ -476,15 +475,6 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
             const cm2 = new ConfigManager();
             expect(cm2.auditEventClickPipeBatchSize).toBe(25);
             expect(cm2.kafkaProducerCompression).toBe('gzip');
-        });
-
-        test('kafkaProducerCompression falls back to the legacy AUDIT_EVENT_CLICKPIPE_COMPRESSION, new variable wins', () => {
-            setEnv('KAFKA_PRODUCER_COMPRESSION', undefined);
-            setEnv('AUDIT_EVENT_CLICKPIPE_COMPRESSION', 'gzip');
-            expect(new ConfigManager().kafkaProducerCompression).toBe('gzip');
-
-            setEnv('KAFKA_PRODUCER_COMPRESSION', 'none');
-            expect(new ConfigManager().kafkaProducerCompression).toBe('none');
         });
 
         test('cacheExpiryTime falls back to DEFAULT_CACHE_EXPIRY_TIME and parses an override', () => {

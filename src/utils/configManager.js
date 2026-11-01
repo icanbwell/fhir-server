@@ -1377,12 +1377,11 @@ class ConfigManager {
     /**
      * Kafka compression for messages produced to the V2 cluster (AuditEvent ClickPipe path and
      * history): none | gzip | zstd.
-     * Configuration: KAFKA_PRODUCER_COMPRESSION (default zstd). The older
-     * AUDIT_EVENT_CLICKPIPE_COMPRESSION is still honoured when the new variable is unset.
+     * Configuration: KAFKA_PRODUCER_COMPRESSION (default zstd)
      * @return {string}
      */
     get kafkaProducerCompression() {
-        return env.KAFKA_PRODUCER_COMPRESSION || env.AUDIT_EVENT_CLICKPIPE_COMPRESSION || 'zstd';
+        return env.KAFKA_PRODUCER_COMPRESSION || 'zstd';
     }
 
     /**
