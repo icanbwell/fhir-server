@@ -16,7 +16,7 @@ function, exactly once.
 
 **Tech Stack:** Node.js / CommonJS, Jest, MongoDB filter documents (no schema/index changes).
 
-**Spec:** `docs/specs/search-value-escaping-design.md`
+**Spec:** `docs/specs/search-value-escaping.md`
 
 ## Global Constraints
 

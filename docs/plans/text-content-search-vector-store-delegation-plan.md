@@ -18,7 +18,7 @@ run after (never before) a resource's own authorized fetch.
 
 **Tech Stack:** Node.js / CommonJS, Jest, MongoDB (`mongodb` driver, Atlas Search `$search`).
 
-**Spec:** `docs/specs/text-content-search-design.md`
+**Spec:** `docs/specs/text-content-search.md`
 
 ## Global Constraints
 
@@ -1440,7 +1440,7 @@ const ENRICHABLE_RESOURCE_TYPES = new Set(['DocumentReference', 'DiagnosticRepor
  * Attaches reassembled attachment text (from fhir-notes-vector-store) as a sibling
  * text/plain content/presentedForm entry, triggered by an empty `_content` value on a
  * single-resource request. Runs after the resource's own authorized fetch -- see
- * docs/specs/text-content-search-design.md, "Security model".
+ * docs/specs/text-content-search.md, "Security model".
  */
 class AttachmentTextEnrichmentProvider extends EnrichmentProvider {
     /**

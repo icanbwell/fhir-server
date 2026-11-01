@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3 (generator, pytest), Node.js/CommonJS (server, Jest), MongoDB query DSL.
 
-**Spec:** `docs/specs/composite-search-params-design.md`
+**Spec:** `docs/specs/composite-search-params.md`
 
 ## Global Constraints
 
@@ -23,7 +23,7 @@
 
 ## Design Refinements Found While Planning
 
-The spec (`docs/specs/composite-search-params-design.md`) is directionally correct but glosses over four mechanics that only became visible from reading the actual code and the raw `search-parameters.json` entries. This section documents them so Tasks 1–5 aren't marching to a description that doesn't survive contact with the real data:
+The spec (`docs/specs/composite-search-params.md`) is directionally correct but glosses over four mechanics that only became visible from reading the actual code and the raw `search-parameters.json` entries. This section documents them so Tasks 1–5 aren't marching to a description that doesn't survive contact with the real data:
 
 1. **A referenced component code can itself be multi-field, and the right field must be picked per scope, not reused wholesale.** E.g. `combo-code-value-quantity`'s component `code` resolves (via its `definition` URL) to `Observation-combo-code`, whose own `expression` is `Observation.code | Observation.component.code` — i.e. it already has _two_ fields, one root (`code`) and one array (`component.code`). The composite's root scope must pick the root field; its array scope must pick the array field. Simply "looking up the code in the pass-1 table" (as the spec's Architecture section puts it) is necessary but not sufficient — you get a list of candidate fields per code and must filter by scope.
 2. **Polymorphic `value[x]` components need `.as(Type)`-cast narrowing on top of scope filtering.** `Observation-value-quantity` (referenced by `code-value-quantity`'s second component) has _eleven_ xpath variants (`valueQuantity`, `valueCodeableConcept`, `valueString`, … `valuePeriod`) because FHIR's `value[x]` is polymorphic — all under the root scope, so scope-filtering alone doesn't narrow to one. The composite component's own `expression` is `value.as(Quantity)`; matching FHIR's universal `value` + `TypeName` naming convention against the candidate fields' leaf segment (expected `valueQuantity`) is what picks the one real field. This affects every composite whose component references a `*value-quantity` search parameter (`code-value-quantity`, `component-code-value-quantity`, `combo-code-value-quantity` — i.e. most of the Observation composites), not just the "combo" ones.

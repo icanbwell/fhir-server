@@ -6,7 +6,7 @@ server's data without a parallel, drift-prone reimplementation of search, filter
 control.
 
 For the design rationale, the auth gaps found and fixed during implementation, and the resolved
-open questions, see `docs/specs/mcp-endpoint-design.md` and
+open questions, see `docs/specs/mcp-endpoint.md` and
 `docs/plans/mcp-endpoint.md`. This doc describes the shipped surface as it
 exists in code today.
 

@@ -222,7 +222,7 @@ describe('BulkDataExportRunner', () => {
         // the fix, only user/-prefixed scopes populated allowedResourcesByScopes, which starts
         // as a truthy [], so a system/*.read caller was filtered to nothing rather than getting
         // its full allowed set. See
-        // docs/plans/smart-v2-system-scope-design.md §4.2.
+        // docs/plans/smart-v2-system-scope.md §4.2.
         test('a system/-only caller does not get a silently EMPTY resource list', async () => {
             const result = await runner.getRequestedResourceAsync({
                 scope: 'system/*.read',

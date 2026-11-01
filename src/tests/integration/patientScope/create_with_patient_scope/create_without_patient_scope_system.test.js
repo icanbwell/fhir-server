@@ -2,7 +2,7 @@
 //
 // Mirrors create_without_patient_scope.test.js, but with SMART on FHIR v2 `system/` in place of
 // `user/`. `system/` is unioned with `user/` in the same branch of ScopesValidator (see
-// docs/plans/smart-v2-system-scope-design.md §1/§2), so a
+// docs/plans/smart-v2-system-scope.md §1/§2), so a
 // `patient/... system/...` token must be refused with the exact same message as
 // `patient/... user/...` -- that response body is asserted verbatim elsewhere as a contract.
 const condition1Resource = require('./fixtures/Condition/condition1.json');

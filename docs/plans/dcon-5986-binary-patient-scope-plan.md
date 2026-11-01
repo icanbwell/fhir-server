@@ -1,6 +1,6 @@
 # DCON-5986: Binary patient scope - Implementation Plan
 
-Design, decisions and rationale: `docs/specs/dcon-5986-binary-patient-scope-design.md`.
+Design, decisions and rationale: `docs/specs/dcon-5986-binary-patient-scope.md`.
 Supersedes the implementation in #2635 and #2643.
 
 ## Tasks
