@@ -3,10 +3,9 @@
 ## Goal
 
 Produce each history record to Kafka topic `fhir_server.resource-history.events`, one resource type
-at a time, beside the unchanged MongoDB history write. Phase 1 of the history rollout: lets volume,
-ClickPipes behaviour and cost be checked before widening. Out of scope: Kafka-primary behaviour,
-the MongoDB fallback replay job, the ClickHouse table/pipe/backfill, reading `_history` from
-ClickHouse. What consumes the topic is an independent workflow; this change only produces.
+at a time, beside the unchanged MongoDB history write. This change only produces; what consumes the
+topic is an independent workflow. Out of scope: Kafka-primary behaviour and the MongoDB fallback
+replay job.
 
 ## Behaviour
 
@@ -76,7 +75,7 @@ ClickHouse. What consumes the topic is an independent workflow; this change only
 - Event contract: `ce_type` `ResourceHistoryRecorded` and the `.dlq` topic /
   `ResourceHistoryRecordFailed` type are new. No AsyncAPI contract for events exists in this repo
   (only `src/operations/export/asyncapi.yaml`), so they must be recorded in the TDD/AsyncAPI.
-- Flag names differ from TDD 7.1 (`ENABLE_HISTORY_KAFKA`, `CLICKHOUSE_HISTORY_RESOURCES`).
+- Flag names differ from the TDD (`ENABLE_HISTORY_KAFKA`, `CLICKHOUSE_HISTORY_RESOURCES`).
 
 ## Testing
 
