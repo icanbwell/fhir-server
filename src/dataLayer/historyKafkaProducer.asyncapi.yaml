@@ -23,7 +23,9 @@ channels:
         $ref: '#/components/messages/ResourceHistoryRecorded'
         bindings:
           kafka:
-            key: '{{resourceType}}:{{_uuid}}'
+            key:
+              type: string
+              description: '<resourceType>:<_uuid>, for example Observation:<_uuid>.'
 components:
   messages:
     ResourceHistoryRecorded:
@@ -45,24 +47,31 @@ components:
             const: ResourceHistoryRecorded
           ce_source:
             type: string
-            const: fhir-server
+            const: /fhir-server
+            description: URI of the event source.
           ce_time:
             type: string
             format: date-time
             description: The record's _recorded timestamp.
-          ce_datacontenttype:
+          content-type:
             type: string
             const: application/json
+            description: Content type of the event payload.
           traceparent:
             type: string
-            description: OpenTelemetry trace context, when a trace is active.
+            pattern: ^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$
+            description: W3C Trace Context traceparent header. Set by OpenTelemetry instrumentation; consumers MUST continue the trace.
+          tracestate:
+            type: string
+            description: W3C Trace Context tracestate header (optional).
         required:
           - ce_specversion
           - ce_id
           - ce_type
           - ce_source
           - ce_time
-          - ce_datacontenttype
+          - content-type
+          - traceparent
       payload:
         $ref: '#/components/schemas/HistoryDocument'
   schemas:

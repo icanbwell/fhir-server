@@ -79,6 +79,8 @@ describe('HistoryKafkaProducer', () => {
         expect(messages[0].headers).toMatchObject({
             ce_specversion: '1.0',
             ce_type: CLOUD_EVENT_TYPE,
+            ce_source: '/fhir-server',
+            'content-type': 'application/json',
             ce_id: generateUUIDv5('Observation|u1||1767323045678')
         });
     });

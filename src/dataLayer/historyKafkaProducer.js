@@ -9,7 +9,7 @@ const { retryWithBackoff } = require('../utils/retryWithBackoff');
 const metrics = require('../utils/metrics');
 
 const CLOUD_EVENT_TYPE = 'ResourceHistoryRecorded';
-const CLOUD_EVENT_SOURCE = 'fhir-server';
+const CLOUD_EVENT_SOURCE = '/fhir-server';
 
 /**
  * Produces history records to Kafka, beside (never instead of) the MongoDB history write.
@@ -145,7 +145,7 @@ class HistoryKafkaProducer {
                 ce_type: CLOUD_EVENT_TYPE,
                 ce_source: CLOUD_EVENT_SOURCE,
                 ce_time: recorded.toISOString(),
-                ce_datacontenttype: 'application/json'
+                'content-type': 'application/json'
             }
         };
     }

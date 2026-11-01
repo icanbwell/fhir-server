@@ -33,11 +33,11 @@ replay job.
 - Body: the history document, including `_recorded` (stamped once when the entry is created, so
   retries carry the same value).
 - CloudEvent binary mode headers: `ce_specversion=1.0`, `ce_type=ResourceHistoryRecorded`,
-  `ce_source=fhir-server`, `ce_time=<_recorded ISO>`, `ce_datacontenttype=application/json`,
+  `ce_source=/fhir-server`, `ce_time=<_recorded ISO>`, `content-type=application/json`,
   `ce_id=uuid5(resourceType|_uuid|meta.versionId|_recorded ms)` using the repo's `generateUUIDv5`
   (OID namespace). Deterministic: replays of one version keep the id; versions written in the same
   millisecond differ.
-- Trace context is injected into headers by `KafkaClientV2`.
+- `traceparent` / `tracestate` are injected into the headers by `KafkaClientV2` (OpenTelemetry), as the event standard requires.
 - Contract: `src/dataLayer/historyKafkaProducer.asyncapi.yaml` (update it with any change to the event).
 
 ## Hook points (every writer of history rows)
