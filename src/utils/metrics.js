@@ -71,7 +71,9 @@ const LABEL = Object.freeze({
     SUBSYSTEM: 'subsystem',
     PATH: 'path',
     POOL: 'pool',
-    REASON: 'reason'
+    REASON: 'reason',
+    STATUS: 'status',
+    GROUP_ID: 'group_id'
 });
 
 const OUTCOME = Object.freeze({
@@ -116,6 +118,25 @@ const POOL_CHECKOUT_FAILURE_REASON = Object.freeze({
 const PATH = Object.freeze({
     SAVE: 'save',
     VALIDATE: 'validate'
+});
+
+// What happened to one ImportRangeRequested message. published is counted by the
+// orchestrator at split time; the rest by the worker. published minus (completed + failed)
+// is the live backlog; the skipped_* values are redeliveries, i.e. wasted work.
+const IMPORT_RANGE_OUTCOME = Object.freeze({
+    PUBLISHED: 'published',
+    STARTED: 'started',
+    COMPLETED: 'completed',
+    FAILED: 'failed',
+    SKIPPED_DUPLICATE: 'skipped_duplicate',
+    SKIPPED_TASK_FINISHED: 'skipped_task_finished',
+    TASK_NOT_FOUND: 'task_not_found'
+});
+
+// Terminal Task statuses the orchestrator can write.
+const IMPORT_TASK_STATUS = Object.freeze({
+    COMPLETED: 'completed',
+    FAILED: 'failed'
 });
 
 const UNKNOWN = 'unknown';
@@ -260,6 +281,27 @@ const importFileSizeHistogram = meter.createHistogram('fhir_import_file_size_byt
     advice: {
         explicitBucketBoundaries: [1000, 10000, 100000, 1000000, 5000000, 10000000, 50000000, 100000000, 500000000]
     }
+});
+
+const importRangesCounter = meter.createCounter('fhir_import_ranges_total', {
+    description: 'Bulk-import byte ranges by outcome (published|started|completed|failed|skipped_duplicate|skipped_task_finished|task_not_found). published - (completed + failed) is the backlog; skipped_* are redeliveries.'
+});
+
+const importTasksCounter = meter.createCounter('fhir_import_tasks_total', {
+    description: 'Bulk $import Tasks that reached a terminal status (completed|failed), counted when the orchestrator writes that status.'
+});
+
+const importTaskDurationHistogram = meter.createHistogram('fhir_import_task_duration_seconds', {
+    description: 'Wall-clock time from Task.authoredOn to the orchestrator writing a terminal status, by status.',
+    unit: 's',
+    // Imports run for minutes to days, far past the default ~10s ceiling.
+    advice: {
+        explicitBucketBoundaries: [60, 300, 900, 1800, 3600, 7200, 10800, 21600, 43200, 86400, 172800]
+    }
+});
+
+const kafkaConsumerGroupJoinsCounter = meter.createCounter('fhir_kafka_consumer_group_joins_total', {
+    description: 'Consumer GROUP_JOIN events by group_id. One per consumer start is normal; a steady rate is rebalance or eviction churn (kafkajs rejoins after UNKNOWN_MEMBER_ID without emitting REBALANCING, so this is the only count that sees evictions).'
 });
 
 const mongoPoolCheckoutDurationHistogram = meter.createHistogram('fhir_mongo_pool_checkout_duration_seconds', {
@@ -483,6 +525,42 @@ function recordImportFileSize (fileSizeBytes) {
 }
 
 /**
+ * Emit fhir_import_ranges_total. An outcome outside IMPORT_RANGE_OUTCOME collapses to
+ * UNKNOWN so a typo cannot widen label cardinality.
+ * @param {string} outcome - one of IMPORT_RANGE_OUTCOME
+ * @param {number} [count]
+ */
+function recordImportRanges (outcome, count = 1) {
+    if (!(count > 0)) {
+        return;
+    }
+    const isKnown = Object.values(IMPORT_RANGE_OUTCOME).includes(outcome);
+    importRangesCounter.add(count, { [LABEL.OUTCOME]: isKnown ? outcome : UNKNOWN });
+}
+
+/**
+ * Emit fhir_import_tasks_total and, when the duration is known, fhir_import_task_duration_seconds.
+ * @param {string} status - one of IMPORT_TASK_STATUS
+ * @param {number} [durationSeconds] - omitted or non-finite when Task.authoredOn is missing
+ */
+function recordImportTaskFinished (status, durationSeconds) {
+    const isKnown = Object.values(IMPORT_TASK_STATUS).includes(status);
+    const label = { [LABEL.STATUS]: isKnown ? status : UNKNOWN };
+    importTasksCounter.add(1, label);
+    if (Number.isFinite(durationSeconds) && durationSeconds >= 0) {
+        importTaskDurationHistogram.record(durationSeconds, label);
+    }
+}
+
+/**
+ * Emit fhir_kafka_consumer_group_joins_total.
+ * @param {string} groupId
+ */
+function recordKafkaConsumerGroupJoin (groupId) {
+    kafkaConsumerGroupJoinsCounter.add(1, { [LABEL.GROUP_ID]: groupId || UNKNOWN });
+}
+
+/**
  * Emit fhir_mongo_pool_checkout_duration_seconds. The driver reports the wait in
  * milliseconds; the instrument is in seconds to match the other duration histograms here.
  * @param {string} pool
@@ -540,6 +618,10 @@ module.exports = {
     importRangeDurationHistogram,
     importS3ReadThroughputHistogram,
     importFileSizeHistogram,
+    importRangesCounter,
+    importTasksCounter,
+    importTaskDurationHistogram,
+    kafkaConsumerGroupJoinsCounter,
     mongoPoolCheckoutDurationHistogram,
     mongoPoolCheckoutFailedCounter,
     mongoPoolClearedCounter,
@@ -556,6 +638,9 @@ module.exports = {
     recordImportRangeDuration,
     recordImportS3ReadThroughput,
     recordImportFileSize,
+    recordImportRanges,
+    recordImportTaskFinished,
+    recordKafkaConsumerGroupJoin,
     recordMongoPoolCheckoutDuration,
     recordMongoPoolCheckoutFailed,
     recordMongoPoolCleared,
@@ -574,5 +659,7 @@ module.exports = {
     SUBSYSTEM,
     PATH,
     POOL_CHECKOUT_FAILURE_REASON,
+    IMPORT_RANGE_OUTCOME,
+    IMPORT_TASK_STATUS,
     UNKNOWN
 };

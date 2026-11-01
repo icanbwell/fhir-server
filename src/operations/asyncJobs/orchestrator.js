@@ -11,6 +11,7 @@ const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');
 const { logInfo, logError } = require('../common/logging');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { recordKafkaConsumerGroupJoin } = require('../../utils/metrics');
 
 /**
  * Generic orchestrator entrypoint: one Kafka consumer per registered job below, each routing
@@ -105,6 +106,12 @@ async function main() {
                 maxRetries: 3,
                 deadLetterTopic: job.deadLetterTopic
             });
+
+            // Count every join, not just the first: a steady rate on a running orchestrator is
+            // rebalance or eviction churn, which is what stalls range-progress handling.
+            if (consumer) {
+                consumer.on(consumer.events.GROUP_JOIN, () => recordKafkaConsumerGroupJoin(job.groupId));
+            }
 
             // kafkaClientV2's own CRASH listener (registered inside waitForConsumerToJoinGroupAsync)
             // only rejects the join promise above, which is a no-op once already resolved — so a

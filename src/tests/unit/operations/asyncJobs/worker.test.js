@@ -74,6 +74,12 @@ jestObj.mock('../../../../winstonInit', () => ({
     initialize: jestObj.fn()
 }));
 
+// Hoisted so every isolateModules registry shares the same fn to assert on.
+const mockRecordKafkaConsumerGroupJoin = jestObj.fn();
+jestObj.mock('../../../../utils/metrics', () => ({
+    recordKafkaConsumerGroupJoin: mockRecordKafkaConsumerGroupJoin
+}));
+
 // Mock logging
 jestObj.mock('../../../../operations/common/logging', () => ({
     logInfo: jestObj.fn(),
@@ -162,6 +168,21 @@ describe('asyncJobs/worker', () => {
                 partitionsWithoutCommit: [5, 7]
             }));
             expect(mockAdmin.disconnect).toHaveBeenCalled();
+        });
+
+        test('counts every GROUP_JOIN for the job\'s group so rejoin churn is measurable', async () => {
+            mockKafkaClientV2.createAdminClient.mockReturnValue({
+                connect: jestObj.fn().mockResolvedValue(undefined),
+                disconnect: jestObj.fn().mockResolvedValue(undefined),
+                fetchOffsets: jestObj.fn().mockResolvedValue([{ topic: 'test-topic', partitions: [] }])
+            });
+
+            const onJoin = await startWorkerAndGetJoinHandler();
+            await onJoin(joinEvent);
+            await onJoin(joinEvent);
+
+            expect(mockRecordKafkaConsumerGroupJoin).toHaveBeenCalledTimes(2);
+            expect(mockRecordKafkaConsumerGroupJoin).toHaveBeenCalledWith('test-group-id');
         });
 
         test('still logs the assignment when the offset lookup fails', async () => {

@@ -35,7 +35,11 @@ const {
 } = require('../../../../../operations/asyncJobs/bulkImport/bulkImportTaskStateMachine');
 const { FhirRequestInfo } = require('../../../../../utils/fhirRequestInfo');
 const { BULK_IMPORT_TASK } = require('../../../../../constants');
-const { logError } = require('../../../../../operations/common/logging');
+const { logError, logInfo } = require('../../../../../operations/common/logging');
+const metrics = require('../../../../../utils/metrics');
+
+jestGlobal.spyOn(metrics.importTasksCounter, 'add');
+jestGlobal.spyOn(metrics.importTaskDurationHistogram, 'record');
 
 /**
  * A plain Task document as returned by fastFindOneAsync.
@@ -295,6 +299,30 @@ describe('BulkImportTaskStateMachine', () => {
             expect(mergedTask().status).toBe('failed');
             expect(mergedTask().statusReason).toBeUndefined();
         });
+
+        test('is a no-op for a Task already failed (redelivered failure report)', async () => {
+            await stateMachine.handleRangeFailedAsync(makeTask({ status: 'failed' }), 'again');
+            expect(mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
+        });
+
+        test('counts the failed Task once with its duration since authoredOn', async () => {
+            const authoredOn = new Date(Date.now() - 90 * 1000).toISOString();
+            await stateMachine.handleRangeFailedAsync(makeTask({ status: 'in-progress', authoredOn }), 'boom');
+
+            expect(metrics.importTasksCounter.add).toHaveBeenCalledTimes(1);
+            expect(metrics.importTasksCounter.add).toHaveBeenCalledWith(1, { status: 'failed' });
+            const [duration, labels] = metrics.importTaskDurationHistogram.record.mock.calls[0];
+            expect(labels).toEqual({ status: 'failed' });
+            expect(duration).toBeGreaterThanOrEqual(90);
+            expect(duration).toBeLessThan(120);
+        });
+
+        test('counts the failed Task but records no duration when authoredOn is absent', async () => {
+            await stateMachine.handleRangeFailedAsync(makeTask({ status: 'in-progress' }), 'boom');
+            expect(metrics.importTasksCounter.add).toHaveBeenCalledTimes(1);
+            expect(metrics.importTaskDurationHistogram.record).not.toHaveBeenCalled();
+        });
     });
 
     // ========================================================================================
@@ -428,6 +456,59 @@ describe('BulkImportTaskStateMachine', () => {
                 makeTask({ status: 'completed', output: [] }), rangeParams
             );
             expect(mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
+        });
+
+        test('records the entry on a failed Task but never flips it to completed', async () => {
+            // Range 1 already recorded, so this completion makes the count reach taskTotalRanges.
+            const task = makeTask({
+                status: 'failed',
+                output: [{ id: 'bulk-import-range:s3://b/Patient.ndjson#1-result' }]
+            });
+
+            await stateMachine.handleRangeCompletedAsync(task, rangeParams);
+
+            expect(mergeManager.mergeResourceAsync).toHaveBeenCalledTimes(1);
+            expect(mergedTask().status).toBe('failed');
+            expect(mergedTask().output.map((o) => o.id)).toContain(
+                'bulk-import-range:s3://b/Patient.ndjson#0-result'
+            );
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
+        });
+
+        test('logs a progress line with completed and total range counts', async () => {
+            await stateMachine.handleRangeCompletedAsync(
+                makeTask({ status: 'in-progress', output: [] }), { ...rangeParams, taskTotalRanges: 7 }
+            );
+            expect(logInfo).toHaveBeenCalledWith('Bulk import task progress', {
+                taskId: 'task-1',
+                status: 'in-progress',
+                completedRanges: 1,
+                taskTotalRanges: 7
+            });
+        });
+
+        test('counts the completed Task once, with its duration, only when it completes', async () => {
+            const authoredOn = new Date(Date.now() - 3600 * 1000).toISOString();
+
+            await stateMachine.handleRangeCompletedAsync(
+                makeTask({ status: 'in-progress', output: [], authoredOn }), rangeParams
+            );
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
+
+            await stateMachine.handleRangeCompletedAsync(
+                makeTask({
+                    status: 'in-progress',
+                    authoredOn,
+                    output: [{ id: 'bulk-import-range:s3://b/Patient.ndjson#1-result' }]
+                }),
+                rangeParams
+            );
+            expect(metrics.importTasksCounter.add).toHaveBeenCalledTimes(1);
+            expect(metrics.importTasksCounter.add).toHaveBeenCalledWith(1, { status: 'completed' });
+            const [duration, labels] = metrics.importTaskDurationHistogram.record.mock.calls[0];
+            expect(labels).toEqual({ status: 'completed' });
+            expect(duration).toBeGreaterThanOrEqual(3600);
+            expect(duration).toBeLessThan(3660);
         });
     });
 });

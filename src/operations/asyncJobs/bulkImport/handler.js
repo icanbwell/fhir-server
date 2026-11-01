@@ -31,7 +31,9 @@ const {
     recordImportOperationTriggered,
     recordImportFileSize,
     recordImportResourceOutcomes,
-    recordImportRangeDuration
+    recordImportRangeDuration,
+    recordImportRanges,
+    IMPORT_RANGE_OUTCOME
 } = require('../../../utils/metrics');
 const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
 const { AuditLogger } = require('../../../utils/auditLogger');
@@ -501,6 +503,7 @@ class BulkImportHandler {
             remoteIpAddress
         });
 
+        recordImportRanges(IMPORT_RANGE_OUTCOME.PUBLISHED, messageCount);
         logInfo('Orchestrator published byte-range messages', {
             taskId,
             messageCount
@@ -831,6 +834,7 @@ class BulkImportHandler {
         const task = await this.bulkImportTaskStateMachine.loadTaskAsync(taskId);
         if (!task) {
             logError('Task not found for bulk import range', { taskId, filepath, rangeIndex });
+            recordImportRanges(IMPORT_RANGE_OUTCOME.TASK_NOT_FOUND);
             return;
         }
         if (task.status === 'completed' || task.status === 'failed') {
@@ -840,6 +844,7 @@ class BulkImportHandler {
                 rangeIndex,
                 status: task.status
             });
+            recordImportRanges(IMPORT_RANGE_OUTCOME.SKIPPED_TASK_FINISHED);
             return;
         }
         if (this.bulkImportTaskStateMachine.isRangeRecorded(task, { filepath, rangeIndex })) {
@@ -848,9 +853,11 @@ class BulkImportHandler {
                 filepath,
                 rangeIndex
             });
+            recordImportRanges(IMPORT_RANGE_OUTCOME.SKIPPED_DUPLICATE);
             return;
         }
 
+        recordImportRanges(IMPORT_RANGE_OUTCOME.STARTED);
         logInfo('Processing bulk import range', {
             taskId,
             filepath,
@@ -1274,6 +1281,7 @@ class BulkImportHandler {
                     type: 'ImportRangeFailed',
                     data: { taskId, filepath, rangeIndex, taskTotalRanges, errorMessage: e.message }
                 });
+                recordImportRanges(IMPORT_RANGE_OUTCOME.FAILED);
                 recordImportSpanAttributes({ 'fhir_import.outcome': 'failed' });
                 // mergeResultEntries only ever gains entries once a batch actually commits
                 // (flushBatchAsync) or a per-line failure is recorded -- so on a partially-
@@ -1312,6 +1320,7 @@ class BulkImportHandler {
                 taskTotalRanges,
                 mergeResultEntries
             });
+            recordImportRanges(IMPORT_RANGE_OUTCOME.COMPLETED);
 
             this.queueAuditEntriesForRangeAsync({
                 requestInfo,

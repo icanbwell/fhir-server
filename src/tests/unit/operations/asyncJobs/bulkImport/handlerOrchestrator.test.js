@@ -35,6 +35,14 @@ jestGlobal.mock('@aws-sdk/client-s3', () => ({
     HeadObjectCommand: jestGlobal.fn().mockImplementation((params) => params)
 }));
 
+// The OTel no-op meter hands every counter the same singleton, so spying on one counter's
+// `add` sees every counter. Stub the range recorder instead of spying on its instrument.
+// Must precede the handler require: jestGlobal.mock is not hoisted.
+jestGlobal.mock('../../../../../utils/metrics', () => ({
+    ...jestGlobal.requireActual('../../../../../utils/metrics'),
+    recordImportRanges: jestGlobal.fn()
+}));
+
 const { BulkImportHandler } = require('../../../../../operations/asyncJobs/bulkImport/handler');
 const { logInfo, logError } = require('../../../../../operations/common/logging');
 const metrics = require('../../../../../utils/metrics');
@@ -344,6 +352,7 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
             );
             expect(metrics.importOperationsTriggeredCounter.add).toHaveBeenCalledTimes(1);
             expect(metrics.importOperationsTriggeredCounter.add).toHaveBeenCalledWith(1);
+            expect(metrics.recordImportRanges).toHaveBeenCalledWith('published', 3);
         });
 
         test('BAI-229: still records operations_triggered when S3 validation later fails', async () => {

@@ -8,7 +8,22 @@ const { MergeManager } = require('../../merge/mergeManager');
 const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
 const { generateUUID } = require('../../../utils/uid.util');
 const { BULK_IMPORT_TASK } = require('../../../constants');
-const { logError } = require('../../common/logging');
+const { logError, logInfo } = require('../../common/logging');
+const { recordImportTaskFinished, IMPORT_TASK_STATUS } = require('../../../utils/metrics');
+
+/**
+ * Seconds from Task.authoredOn to now, or undefined when authoredOn is absent or unparseable,
+ * so the caller can skip the duration histogram instead of recording a bogus value.
+ * @param {Object} task
+ * @returns {number|undefined}
+ */
+function taskDurationSeconds(task) {
+    const authoredOn = task.authoredOn ? new Date(task.authoredOn).getTime() : NaN;
+    if (!Number.isFinite(authoredOn)) {
+        return undefined;
+    }
+    return Math.max(0, (Date.now() - authoredOn) / 1000);
+}
 
 /**
  * Handles the Task resource state machine for bulk import orchestration.
@@ -168,22 +183,25 @@ class BulkImportTaskStateMachine {
     }
 
     /**
-     * Marks a Task 'failed', unless it already reached 'completed' -- a late-arriving or
-     * redelivered failure report must not regress an already-completed Task.
+     * Marks a Task 'failed'. A terminal Task is never written again: a late or redelivered
+     * failure report must not regress a 'completed' Task, and a second failure report for a
+     * 'failed' Task would only churn meta.lastUpdated.
      * @param {Object} task
      * @param {string} [errorMessage]
      * @returns {Promise<void>}
      */
     async handleRangeFailedAsync(task, errorMessage) {
-        if (task.status === 'completed') {
+        if (task.status === 'completed' || task.status === 'failed') {
             return;
         }
         await this.updateTaskStatusAsync(task, 'failed', errorMessage);
+        recordImportTaskFinished(IMPORT_TASK_STATUS.FAILED, taskDurationSeconds(task));
     }
 
     /**
      * Appends this range's result/error S3 URIs to Task.output, then flips the Task to
-     * 'completed' once every range of every input file has reported in.
+     * 'completed' once every range of every input file has reported in. A 'failed' Task still
+     * records the entry (the client can see what landed) but never changes status again.
      * @param {Object} task
      * @param {Object} params
      * @param {string} params.filepath
@@ -219,8 +237,19 @@ class BulkImportTaskStateMachine {
         updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         await this.writeTaskAsync(updated);
 
-        if (this.countCompletedRanges(updated) >= taskTotalRanges) {
+        // One line per recorded range so a stalled import is visible: an in-progress Task
+        // with no progress line for N minutes is the alert.
+        const completedRanges = this.countCompletedRanges(updated);
+        logInfo('Bulk import task progress', {
+            taskId: task.id,
+            status: task.status,
+            completedRanges,
+            taskTotalRanges
+        });
+
+        if (task.status !== 'failed' && completedRanges >= taskTotalRanges) {
             await this.updateTaskStatusAsync(updated, 'completed');
+            recordImportTaskFinished(IMPORT_TASK_STATUS.COMPLETED, taskDurationSeconds(task));
         }
     }
 

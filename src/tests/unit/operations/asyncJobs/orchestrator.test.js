@@ -40,7 +40,7 @@ let mockOnMessageAsync;
 const mockConsumer = {
     id: 'mock-consumer',
     on: jestObj.fn(),
-    events: { CRASH: 'consumer.crash' }
+    events: { CRASH: 'consumer.crash', GROUP_JOIN: 'consumer.group_join' }
 };
 const mockKafkaClientV2 = {
     createConsumerAsync: jestObj.fn().mockResolvedValue(mockConsumer),
@@ -73,6 +73,12 @@ jestObj.mock('../../../../utils/initStandaloneEntrypointSentry', () => ({
 // Mock winstonInit
 jestObj.mock('../../../../winstonInit', () => ({
     initialize: jestObj.fn()
+}));
+
+// Hoisted so every isolateModules registry shares the same fn to assert on.
+const mockRecordKafkaConsumerGroupJoin = jestObj.fn();
+jestObj.mock('../../../../utils/metrics', () => ({
+    recordKafkaConsumerGroupJoin: mockRecordKafkaConsumerGroupJoin
 }));
 
 // Mock logging
@@ -316,6 +322,26 @@ describe('asyncJobs/orchestrator', () => {
                 { error: 'Transient error', restart: true }
             );
             expect(processExitSpy).not.toHaveBeenCalledWith(1);
+        });
+
+        test('counts every GROUP_JOIN per job group so rejoin churn is measurable', async () => {
+            jestObj.isolateModules(() => {
+                require('../../../../operations/asyncJobs/orchestrator');
+            });
+
+            for (let i = 0; i < 10; i++) {
+                await new Promise(resolve => setImmediate(resolve));
+            }
+
+            const joinHandlers = mockConsumer.on.mock.calls
+                .filter(([event]) => event === 'consumer.group_join')
+                .map(([, handler]) => handler);
+            // one per registered job (TaskCreated and range-progress consumers)
+            expect(joinHandlers).toHaveLength(2);
+            joinHandlers.forEach((handler) => handler({ payload: {} }));
+
+            expect(mockRecordKafkaConsumerGroupJoin).toHaveBeenCalledTimes(2);
+            expect(mockRecordKafkaConsumerGroupJoin).toHaveBeenCalledWith('test-group-id');
         });
 
         test('does not throw when V2 Kafka is disabled and consumer is null', async () => {
