@@ -1,6 +1,7 @@
 const moment = require('moment-timezone');
-const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const Task = require('../../fhir/classes/4_0_0/resources/task');
+const deepcopy = require('deepcopy');
+const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
+const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
 const { ConfigManager } = require('../../utils/configManager');
@@ -164,7 +165,7 @@ class ImportOperation {
 
     /**
      * @param {{ id: string, inputs: Array<{ url: string }>, requestInfo: Object }} params
-     * @returns {Promise<Task>}
+     * @returns {Promise<Object>}
      */
     async createTaskAsync({ id, inputs, requestInfo }) {
         const { user, scope, requestId } = requestInfo;
@@ -175,7 +176,7 @@ class ImportOperation {
         });
 
         const uuid = isUuid(id) ? id : generateUUIDv5(`${id}|${BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY}`);
-        const existing = await databaseQueryManager.findOneAsync({
+        const existing = await databaseQueryManager.fastFindOneAsync({
             query: { _uuid: uuid }
         });
 
@@ -185,16 +186,17 @@ class ImportOperation {
             ));
         }
 
-        const taskResource = new Task({
+        const taskResource = {
+            resourceType: 'Task',
             id,
             status: 'requested',
             intent: 'order',
             code: {
                 coding: [
-                    new Coding({
+                    {
                         system: BULK_IMPORT_TASK.TYPE_SYSTEM,
                         code: BULK_IMPORT_TASK.TYPE_CODE
-                    })
+                    }
                 ]
             },
             authoredOn: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
@@ -204,18 +206,18 @@ class ImportOperation {
             })),
             meta: {
                 security: [
-                    new Coding({
+                    {
                         system: SecurityTagSystem.owner,
                         code: BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY
-                    }),
-                    new Coding({
+                    },
+                    {
                         system: SecurityTagSystem.sourceAssigningAuthority,
                         code: BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY
-                    })
+                    }
                 ],
                 source: BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY
             }
-        });
+        };
 
         const accessCodesFromScopes = this.securityTagManager.getSecurityTagsFromScope({
             user,
@@ -224,23 +226,25 @@ class ImportOperation {
         });
 
         accessCodesFromScopes.forEach((code) => {
-            taskResource.meta.security.push(
-                new Coding({
-                    system: SecurityTagSystem.access,
-                    code: code
-                })
-            );
+            taskResource.meta.security.push({
+                system: SecurityTagSystem.access,
+                code: code
+            });
         });
 
         taskResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
 
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+        const databaseUpdateManager = this.databaseUpdateFactory.createFastDatabaseUpdateManager({
             resourceType: 'Task',
             base_version: '4_0_0'
         });
 
+        let savedTask;
         try {
-            await databaseUpdateManager.insertOneAsync({ doc: taskResource, requestInfo });
+            savedTask = await databaseUpdateManager.insertOneAsync({
+                doc: FhirResourceWriteSerializer.serialize({ obj: taskResource }),
+                requestInfo
+            });
         } catch (e) {
             // E11000 from the unique _uuid index means a concurrent request won the race
             if (e.original_error?.code === 11000 || e.nested?.code === 11000) {
@@ -255,10 +259,10 @@ class ImportOperation {
             requestId,
             eventType: 'C',
             resourceType: 'Task',
-            doc: taskResource
+            doc: savedTask
         });
 
-        return taskResource;
+        return savedTask;
     }
 
     /**
@@ -271,15 +275,15 @@ class ImportOperation {
             resourceType: 'Task',
             base_version: '4_0_0'
         });
-        const task = await databaseQueryManager.findOneAsync({ query: { id: taskId } });
+        const task = await databaseQueryManager.fastFindOneAsync({ query: { id: taskId } });
         if (!task) {
             return;
         }
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+        const databaseUpdateManager = this.databaseUpdateFactory.createFastDatabaseUpdateManager({
             resourceType: 'Task',
             base_version: '4_0_0'
         });
-        const updated = task.clone();
+        const updated = deepcopy(task);
         updated.status = 'failed';
         updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         updated.statusReason = { text: reason };
@@ -408,7 +412,7 @@ class ImportOperation {
                 );
             }
 
-            return taskResource.toJSON();
+            return FhirResourceWriteNormalizeSerializer.serialize({ obj: deepcopy(taskResource) });
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
