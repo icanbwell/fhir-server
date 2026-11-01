@@ -9,8 +9,8 @@ const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
 const metrics = require('../../../utils/metrics');
 
 const ENV_KEYS = [
-    'ENABLE_EVENTS_KAFKA_V2', 'KAFKA_HISTORY_RESOURCES',
-    'KAFKA_HISTORY_EVENTS_TOPIC', 'HISTORY_KAFKA_BATCH_SIZE', 'KAFKA_PRODUCER_TIMEOUT_MS', 'KAFKA_PRODUCER_COMPRESSION'
+    'ENABLE_EVENTS_KAFKA_V2', 'RESOURCE_HISTORY_KAFKA_RESOURCES',
+    'RESOURCE_HISTORY_KAFKA_TOPIC', 'RESOURCE_HISTORY_KAFKA_BATCH_SIZE', 'KAFKA_PRODUCER_TIMEOUT_MS', 'KAFKA_PRODUCER_COMPRESSION'
 ];
 
 const historyOperation = (resourceType, uuid) => ({
@@ -50,7 +50,7 @@ describe('HistoryKafkaProducer', () => {
     beforeEach(() => {
         savedEnv = Object.fromEntries(ENV_KEYS.map((k) => [k, process.env[k]]));
         ENV_KEYS.forEach((k) => delete process.env[k]);
-        setEnv({ ENABLE_EVENTS_KAFKA_V2: '1', KAFKA_HISTORY_RESOURCES: 'Observation' });
+        setEnv({ ENABLE_EVENTS_KAFKA_V2: '1', RESOURCE_HISTORY_KAFKA_RESOURCES: 'Observation' });
         recordSpy = jest.spyOn(metrics, 'recordHistoryKafkaProduce').mockImplementation(() => {});
         kafkaClientV2 = Object.assign(Object.create(KafkaClientV2.prototype), {
             sendCloudEventMessageAsync: jest.fn().mockResolvedValue(undefined)
@@ -70,7 +70,7 @@ describe('HistoryKafkaProducer', () => {
 
     test.each([
         ['Kafka V2 disabled', { ENABLE_EVENTS_KAFKA_V2: '0' }, 'Observation'],
-        ['allowlist empty (feature off)', { KAFKA_HISTORY_RESOURCES: '' }, 'Observation'],
+        ['allowlist empty (feature off)', { RESOURCE_HISTORY_KAFKA_RESOURCES: '' }, 'Observation'],
         ['type not listed', {}, 'Condition']
     ])('produces nothing when %s', async (_name, env, resourceType) => {
         setEnv(env);
@@ -137,26 +137,26 @@ describe('HistoryKafkaProducer', () => {
     });
 
     test('flag on for two types: both produce, and the list is read per call', async () => {
-        setEnv({ KAFKA_HISTORY_RESOURCES: 'Observation, Condition' });
+        setEnv({ RESOURCE_HISTORY_KAFKA_RESOURCES: 'Observation, Condition' });
         await producer.produceAsync({ resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1' });
         await producer.produceAsync({ resourceType: 'Condition', operations: [historyOperation('Condition', 'u2')], requestId: 'r1' });
         expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(2);
 
-        setEnv({ KAFKA_HISTORY_RESOURCES: 'Observation' });
+        setEnv({ RESOURCE_HISTORY_KAFKA_RESOURCES: 'Observation' });
         await producer.produceAsync({ resourceType: 'Condition', operations: [historyOperation('Condition', 'u3')], requestId: 'r1' });
         expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(2);
     });
 
-    test.each([['0'], ['-5'], ['abc'], ['']])('invalid HISTORY_KAFKA_BATCH_SIZE=%j falls back to 50 and still sends everything', async (value) => {
-        setEnv({ HISTORY_KAFKA_BATCH_SIZE: value });
-        expect(new ConfigManager().historyKafkaBatchSize).toBe(50);
+    test.each([['0'], ['-5'], ['abc'], ['']])('invalid RESOURCE_HISTORY_KAFKA_BATCH_SIZE=%j falls back to 50 and still sends everything', async (value) => {
+        setEnv({ RESOURCE_HISTORY_KAFKA_BATCH_SIZE: value });
+        expect(new ConfigManager().resourceHistoryKafkaBatchSize).toBe(50);
         const operations = Array.from({ length: 3 }, (_, i) => historyOperation('Observation', `u${i}`));
         await producer.produceAsync({ resourceType: 'Observation', operations, requestId: 'r1' });
         expect(kafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0].messages).toHaveLength(3);
     });
 
     test('splits a large flush into batches and honours the topic override', async () => {
-        setEnv({ HISTORY_KAFKA_BATCH_SIZE: '2', KAFKA_HISTORY_EVENTS_TOPIC: 'test.history' });
+        setEnv({ RESOURCE_HISTORY_KAFKA_BATCH_SIZE: '2', RESOURCE_HISTORY_KAFKA_TOPIC: 'test.history' });
         const operations = ['a', 'b', 'c', 'd', 'e'].map((u) => historyOperation('Observation', u));
         await producer.produceAsync({ resourceType: 'Observation', operations, requestId: 'r1' });
         const calls = kafkaClientV2.sendCloudEventMessageAsync.mock.calls.map((c) => c[0]);

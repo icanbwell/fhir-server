@@ -19,7 +19,7 @@ const CLOUD_EVENT_SOURCE = '/fhir-server';
  * Called from the post-request history flush after the MongoDB write has completed.
  * Every failure is logged and counted but never thrown, so a Kafka problem cannot fail
  * a FHIR write or disturb the MongoDB history. Flags are read from ConfigManager on each
- * call, so a change to KAFKA_HISTORY_RESOURCES takes effect
+ * call, so a change to RESOURCE_HISTORY_KAFKA_RESOURCES takes effect
  * as soon as the process sees the new environment (a config roll-out, no code change).
  *
  * A chunk the broker rejects for its own contents is resent one record at a time, so only the bad
@@ -56,7 +56,7 @@ class HistoryKafkaProducer {
      */
     isEnabledFor (resourceType) {
         return this.configManager.kafkaV2EnableEvents &&
-            this.configManager.kafkaHistoryResources.includes(resourceType);
+            this.configManager.resourceHistoryKafkaResources.includes(resourceType);
     }
 
     /**
@@ -72,8 +72,8 @@ class HistoryKafkaProducer {
             if (!operations || operations.length === 0 || !this.isEnabledFor(resourceType)) {
                 return;
             }
-            const topic = this.configManager.kafkaHistoryEventsTopic;
-            const batchSize = this.configManager.historyKafkaBatchSize;
+            const topic = this.configManager.resourceHistoryKafkaTopic;
+            const batchSize = this.configManager.resourceHistoryKafkaBatchSize;
             const compression = getKafkaCompressionType(this.configManager.kafkaProducerCompression);
             for (let i = 0; i < operations.length; i += batchSize) {
                 await this._produceChunkAsync({

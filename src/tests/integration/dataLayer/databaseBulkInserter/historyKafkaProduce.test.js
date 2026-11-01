@@ -10,7 +10,7 @@ const Consent = require('../../../../fhir/classes/4_0_0/resources/consent');
 
 const base_version = '4_0_0';
 const TOPIC = 'fhir_server.resource-history.events';
-const ENV_KEYS = ['ENABLE_EVENTS_KAFKA_V2', 'KAFKA_HISTORY_RESOURCES'];
+const ENV_KEYS = ['ENABLE_EVENTS_KAFKA_V2', 'RESOURCE_HISTORY_KAFKA_RESOURCES'];
 
 describe('History Kafka produce (parallel to MongoDB history)', () => {
     let savedEnv;
@@ -20,7 +20,7 @@ describe('History Kafka produce (parallel to MongoDB history)', () => {
         jest.restoreAllMocks();
         savedEnv = Object.fromEntries(ENV_KEYS.map((k) => [k, process.env[k]]));
         process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
-        delete process.env.KAFKA_HISTORY_RESOURCES;
+        delete process.env.RESOURCE_HISTORY_KAFKA_RESOURCES;
     });
 
     afterEach(async () => {
@@ -76,7 +76,7 @@ describe('History Kafka produce (parallel to MongoDB history)', () => {
     });
 
     test('on for one type: only that type is produced, MongoDB history is written for both', async () => {
-        process.env.KAFKA_HISTORY_RESOURCES = 'Observation';
+        process.env.RESOURCE_HISTORY_KAFKA_RESOURCES = 'Observation';
         const r = await writeAsync();
         expect(r.producedTypes).toStrictEqual(['Observation']);
         expect(r.topics).toStrictEqual([TOPIC]);
@@ -85,7 +85,7 @@ describe('History Kafka produce (parallel to MongoDB history)', () => {
     });
 
     test('on for two types: both are produced', async () => {
-        process.env.KAFKA_HISTORY_RESOURCES = 'Observation,Consent';
+        process.env.RESOURCE_HISTORY_KAFKA_RESOURCES = 'Observation,Consent';
         const r = await writeAsync();
         expect([...r.producedTypes].sort()).toStrictEqual(['Consent', 'Observation']);
         expect(r.observationHistory).toStrictEqual(1);
@@ -93,7 +93,7 @@ describe('History Kafka produce (parallel to MongoDB history)', () => {
     });
 
     test('Kafka down: write succeeds and MongoDB history is still written', async () => {
-        process.env.KAFKA_HISTORY_RESOURCES = 'Observation';
+        process.env.RESOURCE_HISTORY_KAFKA_RESOURCES = 'Observation';
         const r = await writeAsync({ failKafka: true });
         expect(r.sendSpy).toHaveBeenCalled();
         expect(r.mergeResults.length).toStrictEqual(2);
@@ -103,7 +103,7 @@ describe('History Kafka produce (parallel to MongoDB history)', () => {
     });
 
     test('DatabaseUpdateManager.postSaveAsync (admin link/unlink writer) also produces', async () => {
-        process.env.KAFKA_HISTORY_RESOURCES = 'Observation';
+        process.env.RESOURCE_HISTORY_KAFKA_RESOURCES = 'Observation';
         const container = createTestContainer();
         const sendSpy = jest.spyOn(MockKafkaClientV2.prototype, 'sendCloudEventMessageAsync');
         const requestInfo = getTestRequestInfo({ requestId: '5678' });

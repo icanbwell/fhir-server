@@ -9,7 +9,7 @@ replay job.
 
 ## Behaviour
 
-- `KAFKA_HISTORY_RESOURCES` (comma-separated resource types) is the only switch. Empty (default) is
+- `RESOURCE_HISTORY_KAFKA_RESOURCES` (comma-separated resource types) is the only switch. Empty (default) is
   off; a listed type produces; unlisted types behave as today. No separate kill switch.
 - Requires the V2 Kafka cluster (`ENABLE_EVENTS_KAFKA_V2`); the disabled client would drop events.
 - The MongoDB history write is never replaced, skipped or delayed. The produce runs after it, in
@@ -23,9 +23,9 @@ replay job.
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `KAFKA_HISTORY_RESOURCES` | empty (off) | Resource types that produce |
-| `KAFKA_HISTORY_EVENTS_TOPIC` | `fhir_server.resource-history.events` | Target topic |
-| `HISTORY_KAFKA_BATCH_SIZE` | 50 | Messages per produce call; non-positive/non-numeric falls back to 50 |
+| `RESOURCE_HISTORY_KAFKA_RESOURCES` | empty (off) | Resource types that produce |
+| `RESOURCE_HISTORY_KAFKA_TOPIC` | `fhir_server.resource-history.events` | Target topic |
+| `RESOURCE_HISTORY_KAFKA_BATCH_SIZE` | 50 | Messages per produce call; non-positive/non-numeric falls back to 50 |
 | `KAFKA_PRODUCER_TIMEOUT_MS` | 10000 | Per-attempt produce timeout in ms (history and the AuditEvent ClickPipe path); non-positive/non-numeric falls back to 10000 |
 | `KAFKA_PRODUCER_COMPRESSION` | `zstd` | Compression for history and the AuditEvent ClickPipe path (`none`/`gzip`/`zstd`) |
 

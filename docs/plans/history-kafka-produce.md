@@ -4,8 +4,8 @@ Spec: `docs/specs/history-kafka-produce.md`.
 
 ## Steps
 
-1. Config in `src/utils/configManager.js`: `kafkaHistoryResources`, `kafkaHistoryEventsTopic`,
-   `historyKafkaBatchSize` (validated, default 50), and a generic `kafkaProducerCompression`
+1. Config in `src/utils/configManager.js`: `resourceHistoryKafkaResources`, `resourceHistoryKafkaTopic`,
+   `resourceHistoryKafkaBatchSize` (validated, default 50), and a generic `kafkaProducerCompression`
    (`KAFKA_PRODUCER_COMPRESSION`, default zstd) that replaces `auditEventClickPipeCompression` for both
    the AuditEvent ClickPipe path and history. No deployment config sets the old variable, so there is
    no fallback.
@@ -26,6 +26,6 @@ Spec: `docs/specs/history-kafka-produce.md`.
 8. Tests: unit (producer, hook, config) and integration
    (`historyKafkaProduce.test.js`: flag off, one type, two types, Kafka down, admin writer).
 9. Verify: unit suites, related integration suites, lint; diff checked against `review.md`.
-10. Rollout: in dev set `KAFKA_HISTORY_RESOURCES` to one synthetic type, write / update /
+10. Rollout: in dev set `RESOURCE_HISTORY_KAFKA_RESOURCES` to one synthetic type, write / update /
     delete, consume the topic and confirm events, headers, compression and size; then empty the list
     and confirm no new events. Widen one type at a time while watching the metrics.

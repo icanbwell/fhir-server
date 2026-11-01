@@ -1386,32 +1386,32 @@ class ConfigManager {
 
     /**
      * Topic that history events are produced to.
-     * Configuration: KAFKA_HISTORY_EVENTS_TOPIC (default fhir_server.resource-history.events)
+     * Configuration: RESOURCE_HISTORY_KAFKA_TOPIC (default fhir_server.resource-history.events)
      * @return {string}
      */
-    get kafkaHistoryEventsTopic() {
-        return env.KAFKA_HISTORY_EVENTS_TOPIC || 'fhir_server.resource-history.events';
+    get resourceHistoryKafkaTopic() {
+        return env.RESOURCE_HISTORY_KAFKA_TOPIC || 'fhir_server.resource-history.events';
     }
 
     /**
      * Resource types whose history records are also produced to Kafka (parallel write).
      * Empty (default) turns the feature off. It never replaces the MongoDB history write,
      * and requires the V2 Kafka cluster (ENABLE_EVENTS_KAFKA_V2).
-     * Configuration: KAFKA_HISTORY_RESOURCES=Observation,Condition
+     * Configuration: RESOURCE_HISTORY_KAFKA_RESOURCES=Observation,Condition
      * @return {string[]}
      */
-    get kafkaHistoryResources() {
-        return this._parseCommaSeparatedList(env.KAFKA_HISTORY_RESOURCES, []).filter(Boolean);
+    get resourceHistoryKafkaResources() {
+        return this._parseCommaSeparatedList(env.RESOURCE_HISTORY_KAFKA_RESOURCES, []).filter(Boolean);
     }
 
     /**
      * Max history messages per Kafka produce call.
-     * Configuration: HISTORY_KAFKA_BATCH_SIZE (default 50). Anything that is not a positive
+     * Configuration: RESOURCE_HISTORY_KAFKA_BATCH_SIZE (default 50). Anything that is not a positive
      * integer falls back to the default, so a bad value can never stall or empty the flush.
      * @return {number}
      */
-    get historyKafkaBatchSize() {
-        const value = parseInt(env.HISTORY_KAFKA_BATCH_SIZE, 10);
+    get resourceHistoryKafkaBatchSize() {
+        const value = parseInt(env.RESOURCE_HISTORY_KAFKA_BATCH_SIZE, 10);
         return Number.isInteger(value) && value > 0 ? value : 50;
     }
 
