@@ -10,7 +10,7 @@ Spec: `docs/specs/history-kafka-produce.md`.
    `src/utils/metrics.js`.
 3. `retryWithBackoff`: opt-in `jitter` (default behaviour unchanged).
 4. `HistoryKafkaProducer` (`src/dataLayer/historyKafkaProducer.js`): allowlist check, chunking,
-   timeout, retries, record-by-record isolation, DLQ, message shape; never throws.
+   timeout, retries, record-by-record isolation, message shape; never throws.
 5. Wire it: register `historyKafkaProducer` in `src/createContainer.js`; inject into
    `DatabaseBulkInserter`, `FastDatabaseBulkInserter` and (via `DatabaseUpdateFactory`)
    `DatabaseUpdateManager`.
@@ -25,7 +25,7 @@ Spec: `docs/specs/history-kafka-produce.md`.
 
 ## Risks and follow-ups
 
-- Confirm `ce_type`, the partition key (tenant prefix) and the `.dlq` contract with EA; update the
+- Confirm `ce_type`, the partition key (tenant prefix) with EA; update the
   TDD for the flag names.
 - A produce timeout or Kafka outage holds the post-request task open (not the client response).
 - Phase 3 (Kafka-primary, MongoDB fallback replay) is out of scope.

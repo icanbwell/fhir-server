@@ -142,38 +142,16 @@ describe('HistoryKafkaProducer', () => {
             resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1'
         })).resolves.toBeUndefined();
 
-        // 1 + maxRetries produce attempts, then one dead-letter publish
-        expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(4);
+        expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(3); // 1 + maxRetries
         expect(recordSpy).toHaveBeenCalledTimes(1);
         expect(recordSpy).toHaveBeenCalledWith('Observation', 1, false, expect.any(Number));
     });
 
-    test('exhausted retries dead-letter ids and error metadata only, never the resource', async () => {
-        kafkaClientV2.sendCloudEventMessageAsync.mockImplementation(async ({ topic }) => {
-            if (topic === 'fhir_server.resource-history.events') throw new Error('broker down');
-        });
-        await producer.produceAsync({ resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1' });
-        const dlq = kafkaClientV2.sendCloudEventMessageAsync.mock.calls.map((c) => c[0]).filter((c) => c.topic.endsWith('.dlq'));
-        expect(dlq).toHaveLength(1);
-        expect(dlq[0].topic).toBe('fhir_server.resource-history.events.dlq');
-        const payload = JSON.parse(dlq[0].messages[0].value);
-        expect(payload).toMatchObject({ resourceType: 'Observation', uuid: 'u1', error: 'broker down' });
-        expect(Object.keys(payload)).not.toContain('resource');
-        expect(dlq[0].messages[0].value).not.toContain('synthetic-u1');
-    });
-
-    test('a failing dead-letter publish is swallowed', async () => {
-        kafkaClientV2.sendCloudEventMessageAsync.mockRejectedValue(new Error('broker down'));
-        await expect(producer.produceAsync({
-            resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1'
-        })).resolves.toBeUndefined();
-    });
-
-    test('a chunk-specific rejection is not retried and only the bad record is dead-lettered', async () => {
+    test('a chunk-specific rejection is not retried and only the bad record is lost', async () => {
         const tooLarge = new Error('too large');
         tooLarge.type = 'MESSAGE_TOO_LARGE';
-        kafkaClientV2.sendCloudEventMessageAsync.mockImplementation(async ({ topic, messages }) => {
-            if (!topic.endsWith('.dlq') && messages.some((m) => m.key === 'Observation:bad')) throw tooLarge;
+        kafkaClientV2.sendCloudEventMessageAsync.mockImplementation(async ({ messages }) => {
+            if (messages.some((m) => m.key === 'Observation:bad')) throw tooLarge;
         });
         await producer.produceAsync({
             resourceType: 'Observation',
@@ -181,13 +159,14 @@ describe('HistoryKafkaProducer', () => {
             requestId: 'r1'
         });
         const calls = kafkaClientV2.sendCloudEventMessageAsync.mock.calls.map((c) => c[0]);
-        // whole chunk once, then record by record (no retries), then one dead letter for the bad record
-        expect(calls.map((c) => [c.topic.endsWith('.dlq'), c.messages.map((m) => m.key)])).toStrictEqual([
-            [false, ['Observation:good', 'Observation:bad']],
-            [false, ['Observation:good']],
-            [false, ['Observation:bad']],
-            [true, ['Observation:bad']]
+        // whole chunk once, then record by record (no retries)
+        expect(calls.map((c) => c.messages.map((m) => m.key))).toStrictEqual([
+            ['Observation:good', 'Observation:bad'],
+            ['Observation:good'],
+            ['Observation:bad']
         ]);
+        expect(recordSpy).toHaveBeenCalledWith('Observation', 1, true, expect.any(Number));
+        expect(recordSpy).toHaveBeenCalledWith('Observation', 1, false, expect.any(Number));
     });
 
     test('a hung produce times out instead of blocking', async () => {
@@ -197,9 +176,8 @@ describe('HistoryKafkaProducer', () => {
         kafkaClientV2.sendCloudEventMessageAsync.mockReturnValue(new Promise(() => {}));
         await slow.produceAsync({ resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1' });
         expect(recordSpy).toHaveBeenCalledWith('Observation', 1, false, expect.any(Number));
-        // a timed-out send may still deliver, so it is never resent (only the dead-letter publish follows)
-        const produceCalls = kafkaClientV2.sendCloudEventMessageAsync.mock.calls.filter((c) => !c[0].topic.endsWith('.dlq'));
-        expect(produceCalls).toHaveLength(1);
+        // a timed-out send may still deliver, so it is never resent
+        expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(1);
     });
 
     test('success is counted', async () => {

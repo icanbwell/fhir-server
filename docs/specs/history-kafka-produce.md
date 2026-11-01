@@ -55,9 +55,8 @@ replay job.
   `INVALID_RECORD`) is not retried; the chunk is resent record by record so only the bad record fails.
 - A timed-out send is not retried (it is not cancelled and may still deliver); consumers dedupe on
   `ce_id`.
-- Records that still fail go to `<topic>.dlq`: ids and error metadata only (`resourceType`, `uuid`,
-  `sourceTopic`, `errorType`, `error`, `failedAt`), never the resource. They can be reconciled
-  against MongoDB history. A failing DLQ publish is logged and swallowed.
+- Records that still fail are logged and counted (`fhir_history_kafka_produce_failed_total`) and
+  remain in the MongoDB history. There is no dead-letter topic: this is a producer only.
 
 ## Observability
 
@@ -70,16 +69,16 @@ replay job.
 - Tenancy: no new query path; the produce reuses documents already built for the MongoDB history
   write. Tenant is not in the partition key (the ticket specifies `resourceType:_uuid`); the org
   Kafka standard prefers `tenant:<id>:<entity>:<id>`, so this needs EA/TDD confirmation.
-- PHI: payload is the history document (PHI, same as MongoDB); logs, metric labels and DLQ never
+- PHI: payload is the history document (PHI, same as MongoDB); logs and metric labels never
   carry it.
-- Event contract: `ce_type` `ResourceHistoryRecorded` and the `.dlq` topic /
-  `ResourceHistoryRecordFailed` type are new. No AsyncAPI contract for events exists in this repo
-  (only `src/operations/export/asyncapi.yaml`), so they must be recorded in the TDD/AsyncAPI.
+- Event contract: `ce_type` `ResourceHistoryRecorded` is new. No AsyncAPI contract for events
+  exists in this repo (only `src/operations/export/asyncapi.yaml`), so it must be recorded in the
+  TDD/AsyncAPI.
 - Flag names differ from the TDD (`ENABLE_HISTORY_KAFKA`, `CLICKHOUSE_HISTORY_RESOURCES`).
 
 ## Testing
 
-- Unit: producer (allowlist off/one/two types, batching, retries, timeout, chunk isolation, DLQ,
+- Unit: producer (allowlist off/one/two types, batching, retries, timeout, chunk isolation,
   `ce_id`, batch-size validation) and the hook on both inserters (order, defer, skip on error).
 - Integration (`src/tests/integration/dataLayer/databaseBulkInserter/historyKafkaProduce.test.js`):
   flag off, one type, two types, Kafka down, and the `postSaveAsync` writer; synthetic data only.
