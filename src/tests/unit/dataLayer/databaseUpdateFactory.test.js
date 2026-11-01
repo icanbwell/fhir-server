@@ -138,6 +138,7 @@ describe('DatabaseUpdateFactory', () => {
                 databaseQueryFactory: mockDatabaseQueryFactory,
                 configManager: mockConfigManager,
                 base64DataManager: mockBase64DataManager,
+                historyKafkaProducer: null,
                 resourceType: 'Patient',
                 base_version: '4_0_0'
             });

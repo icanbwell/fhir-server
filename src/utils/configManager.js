@@ -1405,11 +1405,13 @@ class ConfigManager {
 
     /**
      * Max history messages per Kafka produce call.
-     * Configuration: HISTORY_KAFKA_BATCH_SIZE (default 50)
+     * Configuration: HISTORY_KAFKA_BATCH_SIZE (default 50). Anything that is not a positive
+     * integer falls back to the default, so a bad value can never stall or empty the flush.
      * @return {number}
      */
     get historyKafkaBatchSize() {
-        return env.HISTORY_KAFKA_BATCH_SIZE ? parseInt(env.HISTORY_KAFKA_BATCH_SIZE) : 50;
+        const value = parseInt(env.HISTORY_KAFKA_BATCH_SIZE, 10);
+        return Number.isInteger(value) && value > 0 ? value : 50;
     }
 
     /**

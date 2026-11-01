@@ -26,10 +26,12 @@ describe.each([
             })
         };
         const inserter = Object.create(InserterClass.prototype);
-        Object.assign(inserter, { bulkWriteExecutors: [executor], historyKafkaProducer });
-        return { inserter, executor, historyKafkaProducer, order };
+        const postRequestProcessor = { add: jest.fn() };
+        Object.assign(inserter, { bulkWriteExecutors: [executor], historyKafkaProducer, postRequestProcessor });
+        return { inserter, executor, historyKafkaProducer, order, postRequestProcessor };
     };
-    const call = (inserter, useHistoryCollection) => inserter.performBulkForResourceTypeAsync({
+    const call = (inserter, useHistoryCollection, extra = {}) => inserter.performBulkForResourceTypeAsync({
+        ...extra,
         resourceType: 'Observation',
         base_version: '4_0_0',
         useHistoryCollection,
@@ -52,6 +54,26 @@ describe.each([
         await call(inserter, flag);
         expect(executor.executeBulkAsync).toHaveBeenCalledTimes(1);
         expect(historyKafkaProducer.produceAsync).not.toHaveBeenCalled();
+    });
+
+    test('skips the produce when the Mongo history write reported an error', async () => {
+        const { inserter, executor, historyKafkaProducer } = build();
+        executor.executeBulkAsync.mockResolvedValue({ mergeResultEntries: [], error: new Error('size') });
+        await call(inserter, true);
+        expect(historyKafkaProducer.produceAsync).not.toHaveBeenCalled();
+    });
+
+    test('deferHistoryProduce queues the produce post-request instead of awaiting it', async () => {
+        const { inserter, historyKafkaProducer, postRequestProcessor } = build();
+        await call(inserter, true, { deferHistoryProduce: true });
+        expect(historyKafkaProducer.produceAsync).not.toHaveBeenCalled();
+        expect(postRequestProcessor.add).toHaveBeenCalledTimes(1);
+        const { requestId, fnTask } = postRequestProcessor.add.mock.calls[0][0];
+        expect(requestId).toBe('r1');
+        await fnTask();
+        expect(historyKafkaProducer.produceAsync).toHaveBeenCalledWith({
+            resourceType: 'Observation', operations: [{ uuid: 'u1' }], requestId: 'r1'
+        });
     });
 
     test('works without a producer configured', async () => {

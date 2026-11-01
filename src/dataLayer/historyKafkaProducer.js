@@ -9,6 +9,7 @@ const { retryWithBackoff } = require('../utils/retryWithBackoff');
 const metrics = require('../utils/metrics');
 
 const CLOUD_EVENT_TYPE = 'ResourceHistoryRecorded';
+const DEAD_LETTER_EVENT_TYPE = 'ResourceHistoryRecordFailed';
 const CLOUD_EVENT_SOURCE = 'fhir-server';
 
 /**
@@ -19,6 +20,10 @@ const CLOUD_EVENT_SOURCE = 'fhir-server';
  * a FHIR write or disturb the MongoDB history. Flags are read from ConfigManager on each
  * call, so a change to KAFKA_HISTORY_RESOURCES takes effect
  * as soon as the process sees the new environment (a config roll-out, no code change).
+ *
+ * A chunk the broker rejects for its own contents is resent one record at a time, so only the bad
+ * record is lost from the stream. Records that still fail go to `<topic>.dlq` as ids and error
+ * metadata only (never the resource), so they can be reconciled against the MongoDB history.
  *
  * Event: CloudEvent in Kafka binary mode (`ce_` headers). Key is `<resourceType>:<_uuid>`;
  * the body is the history document, whose `_recorded` was stamped once when the history
@@ -95,6 +100,7 @@ class HistoryKafkaProducer {
             messages = operations.map((op) => this._toMessage(op));
         } catch (err) {
             this._recordFailure({ resourceType, count: operations.length, requestId, topic, err, start });
+            await this._deadLetterAsync({ resourceType, operations, requestId, topic, err });
             return;
         }
         try {
@@ -103,8 +109,9 @@ class HistoryKafkaProducer {
                 maxRetries: this.maxRetries,
                 initialDelayMs: this.initialRetryDelayMs,
                 jitter: true,
-                // A rejection caused by the chunk itself cannot be fixed by resending it.
-                shouldRetry: (err) => !isChunkSpecificError(err),
+                // Resending cannot fix a rejection caused by the chunk itself. A timed-out send is not
+                // cancelled and may still deliver, so resending it would only create duplicates.
+                shouldRetry: (err) => !isChunkSpecificError(err) && !err.isProduceTimeout,
                 onRetry: ({ attempt, delay }) => logWarn('HistoryKafkaProducer: retrying produce', {
                     attempt, maxRetries: this.maxRetries, resourceType, count: messages.length, requestId, delay
                 })
@@ -112,7 +119,45 @@ class HistoryKafkaProducer {
             metrics.recordHistoryKafkaProduce(resourceType, messages.length, true, secondsSince(start));
             logDebug('HistoryKafkaProducer: produced', { resourceType, count: messages.length, topic, requestId });
         } catch (err) {
+            if (isChunkSpecificError(err) && operations.length > 1) {
+                // Isolate the bad record so the rest of the chunk still reaches the stream.
+                for (const op of operations) {
+                    await this._produceChunkAsync({ resourceType, operations: [op], requestId, topic, compression });
+                }
+                return;
+            }
             this._recordFailure({ resourceType, count: messages.length, requestId, topic, err, start });
+            await this._deadLetterAsync({ resourceType, operations, requestId, topic, err });
+        }
+    }
+
+    /**
+     * Publishes ids and error metadata (no resource content) for records that could not be produced.
+     * Never throws.
+     * @param {Object} params
+     * @private
+     */
+    async _deadLetterAsync ({ resourceType, operations, requestId, topic, err }) {
+        const deadLetterTopic = `${topic}.dlq`;
+        try {
+            const failedAt = new Date().toISOString();
+            const messages = operations.map((op) => ({
+                key: `${op.resourceType}:${op.uuid}`,
+                value: JSON.stringify({
+                    resourceType: op.resourceType,
+                    uuid: op.uuid,
+                    sourceTopic: topic,
+                    errorType: err.type || err.name,
+                    error: err.message,
+                    failedAt
+                }),
+                headers: { ce_specversion: '1.0', ce_type: DEAD_LETTER_EVENT_TYPE, ce_source: CLOUD_EVENT_SOURCE }
+            }));
+            await this._withTimeoutAsync(this.kafkaClientV2.sendCloudEventMessageAsync({ topic: deadLetterTopic, messages }));
+        } catch (dlqErr) {
+            logError('HistoryKafkaProducer: dead-letter publish failed', {
+                resourceType, count: operations.length, topic: deadLetterTopic, requestId, error: dlqErr.message
+            });
         }
     }
 
@@ -129,7 +174,7 @@ class HistoryKafkaProducer {
             value: JSON.stringify(document),
             headers: {
                 ce_specversion: '1.0',
-                ce_id: generateUUIDv5(`${op.resourceType}|${op.uuid}|${recorded.getTime()}`),
+                ce_id: generateUUIDv5(`${op.resourceType}|${op.uuid}|${document.resource?.meta?.versionId ?? ''}|${recorded.getTime()}`),
                 ce_type: CLOUD_EVENT_TYPE,
                 ce_source: CLOUD_EVENT_SOURCE,
                 ce_time: recorded.toISOString(),
@@ -146,10 +191,11 @@ class HistoryKafkaProducer {
     _withTimeoutAsync (promise) {
         let timer;
         const timeout = new Promise((resolve, reject) => {
-            timer = setTimeout(
-                () => reject(new Error(`history Kafka produce timed out after ${this.produceTimeoutMs}ms`)),
-                this.produceTimeoutMs
-            );
+            timer = setTimeout(() => {
+                const err = new Error(`history Kafka produce timed out after ${this.produceTimeoutMs}ms; delivery outcome unknown`);
+                err.isProduceTimeout = true;
+                reject(err);
+            }, this.produceTimeoutMs);
         });
         return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
     }

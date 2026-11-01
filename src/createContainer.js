@@ -479,7 +479,8 @@ const createContainer = function () {
             preSaveManager: c.preSaveManager,
             databaseQueryFactory: c.databaseQueryFactory,
             configManager: c.configManager,
-            base64DataManager: c.base64DataManager
+            base64DataManager: c.base64DataManager,
+            historyKafkaProducer: c.historyKafkaProducer
         }));
 
     container.register('resourceManager', (c) => new ResourceManager(

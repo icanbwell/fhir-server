@@ -875,7 +875,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         requestInfo,
                         mapEntry: x,
                         base_version,
-                        useHistoryCollection: true
+                        useHistoryCollection: true,
+                        deferHistoryProduce: true
                     }
                 ));
             historyOperationsByResourceTypeMap.clear();
@@ -899,7 +900,8 @@ class DatabaseBulkInserter extends EventEmitter {
             mapEntry,
             useHistoryCollection,
             maintainOrder = true,
-            isAccessLogOperation = false
+            isAccessLogOperation = false,
+            deferHistoryProduce = false
         }
     ) {
         try {
@@ -916,7 +918,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     useHistoryCollection,
                     operations,
                     maintainOrder,
-                    isAccessLogOperation
+                    isAccessLogOperation,
+                    deferHistoryProduce
                 });
         } catch (e) {
             throw new RethrownError({
@@ -935,6 +938,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {BulkInsertUpdateEntry[]} operations
      * @param {boolean} maintainOrder
      * @param {boolean} isAccessLogOperation
+     * @param {boolean} [deferHistoryProduce] queue the history Kafka produce post-request instead of awaiting it
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeAsync ({
@@ -944,7 +948,8 @@ class DatabaseBulkInserter extends EventEmitter {
         operations,
         requestInfo,
         maintainOrder = true,
-        isAccessLogOperation = false
+        isAccessLogOperation = false,
+        deferHistoryProduce = false
     }) {
         const executor = this.bulkWriteExecutors.find(e => e.canHandle(resourceType));
         if (!executor) {
@@ -960,11 +965,17 @@ class DatabaseBulkInserter extends EventEmitter {
             useHistoryCollection, maintainOrder, isAccessLogOperation,
             insertOneHistoryFn: this.insertOneHistoryAsync.bind(this)
         });
-        // Parallel history produce: only after the history write above, never replaces it, never throws.
-        if (useHistoryCollection === true && this.historyKafkaProducer) {
-            await this.historyKafkaProducer.produceAsync({
-                resourceType, operations, requestId: requestInfo.requestId
-            });
+        // Parallel history produce: only after a successful history write (a size-rejected write returns
+        // `error` and writes nothing), never replaces it, never throws. When the history flush runs inline
+        // in a request (delete), the produce is queued post-request so Kafka latency never delays it.
+        if (useHistoryCollection === true && this.historyKafkaProducer && !result?.error) {
+            const requestId = requestInfo.requestId;
+            const produceAsync = () => this.historyKafkaProducer.produceAsync({ resourceType, operations, requestId });
+            if (deferHistoryProduce) {
+                this.postRequestProcessor.add({ requestId, fnTask: produceAsync });
+            } else {
+                await produceAsync();
+            }
         }
         return result;
     }

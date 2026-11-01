@@ -25,7 +25,8 @@ class DatabaseUpdateFactory {
             preSaveManager,
             databaseQueryFactory,
             configManager,
-            base64DataManager
+            base64DataManager,
+            historyKafkaProducer = null
         }
     ) {
         /**
@@ -63,6 +64,11 @@ class DatabaseUpdateFactory {
          */
         this.base64DataManager = base64DataManager;
         assertTypeEquals(base64DataManager, Base64DataManager);
+
+        /**
+         * @type {import('./historyKafkaProducer').HistoryKafkaProducer|null}
+         */
+        this.historyKafkaProducer = historyKafkaProducer;
     }
 
     /**
@@ -74,6 +80,7 @@ class DatabaseUpdateFactory {
     createDatabaseUpdateManager ({ resourceType, base_version }) {
         return new DatabaseUpdateManager(
             {
+                historyKafkaProducer: this.historyKafkaProducer,
                 resourceLocatorFactory: this.resourceLocatorFactory,
                 resourceMerger: this.resourceMerger,
                 preSaveManager: this.preSaveManager,

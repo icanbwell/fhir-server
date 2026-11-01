@@ -101,4 +101,18 @@ describe('History Kafka produce (parallel to MongoDB history)', () => {
         expect(r.observationHistory).toStrictEqual(1);
         expect(r.consentHistory).toStrictEqual(1);
     });
+
+    test('DatabaseUpdateManager.postSaveAsync (admin link/unlink writer) also produces', async () => {
+        process.env.KAFKA_HISTORY_RESOURCES = 'Observation';
+        const container = createTestContainer();
+        const sendSpy = jest.spyOn(MockKafkaClientV2.prototype, 'sendCloudEventMessageAsync');
+        const requestInfo = getTestRequestInfo({ requestId: '5678' });
+        const manager = container.databaseUpdateFactory.createDatabaseUpdateManager({ resourceType: 'Observation', base_version });
+        const doc = new Observation(observation);
+        doc._uuid = doc._uuid || 'synthetic-uuid-1';
+        doc._sourceAssigningAuthority = doc._sourceAssigningAuthority || 'synthetic';
+        await manager.postSaveAsync({ requestInfo, doc });
+        expect(sendSpy).toHaveBeenCalledTimes(1);
+        expect(sendSpy.mock.calls[0][0].messages[0].key).toBe(`Observation:${doc._uuid}`);
+    });
 });
