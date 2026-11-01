@@ -7,7 +7,7 @@ info:
     for the resource types listed in KAFKA_HISTORY_RESOURCES. CloudEvents 1.0 in Kafka binary mode
     (ce_-prefixed headers); the message value is the history document.
 operations:
-  ResourceHistoryRecorded:
+  FhirResourceHistory:
     channel:
       $ref: '#/channels/ResourceHistoryChannel'
     action: send
@@ -19,8 +19,8 @@ channels:
       kafka:
         topic: fhir_server.resource-history.events
     messages:
-      ResourceHistoryRecorded:
-        $ref: '#/components/messages/ResourceHistoryRecorded'
+      FhirResourceHistory:
+        $ref: '#/components/messages/FhirResourceHistory'
         bindings:
           kafka:
             key:
@@ -28,7 +28,7 @@ channels:
               description: '<resourceType>:<_uuid>, for example Observation:<_uuid>.'
 components:
   messages:
-    ResourceHistoryRecorded:
+    FhirResourceHistory:
       description: >-
         A history record for one version of a resource. Delivery is at-least-once; consumers dedupe on ce_id.
         Producing is best effort: a record that cannot be produced stays in the MongoDB history only.
@@ -44,7 +44,7 @@ components:
             description: uuid5 of resourceType|_uuid|meta.versionId|_recorded (epoch ms). Stable across retries.
           ce_type:
             type: string
-            const: ResourceHistoryRecorded
+            const: FhirResourceHistory
           ce_source:
             type: string
             const: /fhir-server

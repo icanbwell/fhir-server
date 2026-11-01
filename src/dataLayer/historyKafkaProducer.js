@@ -9,7 +9,7 @@ const { KafkaClientV2, getKafkaCompressionType } = require('../utils/kafkaClient
 const { retryWithBackoff } = require('../utils/retryWithBackoff');
 const metrics = require('../utils/metrics');
 
-const CLOUD_EVENT_TYPE = 'ResourceHistoryRecorded';
+const CLOUD_EVENT_TYPE = 'FhirResourceHistory';
 const CLOUD_EVENT_SOURCE = '/fhir-server';
 
 /**

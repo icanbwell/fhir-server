@@ -34,7 +34,7 @@ replay job.
   (stamped once when the entry is created, so retries carry the same value), `version_id`
   (`meta.versionId`), `access_tags` (codes of the access-system security tags) and `raw` (the
   history BundleEntry as written, without MongoDB's `_id` and `_recorded`).
-- CloudEvent binary mode headers: `ce_specversion=1.0`, `ce_type=ResourceHistoryRecorded`,
+- CloudEvent binary mode headers: `ce_specversion=1.0`, `ce_type=FhirResourceHistory`,
   `ce_source=/fhir-server`, `ce_time=<_recorded ISO>`, `content-type=application/json`,
   `ce_id=uuid5(resourceType|_uuid|meta.versionId|_recorded ms)` using the repo's `generateUUIDv5`
   (OID namespace). Deterministic: replays of one version keep the id; versions written in the same
