@@ -383,7 +383,9 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
                 ['BULK_IMPORT_MIN_FILE_SIZE_MB', 'bulkImportMinFileSizeMb', 50],
                 ['BULK_IMPORT_MAX_FILE_SIZE_GB', 'bulkImportMaxFileSizeGb', 5],
                 ['BULK_IMPORT_MAX_LINE_SIZE_MB', 'bulkImportMaxLineSizeMb', 16],
-                ['BULK_IMPORT_BATCH_SIZE', 'bulkImportBatchSize', 100]
+                ['BULK_IMPORT_BATCH_SIZE', 'bulkImportBatchSize', 100],
+                ['BULK_IMPORT_HEAD_S3_CONCURRENCY', 'bulkImportHeadS3Concurrency', 8],
+                ['ASYNC_JOB_CONSUMER_JOIN_TIMEOUT_MS', 'asyncJobConsumerJoinTimeoutMs', 120000]
             ];
             for (const [envKey, getter, fallback] of specs) {
                 for (const bad of [undefined, '', '0', '-3', 'abc']) {

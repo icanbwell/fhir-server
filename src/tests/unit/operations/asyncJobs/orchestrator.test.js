@@ -52,7 +52,8 @@ const mockKafkaClientV2 = {
 };
 const mockConfigManager = {
     kafkaBulkImportTaskCreatedTopic: 'test-topic',
-    bulkImportOrchestratorGroupId: 'test-group-id'
+    bulkImportOrchestratorGroupId: 'test-group-id',
+    asyncJobConsumerJoinTimeoutMs: 120000
 };
 
 jestObj.mock('../../../../createContainer', () => ({
@@ -176,7 +177,7 @@ describe('asyncJobs/orchestrator', () => {
 
             expect(mockKafkaClientV2.waitForConsumerToJoinGroupAsync).toHaveBeenCalledWith(
                 mockConsumer,
-                { maxWait: 30000, label: 'bulk-import-orchestrator' }
+                { maxWait: 120000, label: 'bulk-import-orchestrator' }
             );
         });
 

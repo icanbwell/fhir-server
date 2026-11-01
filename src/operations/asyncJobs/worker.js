@@ -138,7 +138,7 @@ async function main() {
             consumers.push(consumer);
 
             joinPromises.push(kafkaClientV2.waitForConsumerToJoinGroupAsync(consumer, {
-                maxWait: 30000,
+                maxWait: container.configManager.asyncJobConsumerJoinTimeoutMs,
                 label: job.label
             }));
 

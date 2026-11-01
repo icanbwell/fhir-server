@@ -1646,6 +1646,26 @@ class ConfigManager {
     }
 
     /**
+     * How long an async-job entrypoint waits for its consumers to join their groups before
+     * giving up and exiting. Must exceed the consumer rebalance timeout (60s default), or a
+     * replica starting during another member's rebalance crash-loops and forces more rebalances.
+     * @return {number}
+     */
+    get asyncJobConsumerJoinTimeoutMs() {
+        const parsed = parseInt(env.ASYNC_JOB_CONSUMER_JOIN_TIMEOUT_MS, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 120000;
+    }
+
+    /**
+     * Maximum concurrent S3 HEAD requests when the orchestrator validates a bulk import's inputs
+     * @return {number}
+     */
+    get bulkImportHeadS3Concurrency() {
+        const parsed = parseInt(env.BULK_IMPORT_HEAD_S3_CONCURRENCY, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 8;
+    }
+
+    /**
      * Minimum file size in MB for bulk import
      * @return {number}
      */
