@@ -3,6 +3,7 @@
     "allow": [
       "Bash(make lint)",
       "Bash(make tests)",
+      "Bash(nvm use)",
       "Bash(yarn run prettier-fix)",
       "Bash(yarn run fix_lint)",
       "Bash(node node_modules/.bin/jest:*)",
@@ -11,18 +12,31 @@
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
-      "Bash(git branch:*)",
+      "Bash(git branch --show-current)",
+      "Bash(git branch --list:*)",
+      "Bash(git branch -a)",
       "Bash(git show:*)",
       "Bash(gh pr view:*)",
       "Bash(gh pr diff:*)",
       "Bash(gh pr checks:*)"
     ],
     "deny": [
-      "Read(./.env)",
-      "Read(./.env.*)",
-      "Bash(git push --force:*)",
-      "Bash(git push -f:*)",
-      "Bash(git reset --hard:*)"
+      "Read(**/.env)",
+      "Read(**/.env.local)",
+      "Read(**/.env.dev)",
+      "Read(**/.env.staging)",
+      "Read(**/.env.prod)",
+      "Bash(cat *.env)",
+      "Bash(cat *.env.*)",
+      "Bash(git diff*--no-index*)",
+      "Bash(git diff*--output*)",
+      "Bash(git push* --force*)",
+      "Bash(git push* -f*)",
+      "Bash(git push* +*)",
+      "Bash(git reset* --hard*)",
+      "Bash(git branch -D:*)",
+      "Bash(git branch -d:*)",
+      "Bash(git branch -f:*)"
     ]
   }
 }

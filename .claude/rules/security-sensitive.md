@@ -5,6 +5,12 @@ paths:
   - "src/middleware/**"
   - "src/queryRewriters/**"
   - "src/dataLayer/**"
+  - "src/utils/**"
+  - "src/enrich/**"
+  - "src/preSaveHandlers/**"
+  - "src/fhir/**"
+  - "src/graphql/**"
+  - "src/graphqlv2/**"
 ---
 
 # Security-sensitive paths
