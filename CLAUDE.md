@@ -16,6 +16,14 @@ remove), OAuth scope/token parsing, request-scoped caching, or any cross-resourc
 shared identifier — read `review.md` at the repo root and adversarially review the diff against
 it.
 
+Path-scoped guidance lives in `.claude/rules/` (generated code, tests, security-sensitive paths);
+slash commands `/test` and `/security-review-diff` are in `.claude/commands/`.
+
+## Design Specs and Plans
+
+Save design specs to `docs/specs/<topic>.md` and implementation plans to `docs/plans/<topic>.md`.
+These paths override the superpowers skills' defaults.
+
 ## Essential Commands
 
 ```bash
@@ -49,6 +57,14 @@ make graphql
 make classes
 make searchParameters
 ```
+
+## Running and Verifying Against the Server
+
+This is an API-only service with no UI, so do not use browser previews or screenshots. To verify a
+change end to end, start the stack with `make up`, then call the API at `http://localhost:3000`
+(FHIR REST under `/4_0_0/`, GraphQL at `/$graphql`) with `curl` and an `Authorization: Bearer`
+token issued by the local Keycloak (`http://localhost:8080`). See `readme/cheatsheet.md` for
+request examples. Stop the stack with `make down`.
 
 ## Testing Notes
 

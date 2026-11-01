@@ -121,7 +121,7 @@ describe('ScopesManager', () => {
 
         // Tripwire: system/ must never be treated as an access/ tenant grant. Making
         // system/*.* emit '*' here would cascade into a total tenant-isolation bypass across
-        // several gates (see docs/superpowers/plans/2026-09-12-smart-v2-system-scope-design.md §1).
+        // several gates (see docs/plans/smart-v2-system-scope.md §1).
         test('should NOT extract access codes from system/ scopes', () => {
             expect(scopesManager.getAccessCodesFromScopes('read', 'testUser', 'system/*.*')).toEqual([]);
             expect(scopesManager.getAccessCodesFromScopes('write', 'testUser', 'system/*.*')).toEqual([]);

@@ -757,7 +757,7 @@ findings closed.
  * caller with no access/ scope to otherwise gate on. Defaults to false: do not enable in
  * an environment that hasn't first run logPersonLinkAssuranceBelowMinimum long enough to
  * confirm real Person.link data clears the configured minimum (see the plan this shipped
- * with, docs/superpowers/plans/2026-08-09-close-resource-authorization-known-gaps.md).
+ * with, docs/plans/close-resource-authorization-known-gaps.md).
  * @return {boolean}
  */
 get enforcePersonLinkAssuranceMinimum () {

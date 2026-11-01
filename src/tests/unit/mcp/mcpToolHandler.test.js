@@ -388,7 +388,7 @@ describe('McpToolHandler write-tool tripwire', () => {
         // one of the two handlers below, both read-only (McpToolHandler.registerTools,
         // src/mcp/mcpToolHandler.js). If a third handler method appears here, it means a write-capable
         // MCP tool is being added, and per
-        // docs/superpowers/plans/2026-08-14-mcp-resource-authorization-test-coverage.md's Task 9 note,
+        // docs/plans/mcp-resource-authorization-test-coverage.md's Task 9 note,
         // whoever adds it must also wire in an equivalent to DelegatedAccessManager.verifyAccess /
         // OperationAccessManager.verifyAccess before this assertion is updated -- not after.
         const handlerMethodNames = Object.getOwnPropertyNames(McpToolHandler.prototype)

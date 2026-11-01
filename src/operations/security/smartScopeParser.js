@@ -1,7 +1,7 @@
 /**
  * Parses SMART on FHIR `patient/`, `user/`, `access/`, and `system/` scope strings, understanding
  * both v1 (`read`/`write`/`*`) and v2 (`cruds`-letter-combination) suffix grammar. See
- * docs/superpowers/specs/2026-09-13-smart-v2-scope-granularity-design.md.
+ * docs/specs/smart-v2-scope-granularity.md.
  *
  * Pure module: no I/O, no dependency on ScopesManager/ScopesValidator state.
  */
@@ -63,7 +63,7 @@ function isV2Suffix (suffix) {
  *   Callers pass their own ConfigManager-backed feature flag here -- kept as a parameter rather
  *   than a config read so this module stays pure/dependency-free (see file doc comment). When
  *   false, only the legacy v1 suffixes ('read'/'write'/'*') are recognized, matching this
- *   module's original behavior exactly (see docs/superpowers/specs/2026-09-13-smart-v2-scope-granularity-design.md,
+ *   module's original behavior exactly (see docs/specs/smart-v2-scope-granularity.md,
  *   "Open items": enabling v2 parsing is a one-way loosening of what scope strings are honored).
  * @return {Set<string>|null} null when the suffix is neither valid v1, nor (when allowed) valid
  *   v2 grammar
