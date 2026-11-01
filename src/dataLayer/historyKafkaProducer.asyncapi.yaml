@@ -103,7 +103,7 @@ components:
           type: object
           description: >-
             The history BundleEntry as written (id, resource in internal JSON form, request, and response
-            when present). MongoDB's internal _id and the _recorded stamp are not included.
+            when present) plus its _recorded stamp. MongoDB's internal _id is not included.
       required:
         - resource_type
         - _uuid

@@ -136,10 +136,10 @@ class HistoryKafkaProducer {
      * @private
      */
     _toMessage (op) {
-        // `_id` is MongoDB's internal row id (added to the document by insertOne) and `_recorded` has its
-        // own column, so neither belongs in `raw`, the BundleEntry as written.
-        const { _id, _recorded, ...raw } = op.operation.insertOne.document;
-        const recorded = _recorded instanceof Date ? _recorded : new Date(_recorded);
+        // `_id` is MongoDB's internal row id (added to the document by insertOne), so it is left out of
+        // `raw`. `_recorded` stays in `raw` as well as in its own column.
+        const { _id, ...raw } = op.operation.insertOne.document;
+        const recorded = raw._recorded instanceof Date ? raw._recorded : new Date(raw._recorded);
         const versionId = String(raw.resource.meta.versionId);
         // The flat row the history table maps column by column (binary mode: the value is the CloudEvent data).
         const row = {

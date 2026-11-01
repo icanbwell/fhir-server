@@ -33,7 +33,7 @@ replay job.
 - Body: a flat row, one top-level key per history table column: `resource_type`, `_uuid`, `_recorded`
   (stamped once when the entry is created, so retries carry the same value), `version_id`
   (`meta.versionId`), `access_tags` (codes of the access-system security tags) and `raw` (the
-  history BundleEntry as written, without MongoDB's `_id` and `_recorded`).
+  history BundleEntry as written, including its `_recorded` stamp but without MongoDB's `_id`).
 - CloudEvent binary mode headers: `ce_specversion=1.0`, `ce_type=FhirResourceHistory`,
   `ce_source=/fhir-server`, `ce_time=<_recorded ISO>`, `content-type=application/json`,
   `ce_id=uuid5(resourceType|_uuid|meta.versionId|_recorded ms)` using the repo's `generateUUIDv5`

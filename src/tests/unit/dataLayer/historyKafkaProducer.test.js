@@ -98,11 +98,11 @@ describe('HistoryKafkaProducer', () => {
             raw: {
                 id: 'u1',
                 resource: expect.objectContaining({ resourceType: 'Observation', id: 'synthetic-u1' }),
-                request: { id: 'req-1', method: 'PUT', url: '/4_0_0/Observation/synthetic-u1' }
+                request: { id: 'req-1', method: 'PUT', url: '/4_0_0/Observation/synthetic-u1' },
+                _recorded: '2026-01-02T03:04:05.678Z'
             }
         });
         expect(Object.keys(row.raw)).not.toContain('_id');
-        expect(Object.keys(row.raw)).not.toContain('_recorded');
         expect(messages[0].headers).toMatchObject({
             ce_specversion: '1.0',
             ce_type: CLOUD_EVENT_TYPE,
