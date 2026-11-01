@@ -73,34 +73,41 @@ components:
           - content-type
           - traceparent
       payload:
-        $ref: '#/components/schemas/HistoryDocument'
+        $ref: '#/components/schemas/HistoryRow'
   schemas:
-    HistoryDocument:
+    HistoryRow:
       type: object
-      description: The history document as stored in MongoDB (a Bundle entry). Contains PHI.
+      description: >-
+        One flat row per history record; each top-level key maps to a column of the history table.
+        Contains PHI (in raw).
       properties:
-        id:
+        resource_type:
+          type: string
+          description: FHIR resource type.
+        _uuid:
           type: string
           description: The resource _uuid.
-        resource:
-          type: object
-          description: The FHIR resource version being recorded (internal JSON form).
-        request:
-          type: object
-          properties:
-            id:
-              type: string
-              description: The user request id.
-            method:
-              type: string
-            url:
-              type: string
         _recorded:
           type: string
           format: date-time
           description: When the history record was created. Stamped once, so retries carry the same value.
+        version_id:
+          type: string
+          description: The resource meta.versionId.
+        access_tags:
+          type: array
+          items:
+            type: string
+          description: Codes of the resource's security tags in the b.well access system.
+        raw:
+          type: object
+          description: >-
+            The history BundleEntry as written (id, resource in internal JSON form, request, and response
+            when present). MongoDB's internal _id and the _recorded stamp are not included.
       required:
-        - id
-        - resource
+        - resource_type
+        - _uuid
         - _recorded
-      additionalProperties: true
+        - version_id
+        - access_tags
+        - raw

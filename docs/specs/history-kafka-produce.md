@@ -30,8 +30,10 @@ replay job.
 ## Event
 
 - Key: `<resourceType>:<_uuid>`.
-- Body: the history document, including `_recorded` (stamped once when the entry is created, so
-  retries carry the same value).
+- Body: a flat row, one top-level key per history table column: `resource_type`, `_uuid`, `_recorded`
+  (stamped once when the entry is created, so retries carry the same value), `version_id`
+  (`meta.versionId`), `access_tags` (codes of the access-system security tags) and `raw` (the
+  history BundleEntry as written, without MongoDB's `_id` and `_recorded`).
 - CloudEvent binary mode headers: `ce_specversion=1.0`, `ce_type=ResourceHistoryRecorded`,
   `ce_source=/fhir-server`, `ce_time=<_recorded ISO>`, `content-type=application/json`,
   `ce_id=uuid5(resourceType|_uuid|meta.versionId|_recorded ms)` using the repo's `generateUUIDv5`
@@ -69,7 +71,7 @@ replay job.
 
 - Tenancy: no new query path; the produce reuses documents already built for the MongoDB history
   write.
-- PHI: payload is the history document (PHI, same as MongoDB); logs and metric labels never
+- PHI: `raw` is the history BundleEntry (PHI, same as MongoDB); logs and metric labels never
   carry it.
 
 ## Testing

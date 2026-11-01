@@ -2,6 +2,7 @@
 
 const { logDebug, logError, logWarn } = require('../operations/common/logging');
 const { generateUUIDv5 } = require('../utils/uid.util');
+const { SECURITY_TAG_SYSTEMS } = require('../constants/securityTagSystems');
 const { assertTypeEquals } = require('../utils/assertType');
 const { ConfigManager } = require('../utils/configManager');
 const { KafkaClientV2, getKafkaCompressionType } = require('../utils/kafkaClientV2');
@@ -25,8 +26,9 @@ const CLOUD_EVENT_SOURCE = '/fhir-server';
  * logged), and remain in the MongoDB history.
  *
  * Event: CloudEvent in Kafka binary mode (`ce_` headers). Key is `<resourceType>:<_uuid>`;
- * the body is the history document, whose `_recorded` was stamped once when the history
- * entry was created, so retries and replays carry the same value.
+ * the body is the flat history row (`resource_type`, `_uuid`, `_recorded`, `version_id`,
+ * `access_tags`, `raw`). `_recorded` was stamped once when the history entry was created, so
+ * retries and replays carry the same value.
  */
 class HistoryKafkaProducer {
     /**
@@ -134,14 +136,28 @@ class HistoryKafkaProducer {
      * @private
      */
     _toMessage (op) {
-        const document = op.operation.insertOne.document;
-        const recorded = document._recorded instanceof Date ? document._recorded : new Date(document._recorded);
+        // `_id` is MongoDB's internal row id (added to the document by insertOne) and `_recorded` has its
+        // own column, so neither belongs in `raw`, the BundleEntry as written.
+        const { _id, _recorded, ...raw } = op.operation.insertOne.document;
+        const recorded = _recorded instanceof Date ? _recorded : new Date(_recorded);
+        const versionId = String(raw.resource.meta.versionId);
+        // The flat row the history table maps column by column (binary mode: the value is the CloudEvent data).
+        const row = {
+            resource_type: op.resourceType,
+            _uuid: op.uuid,
+            _recorded: recorded.toISOString(),
+            version_id: versionId,
+            access_tags: (raw.resource.meta.security || [])
+                .filter((s) => s.system === SECURITY_TAG_SYSTEMS.ACCESS)
+                .map((s) => s.code),
+            raw
+        };
         return {
             key: `${op.resourceType}:${op.uuid}`,
-            value: JSON.stringify(document),
+            value: JSON.stringify(row),
             headers: {
                 ce_specversion: '1.0',
-                ce_id: generateUUIDv5(`${op.resourceType}|${op.uuid}|${document.resource?.meta?.versionId ?? ''}|${recorded.getTime()}`),
+                ce_id: generateUUIDv5(`${op.resourceType}|${op.uuid}|${versionId}|${recorded.getTime()}`),
                 ce_type: CLOUD_EVENT_TYPE,
                 ce_source: CLOUD_EVENT_SOURCE,
                 ce_time: recorded.toISOString(),

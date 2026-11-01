@@ -20,8 +20,20 @@ const historyOperation = (resourceType, uuid) => ({
         insertOne: {
             document: {
                 id: uuid,
-                resource: { resourceType, id: `synthetic-${uuid}` },
-                _recorded: new Date('2026-01-02T03:04:05.678Z')
+                resource: {
+                    resourceType,
+                    id: `synthetic-${uuid}`,
+                    meta: {
+                        versionId: '1',
+                        security: [
+                            { system: 'https://www.icanbwell.com/access', code: 'synthetic-client' },
+                            { system: 'https://www.icanbwell.com/owner', code: 'synthetic-owner' }
+                        ]
+                    }
+                },
+                request: { id: 'req-1', method: 'PUT', url: `/4_0_0/${resourceType}/synthetic-${uuid}` },
+                _recorded: new Date('2026-01-02T03:04:05.678Z'),
+                _id: 'mongo-internal-id'
             }
         }
     }
@@ -75,13 +87,28 @@ describe('HistoryKafkaProducer', () => {
         expect(topic).toBe('fhir_server.resource-history.events');
         expect(messages).toHaveLength(1);
         expect(messages[0].key).toBe('Observation:u1');
-        expect(JSON.parse(messages[0].value)._recorded).toBe('2026-01-02T03:04:05.678Z');
+        // flat row for the history table: one top-level key per column, `raw` is the BundleEntry as written
+        const row = JSON.parse(messages[0].value);
+        expect(row).toStrictEqual({
+            resource_type: 'Observation',
+            _uuid: 'u1',
+            _recorded: '2026-01-02T03:04:05.678Z',
+            version_id: '1',
+            access_tags: ['synthetic-client'],
+            raw: {
+                id: 'u1',
+                resource: expect.objectContaining({ resourceType: 'Observation', id: 'synthetic-u1' }),
+                request: { id: 'req-1', method: 'PUT', url: '/4_0_0/Observation/synthetic-u1' }
+            }
+        });
+        expect(Object.keys(row.raw)).not.toContain('_id');
+        expect(Object.keys(row.raw)).not.toContain('_recorded');
         expect(messages[0].headers).toMatchObject({
             ce_specversion: '1.0',
             ce_type: CLOUD_EVENT_TYPE,
             ce_source: '/fhir-server',
             'content-type': 'application/json',
-            ce_id: generateUUIDv5('Observation|u1||1767323045678')
+            ce_id: generateUUIDv5('Observation|u1|1|1767323045678')
         });
     });
 
@@ -102,7 +129,6 @@ describe('HistoryKafkaProducer', () => {
     test('ce_id differs per meta.versionId even within the same millisecond', async () => {
         const v1 = historyOperation('Observation', 'u1');
         const v2 = historyOperation('Observation', 'u1');
-        v1.operation.insertOne.document.resource.meta = { versionId: '1' };
         v2.operation.insertOne.document.resource.meta = { versionId: '2' };
         await producer.produceAsync({ resourceType: 'Observation', operations: [v1, v2], requestId: 'r1' });
         const [a, b] = kafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0].messages.map((m) => m.headers.ce_id);
