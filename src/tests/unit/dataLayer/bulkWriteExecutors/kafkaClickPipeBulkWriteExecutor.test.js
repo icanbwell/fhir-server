@@ -162,6 +162,35 @@ describe('KafkaClickPipeBulkWriteExecutor', () => {
             expect(result.mergeResultEntries).toEqual([{ id: 'r1', created: true }]);
         });
 
+        test('a timed-out produce is not retried and the batch goes to the fallback', async () => {
+            mockKafkaClientV2.sendCloudEventMessageAsync.mockReturnValue(new Promise(() => {}));
+
+            const executorWithTimeout = new KafkaClickPipeBulkWriteExecutor({
+                kafkaClientV2: mockKafkaClientV2,
+                schemaRegistry: mockSchemaRegistry,
+                fallbackExecutor: mockFallbackExecutor,
+                maxRetries: 3,
+                initialRetryDelayMs: 0,
+                produceTimeoutMs: 20
+            });
+
+            const result = await executorWithTimeout.executeBulkAsync({
+                resourceType: 'TestResource',
+                operations: [makeEntry({ id: 'r1', uuid: 'u1' })],
+                requestInfo: { requestId: 'req-timeout-1' },
+                base_version: '4_0_0',
+                useHistoryCollection: false,
+                maintainOrder: true,
+                isAccessLogOperation: false,
+                insertOneHistoryFn: jestGlobal.fn()
+            });
+
+            // the timed-out send may still deliver, so it is never resent
+            expect(mockKafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(1);
+            expect(mockFallbackExecutor.executeBulkAsync).toHaveBeenCalledTimes(1);
+            expect(result.error).toBeNull();
+        });
+
         test('succeeds on retry without falling back', async () => {
             mockKafkaClientV2.sendCloudEventMessageAsync
                 .mockRejectedValueOnce(new Error('transient broker error'))

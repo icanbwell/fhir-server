@@ -667,7 +667,8 @@ const createContainer = function () {
             schemaRegistry: c.clickHouseSchemaRegistry,
             fallbackExecutor: c.mongoBulkWriteExecutor,
             batchSize: c.configManager.auditEventClickPipeBatchSize,
-            compression: getKafkaCompressionType(c.configManager.kafkaProducerCompression)
+            compression: getKafkaCompressionType(c.configManager.kafkaProducerCompression),
+            produceTimeoutMs: c.configManager.kafkaProducerTimeoutMs
         });
     });
 

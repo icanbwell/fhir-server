@@ -8,6 +8,7 @@ const { ConfigManager } = require('../utils/configManager');
 const { KafkaClientV2, getKafkaCompressionType } = require('../utils/kafkaClientV2');
 const { retryWithBackoff } = require('../utils/retryWithBackoff');
 const metrics = require('../utils/metrics');
+const { withProduceTimeoutAsync } = require('../utils/kafkaProduceTimeout');
 
 const CLOUD_EVENT_TYPE = 'FhirResourceHistory';
 const CLOUD_EVENT_SOURCE = '/fhir-server';
@@ -37,7 +38,7 @@ class HistoryKafkaProducer {
      * @param {KafkaClientV2} params.kafkaClientV2
      * @param {number} [params.maxRetries=3]
      * @param {number} [params.initialRetryDelayMs=1000]
-     * @param {number} [params.produceTimeoutMs] - Per attempt; defaults to configManager.historyKafkaProduceTimeoutMs
+     * @param {number} [params.produceTimeoutMs] - Per attempt; defaults to configManager.kafkaProducerTimeoutMs
      */
     constructor ({ configManager, kafkaClientV2, maxRetries = 3, initialRetryDelayMs = 1000, produceTimeoutMs = null }) {
         assertTypeEquals(configManager, ConfigManager);
@@ -172,16 +173,7 @@ class HistoryKafkaProducer {
      * @private
      */
     _withTimeoutAsync (promise) {
-        const timeoutMs = this._produceTimeoutMsOverride ?? this.configManager.historyKafkaProduceTimeoutMs;
-        let timer;
-        const timeout = new Promise((resolve, reject) => {
-            timer = setTimeout(() => {
-                const err = new Error(`history Kafka produce timed out after ${timeoutMs}ms; delivery outcome unknown`);
-                err.isProduceTimeout = true;
-                reject(err);
-            }, timeoutMs);
-        });
-        return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+        return withProduceTimeoutAsync(promise, this._produceTimeoutMsOverride ?? this.configManager.kafkaProducerTimeoutMs);
     }
 
     /** @private */
