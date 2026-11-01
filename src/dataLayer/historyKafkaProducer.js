@@ -72,7 +72,7 @@ class HistoryKafkaProducer {
             }
             const topic = this.configManager.kafkaHistoryEventsTopic;
             const batchSize = this.configManager.historyKafkaBatchSize;
-            const compression = getKafkaCompressionType(this.configManager.auditEventClickPipeCompression);
+            const compression = getKafkaCompressionType(this.configManager.kafkaProducerCompression);
             for (let i = 0; i < operations.length; i += batchSize) {
                 await this._produceChunkAsync({
                     resourceType,

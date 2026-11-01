@@ -10,7 +10,7 @@ const metrics = require('../../../utils/metrics');
 
 const ENV_KEYS = [
     'ENABLE_EVENTS_KAFKA_V2', 'KAFKA_HISTORY_RESOURCES',
-    'KAFKA_HISTORY_EVENTS_TOPIC', 'HISTORY_KAFKA_BATCH_SIZE', 'AUDIT_EVENT_CLICKPIPE_COMPRESSION'
+    'KAFKA_HISTORY_EVENTS_TOPIC', 'HISTORY_KAFKA_BATCH_SIZE', 'KAFKA_PRODUCER_COMPRESSION'
 ];
 
 const historyOperation = (resourceType, uuid) => ({

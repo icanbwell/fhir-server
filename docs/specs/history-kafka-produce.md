@@ -25,7 +25,7 @@ replay job.
 | `KAFKA_HISTORY_RESOURCES` | empty (off) | Resource types that produce |
 | `KAFKA_HISTORY_EVENTS_TOPIC` | `fhir_server.resource-history.events` | Target topic |
 | `HISTORY_KAFKA_BATCH_SIZE` | 50 | Messages per produce call; non-positive/non-numeric falls back to 50 |
-| `AUDIT_EVENT_CLICKPIPE_COMPRESSION` | `zstd` | Reused for compression (`none`/`gzip`/`zstd`) |
+| `KAFKA_PRODUCER_COMPRESSION` | `zstd` | Compression for history and the AuditEvent ClickPipe path (`none`/`gzip`/`zstd`); falls back to the older `AUDIT_EVENT_CLICKPIPE_COMPRESSION` when unset |
 
 ## Event
 
