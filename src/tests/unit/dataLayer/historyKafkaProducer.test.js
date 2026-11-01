@@ -10,7 +10,7 @@ const metrics = require('../../../utils/metrics');
 
 const ENV_KEYS = [
     'ENABLE_EVENTS_KAFKA_V2', 'KAFKA_HISTORY_RESOURCES',
-    'KAFKA_HISTORY_EVENTS_TOPIC', 'HISTORY_KAFKA_BATCH_SIZE', 'KAFKA_PRODUCER_COMPRESSION'
+    'KAFKA_HISTORY_EVENTS_TOPIC', 'HISTORY_KAFKA_BATCH_SIZE', 'HISTORY_KAFKA_PRODUCE_TIMEOUT_MS', 'KAFKA_PRODUCER_COMPRESSION'
 ];
 
 const historyOperation = (resourceType, uuid) => ({
@@ -205,6 +205,24 @@ describe('HistoryKafkaProducer', () => {
         await slow.produceAsync({ resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1' });
         expect(recordSpy).toHaveBeenCalledWith('Observation', 1, false, expect.any(Number));
         // a timed-out send may still deliver, so it is never resent
+        expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(1);
+    });
+
+    test.each([[undefined, 10000], ['', 10000], ['0', 10000], ['-5', 10000], ['abc', 10000], ['2500', 2500]])(
+        'HISTORY_KAFKA_PRODUCE_TIMEOUT_MS=%j resolves to %j ms', (value, expected) => {
+            if (value === undefined) delete process.env.HISTORY_KAFKA_PRODUCE_TIMEOUT_MS;
+            else setEnv({ HISTORY_KAFKA_PRODUCE_TIMEOUT_MS: value });
+            expect(new ConfigManager().historyKafkaProduceTimeoutMs).toBe(expected);
+        });
+
+    test('the timeout comes from config when not overridden', async () => {
+        setEnv({ HISTORY_KAFKA_PRODUCE_TIMEOUT_MS: '20' });
+        const configured = new HistoryKafkaProducer({
+            configManager: new ConfigManager(), kafkaClientV2, maxRetries: 2, initialRetryDelayMs: 1
+        });
+        kafkaClientV2.sendCloudEventMessageAsync.mockReturnValue(new Promise(() => {}));
+        await configured.produceAsync({ resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1' });
+        expect(recordSpy).toHaveBeenCalledWith('Observation', 1, false, expect.any(Number));
         expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(1);
     });
 

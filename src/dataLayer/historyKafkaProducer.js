@@ -37,16 +37,16 @@ class HistoryKafkaProducer {
      * @param {KafkaClientV2} params.kafkaClientV2
      * @param {number} [params.maxRetries=3]
      * @param {number} [params.initialRetryDelayMs=1000]
-     * @param {number} [params.produceTimeoutMs=30000] - Per attempt
+     * @param {number} [params.produceTimeoutMs] - Per attempt; defaults to configManager.historyKafkaProduceTimeoutMs
      */
-    constructor ({ configManager, kafkaClientV2, maxRetries = 3, initialRetryDelayMs = 1000, produceTimeoutMs = 30000 }) {
+    constructor ({ configManager, kafkaClientV2, maxRetries = 3, initialRetryDelayMs = 1000, produceTimeoutMs = null }) {
         assertTypeEquals(configManager, ConfigManager);
         this.configManager = configManager;
         assertTypeEquals(kafkaClientV2, KafkaClientV2);
         this.kafkaClientV2 = kafkaClientV2;
         this.maxRetries = maxRetries;
         this.initialRetryDelayMs = initialRetryDelayMs;
-        this.produceTimeoutMs = produceTimeoutMs;
+        this._produceTimeoutMsOverride = produceTimeoutMs;
     }
 
     /**
@@ -172,13 +172,14 @@ class HistoryKafkaProducer {
      * @private
      */
     _withTimeoutAsync (promise) {
+        const timeoutMs = this._produceTimeoutMsOverride ?? this.configManager.historyKafkaProduceTimeoutMs;
         let timer;
         const timeout = new Promise((resolve, reject) => {
             timer = setTimeout(() => {
-                const err = new Error(`history Kafka produce timed out after ${this.produceTimeoutMs}ms; delivery outcome unknown`);
+                const err = new Error(`history Kafka produce timed out after ${timeoutMs}ms; delivery outcome unknown`);
                 err.isProduceTimeout = true;
                 reject(err);
-            }, this.produceTimeoutMs);
+            }, timeoutMs);
         });
         return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
     }

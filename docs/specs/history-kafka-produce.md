@@ -25,6 +25,7 @@ replay job.
 | `KAFKA_HISTORY_RESOURCES` | empty (off) | Resource types that produce |
 | `KAFKA_HISTORY_EVENTS_TOPIC` | `fhir_server.resource-history.events` | Target topic |
 | `HISTORY_KAFKA_BATCH_SIZE` | 50 | Messages per produce call; non-positive/non-numeric falls back to 50 |
+| `HISTORY_KAFKA_PRODUCE_TIMEOUT_MS` | 10000 | Per-attempt produce timeout in ms; non-positive/non-numeric falls back to 10000 |
 | `KAFKA_PRODUCER_COMPRESSION` | `zstd` | Compression for history and the AuditEvent ClickPipe path (`none`/`gzip`/`zstd`) |
 
 ## Event
@@ -53,7 +54,7 @@ replay job.
 
 ## Failure handling
 
-- Per chunk: per-attempt timeout (30s), up to 3 retries with exponential backoff and jitter.
+- Per chunk: per-attempt timeout (10s, `HISTORY_KAFKA_PRODUCE_TIMEOUT_MS`), up to 3 retries with exponential backoff and jitter.
 - A chunk-specific broker rejection (`MESSAGE_TOO_LARGE`, `RECORD_LIST_TOO_LARGE`,
   `INVALID_RECORD`) is not retried; the chunk is resent record by record so only the bad record fails.
 - A timed-out send is not retried (it is not cancelled and may still deliver); consumers dedupe on

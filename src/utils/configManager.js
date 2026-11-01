@@ -1416,6 +1416,17 @@ class ConfigManager {
     }
 
     /**
+     * Per-attempt timeout, in ms, for one history Kafka produce call. A timed-out send is not retried.
+     * Configuration: HISTORY_KAFKA_PRODUCE_TIMEOUT_MS (default 10000). Anything that is not a positive
+     * integer falls back to the default.
+     * @return {number}
+     */
+    get historyKafkaProduceTimeoutMs() {
+        const value = parseInt(env.HISTORY_KAFKA_PRODUCE_TIMEOUT_MS, 10);
+        return Number.isInteger(value) && value > 0 ? value : 10000;
+    }
+
+    /**
      * Maximum number of members allowed in Group.member for a PUT. Not used by the extended Group
      * checks, which use groupMemberPromotionLimit for both promotion and rejection.
      * @returns {number}
