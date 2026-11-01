@@ -21,10 +21,8 @@ slash commands `/test` and `/security-review-diff` are in `.claude/commands/`.
 
 ## Design Specs and Plans
 
-Save design specs to `docs/specs/<topic>.md` and implementation plans to
-`docs/plans/<topic>.md`. These paths override the superpowers skills' defaults
-(`docs/superpowers/...`). Do not use a `YYYY-MM-DD-` filename prefix, a `-design` suffix, or a
-`docs/superpowers/` folder.
+Save design specs to `docs/specs/<topic>.md` and implementation plans to `docs/plans/<topic>.md`.
+These paths override the superpowers skills' defaults.
 
 ## Essential Commands
 
