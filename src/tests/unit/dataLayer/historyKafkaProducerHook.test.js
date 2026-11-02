@@ -22,8 +22,13 @@ describe.each([
         };
         const historyKafkaProducer = {
             isEnabledFor: jest.fn(() => true),
+            isMongoWriteDisabledFor: jest.fn(() => false),
             produceAsync: jest.fn(async () => {
                 order.push('kafka');
+            }),
+            produceWithMongoFallbackAsync: jest.fn(async () => {
+                order.push('kafka');
+                return [];
             })
         };
         const inserter = Object.create(InserterClass.prototype);
@@ -69,6 +74,44 @@ describe.each([
         await call(inserter, true);
         expect(historyKafkaProducer.isEnabledFor).toHaveBeenCalledWith('Observation');
         expect(historyKafkaProducer.produceAsync).not.toHaveBeenCalled();
+    });
+
+    describe('Mongo history write disabled for the type', () => {
+        test('Kafka accepted everything: Mongo is not written and nothing is produced twice', async () => {
+            const { inserter, executor, historyKafkaProducer } = build();
+            historyKafkaProducer.isMongoWriteDisabledFor.mockReturnValue(true);
+            const result = await call(inserter, true);
+            expect(historyKafkaProducer.produceWithMongoFallbackAsync).toHaveBeenCalledWith({
+                resourceType: 'Observation', operations: [{ uuid: 'u1' }], requestId: 'r1'
+            });
+            expect(executor.executeBulkAsync).not.toHaveBeenCalled();
+            expect(historyKafkaProducer.produceAsync).not.toHaveBeenCalled();
+            expect(result).toEqual({ resourceType: 'Observation', mergeResult: undefined, error: null, mergeResultEntries: [] });
+        });
+
+        test('Kafka rejected some: only those are written to Mongo, and they are not re-produced', async () => {
+            const { inserter, executor, historyKafkaProducer } = build();
+            historyKafkaProducer.isMongoWriteDisabledFor.mockReturnValue(true);
+            historyKafkaProducer.produceWithMongoFallbackAsync.mockResolvedValue([{ uuid: 'u2' }]);
+            await inserter.performBulkForResourceTypeAsync({
+                resourceType: 'Observation',
+                base_version: '4_0_0',
+                useHistoryCollection: true,
+                operations: [{ uuid: 'u1' }, { uuid: 'u2' }],
+                requestInfo: { requestId: 'r1' }
+            });
+            expect(executor.executeBulkAsync).toHaveBeenCalledTimes(1);
+            expect(executor.executeBulkAsync.mock.calls[0][0].operations).toEqual([{ uuid: 'u2' }]);
+            expect(historyKafkaProducer.produceAsync).not.toHaveBeenCalled();
+        });
+
+        test.each([[false], [null]])('is ignored for non-history writes (useHistoryCollection=%s)', async (flag) => {
+            const { inserter, executor, historyKafkaProducer } = build();
+            historyKafkaProducer.isMongoWriteDisabledFor.mockReturnValue(true);
+            await call(inserter, flag);
+            expect(historyKafkaProducer.produceWithMongoFallbackAsync).not.toHaveBeenCalled();
+            expect(executor.executeBulkAsync).toHaveBeenCalledTimes(1);
+        });
     });
 
     test('works without a producer configured', async () => {

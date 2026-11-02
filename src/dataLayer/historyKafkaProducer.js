@@ -12,11 +12,14 @@ const { withProduceTimeoutAsync } = require('../utils/kafkaProduceTimeout');
 
 const CLOUD_EVENT_TYPE = 'FhirResourceHistory';
 const CLOUD_EVENT_SOURCE = '/fhir-server';
+const FALLBACK_REASON_PRODUCE_FAILED = 'produce_failed';
 
 /**
- * Produces history records to Kafka, beside (never instead of) the MongoDB history write.
+ * Produces history records to Kafka, beside the MongoDB history write, or instead of it for resource
+ * types listed in RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES (see produceWithMongoFallbackAsync, which
+ * hands back the records that did not reach Kafka so the caller writes them to MongoDB).
  *
- * Called from the post-request history flush after the MongoDB write has completed.
+ * Called from the post-request history flush.
  * Every failure is logged and counted but never thrown, so a Kafka problem cannot fail
  * a FHIR write or disturb the MongoDB history. Flags are read from ConfigManager on each
  * call, so a change to RESOURCE_HISTORY_KAFKA_RESOURCES takes effect
@@ -60,17 +63,31 @@ class HistoryKafkaProducer {
     }
 
     /**
+     * True when the MongoDB history write is replaced by the Kafka produce for this resource type.
+     * Requires the produce itself to be enabled for the type, so the flag can never leave a type
+     * with no history destination.
+     * @param {string} resourceType
+     * @returns {boolean}
+     */
+    isMongoWriteDisabledFor (resourceType) {
+        return this.isEnabledFor(resourceType) &&
+            this.configManager.resourceHistoryMongoDisabledResources.includes(resourceType);
+    }
+
+    /**
      * Produces the history documents of a bulk history operation. Never throws.
      * @param {Object} params
      * @param {string} params.resourceType
      * @param {import('./bulkInsertUpdateEntry').BulkInsertUpdateEntry[]} params.operations history insertOne operations
      * @param {string} params.requestId
-     * @returns {Promise<void>}
+     * @returns {Promise<import('./bulkInsertUpdateEntry').BulkInsertUpdateEntry[]>} the operations that did NOT reach Kafka
      */
     async produceAsync ({ resourceType, operations, requestId }) {
+        /** @type {import('./bulkInsertUpdateEntry').BulkInsertUpdateEntry[]} */
+        const failedOperations = [];
         try {
             if (!operations || operations.length === 0 || !this.isEnabledFor(resourceType)) {
-                return;
+                return failedOperations;
             }
             const topic = this.configManager.resourceHistoryKafkaTopic;
             const batchSize = this.configManager.resourceHistoryKafkaBatchSize;
@@ -81,14 +98,38 @@ class HistoryKafkaProducer {
                     operations: operations.slice(i, i + batchSize),
                     requestId,
                     topic,
-                    compression
+                    compression,
+                    failedOperations
                 });
             }
+            return failedOperations;
         } catch (err) {
             // Logged without the resource: payloads and ids are PHI-adjacent.
             metrics.recordHistoryKafkaProduce(resourceType, operations?.length || 1, false, 0);
             logError('HistoryKafkaProducer: unexpected failure', { resourceType, requestId, error: err.message });
+            return operations || [];
         }
+    }
+
+    /**
+     * Produces the history documents of a resource type whose MongoDB history write is disabled.
+     * Documents that could not be produced are returned so the caller writes them to MongoDB instead,
+     * which means no history is lost when Kafka is unavailable. Never throws.
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {import('./bulkInsertUpdateEntry').BulkInsertUpdateEntry[]} params.operations history insertOne operations
+     * @param {string} params.requestId
+     * @returns {Promise<import('./bulkInsertUpdateEntry').BulkInsertUpdateEntry[]>} the operations to write to MongoDB
+     */
+    async produceWithMongoFallbackAsync ({ resourceType, operations, requestId }) {
+        const fallbackOperations = await this.produceAsync({ resourceType, operations, requestId });
+        if (fallbackOperations.length > 0) {
+            metrics.recordHistoryMongoFallback(resourceType, fallbackOperations.length, FALLBACK_REASON_PRODUCE_FAILED);
+            logWarn('HistoryKafkaProducer: writing history to MongoDB because the Kafka produce failed', {
+                resourceType, count: fallbackOperations.length, requestId, reason: FALLBACK_REASON_PRODUCE_FAILED
+            });
+        }
+        return fallbackOperations;
     }
 
     /**
@@ -96,13 +137,14 @@ class HistoryKafkaProducer {
      * @returns {Promise<void>}
      * @private
      */
-    async _produceChunkAsync ({ resourceType, operations, requestId, topic, compression }) {
+    async _produceChunkAsync ({ resourceType, operations, requestId, topic, compression, failedOperations }) {
         const start = process.hrtime.bigint();
         let messages;
         try {
             messages = operations.map((op) => this._toMessage(op));
         } catch (err) {
             this._recordFailure({ resourceType, count: operations.length, requestId, topic, err, start });
+            failedOperations.push(...operations);
             return;
         }
         try {
@@ -124,11 +166,12 @@ class HistoryKafkaProducer {
             if (isChunkSpecificError(err) && operations.length > 1) {
                 // Isolate the bad record so the rest of the chunk still reaches the stream.
                 for (const op of operations) {
-                    await this._produceChunkAsync({ resourceType, operations: [op], requestId, topic, compression });
+                    await this._produceChunkAsync({ resourceType, operations: [op], requestId, topic, compression, failedOperations });
                 }
                 return;
             }
             this._recordFailure({ resourceType, count: messages.length, requestId, topic, err, start });
+            failedOperations.push(...operations);
         }
     }
 
@@ -180,7 +223,7 @@ class HistoryKafkaProducer {
     /** @private */
     _recordFailure ({ resourceType, count, requestId, topic, err, start }) {
         metrics.recordHistoryKafkaProduce(resourceType, count, false, secondsSince(start));
-        logError('HistoryKafkaProducer: produce failed; MongoDB history is unaffected', {
+        logError('HistoryKafkaProducer: produce failed', {
             resourceType, count, topic, requestId, error: err.message
         });
     }

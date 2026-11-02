@@ -32,10 +32,21 @@ rather than this producer. The loader and the `_history` read path are separate 
 | Variable | Default | Meaning |
 |---|---|---|
 | `RESOURCE_HISTORY_KAFKA_RESOURCES` | empty (off) | Resource types that produce |
+| `RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES` | empty (off) | Resource types whose MongoDB history write is replaced by the produce; must also be in `RESOURCE_HISTORY_KAFKA_RESOURCES` |
 | `RESOURCE_HISTORY_KAFKA_TOPIC` | `fhir_server.resource-history.events` | Target topic |
 | `RESOURCE_HISTORY_KAFKA_BATCH_SIZE` | 50 | Messages per produce call; non-positive/non-numeric falls back to 50 |
 | `KAFKA_PRODUCER_TIMEOUT_MS` | 10000 | Per-attempt produce timeout in ms (history and the AuditEvent ClickPipe path); non-positive/non-numeric falls back to 10000 |
 | `KAFKA_PRODUCER_COMPRESSION` | `zstd` | Compression for history and the AuditEvent ClickPipe path (`none`/`gzip`/`zstd`) |
+
+## Kafka-only history (MongoDB write disabled)
+
+For a type in `RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES` (and in `RESOURCE_HISTORY_KAFKA_RESOURCES`),
+the history flush produces first and writes to MongoDB only the documents Kafka did not accept
+(after the retries and timeout below), so a Kafka outage loses no history and never fails the FHIR
+write. Each fallback is logged (resource type, count, reason; no ids or payloads) and counted in
+`fhir_history_mongo_fallback_total{resource_type,reason}`. Other types, and a type in only the produce
+list, keep the parallel write above. Enable a type only after its `_history` reads are served from
+ClickHouse. Replaying fallback documents to Kafka and deleting migrated MongoDB history are separate work.
 
 ## Event
 

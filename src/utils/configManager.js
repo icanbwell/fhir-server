@@ -1405,6 +1405,18 @@ class ConfigManager {
     }
 
     /**
+     * Resource types whose MongoDB history write is replaced by the Kafka produce. Only takes effect
+     * for types also listed in RESOURCE_HISTORY_KAFKA_RESOURCES. A history document whose produce
+     * fails is still written to MongoDB. Enable a type only once its history reads are served
+     * from ClickHouse. Empty (default) keeps writing MongoDB history.
+     * Configuration: RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES=Observation,Condition
+     * @return {string[]}
+     */
+    get resourceHistoryMongoDisabledResources() {
+        return this._parseCommaSeparatedList(env.RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES, []).filter(Boolean);
+    }
+
+    /**
      * Max history messages per Kafka produce call.
      * Configuration: RESOURCE_HISTORY_KAFKA_BATCH_SIZE (default 50). Anything that is not a positive
      * integer falls back to the default, so a bad value can never stall or empty the flush.
