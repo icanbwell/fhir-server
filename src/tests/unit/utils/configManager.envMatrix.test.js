@@ -398,16 +398,16 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
         });
 
         test.each([
-            ['unset', undefined, 120000],
-            ['empty', '', 120000],
-            ['garbage', 'abc', 120000],
-            ['a unit suffix, which parseInt would read as 120 ms', '120s', 120000],
-            ['negative', '-90000', 120000],
-            ['at the 60s rebalance timeout', '60000', 120000],
-            ['below the rebalance timeout', '30000', 120000],
-            ['above the largest setTimeout delay', '2147483648', 120000],
+            ['unset', undefined, 90000],
+            ['empty', '', 90000],
+            ['garbage', 'abc', 90000],
+            ['a unit suffix, which parseInt would read as 120 ms', '120s', 90000],
+            ['negative', '-90000', 90000],
+            ['at the 60s rebalance timeout', '60000', 90000],
+            ['below the rebalance timeout', '30000', 90000],
+            ['above the largest setTimeout delay', '2147483648', 90000],
             ['just above the rebalance timeout', '60001', 60001],
-            ['a normal override', '90000', 90000],
+            ['a normal override', '100000', 100000],
             ['the largest setTimeout delay', '2147483647', 2147483647]
         ])('asyncJobConsumerJoinTimeoutMs with %s', (_label, value, expected) => {
             setEnv('ASYNC_JOB_CONSUMER_JOIN_TIMEOUT_MS', value);

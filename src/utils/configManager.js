@@ -1648,7 +1648,8 @@ class ConfigManager {
     /**
      * How long an async-job entrypoint waits for its consumers to join their groups before
      * giving up and exiting. Must exceed the consumer rebalance timeout (60s default), or a
-     * replica starting during another member's rebalance crash-loops and forces more rebalances.
+     * replica starting during another member's rebalance crash-loops and forces more rebalances,
+     * and must stay well under the startup probe window (150s) so boot still fits in it.
      * @return {number}
      */
     get asyncJobConsumerJoinTimeoutMs() {
@@ -1657,7 +1658,7 @@ class ConfigManager {
         // the largest delay setTimeout honors (anything larger fires after 1 ms, so every replica
         // would give up on the join immediately).
         const parsed = /^\d+$/.test(raw ?? '') ? Number(raw) : NaN;
-        return parsed > 60000 && parsed <= 2147483647 ? parsed : 120000;
+        return parsed > 60000 && parsed <= 2147483647 ? parsed : 90000;
     }
 
     /**
