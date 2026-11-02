@@ -1,7 +1,7 @@
 # DCON-5986: Binary as a patient-scoped resource (Task parity) - Design
 
 Fresh start; supersedes the design and implementation in #2635 and #2643.
-Implementation steps: `docs/superpowers/plans/2026-10-18-dcon-5986-binary-patient-scope-plan.md`.
+Implementation steps: `docs/plans/dcon-5986-binary-patient-scope-plan.md`.
 
 ## Problem
 

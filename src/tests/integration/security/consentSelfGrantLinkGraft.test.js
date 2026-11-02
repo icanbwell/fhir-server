@@ -1,6 +1,6 @@
 /**
  * SEC-1580 W-chain: confirmed exploit chain from the FHIR Security Data Model Verification
- * review doc (Phase 1 of docs/superpowers/plans/2026-08-04-security-review-test-coverage.md).
+ * review doc (Phase 1 of docs/plans/security-review-test-coverage.md).
  *
  * proaConsentManager.getPatientIdsWithConsent (src/operations/search/proaConsentManager.js) only
  * checks that a Consent's OWN meta.security owner tag matches the caller's tenant -- it never

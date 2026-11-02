@@ -151,7 +151,7 @@ git commit -m "test: hoist patientScopedToken into shared mcpTestHelpers"
  * these tests exist to prove /mcp's OWN wiring (arg parsing, tool schemas, McpToolHandler) reaches
  * that shared code correctly, the same class of regression resource-authorization.md's §12
  * documents once happening for GraphQL (OperationAccessManager.verifyGraphQLReadAccess missing
- * from GraphQL's entry points). See docs/superpowers/plans/2026-08-14-mcp-resource-authorization-test-coverage.md
+ * from GraphQL's entry points). See docs/plans/mcp-resource-authorization-test-coverage.md
  * for the full gap analysis, including which mechanisms are deliberately NOT re-tested here.
  */
 const { describe, test, expect, beforeEach, afterEach } = require('@jest/globals');
@@ -631,7 +631,7 @@ In `docs/mcp-endpoint.md`'s `## Testing` section, after the existing bullet for 
   access-tag tenant isolation and the admin/wildcard bypass (§1, §7), delegated-actor consent gate
   and sensitivity denylist (§6c, §10), hidden-tag default exclusion (§8), confidentiality-`R`
   exclusion for patient-scoped callers (§9), and the `AuditEvent` required-filters gate (§3). See
-  `docs/superpowers/plans/2026-08-14-mcp-resource-authorization-test-coverage.md` for why other
+  `docs/plans/mcp-resource-authorization-test-coverage.md` for why other
   sections of that doc (§2, §4, §6a, §6b, admin/debug params) don't need their own MCP-level test.
 ```
 
@@ -666,7 +666,7 @@ describe('McpToolHandler write-tool tripwire', () => {
         // one of the two handlers below, both read-only (McpToolHandler.registerTools,
         // src/mcp/mcpToolHandler.js). If a third handler method appears here, it means a write-capable
         // MCP tool is being added, and per
-        // docs/superpowers/plans/2026-08-14-mcp-resource-authorization-test-coverage.md's Task 9 note,
+        // docs/plans/mcp-resource-authorization-test-coverage.md's Task 9 note,
         // whoever adds it must also wire in an equivalent to DelegatedAccessManager.verifyAccess /
         // OperationAccessManager.verifyAccess before this assertion is updated -- not after.
         const handlerMethodNames = Object.getOwnPropertyNames(McpToolHandler.prototype)

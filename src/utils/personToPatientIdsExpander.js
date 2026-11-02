@@ -313,7 +313,7 @@ class PersonToPatientIdsExpander {
      *   as a second map alongside the existing result. This is a materially different, narrower
      *   check than the existing access-tag filter above: owner declares the single authoritative
      *   tenant for a resource, while access declares who may merely read it. See
-     *   docs/superpowers/specs/2026-08-08-proa-person-everything-caching-design.md §2 for why PROA
+     *   docs/specs/proa-person-everything-caching-design.md §2 for why PROA
      *   consent-sharing eligibility needs the owner check specifically. Only meaningful when
      *   `toMap` is true; when true, changes this function's return shape (see below).
      *
