@@ -4,7 +4,7 @@
  * Run once during deployment to migrate existing data
  *
  * Usage:
- *   node src/scripts/migrate_mongodb_members_to_clickhouse.js [options]
+ *   node src/admin/scripts/migrateMongodbMembersToClickhouse.js [options]
  *
  * Options:
  *   --dry-run    Show what would be migrated without making changes
@@ -12,14 +12,14 @@
  *   --limit      Limit number of Groups to migrate (for testing)
  *
  * Example:
- *   node src/scripts/migrate_mongodb_members_to_clickhouse.js --dry-run
- *   node src/scripts/migrate_mongodb_members_to_clickhouse.js --limit 10
- *   node src/scripts/migrate_mongodb_members_to_clickhouse.js
+ *   node src/admin/scripts/migrateMongodbMembersToClickhouse.js --dry-run
+ *   node src/admin/scripts/migrateMongodbMembersToClickhouse.js --limit 10
+ *   node src/admin/scripts/migrateMongodbMembersToClickhouse.js
  */
 
 const { MongoClient } = require('mongodb');
-const { ClickHouseClientManager } = require('../utils/clickHouseClientManager');
-const { ConfigManager } = require('../utils/configManager');
+const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
+const { ConfigManager } = require('../../utils/configManager');
 
 /**
  * Extract entity type from FHIR reference
@@ -93,7 +93,7 @@ function parseArgs() {
             i++;
         } else if (args[i] === '--help' || args[i] === '-h') {
             console.log(`
-Usage: node migrate_mongodb_members_to_clickhouse.js [options]
+Usage: node migrateMongodbMembersToClickhouse.js [options]
 
 Options:
   --dry-run           Show what would be migrated without making changes
@@ -102,9 +102,9 @@ Options:
   --help, -h          Show this help message
 
 Examples:
-  node migrate_mongodb_members_to_clickhouse.js --dry-run
-  node migrate_mongodb_members_to_clickhouse.js --limit 10
-  node migrate_mongodb_members_to_clickhouse.js --batch-size 5000
+  node migrateMongodbMembersToClickhouse.js --dry-run
+  node migrateMongodbMembersToClickhouse.js --limit 10
+  node migrateMongodbMembersToClickhouse.js --batch-size 5000
             `);
             process.exit(0);
         }

@@ -3,7 +3,7 @@
 const { describe, test, expect, afterEach, jest } = require('@jest/globals');
 
 /**
- * src/scripts/manage_kafka_v2_topic.js is well-suited to direct unit testing: it exports its
+ * src/admin/scripts/manageKafkaV2Topic.js is well-suited to direct unit testing: it exports its
  * pure helpers (parseIntArg, applyTopicPrefix) and its three admin operations
  * (createKafkaTopic/describeKafkaTopic/deleteKafkaTopic) directly, and guards its CLI entry point
  * behind `if (require.main === module)` so requiring it in Jest never auto-runs main().
@@ -14,7 +14,7 @@ const { describe, test, expect, afterEach, jest } = require('@jest/globals');
  * targets.
  */
 
-const SCRIPT_PATH = '../../../scripts/manage_kafka_v2_topic';
+const SCRIPT_PATH = '../../../admin/scripts/manageKafkaV2Topic';
 const KAFKA_CLIENT_PATH = '../../../utils/kafkaClientV2';
 const CONFIG_MANAGER_PATH = '../../../utils/configManager';
 const LOGGING_PATH = '../../../operations/common/logging';
@@ -56,7 +56,7 @@ function loadScript (fakeAdmin) {
     // (captured before Jest's own CLI args are stripped), not from a live re-read of
     // `process.argv` -- reassigning `process.argv` in a test has no effect on it. Route the real
     // parseArgs through an explicit `args: process.argv.slice(2)` so main()'s CLI-arg branching
-    // can still be driven from tests without touching src/scripts/manage_kafka_v2_topic.js itself.
+    // can still be driven from tests without touching src/admin/scripts/manageKafkaV2Topic.js itself.
     jest.doMock('node:util', () => {
         const actualUtil = jest.requireActual('node:util');
         return {
@@ -69,7 +69,7 @@ function loadScript (fakeAdmin) {
     return { scriptModule, MockKafkaClientV2, MockConfigManager, logMocks };
 }
 
-describe('scripts/manage_kafka_v2_topic.js', () => {
+describe('scripts/manageKafkaV2Topic.js', () => {
     afterEach(() => {
         jest.restoreAllMocks();
     });
@@ -336,7 +336,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
         });
 
         test('exits 1 and logs an error when --topic is missing', async () => {
-            process.argv = ['node', 'manage_kafka_v2_topic.js'];
+            process.argv = ['node', 'manageKafkaV2Topic.js'];
             const fakeAdmin = buildFakeAdmin();
             const { scriptModule, logMocks } = loadScript(fakeAdmin);
             const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => { throw new Error('__exit__'); });
@@ -348,7 +348,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
         });
 
         test('routes to deleteKafkaTopic (with the topic prefix applied) when --delete is set', async () => {
-            process.argv = ['node', 'manage_kafka_v2_topic.js', '--topic', 'auditevents', '--delete'];
+            process.argv = ['node', 'manageKafkaV2Topic.js', '--topic', 'auditevents', '--delete'];
             const fakeAdmin = buildFakeAdmin();
             const { scriptModule } = loadScript(fakeAdmin);
 
@@ -359,7 +359,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
         });
 
         test('routes to describeKafkaTopic when --describe is set', async () => {
-            process.argv = ['node', 'manage_kafka_v2_topic.js', '--topic', 'fhir_server.auditevents', '--describe'];
+            process.argv = ['node', 'manageKafkaV2Topic.js', '--topic', 'fhir_server.auditevents', '--describe'];
             const fakeAdmin = buildFakeAdmin();
             const { scriptModule } = loadScript(fakeAdmin);
 
@@ -371,7 +371,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
         });
 
         test('defaults to createKafkaTopic with the documented default partitions/retention when no flag is set', async () => {
-            process.argv = ['node', 'manage_kafka_v2_topic.js', '--topic', 'auditevents'];
+            process.argv = ['node', 'manageKafkaV2Topic.js', '--topic', 'auditevents'];
             const fakeAdmin = buildFakeAdmin();
             const { scriptModule } = loadScript(fakeAdmin);
 
@@ -390,7 +390,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
 
         test('routes to the max.message.bytes update when --update is set', async () => {
             process.argv = [
-                'node', 'manage_kafka_v2_topic.js', '--topic', 'auditevents', '--update', '--max-message-bytes', '4194304'
+                'node', 'manageKafkaV2Topic.js', '--topic', 'auditevents', '--update', '--max-message-bytes', '4194304'
             ];
             const fakeAdmin = buildFakeAdmin();
             const { scriptModule } = loadScript(fakeAdmin);
@@ -408,7 +408,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
 
         test('routes to growKafkaTopic with the prefixed topic and the --partitions target when --grow is set', async () => {
             process.argv = [
-                'node', 'manage_kafka_v2_topic.js', '--topic', 'bulk_import.events', '--grow', '--partitions', '30'
+                'node', 'manageKafkaV2Topic.js', '--topic', 'bulk_import.events', '--grow', '--partitions', '30'
             ];
             const fakeAdmin = buildFakeAdmin({
                 fetchTopicMetadata: jest.fn()
@@ -428,7 +428,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
         });
 
         test('exits 1 when --grow is given without an explicit --partitions target', async () => {
-            process.argv = ['node', 'manage_kafka_v2_topic.js', '--topic', 'bulk_import.events', '--grow'];
+            process.argv = ['node', 'manageKafkaV2Topic.js', '--topic', 'bulk_import.events', '--grow'];
             const fakeAdmin = buildFakeAdmin();
             const { scriptModule } = loadScript(fakeAdmin);
             const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => { throw new Error('__exit__'); });
@@ -439,7 +439,7 @@ describe('scripts/manage_kafka_v2_topic.js', () => {
         });
 
         test('parameter sensitivity: --partitions overrides the default partition count', async () => {
-            process.argv = ['node', 'manage_kafka_v2_topic.js', '--topic', 'auditevents', '--partitions', '7'];
+            process.argv = ['node', 'manageKafkaV2Topic.js', '--topic', 'auditevents', '--partitions', '7'];
             const fakeAdmin = buildFakeAdmin();
             const { scriptModule } = loadScript(fakeAdmin);
 

@@ -138,6 +138,7 @@ All dependency wiring is in `src/createContainer.js` (~130+ services registered 
 - Node >= 24.22.1 (see `.nvmrc`)
 - CommonJS modules (`require`/`module.exports`)
 - Logging via Winston: use `logInfo`, `logDebug`, `logError`, `logWarn` from `src/operations/common/logging.js`
+- New `.js` files and folders under `src/` are camelCase (e.g. `manageKafkaV2Topic.js`), never snake_case or kebab-case, and go in the folder for their role; admin scripts go in `src/admin/scripts/`, not a top-level `src/scripts/`. Don't rename existing or generated files. See `.claude/rules/file-naming.md`.
 - No Jira IDs (e.g. `DCON-1234`) in code, comments, tests, docs or specs/plans. The ticket belongs in the commit message and PR only.
 
 ## Package Management
