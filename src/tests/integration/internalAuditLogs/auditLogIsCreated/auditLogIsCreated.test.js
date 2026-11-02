@@ -663,4 +663,110 @@ describe('InternalAuditLog Tests', () => {
             hintSpy.mockRestore();
         });
     });
+
+    describe('History read audit', () => {
+        const practitionerUuid = 'aa8a8ff8-af25-5878-8cf3-bc74227d44dd';
+
+        /**
+         * Creates each practitioner and updates it once, so version 1 of each lands in the history
+         * collection, then clears the pending audit queue. Uses the real AuditLogger.
+         */
+        async function arrangeAsync(practitioners) {
+            const request = await createTestRequest((container) => {
+                // Using unmocked audit logger to test creation of audit logs in db
+                container.register(
+                    'auditLogger',
+                    (c) =>
+                        new AuditLogger({
+                            postRequestProcessor: c.postRequestProcessor,
+                            databaseBulkInserter: c.fastDatabaseBulkInserter,
+                            preSaveManager: c.preSaveManager,
+                            configManager: c.configManager
+                        })
+                );
+                return container;
+            });
+            const container = getTestContainer();
+            const flushAsync = async () => {
+                await container.postRequestProcessor.waitTillDoneAsync({ requestId });
+                await container.auditLogger.flushAsync();
+            };
+            const auditEventDb = await container.mongoDatabaseManager.getAuditDbAsync();
+            const auditEventCollection = auditEventDb.collection('AuditEvent_4_0_0');
+
+            for (const practitioner of practitioners) {
+                let resp = await request
+                    .post(`/4_0_0/Practitioner/${practitioner.id}/$merge?validate=true`)
+                    .send(practitioner)
+                    .set(getHeaders());
+                expect(resp).toHaveMergeResponse({ created: true });
+                resp = await request
+                    .post(`/4_0_0/Practitioner/${practitioner.id}/$merge?validate=true`)
+                    .send({ ...practitioner, active: !practitioner.active })
+                    .set(getHeaders());
+                expect(resp).toHaveMergeResponse({ updated: true });
+            }
+            await flushAsync();
+            return { request, flushAsync, auditEventCollection };
+        }
+
+        const readEntityReferences = (log) => log.entity.map((e) => e.what.reference);
+        const requestUrlOf = (log) => log.entity[0].detail.find((d) => d.type === 'requestUrl').valueString;
+
+        test.each([
+            ['_history', `/4_0_0/Practitioner/_history`],
+            ['_history/:id', `/4_0_0/Practitioner/${practitionerResource.id}/_history`],
+            ['version read', `/4_0_0/Practitioner/${practitionerResource.id}/_history/1`]
+        ])('%s creates a read audit event', async (_operation, url) => {
+            const { request, flushAsync, auditEventCollection } = await arrangeAsync([practitionerResource]);
+
+            const resp = await request.get(url).set(getHeaders());
+            expect(resp.status).toBe(200);
+            await flushAsync();
+
+            // exactly one read audit event, for this resource
+            const logs = await auditEventCollection.find({ action: 'R' }).toArray();
+            expect(logs).toHaveLength(1);
+            expect(readEntityReferences(logs[0])).toStrictEqual([`Practitioner/${practitionerUuid}`]);
+            expect(requestUrlOf(logs[0])).toStrictEqual(url);
+        });
+
+        test('type-level _history lists every returned resource once in a single event', async () => {
+            const { request, flushAsync, auditEventCollection } = await arrangeAsync([
+                practitionerResource,
+                practitionerResource2
+            ]);
+            // the references the server itself assigned when it audited the two creates
+            const created = await auditEventCollection.find({ action: 'C' }).toArray();
+            const expectedReferences = [...new Set(created.flatMap(readEntityReferences))].sort();
+            expect(expectedReferences).toHaveLength(2);
+
+            const resp = await request.get('/4_0_0/Practitioner/_history').set(getHeaders());
+            expect(resp.status).toBe(200);
+            await flushAsync();
+
+            const logs = await auditEventCollection.find({ action: 'R' }).toArray();
+            expect(logs).toHaveLength(1);
+            // each resource has one history row per prior version; it must still be listed once
+            expect([...readEntityReferences(logs[0])].sort()).toStrictEqual(expectedReferences);
+        });
+
+        test.each([
+            ['an unknown version', `/4_0_0/Practitioner/${practitionerResource.id}/_history/99`, getHeaders(), 404],
+            [
+                'a patient-scoped caller',
+                `/4_0_0/Practitioner/${practitionerResource.id}/_history`,
+                getHeaders('patient/*.* access/*.* user/*.*'),
+                403
+            ]
+        ])('%s does not create a read audit event', async (_case, url, headers, expectedStatus) => {
+            const { request, flushAsync, auditEventCollection } = await arrangeAsync([practitionerResource]);
+
+            const resp = await request.get(url).set(headers);
+            expect(resp.status).toBe(expectedStatus);
+            await flushAsync();
+
+            expect(await auditEventCollection.countDocuments({ action: 'R' })).toStrictEqual(0);
+        });
+    });
 });

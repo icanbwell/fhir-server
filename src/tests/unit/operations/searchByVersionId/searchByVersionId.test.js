@@ -46,6 +46,8 @@ const { Base64DataManager } = require('../../../../dataLayer/base64DataManager')
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { CloudStorageClient } = require('../../../../utils/cloudStorageClient');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
+const { AuditLogger } = require('../../../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../../utils/mongoGroupExtendedTag');
 
 function createMockInstance(ClassType) {
@@ -69,8 +71,12 @@ describe('SearchByVersionIdOperation', () => {
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
             base64DataManager: createMockInstance(Base64DataManager),
             historyResourceCloudStorageClient: null,
-            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository)
+            mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
+            auditLogger: createMockInstance(AuditLogger),
+            postRequestProcessor: createMockInstance(PostRequestProcessor)
         };
+        mocks.auditLogger.logAuditEntryAsync = jest.fn().mockResolvedValue(undefined);
+        mocks.postRequestProcessor.add = jest.fn();
 
         // Setup default mocks
         mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
@@ -252,6 +258,47 @@ describe('SearchByVersionIdOperation', () => {
             expect(result.id).toBe('test-id');
         });
 
+        test.each([
+            ['Patient', 1],
+            ['AuditEvent', 0]
+        ])('queues a read audit entry for %s resources (%i expected)', async (resourceType, expectedTasks) => {
+            mocks.databaseHistoryFactory.createDatabaseHistoryManager.mockReturnValue({
+                findOneAsync: jest.fn().mockResolvedValue({
+                    resource: { id: 'test-id', _uuid: 'uuid-1', resourceType, meta: { versionId: '2' } },
+                    collectionName: 'History'
+                })
+            });
+            const requestInfo = {
+                user: 'admin', scope: 'user/*.read', requestId: 'r1', isUser: false,
+                personIdFromJwtToken: null, actor: null, userType: 'user'
+            };
+
+            await searchByVersionIdOp.searchByVersionIdAsync({ requestInfo, parsedArgs: mockParsedArgs, resourceType });
+
+            expect(mocks.postRequestProcessor.add).toHaveBeenCalledTimes(expectedTasks);
+            if (expectedTasks > 0) {
+                const { requestId, fnTask } = mocks.postRequestProcessor.add.mock.calls[0][0];
+                expect(requestId).toBe('r1');
+                await fnTask();
+                expect(mocks.auditLogger.logAuditEntryAsync).toHaveBeenCalledWith(
+                    expect.objectContaining({ resourceType, operation: 'read', ids: ['uuid-1'] })
+                );
+            }
+        });
+
+        test('does not queue an audit entry when the version is not found', async () => {
+            const requestInfo = {
+                user: 'admin', scope: 'user/*.read', requestId: 'r1', isUser: false,
+                personIdFromJwtToken: null, actor: null, userType: 'user'
+            };
+
+            await expect(
+                searchByVersionIdOp.searchByVersionIdAsync({ requestInfo, parsedArgs: mockParsedArgs, resourceType: 'Patient' })
+            ).rejects.toThrow();
+
+            expect(mocks.postRequestProcessor.add).not.toHaveBeenCalled();
+        });
+
         test('appends version query to existing $and clause', async () => {
             mocks.searchManager.constructQueryAsync.mockResolvedValue({
                 query: { $and: [{ _sourceId: 'test-id' }, { 'meta.security': { $exists: true } }] }
@@ -422,6 +469,25 @@ describe('SearchByVersionIdOperation', () => {
                     res,
                     rebuildCursorAsync: expect.any(Function)
                 })
+            );
+        });
+
+        test('queues the read audit entry for the group before streaming the roster', async () => {
+            mocks.mongoGroupMemberRepository.getMemberCursorAtAsync = jest.fn().mockResolvedValue({});
+            mocks.searchManager.streamGroupMemberArrayAsync = jest.fn().mockResolvedValue(undefined);
+
+            await searchByVersionIdOp.searchByVersionIdAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Group',
+                res: {}
+            });
+
+            expect(mocks.postRequestProcessor.add).toHaveBeenCalledTimes(1);
+            const { fnTask } = mocks.postRequestProcessor.add.mock.calls[0][0];
+            await fnTask();
+            expect(mocks.auditLogger.logAuditEntryAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Group', operation: 'read', ids: ['group-uuid-1'] })
             );
         });
 

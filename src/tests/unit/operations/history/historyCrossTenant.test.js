@@ -157,6 +157,8 @@ describe('History Operation - Cross-Tenant Data Exposure', () => {
         historyOp.historyResourceCloudStorageClient = null;
         historyOp.identifierEnrichmentProvider = mockIdentifierEnrichmentProvider;
         historyOp.compositionSectionFilterEnrichmentProvider = mockCompositionSectionFilterEnrichmentProvider;
+        historyOp.auditLogger = { logAuditEntryAsync: jest.fn().mockResolvedValue(undefined) };
+        historyOp.postRequestProcessor = { add: jest.fn() };
         historyOp.currentOperationName = 'history';
         historyOp.errorMessagePostfix = 'for Patient resources';
     });
