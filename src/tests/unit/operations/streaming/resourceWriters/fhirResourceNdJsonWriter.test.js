@@ -272,19 +272,34 @@ describe('FhirResourceNdJsonWriter', () => {
             });
         });
 
-        test('handles circular references via getCircularReplacer', (done) => {
+        test('emits an object that appears twice in the chunk in both places', (done) => {
             const pushSpy = jestObj.spyOn(writer, 'push');
-            const chunk = { id: '1', resourceType: 'Patient' };
-            chunk.self = chunk; // create circular reference
+            const coding = { system: 'http://loinc.org', code: '1234-5' };
+            const chunk = {
+                id: '1',
+                resourceType: 'Observation',
+                code: { coding: [coding] },
+                category: [{ coding: [coding] }]
+            };
 
             writer._transform(chunk, 'utf8', () => {
-                // Should not throw, should handle gracefully
-                const pushed = pushSpy.mock.calls[0][0];
-                expect(pushed).toMatch(/\n$/);
-                // Circular reference should be excluded
-                const parsed = JSON.parse(pushed.trim());
-                expect(parsed.id).toBe('1');
-                expect(parsed.self).toBeUndefined();
+                const parsed = JSON.parse(pushSpy.mock.calls[0][0].trim());
+                expect(parsed.code.coding).toEqual([coding]);
+                expect(parsed.category[0].coding).toEqual([coding]);
+                done();
+            });
+        });
+
+        test('reports a circular chunk as an OperationOutcome instead of truncating it', (done) => {
+            const pushSpy = jestObj.spyOn(writer, 'push');
+            const writeOpOutcomeSpy = jestObj.spyOn(writer, 'writeOperationOutcome');
+            const chunk = { id: '1', resourceType: 'Patient' };
+            chunk.self = chunk;
+
+            writer._transform(chunk, 'utf8', () => {
+                expect(pushSpy).not.toHaveBeenCalledWith(expect.stringContaining('"id":"1"'), 'utf8');
+                expect(logError).toHaveBeenCalled();
+                expect(writeOpOutcomeSpy).toHaveBeenCalled();
                 done();
             });
         });

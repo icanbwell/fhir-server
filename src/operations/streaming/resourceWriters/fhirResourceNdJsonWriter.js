@@ -1,7 +1,6 @@
 const { convertErrorToOperationOutcome } = require('../../../utils/convertErrorToOperationOutcome');
 const { logInfo, logError } = require('../../common/logging');
 const { FhirResourceWriterBase } = require('./fhirResourceWriterBase');
-const { getCircularReplacer } = require('../../../utils/getCircularReplacer');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { captureException } = require('../../common/sentry');
@@ -56,7 +55,7 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
                     logInfo(`FhirResourceNdJsonWriter: _transform ${chunk.id}`, {});
                 }
                 FhirResourceSerializer.serialize(chunk);
-                const resourceJson = JSON.stringify(chunk, getCircularReplacer());
+                const resourceJson = JSON.stringify(chunk);
                 this.push(resourceJson + '\n', encoding);
             }
         } catch (e) {

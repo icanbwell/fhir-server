@@ -17,8 +17,7 @@ const { loadFilesSync } = require('@graphql-tools/load-files');
 const { mergeTypeDefs } = require('@graphql-tools/merge');
 const { join } = require('path');
 
-const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const { buildOperationOutcome } = require('../../utils/operationOutcomeBuilder');
 const { FhirDataSource } = require('../../graphqlv2/dataSource');
 const { FhirRequestInfoBuilder } = require('../../utils/fhirRequestInfoBuilder');
 const { getApolloServerLoggingPlugin } = require('./plugins/graphqlLoggingPlugin');
@@ -116,15 +115,11 @@ const graphqlV2 = async (fnGetContainer) => {
             formatError: (formattedError, error) => {
                 // Formatting the error message returned from GraphQL when GraphQL Playground(Currently case of production environment) is disabled.
                 if (formattedError.message.startsWith('This operation has been blocked as a potential Cross-Site Request Forgery (CSRF)')) {
-                    return new OperationOutcome({
-                        issue: [
-                            new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'not-found',
-                                details: { text: 'Page not found' }
-                            })
-                        ]
-                    }).toJSON();
+                    return buildOperationOutcome({
+                        severity: 'error',
+                        code: 'not-found',
+                        details: { text: 'Page not found' }
+                    });
                 }
 
                 // Strip internal details from the error before returning.

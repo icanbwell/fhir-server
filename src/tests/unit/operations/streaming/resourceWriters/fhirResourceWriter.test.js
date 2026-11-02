@@ -138,7 +138,7 @@ describe('FhirResourceWriter', () => {
             });
         });
 
-        test('uses JSON.stringify with circular replacer', (done) => {
+        test('writes the serialized chunk as JSON', (done) => {
             const pushSpy = jestObj.spyOn(writer, 'push');
             const chunk = { id: 'test-1', resourceType: 'Patient', name: 'John' };
 
@@ -150,6 +150,24 @@ describe('FhirResourceWriter', () => {
                 expect(parsed.id).toBe('test-1');
                 expect(parsed.resourceType).toBe('Patient');
                 expect(parsed.name).toBe('John');
+                done();
+            });
+        });
+
+        test('emits an object that appears twice in the chunk in both places', (done) => {
+            const pushSpy = jestObj.spyOn(writer, 'push');
+            const coding = { system: 'http://loinc.org', code: '1234-5' };
+            const chunk = {
+                id: 'test-1',
+                resourceType: 'Observation',
+                code: { coding: [coding] },
+                category: [{ coding: [coding] }]
+            };
+
+            writer._transform(chunk, 'utf8', () => {
+                const parsed = JSON.parse(pushSpy.mock.calls[0][0].substring(1));
+                expect(parsed.code.coding).toEqual([coding]);
+                expect(parsed.category[0].coding).toEqual([coding]);
                 done();
             });
         });

@@ -3,9 +3,7 @@ const { ScopesManager } = require('../security/scopesManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { getFirstElementOrNull } = require('../../utils/list.util');
-const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
+const { buildOperationOutcome, buildOperationOutcomeFromIssues } = require('../../utils/operationOutcomeBuilder');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
@@ -198,19 +196,15 @@ class ValidateOperation {
                 }
                 if (!operationOutcome) {
                     // no resource was found in the database for the provided id
-                    return new OperationOutcome({
-                        id: 'validationfail',
-                        resourceType: 'OperationOutcome',
-                        issue: [
-                            new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'not-found',
-                                details: new CodeableConcept({
-                                    text: `Resource ${resourceType} with id ${id} not found`
-                                })
-                            })
-                        ]
-                    });
+                    return buildOperationOutcomeFromIssues([
+                        {
+                            severity: 'error',
+                            code: 'not-found',
+                            details: {
+                                text: `Resource ${resourceType} with id ${id} not found`
+                            }
+                        }
+                    ], 'validationfail');
                 }
                 return operationOutcome;
             }
@@ -290,19 +284,15 @@ class ValidateOperation {
                 /**
                  * @type {OperationOutcome}
                  */
-                return new OperationOutcome({
-                    id: 'validationfail',
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'structure',
-                            details: new CodeableConcept({
-                                text: 'Invalid parameter list'
-                            })
-                        })
-                    ]
-                });
+                return buildOperationOutcomeFromIssues([
+                    {
+                        severity: 'error',
+                        code: 'structure',
+                        details: {
+                            text: 'Invalid parameter list'
+                        }
+                    }
+                ], 'validationfail');
             }
             // find the actual resource in the parameter called resource
             /**
@@ -320,19 +310,15 @@ class ValidateOperation {
                 /**
                  * @type {OperationOutcome}
                  */
-                return new OperationOutcome({
-                    id: 'validationfail',
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'structure',
-                            details: new CodeableConcept({
-                                text: 'Invalid parameter list'
-                            })
-                        })
-                    ]
-                });
+                return buildOperationOutcomeFromIssues([
+                    {
+                        severity: 'error',
+                        code: 'structure',
+                        details: {
+                            text: 'Invalid parameter list'
+                        }
+                    }
+                ], 'validationfail');
             }
             resource_incoming = resourceParameter.resource;
         }
@@ -385,21 +371,16 @@ class ValidateOperation {
             return validationOperationOutcome;
         }
         if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
-            const ownerTagOutcome = new OperationOutcome({
-                resourceType: 'OperationOutcome',
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({
-                            text: `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
-                                ' is missing a security access tag with system: ' +
-                                `${SecurityTagSystem.owner}`
-                        }),
-                        expression: [
-                            resourceType
-                        ]
-                    })
+            const ownerTagOutcome = buildOperationOutcome({
+                severity: 'error',
+                code: 'invalid',
+                details: {
+                    text: `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
+                        ' is missing a security access tag with system: ' +
+                        `${SecurityTagSystem.owner}`
+                },
+                expression: [
+                    resourceType
                 ]
             });
             // Emit fhir_validation_failure_total before returning so $validate
@@ -431,19 +412,14 @@ class ValidateOperation {
         // Per FHIR: https://www.hl7.org/fhir/resource-operation-validate.html
         // Note: as this is the only out parameter, it is a resource, and it has the name 'return',
         // the result of this operation is returned directly as a resource
-        return new OperationOutcome({
-            resourceType: 'OperationOutcome',
-            issue: [
-                new OperationOutcomeIssue({
-                    severity: 'information',
-                    code: 'informational',
-                    details: new CodeableConcept({
-                        text: 'OK'
-                    }),
-                    expression: [
-                        resourceType
-                    ]
-                })
+        return buildOperationOutcome({
+            severity: 'information',
+            code: 'informational',
+            details: {
+                text: 'OK'
+            },
+            expression: [
+                resourceType
             ]
         });
     }

@@ -1,0 +1,32 @@
+{
+  "resourceType": "Bundle",
+  "type": "batch-response",
+  "total": 1,
+  "entry": [
+    {
+      "id": "prefer-1",
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "id": "prefer-1",
+        "issue": [
+          {
+            "severity": "information",
+            "code": "informational",
+            "details": {
+              "coding": [
+                {
+                  "system": "https://www.rfc-editor.org/rfc/rfc9110.html",
+                  "code": "304",
+                  "display": "Not Modified"
+                }
+              ]
+            },
+            "expression": [
+              "Patient/prefer-1"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 const { BaseValidator } = require('./baseValidator');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
-const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
+const { buildOperationOutcomeFromIssues } = require('../../../utils/operationOutcomeBuilder');
 const { ScopesValidator } = require('../../security/scopesValidator');
 const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
 
@@ -79,10 +79,7 @@ class WriteAllowedByScopesValidator extends BaseValidator {
                 validIncomingResources.push(resource);
             } catch (error) {
                 if (error.statusCode === 403) {
-                    const operationOutcome = new OperationOutcome({
-                        resourceType: 'OperationOutcome',
-                        issue: error.issue
-                    });
+                    const operationOutcome = buildOperationOutcomeFromIssues(error.issue);
                     const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
 
                     preCheckErrors.push(new MergeResultEntry({

@@ -1,6 +1,6 @@
 const async = require('async');
 const moment = require('moment-timezone');
-const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
+const { buildOperationOutcome, buildOperationOutcomeFromIssues } = require('../../utils/operationOutcomeBuilder');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { BLOB_OP } = require('../../constants');
@@ -29,8 +29,6 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
-const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { COLLECTION } = require('../../constants');
 const { getExtendedGroupMemberWriteError } = require('../../utils/mongoGroupExtendedTag');
@@ -185,7 +183,7 @@ class MergeManager {
                 resourceToMerge.member.length > 0
         });
         if (extendedGroupMemberWriteError) {
-            return new OperationOutcome({ resourceType: 'OperationOutcome', issue: extendedGroupMemberWriteError.issue });
+            return buildOperationOutcomeFromIssues(extendedGroupMemberWriteError.issue);
         }
 
         /**
@@ -431,20 +429,15 @@ class MergeManager {
                     }
                 }
             );
-            const operationOutcome = new OperationOutcome({
-                resourceType: 'OperationOutcome',
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'exception',
-                        details: {
-                            text: 'Error merging: ' + JSON.stringify(resourceToMerge)
-                        },
-                        diagnostics: e.toString(),
-                        expression: [
-                            resourceToMerge.resourceType + '/' + resourceToMerge.id
-                        ]
-                    })
+            const operationOutcome = buildOperationOutcome({
+                severity: 'error',
+                code: 'exception',
+                details: {
+                    text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                },
+                diagnostics: e.toString(),
+                expression: [
+                    resourceToMerge.resourceType + '/' + resourceToMerge.id
                 ]
             });
             throw new RethrownError(
@@ -759,19 +752,14 @@ class MergeManager {
      * @returns {MergeResultEntry}
      */
     createMergeError(resourceToMerge, resourceType, diagnostics, expression) {
-        const operationOutcome = new OperationOutcome({
-            resourceType: 'OperationOutcome',
-            issue: [
-                new OperationOutcomeIssue({
-                    severity: 'error',
-                    code: 'exception',
-                    details: new CodeableConcept({
-                        text: 'Error merging: ' + JSON.stringify(resourceToMerge)
-                    }),
-                    diagnostics,
-                    expression: [expression]
-                })
-            ]
+        const operationOutcome = buildOperationOutcome({
+            severity: 'error',
+            code: 'exception',
+            details: {
+                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+            },
+            diagnostics,
+            expression: [expression]
         });
 
         return new MergeResultEntry({
@@ -838,9 +826,7 @@ class MergeManager {
             });
 
             if (forbiddenError) {
-                const operationOutcome = new OperationOutcome({
-                    issue: forbiddenError.issue
-                });
+                const operationOutcome = buildOperationOutcomeFromIssues(forbiddenError.issue);
 
                 return new MergeResultEntry({
                     id,

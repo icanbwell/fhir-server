@@ -1,6 +1,5 @@
 const { removeNull } = require('../../../utils/nullRemover');
 const { assertIsValid, assertTypeEquals } = require('../../../utils/assertType');
-const { getCircularReplacer } = require('../../../utils/getCircularReplacer');
 const { FhirResourceWriterBase } = require('./fhirResourceWriterBase');
 const { fhirContentTypes } = require('../../../utils/contentTypes');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -97,11 +96,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                 this._lastid = chunk[this.defaultSortId];
 
                 FhirResourceSerializer.serialize(chunk);
-                const resourceJson = JSON.stringify(
-                    {
-                        resource: chunk
-                    }, getCircularReplacer()
-                );
+                const resourceJson = JSON.stringify({ resource: chunk });
                 if (this.configManager.logStreamSteps) {
                     logInfo(`FhirBundleWriter _transform ${chunk.id}`, {});
                 }

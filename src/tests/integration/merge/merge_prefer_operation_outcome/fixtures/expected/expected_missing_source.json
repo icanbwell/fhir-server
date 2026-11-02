@@ -1,0 +1,23 @@
+{
+  "resourceType": "Bundle",
+  "type": "batch-response",
+  "total": 1,
+  "entry": [
+    {
+      "id": "prefer-1",
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "id": "prefer-1",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "invalid",
+            "details": {
+              "text": "Unable to create/update resource. Missing either metadata or metadata source."
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
