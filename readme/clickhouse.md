@@ -375,12 +375,12 @@ prior versions of all resource types (current resources stay in MongoDB). It is 
 |---|---|
 | Engine | `ReplacingMergeTree()`: duplicates on the sort key collapse on merge; read with `FINAL` |
 | Sort key | `(resource_type, _uuid, _recorded, version_id)` |
-| Partition | `(resource_type, toYYYYMM(_recorded))` |
+| Partition | `toYYYYMM(_recorded)` (month only, as AuditEvent; `resource_type` leads the sort key so type-filtered reads still prune by primary index) |
 | Retention | `TTL toDateTime(_recorded) + INTERVAL 13 MONTH DELETE`, `ttl_only_drop_parts = 1` |
 
 Because the sort key includes `_recorded`, two rows only dedup when all four key columns match.
-Inserts that span many resource types and months write many partitions per block; raise
-`max_partitions_per_insert_block` for the loader if it hits `too many partitions`.
+Partitioning by month only keeps a mixed-type ClickPipes batch well under the default
+`max_partitions_per_insert_block` (100); partitioning by type and month would not.
 
 It has no entry in the schema registry (`docs/adr/0001-schema-registry-pattern-for-clickhouse-only-resources.md`):
 that registry drives search and write for ClickHouse-only resources, and history is not one. The

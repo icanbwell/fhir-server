@@ -239,7 +239,7 @@ describe('applyClickHouseDDL admin runner', () => {
             const ddl = Object.values(rows[0])[0];
 
             expect(ddl).toContain('ReplacingMergeTree');
-            expect(ddl).toContain('PARTITION BY (resource_type, toYYYYMM(_recorded))');
+            expect(ddl).toContain('PARTITION BY toYYYYMM(_recorded)');
             expect(ddl).toContain('ORDER BY (resource_type, _uuid, _recorded, version_id)');
             expect(ddl).toContain('TTL toDateTime(_recorded) + toIntervalMonth(13)');
             expect(ddl).toContain('ttl_only_drop_parts = 1');

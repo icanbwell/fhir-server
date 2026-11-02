@@ -17,6 +17,6 @@ CREATE TABLE IF NOT EXISTS fhir.Resource_4_0_0_History (
 )
 ENGINE = ReplacingMergeTree()
 ORDER BY (resource_type, _uuid, _recorded, version_id)
-PARTITION BY (resource_type, toYYYYMM(_recorded))
+PARTITION BY toYYYYMM(_recorded)
 TTL toDateTime(_recorded) + INTERVAL 13 MONTH DELETE
 SETTINGS ttl_only_drop_parts = 1;
