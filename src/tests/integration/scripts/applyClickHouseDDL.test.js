@@ -245,19 +245,22 @@ describe('applyClickHouseDDL admin runner', () => {
             expect(ddl).toContain('ttl_only_drop_parts = 1');
         }, 60000);
 
-        test('FINAL collapses a duplicate row with the same key', async () => {
+        test('FINAL collapses a duplicate row redelivered in a separate insert', async () => {
             const duplicated = row();
+            // Separate inserts create separate parts, like an at-least-once redelivery;
+            // a single block would be deduped at insert time and not exercise FINAL.
             await clickHouseClientManager.insertAsync({
                 table: TABLE,
-                values: [duplicated, { ...duplicated }, row({ _recorded: daysAgo(1), version_id: '2' })]
+                values: [duplicated, row({ _recorded: daysAgo(1), version_id: '2' })]
             });
+            await clickHouseClientManager.insertAsync({ table: TABLE, values: [{ ...duplicated }] });
 
-            const rows = await selectAsync(
-                `SELECT version_id FROM ${TABLE} FINAL
-                 ORDER BY _recorded DESC, toUInt64OrZero(version_id) DESC`
-            );
+            const order = 'ORDER BY _recorded DESC, toUInt64OrZero(version_id) DESC';
+            const withoutFinal = await selectAsync(`SELECT version_id FROM ${TABLE} ${order}`);
+            const withFinal = await selectAsync(`SELECT version_id FROM ${TABLE} FINAL ${order}`);
 
-            expect(rows.map((r) => r.version_id)).toEqual(['2', '1']);
+            expect(withoutFinal).toHaveLength(3);
+            expect(withFinal.map((r) => r.version_id)).toEqual(['2', '1']);
         }, 60000);
 
         test('accepts one insert batch spanning several resource types', async () => {
