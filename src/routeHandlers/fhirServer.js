@@ -4,10 +4,6 @@
 
 const compression = require('compression');
 const { isTrue } = require('../utils/isTrue');
-const {
-    resolveSchema,
-    isValidVersion
-} = require('../middleware/fhir/utils/schema.utils');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const helmet = require('helmet');
 const express = require('express');
@@ -18,6 +14,7 @@ const contentType = require('content-type');
 const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../constants');
 const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
+const { buildOperationOutcome } = require('../utils/operationOutcomeBuilder');
 const { ConfigManager } = require('../utils/configManager');
 const { FhirRequestInfoBuilder } = require('../utils/fhirRequestInfoBuilder');
 const { logError } = require('../operations/common/logging');
@@ -218,18 +215,13 @@ class MyFHIRServer {
                 const res1 = res;
                 // get base from URL instead of params since it might not be forwarded
                 const base = req.url.split('/')[1];
-                const isValidBaseVersion = isValidVersion(base);
+                const isValidBaseVersion = Object.keys(VERSIONS).includes(base);
                 if (!isValidBaseVersion) {
                     res1.status(404);
                     res1.json({}).end();
                     return;
                 }
                 try {
-                    // Get an operation outcome for this instance
-                    const OperationOutcome = resolveSchema(
-                        isValidBaseVersion ? base : VERSIONS['4_0_0'],
-                        'operationoutcome'
-                    );
                     if (res.headersSent) {
                         // usually means we are streaming data so can't change headers
                         // next();
@@ -240,7 +232,7 @@ class MyFHIRServer {
                             res1.setHeader('X-Request-ID', String(userRequestId));
                         }
                         // If there is an error and it is an OperationOutcome
-                        if (err && err.resourceType === OperationOutcome.resourceType) {
+                        if (err && err.resourceType === 'OperationOutcome') {
                             let errorToSend = err;
                             const status = err.statusCode || 500;
 
@@ -270,20 +262,11 @@ class MyFHIRServer {
                     }
                 } catch (e) {
                     // logger.error(e);
-                    // Get an operation outcome for this instance
-                    const OperationOutcome = resolveSchema(
-                        isValidBaseVersion ? base : VERSIONS['4_0_0'],
-                        'operationoutcome'
-                    );
                     res1.status(500).json(
-                        new OperationOutcome({
-                            issue: [
-                                {
-                                    severity: 'error',
-                                    code: 'exception',
-                                    diagnostics: 'Internal Server Error'
-                                }
-                            ]
+                        buildOperationOutcome({
+                            severity: 'error',
+                            code: 'exception',
+                            diagnostics: 'Internal Server Error'
                         })
                     );
                 }
@@ -292,28 +275,13 @@ class MyFHIRServer {
 
         // Nothing has responded by now, respond with 404
         this.app.use(function fhirNotFoundHandler(req, res) {
-            // get base from URL instead of params since it might not be forwarded
-            const base = req.url.split('/')[1] || VERSIONS['4_0_0'];
-
-            let OperationOutcome;
-            if (Object.keys(VERSIONS).includes(base)) {
-                OperationOutcome = resolveSchema(base, 'operationoutcome');
-            } else {
-                // if it's a misplaced URL, just return an R4 OperationOutcome
-                OperationOutcome = resolveSchema('4_0_0', 'operationoutcome');
-            }
-
             // Get an operation outcome for this instance
-            const error = new OperationOutcome({
-                issue: [
-                    {
-                        severity: 'error',
-                        code: 'not-found',
-                        details: {
-                            text: `Invalid url: ${req.path}`
-                        }
-                    }
-                ]
+            const error = buildOperationOutcome({
+                severity: 'error',
+                code: 'not-found',
+                details: {
+                    text: `Invalid url: ${req.path}`
+                }
             });
             const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
             if (req.id && !res.headersSent && userRequestId) {

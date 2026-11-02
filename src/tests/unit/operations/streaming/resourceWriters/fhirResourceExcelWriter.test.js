@@ -22,9 +22,7 @@ jestObj.mock('../../../../../operations/common/logging', () => ({
 }));
 
 jestObj.mock('../../../../../utils/convertErrorToOperationOutcome', () => ({
-    convertErrorToOperationOutcome: jestObj.fn(({ error }) => ({
-        toJSON: () => ({ resourceType: 'OperationOutcome', issue: [{ severity: 'error', diagnostics: error.message }] })
-    }))
+    convertErrorToOperationOutcome: jestObj.fn(({ error }) => ({ resourceType: 'OperationOutcome', issue: [{ severity: 'error', diagnostics: error.message }] }))
 }));
 
 jestObj.mock('../../../../../converters/bundleToExcelConverter', () => ({
@@ -332,9 +330,7 @@ describe('FhirResourceExcelWriter', () => {
     describe('writeOperationOutcome', () => {
         test('should set statusCode to 500 and push JSON', () => {
             writer.push = jestObj.fn();
-            const operationOutcome = {
-                toJSON: () => ({ resourceType: 'OperationOutcome', issue: [] })
-            };
+            const operationOutcome = { resourceType: 'OperationOutcome', issue: [] };
 
             writer.writeOperationOutcome({ operationOutcome, encoding: 'utf8' });
 
@@ -347,9 +343,7 @@ describe('FhirResourceExcelWriter', () => {
 
         test('should append newline to the pushed output', () => {
             writer.push = jestObj.fn();
-            const operationOutcome = {
-                toJSON: () => ({ resourceType: 'OperationOutcome' })
-            };
+            const operationOutcome = { resourceType: 'OperationOutcome' };
 
             writer.writeOperationOutcome({ operationOutcome });
 

@@ -166,10 +166,15 @@ describe('ClickHouseBulkWriteExecutor', () => {
             expect(result.error).toBeInstanceOf(Error);
             expect(result.mergeResultEntries).toHaveLength(2);
             expect(result.mergeResultEntries[0].created).toBe(false);
-            expect(result.mergeResultEntries[0].issue).toBeDefined();
-            expect(result.mergeResultEntries[0].issue.severity).toBe('error');
-            expect(result.mergeResultEntries[0].issue.code).toBe('exception');
-            expect(result.mergeResultEntries[0].issue.expression).toEqual(['TestResource/u1']);
+            const { issue } = result.mergeResultEntries[0];
+            expect(Object.getPrototypeOf(issue)).toBe(Object.prototype);
+            expect(issue).toEqual({
+                severity: 'error',
+                code: 'exception',
+                details: { text: 'ClickHouse unavailable' },
+                diagnostics: 'ClickHouse unavailable',
+                expression: ['TestResource/u1']
+            });
         });
 
         test('change events not fired on error', async () => {

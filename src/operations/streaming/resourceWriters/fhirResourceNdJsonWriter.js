@@ -95,7 +95,7 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
     writeOperationOutcome ({ operationOutcome, encoding }) {
         // this is an unexpected error so set statuscode 500
         this.response.statusCode = 500;
-        const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
+        const operationOutcomeJson = JSON.stringify(operationOutcome);
         this.push(operationOutcomeJson + '\n', encoding);
     }
 

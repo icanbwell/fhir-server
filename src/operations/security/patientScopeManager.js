@@ -3,7 +3,6 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { PersonToPatientIdsExpander } = require('../../utils/personToPatientIdsExpander');
 const { ScopesManager } = require('../security/scopesManager');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const { ForbiddenError } = require('../../utils/httpErrors');
 const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');

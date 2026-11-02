@@ -14,7 +14,6 @@ let validateResource;
 let fhirSchemaValidator;
 let validateReferences;
 let fastValidateReferences;
-let Resource;
 
 beforeEach(() => {
     jest.resetModules();
@@ -30,41 +29,8 @@ beforeEach(() => {
         fastValidateReferences: jest.fn()
     }));
 
-    jest.mock('../../../fhir/classes/4_0_0/resources/resource', () => {
-        class MockResource {}
-        return MockResource;
-    });
-
-    jest.mock('../../../fhir/classes/4_0_0/resources/operationOutcome', () => {
-        return class OperationOutcome {
-            constructor ({ issue }) {
-                this.issue = issue;
-                this.resourceType = 'OperationOutcome';
-            }
-        };
-    });
-
-    jest.mock('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue', () => {
-        return class OperationOutcomeIssue {
-            constructor ({ severity, code, details }) {
-                this.severity = severity;
-                this.code = code;
-                this.details = details;
-            }
-        };
-    });
-
-    jest.mock('../../../fhir/classes/4_0_0/complex_types/codeableConcept', () => {
-        return class CodeableConcept {
-            constructor ({ text }) {
-                this.text = text;
-            }
-        };
-    });
-
     ({ fhirSchemaValidator } = require('../../../utils/fhirSchemaValidator'));
     ({ validateReferences, fastValidateReferences } = require('../../../utils/referenceValidator'));
-    Resource = require('../../../fhir/classes/4_0_0/resources/resource');
     ({ validateResource } = require('../../../utils/validator.util'));
 
     // Default: no errors
@@ -278,8 +244,8 @@ describe('validateResource', () => {
     // 3. Reference validation
     // ==========================================
     describe('reference validation', () => {
-        test('calls validateReferences when resourceObj is instance of Resource', () => {
-            const resourceObj = Object.create(Resource.prototype);
+        test('calls validateReferences when resourceObj is a legacy class instance (has toJSONInternal)', () => {
+            const resourceObj = { resourceType: 'Patient', toJSONInternal: jest.fn() };
             validateReferences.mockReturnValue(null);
 
             validateResource({
@@ -293,7 +259,7 @@ describe('validateResource', () => {
             expect(fastValidateReferences).not.toHaveBeenCalled();
         });
 
-        test('calls fastValidateReferences when resourceObj is NOT instance of Resource', () => {
+        test('calls fastValidateReferences when resourceObj is a plain object', () => {
             const resourceObj = { resourceType: 'Patient', id: '123' };
             fastValidateReferences.mockReturnValue(null);
 
@@ -829,9 +795,9 @@ describe('validateResource', () => {
             expect(result.issue[0].details.text).toContain('root');
         });
 
-        test('validates with Resource instance using validateReferences that returns errors', () => {
+        test('validates a legacy class instance using validateReferences that returns errors', () => {
             fhirSchemaValidator.validate.mockReturnValue(null);
-            const resourceObj = Object.create(Resource.prototype);
+            const resourceObj = { resourceType: 'Patient', toJSONInternal: jest.fn() };
             validateReferences.mockReturnValue([
                 'Reference Patient/missing does not exist'
             ]);
@@ -934,5 +900,42 @@ describe('validateResource', () => {
             expect(result.issue).toHaveLength(1);
             expect(result.issue[0].details.text).toContain('should match format');
         });
+    });
+});
+
+describe('validateResource serialization', () => {
+    test('a resource type mismatch serializes to the exact JSON the legacy class produced', () => {
+        const result = validateResource({
+            resourceBody: { resourceType: 'Observation' },
+            resourceName: 'Patient',
+            path: '/4_0_0/Patient/1'
+        });
+
+        expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
+        expect(JSON.stringify(result)).toBe(
+            '{"resourceType":"OperationOutcome","issue":[{"severity":"error","code":"invalid","details":{"text":' +
+            '"Validation failed for data posted to /4_0_0/Patient/1 for resource Observation.' +
+            ' ResourceType does not match the endpoint you are posting to."}}]}'
+        );
+    });
+
+    test('schema errors then reference errors serialize in order as invalid issues', () => {
+        fhirSchemaValidator.validate.mockReturnValue([
+            { message: 'must be string', params: { type: 'string' }, dataPath: '.gender' }
+        ]);
+        validateReferences.mockReturnValue(['Reference Patient/missing does not exist']);
+
+        const result = validateResource({
+            resourceBody: { resourceType: 'Patient' },
+            resourceName: 'Patient',
+            path: '/4_0_0/Patient/1',
+            resourceObj: { resourceType: 'Patient', toJSONInternal: jest.fn() }
+        });
+
+        expect(JSON.stringify(result)).toBe(
+            '{"resourceType":"OperationOutcome","issue":[' +
+            '{"severity":"error","code":"invalid","details":{"text":"/4_0_0/Patient/1 must be string :{\\"type\\":\\"string\\"}: at position .gender"}},' +
+            '{"severity":"error","code":"invalid","details":{"text":"Reference Patient/missing does not exist"}}]}'
+        );
     });
 });

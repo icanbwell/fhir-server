@@ -23,11 +23,9 @@ jestObj.mock('../../../../../operations/common/logging', () => ({
 
 jestObj.mock('../../../../../utils/convertErrorToOperationOutcome', () => ({
     convertErrorToOperationOutcome: jestObj.fn(({ error }) => ({
-        toJSON: () => ({
             resourceType: 'OperationOutcome',
             issue: [{ severity: 'error', diagnostics: error.message }]
-        })
-    }))
+        }))
 }));
 
 const { FhirResourceWriter } = require('../../../../../operations/streaming/resourceWriters/fhirResourceWriter');
@@ -342,9 +340,7 @@ describe('FhirResourceWriter', () => {
     describe('writeOperationOutcome', () => {
         test('first OperationOutcome sets status 500 and starts array', () => {
             const pushSpy = jestObj.spyOn(writer, 'push');
-            const operationOutcome = {
-                toJSON: () => ({ resourceType: 'OperationOutcome', issue: [] })
-            };
+            const operationOutcome = { resourceType: 'OperationOutcome', issue: [] };
 
             writer.writeOperationOutcome({ operationOutcome, encoding: 'utf8' });
 
@@ -359,9 +355,7 @@ describe('FhirResourceWriter', () => {
             const pushSpy = jestObj.spyOn(writer, 'push');
             writer._first = false;
 
-            const operationOutcome = {
-                toJSON: () => ({ resourceType: 'OperationOutcome', issue: [{ severity: 'error' }] })
-            };
+            const operationOutcome = { resourceType: 'OperationOutcome', issue: [{ severity: 'error' }] };
 
             writer.writeOperationOutcome({ operationOutcome, encoding: 'utf8' });
 
@@ -372,13 +366,13 @@ describe('FhirResourceWriter', () => {
             expect(mockResponse.statusCode).toBe(200);
         });
 
-        test('serializes OperationOutcome using toJSON', () => {
+        test('serializes a plain OperationOutcome as JSON', () => {
             const pushSpy = jestObj.spyOn(writer, 'push');
             const outcomeData = {
                 resourceType: 'OperationOutcome',
                 issue: [{ severity: 'error', code: 'internal', diagnostics: 'test error' }]
             };
-            const operationOutcome = { toJSON: () => outcomeData };
+            const operationOutcome = outcomeData;
 
             writer.writeOperationOutcome({ operationOutcome, encoding: 'utf8' });
 
@@ -390,9 +384,7 @@ describe('FhirResourceWriter', () => {
 
         test('passes encoding to push', () => {
             const pushSpy = jestObj.spyOn(writer, 'push');
-            const operationOutcome = {
-                toJSON: () => ({ resourceType: 'OperationOutcome' })
-            };
+            const operationOutcome = { resourceType: 'OperationOutcome' };
 
             writer.writeOperationOutcome({ operationOutcome, encoding: 'utf8' });
 

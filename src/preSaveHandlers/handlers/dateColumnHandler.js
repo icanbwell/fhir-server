@@ -25,10 +25,10 @@ class DateColumnHandler extends PreSaveHandler {
     /**
      * fixes up any resources before they are saved
      * @typedef {Object} PreSaveAsyncProps
-     * @property {import('../../fhir/classes/4_0_0/resources/resource')} resource
+     * @property {Object} resource
      *
      * @param {PreSaveAsyncProps}
-     * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
+     * @returns {Promise<Object>}
      */
     // if a column is of date type then set it to date (if not already)
     async preSaveAsync ({ resource }) {

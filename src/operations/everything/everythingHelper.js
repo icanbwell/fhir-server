@@ -5,13 +5,11 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { AuditLogger, sanitizeOutcomeDesc } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const { ConfigManager } = require('../../utils/configManager');
 const { BundleManager } = require('../common/bundleManager');
 const { RethrownError } = require('../../utils/rethrownError');
 const { SearchManager } = require('../search/searchManager');
 const { ScopesValidator } = require('../security/scopesValidator');
-const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { ParsedArgs } = require('../query/parsedArgs');
@@ -39,7 +37,6 @@ const {
     AUTH_USER_TYPES
 } = require('../../constants');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourcesMapper');
 const { ProcessMultipleIdsAsyncResult } = require('../common/processMultipleIdsAsyncResult');
 const { QueryItem } = require('../graph/queryItem');

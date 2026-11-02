@@ -116,7 +116,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
      * @param {import('stream').BufferEncoding|null} [encoding]
      */
     writeOperationOutcome ({ operationOutcome, encoding }) {
-        const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
+        const operationOutcomeJson = JSON.stringify(operationOutcome);
         if (this._first) {
             // write the beginning json
             this._first = false;

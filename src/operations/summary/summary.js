@@ -365,7 +365,7 @@ class SummaryOperation {
                     });
 
                     /**
-                     * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
+                     * @type {Object}
                      */
                     compositionResult = await this.searchBundleOperation.searchBundleAsync({
                         requestInfo,

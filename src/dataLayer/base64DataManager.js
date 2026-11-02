@@ -102,7 +102,7 @@ class Base64DataManager {
      *    first, only fetching the live bucket if missing) and leave the resource `_blobMeta`-only,
      *    ahead of the delete-caused history write.
      * No-op when disabled, the resource type has no configured paths, or nothing matches.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - mutated in place and returned.
+     * @param {Object} resource - mutated in place and returned.
      * @param {string} operation - `BLOB_OP.INSERT` / `BLOB_OP.RETRIEVE` / `BLOB_OP.DELETE`; any
      *        other value is a no-op.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo] - enables the preSave
@@ -113,7 +113,7 @@ class Base64DataManager {
      *        rotation). `historyRead: true` (RETRIEVE; history/version reads) hydrates each version's
      *        bytes from the history bucket keyed by `_blobMeta.hash`, bypassing the live bucket and
      *        the per-request stash.
-     * @returns {Promise<import('../fhir/classes/4_0_0/resources/resource')>} the same `resource`.
+     * @returns {Promise<Object>} the same `resource`.
      */
     async transformAsync (resource, operation, requestInfo, options = {}) {
         if (!resource || !this.enableBase64FieldCloudStorage) {
@@ -151,7 +151,7 @@ class Base64DataManager {
      * True if any configured leaf for `resource.resourceType` currently has `_blobMeta` set on
      * `resource` — i.e. is externalized. Used to decide whether a naive full-object equality check
      * is safe to run as-is (it isn't, once a leaf is externalized — see resourceMerger).
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource
+     * @param {Object} resource
      * @returns {boolean}
      */
     hasExternalizedLeaf (resource) {
@@ -188,7 +188,7 @@ class Base64DataManager {
      * inline (never externalized) — the generic diff already handles that correctly with real
      * values, at zero download cost.
      * @param {Object} view - mutated in place.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} currentResource
+     * @param {Object} currentResource
      * @returns {void}
      */
     excludeExternalizedLeaves (view, currentResource) {
@@ -223,7 +223,7 @@ class Base64DataManager {
      * directly for a write that's known for certain to remove this leaf (never inferred from mere
      * absence). Stashes `previousLastUpdated` so the live object gets cleaned up post-commit, same
      * as today.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} finalResource - mutated in place.
+     * @param {Object} finalResource - mutated in place.
      * @param {{dataPath: string, blobMetaPath: string}} entry
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @returns {void}
@@ -253,9 +253,9 @@ class Base64DataManager {
      * nothing for an leaf that's unchanged or (`smartMerge: true`) omitted. Returns a plain
      * `{op, path, value?}` entry per leaf that actually changed or was removed, for the caller to
      * append to its returned `patches` (history diagnostics) — empty when nothing did.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} finalResource - mutated in place.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} currentResource
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resourceToMerge
+     * @param {Object} finalResource - mutated in place.
+     * @param {Object} currentResource
+     * @param {Object} resourceToMerge
      * @param {boolean} smartMerge - true: deepmerge semantics (omission keeps the old value); false:
      *        literal-replace semantics (omission means removal).
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
@@ -417,7 +417,7 @@ class Base64DataManager {
     /**
      * Process one config entry on a write: walk `dataPath`, upload each over-threshold leaf, and
      * replace it with a `_blobMeta` sidecar.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - mutated in place.
+     * @param {Object} resource - mutated in place.
      * @param {{dataPath: string, blobMetaPath: string}} entry - JSON-Pointers to the base64 field and its sidecar.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo] - keys the per-request stashes.
      * @param {boolean} [alwaysCreateNew] - PUT/PATCH mode: skip the hash-unchanged/self-heal branch and
@@ -515,7 +515,7 @@ class Base64DataManager {
      * (`meta.lastUpdated`, else now), bumping the candidate ms on each `If-None-Match` collision.
      * Returns the epoch-ms it was stored under (recorded in `_blobMeta.lastUpdated`). Throws on a
      * real upload error or if no unique key is minted within the retry budget.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource
+     * @param {Object} resource
      * @param {string} value - the base64 payload bytes
      * @param {string} dataPath - JSON-Pointer of the leaf, for error diagnostics
      * @returns {Promise<number>} epoch-ms the object was stored under
@@ -567,7 +567,7 @@ class Base64DataManager {
      * previous version and the new one are retained. Applies to any data change on an
      * already-externalized payload, including removal and the below-threshold transition. No-op when
      * nothing was stashed (unchanged data or a fresh create).
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - the just-written
+     * @param {Object} resource - the just-written
      *        doc, carrying this request's new `_blobMeta`.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo - keys the stash.
      * @returns {Promise<void>}
@@ -631,7 +631,7 @@ class Base64DataManager {
      * Delete only the live objects THIS request uploaded for `resource` (per-leaf stash
      * `changed: true`), path-aware. Used on write failure to reclaim just-created orphans without
      * touching a leaf whose unchanged sidecar still points at a committed prior version. Never throws.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource
+     * @param {Object} resource
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @returns {Promise<void>}
      */
@@ -703,16 +703,16 @@ class Base64DataManager {
      * copy via `forceWriteFactory` when the diff saw nothing but the data diverges; `null` when the
      * diff saw nothing and the data matches (true no-op).
      *
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object|null} mergeResult - merge
+     * @param {Object|null} mergeResult - merge
      *        result; null means the diff saw no field change.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} currentResource - the version
+     * @param {Object} currentResource - the version
      *        being written over (re-read on a retry); its `_blobMeta.hash` is the comparison.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo - keys the per-leaf
      *        stash holding this request's intended hash, its own key stamp/size, and recoverable bytes.
      * @param {(currentResource: any) => any} forceWriteFactory - builds a version-bumped copy of
      *        `currentResource` for the null-diff case. Injected because the meta bump differs per
      *        manager (updateMeta vs fastUpdateMeta), keeping this class merger-agnostic.
-     * @returns {Promise<import('../fhir/classes/4_0_0/resources/resource')|Object|null>} the resource
+     * @returns {Promise<Object|null>} the resource
      *        to persist, or null.
      */
     async resolveWriteForExternalizedDataChange (mergeResult, currentResource, requestInfo, forceWriteFactory) {
@@ -850,7 +850,7 @@ class Base64DataManager {
      * Reconstruct an externalized payload onto the resource: for each leaf with a `_blobMeta`
      * sidecar, download the bytes, set `data`, and leave the sidecar in place. Afterward the
      * resource looks freshly inlined, so resourceMerger can diff against real content.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - mutated in place.
+     * @param {Object} resource - mutated in place.
      * @param {{dataPath: string, blobMetaPath: string}} entry - JSON-Pointers to the base64 field and its sidecar.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo] - keys the per-request stashes.
      * @param {boolean} [historyRead] - history/version read: fetch each version's bytes from the
@@ -960,7 +960,7 @@ class Base64DataManager {
      * `_blobMeta`-only — matching the shape a live Mongo document already has, whether or not the
      * caller (e.g. `$graph`/`$everything` delete) had pre-hydrated `data` for its own purposes. A
      * leaf that was never externalized and stays under the live-write threshold is left untouched.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - mutated in place.
+     * @param {Object} resource - mutated in place.
      * @param {{dataPath: string, blobMetaPath: string}} entry - JSON-Pointers to the base64 field and its sidecar.
      * @returns {Promise<void>}
      * @private
@@ -1014,7 +1014,7 @@ class Base64DataManager {
      * already exists (no payload transfer), else obtain bytes from `bytesProvider` and upload them.
      * Throws on any failure — unlike RETRIEVE, a delete cannot self-heal a lost payload by degrading
      * gracefully, so this must not swallow errors.
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource
+     * @param {Object} resource
      * @param {{dataPath: string, blobMetaPath: string}} entry - for error diagnostics.
      * @param {string} hash - the content hash driving the history key.
      * @param {() => Promise<string|null|undefined>} bytesProvider - resolves the bytes to upload,

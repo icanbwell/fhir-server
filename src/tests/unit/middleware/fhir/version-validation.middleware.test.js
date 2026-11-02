@@ -3,7 +3,7 @@
 const { describe, test, expect, jest: jestObj } = require('@jest/globals');
 
 jestObj.mock('../../../../middleware/fhir/utils/error.utils', () => ({
-    notFound: jestObj.fn((msg, version) => ({ statusCode: 404, version }))
+    notFound: jestObj.fn(() => ({ statusCode: 404 }))
 }));
 
 const versionValidationMiddleware = require('../../../../middleware/fhir/version-validation.middleware');

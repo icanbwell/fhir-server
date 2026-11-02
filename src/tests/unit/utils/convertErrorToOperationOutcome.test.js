@@ -56,3 +56,51 @@ describe('convertErrorToOperationOutcome', () => {
         expect(result.issue[0].code).toBe('internal');
     });
 });
+
+describe('convertErrorToOperationOutcome serialization', () => {
+    const errorWithIssue = (issue) => Object.assign(new Error('boom'), { issue });
+
+    test.each([
+        [
+            'internal error',
+            () => convertErrorToOperationOutcome({ error: new Error('secret'), internalError: true }),
+            '{"resourceType":"OperationOutcome","issue":[{"severity":"error","code":"internal","details":{"text":"Internal Server Error"}}]}'
+        ],
+        [
+            'plain error',
+            () => convertErrorToOperationOutcome({ error: new Error('oops') }),
+            '{"resourceType":"OperationOutcome","issue":[{"severity":"error","code":"internal","details":{"text":"Unexpected Error: oops"}}]}'
+        ],
+        [
+            'error carrying issues',
+            () => convertErrorToOperationOutcome({
+                error: errorWithIssue([
+                    { severity: 'error', code: 'invalid', details: { text: 'a' }, diagnostics: 'd', expression: ['A/1'] }
+                ])
+            }),
+            '{"resourceType":"OperationOutcome","issue":[{"severity":"error","code":"invalid","details":{"text":"a"},"diagnostics":"d","expression":["A/1"]}]}'
+        ],
+        [
+            'error with an empty issue array',
+            () => convertErrorToOperationOutcome({ error: errorWithIssue([]) }),
+            '{"resourceType":"OperationOutcome","issue":[{"severity":"error","code":"internal","details":{"text":"Unexpected Error: boom"}}]}'
+        ]
+    ])('%s serializes to the exact JSON the legacy class produced', (name, convert, expectedJson) => {
+        const result = convert();
+
+        expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
+        expect(JSON.stringify(result)).toBe(expectedJson);
+    });
+
+    test('does not strip fields from the error that is being converted', () => {
+        const issue = [{ severity: 'error', code: 'invalid', details: { text: 'a' }, notFhir: 'kept' }];
+        const error = errorWithIssue(issue);
+
+        const result = convertErrorToOperationOutcome({ error });
+
+        expect(error.issue).toEqual([
+            { severity: 'error', code: 'invalid', details: { text: 'a' }, notFhir: 'kept' }
+        ]);
+        expect(result.issue[0]).not.toHaveProperty('notFhir');
+    });
+});

@@ -24,11 +24,6 @@ jest.mock('../../../middleware/fhir/router', () => {
     return { FhirRouter };
 });
 
-jest.mock('../../../middleware/fhir/utils/schema.utils', () => ({
-    resolveSchema: jest.fn(),
-    isValidVersion: jest.fn()
-}));
-
 jest.mock('../../../utils/convertErrorToOperationOutcome', () => ({
     convertErrorToOperationOutcome: jest.fn()
 }));
@@ -54,7 +49,6 @@ jest.mock('../../../utils/configManager', () => {
 const { MyFHIRServer } = require('../../../routeHandlers/fhirServer');
 const { FhirRouter } = require('../../../middleware/fhir/router');
 const { ConfigManager } = require('../../../utils/configManager');
-const { isValidVersion, resolveSchema } = require('../../../middleware/fhir/utils/schema.utils');
 const { convertErrorToOperationOutcome } = require('../../../utils/convertErrorToOperationOutcome');
 const httpContext = require('express-http-context');
 
@@ -159,7 +153,6 @@ describe('MyFHIRServer', () => {
 
         describe('error handler (fhirErrorHandler)', () => {
             test('should return 404 JSON when base version is invalid', () => {
-                isValidVersion.mockReturnValue(false);
 
                 const req = { url: '/invalid_version/Patient' };
                 const res = {
@@ -178,10 +171,6 @@ describe('MyFHIRServer', () => {
             });
 
             test('should call res.end when headers already sent', () => {
-                isValidVersion.mockReturnValue(true);
-                resolveSchema.mockReturnValue(class OperationOutcome {
-                    static get resourceType() { return 'OperationOutcome'; }
-                });
 
                 const req = { url: '/4_0_0/Patient', id: 'req-123' };
                 const res = {
@@ -201,10 +190,6 @@ describe('MyFHIRServer', () => {
             });
 
             test('should set X-Request-ID header from httpContext when req.id exists', () => {
-                isValidVersion.mockReturnValue(true);
-                const MockOO = function(params) { return { ...params, resourceType: 'OperationOutcome' }; };
-                MockOO.resourceType = 'OperationOutcome';
-                resolveSchema.mockReturnValue(MockOO);
                 convertErrorToOperationOutcome.mockReturnValue({ resourceType: 'OperationOutcome', issue: [] });
                 httpContext.get.mockReturnValue('user-request-id-123');
 
@@ -226,10 +211,6 @@ describe('MyFHIRServer', () => {
             });
 
             test('should handle OperationOutcome error with statusCode', () => {
-                isValidVersion.mockReturnValue(true);
-                const MockOO = function(params) { return { ...params, resourceType: 'OperationOutcome' }; };
-                MockOO.resourceType = 'OperationOutcome';
-                resolveSchema.mockReturnValue(MockOO);
 
                 const req = { url: '/4_0_0/Patient' };
                 const res = {
@@ -253,10 +234,6 @@ describe('MyFHIRServer', () => {
             });
 
             test('should default to 500 when OperationOutcome error has no statusCode', () => {
-                isValidVersion.mockReturnValue(true);
-                const MockOO = function(params) { return { ...params, resourceType: 'OperationOutcome' }; };
-                MockOO.resourceType = 'OperationOutcome';
-                resolveSchema.mockReturnValue(MockOO);
                 convertErrorToOperationOutcome.mockReturnValue({ resourceType: 'OperationOutcome', issue: [] });
 
                 const req = { url: '/4_0_0/Patient' };
@@ -282,10 +259,6 @@ describe('MyFHIRServer', () => {
             });
 
             test('should handle generic error (non-OperationOutcome)', () => {
-                isValidVersion.mockReturnValue(true);
-                const MockOO = function(params) { return { ...params, resourceType: 'OperationOutcome' }; };
-                MockOO.resourceType = 'OperationOutcome';
-                resolveSchema.mockReturnValue(MockOO);
                 const mockOutcome = { resourceType: 'OperationOutcome', issue: [] };
                 convertErrorToOperationOutcome.mockReturnValue(mockOutcome);
 
@@ -311,10 +284,6 @@ describe('MyFHIRServer', () => {
             });
 
             test('should call next() when err is null/falsy', () => {
-                isValidVersion.mockReturnValue(true);
-                const MockOO = function(params) { return { ...params, resourceType: 'OperationOutcome' }; };
-                MockOO.resourceType = 'OperationOutcome';
-                resolveSchema.mockReturnValue(MockOO);
 
                 const req = { url: '/4_0_0/Patient' };
                 const res = {
@@ -332,14 +301,9 @@ describe('MyFHIRServer', () => {
             });
 
             test('should handle error in error handler itself (catch block)', () => {
-                isValidVersion.mockReturnValue(true);
-                // Make resolveSchema throw on first call to trigger catch block
-                resolveSchema.mockImplementationOnce(() => {
-                    throw new Error('Schema resolution failed');
+                convertErrorToOperationOutcome.mockImplementationOnce(() => {
+                    throw new Error('Conversion failed');
                 });
-                // Second call (in catch) returns a valid constructor
-                const MockOO = function(params) { return { ...params }; };
-                resolveSchema.mockReturnValue(MockOO);
 
                 const req = { url: '/4_0_0/Patient' };
                 const res = {
@@ -355,12 +319,15 @@ describe('MyFHIRServer', () => {
                 errorHandler(err, req, res, next);
 
                 expect(res.status).toHaveBeenCalledWith(500);
+                expect(res.json).toHaveBeenCalledWith({
+                    resourceType: 'OperationOutcome',
+                    issue: [{ severity: 'error', code: 'exception', diagnostics: 'Internal Server Error' }]
+                });
             });
 
             test('BUG: should handle req.url being empty string - split gives empty first element', () => {
                 // When req.url is '', split('/')[1] returns undefined
-                // isValidVersion(undefined) returns false, so it returns 404
-                isValidVersion.mockReturnValue(false);
+                // base version undefined is not a known version, so it returns 404
 
                 const req = { url: '' };
                 const res = {
@@ -378,10 +345,6 @@ describe('MyFHIRServer', () => {
             });
 
             test('BUG: X-Request-ID uses httpContext.get which could return null', () => {
-                isValidVersion.mockReturnValue(true);
-                const MockOO = function(params) { return { ...params, resourceType: 'OperationOutcome' }; };
-                MockOO.resourceType = 'OperationOutcome';
-                resolveSchema.mockReturnValue(MockOO);
                 convertErrorToOperationOutcome.mockReturnValue({ issue: [] });
                 // httpContext.get returns null
                 httpContext.get.mockReturnValue(null);
@@ -408,8 +371,6 @@ describe('MyFHIRServer', () => {
 
         describe('not-found handler (fhirNotFoundHandler)', () => {
             test('should return 404 with OperationOutcome', () => {
-                const MockOO = function(params) { return { ...params, resourceType: 'OperationOutcome' }; };
-                resolveSchema.mockReturnValue(MockOO);
 
                 const req = { url: '/4_0_0/NonExistent', path: '/4_0_0/NonExistent' };
                 const res = {
@@ -422,12 +383,13 @@ describe('MyFHIRServer', () => {
                 notFoundHandler(req, res);
 
                 expect(res.status).toHaveBeenCalledWith(404);
-                expect(res.json).toHaveBeenCalled();
+                expect(res.json).toHaveBeenCalledWith({
+                    resourceType: 'OperationOutcome',
+                    issue: [{ severity: 'error', code: 'not-found', details: { text: 'Invalid url: /4_0_0/NonExistent' } }]
+                });
             });
 
             test('should set X-Request-ID when req.id exists and headers not sent', () => {
-                const MockOO = function(params) { return { ...params, resourceType: 'OperationOutcome' }; };
-                resolveSchema.mockReturnValue(MockOO);
                 httpContext.get.mockReturnValue('user-req-id');
 
                 const req = { url: '/4_0_0/Patient', path: '/4_0_0/Patient', id: 'some-id' };
@@ -444,8 +406,6 @@ describe('MyFHIRServer', () => {
             });
 
             test('should handle empty URL gracefully', () => {
-                const MockOO = function(params) { return { ...params, resourceType: 'OperationOutcome' }; };
-                resolveSchema.mockReturnValue(MockOO);
 
                 const req = { url: '', path: '' };
                 const res = {
@@ -462,9 +422,7 @@ describe('MyFHIRServer', () => {
                 expect(res.status).toHaveBeenCalledWith(404);
             });
 
-            test('should use R4 OperationOutcome for non-version base paths', () => {
-                const MockOO = function(params) { return { ...params, resourceType: 'OperationOutcome' }; };
-                resolveSchema.mockReturnValue(MockOO);
+            test('should return the same not-found OperationOutcome for non-version base paths', () => {
 
                 const req = { url: '/unknown/path', path: '/unknown/path' };
                 const res = {
@@ -476,8 +434,11 @@ describe('MyFHIRServer', () => {
 
                 notFoundHandler(req, res);
 
-                // Should call resolveSchema with '4_0_0' for non-version paths
-                expect(resolveSchema).toHaveBeenCalledWith('4_0_0', 'operationoutcome');
+                expect(res.status).toHaveBeenCalledWith(404);
+                expect(res.json).toHaveBeenCalledWith({
+                    resourceType: 'OperationOutcome',
+                    issue: [{ severity: 'error', code: 'not-found', details: { text: 'Invalid url: /unknown/path' } }]
+                });
             });
         });
     });
