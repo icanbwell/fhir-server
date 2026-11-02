@@ -694,17 +694,22 @@ describe('InternalAuditLog Tests', () => {
             const auditEventDb = await container.mongoDatabaseManager.getAuditDbAsync();
             const auditEventCollection = auditEventDb.collection('AuditEvent_4_0_0');
 
+            // every request in this file shares one request id, so wait for each write's post-request
+            // history flush before the next write or any read of history
+            const postRequestProcessor = container.postRequestProcessor;
             for (const practitioner of practitioners) {
                 let resp = await request
                     .post(`/4_0_0/Practitioner/${practitioner.id}/$merge?validate=true`)
                     .send(practitioner)
                     .set(getHeaders());
                 expect(resp).toHaveMergeResponse({ created: true });
+                await postRequestProcessor.waitTillDoneAsync({ requestId });
                 resp = await request
                     .post(`/4_0_0/Practitioner/${practitioner.id}/$merge?validate=true`)
                     .send({ ...practitioner, active: !practitioner.active })
                     .set(getHeaders());
                 expect(resp).toHaveMergeResponse({ updated: true });
+                await postRequestProcessor.waitTillDoneAsync({ requestId });
             }
             await flushAsync();
             return { request, flushAsync, auditEventCollection };
