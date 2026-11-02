@@ -40,6 +40,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {PostSaveProcessor} postSaveProcessor
      * @param {Base64DataManager} base64DataManager
      * @param {BulkWriteExecutor[]} bulkWriteExecutors
+     * @param {HistoryKafkaProducer|null} [historyKafkaProducer] optional parallel history produce to Kafka
      * @param {CustomTracer} customTracer
      */
     constructor({
@@ -54,6 +55,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
         postSaveProcessor,
         base64DataManager,
         bulkWriteExecutors,
+        historyKafkaProducer = null,
         customTracer
     }) {
         super();
@@ -122,6 +124,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
         /**
          * @type {BulkWriteExecutor[]}
          */
+        this.historyKafkaProducer = historyKafkaProducer;
         this.bulkWriteExecutors = bulkWriteExecutors || [];
         assertIsValid(Array.isArray(this.bulkWriteExecutors), 'bulkWriteExecutors must be an array');
         for (const executor of this.bulkWriteExecutors) {
@@ -928,11 +931,20 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 `No BulkWriteExecutor registered for resourceType=${resourceType}. Available: ${available}`
             );
         }
-        return executor.executeBulkAsync({
+        const result = await executor.executeBulkAsync({
             resourceType, operations, requestInfo, base_version,
             useHistoryCollection, maintainOrder, isAccessLogOperation,
             insertOneHistoryFn: this.insertOneHistoryAsync.bind(this)
         });
+        // Parallel history produce: only after a successful history write (a size-rejected write returns
+        // `error` and writes nothing), never replaces it, never throws.
+        if (useHistoryCollection === true && this.historyKafkaProducer && !result?.error &&
+            this.historyKafkaProducer.isEnabledFor(resourceType)) {
+            await this.historyKafkaProducer.produceAsync({
+                resourceType, operations, requestId: requestInfo.requestId
+            });
+        }
+        return result;
     }
 
     /**

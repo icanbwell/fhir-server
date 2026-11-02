@@ -1375,12 +1375,56 @@ class ConfigManager {
     }
 
     /**
-     * Kafka compression for AuditEvent messages on the ClickPipe path: none | gzip | zstd.
-     * Configuration: AUDIT_EVENT_CLICKPIPE_COMPRESSION (default zstd)
+     * Kafka compression for messages produced to the V2 cluster (AuditEvent ClickPipe path and
+     * history): none | gzip | zstd.
+     * Configuration: KAFKA_PRODUCER_COMPRESSION (default zstd)
      * @return {string}
      */
-    get auditEventClickPipeCompression() {
-        return env.AUDIT_EVENT_CLICKPIPE_COMPRESSION || 'zstd';
+    get kafkaProducerCompression() {
+        return env.KAFKA_PRODUCER_COMPRESSION || 'zstd';
+    }
+
+    /**
+     * Topic that history events are produced to.
+     * Configuration: RESOURCE_HISTORY_KAFKA_TOPIC (default fhir_server.resource-history.events)
+     * @return {string}
+     */
+    get resourceHistoryKafkaTopic() {
+        return env.RESOURCE_HISTORY_KAFKA_TOPIC || 'fhir_server.resource-history.events';
+    }
+
+    /**
+     * Resource types whose history records are also produced to Kafka (parallel write).
+     * Empty (default) turns the feature off. It never replaces the MongoDB history write,
+     * and requires the V2 Kafka cluster (ENABLE_EVENTS_KAFKA_V2).
+     * Configuration: RESOURCE_HISTORY_KAFKA_RESOURCES=Observation,Condition
+     * @return {string[]}
+     */
+    get resourceHistoryKafkaResources() {
+        return this._parseCommaSeparatedList(env.RESOURCE_HISTORY_KAFKA_RESOURCES, []).filter(Boolean);
+    }
+
+    /**
+     * Max history messages per Kafka produce call.
+     * Configuration: RESOURCE_HISTORY_KAFKA_BATCH_SIZE (default 50). Anything that is not a positive
+     * integer falls back to the default, so a bad value can never stall or empty the flush.
+     * @return {number}
+     */
+    get resourceHistoryKafkaBatchSize() {
+        const value = parseInt(env.RESOURCE_HISTORY_KAFKA_BATCH_SIZE, 10);
+        return Number.isInteger(value) && value > 0 ? value : 50;
+    }
+
+    /**
+     * Per-attempt timeout, in ms, for one Kafka produce call on the V2 cluster (AuditEvent ClickPipe path
+     * and history). A timed-out send is not retried, because it may still deliver.
+     * Configuration: KAFKA_PRODUCER_TIMEOUT_MS (default 10000). Anything that is not a positive
+     * integer falls back to the default.
+     * @return {number}
+     */
+    get kafkaProducerTimeoutMs() {
+        const value = parseInt(env.KAFKA_PRODUCER_TIMEOUT_MS, 10);
+        return Number.isInteger(value) && value > 0 ? value : 10000;
     }
 
     /**

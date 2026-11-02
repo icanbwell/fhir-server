@@ -1,4 +1,4 @@
-// Unit tests for the manage_kafka_v2_topic script. The repo has no Kafka broker in
+// Unit tests for the manageKafkaV2Topic script. The repo has no Kafka broker in
 // jest (Kafka is mocked everywhere), so KafkaClientV2 is mocked to hand back a
 // fake kafkajs Admin client whose methods are jest.fn()s. We assert the script
 // calls the admin API with the right arguments and always disconnects.
@@ -20,7 +20,7 @@ const {
     KAFKA_PARTITION_COUNT,
     KAFKA_RETENTION_MS,
     KAFKA_MAX_MESSAGE_BYTES
-} = require('../../../scripts/manage_kafka_v2_topic');
+} = require('../../../admin/scripts/manageKafkaV2Topic');
 
 // A stand-in ConfigManager. The script only reads it to build KafkaClientV2
 // (which is mocked) and to log brokers/authType, so a plain object suffices.
@@ -51,7 +51,7 @@ function mockAdmin(overrides = {}) {
     return admin;
 }
 
-describe('manage_kafka_v2_topic script', () => {
+describe('manageKafkaV2Topic script', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
