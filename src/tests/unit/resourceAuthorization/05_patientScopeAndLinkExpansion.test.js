@@ -67,7 +67,7 @@ function createMockInstance (ClassType) {
 }
 
 /**
- * Minimal async Mongo-cursor stand-in matching the {hasNext, nextObject} shape that
+ * Minimal async Mongo-cursor stand-in matching the {hasNext, next} shape that
  * PersonToPatientIdsExpander reads from DatabaseQueryManager.findAsync().
  * @param {Object[]} docs
  */
@@ -75,7 +75,7 @@ function createCursor (docs) {
     let i = 0;
     return {
         hasNext: jest.fn(async () => i < docs.length),
-        nextObject: jest.fn(async () => docs[i++])
+        next: jest.fn(async () => docs[i++])
     };
 }
 

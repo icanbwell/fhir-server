@@ -35,7 +35,7 @@ jestGlobal.mock('../../../operations/common/logging', () => {
 
 const { AdminPersonPatientLinkManager } = require('../../../admin/adminPersonPatientLinkManager');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
-const { DatabaseUpdateFactory } = require('../../../dataLayer/databaseUpdateFactory');
+const { AdminResourceWriter } = require('../../../admin/adminResourceWriter');
 const { FhirOperationsManager } = require('../../../operations/fhirOperationsManager');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
@@ -50,7 +50,7 @@ function createMockInstance (ClassType) {
 describe('AdminPersonPatientLinkManager', () => {
     let manager;
     let mockDatabaseQueryFactory;
-    let mockDatabaseUpdateFactory;
+    let mockAdminResourceWriter;
     let mockFhirOperationsManager;
     let mockPostSaveProcessor;
     let mockPatientFilterManager;
@@ -59,7 +59,8 @@ describe('AdminPersonPatientLinkManager', () => {
 
     beforeEach(() => {
         mockDatabaseQueryFactory = createMockInstance(DatabaseQueryFactory);
-        mockDatabaseUpdateFactory = createMockInstance(DatabaseUpdateFactory);
+        mockAdminResourceWriter = createMockInstance(AdminResourceWriter);
+        mockAdminResourceWriter.writeAsync = jestGlobal.fn().mockResolvedValue(undefined);
         mockFhirOperationsManager = createMockInstance(FhirOperationsManager);
         mockPostSaveProcessor = createMockInstance(PostSaveProcessor);
         mockPatientFilterManager = createMockInstance(PatientFilterManager);
@@ -72,7 +73,7 @@ describe('AdminPersonPatientLinkManager', () => {
 
         manager = new AdminPersonPatientLinkManager({
             databaseQueryFactory: mockDatabaseQueryFactory,
-            databaseUpdateFactory: mockDatabaseUpdateFactory,
+            adminResourceWriter: mockAdminResourceWriter,
             fhirOperationsManager: mockFhirOperationsManager,
             postSaveProcessor: mockPostSaveProcessor,
             patientFilterManager: mockPatientFilterManager,
@@ -84,9 +85,8 @@ describe('AdminPersonPatientLinkManager', () => {
     describe('createPersonToPersonLinkAsync', () => {
         test('returns message when person not found', async () => {
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
             });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue({});
 
             const result = await manager.createPersonToPersonLinkAsync({
                 req: {},
@@ -105,9 +105,8 @@ describe('AdminPersonPatientLinkManager', () => {
                 link: [{ target: { reference: 'Person/person-2' } }]
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue({});
 
             const result = await manager.createPersonToPersonLinkAsync({
                 req: {},
@@ -123,14 +122,9 @@ describe('AdminPersonPatientLinkManager', () => {
                 id: 'person-1',
                 link: [{ target: { reference: 'Person/person-3' } }]
             };
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: existingPerson, patches: [] }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             const result = await manager.createPersonToPersonLinkAsync({
                 req: {},
@@ -148,14 +142,9 @@ describe('AdminPersonPatientLinkManager', () => {
                 id: 'person-1',
                 link: null
             };
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: existingPerson, patches: [] }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             const result = await manager.createPersonToPersonLinkAsync({
                 req: {},
@@ -170,9 +159,8 @@ describe('AdminPersonPatientLinkManager', () => {
 
         test('strips Person/ prefix from ids', async () => {
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
             });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue({});
 
             const result = await manager.createPersonToPersonLinkAsync({
                 req: {},
@@ -184,19 +172,14 @@ describe('AdminPersonPatientLinkManager', () => {
             expect(result.externalPersonId).toBe('person-2');
         });
 
-        test('calls postSaveProcessor.afterSaveAsync after successful save', async () => {
+        test('writes the Person with the added link through the admin resource writer using smart merge', async () => {
             const existingPerson = {
                 id: 'person-1',
                 link: [{ target: { reference: 'Person/person-3' } }]
             };
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: existingPerson, patches: [] }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             await manager.createPersonToPersonLinkAsync({
                 req: {},
@@ -204,18 +187,59 @@ describe('AdminPersonPatientLinkManager', () => {
                 externalPersonId: 'person-2'
             });
 
-            expect(mockPostSaveProcessor.afterSaveAsync).toHaveBeenCalledWith(expect.objectContaining({
-                requestId: 'req-1',
-                eventType: 'U',
-                resourceType: 'Person'
-            }));
+            expect(mockAdminResourceWriter.writeAsync).toHaveBeenCalledTimes(1);
+            const writeArgs = mockAdminResourceWriter.writeAsync.mock.calls[0][0];
+            expect(writeArgs).toMatchObject({
+                requestInfo: { requestId: 'req-1' },
+                base_version: '4_0_0',
+                resourceType: 'Person',
+                resource: existingPerson
+            });
+            expect(writeArgs.smartMerge).not.toBe(false);
+            expect(existingPerson.link.map(l => l.target.reference)).toEqual(['Person/person-3', 'Person/person-2']);
+            expect(mockPostSaveProcessor.afterSaveAsync).not.toHaveBeenCalled();
+        });
+
+        test('does not write when the link already exists', async () => {
+            const existingPerson = {
+                id: 'person-1',
+                link: [{ target: { reference: 'Person/person-2' } }]
+            };
+            mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+            });
+
+            await manager.createPersonToPersonLinkAsync({
+                req: {},
+                bwellPersonId: 'person-1',
+                externalPersonId: 'person-2'
+            });
+
+            expect(mockAdminResourceWriter.writeAsync).not.toHaveBeenCalled();
+        });
+
+        test('propagates a failure from the admin resource writer', async () => {
+            const existingPerson = {
+                id: 'person-1',
+                link: [{ target: { reference: 'Person/person-3' } }]
+            };
+            mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+            });
+            mockAdminResourceWriter.writeAsync.mockRejectedValue(new Error('write failed'));
+
+            await expect(manager.createPersonToPersonLinkAsync({
+                req: {},
+                bwellPersonId: 'person-1',
+                externalPersonId: 'person-2'
+            })).rejects.toThrow('write failed');
         });
     });
 
     describe('removePersonToPersonLinkAsync', () => {
         test('returns message when person not found', async () => {
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
             });
 
             const result = await manager.removePersonToPersonLinkAsync({
@@ -233,7 +257,7 @@ describe('AdminPersonPatientLinkManager', () => {
                 link: [{ target: { reference: 'Person/person-3', _uuid: 'Person/uuid-3' } }]
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
 
             const result = await manager.removePersonToPersonLinkAsync({
@@ -248,7 +272,7 @@ describe('AdminPersonPatientLinkManager', () => {
         test('returns no link message when person has no link array', async () => {
             const existingPerson = { id: 'person-1', link: null };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
 
             const result = await manager.removePersonToPersonLinkAsync({
@@ -268,14 +292,9 @@ describe('AdminPersonPatientLinkManager', () => {
                     { target: { reference: 'Person/person-3', _uuid: 'Person/uuid-3' } }
                 ]
             };
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: existingPerson, patches: [] }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             const result = await manager.removePersonToPersonLinkAsync({
                 req: {},
@@ -295,14 +314,9 @@ describe('AdminPersonPatientLinkManager', () => {
                     { target: { reference: 'Person/other-ref', _uuid: 'Person/person-2' } }
                 ]
             };
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: existingPerson, patches: [] }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             const result = await manager.removePersonToPersonLinkAsync({
                 req: {},
@@ -316,7 +330,7 @@ describe('AdminPersonPatientLinkManager', () => {
 
         test('strips Person/ prefix from ids', async () => {
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
             });
 
             const result = await manager.removePersonToPersonLinkAsync({
@@ -329,19 +343,14 @@ describe('AdminPersonPatientLinkManager', () => {
             expect(result.externalPersonId).toBe('person-2');
         });
 
-        test('calls postSaveProcessor after link removal', async () => {
+        test('writes the Person without the link through the admin resource writer using replace semantics', async () => {
             const existingPerson = {
                 id: 'person-1',
                 link: [{ target: { reference: 'Person/person-2', _uuid: 'Person/uuid-2' } }]
             };
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: existingPerson, patches: [] }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             await manager.removePersonToPersonLinkAsync({
                 req: {},
@@ -349,10 +358,16 @@ describe('AdminPersonPatientLinkManager', () => {
                 externalPersonId: 'person-2'
             });
 
-            expect(mockUpdateManager.replaceOneAsync).toHaveBeenCalledWith(expect.objectContaining({
+            expect(mockAdminResourceWriter.writeAsync).toHaveBeenCalledTimes(1);
+            expect(mockAdminResourceWriter.writeAsync).toHaveBeenCalledWith({
+                requestInfo: { requestId: 'req-1' },
+                base_version: '4_0_0',
+                resourceType: 'Person',
+                resource: existingPerson,
                 smartMerge: false
-            }));
-            expect(mockPostSaveProcessor.afterSaveAsync).toHaveBeenCalled();
+            });
+            expect(existingPerson.link).toEqual([]);
+            expect(mockPostSaveProcessor.afterSaveAsync).not.toHaveBeenCalled();
         });
     });
 
@@ -367,20 +382,15 @@ describe('AdminPersonPatientLinkManager', () => {
                 }
             };
             const mockPersonQueryManager = {
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
             };
             const mockPatientQueryManager = {
-                findOneAsync: jestGlobal.fn().mockResolvedValue(patient)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(patient)
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn()
                 .mockReturnValueOnce(mockPersonQueryManager)
                 .mockReturnValueOnce(mockPatientQueryManager);
 
-            const mockUpdateManager = {
-                insertOneAsync: jestGlobal.fn().mockResolvedValue({ id: 'new-person', _uuid: 'new-uuid' }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             const result = await manager.createPersonToPatientLinkAsync({
                 req: {},
@@ -389,29 +399,34 @@ describe('AdminPersonPatientLinkManager', () => {
             });
 
             expect(result.message).toContain('Created Person');
-            expect(mockUpdateManager.insertOneAsync).toHaveBeenCalled();
-            expect(mockPatientPersonManualLinkingEventProducer.produceEventAsync).toHaveBeenCalledWith(
-                expect.objectContaining({ isLinking: true })
-            );
+            expect(mockAdminResourceWriter.writeAsync).toHaveBeenCalledTimes(1);
+            const writeArgs = mockAdminResourceWriter.writeAsync.mock.calls[0][0];
+            expect(writeArgs.resourceType).toBe('Person');
+            expect(writeArgs.smartMerge).not.toBe(false);
+            const createdPerson = writeArgs.resource;
+            expect(createdPerson.resourceType).toBe('Person');
+            expect(createdPerson._uuid).toBe(createdPerson.id);
+            expect(createdPerson.meta.source).toBe('http://example.com');
+            expect(createdPerson.meta.security).toEqual(patient.meta.security);
+            expect(createdPerson.link).toEqual([{ target: { reference: 'Patient/patient-1' } }]);
+            expect(mockPatientPersonManualLinkingEventProducer.produceEventAsync).toHaveBeenCalledWith({
+                personId: createdPerson._uuid,
+                patientId: 'patient-uuid-1',
+                isLinking: true
+            });
         });
 
         test('returns message when person not found and patient not found', async () => {
             const mockPersonQueryManager = {
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
             };
             const mockPatientQueryManager = {
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn()
                 .mockReturnValueOnce(mockPersonQueryManager)
                 .mockReturnValueOnce(mockPatientQueryManager);
 
-            const mockUpdateManager = {
-                insertOneAsync: jestGlobal.fn().mockResolvedValue({}),
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: {}, patches: [] }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             const result = await manager.createPersonToPatientLinkAsync({
                 req: {},
@@ -420,6 +435,7 @@ describe('AdminPersonPatientLinkManager', () => {
             });
 
             expect(result.message).toContain('No Patient found');
+            expect(mockAdminResourceWriter.writeAsync).not.toHaveBeenCalled();
         });
 
         test('adds link to existing person with existing links', async () => {
@@ -429,13 +445,8 @@ describe('AdminPersonPatientLinkManager', () => {
                 link: [{ target: { reference: 'Patient/patient-2' } }]
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: existingPerson, patches: [] }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             const result = await manager.createPersonToPatientLinkAsync({
                 req: {},
@@ -446,6 +457,9 @@ describe('AdminPersonPatientLinkManager', () => {
             expect(result.message).toContain('Added link');
             expect(existingPerson.link.length).toBe(2);
             expect(existingPerson.link[1].target.reference).toBe('Patient/patient-1');
+            expect(mockAdminResourceWriter.writeAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Person', resource: existingPerson })
+            );
         });
 
         test('adds link to existing person with no existing links', async () => {
@@ -455,13 +469,8 @@ describe('AdminPersonPatientLinkManager', () => {
                 link: null
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: existingPerson, patches: [] }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             const result = await manager.createPersonToPatientLinkAsync({
                 req: {},
@@ -472,6 +481,9 @@ describe('AdminPersonPatientLinkManager', () => {
             expect(result.message).toContain('Added link');
             expect(existingPerson.link.length).toBe(1);
             expect(existingPerson.link[0].target.reference).toBe('Patient/patient-1');
+            expect(mockAdminResourceWriter.writeAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Person', resource: existingPerson })
+            );
         });
 
         test('returns message when link already exists', async () => {
@@ -481,9 +493,8 @@ describe('AdminPersonPatientLinkManager', () => {
                 link: [{ target: { reference: 'Patient/patient-1' } }]
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue({});
 
             const result = await manager.createPersonToPatientLinkAsync({
                 req: {},
@@ -492,16 +503,16 @@ describe('AdminPersonPatientLinkManager', () => {
             });
 
             expect(result.message).toContain('Link already exists');
+            expect(mockAdminResourceWriter.writeAsync).not.toHaveBeenCalled();
         });
 
         test('strips Person/ and Patient/ prefixes from ids', async () => {
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
             });
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn()
-                .mockReturnValueOnce({ findOneAsync: jestGlobal.fn().mockResolvedValue(null) })
-                .mockReturnValueOnce({ findOneAsync: jestGlobal.fn().mockResolvedValue(null) });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue({});
+                .mockReturnValueOnce({ fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null) })
+                .mockReturnValueOnce({ fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null) });
 
             const result = await manager.createPersonToPatientLinkAsync({
                 req: {},
@@ -520,13 +531,8 @@ describe('AdminPersonPatientLinkManager', () => {
                 link: [{ target: { reference: 'Patient/patient-2' } }]
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(existingPerson)
             });
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: existingPerson, patches: [] }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             await manager.createPersonToPatientLinkAsync({
                 req: {},
@@ -545,7 +551,7 @@ describe('AdminPersonPatientLinkManager', () => {
     describe('removePersonToPatientLinkAsync', () => {
         test('returns message when person not found', async () => {
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
             });
 
             const result = await manager.removePersonToPatientLinkAsync({
@@ -560,7 +566,7 @@ describe('AdminPersonPatientLinkManager', () => {
         test('returns message when person has no link array', async () => {
             const person = { id: 'person-1', link: null };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(person)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person)
             });
 
             const result = await manager.removePersonToPatientLinkAsync({
@@ -578,7 +584,7 @@ describe('AdminPersonPatientLinkManager', () => {
                 link: [{ target: { reference: 'Patient/other', _uuid: 'Patient/other-uuid' } }]
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(person)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person)
             });
 
             const result = await manager.removePersonToPatientLinkAsync({
@@ -600,13 +606,8 @@ describe('AdminPersonPatientLinkManager', () => {
                 ]
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(person)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person)
             });
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: person }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             const result = await manager.removePersonToPatientLinkAsync({
                 req: {},
@@ -628,13 +629,8 @@ describe('AdminPersonPatientLinkManager', () => {
                 ]
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(person)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person)
             });
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: person }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             const result = await manager.removePersonToPatientLinkAsync({
                 req: {},
@@ -648,7 +644,7 @@ describe('AdminPersonPatientLinkManager', () => {
 
         test('strips prefixes from ids', async () => {
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
             });
 
             const result = await manager.removePersonToPatientLinkAsync({
@@ -670,13 +666,8 @@ describe('AdminPersonPatientLinkManager', () => {
                 ]
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(person)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person)
             });
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: person }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             await manager.removePersonToPatientLinkAsync({
                 req: {},
@@ -691,7 +682,7 @@ describe('AdminPersonPatientLinkManager', () => {
             });
         });
 
-        test('calls replaceOneAsync with smartMerge false', async () => {
+        test('writes the Person without the link through the admin resource writer using replace semantics', async () => {
             const person = {
                 id: 'person-1',
                 _uuid: 'person-uuid-1',
@@ -700,13 +691,8 @@ describe('AdminPersonPatientLinkManager', () => {
                 ]
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(person)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person)
             });
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: person }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             await manager.removePersonToPatientLinkAsync({
                 req: {},
@@ -714,9 +700,36 @@ describe('AdminPersonPatientLinkManager', () => {
                 patientId: 'patient-1'
             });
 
-            expect(mockUpdateManager.replaceOneAsync).toHaveBeenCalledWith(
-                expect.objectContaining({ smartMerge: false })
-            );
+            expect(mockAdminResourceWriter.writeAsync).toHaveBeenCalledTimes(1);
+            expect(mockAdminResourceWriter.writeAsync).toHaveBeenCalledWith({
+                requestInfo: { requestId: 'req-1' },
+                base_version: '4_0_0',
+                resourceType: 'Person',
+                resource: person,
+                smartMerge: false
+            });
+            expect(person.link).toEqual([]);
+        });
+
+        test('does not produce the unlinking event when the write fails', async () => {
+            const person = {
+                id: 'person-1',
+                _uuid: 'person-uuid-1',
+                link: [
+                    { target: { reference: 'Patient/patient-1', _uuid: 'Patient/pat-uuid-1' } }
+                ]
+            };
+            mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person)
+            });
+            mockAdminResourceWriter.writeAsync.mockRejectedValue(new Error('write failed'));
+
+            await expect(manager.removePersonToPatientLinkAsync({
+                req: {},
+                personId: 'person-1',
+                patientId: 'patient-1'
+            })).rejects.toThrow('write failed');
+            expect(mockPatientPersonManualLinkingEventProducer.produceEventAsync).not.toHaveBeenCalled();
         });
     });
 
@@ -836,7 +849,7 @@ describe('AdminPersonPatientLinkManager', () => {
 
         test('returns message when resource not found', async () => {
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
             });
 
             const result = await manager.updatePatientLinkAsync({
@@ -858,13 +871,8 @@ describe('AdminPersonPatientLinkManager', () => {
                 meta: { versionId: '1' }
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(relatedResource)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(relatedResource)
             });
-            const mockUpdateManager = {
-                updateOneAsync: jestGlobal.fn().mockResolvedValue(undefined),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
             mockPatientFilterManager.getPatientPropertyForResource = jestGlobal.fn()
                 .mockReturnValue('subject.reference');
 
@@ -876,8 +884,15 @@ describe('AdminPersonPatientLinkManager', () => {
             });
 
             expect(result.message).toContain('Patient reference updated');
-            expect(relatedResource.meta.versionId).toBe('2');
-            expect(mockUpdateManager.updateOneAsync).toHaveBeenCalled();
+            expect(relatedResource.subject.reference).toBe('Patient/patient-new');
+            expect(mockAdminResourceWriter.writeAsync).toHaveBeenCalledTimes(1);
+            expect(mockAdminResourceWriter.writeAsync).toHaveBeenCalledWith({
+                requestInfo: { requestId: 'req-1' },
+                base_version: '4_0_0',
+                resourceType: 'Observation',
+                resource: relatedResource,
+                smartMerge: false
+            });
         });
 
         test('returns failure message when reference could not be updated', async () => {
@@ -889,9 +904,8 @@ describe('AdminPersonPatientLinkManager', () => {
                 meta: { versionId: '1' }
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(relatedResource)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(relatedResource)
             });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue({});
             mockPatientFilterManager.getPatientPropertyForResource = jestGlobal.fn()
                 .mockReturnValue('subject.reference');
 
@@ -903,9 +917,10 @@ describe('AdminPersonPatientLinkManager', () => {
             });
 
             expect(result.message).toContain("Couldn't update");
+            expect(mockAdminResourceWriter.writeAsync).not.toHaveBeenCalled();
         });
 
-        test('increments versionId on successful update', async () => {
+        test('leaves meta.versionId for the write pipeline to bump', async () => {
             const relatedResource = {
                 resourceType: 'Observation',
                 id: 'obs-1',
@@ -914,13 +929,8 @@ describe('AdminPersonPatientLinkManager', () => {
                 meta: { versionId: '5' }
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(relatedResource)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(relatedResource)
             });
-            const mockUpdateManager = {
-                updateOneAsync: jestGlobal.fn().mockResolvedValue(undefined),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
             mockPatientFilterManager.getPatientPropertyForResource = jestGlobal.fn()
                 .mockReturnValue('subject.reference');
 
@@ -931,10 +941,10 @@ describe('AdminPersonPatientLinkManager', () => {
                 patientId: 'patient-new'
             });
 
-            expect(relatedResource.meta.versionId).toBe('6');
+            expect(relatedResource.meta.versionId).toBe('5');
         });
 
-        test('calls postSaveProcessor after successful update', async () => {
+        test('propagates a failure from the admin resource writer', async () => {
             const relatedResource = {
                 resourceType: 'Observation',
                 id: 'obs-1',
@@ -943,34 +953,25 @@ describe('AdminPersonPatientLinkManager', () => {
                 meta: { versionId: '1' }
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(relatedResource)
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(relatedResource)
             });
-            const mockUpdateManager = {
-                updateOneAsync: jestGlobal.fn().mockResolvedValue(undefined),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
             mockPatientFilterManager.getPatientPropertyForResource = jestGlobal.fn()
                 .mockReturnValue('subject.reference');
+            mockAdminResourceWriter.writeAsync.mockRejectedValue(new Error('write failed'));
 
-            await manager.updatePatientLinkAsync({
+            await expect(manager.updatePatientLinkAsync({
                 req: {},
                 resourceId: 'obs-1',
                 resourceType: 'Observation',
                 patientId: 'patient-new'
-            });
-
-            expect(mockPostSaveProcessor.afterSaveAsync).toHaveBeenCalledWith(expect.objectContaining({
-                eventType: 'U',
-                resourceType: 'Observation'
-            }));
+            })).rejects.toThrow('write failed');
         });
     });
 
     describe('showPersonToPersonLinkAsync', () => {
         test('strips Person/ prefix', async () => {
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null),
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null),
                 findAsync: jestGlobal.fn().mockResolvedValue({ toArrayAsync: jestGlobal.fn().mockResolvedValue([]) })
             });
 
@@ -983,7 +984,7 @@ describe('AdminPersonPatientLinkManager', () => {
     describe('findPersonAndChildrenAsync', () => {
         test('returns resource missing when person not found', async () => {
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                findOneAsync: jestGlobal.fn().mockResolvedValue(null),
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null),
                 findAsync: jestGlobal.fn().mockResolvedValue({ toArrayAsync: jestGlobal.fn().mockResolvedValue([]) })
             });
 
@@ -1019,7 +1020,7 @@ describe('AdminPersonPatientLinkManager', () => {
             };
 
             const personQueryManager = {
-                findOneAsync: jestGlobal.fn().mockResolvedValue(person),
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person),
                 findAsync: jestGlobal.fn().mockResolvedValue({ toArrayAsync: jestGlobal.fn().mockResolvedValue([]) })
             };
             const patientQueryManager = {
@@ -1027,7 +1028,7 @@ describe('AdminPersonPatientLinkManager', () => {
             };
 
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn()
-                .mockReturnValueOnce(personQueryManager) // Person query for findOneAsync
+                .mockReturnValueOnce(personQueryManager) // Person query for fastFindOneAsync
                 .mockReturnValueOnce(patientQueryManager); // Patient query for children
 
             const result = await manager.findPersonAndChildrenAsync({ personId: 'person-1', level: 1 });
@@ -1057,7 +1058,7 @@ describe('AdminPersonPatientLinkManager', () => {
             };
 
             const personQueryManager = {
-                findOneAsync: jestGlobal.fn().mockResolvedValue(person),
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person),
                 findAsync: jestGlobal.fn().mockResolvedValue({ toArrayAsync: jestGlobal.fn().mockResolvedValue([]) })
             };
             const patientQueryManager = {
@@ -1089,7 +1090,7 @@ describe('AdminPersonPatientLinkManager', () => {
             };
 
             const personQueryManager = {
-                findOneAsync: jestGlobal.fn().mockResolvedValue(person),
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person),
                 findAsync: jestGlobal.fn().mockResolvedValue({ toArrayAsync: jestGlobal.fn().mockResolvedValue([parentPerson]) })
             };
 
@@ -1111,7 +1112,7 @@ describe('AdminPersonPatientLinkManager', () => {
             };
 
             const personQueryManager = {
-                findOneAsync: jestGlobal.fn().mockResolvedValue(person),
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person),
                 findAsync: jestGlobal.fn().mockResolvedValue({ toArrayAsync: jestGlobal.fn().mockResolvedValue([]) })
             };
 
@@ -1132,7 +1133,7 @@ describe('AdminPersonPatientLinkManager', () => {
             };
 
             const personQueryManager = {
-                findOneAsync: jestGlobal.fn().mockResolvedValue(person),
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person),
                 findAsync: jestGlobal.fn().mockResolvedValue({ toArrayAsync: jestGlobal.fn().mockResolvedValue([]) })
             };
 
@@ -1153,7 +1154,7 @@ describe('AdminPersonPatientLinkManager', () => {
             };
 
             const personQueryManager = {
-                findOneAsync: jestGlobal.fn().mockResolvedValue(person),
+                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(person),
                 findAsync: jestGlobal.fn().mockResolvedValue({ toArrayAsync: jestGlobal.fn().mockResolvedValue([]) })
             };
 
@@ -1171,7 +1172,7 @@ describe('AdminPersonPatientLinkManager', () => {
         test('returns 0 deleted count when person not found', async () => {
             const mockCursor = {
                 hasNext: jestGlobal.fn().mockResolvedValue(false),
-                nextObject: jestGlobal.fn()
+                next: jestGlobal.fn()
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
                 fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null),
@@ -1195,7 +1196,7 @@ describe('AdminPersonPatientLinkManager', () => {
             };
             const mockCursor = {
                 hasNext: jestGlobal.fn().mockResolvedValue(false),
-                nextObject: jestGlobal.fn()
+                next: jestGlobal.fn()
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
                 fastFindOneAsync: jestGlobal.fn().mockResolvedValue(personToDelete),
@@ -1228,20 +1229,15 @@ describe('AdminPersonPatientLinkManager', () => {
                 hasNext: jestGlobal.fn()
                     .mockResolvedValueOnce(true)
                     .mockResolvedValueOnce(false),
-                nextObject: jestGlobal.fn()
+                next: jestGlobal.fn()
                     .mockResolvedValueOnce(parentPerson)
             };
 
-            const mockUpdateManager = {
-                replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: parentPerson, patches: [] }),
-                postSaveAsync: jestGlobal.fn().mockResolvedValue(undefined)
-            };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jestGlobal.fn().mockReturnValue(mockUpdateManager);
 
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
-                // removePersonToPersonLinkAsync looks up the parent Person
-                findOneAsync: jestGlobal.fn().mockResolvedValue(parentPerson),
-                fastFindOneAsync: jestGlobal.fn().mockResolvedValue(personToDelete),
+                fastFindOneAsync: jestGlobal.fn()
+                    .mockResolvedValueOnce(parentPerson)
+                    .mockResolvedValueOnce(personToDelete),
                 findAsync: jestGlobal.fn().mockResolvedValue(mockCursor)
             });
             mockRemoveHelper.deleteManyAsync = jestGlobal.fn().mockResolvedValue(1);
@@ -1255,12 +1251,20 @@ describe('AdminPersonPatientLinkManager', () => {
             expect(result.deletedCount).toBe(1);
             expect(result.linksRemoved).toBeDefined();
             expect(result.linksRemoved.length).toBe(1);
+            expect(result.linksRemoved[0].message).toContain('Removed link from Person/parent-1');
+            expect(mockAdminResourceWriter.writeAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resourceType: 'Person',
+                    smartMerge: false,
+                    resource: expect.objectContaining({ id: 'parent-1', link: [] })
+                })
+            );
         });
 
         test('strips Person/ prefix from personId', async () => {
             const mockCursor = {
                 hasNext: jestGlobal.fn().mockResolvedValue(false),
-                nextObject: jestGlobal.fn()
+                next: jestGlobal.fn()
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
                 fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null),
@@ -1284,7 +1288,7 @@ describe('AdminPersonPatientLinkManager', () => {
             };
             const mockCursor = {
                 hasNext: jestGlobal.fn().mockResolvedValue(false),
-                nextObject: jestGlobal.fn()
+                next: jestGlobal.fn()
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
                 fastFindOneAsync: jestGlobal.fn().mockResolvedValue(personToDelete),

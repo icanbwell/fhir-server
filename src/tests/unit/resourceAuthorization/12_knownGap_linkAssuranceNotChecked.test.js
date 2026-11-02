@@ -42,7 +42,7 @@ function makeFakeCursor (docs) {
     let index = 0;
     return {
         hasNext: async () => index < docs.length,
-        nextObject: async () => docs[index++]
+        next: async () => docs[index++]
     };
 }
 

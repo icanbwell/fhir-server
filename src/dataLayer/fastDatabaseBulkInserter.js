@@ -183,7 +183,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
         operation,
         patches,
         contextData = null,
-        writePrecondition = null
+        writePrecondition = null,
+        smartMerge = true
     }) {
         assertIsValid(requestId, 'requestId is null');
         assertIsValid(resourceType, `resourceType: ${resourceType} is null`);
@@ -222,7 +223,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 operation,
                 patches,
                 contextData,
-                writePrecondition
+                writePrecondition,
+                smartMerge
             })
         );
     }
@@ -300,7 +302,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
         patches,
         isAccessLogOperation = false,
         contextData = null,
-        writePrecondition = null
+        writePrecondition = null,
+        smartMerge = true
     }) {
         try {
             if (!isAccessLogOperation) {
@@ -328,7 +331,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 isCreateOperation: operationType === 'insert' || operationType === 'insertUniqueId',
                 isUpdateOperation: operationType === 'replace' || operationType === 'merge',
                 contextData,
-                writePrecondition
+                writePrecondition,
+                smartMerge
             });
         } catch (e) {
             throw new RethrownError({
@@ -606,7 +610,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
         doc,
         upsert = false,
         patches,
-        contextData = null
+        contextData = null,
+        smartMerge = true
     }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
 
@@ -720,7 +725,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
                             }
                         },
                         patches,
-                        contextData
+                        contextData,
+                        smartMerge
                     });
                 }
             }

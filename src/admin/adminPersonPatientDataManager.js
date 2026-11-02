@@ -2,18 +2,16 @@ const { assertTypeEquals } = require('../utils/assertType');
 const { EverythingOperation } = require('../operations/everything/everything');
 const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
-const { DatabaseUpdateFactory } = require('../dataLayer/databaseUpdateFactory');
-const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const Person = require('../fhir/classes/4_0_0/resources/person');
-const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
+const { AdminResourceWriter } = require('./adminResourceWriter');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { RethrownError } = require('../utils/rethrownError');
 const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
-const { DatabaseUpdateManager } = require('../dataLayer/databaseUpdateManager');
 const { DatabaseQueryManager } = require('../dataLayer/databaseQueryManager');
-const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
+const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
+const { FhirResourceSerializer } = require('../fhir/fhirResourceSerializer');
+const BundleSerializer = require('../fhir/serializers/4_0_0/resources/bundle');
+const { buildBundleEntry } = require('../utils/bundleEntryBuilder');
 
 const base_version = VERSIONS['4_0_0'];
 
@@ -24,17 +22,15 @@ class AdminPersonPatientDataManager {
      * @param {EverythingOperation} everythingOperation
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {R4ArgsParser} r4ArgsParser
-     * @param {DatabaseUpdateFactory} databaseUpdateFactory
-     * @param {PostSaveProcessor} postSaveProcessor
+     * @param {AdminResourceWriter} adminResourceWriter
      */
     constructor (
         {
             fhirOperationsManager,
             everythingOperation,
             databaseQueryFactory,
-            databaseUpdateFactory,
-            r4ArgsParser,
-            postSaveProcessor
+            adminResourceWriter,
+            r4ArgsParser
         }
     ) {
         /**
@@ -55,22 +51,16 @@ class AdminPersonPatientDataManager {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
 
         /**
-         * @type {DatabaseUpdateFactory}
+         * @type {AdminResourceWriter}
          */
-        this.databaseUpdateFactory = databaseUpdateFactory;
-        assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
+        this.adminResourceWriter = adminResourceWriter;
+        assertTypeEquals(adminResourceWriter, AdminResourceWriter);
 
         /**
          * @type {R4ArgsParser}
          */
         this.r4ArgsParser = r4ArgsParser;
         assertTypeEquals(r4ArgsParser, R4ArgsParser);
-
-        /**
-         * @type {PostSaveProcessor}
-         */
-        this.postSaveProcessor = postSaveProcessor;
-        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -111,7 +101,7 @@ class AdminPersonPatientDataManager {
                 bundleEntries.forEach(e => bundle.entry.push(e));
             }
             bundle.entry?.forEach(bundleEntry => responseStreamer?.writeBundleEntryAsync({ bundleEntry }));
-            return bundle;
+            return responseStreamer ? bundle : FhirResourceSerializer.serialize(bundle, BundleSerializer);
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in deletePatientDataGraphAsync(): ', error: e
@@ -137,13 +127,6 @@ class AdminPersonPatientDataManager {
                 base_version
             });
             /**
-             * @type {DatabaseUpdateManager}
-             */
-            const databaseUpdateManagerForPerson = this.databaseUpdateFactory.createDatabaseUpdateManager({
-                resourceType: 'Person',
-                base_version
-            });
-            /**
              * @type {BundleEntry[]}
              */
             let updatedRecords = [];
@@ -155,7 +138,6 @@ class AdminPersonPatientDataManager {
                         bundle,
                         resourceType: 'Patient',
                         databaseQueryManagerForPerson,
-                        databaseUpdateManagerForPerson,
                         responseStreamer
                     })
             );
@@ -166,7 +148,6 @@ class AdminPersonPatientDataManager {
                     bundle,
                     resourceType: 'Person',
                     databaseQueryManagerForPerson,
-                    databaseUpdateManagerForPerson,
                     responseStreamer
                 })
             );
@@ -216,7 +197,7 @@ class AdminPersonPatientDataManager {
                 bundleEntries.forEach(e => bundle.entry.push(e));
             }
             bundle.entry?.forEach(bundleEntry => responseStreamer?.writeBundleEntryAsync({ bundleEntry }));
-            return bundle;
+            return responseStreamer ? bundle : FhirResourceSerializer.serialize(bundle, BundleSerializer);
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in deletePersonDataGraphAsync(): ' + `person id:${personId}, `, error: e
@@ -231,7 +212,6 @@ class AdminPersonPatientDataManager {
      * @param {Bundle} bundle
      * @param {string} resourceType
      * @param {DatabaseQueryManager} databaseQueryManagerForPerson
-     * @param {DatabaseUpdateManager} databaseUpdateManagerForPerson
      * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<BundleEntry[]>}
      */
@@ -242,13 +222,10 @@ class AdminPersonPatientDataManager {
             bundle,
             resourceType,
             databaseQueryManagerForPerson,
-            databaseUpdateManagerForPerson,
             responseStreamer
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
-        assertTypeEquals(bundle, Bundle);
-        assertTypeEquals(databaseUpdateManagerForPerson, DatabaseUpdateManager);
         assertTypeEquals(databaseQueryManagerForPerson, DatabaseQueryManager);
         const requestId = requestInfo.requestId;
         if (!bundle.entry) {
@@ -283,33 +260,32 @@ class AdminPersonPatientDataManager {
                     personRecordWithLinkToDeletedResourceId of personRecordsWithLinkToDeletedResourceId
                 ) {
                     /**
-                     * @type {Person}
+                     * @type {Object}
                      */
-                    const person = new Person(personRecordWithLinkToDeletedResourceId);
+                    const person = FhirResourceWriteSerializer.serializeByResourceType({
+                        obj: personRecordWithLinkToDeletedResourceId,
+                        resourceType: 'Person'
+                    });
                     person.link = person.link.filter(l => !deletedResourceIdsWithResourceType.includes(l.target._uuid));
-                    await databaseUpdateManagerForPerson.replaceOneAsync({
-                        base_version,
+                    await this.adminResourceWriter.writeAsync({
                         requestInfo,
-                        doc: person,
+                        base_version,
+                        resourceType: 'Person',
+                        resource: person,
                         smartMerge: false
                     });
-                    const bundleEntry = new BundleEntry(
-                        {
-                            id: person.id,
-                            resource: new Person(
-                                {
-                                    id: person.id
-                                }
-                            ),
-                            request: new BundleRequest(
-                                {
-                                    id: requestId,
-                                    method: 'PATCH',
-                                    url: `/${base_version}/Person/${person.id}`
-                                }
-                            )
+                    const bundleEntry = buildBundleEntry({
+                        id: person.id,
+                        resource: {
+                            resourceType: 'Person',
+                            id: person.id
+                        },
+                        request: {
+                            id: requestId,
+                            method: 'PATCH',
+                            url: `/${base_version}/Person/${person.id}`
                         }
-                    );
+                    });
                     if (responseStreamer) {
                         await responseStreamer.writeBundleEntryAsync({
                             bundleEntry
@@ -319,13 +295,6 @@ class AdminPersonPatientDataManager {
                             bundleEntry
                         );
                     }
-
-                    await this.postSaveProcessor.afterSaveAsync({
-                        requestId,
-                        eventType: 'U',
-                        resourceType: 'Person',
-                        doc: person
-                    });
                 }
             }
             return updatedRecords;

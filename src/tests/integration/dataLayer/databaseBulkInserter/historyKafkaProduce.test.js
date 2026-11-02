@@ -102,17 +102,36 @@ describe('History Kafka produce (parallel to MongoDB history)', () => {
         expect(r.consentHistory).toStrictEqual(1);
     });
 
-    test('DatabaseUpdateManager.postSaveAsync (admin link/unlink writer) also produces', async () => {
-        process.env.RESOURCE_HISTORY_KAFKA_RESOURCES = 'Observation';
+    test('AdminResourceWriter (admin link/unlink writer) also produces', async () => {
+        process.env.RESOURCE_HISTORY_KAFKA_RESOURCES = 'Person';
         const container = createTestContainer();
         const sendSpy = jest.spyOn(MockKafkaClientV2.prototype, 'sendCloudEventMessageAsync');
         const requestInfo = getTestRequestInfo({ requestId: '5678' });
-        const manager = container.databaseUpdateFactory.createDatabaseUpdateManager({ resourceType: 'Observation', base_version });
-        const doc = new Observation(observation);
-        doc._uuid = doc._uuid || 'synthetic-uuid-1';
-        doc._sourceAssigningAuthority = doc._sourceAssigningAuthority || 'synthetic';
-        await manager.postSaveAsync({ requestInfo, doc });
+        const person = {
+            resourceType: 'Person',
+            id: 'synthetic-person-1',
+            _uuid: '3d1f9c4e-6b1a-5f6e-9a55-5a2f1c1d7b01',
+            _sourceId: 'synthetic-person-1',
+            _sourceAssigningAuthority: 'synthetic',
+            meta: {
+                versionId: '1',
+                source: 'http://example.com/source',
+                security: [
+                    { system: 'https://www.icanbwell.com/access', code: 'synthetic' },
+                    { system: 'https://www.icanbwell.com/owner', code: 'synthetic' },
+                    { system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'synthetic' }
+                ]
+            },
+            link: [{ target: { reference: 'Patient/synthetic-patient-1' } }]
+        };
+        await container.adminResourceWriter.writeAsync({
+            requestInfo,
+            base_version,
+            resourceType: 'Person',
+            resource: person
+        });
+        await container.postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
         expect(sendSpy).toHaveBeenCalledTimes(1);
-        expect(sendSpy.mock.calls[0][0].messages[0].key).toBe(`Observation:${doc._uuid}`);
+        expect(sendSpy.mock.calls[0][0].messages[0].key).toBe(`Person:${person._uuid}`);
     });
 });

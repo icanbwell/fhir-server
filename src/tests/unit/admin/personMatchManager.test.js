@@ -77,7 +77,7 @@ describe('PersonMatchManager', () => {
             const targetIdx = { current: 0 };
             const mockSourceCursor = {
                 hasNext: jestGlobal.fn(() => Promise.resolve(sourceIdx.current < sourceResults.length)),
-                nextObject: jestGlobal.fn(() => {
+                next: jestGlobal.fn(() => {
                     const result = sourceResults[sourceIdx.current];
                     sourceIdx.current++;
                     return Promise.resolve(result);
@@ -85,7 +85,7 @@ describe('PersonMatchManager', () => {
             };
             const mockTargetCursor = {
                 hasNext: jestGlobal.fn(() => Promise.resolve(targetIdx.current < targetResults.length)),
-                nextObject: jestGlobal.fn(() => {
+                next: jestGlobal.fn(() => {
                     const result = targetResults[targetIdx.current];
                     targetIdx.current++;
                     return Promise.resolve(result);
@@ -112,7 +112,7 @@ describe('PersonMatchManager', () => {
             const targetIdx = { current: 0 };
             const mockSourceCursor = {
                 hasNext: jestGlobal.fn(() => Promise.resolve(sourceIdx.current < sourceResults.length)),
-                nextObject: jestGlobal.fn(() => {
+                next: jestGlobal.fn(() => {
                     const result = sourceResults[sourceIdx.current];
                     sourceIdx.current++;
                     return Promise.resolve(result);
@@ -120,7 +120,7 @@ describe('PersonMatchManager', () => {
             };
             const mockTargetCursor = {
                 hasNext: jestGlobal.fn(() => Promise.resolve(targetIdx.current < targetResults.length)),
-                nextObject: jestGlobal.fn(() => {
+                next: jestGlobal.fn(() => {
                     const result = targetResults[targetIdx.current];
                     targetIdx.current++;
                     return Promise.resolve(result);
@@ -166,9 +166,9 @@ describe('PersonMatchManager', () => {
 
         test('returns not-found when target not found', async () => {
             const sourceResource = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1' })
+                id: 'src-1'
             };
             setupDbMock({ sourceResults: [sourceResource], targetResults: [] });
 
@@ -184,14 +184,14 @@ describe('PersonMatchManager', () => {
 
         test('strips resourceType prefix from sourceId', async () => {
             const sourceResource = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1' })
+                id: 'src-1'
             };
             const targetResource = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid',
-                id: 'tgt-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1' })
+                id: 'tgt-1'
             };
 
             setupDbMockWithSeparateCursors({
@@ -214,16 +214,16 @@ describe('PersonMatchManager', () => {
 
         test('converts Date birthDate to string format', async () => {
             const sourceResource = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid',
                 id: 'src-1',
-                birthDate: new Date('1990-05-15'),
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1', birthDate: '1990-05-15' })
+                birthDate: new Date('1990-05-15')
             };
             const targetResource = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid',
                 id: 'tgt-1',
-                birthDate: new Date('1985-03-20'),
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1', birthDate: '1985-03-20' })
+                birthDate: new Date('1985-03-20')
             };
 
             setupDbMockWithSeparateCursors({
@@ -247,19 +247,19 @@ describe('PersonMatchManager', () => {
 
         test('returns error for multiple source resources', async () => {
             const sourceResource1 = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid-1',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1' })
+                id: 'src-1'
             };
             const sourceResource2 = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid-2',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1' })
+                id: 'src-1'
             };
             const targetResource = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid',
-                id: 'tgt-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1' })
+                id: 'tgt-1'
             };
 
             setupDbMockWithSeparateCursors({
@@ -279,19 +279,19 @@ describe('PersonMatchManager', () => {
 
         test('returns error for multiple target resources', async () => {
             const sourceResource = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1' })
+                id: 'src-1'
             };
             const targetResource1 = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid-1',
-                id: 'tgt-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1' })
+                id: 'tgt-1'
             };
             const targetResource2 = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid-2',
-                id: 'tgt-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1' })
+                id: 'tgt-1'
             };
 
             setupDbMockWithSeparateCursors({
@@ -312,14 +312,14 @@ describe('PersonMatchManager', () => {
 
         test('returns match result without includeMatchRequest', async () => {
             const sourceResource = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1' })
+                id: 'src-1'
             };
             const targetResource = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid',
-                id: 'tgt-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1' })
+                id: 'tgt-1'
             };
 
             setupDbMockWithSeparateCursors({
@@ -343,14 +343,14 @@ describe('PersonMatchManager', () => {
 
         test('returns match with includeMatchRequest', async () => {
             const sourceResource = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1' })
+                id: 'src-1'
             };
             const targetResource = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid',
-                id: 'tgt-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1' })
+                id: 'tgt-1'
             };
 
             setupDbMockWithSeparateCursors({
@@ -378,14 +378,14 @@ describe('PersonMatchManager', () => {
 
         test('adds audit entries when requestId is present', async () => {
             const sourceResource = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1' })
+                id: 'src-1'
             };
             const targetResource = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid',
-                id: 'tgt-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1' })
+                id: 'tgt-1'
             };
 
             setupDbMockWithSeparateCursors({
@@ -412,14 +412,14 @@ describe('PersonMatchManager', () => {
 
         test('does not add audit entries when requestInfo is absent', async () => {
             const sourceResource = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1' })
+                id: 'src-1'
             };
             const targetResource = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid',
-                id: 'tgt-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1' })
+                id: 'tgt-1'
             };
 
             setupDbMockWithSeparateCursors({
@@ -442,14 +442,14 @@ describe('PersonMatchManager', () => {
 
         test('returns timeout OperationOutcome on request timeout', async () => {
             const sourceResource = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1' })
+                id: 'src-1'
             };
             const targetResource = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid',
-                id: 'tgt-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1' })
+                id: 'tgt-1'
             };
 
             setupDbMockWithSeparateCursors({
@@ -494,14 +494,14 @@ describe('PersonMatchManager', () => {
 
         test('throws non-timeout errors', async () => {
             const sourceResource = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1' })
+                id: 'src-1'
             };
             const targetResource = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid',
-                id: 'tgt-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1' })
+                id: 'tgt-1'
             };
 
             setupDbMockWithSeparateCursors({
@@ -530,14 +530,14 @@ describe('PersonMatchManager', () => {
 
         test('uses Person query manager when sourceType is Person', async () => {
             const sourceResource = {
+                resourceType: 'Person',
                 _uuid: 'src-uuid',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Person', id: 'src-1' })
+                id: 'src-1'
             };
             const targetResource = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid',
-                id: 'tgt-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1' })
+                id: 'tgt-1'
             };
 
             setupDbMockWithSeparateCursors({
@@ -561,14 +561,14 @@ describe('PersonMatchManager', () => {
 
         test('defaults sourceType and targetType to Patient', async () => {
             const sourceResource = {
+                resourceType: 'Patient',
                 _uuid: 'src-uuid',
-                id: 'src-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'src-1' })
+                id: 'src-1'
             };
             const targetResource = {
+                resourceType: 'Patient',
                 _uuid: 'tgt-uuid',
-                id: 'tgt-1',
-                toJSON: () => ({ resourceType: 'Patient', id: 'tgt-1' })
+                id: 'tgt-1'
             };
 
             setupDbMockWithSeparateCursors({
@@ -788,7 +788,7 @@ describe('PersonMatchManager', () => {
         test('returns not-found when resource does not exist', async () => {
             const mockCursor = {
                 hasNext: jestGlobal.fn().mockResolvedValue(false),
-                nextObject: jestGlobal.fn()
+                next: jestGlobal.fn()
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
                 findAsync: jestGlobal.fn().mockResolvedValue(mockCursor)
@@ -810,7 +810,7 @@ describe('PersonMatchManager', () => {
             ];
             const mockCursor = {
                 hasNext: jestGlobal.fn(() => Promise.resolve(idx.current < resources.length)),
-                nextObject: jestGlobal.fn(() => {
+                next: jestGlobal.fn(() => {
                     const r = resources[idx.current];
                     idx.current++;
                     return Promise.resolve(r);
@@ -832,7 +832,7 @@ describe('PersonMatchManager', () => {
         test('strips resourceType prefix from id', async () => {
             const mockCursor = {
                 hasNext: jestGlobal.fn().mockResolvedValue(false),
-                nextObject: jestGlobal.fn()
+                next: jestGlobal.fn()
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
                 findAsync: jestGlobal.fn().mockResolvedValue(mockCursor)
@@ -859,7 +859,7 @@ describe('PersonMatchManager', () => {
             const idx = { current: 0 };
             const mockCursor = {
                 hasNext: jestGlobal.fn(() => Promise.resolve(idx.current < 1)),
-                nextObject: jestGlobal.fn(() => {
+                next: jestGlobal.fn(() => {
                     idx.current++;
                     return Promise.resolve(resource);
                 })
@@ -899,7 +899,7 @@ describe('PersonMatchManager', () => {
             const idx = { current: 0 };
             const mockCursor = {
                 hasNext: jestGlobal.fn(() => Promise.resolve(idx.current < 1)),
-                nextObject: jestGlobal.fn(() => {
+                next: jestGlobal.fn(() => {
                     idx.current++;
                     return Promise.resolve(resource);
                 })
@@ -933,7 +933,7 @@ describe('PersonMatchManager', () => {
             const idx = { current: 0 };
             const mockCursor = {
                 hasNext: jestGlobal.fn(() => Promise.resolve(idx.current < 1)),
-                nextObject: jestGlobal.fn(() => {
+                next: jestGlobal.fn(() => {
                     idx.current++;
                     return Promise.resolve(resource);
                 })
@@ -962,7 +962,7 @@ describe('PersonMatchManager', () => {
             const idx = { current: 0 };
             const mockCursor = {
                 hasNext: jestGlobal.fn(() => Promise.resolve(idx.current < 1)),
-                nextObject: jestGlobal.fn(() => { idx.current++; return Promise.resolve(resource); })
+                next: jestGlobal.fn(() => { idx.current++; return Promise.resolve(resource); })
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
                 findAsync: jestGlobal.fn().mockResolvedValue(mockCursor)
@@ -995,7 +995,7 @@ describe('PersonMatchManager', () => {
             const idx = { current: 0 };
             const mockCursor = {
                 hasNext: jestGlobal.fn(() => Promise.resolve(idx.current < 1)),
-                nextObject: jestGlobal.fn(() => { idx.current++; return Promise.resolve(resource); })
+                next: jestGlobal.fn(() => { idx.current++; return Promise.resolve(resource); })
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
                 findAsync: jestGlobal.fn().mockResolvedValue(mockCursor)
@@ -1020,7 +1020,7 @@ describe('PersonMatchManager', () => {
             const idx = { current: 0 };
             const mockCursor = {
                 hasNext: jestGlobal.fn(() => Promise.resolve(idx.current < 1)),
-                nextObject: jestGlobal.fn(() => { idx.current++; return Promise.resolve(resource); })
+                next: jestGlobal.fn(() => { idx.current++; return Promise.resolve(resource); })
             };
             mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
                 findAsync: jestGlobal.fn().mockResolvedValue(mockCursor)

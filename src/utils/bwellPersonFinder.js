@@ -292,7 +292,7 @@ class BwellPersonFinder {
         // to a master. Stopping at the first match would silently skip every sibling branch's
         // intermediate Persons, which is exactly what this accumulator exists to capture.
         while ((path ? true : !foundPersonId) && (await linkedPersons.hasNext())) {
-            const nextPerson = await linkedPersons.nextObject();
+            const nextPerson = await linkedPersons.next();
             const nextPersonId = nextPerson._uuid;
             if (path) {
                 path.push(nextPersonId);

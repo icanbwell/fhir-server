@@ -14,6 +14,7 @@ const { SearchManager } = require('../search/searchManager');
 const deepcopy = require('deepcopy');
 const { READ } = require('../../constants').OPERATIONS;
 const { PATH, VALIDATION_STAGE, recordValidationFailure } = require('../../utils/metrics');
+const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 
 class ValidateOperation {
     /**
@@ -169,7 +170,7 @@ class ValidateOperation {
                 const cursor = await databaseQueryManager.findAsync({ query });
                 let operationOutcome = null;
                 while (await cursor.hasNext()) {
-                    resource_incoming = (await cursor.nextObject()).toJSON();
+                    resource_incoming = FhirResourceWriteNormalizeSerializer.serialize({ obj: await cursor.next() });
                     const operationOutcomeForResource = await this.validateResourceAsync(
                         {
                             base_version,

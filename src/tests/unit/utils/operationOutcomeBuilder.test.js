@@ -1,8 +1,10 @@
 const { describe, test, expect } = require('@jest/globals');
 const {
     buildOperationOutcome,
-    buildOperationOutcomeFromIssues
+    buildOperationOutcomeFromIssues,
+    buildOperationOutcomeIssue
 } = require('../../../utils/operationOutcomeBuilder');
+const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
 
 describe('buildOperationOutcome', () => {
@@ -103,4 +105,29 @@ describe('buildOperationOutcome', () => {
             expect(JSON.stringify(result)).toStrictEqual(JSON.stringify(new OperationOutcome({ issue: issues })));
         }
     );
+
+    test('buildOperationOutcomeIssue serializes the same as the legacy OperationOutcomeIssue class', () => {
+        const issue = {
+            severity: 'error',
+            code: 'exception',
+            details: { text: 'boom' },
+            diagnostics: 'boom',
+            expression: ['Patient/1']
+        };
+
+        const result = buildOperationOutcomeIssue({ ...issue });
+
+        expect(JSON.stringify(result)).toStrictEqual(JSON.stringify(new OperationOutcomeIssue({ ...issue })));
+    });
+
+    test('buildOperationOutcomeIssue drops fields that are not part of an OperationOutcome issue', () => {
+        const result = buildOperationOutcomeIssue({
+            severity: 'error',
+            code: 'exception',
+            details: { text: 'boom', notAFhirField: 'x' },
+            notAFhirField: 'x'
+        });
+
+        expect(result).toStrictEqual({ severity: 'error', code: 'exception', details: { text: 'boom' } });
+    });
 });

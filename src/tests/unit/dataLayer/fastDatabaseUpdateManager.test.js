@@ -360,6 +360,38 @@ describe('FastDatabaseUpdateManager', () => {
             expect(mocks.databaseQueryManager.fastFindOneAsync).toHaveBeenCalledTimes(2);
         });
 
+        test.each([[true], [false]])(
+            'passes smartMerge=%s to the re-merge after a concurrent update',
+            async (smartMerge) => {
+                const doc = createMockDoc({ _uuid: 'u1', versionId: '1' });
+                const existingDoc = createMockDoc({ _uuid: 'u1', versionId: '1' });
+                const mergedDoc = createMockDoc({ _uuid: 'u1', versionId: '2' });
+                const updatedExisting = createMockDoc({ _uuid: 'u1', versionId: '2' });
+                const reMergedDoc = createMockDoc({ _uuid: 'u1', versionId: '3' });
+                const requestInfo = createMockFhirRequestInfo();
+
+                mocks.databaseQueryManager.fastFindOneAsync
+                    .mockResolvedValueOnce(existingDoc)
+                    .mockResolvedValueOnce(updatedExisting);
+                mocks.resourceMerger.fastMergeResourceAsync
+                    .mockResolvedValueOnce({ updatedResource: mergedDoc, patches: [] })
+                    .mockResolvedValueOnce({ updatedResource: reMergedDoc, patches: [] });
+                mocks.base64DataManager.resolveWriteForExternalizedDataChange
+                    .mockResolvedValueOnce(mergedDoc)
+                    .mockResolvedValueOnce(reMergedDoc);
+                mocks.collection.replaceOne
+                    .mockResolvedValueOnce({ matchedCount: 0 })
+                    .mockResolvedValueOnce({ matchedCount: 1 });
+
+                await manager.replaceOneAsync({ base_version: '4_0_0', requestInfo, doc, smartMerge });
+
+                expect(mocks.resourceMerger.fastMergeResourceAsync).toHaveBeenCalledTimes(2);
+                expect(mocks.resourceMerger.fastMergeResourceAsync.mock.calls[1][0]).toEqual(
+                    expect.objectContaining({ smartMerge })
+                );
+            }
+        );
+
         test('throws error after exhausting retries', async () => {
             const setup = createManager({ replaceRetries: 2 });
             const doc = createMockDoc({ _uuid: 'u1', versionId: '1' });

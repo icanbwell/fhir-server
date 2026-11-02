@@ -448,7 +448,7 @@ class PersonToPatientIdsExpander {
         let patientIds = [];
         let personIdsToRecurse = [];
         while (await personResourceCursor.hasNext()) {
-            const person = await personResourceCursor.nextObject();
+            const person = await personResourceCursor.next();
             let personId = person._uuid;
             patientIds.push(`${personProxyPrefix}${personId}`);
             // at first call only, returnOriginalPersonId can be true so that we return the id map for passed personIds not their uuids

@@ -7,7 +7,10 @@ const buildOperationOutcomeFromIssues = (issues, id) =>
 
 const buildOperationOutcome = (...issues) => buildOperationOutcomeFromIssues(issues);
 
+const buildOperationOutcomeIssue = (issue) => buildOperationOutcomeFromIssues([issue]).issue[0];
+
 module.exports = {
     buildOperationOutcome,
-    buildOperationOutcomeFromIssues
+    buildOperationOutcomeFromIssues,
+    buildOperationOutcomeIssue
 };
