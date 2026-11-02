@@ -224,6 +224,19 @@ const kafkaRetryExhaustedCounter = meter.createCounter('fhir_kafka_retry_exhaust
     description: 'Kafka producer retry-loop exhaustion. Increments only when the retry loop runs out without success.'
 });
 
+const historyKafkaProducedCounter = meter.createCounter('fhir_history_kafka_produced_total', {
+    description: 'History events successfully produced to Kafka, by resource_type.'
+});
+
+const historyKafkaFailedCounter = meter.createCounter('fhir_history_kafka_produce_failed_total', {
+    description: 'History events that could not be produced to Kafka after retries, by resource_type. The MongoDB history write is unaffected.'
+});
+
+const historyKafkaProduceDurationHistogram = meter.createHistogram('fhir_history_kafka_produce_duration_seconds', {
+    description: 'Wall-clock duration of one history Kafka produce call (including retries), by resource_type.',
+    unit: 's'
+});
+
 const importOperationsTriggeredCounter = meter.createCounter('fhir_import_operations_triggered_total', {
     description: 'Bulk $import operations triggered — one per TaskCreated event the orchestrator begins processing (Task found, before S3 validation).'
 });
@@ -411,6 +424,19 @@ function recordKafkaRetryExhausted (topic, errorCode) {
 }
 
 /**
+ * Emit history Kafka produce metrics for one produce call (a chunk of messages).
+ * @param {string} resourceType
+ * @param {number} count messages in the call
+ * @param {boolean} success
+ * @param {number} durationSeconds
+ */
+function recordHistoryKafkaProduce (resourceType, count, success, durationSeconds) {
+    const labels = { [LABEL.RESOURCE_TYPE]: resourceType || UNKNOWN };
+    (success ? historyKafkaProducedCounter : historyKafkaFailedCounter).add(count, labels);
+    historyKafkaProduceDurationHistogram.record(durationSeconds, labels);
+}
+
+/**
  * Emit fhir_import_operations_triggered_total once per TaskCreated event the
  * orchestrator begins processing.
  */
@@ -534,6 +560,9 @@ module.exports = {
     bundleSizeHistogram,
     everythingEmptyCounter,
     kafkaRetryExhaustedCounter,
+    historyKafkaProducedCounter,
+    historyKafkaFailedCounter,
+    historyKafkaProduceDurationHistogram,
     importOperationsTriggeredCounter,
     importResourcesProcessedCounter,
     importResourcesFailedCounter,
@@ -551,6 +580,7 @@ module.exports = {
     recordInboundBundleSize,
     recordOutboundEverything,
     recordKafkaRetryExhausted,
+    recordHistoryKafkaProduce,
     recordImportOperationTriggered,
     recordImportResourceOutcomes,
     recordImportRangeDuration,

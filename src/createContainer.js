@@ -162,6 +162,7 @@ const { DelegatedAccessScopeManager } = require('./operations/security/delegated
 const { MongoBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
 const { KafkaClickPipeBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
+const { HistoryKafkaProducer } = require('./dataLayer/historyKafkaProducer');
 const { WRITE_STRATEGIES, KAFKA_TOPICS } = require('./constants/clickHouseConstants');
 const { ClickHouseSchemaRegistry } = require('./dataLayer/clickHouse/schemaRegistry');
 const { GenericClickHouseQueryParser } = require('./dataLayer/clickHouse/genericClickHouseQueryParser');
@@ -478,7 +479,8 @@ const createContainer = function () {
             preSaveManager: c.preSaveManager,
             databaseQueryFactory: c.databaseQueryFactory,
             configManager: c.configManager,
-            base64DataManager: c.base64DataManager
+            base64DataManager: c.base64DataManager,
+            historyKafkaProducer: c.historyKafkaProducer
         }));
 
     container.register('resourceManager', (c) => new ResourceManager(
@@ -665,9 +667,15 @@ const createContainer = function () {
             schemaRegistry: c.clickHouseSchemaRegistry,
             fallbackExecutor: c.mongoBulkWriteExecutor,
             batchSize: c.configManager.auditEventClickPipeBatchSize,
-            compression: getKafkaCompressionType(c.configManager.auditEventClickPipeCompression)
+            compression: getKafkaCompressionType(c.configManager.kafkaProducerCompression),
+            produceTimeoutMs: c.configManager.kafkaProducerTimeoutMs
         });
     });
+
+    container.register('historyKafkaProducer', (c) => new HistoryKafkaProducer({
+        configManager: c.configManager,
+        kafkaClientV2: c.kafkaClientV2
+    }));
 
     container.register('mongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
         resourceLocatorFactory: c.resourceLocatorFactory,
@@ -704,7 +712,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                bulkWriteExecutors: [c.kafkaClickPipeBulkWriteExecutor, c.clickHouseBulkWriteExecutor, c.mongoBulkWriteExecutor].filter(Boolean)
+                bulkWriteExecutors: [c.kafkaClickPipeBulkWriteExecutor, c.clickHouseBulkWriteExecutor, c.mongoBulkWriteExecutor].filter(Boolean),
+                historyKafkaProducer: c.historyKafkaProducer
             }
         )
     );
@@ -723,6 +732,7 @@ const createContainer = function () {
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
                 bulkWriteExecutors: [c.kafkaClickPipeBulkWriteExecutor, c.clickHouseBulkWriteExecutor, c.fastMongoBulkWriteExecutor].filter(Boolean),
+                historyKafkaProducer: c.historyKafkaProducer,
                 customTracer: c.customTracer
             }
         )
