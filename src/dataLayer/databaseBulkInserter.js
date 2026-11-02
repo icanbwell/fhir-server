@@ -959,16 +959,17 @@ class DatabaseBulkInserter extends EventEmitter {
         // Kafka outage loses no history. The producer never throws.
         const mongoHistoryDisabled = useHistoryCollection === true && !!this.historyKafkaProducer &&
             this.historyKafkaProducer.isMongoWriteDisabledFor(resourceType);
+        let operationsToWrite = operations;
         if (mongoHistoryDisabled) {
-            operations = await this.historyKafkaProducer.produceWithMongoFallbackAsync({
+            operationsToWrite = await this.historyKafkaProducer.produceWithMongoFallbackAsync({
                 resourceType, operations, requestId: requestInfo.requestId
             });
-            if (operations.length === 0) {
+            if (operationsToWrite.length === 0) {
                 return { resourceType, mergeResult: undefined, error: null, mergeResultEntries: [] };
             }
         }
         const result = await executor.executeBulkAsync({
-            resourceType, operations, requestInfo, base_version,
+            resourceType, operations: operationsToWrite, requestInfo, base_version,
             useHistoryCollection, maintainOrder, isAccessLogOperation,
             insertOneHistoryFn: this.insertOneHistoryAsync.bind(this)
         });
