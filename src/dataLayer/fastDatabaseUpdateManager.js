@@ -280,7 +280,8 @@ class FastDatabaseUpdateManager {
                             base_version,
                             requestInfo,
                             currentResource: resourceInDatabase,
-                            resourceToMerge: doc
+                            resourceToMerge: doc,
+                            smartMerge
                         }));
                         updatedResource = await this.base64DataManager.resolveWriteForExternalizedDataChange(
                             updatedResource, resourceInDatabase, requestInfo, this._forceBase64Write

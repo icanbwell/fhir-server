@@ -130,7 +130,7 @@ describe('Resource Authorization §6a — PROA/IAS data-sharing consent', () => 
 
         const patientCursor = {
             hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false),
-            nextObject: jest.fn().mockResolvedValue({
+            next: jest.fn().mockResolvedValue({
                 id: PATIENT_UUID,
                 _sourceId: PATIENT_UUID,
                 _uuid: PATIENT_UUID,
@@ -261,7 +261,7 @@ describe('Resource Authorization §6a — PROA/IAS data-sharing consent', () => 
                     return {
                         findAsync: jest.fn().mockResolvedValue({
                             hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false),
-                            nextObject: jest.fn().mockResolvedValue({
+                            next: jest.fn().mockResolvedValue({
                                 id: PATIENT_UUID,
                                 _sourceId: PATIENT_UUID,
                                 _uuid: PATIENT_UUID,

@@ -13,6 +13,7 @@ const {
     getHeadersWithCustomToken
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { setTimeout: sleep } = require('node:timers/promises');
 
 describe('Patient reference tests', () => {
     beforeEach(async () => {
@@ -166,6 +167,38 @@ describe('Patient reference tests', () => {
                 .expect(200);
 
             expect(resp).toHaveResponse(expectedEncounterAfterUpdate);
+        });
+
+        test('Reference update using admin bumps meta.lastUpdated and keeps each version\'s own timestamp in history', async () => {
+            const request = await createTestRequest();
+
+            await request
+                .post('/4_0_0/Encounter/$merge')
+                .send(encounter1Resource)
+                .set(getHeaders())
+                .expect(200);
+
+            const before = await request.get('/4_0_0/Encounter/1').set(getHeaders()).expect(200);
+            await sleep(20);
+
+            await request
+                .post('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15')
+                .send({
+                    patientId: '2',
+                    resourceType: 'Encounter',
+                    resourceId: 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'
+                })
+                .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
+                .expect(200);
+
+            const after = await request.get('/4_0_0/Encounter/1').set(getHeaders()).expect(200);
+            expect(after.body.meta.versionId).toBe('2');
+            expect(Date.parse(after.body.meta.lastUpdated)).toBeGreaterThan(Date.parse(before.body.meta.lastUpdated));
+
+            const version1 = await request.get('/4_0_0/Encounter/1/_history/1').set(getHeaders()).expect(200);
+            const version2 = await request.get('/4_0_0/Encounter/1/_history/2').set(getHeaders()).expect(200);
+            expect(version1.body.meta.lastUpdated).toBe(before.body.meta.lastUpdated);
+            expect(version2.body.meta.lastUpdated).toBe(after.body.meta.lastUpdated);
         });
 
         test('Reference update with same reference doesn\'t work', async () => {

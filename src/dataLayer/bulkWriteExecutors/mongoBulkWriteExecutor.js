@@ -9,11 +9,10 @@ const {
     logTraceSystemEventAsync
 } = require('../../operations/common/systemEventLogging');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { RethrownError } = require('../../utils/rethrownError');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { MergeResultEntry } = require('../../operations/common/mergeResultEntry');
+const { buildOperationOutcomeIssue } = require('../../utils/operationOutcomeBuilder');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../../constants');
 const { MongoInvalidArgumentError } = require('mongodb');
@@ -308,10 +307,10 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                                 created: false,
                                 updated: false,
                                 resourceType,
-                                issue: new OperationOutcomeIssue({
+                                issue: buildOperationOutcomeIssue({
                                     severity: 'error',
                                     code: 'exception',
-                                    details: new CodeableConcept({ text: bulkWriteResultError.message }),
+                                    details: { text: bulkWriteResultError.message },
                                     diagnostics
                                 })
                             });
@@ -546,10 +545,10 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
             const bulkWriteErrorsMsg = bulkWriteErrors.map(error => error.toJSON());
             const diagnostics = JSON.stringify(bulkWriteErrorsMsg, getCircularReplacer());
             const bulkWriteResultError = new Error(diagnostics);
-            mergeResultEntry.issue = new OperationOutcomeIssue({
+            mergeResultEntry.issue = buildOperationOutcomeIssue({
                 severity: 'error',
                 code: 'exception',
-                details: new CodeableConcept({ text: bulkWriteResultError.message }),
+                details: { text: bulkWriteResultError.message },
                 diagnostics,
                 expression: [
                     resourceType + '/' + bulkInsertUpdateEntry.uuid
@@ -652,6 +651,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                     base_version,
                     requestInfo,
                     doc: bulkInsertUpdateEntry.resource,
+                    smartMerge: bulkInsertUpdateEntry.smartMerge,
                     ifMatchVersionIds: bulkInsertUpdateEntry.writePrecondition?.ifMatchVersionIds
                 }
             );

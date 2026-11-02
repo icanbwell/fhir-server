@@ -6,6 +6,7 @@ const { buildOperationOutcome } = require('../utils/operationOutcomeBuilder');
 const { logInfo } = require('../operations/common/logging');
 const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
 const { isUuid, generateUUID } = require('../utils/uid.util');
+const { FhirResourceWriteNormalizeSerializer } = require('../fhir/fhirResourceWriteNormalizeSerializer');
 const { OAuthClientCredentialsHelper } = require('../utils/oauthClientCredentialsHelper');
 const { AuditLogger } = require('../utils/auditLogger');
 const { PostRequestProcessor } = require('../utils/postRequestProcessor');
@@ -136,11 +137,11 @@ class PersonMatchManager {
         const source = [];
         const target = [];
         while (await sourceCursor.hasNext()) {
-            const sourceResource = await sourceCursor.nextObject();
+            const sourceResource = await sourceCursor.next();
             source.push(sourceResource);
         }
         while (await targetCursor.hasNext()) {
-            const targetResource = await targetCursor.nextObject();
+            const targetResource = await targetCursor.next();
             target.push(targetResource);
         }
 
@@ -181,16 +182,19 @@ class PersonMatchManager {
             target[0].birthDate = target[0].birthDate.toISOString().split('T')[0];
         }
 
+        const sourceUuid = source[0]._uuid;
+        const targetUuid = target[0]._uuid;
+
         const parameters = {
             resourceType: 'Parameters',
             parameter: [
                 {
                     name: 'resource',
-                    resource: source[0].toJSON()
+                    resource: FhirResourceWriteNormalizeSerializer.serialize({ obj: source[0] })
                 },
                 {
                     name: 'match',
-                    resource: target[0].toJSON()
+                    resource: FhirResourceWriteNormalizeSerializer.serialize({ obj: target[0] })
                 }
             ]
         };
@@ -204,8 +208,6 @@ class PersonMatchManager {
             Accept: 'application/json',
             Authorization: `Bearer ${accessToken}`
         };
-        const sourceUuid = source[0]._uuid;
-        const targetUuid = target[0]._uuid;
         const requestId = requestInfo ? requestInfo.requestId : undefined;
         try {
             /**
@@ -332,7 +334,7 @@ class PersonMatchManager {
 
         const resources = [];
         while (await cursor.hasNext()) {
-            const resource = await cursor.nextObject();
+            const resource = await cursor.next();
             resources.push(resource);
         }
 

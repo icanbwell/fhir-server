@@ -79,14 +79,14 @@ function collectRequestedIds (node, into) {
 
 /**
  * Builds a fake async cursor over a plain array, matching the subset of the real cursor's shape
- * (`hasNext`/`nextObject`) that `getPatientIdsFromPersonAsync` actually uses.
+ * (`hasNext`/`next`) that `getPatientIdsFromPersonAsync` actually uses.
  * @param {object[]} docs
  */
 function makeFakeCursor (docs) {
     let index = 0;
     return {
         hasNext: async () => index < docs.length,
-        nextObject: async () => docs[index++]
+        next: async () => docs[index++]
     };
 }
 

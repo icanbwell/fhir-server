@@ -14,8 +14,6 @@ const { ResourceLocatorFactory } = require('../operations/common/resourceLocator
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { RethrownError } = require('../utils/rethrownError');
 const { Base64DataManager } = require('./base64DataManager');
-const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const { logInfo } = require('../operations/common/logging');
 const { PreconditionFailedError } = require('../utils/httpErrors');
@@ -378,53 +376,6 @@ class DatabaseUpdateManager {
         original_source: currentResource?.meta?.source,
         incrementVersion: true
     });
-
-    /**
-     * Inserts a history collection for a resource
-     * @param {FhirRequestInfo} requestInfo
-     * @param {Resource} doc
-     * @return {Promise<void>}
-     */
-    async postSaveAsync ({
-        requestInfo,
-        doc
-    }) {
-        assertTypeEquals(requestInfo, FhirRequestInfo);
-        assertTypeEquals(doc, Resource);
-        const requestId = requestInfo.requestId;
-        const method = requestInfo.method;
-        const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
-        doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
-        const historyCollectionName = this.resourceLocator.getHistoryCollectionNameForResource(doc);
-        const historyCollection = await this.resourceLocator.getCollectionByNameAsync(historyCollectionName);
-        const historyDocument = new BundleEntry({
-            id: doc.id,
-            resource: doc.toJSONInternal(),
-            request: new BundleRequest(
-                {
-                    id: requestId,
-                    method,
-                    url: `${this._base_version}/${doc.resourceType}/${doc._uuid}`
-                }
-            )
-        }).toJSONInternal();
-        // same ms-precision stamp the bulk inserters set, so every history row carries `_recorded`
-        historyDocument._recorded = new Date();
-        await historyCollection.insertOne(historyDocument);
-        // Same parallel produce the bulk inserters do, so the Kafka stream has no gaps for writers
-        // (admin Person/Patient link/unlink) that bypass them. Never throws.
-        if (this.historyKafkaProducer) {
-            await this.historyKafkaProducer.produceAsync({
-                resourceType: doc.resourceType,
-                operations: [{
-                    uuid: doc._uuid,
-                    resourceType: doc.resourceType,
-                    operation: { insertOne: { document: historyDocument } }
-                }],
-                requestId
-            });
-        }
-    }
 }
 
 module.exports = {

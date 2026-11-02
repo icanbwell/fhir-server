@@ -680,6 +680,34 @@ describe('MergeManager', () => {
     });
 
     describe('performMergeDbUpdateAsync (DCON-5385)', () => {
+        test.each([[true], [false]])('forwards smartMerge=%s to mergeOneAsync', async (smartMerge) => {
+            const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
+            const { assertTypeEquals } = require('../../../../utils/assertType');
+            assertTypeEquals.mockImplementation(() => {});
+
+            const resourceToMerge = {
+                id: 'p1', _uuid: 'uuid-p1', resourceType: 'Person',
+                meta: { versionId: '2', lastUpdated: new Date().toISOString() }
+            };
+            const requestInfo = Object.create(FhirRequestInfo.prototype);
+            requestInfo.requestId = 'req-1';
+            requestInfo.path = '/Person';
+
+            await mergeManager.performMergeDbUpdateAsync({
+                base_version: '4_0_0',
+                requestInfo,
+                resourceToMerge,
+                previousVersionId: '1',
+                patches: [],
+                smartMerge,
+                currentMembers: undefined
+            });
+
+            expect(mockDatabaseBulkInserter.mergeOneAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ smartMerge })
+            );
+        });
+
         test('does not embed the full resource (including Binary.data) into the rethrown error, only its uuid', async () => {
             const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
             const { assertTypeEquals } = require('../../../../utils/assertType');

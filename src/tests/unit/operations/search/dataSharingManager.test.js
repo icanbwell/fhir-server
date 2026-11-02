@@ -150,7 +150,7 @@ describe('DataSharingManager', () => {
 
             const mockCursor = {
                 hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false),
-                nextObject: jest.fn().mockResolvedValue({
+                next: jest.fn().mockResolvedValue({
                     id: 'patient-1',
                     _sourceId: 'patient-1',
                     _uuid: 'patient-uuid-1',
@@ -194,7 +194,7 @@ describe('DataSharingManager', () => {
             // Reset the cursor for second call's getPatientIDToConnectionTypeMap
             const mockCursor2 = {
                 hasNext: jest.fn().mockResolvedValue(false),
-                nextObject: jest.fn()
+                next: jest.fn()
             };
             mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue(mockCursor2)
@@ -244,7 +244,7 @@ describe('DataSharingManager', () => {
 
             const mockCursor = {
                 hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false),
-                nextObject: jest.fn().mockResolvedValue({
+                next: jest.fn().mockResolvedValue({
                     id: 'patient-1',
                     _sourceId: 'patient-1',
                     _uuid: patientUuid,
@@ -284,10 +284,10 @@ describe('DataSharingManager', () => {
 
             // Call 2 with securityTags = ['client-B'] but same requestId: must NOT reuse
             // call 1's cache entry - bwellPersonFinder must be called again.
-            // Fresh cursor mock since call 1's one-shot hasNext/nextObject values are spent.
+            // Fresh cursor mock since call 1's one-shot hasNext/next values are spent.
             const mockCursor2 = {
                 hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false),
-                nextObject: jest.fn().mockResolvedValue({
+                next: jest.fn().mockResolvedValue({
                     id: 'patient-1',
                     _sourceId: 'patient-1',
                     _uuid: patientUuid,
@@ -325,7 +325,7 @@ describe('DataSharingManager', () => {
                 modifiers: []
             }];
 
-            const mockCursor = { hasNext: jest.fn().mockResolvedValue(false), nextObject: jest.fn() };
+            const mockCursor = { hasNext: jest.fn().mockResolvedValue(false), next: jest.fn() };
             mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue(mockCursor)
             });
@@ -514,7 +514,7 @@ describe('DataSharingManager', () => {
                     .mockResolvedValueOnce(true)
                     .mockResolvedValueOnce(true)
                     .mockResolvedValueOnce(false),
-                nextObject: jest.fn()
+                next: jest.fn()
                     .mockResolvedValueOnce({ id: 'patient-1', _sourceId: 'patient-1', _uuid: 'uuid-1', meta: { security: [] } })
                     .mockResolvedValueOnce({ id: 'patient-1-dup', _sourceId: 'patient-1', _uuid: 'uuid-2', meta: { security: [] } })
             };

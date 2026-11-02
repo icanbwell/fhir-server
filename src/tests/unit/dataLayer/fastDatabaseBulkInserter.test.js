@@ -163,6 +163,18 @@ describe('FastDatabaseBulkInserter', () => {
             expect(ops[0].operation.replaceOne.filter.$and).toBeDefined();
         });
 
+        test.each([
+            [undefined, true],
+            [true, true],
+            [false, false]
+        ])('records smartMerge=%s on the queued entry as %s', async (smartMerge, expectedSmartMerge) => {
+            const requestInfo = createMockFhirRequestInfo();
+            const doc = { resourceType: 'Patient', id: 'ps', _uuid: 'us', _sourceAssigningAuthority: 'a', meta: { versionId: '2' } };
+            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', previousVersionId: '1', doc, patches: null, smartMerge });
+            const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
+            expect(ops[0].smartMerge).toBe(expectedSmartMerge);
+        });
+
         test('uses simple _uuid filter when previousVersionId is 0', async () => {
             const requestInfo = createMockFhirRequestInfo();
             const doc = { resourceType: 'Patient', id: 'pz', _uuid: 'uz', _sourceAssigningAuthority: 'a', meta: { versionId: '1' } };

@@ -690,7 +690,8 @@ class MergeManager {
                     doc: resourceToMerge,
                     previousVersionId,
                     patches,
-                    contextData
+                    contextData,
+                    smartMerge
                 }
             );
         } catch (e) {

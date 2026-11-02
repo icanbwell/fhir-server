@@ -25,7 +25,7 @@ function createCursor (docs) {
     let index = 0;
     return {
         hasNext: jestGlobal.fn(async () => index < docs.length),
-        nextObject: jestGlobal.fn(async () => docs[index++])
+        next: jestGlobal.fn(async () => docs[index++])
     };
 }
 
