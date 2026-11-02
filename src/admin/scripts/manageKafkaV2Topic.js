@@ -14,7 +14,7 @@
  *   KAFKA_V2_AUTH_TYPE       'iam' for MSK IAM, plus KAFKA_V2_AWS_REGION
  *
  * Usage:
- *   node src/admin/scripts/manage_kafka_v2_topic.js --topic <name> [--describe | --delete | --update]
+ *   node src/admin/scripts/manageKafkaV2Topic.js --topic <name> [--describe | --delete | --update]
  *
  * All topics are namespaced under the `fhir_server.` prefix. You may pass the
  * short name (`auditevents`) or the fully-qualified name
@@ -39,11 +39,11 @@
  *   --max-message-bytes max.message.bytes when creating/updating (default: 2mb)
  *
  * Examples:
- *   node src/admin/scripts/manage_kafka_v2_topic.js --topic auditevents            # fhir_server.auditevents
- *   node src/admin/scripts/manage_kafka_v2_topic.js --topic auditevents --describe
- *   node src/admin/scripts/manage_kafka_v2_topic.js --topic auditevents --delete
- *   node src/admin/scripts/manage_kafka_v2_topic.js --topic auditevents --update --max-message-bytes 4194304
- *   node src/admin/scripts/manage_kafka_v2_topic.js --topic bulk_import.events --grow --partitions 30
+ *   node src/admin/scripts/manageKafkaV2Topic.js --topic auditevents            # fhir_server.auditevents
+ *   node src/admin/scripts/manageKafkaV2Topic.js --topic auditevents --describe
+ *   node src/admin/scripts/manageKafkaV2Topic.js --topic auditevents --delete
+ *   node src/admin/scripts/manageKafkaV2Topic.js --topic auditevents --update --max-message-bytes 4194304
+ *   node src/admin/scripts/manageKafkaV2Topic.js --topic bulk_import.events --grow --partitions 30
  */
 
 const { parseArgs } = require('node:util');
@@ -55,7 +55,7 @@ const { logInfo, logError, logWarn } = require('../../operations/common/logging'
 
 // Prefix every log line so this script's output is easy to grep out of the
 // shared server logs (mirrors the reference's logger.child({ script })).
-const LOG_PREFIX = '[manage_kafka_v2_topic]';
+const LOG_PREFIX = '[manageKafkaV2Topic]';
 const log = {
     info: (message, args) => logInfo(`${LOG_PREFIX} ${message}`, args),
     warn: (message, args) => logWarn(`${LOG_PREFIX} ${message}`, args),
@@ -388,7 +388,7 @@ async function main() {
 
     if (!values.topic) {
         log.error('--topic is required', {
-            usage: 'node src/admin/scripts/manage_kafka_v2_topic.js --topic <name> [--describe | --delete | --update | --grow] [--partitions N] [--max-message-bytes N]'
+            usage: 'node src/admin/scripts/manageKafkaV2Topic.js --topic <name> [--describe | --delete | --update | --grow] [--partitions N] [--max-message-bytes N]'
         });
         process.exit(1);
     }
@@ -407,7 +407,7 @@ async function main() {
 
     if (values.grow && values.partitions === undefined) {
         log.error('--grow requires an explicit --partitions target', {
-            usage: 'node src/admin/scripts/manage_kafka_v2_topic.js --topic <name> --grow --partitions N'
+            usage: 'node src/admin/scripts/manageKafkaV2Topic.js --topic <name> --grow --partitions N'
         });
         process.exit(1);
     }
@@ -432,7 +432,7 @@ async function main() {
     }
 }
 
-// Only auto-run when invoked directly (node src/admin/scripts/manage_kafka_v2_topic.js),
+// Only auto-run when invoked directly (node src/admin/scripts/manageKafkaV2Topic.js),
 // not when imported by tests.
 if (require.main === module) {
     main()
