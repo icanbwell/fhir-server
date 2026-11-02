@@ -80,9 +80,12 @@ class HistoryKafkaProducer {
      * @param {string} params.resourceType
      * @param {import('./bulkInsertUpdateEntry').BulkInsertUpdateEntry[]} params.operations history insertOne operations
      * @param {string} params.requestId
+     * @param {boolean} [params.stopOnBrokerFailure=false] after a broker-level failure (retries used up or timed
+     * out), skip the remaining chunks and return them as failed, so a caller that falls back to MongoDB does not
+     * wait for every chunk to time out in turn
      * @returns {Promise<import('./bulkInsertUpdateEntry').BulkInsertUpdateEntry[]>} the operations that did NOT reach Kafka
      */
-    async produceAsync ({ resourceType, operations, requestId }) {
+    async produceAsync ({ resourceType, operations, requestId, stopOnBrokerFailure = false }) {
         /** @type {import('./bulkInsertUpdateEntry').BulkInsertUpdateEntry[]} */
         const failedOperations = [];
         try {
@@ -93,7 +96,7 @@ class HistoryKafkaProducer {
             const batchSize = this.configManager.resourceHistoryKafkaBatchSize;
             const compression = getKafkaCompressionType(this.configManager.kafkaProducerCompression);
             for (let i = 0; i < operations.length; i += batchSize) {
-                await this._produceChunkAsync({
+                const brokerFailed = await this._produceChunkAsync({
                     resourceType,
                     operations: operations.slice(i, i + batchSize),
                     requestId,
@@ -101,6 +104,17 @@ class HistoryKafkaProducer {
                     compression,
                     failedOperations
                 });
+                if (brokerFailed && stopOnBrokerFailure) {
+                    const skipped = operations.slice(i + batchSize);
+                    if (skipped.length > 0) {
+                        failedOperations.push(...skipped);
+                        metrics.recordHistoryKafkaProduce(resourceType, skipped.length, false, 0);
+                        logWarn('HistoryKafkaProducer: skipping remaining chunks after a broker failure', {
+                            resourceType, count: skipped.length, requestId
+                        });
+                    }
+                    break;
+                }
             }
             return failedOperations;
         } catch (err) {
@@ -122,7 +136,7 @@ class HistoryKafkaProducer {
      * @returns {Promise<import('./bulkInsertUpdateEntry').BulkInsertUpdateEntry[]>} the operations to write to MongoDB
      */
     async produceWithMongoFallbackAsync ({ resourceType, operations, requestId }) {
-        const fallbackOperations = await this.produceAsync({ resourceType, operations, requestId });
+        const fallbackOperations = await this.produceAsync({ resourceType, operations, requestId, stopOnBrokerFailure: true });
         if (fallbackOperations.length > 0) {
             metrics.recordHistoryMongoFallback(resourceType, fallbackOperations.length, FALLBACK_REASON_PRODUCE_FAILED);
             logWarn('HistoryKafkaProducer: writing history to MongoDB because the Kafka produce failed', {
@@ -134,7 +148,8 @@ class HistoryKafkaProducer {
 
     /**
      * @param {Object} params
-     * @returns {Promise<void>}
+     * @returns {Promise<boolean>} true when the chunk failed for a reason other than its own contents
+     * (broker unavailable, retries used up, timeout), so the remaining chunks would likely fail too
      * @private
      */
     async _produceChunkAsync ({ resourceType, operations, requestId, topic, compression, failedOperations }) {
@@ -145,7 +160,7 @@ class HistoryKafkaProducer {
         } catch (err) {
             this._recordFailure({ resourceType, count: operations.length, requestId, topic, err, start });
             failedOperations.push(...operations);
-            return;
+            return false;
         }
         try {
             await retryWithBackoff({
@@ -162,16 +177,19 @@ class HistoryKafkaProducer {
             });
             metrics.recordHistoryKafkaProduce(resourceType, messages.length, true, secondsSince(start));
             logDebug('HistoryKafkaProducer: produced', { resourceType, count: messages.length, topic, requestId });
+            return false;
         } catch (err) {
             if (isChunkSpecificError(err) && operations.length > 1) {
                 // Isolate the bad record so the rest of the chunk still reaches the stream.
+                let brokerFailed = false;
                 for (const op of operations) {
-                    await this._produceChunkAsync({ resourceType, operations: [op], requestId, topic, compression, failedOperations });
+                    brokerFailed = await this._produceChunkAsync({ resourceType, operations: [op], requestId, topic, compression, failedOperations }) || brokerFailed;
                 }
-                return;
+                return brokerFailed;
             }
             this._recordFailure({ resourceType, count: messages.length, requestId, topic, err, start });
             failedOperations.push(...operations);
+            return !isChunkSpecificError(err);
         }
     }
 

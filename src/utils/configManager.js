@@ -1408,7 +1408,8 @@ class ConfigManager {
      * Resource types whose MongoDB history write is replaced by the Kafka produce. Only takes effect
      * for types also listed in RESOURCE_HISTORY_KAFKA_RESOURCES. A history document whose produce
      * fails is still written to MongoDB. Enable a type only once its history reads are served
-     * from ClickHouse. Empty (default) keeps writing MongoDB history.
+     * from ClickHouse and the ClickHouse history table's TTL (13 months by default) matches the required
+     * history retention; MongoDB history has no expiry. Empty (default) keeps writing MongoDB history.
      * Configuration: RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES=Observation,Condition
      * @return {string[]}
      */

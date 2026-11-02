@@ -299,6 +299,31 @@ describe('HistoryKafkaProducer', () => {
             expect(fallbackSpy).toHaveBeenCalledWith('Observation', 1, 'produce_failed');
         });
 
+        test('after a broker failure the remaining chunks fall back without being sent', async () => {
+            setEnv({ RESOURCE_HISTORY_KAFKA_BATCH_SIZE: '1' });
+            kafkaClientV2.sendCloudEventMessageAsync.mockRejectedValue(new Error('broker unavailable'));
+            const operations = ['u1', 'u2', 'u3'].map((u) => historyOperation('Observation', u));
+            const fallback = await producer.produceWithMongoFallbackAsync({ resourceType: 'Observation', operations, requestId: 'r1' });
+            expect(fallback).toEqual(operations);
+            expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(3); // first chunk only: 1 + maxRetries
+            expect(fallbackSpy).toHaveBeenCalledWith('Observation', 3, 'produce_failed');
+        });
+
+        test('a rejected bad record does not stop the remaining chunks', async () => {
+            setEnv({ RESOURCE_HISTORY_KAFKA_BATCH_SIZE: '1' });
+            kafkaClientV2.sendCloudEventMessageAsync.mockImplementation(async ({ messages }) => {
+                if (messages[0].key.endsWith(':bad')) {
+                    throw Object.assign(new Error('too large'), { type: 'MESSAGE_TOO_LARGE' });
+                }
+            });
+            const bad = historyOperation('Observation', 'bad');
+            const fallback = await producer.produceWithMongoFallbackAsync({
+                resourceType: 'Observation', operations: [bad, historyOperation('Observation', 'good')], requestId: 'r1'
+            });
+            expect(fallback).toEqual([bad]);
+            expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(2);
+        });
+
         test('a document that cannot be serialised falls back', async () => {
             const broken = { uuid: 'u1', resourceType: 'Observation', operation: { insertOne: { document: null } } };
             const fallback = await producer.produceWithMongoFallbackAsync({ resourceType: 'Observation', operations: [broken], requestId: 'r1' });

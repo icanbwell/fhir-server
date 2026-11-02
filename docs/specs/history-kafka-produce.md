@@ -46,7 +46,12 @@ the history flush produces first and writes to MongoDB only the documents Kafka 
 write. Each fallback is logged (resource type, count, reason; no ids or payloads) and counted in
 `fhir_history_mongo_fallback_total{resource_type,reason}`. Other types, and a type in only the produce
 list, keep the parallel write above. Enable a type only after its `_history` reads are served from
-ClickHouse. Replaying fallback documents to Kafka and deleting migrated MongoDB history are separate work.
+ClickHouse: no ClickHouse `_history`/vread read path exists in this repo yet (the read path still queries
+only MongoDB), so listing a type before one ships hides its new versions from those reads. Retention
+also changes: MongoDB history has no expiry, while `fhir.Resource_4_0_0_History` deletes rows after
+13 months (`TTL`, `clickhouse-init/08-resource-history.sql`); align the table's TTL with the required
+history retention before listing a type. After a broker-level failure (retries used up or timeout) the
+remaining chunks of that flush are not sent and fall back to MongoDB straight away. Replaying fallback documents to Kafka and deleting migrated MongoDB history are separate work.
 
 ## Event
 
