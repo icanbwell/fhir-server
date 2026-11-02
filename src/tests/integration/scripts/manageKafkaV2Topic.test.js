@@ -20,7 +20,7 @@ const {
     KAFKA_PARTITION_COUNT,
     KAFKA_RETENTION_MS,
     KAFKA_MAX_MESSAGE_BYTES
-} = require('../../../scripts/manage_kafka_v2_topic');
+} = require('../../../admin/scripts/manage_kafka_v2_topic');
 
 // A stand-in ConfigManager. The script only reads it to build KafkaClientV2
 // (which is mocked) and to log brokers/authType, so a plain object suffices.

@@ -3,7 +3,7 @@
 const { describe, test, expect, afterEach, jest } = require('@jest/globals');
 
 /**
- * src/scripts/manage_kafka_v2_topic.js is well-suited to direct unit testing: it exports its
+ * src/admin/scripts/manage_kafka_v2_topic.js is well-suited to direct unit testing: it exports its
  * pure helpers (parseIntArg, applyTopicPrefix) and its three admin operations
  * (createKafkaTopic/describeKafkaTopic/deleteKafkaTopic) directly, and guards its CLI entry point
  * behind `if (require.main === module)` so requiring it in Jest never auto-runs main().
@@ -14,7 +14,7 @@ const { describe, test, expect, afterEach, jest } = require('@jest/globals');
  * targets.
  */
 
-const SCRIPT_PATH = '../../../scripts/manage_kafka_v2_topic';
+const SCRIPT_PATH = '../../../admin/scripts/manage_kafka_v2_topic';
 const KAFKA_CLIENT_PATH = '../../../utils/kafkaClientV2';
 const CONFIG_MANAGER_PATH = '../../../utils/configManager';
 const LOGGING_PATH = '../../../operations/common/logging';
@@ -56,7 +56,7 @@ function loadScript (fakeAdmin) {
     // (captured before Jest's own CLI args are stripped), not from a live re-read of
     // `process.argv` -- reassigning `process.argv` in a test has no effect on it. Route the real
     // parseArgs through an explicit `args: process.argv.slice(2)` so main()'s CLI-arg branching
-    // can still be driven from tests without touching src/scripts/manage_kafka_v2_topic.js itself.
+    // can still be driven from tests without touching src/admin/scripts/manage_kafka_v2_topic.js itself.
     jest.doMock('node:util', () => {
         const actualUtil = jest.requireActual('node:util');
         return {

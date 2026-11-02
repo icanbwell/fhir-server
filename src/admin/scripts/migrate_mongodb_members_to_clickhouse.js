@@ -4,7 +4,7 @@
  * Run once during deployment to migrate existing data
  *
  * Usage:
- *   node src/scripts/migrate_mongodb_members_to_clickhouse.js [options]
+ *   node src/admin/scripts/migrate_mongodb_members_to_clickhouse.js [options]
  *
  * Options:
  *   --dry-run    Show what would be migrated without making changes
@@ -12,14 +12,14 @@
  *   --limit      Limit number of Groups to migrate (for testing)
  *
  * Example:
- *   node src/scripts/migrate_mongodb_members_to_clickhouse.js --dry-run
- *   node src/scripts/migrate_mongodb_members_to_clickhouse.js --limit 10
- *   node src/scripts/migrate_mongodb_members_to_clickhouse.js
+ *   node src/admin/scripts/migrate_mongodb_members_to_clickhouse.js --dry-run
+ *   node src/admin/scripts/migrate_mongodb_members_to_clickhouse.js --limit 10
+ *   node src/admin/scripts/migrate_mongodb_members_to_clickhouse.js
  */
 
 const { MongoClient } = require('mongodb');
-const { ClickHouseClientManager } = require('../utils/clickHouseClientManager');
-const { ConfigManager } = require('../utils/configManager');
+const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
+const { ConfigManager } = require('../../utils/configManager');
 
 /**
  * Extract entity type from FHIR reference
