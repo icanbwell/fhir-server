@@ -9,6 +9,7 @@ const { WRITE_STRATEGIES } = require('../../constants/clickHouseConstants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { retryWithBackoff } = require('../../utils/retryWithBackoff');
 const { CompressionTypes } = require('kafkajs');
+const { withProduceTimeoutAsync } = require('../../utils/kafkaProduceTimeout');
 
 // Broker rejections caused by the chunk's own contents. Resending the same chunk
 // cannot succeed, and the next chunk may be fine, so these fall back per chunk.
@@ -67,6 +68,8 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
      * @param {number} [params.initialRetryDelayMs=2000] - Initial delay in ms (doubles each retry)
      * @param {number} [params.batchSize=50] - Maximum messages per Kafka produce call
      * @param {number} [params.compression=CompressionTypes.None] - kafkajs CompressionTypes value
+     * @param {number|null} [params.produceTimeoutMs=null] - Per-attempt produce timeout; none when unset. A timed-out
+     *   attempt is not retried (it may still deliver) and is treated as Kafka being unavailable.
      */
     constructor ({
         kafkaClientV2,
@@ -75,7 +78,8 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
         maxRetries = 3,
         initialRetryDelayMs = 2000,
         batchSize = 50,
-        compression = CompressionTypes.None
+        compression = CompressionTypes.None,
+        produceTimeoutMs = null
     }) {
         super();
         this.kafkaClientV2 = kafkaClientV2;
@@ -93,6 +97,7 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
         this.batchSize = batchSize;
         assertIsValid(Number.isInteger(batchSize) && batchSize > 0, 'batchSize must be a positive integer');
         this.compression = compression;
+        this.produceTimeoutMs = produceTimeoutMs;
     }
 
     /**
@@ -207,15 +212,16 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
 
         try {
             await retryWithBackoff({
-                fn: () => this.kafkaClientV2.sendCloudEventMessageAsync({
+                fn: () => withProduceTimeoutAsync(this.kafkaClientV2.sendCloudEventMessageAsync({
                     topic: schema.kafkaTopic,
                     messages,
                     compression: this.compression
-                }),
+                }), this.produceTimeoutMs),
                 maxRetries: this.maxRetries,
                 initialDelayMs: this.initialRetryDelayMs,
-                // Resending the same chunk cannot fix a chunk-specific error.
-                shouldRetry: (err) => !isChunkSpecificError(err),
+                // Resending the same chunk cannot fix a chunk-specific error, and a timed-out send may still
+                // deliver, so it is not resent either.
+                shouldRetry: (err) => !isChunkSpecificError(err) && !err.isProduceTimeout,
                 onRetry: ({ attempt, delay }) => {
                     logWarn('KafkaClickPipeBulkWriteExecutor: retrying produce', {
                         attempt,

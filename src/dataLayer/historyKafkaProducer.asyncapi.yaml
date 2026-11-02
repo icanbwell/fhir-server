@@ -1,0 +1,113 @@
+asyncapi: 3.0.0
+info:
+  title: Resource History Events
+  version: '1.0.0'
+  description: >-
+    One event per resource history record, produced by the FHIR server beside the MongoDB history write
+    for the resource types listed in RESOURCE_HISTORY_KAFKA_RESOURCES. CloudEvents 1.0 in Kafka binary mode
+    (ce_-prefixed headers); the message value is the history document.
+operations:
+  FhirResourceHistory:
+    channel:
+      $ref: '#/channels/ResourceHistoryChannel'
+    action: send
+channels:
+  ResourceHistoryChannel:
+    address: fhir_server.resource-history.events
+    summary: History records for the configured resource types (topic name set by RESOURCE_HISTORY_KAFKA_TOPIC)
+    bindings:
+      kafka:
+        topic: fhir_server.resource-history.events
+    messages:
+      FhirResourceHistory:
+        $ref: '#/components/messages/FhirResourceHistory'
+        bindings:
+          kafka:
+            key:
+              type: string
+              description: '<resourceType>:<_uuid>, for example Observation:<_uuid>.'
+components:
+  messages:
+    FhirResourceHistory:
+      description: >-
+        A history record for one version of a resource. Delivery is at-least-once; consumers dedupe on ce_id.
+        Producing is best effort: a record that cannot be produced stays in the MongoDB history only.
+      headers:
+        type: object
+        properties:
+          ce_specversion:
+            type: string
+            const: '1.0'
+          ce_id:
+            type: string
+            format: uuid
+            description: uuid5 of resourceType|_uuid|meta.versionId|_recorded (epoch ms). Stable across retries.
+          ce_type:
+            type: string
+            const: FhirResourceHistory
+          ce_source:
+            type: string
+            const: /fhir-server
+            description: URI of the event source.
+          ce_time:
+            type: string
+            format: date-time
+            description: The record's _recorded timestamp.
+          content-type:
+            type: string
+            const: application/json
+            description: Content type of the event payload.
+          traceparent:
+            type: string
+            pattern: ^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$
+            description: W3C Trace Context traceparent header. Set by OpenTelemetry instrumentation; consumers MUST continue the trace.
+          tracestate:
+            type: string
+            description: W3C Trace Context tracestate header (optional).
+        required:
+          - ce_specversion
+          - ce_id
+          - ce_type
+          - ce_source
+          - ce_time
+          - content-type
+          - traceparent
+      payload:
+        $ref: '#/components/schemas/HistoryRow'
+  schemas:
+    HistoryRow:
+      type: object
+      description: >-
+        One flat row per history record; each top-level key maps to a column of the history table.
+        Contains PHI (in raw).
+      properties:
+        resource_type:
+          type: string
+          description: FHIR resource type.
+        _uuid:
+          type: string
+          description: The resource _uuid.
+        _recorded:
+          type: string
+          format: date-time
+          description: When the history record was created. Stamped once, so retries carry the same value.
+        version_id:
+          type: string
+          description: The resource meta.versionId.
+        access_tags:
+          type: array
+          items:
+            type: string
+          description: Codes of the resource's security tags in the b.well access system.
+        raw:
+          type: object
+          description: >-
+            The history BundleEntry as written (id, resource in internal JSON form, request, and response
+            when present) plus its _recorded stamp. MongoDB's internal _id is not included.
+      required:
+        - resource_type
+        - _uuid
+        - _recorded
+        - version_id
+        - access_tags
+        - raw

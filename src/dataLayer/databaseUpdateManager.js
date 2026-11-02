@@ -40,8 +40,14 @@ class DatabaseUpdateManager {
                     base_version,
                     databaseQueryFactory,
                     configManager,
-                    base64DataManager
+                    base64DataManager,
+                    historyKafkaProducer = null
                 }) {
+        /**
+         * Optional parallel history produce to Kafka (see HistoryKafkaProducer)
+         * @type {import('./historyKafkaProducer').HistoryKafkaProducer|null}
+         */
+        this.historyKafkaProducer = historyKafkaProducer;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
@@ -405,6 +411,19 @@ class DatabaseUpdateManager {
         // same ms-precision stamp the bulk inserters set, so every history row carries `_recorded`
         historyDocument._recorded = new Date();
         await historyCollection.insertOne(historyDocument);
+        // Same parallel produce the bulk inserters do, so the Kafka stream has no gaps for writers
+        // (admin Person/Patient link/unlink) that bypass them. Never throws.
+        if (this.historyKafkaProducer) {
+            await this.historyKafkaProducer.produceAsync({
+                resourceType: doc.resourceType,
+                operations: [{
+                    uuid: doc._uuid,
+                    resourceType: doc.resourceType,
+                    operation: { insertOne: { document: historyDocument } }
+                }],
+                requestId
+            });
+        }
     }
 }
 

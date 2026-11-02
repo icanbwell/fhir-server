@@ -52,7 +52,7 @@ const flushBuffer = async (fnGetContainer) => {
 async function createServer (fnGetContainer) {
     const container = fnGetContainer();
     await container.mongoDatabaseManager.connectAsync();
-    // Resolve eagerly so an invalid ClickPipe config (e.g. AUDIT_EVENT_CLICKPIPE_COMPRESSION
+    // Resolve eagerly so an invalid ClickPipe config (e.g. KAFKA_PRODUCER_COMPRESSION
     // typo) fails startup instead of the first write.
     container.kafkaClickPipeBulkWriteExecutor;
 
@@ -123,6 +123,9 @@ async function createServer (fnGetContainer) {
             await flushBuffer(fnGetContainer);
             logInfo('Disconnecting Kafka producer');
             await container.kafkaClient.disconnect();
+            // V2 producer (AuditEvent ClickPipe and history produce); a no-op when V2 Kafka is disabled
+            logInfo('Disconnecting Kafka V2 producer');
+            await container.kafkaClientV2.disconnect();
         },
         onShutdown: () => {
             logInfo('Successfully shut down server', {});

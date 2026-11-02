@@ -2,7 +2,7 @@
 /**
  * Copy AuditEvent documents from MongoDB to ClickHouse via Kafka + ClickPipes,
  * oldest first. Each Mongo batch is published in chunks of
- * AUDIT_EVENT_CLICKPIPE_BATCH_SIZE messages with AUDIT_EVENT_CLICKPIPE_COMPRESSION
+ * AUDIT_EVENT_CLICKPIPE_BATCH_SIZE messages with KAFKA_PRODUCER_COMPRESSION
  * (the same settings as the live write path), and each chunk is deleted from
  * MongoDB right after its Kafka publish succeeds.
  *
@@ -49,7 +49,7 @@ environment (see src/config.js). Ensure ENABLE_EVENTS_KAFKA_V2=1, the
 appropriate KAFKA_V2_* variables, and the MONGO_*/AUDIT_EVENT_MONGO_*
 variables are set for the target environment. Kafka publish chunk size and
 compression come from AUDIT_EVENT_CLICKPIPE_BATCH_SIZE (default 50) and
-AUDIT_EVENT_CLICKPIPE_COMPRESSION (default zstd).
+KAFKA_PRODUCER_COMPRESSION (default zstd).
 
 Options:
   --collection <name>  Source collection (default: AuditEvent_4_0_0)
@@ -308,7 +308,7 @@ async function main() {
     const options = parseArgs();
     const container = createContainer();
     const publishBatchSize = container.configManager.auditEventClickPipeBatchSize;
-    const compressionName = container.configManager.auditEventClickPipeCompression;
+    const compressionName = container.configManager.kafkaProducerCompression;
     const compression = getKafkaCompressionType(compressionName);
 
     logInfo('AuditEvent Migration: MongoDB -> Kafka/ClickPipes', {

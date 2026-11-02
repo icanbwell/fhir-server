@@ -3,7 +3,7 @@
 const { describe, test, expect, afterEach, jest } = require('@jest/globals');
 
 /**
- * src/scripts/migrate_mongodb_members_to_clickhouse.js exports nothing and self-invokes
+ * src/admin/scripts/migrateMongodbMembersToClickhouse.js exports nothing and self-invokes
  * `migrateMongoDBMembersToClickHouse().then(...).catch(...)` at require time -- there is no
  * `require.main === module` guard. To exercise its internal logic (extractEntityType,
  * convertToClickHouseDateTime, batching, dry-run gating) we mock its three infrastructure
@@ -15,7 +15,7 @@ const { describe, test, expect, afterEach, jest } = require('@jest/globals');
  * reachable.
  */
 
-const SCRIPT_PATH = '../../../scripts/migrate_mongodb_members_to_clickhouse';
+const SCRIPT_PATH = '../../../admin/scripts/migrateMongodbMembersToClickhouse';
 const MONGODB_PATH = 'mongodb';
 const CLICKHOUSE_PATH = '../../../utils/clickHouseClientManager';
 const CONFIG_MANAGER_PATH = '../../../utils/configManager';
@@ -55,7 +55,7 @@ async function flushAsync (times = 30) {
 
 async function runScript (argv, mocks) {
     jest.resetModules();
-    process.argv = ['node', 'migrate_mongodb_members_to_clickhouse.js', ...argv];
+    process.argv = ['node', 'migrateMongodbMembersToClickhouse.js', ...argv];
 
     jest.doMock(MONGODB_PATH, () => ({ MongoClient: { connect: mocks.connect } }));
     jest.doMock(CLICKHOUSE_PATH, () => ({
@@ -79,7 +79,7 @@ function buildGroup (id, members, meta = {}) {
     return { id, member: members, meta };
 }
 
-describe('scripts/migrate_mongodb_members_to_clickhouse.js', () => {
+describe('scripts/migrateMongodbMembersToClickhouse.js', () => {
     const originalArgv = process.argv;
 
     afterEach(() => {
