@@ -23,7 +23,8 @@ const EXPECTED_TABLES = [
     'Group_4_0_0_MemberCurrentByEntity',
     'AuditEvent_4_0_0',
     'AccessLog',
-    'AUDIT_ACCESS_AGG'
+    'AUDIT_ACCESS_AGG',
+    'Resource_4_0_0_History'
 ];
 
 // Materialized views must be dropped before their source tables. We list
@@ -40,7 +41,8 @@ const DROP_ORDER = [
     'fhir.Group_4_0_0_MemberEvents',
     'fhir.AuditEvent_4_0_0',
     'fhir.AccessLog',
-    'fhir.AUDIT_ACCESS_AGG'
+    'fhir.AUDIT_ACCESS_AGG',
+    'fhir.Resource_4_0_0_History'
 ];
 
 function makeRunner({
@@ -202,4 +204,92 @@ describe('applyClickHouseDDL admin runner', () => {
             expect(await clickHouseClientManager.tableExistsAsync(table)).toBe(true);
         }
     }, 60000);
+
+    describe('Resource_4_0_0_History table', () => {
+        const TABLE = 'fhir.Resource_4_0_0_History';
+
+        // Timestamps are relative to now so rows stay inside the 13-month TTL window.
+        const toClickHouseTime = (date) => date.toISOString().replace('T', ' ').replace('Z', '');
+        const daysAgo = (days) => toClickHouseTime(new Date(Date.now() - days * 24 * 3600 * 1000));
+
+        const row = (overrides = {}) => ({
+            resource_type: 'Patient',
+            _uuid: 'synthetic-uuid-1',
+            _recorded: daysAgo(2),
+            version_id: '1',
+            access_tags: ['https://example.org/tag|synthetic'],
+            raw: { resourceType: 'Patient', id: 'synthetic-1' },
+            ...overrides
+        });
+
+        beforeEach(async () => {
+            await makeRunner({
+                clickHouseClientManager,
+                mongoDatabaseManager,
+                file: path.join(DDL_DIR, '08-resource-history.sql')
+            }).processAsync();
+        });
+
+        async function selectAsync(query) {
+            return clickHouseClientManager.queryAsync({ query });
+        }
+
+        test('is created with the engine, key, partitioning and TTL from the design', async () => {
+            const rows = await selectAsync(`SHOW CREATE TABLE ${TABLE}`);
+            const ddl = Object.values(rows[0])[0];
+
+            expect(ddl).toContain('ReplacingMergeTree');
+            expect(ddl).toContain('PARTITION BY (resource_type, toYYYYMM(_recorded))');
+            expect(ddl).toContain('ORDER BY (resource_type, _uuid, _recorded, version_id)');
+            expect(ddl).toContain('TTL toDateTime(_recorded) + toIntervalMonth(13)');
+            expect(ddl).toContain('ttl_only_drop_parts = 1');
+        }, 60000);
+
+        test('FINAL collapses a duplicate row with the same key', async () => {
+            const duplicated = row();
+            await clickHouseClientManager.insertAsync({
+                table: TABLE,
+                values: [duplicated, { ...duplicated }, row({ _recorded: daysAgo(1), version_id: '2' })]
+            });
+
+            const rows = await selectAsync(
+                `SELECT version_id FROM ${TABLE} FINAL
+                 ORDER BY _recorded DESC, toUInt64OrZero(version_id) DESC`
+            );
+
+            expect(rows.map((r) => r.version_id)).toEqual(['2', '1']);
+        }, 60000);
+
+        test('accepts one insert batch spanning several resource types', async () => {
+            await clickHouseClientManager.insertAsync({
+                table: TABLE,
+                values: [
+                    row(),
+                    row({ resource_type: 'Observation', _uuid: 'synthetic-uuid-2' }),
+                    row({ resource_type: 'Condition', _uuid: 'synthetic-uuid-3' })
+                ]
+            });
+
+            const rows = await selectAsync(`SELECT count() AS c FROM ${TABLE}`);
+
+            expect(Number(rows[0].c)).toBe(3);
+        }, 60000);
+
+        test('TTL drops rows older than 13 months', async () => {
+            const old = new Date();
+            old.setUTCMonth(old.getUTCMonth() - 14);
+            await clickHouseClientManager.insertAsync({
+                table: TABLE,
+                values: [
+                    row({ _uuid: 'synthetic-old', _recorded: toClickHouseTime(old) }),
+                    row({ _uuid: 'synthetic-new', _recorded: daysAgo(0) })
+                ]
+            });
+
+            await clickHouseClientManager.queryAsync({ query: `OPTIMIZE TABLE ${TABLE} FINAL` });
+            const rows = await selectAsync(`SELECT _uuid FROM ${TABLE}`);
+
+            expect(rows.map((r) => r._uuid)).toEqual(['synthetic-new']);
+        }, 60000);
+    });
 });

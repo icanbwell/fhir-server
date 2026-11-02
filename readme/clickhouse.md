@@ -365,6 +365,27 @@ ORDER BY (group_id, entity_reference, event_time, event_id);
 - Powers "which groups is Patient X in?" queries
 - Lightweight index for fast lookups
 
+### FHIR History Table
+
+`clickhouse-init/08-resource-history.sql` creates `fhir.Resource_4_0_0_History`, one table for the
+prior versions of all resource types (current resources stay in MongoDB). It is applied by the same
+`applyClickHouseDDL.js` runner as the other tables, and is safe to re-run (`IF NOT EXISTS`).
+
+| Setting | Value |
+|---|---|
+| Engine | `ReplacingMergeTree()`: duplicates on the sort key collapse on merge; read with `FINAL` |
+| Sort key | `(resource_type, _uuid, _recorded, version_id)` |
+| Partition | `(resource_type, toYYYYMM(_recorded))` |
+| Retention | `TTL toDateTime(_recorded) + INTERVAL 13 MONTH DELETE`, `ttl_only_drop_parts = 1` |
+
+Because the sort key includes `_recorded`, two rows only dedup when all four key columns match.
+Inserts that span many resource types and months write many partitions per block; raise
+`max_partitions_per_insert_block` for the loader if it hits `too many partitions`.
+
+It has no entry in the schema registry (`docs/adr/0001-schema-registry-pattern-for-clickhouse-only-resources.md`):
+that registry drives search and write for ClickHouse-only resources, and history is not one. The
+table is loaded by ClickPipes and read by the `_history` path, not by the generic repository.
+
 ## Architecture Diagrams
 
 ### POST/PUT Flow (Create or Update Group)
