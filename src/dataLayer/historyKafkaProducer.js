@@ -19,7 +19,7 @@ const FALLBACK_REASON_PRODUCE_FAILED = 'produce_failed';
  * types listed in RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES (see produceWithMongoFallbackAsync, which
  * hands back the records that did not reach Kafka so the caller writes them to MongoDB).
  *
- * Called from the post-request history flush.
+ * Called from the history flush (a post-request task, or inline for delete).
  * Every failure is logged and counted but never thrown, so a Kafka problem cannot fail
  * a FHIR write or disturb the MongoDB history. Flags are read from ConfigManager on each
  * call, so a change to RESOURCE_HISTORY_KAFKA_RESOURCES takes effect
