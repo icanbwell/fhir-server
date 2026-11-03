@@ -29,12 +29,12 @@ const {
 const { SearchManager } = require('../../search/searchManager');
 const { ScopesManager } = require('../../security/scopesManager');
 const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory');
-const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
 const { S3MultiPartContext } = require('./s3MultiPartContext');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
+const { removeNull } = require('../../../utils/nullRemover');
 const { StorageProviderFactory } = require('../../../dataLayer/providers/storageProviderFactory');
 const { hasExternalStorageMemberTag } = require('../../../utils/clickHouseGroupPreSave');
 const { MongoGroupMemberRepository } = require('../../../dataLayer/repositories/mongoGroupMemberRepository');
@@ -604,13 +604,13 @@ class BulkDataExportRunner {
      * @returns {Promise<Object>}
      */
     async serializeExportDoc({ doc, resourceType, parsedArgs, isProjected }) {
-        let resource = FhirResourceCreator.createByResourceType(doc, resourceType);
+        let resource = removeNull(doc);
         if (!isProjected) {
             await this.enrichmentManager.enrichAsync({ resources: [resource], parsedArgs });
         }
         resource = await this.databaseAttachmentManager.transformAttachments(resource, GRIDFS.RETRIEVE);
         resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
-        return FhirResourceSerializer.serialize(resource.toJSONInternal());
+        return FhirResourceSerializer.serializeByResourceType(resource, resourceType);
     }
 
     /**

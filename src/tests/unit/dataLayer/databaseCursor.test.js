@@ -179,30 +179,6 @@ describe('DatabaseCursor', () => {
         });
     });
 
-    describe('nextObject', () => {
-        test('returns null when no document available', async () => {
-            const emptyCursor = createMockCursor([]);
-            const cursor = new DatabaseCursor({
-                base_version: '4_0_0',
-                resourceType: 'Patient',
-                cursor: emptyCursor,
-                query: {}
-            });
-
-            const result = await cursor.nextObject();
-            expect(result).toBeNull();
-        });
-
-        test('maps document through FhirResourceCreator', async () => {
-            const result = await dbCursor.nextObject();
-            expect(FhirResourceCreator.mapDocumentToResourceObject).toHaveBeenCalledWith(
-                expect.objectContaining({ id: '1' }),
-                'Patient'
-            );
-            expect(result._mapped).toBe(true);
-        });
-    });
-
     describe('cursor operations - chaining', () => {
         test('maxTimeMS sets timeout on cursor', () => {
             const result = dbCursor.maxTimeMS({ milliSecs: 5000 });

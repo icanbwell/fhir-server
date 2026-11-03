@@ -166,7 +166,7 @@ class ResourceValidator {
             }
             const targetResources = await (
                 await databaseQueryManager.findAsync({ query })
-            ).toObjectArrayAsync();
+            ).toArrayAsync();
 
             if (targetResources.length === 0) {
                 return buildOperationOutcome({

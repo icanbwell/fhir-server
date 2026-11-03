@@ -20,7 +20,7 @@ jest.mock('../../../../operations/common/logging', () => ({
 
 jest.mock('../../../../fhir/fhirResourceSerializer', () => ({
     FhirResourceSerializer: {
-        serialize: jest.fn((json) => ({ ...json, _serialized: true }))
+        serializeByResourceType: jest.fn((json) => Object.assign(json, { _serialized: true }))
     }
 }));
 
@@ -62,7 +62,7 @@ describe('ExpandOperation', () => {
         // Setup default mock implementations
         mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
         mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
-            findOneAsync: jest.fn().mockResolvedValue(null)
+            fastFindOneAsync: jest.fn().mockResolvedValue(null)
         });
         mocks.valueSetManager.getExpandedValueSetAsync = jest.fn().mockImplementation(
             (rt, bv, resource) => Promise.resolve(resource)
@@ -106,7 +106,7 @@ describe('ExpandOperation', () => {
         test('verifies scopes before proceeding', async () => {
             // Setup resource not found path
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
-                findOneAsync: jest.fn().mockRejectedValue(new Error('DB error'))
+                fastFindOneAsync: jest.fn().mockRejectedValue(new Error('DB error'))
             });
 
             const requestInfo = { user: 'testUser', scope: 'user/*.*' };
@@ -131,7 +131,7 @@ describe('ExpandOperation', () => {
 
         test('throws NotFoundError when database query throws', async () => {
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
-                findOneAsync: jest.fn().mockRejectedValue(new Error('Connection failed'))
+                fastFindOneAsync: jest.fn().mockRejectedValue(new Error('Connection failed'))
             });
 
             const requestInfo = { user: 'testUser', scope: 'user/*.*' };
@@ -148,7 +148,7 @@ describe('ExpandOperation', () => {
 
         test('throws NotFoundError when resource is null', async () => {
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
-                findOneAsync: jest.fn().mockResolvedValue(null)
+                fastFindOneAsync: jest.fn().mockResolvedValue(null)
             });
 
             const requestInfo = { user: 'testUser', scope: 'user/*.*' };
@@ -165,11 +165,10 @@ describe('ExpandOperation', () => {
             const mockResource = {
                 resourceType: 'ValueSet',
                 id: 'valueset-1',
-                meta: { security: [{ system: 'owner', code: 'someone-else' }] },
-                toJSONInternal: jest.fn().mockReturnValue({ id: 'valueset-1' })
+                meta: { security: [{ system: 'owner', code: 'someone-else' }] }
             };
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
-                findOneAsync: jest.fn().mockResolvedValue(mockResource)
+                fastFindOneAsync: jest.fn().mockResolvedValue(mockResource)
             });
             mocks.scopesManager.isAccessToResourceAllowedBySecurityTags.mockReturnValue(false);
 
@@ -182,6 +181,7 @@ describe('ExpandOperation', () => {
                 })
             ).rejects.toThrow('has no access to resource');
 
+            expect(mocks.valueSetManager.getExpandedValueSetAsync).not.toHaveBeenCalled();
             expect(mocks.fhirLoggingManager.logOperationFailureAsync).toHaveBeenCalled();
         });
 
@@ -189,15 +189,10 @@ describe('ExpandOperation', () => {
             const mockResource = {
                 resourceType: 'ValueSet',
                 id: 'valueset-1',
-                name: 'TestValueSet',
-                toJSONInternal: jest.fn().mockReturnValue({
-                    resourceType: 'ValueSet',
-                    id: 'valueset-1',
-                    name: 'TestValueSet'
-                })
+                name: 'TestValueSet'
             };
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
-                findOneAsync: jest.fn().mockResolvedValue(mockResource)
+                fastFindOneAsync: jest.fn().mockResolvedValue(mockResource)
             });
 
             const requestInfo = { user: 'testUser', scope: 'user/*.*' };
@@ -213,7 +208,7 @@ describe('ExpandOperation', () => {
             expect(mocks.enrichmentManager.enrichAsync).toHaveBeenCalled();
             expect(mocks.databaseAttachmentManager.transformAttachments).toHaveBeenCalled();
             expect(mocks.identifierEnrichmentProvider.enrichIdentifierList).toHaveBeenCalled();
-            expect(FhirResourceSerializer.serialize).toHaveBeenCalled();
+            expect(FhirResourceSerializer.serializeByResourceType).toHaveBeenCalledWith(mockResource, 'ValueSet');
             expect(mocks.fhirLoggingManager.logOperationSuccessAsync).toHaveBeenCalled();
             expect(result).toBeDefined();
             expect(result._serialized).toBe(true);
@@ -221,7 +216,7 @@ describe('ExpandOperation', () => {
 
         test('queries database with the correct id', async () => {
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
-                findOneAsync: jest.fn().mockResolvedValue(null)
+                fastFindOneAsync: jest.fn().mockResolvedValue(null)
             });
 
             const requestInfo = { user: 'testUser', scope: 'user/*.*' };
@@ -237,7 +232,7 @@ describe('ExpandOperation', () => {
                 resourceType: 'ValueSet',
                 base_version: '4_0_0'
             });
-            const findOneCall = mocks.databaseQueryFactory.createQuery.mock.results[0].value.findOneAsync;
+            const findOneCall = mocks.databaseQueryFactory.createQuery.mock.results[0].value.fastFindOneAsync;
             expect(findOneCall).toHaveBeenCalledWith({ query: { id: 'valueset-1' } });
         });
 
@@ -245,15 +240,14 @@ describe('ExpandOperation', () => {
             const originalResource = {
                 resourceType: 'ValueSet',
                 id: 'valueset-1',
-                compose: { include: [{ system: 'http://example.org' }] },
-                toJSONInternal: jest.fn().mockReturnValue({ resourceType: 'ValueSet', id: 'valueset-1' })
+                compose: { include: [{ system: 'http://example.org' }] }
             };
             const expandedResource = {
                 ...originalResource,
                 expansion: { contains: [{ code: 'A', display: 'Code A' }] }
             };
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
-                findOneAsync: jest.fn().mockResolvedValue(originalResource)
+                fastFindOneAsync: jest.fn().mockResolvedValue(originalResource)
             });
             mocks.valueSetManager.getExpandedValueSetAsync.mockResolvedValue(expandedResource);
             mocks.enrichmentManager.enrichAsync.mockResolvedValue([expandedResource]);
@@ -279,7 +273,7 @@ describe('ExpandOperation', () => {
         test('logs operation failure when DB error occurs', async () => {
             const dbError = new Error('Timeout');
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
-                findOneAsync: jest.fn().mockRejectedValue(dbError)
+                fastFindOneAsync: jest.fn().mockRejectedValue(dbError)
             });
 
             const requestInfo = { user: 'testUser', scope: 'user/*.*' };

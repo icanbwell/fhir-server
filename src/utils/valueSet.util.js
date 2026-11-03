@@ -30,7 +30,7 @@ class ValueSetManager {
         const databaseQueryManager = this.databaseQueryFactory.createQuery(
             { resourceType, base_version }
         );
-        const valueSet = await databaseQueryManager.findOneAsync({ query: { url: valueSetUrl.toString() } });
+        const valueSet = await databaseQueryManager.fastFindOneAsync({ query: { url: valueSetUrl.toString() } });
         return await this.getValueSetConceptsAsync(resourceType, base_version, valueSet);
     }
 

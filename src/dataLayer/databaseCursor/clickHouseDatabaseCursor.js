@@ -87,17 +87,6 @@ class ClickHouseDatabaseCursor {
     }
 
     /**
-     * Returns the next row as a FHIR Resource object.
-     * @returns {Promise<Resource|null>}
-     */
-    async nextObject () {
-        const row = await this.next();
-        if (!row) return null;
-        const doc = this._extractFhirDocument(row);
-        return FhirResourceCreator.mapDocumentToResourceObject(doc, this.resourceType);
-    }
-
-    /**
      * Sets a field projection. For ClickHouse results this filters
      * which fields are returned from the already-fetched rows.
      * @param {{ projection: Object }} params

@@ -23,9 +23,11 @@ module.exports.handleHealthCheckQuery = async (container) => {
         /**
          * @type {{id: string, securityTagStructure: SecurityTagStructure}|null}
          */
-        await databaseQueryManager.findOneAsync({
-            query: {}
+        const cursor = await databaseQueryManager.findAsync({
+            query: {},
+            options: { limit: 1 }
         });
+        await cursor.toArrayAsync();
     } catch (e) {
         healthy = false;
     }

@@ -55,20 +55,6 @@ describe('ClickHouseDatabaseCursor', () => {
         });
     });
 
-    describe('nextObject', () => {
-        test('returns FHIR Resource object', async () => {
-            const cursor = createCursor([{ _fhir_resource: JSON.stringify(fhirDoc1) }]);
-            const resource = await cursor.nextObject();
-            expect(resource.id).toBe('obs-1');
-            expect(resource.resourceType).toBe('Observation');
-        });
-
-        test('returns null when exhausted', async () => {
-            const cursor = createCursor([]);
-            expect(await cursor.nextObject()).toBeNull();
-        });
-    });
-
     describe('toArrayAsync', () => {
         test('returns parsed FHIR documents from string column', async () => {
             const cursor = createCursor([
